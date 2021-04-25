@@ -8,6 +8,11 @@ interface IConfig {
 interface IGoogleConfig {
     apiKey:string
 }
+interface ISentence {
+    text: string,
+    userName: string,
+    userId: number
+}
 
 /** OBS */
 interface IObsConfig {

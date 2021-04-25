@@ -8,8 +8,6 @@
         </style>
     </head>
     <body>
-        <p>TEST</p>
-        <audio controls id="audioControl" type="audio/ogg"></audio>
         <script>
             const mainController = new MainController();
             mainController.init();

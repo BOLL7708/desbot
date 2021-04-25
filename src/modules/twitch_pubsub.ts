@@ -1,15 +1,16 @@
 class TwitchPubsub {
     private _rewards: IPubsubReward[] = []
     private _socket: WebSocket;
-    private _reconnectInterval: any;
-    private _pingInterval: any;
+    private _reconnectIntervalHandle: number;
+    private _pingIntervalHandle: number;
     private _pingTimestamp: number;
     private _connected: boolean = false;
+    private _tts: GoogleTTS = new GoogleTTS();
 
     registerOBSReward(twitchReward: ITwitchRewardConfig, source: IObsSourceConfig) {
         let reward: IPubsubReward = {
             id: twitchReward.id,
-            callback: function(data) {
+            callback: (data:any) => {
                 console.log("OBS Reward triggered")
                 // Should call OBS instance
                 console.table(data)
@@ -20,10 +21,15 @@ class TwitchPubsub {
     registerTTSReward(twitchReward: ITwitchRewardConfig, ttsCommand: String) {
         let reward: IPubsubReward = {
             id: twitchReward.id,
-            callback: function(data) {
+            callback: (data:any) => {
                 console.log("TTS Reward triggered")
                 // Should call TTS instance
                 console.table(data)
+                this._tts.enqueueSpeakSentence(
+                    data?.redemption?.user_input,
+                    data?.redemption?.user?.display_name,
+                    parseInt(data?.redemption?.user?.id)
+                )
             }
         }
         this._rewards.push(reward)
@@ -35,15 +41,16 @@ class TwitchPubsub {
     }
 
     init() {
+        this._tts.init();
         this.startConnectLoop()
     }
 
     private startConnectLoop() {
-        this._reconnectInterval = setInterval(this.connect, 30*1000)
+        this._reconnectIntervalHandle = setInterval(this.connect, 30*1000)
         this.connect()
     }
     private stopConnectLoop() {
-        clearInterval(this._reconnectInterval)
+        clearInterval(this._reconnectIntervalHandle)
     }
 
     private ping() {
