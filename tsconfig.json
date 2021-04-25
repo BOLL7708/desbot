@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+        "target": "es2019",
+        "watch": true,
+        "lib": ["dom", "es2019"],
+        "outDir": "dist",
+        "rootDir": "src",
+        "sourceMap": true
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["./src/*.template.ts"]
+}
