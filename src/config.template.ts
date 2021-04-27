@@ -3,6 +3,9 @@ class Config {
         google: {
             apiKey: ""
         },
+        pipe: {
+            port: 8077
+        },
         obs: {
             password: "",
             port: 4445,

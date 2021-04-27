@@ -10,7 +10,6 @@
     <body>
         <script>
             const mainController = new MainController();
-            mainController.init();
         </script>
     </body>
 </html>

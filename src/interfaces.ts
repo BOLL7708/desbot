@@ -1,5 +1,6 @@
 interface IConfig {
     google:IGoogleConfig,
+    pipe:IPipeConfig,
     obs:IObsConfig,
     twitch:ITwitchConfig
 }
@@ -12,6 +13,11 @@ interface ISentence {
     text: string,
     userName: string,
     userId: number
+}
+
+/** PIPE */
+interface IPipeConfig {
+    port: number
 }
 
 /** OBS */

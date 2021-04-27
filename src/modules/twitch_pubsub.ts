@@ -1,39 +1,16 @@
 class TwitchPubsub {
     private _rewards: IPubsubReward[] = []
-    private _socket: WebSockets;
-    private _reconnectIntervalHandle: number;
-    private _pingIntervalHandle: number;
-    private _pingTimestamp: number;
-    private _connected: boolean = false;
-    private _tts: GoogleTTS = new GoogleTTS();
+    private _socket: WebSockets
+    private _reconnectIntervalHandle: number
+    private _pingIntervalHandle: number
+    private _pingTimestamp: number
+    private _connected: boolean = false
 
-    registerOBSReward(twitchReward: ITwitchRewardConfig, source: IObsSourceConfig) {
-        let reward: IPubsubReward = {
-            id: twitchReward.id,
-            callback: (data:any) => {
-                console.log("OBS Reward triggered")
-                // Should call OBS instance
-                console.table(data)
-            }
-        }
-        this._rewards.push(reward)
+
+    registerAward(pubsubReward: IPubsubReward) {
+        this._rewards.push(pubsubReward)
     }
-    registerTTSReward(twitchReward: ITwitchRewardConfig, ttsCommand: String) {
-        let reward: IPubsubReward = {
-            id: twitchReward.id,
-            callback: (data:any) => {
-                console.log("TTS Reward triggered")
-                // Should call TTS instance
-                console.table(data)
-                this._tts.enqueueSpeakSentence(
-                    data?.redemption?.user_input,
-                    data?.redemption?.user?.display_name,
-                    parseInt(data?.redemption?.user?.id)
-                )
-            }
-        }
-        this._rewards.push(reward)
-    }
+    
     private onReward(id, data) {
         let reward = this._rewards.find(reward => id == reward.id)
         if(reward != null) reward.callback(data)
@@ -41,7 +18,6 @@ class TwitchPubsub {
     }
 
     init() {
-        this._tts.init();
         this._socket = new WebSockets(
             "wss://pubsub-edge.twitch.tv",
             30,
@@ -91,10 +67,10 @@ class TwitchPubsub {
                 if(Date.now() - this._pingTimestamp > 10000) this._socket.reconnect()
                 break
             case "RESPONSE":
-                console.log(evt.data);
+                console.log(evt.data)
                 break;
             default:
-                console.log(`Unhandled message: ${data.type}`);
+                console.log(`Unhandled message: ${data.type}`)
                 break;
         }  
     }

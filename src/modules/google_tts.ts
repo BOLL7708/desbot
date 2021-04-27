@@ -3,7 +3,7 @@ class GoogleTTS {
     private _sentenceQueue:ISentence[] = []
     private _speakIntervalHandle: number;
     private _audio:HTMLAudioElement;
-    init() {
+    constructor() {
         this.startSpeakLoop()
         this._audio = new Audio();
     }
