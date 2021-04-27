@@ -21,6 +21,7 @@ class TwitchPubsub {
         this._socket = new WebSockets(
             "wss://pubsub-edge.twitch.tv",
             30,
+            false,
             this.onOpen.bind(this),
             this.onClose.bind(this),
             this.onMessage.bind(this)

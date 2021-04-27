@@ -2,7 +2,7 @@ class NotificationPipe {
     private _socket:WebSockets
     constructor() {
         let config = Config.instance.pipe;
-        this._socket = new WebSockets(`ws://localhost:${config.port}`, 10);
+        this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true);
         this._socket._onMessage = this.onMessage.bind(this);
         this._socket.init();
     }
@@ -16,6 +16,6 @@ class NotificationPipe {
         }))
     }
     sendCustom() {
-
+        // TODO: Implement
     }
 }

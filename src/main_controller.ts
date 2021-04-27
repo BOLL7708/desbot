@@ -1,7 +1,8 @@
 class MainController {
-    private _twitchPubsub: TwitchPubsub = new TwitchPubsub();
+    private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: NotificationPipe = new NotificationPipe()
+    private _obs: OBSWebSockets = new OBSWebSockets()
 
     constructor() {
         this._pipe.sendBasic("PubSub Widget", "Initializing...")
@@ -25,6 +26,13 @@ class MainController {
             Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSPEAKLONG),
             Config.KEY_TTSSPEAKLONG
         ))
+        this._twitchPubsub.registerAward({
+            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSETVOICE)?.id,
+            callback: (data:any) => {
+                let userInput = data?.redemption?.user_input
+                console.table(`User input for Voice: ${userInput}`)
+            }
+        })
 
         this._twitchPubsub.init()
     }
@@ -34,8 +42,7 @@ class MainController {
             id: twitchReward.id,
             callback: (data:any) => {
                 console.log("OBS Reward triggered")
-                console.table(data)
-
+                this._obs.showSource(obsSourceConfig)
             }
         }
         return reward
