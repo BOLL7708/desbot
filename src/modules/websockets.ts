@@ -15,15 +15,16 @@ class WebSockets {
         this._onError = onError
     }
 
-    private _socket: WebSocket;
-    private _reconnectIntervalSeconds: number;
-    private _reconnectIntervalHandle: number;
-    private _connected: boolean = false;
-    private _serverUrl: string;
-    public _onOpen: Function;
-    public _onClose: Function;
-    public _onMessage: Function;
-    public _onError: Function;
+    private _socket: WebSocket
+    private _reconnectIntervalSeconds: number
+    private _reconnectIntervalHandle: number
+    private _connected: boolean = false
+    private _serverUrl: string
+    private _messageQueue: string[] = []
+    public _onOpen: Function
+    public _onClose: Function
+    public _onMessage: Function
+    public _onError: Function
     
     init() {
         this.startConnectLoop()
@@ -32,7 +33,8 @@ class WebSockets {
         if(this._connected) {
             this._socket.send(message);
         } else {
-            console.warn(`${this._serverUrl}: Send failed as not connected`);
+            this._messageQueue.push(message);
+            console.log(`${this._serverUrl}: Not connected, adding to queue...`);
         }
     }
     reconnect() {
@@ -60,6 +62,10 @@ class WebSockets {
             this._connected = true
             this.stopConnectLoop()
             this._onOpen(evt);
+            this._messageQueue.forEach(message => {
+                this._socket.send(message)
+            });
+            this._messageQueue = []
         }
         function onClose(evt) {
             console.warn(`${this._serverUrl}: Disconnected`);

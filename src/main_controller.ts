@@ -4,6 +4,8 @@ class MainController {
     private _pipe: NotificationPipe = new NotificationPipe()
 
     constructor() {
+        this._pipe.sendBasic("PubSub Widget", "Initializing...")
+
         /** OBS */
         this._twitchPubsub.registerAward(this.buildOBSReward(
             Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_ROOMPEEK),
@@ -24,7 +26,7 @@ class MainController {
             Config.KEY_TTSSPEAKLONG
         ))
 
-        this._twitchPubsub.init();
+        this._twitchPubsub.init()
     }
    
     private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig):IPubsubReward {
@@ -32,8 +34,8 @@ class MainController {
             id: twitchReward.id,
             callback: (data:any) => {
                 console.log("OBS Reward triggered")
-                // Should call OBS instance
                 console.table(data)
+
             }
         }
         return reward
@@ -44,9 +46,6 @@ class MainController {
             id: twitchReward.id,
             callback: (data:any) => {
                 console.log("TTS Reward triggered")
-                // Should call TTS instance
-                console.table(data)
-                this._pipe.sendBasic("Test", "Yeah!")
                 this._tts.enqueueSpeakSentence(
                     data?.redemption?.user_input,
                     data?.redemption?.user?.display_name,

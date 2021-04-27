@@ -22,25 +22,27 @@ class GoogleTTS {
         let sentence = this._sentenceQueue.shift()
         if(typeof sentence == 'undefined') return
         
+        // TODO: Check stored voice settings for user ID and use those voice settings in the request
+        // TODO: Check stored name settings for user ID and use that when generating the string
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`       
         fetch(url, {
         method: 'post',
         body: JSON.stringify({
             input: {
-              text: sentence.text
+                text: `${sentence.userName} said: ${sentence.text}`
             },
             voice: {
-              languageCode: "en-US",
-              ssmlGender: "FEMALE"
+                languageCode: "en-US",
+                ssmlGender: "FEMALE"
             },
             audioConfig: {
-              audioEncoding: "OGG_OPUS",
-              speakingRate: 1.0,
-              pitch: 0.0,
-              volumeGainDb: 0.0
+                audioEncoding: "OGG_OPUS",
+                speakingRate: 1.0,
+                pitch: 0.0,
+                volumeGainDb: 0.0
             },
             enableTimePointing: [
-              "TIMEPOINT_TYPE_UNSPECIFIED"
+                "TIMEPOINT_TYPE_UNSPECIFIED"
             ]
           })
         }).then((response) => response.json()).then(json => {
