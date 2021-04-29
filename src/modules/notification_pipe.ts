@@ -1,13 +1,17 @@
 class NotificationPipe {
     private _socket:WebSockets
     constructor() {
-        let config = Config.instance.pipe;
-        this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true);
-        this._socket._onMessage = this.onMessage.bind(this);
+        let config = Config.instance.pipe
+        this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true)
+        this._socket._onMessage = this.onMessage.bind(this)
+        this._socket._onError = this.onError.bind(this)
         this._socket.init();
     }
     private onMessage(evt) {
         console.log(evt.data);
+    }
+    private onError(evt) {
+        console.table(evt)
     }
     sendBasic(title: string, message:string) {
         this._socket.send(JSON.stringify({

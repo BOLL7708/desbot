@@ -27,7 +27,7 @@ class OBSWebSockets {
 				if(data.status != "ok") this._socket.disconnect()
 				break
 			default: 
-                console.log(evt.data)
+                // console.log(evt.data)
                 break
 		}
     }
@@ -36,7 +36,6 @@ class OBSWebSockets {
         let type = "SetSceneItemProperties";
         let sourceName = sourceConfig.sourceName;
         sourceConfig.sceneNames.forEach(sceneName => {
-            console.log(`Scene name: ${sceneName}`);
             this._socket.send(this.buildRequest(type, ++this._messageCounter, {
                 "scene-name": sceneName,
                 "item": sourceName,
@@ -63,7 +62,7 @@ class OBSWebSockets {
         return JSON.stringify(request)
     }
 
-    async sha256(message) {
+    async sha256(message:string) {
         const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
         const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
         const byteArray = Array.from(new Uint8Array(hashBuffer)); // convert ArrayBuffer to Array

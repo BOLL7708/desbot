@@ -14,6 +14,19 @@ interface ISentence {
     userName: string,
     userId: number
 }
+interface IGoogleVoice {
+    languageCodes: string[],
+    name: string,
+    ssmlGender: string,
+    naturalSampleRateHertz: number
+}
+interface IUserVoice {
+    userId: number,
+    languageCode: string,
+    voiceName: string,
+    gender: string,
+    pitch: number
+}
 
 /** PIPE */
 interface IPipeConfig {

@@ -29,8 +29,12 @@ class MainController {
         this._twitchPubsub.registerAward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSETVOICE)?.id,
             callback: (data:any) => {
+                console.table(data?.redemption)
+                let userId = data?.redemption?.user?.id
+                let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
-                console.table(`User input for Voice: ${userInput}`)
+                console.log(`User input from ${userId} for setting voice: ${userInput}`)
+                this._tts.setVoiceForUser(userId, userName, userInput)
             }
         })
 

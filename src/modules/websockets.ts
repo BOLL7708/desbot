@@ -1,8 +1,8 @@
 class WebSockets {
     constructor(
         serverUrl:string, 
-        reconnectIntervalSeconds:number=30,
-        messageQueueing:boolean=true,
+        reconnectIntervalSeconds:number = 30,
+        messageQueueing:boolean = true,
         onOpen:Function = () => {},
         onClose:Function = () => {},
         onMessage:Function = () => {},
@@ -10,6 +10,7 @@ class WebSockets {
     ) {
         this._serverUrl = serverUrl
         this._reconnectIntervalSeconds = reconnectIntervalSeconds
+        this._messageQueueing = messageQueueing
         this._onOpen = onOpen
         this._onClose = onClose
         this._onMessage = onMessage
@@ -22,6 +23,7 @@ class WebSockets {
     private _connected: boolean = false
     private _serverUrl: string
     private _messageQueue: string[] = []
+    private _messageQueueing: boolean
     public _onOpen: Function
     public _onClose: Function
     public _onMessage: Function
@@ -33,7 +35,7 @@ class WebSockets {
     send(message:string) {
         if(this._connected) {
             this._socket.send(message)
-        } else {
+        } else if(this._messageQueueing) {
             this._messageQueue.push(message)
             console.log(`${this._serverUrl}: Not connected, adding to queue...`)
         }
@@ -47,6 +49,7 @@ class WebSockets {
     }
 
     private startConnectLoop(immediate:boolean = false) {
+        this.stopConnectLoop()
         this._reconnectIntervalHandle = setInterval(this.connect.bind(this), this._reconnectIntervalSeconds*1000)
         if(immediate) this.connect()
     }
@@ -56,6 +59,7 @@ class WebSockets {
 
     private connect() {
         console.log(this)
+        this._socket = null
         this._socket = new WebSocket(this._serverUrl)
 	    this._socket.onopen = onOpen.bind(this)
 	    this._socket.onclose = onClose.bind(this)
@@ -82,7 +86,7 @@ class WebSockets {
             this._onMessage(evt)
         }
         function onError(evt) {
-            console.error(`${this._serverUrl}:${JSON.parse(evt)}`)
+            console.error(`${this._serverUrl}:${JSON.stringify(evt)}`)
             this._socket.close()
             this.startConnectLoop()
             this._onError(evt)

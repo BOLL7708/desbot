@@ -1,11 +1,13 @@
 class GoogleTTS {
     private _apiKey:String = Config.instance.google.apiKey
     private _sentenceQueue:ISentence[] = []
-    private _speakIntervalHandle: number;
-    private _audio:HTMLAudioElement;
+    private _speakIntervalHandle: number
+    private _audio:HTMLAudioElement
+    private _voices:IGoogleVoice[] = []
+    private _userVoices:IUserVoice[] = []
     constructor() {
         this.startSpeakLoop()
-        this._audio = new Audio();
+        this._audio = new Audio()
     }
 
     private startSpeakLoop() {
@@ -13,7 +15,7 @@ class GoogleTTS {
     }
 
     enqueueSpeakSentence(sentence:string, userName: string, userId: number):void {
-        this._sentenceQueue.push({text: sentence, userName: userName, userId: userId});       
+        this._sentenceQueue.push({text: sentence, userName: userName, userId: userId})
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
@@ -24,21 +26,25 @@ class GoogleTTS {
         
         // TODO: Check stored voice settings for user ID and use those voice settings in the request
         // TODO: Check stored name settings for user ID and use that when generating the string
-        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`       
+        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
+        let text = sentence.userName != null ? `${this.cleanName(sentence.userName)} said: ${sentence.text}` : sentence.text
+        let currentVoice = this._userVoices.find(voice => voice.userId == sentence.userId)
+        console.log(text)
         fetch(url, {
-        method: 'post',
-        body: JSON.stringify({
+            method: 'post',
+            body: JSON.stringify({
             input: {
-                text: `${sentence.userName} said: ${sentence.text}`
+                text: text
             },
             voice: {
-                languageCode: "en-US",
-                ssmlGender: "FEMALE"
+                languageCode: currentVoice?.languageCode ?? "en-US",
+                name: currentVoice?.voiceName ?? '',
+                ssmlGender: currentVoice?.gender ?? "FEMALE"
             },
             audioConfig: {
                 audioEncoding: "OGG_OPUS",
                 speakingRate: 1.0,
-                pitch: 0.0,
+                pitch: currentVoice?.pitch ?? 0.0,
                 volumeGainDb: 0.0
             },
             enableTimePointing: [
@@ -54,5 +60,58 @@ class GoogleTTS {
                 console.error(`Failed to generate speech: [${json.status}], ${json.error}`);
             }
         });
+    }
+
+    private cleanName(name:string):string {
+        // TODO: Far from perfect, might be overzealous.
+        let nameArr = name.toLowerCase().split('_')
+        let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b)
+        namePart = namePart.replace(/[0-9]{2,}/g, '')
+        let numToChar:any = {
+            0: 'o',
+            1: 'i',
+            3: 'e',
+            4: 'a',
+            5: 's',
+            6: 'g',
+            7: 't'
+        }
+        var re = new RegExp(Object.keys(numToChar).join("|"),"gi");
+        let result = namePart.replace(re, function(matched){
+            return numToChar[matched];
+        });
+        return result.length > 0 ? result : name
+    }
+
+    setVoiceForUser(userId:number, userName:string, input:string) {
+        this.loadVoices().then(ok => {
+            let currentVoice:IUserVoice = this._userVoices.find(voice => voice.userId == userId)
+            if(currentVoice == null) {
+                currentVoice = {userId: userId, voiceName: '', languageCode: 'en-US', gender: 'FEMALE', pitch: 0.0}
+                this._userVoices.push(currentVoice)
+            }
+            let inputArr = input.split(' ')
+            inputArr.forEach(setting => {
+                setting = setting.toLowerCase()
+                if(setting == 'female') currentVoice.gender = 'FEMALE'
+                if(setting == 'male') currentVoice.gender = 'MALE'
+                let num = parseFloat(setting)
+                if(!isNaN(num)) currentVoice.pitch = (num > 20) ? 20 : ((num < -20) ? -20 : num)
+                if(setting[2] == '-' && setting.length == 5) currentVoice.languageCode = setting
+                // if(setting)
+            })
+            this.enqueueSpeakSentence(`${this.cleanName(userName)} now sounds like this.`, null, userId)
+        })
+    }
+
+    private async loadVoices() {
+        if(this._voices.length == 0) {
+            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._apiKey}`
+            return fetch(url).then(response => response.json()).then(json => {
+                let voices = json?.voices
+                if(voices != null) this._voices = voices
+                true
+            })
+        } else Promise.resolve(true)
     }
 }
