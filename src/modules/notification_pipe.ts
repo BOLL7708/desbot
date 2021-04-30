@@ -11,7 +11,7 @@ class NotificationPipe {
         console.log(evt.data);
     }
     private onError(evt) {
-        console.table(evt)
+        // console.table(evt)
     }
     sendBasic(title: string, message:string) {
         this._socket.send(JSON.stringify({

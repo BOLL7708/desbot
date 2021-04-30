@@ -19,7 +19,6 @@ class Config {
             ]
         },
         twitch: {
-            token: "", // TODO: Temp
             userId: 0,
             clientId: "",
             clientSecret: "",

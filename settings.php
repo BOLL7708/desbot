@@ -30,9 +30,16 @@ if($method === 'POST') {
 function writeSettings($filePath) {
     $inputJson = file_get_contents('php://input');
     $inputRows = json_decode($inputJson);
+    if(is_object($inputRows)) $inputRows = [$inputRows];
     $input = array();
+
     foreach($inputRows as $row) {
-        $input[] = implode(';', $row);
+        $result = [];
+        foreach($row as $key => $value) {
+            if(is_numeric($key)) $result[] = $value;
+            else $result[] = "$key|$value";
+        }
+        $input[] = implode(';', $result);
     }
     $inputString = implode("\n", $input);
     return file_put_contents($filePath, $inputString);
@@ -41,11 +48,21 @@ function writeSettings($filePath) {
 function readSettings($filePath) {
     $outputCsv = file_get_contents($filePath);
     $outputRows = explode("\n", $outputCsv);
-    $output = array();
+    $output = [];
     foreach($outputRows as $row) {
-        $output[] = explode(';', $row);
+        $fields = explode(';', $row);
+        $result = [];
+        foreach($fields as $field) {
+            if(strpos($field, '|') !== false) {
+                $fieldParts = explode('|', $field);
+                $result[$fieldParts[0]] = $fieldParts[1];
+            } else {
+                $result[] = $field;
+            }
+        }
+        $output[] = $result;
     }
-    return $output;
+    return count($output) == 1 ? $output[0] : $output;
 }
 
 function getFilePath($filename) {

@@ -48,7 +48,6 @@ interface IObsSourceConfig {
 
 /** Twitch */
 interface ITwitchConfig {
-    token: string, // TODO: Temp
     userId: number,
     clientId: string,
     clientSecret: string,

@@ -1,11 +1,9 @@
 class TwitchPubsub {
     private _rewards: IPubsubReward[] = []
     private _socket: WebSockets
-    private _reconnectIntervalHandle: number
+    private _config:ITwitchConfig = Config.instance.twitch;
     private _pingIntervalHandle: number
     private _pingTimestamp: number
-    private _connected: boolean = false
-
 
     registerAward(pubsubReward: IPubsubReward) {
         this._rewards.push(pubsubReward)
@@ -26,21 +24,23 @@ class TwitchPubsub {
             this.onClose.bind(this),
             this.onMessage.bind(this)
         )
-        this._socket.init();
+        this._socket.init()
+        this.refreshToken()
     }
 
     private onOpen(evt:any) {
-        let config:ITwitchConfig = Config.instance.twitch
-        let payload = {
-            type: "LISTEN",
-            nonce: "7708",
-            data: {
-                topics: [`channel-points-channel-v1.${config.userId}`], // ID should come from Helix user request (huh?)
-                auth_token: config.token
+        Settings.loadSettings(Settings.TWITCH_TOKENS).then(tokenData => {
+            let payload = {
+                type: "LISTEN",
+                nonce: "7708",
+                data: {
+                    topics: [`channel-points-channel-v1.${this._config.userId}`], // ID should come from Helix user request (huh?)
+                    auth_token: tokenData.access_token
+                }
             }
-        }
-        this._socket.send(JSON.stringify(payload))
-        this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
+            this._socket.send(JSON.stringify(payload))
+            this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
+        })
     }
 
     private onClose(evt:any) {
@@ -82,5 +82,36 @@ class TwitchPubsub {
         }
         this._socket.send(JSON.stringify(payload))
         this._pingTimestamp = Date.now()
+    }
+
+    private refreshToken() {
+        let config = Config.instance.twitch
+        Settings.loadSettings(Settings.TWITCH_TOKENS).then(tokenData => {
+            console.table(tokenData)
+            return fetch('https://id.twitch.tv/oauth2/token', {
+                method: 'post',
+                body: new URLSearchParams({
+                    'grant_type': 'refresh_token',
+                    'refresh_token': tokenData.refresh_token,
+                    'client_id': config.clientId,
+                    'client_secret': config.clientSecret
+                })
+            }).then((response) => response.json()).then(json => {
+                if (!json.error && !(json.status >= 300)) {
+                    let tokenData = {
+                        access_token: json.access_token,
+                        refresh_token: json.refresh_token,
+                        updated: new Date().toLocaleString("swe")
+                    }
+                    Settings.saveSettings(Settings.TWITCH_TOKENS, tokenData).then(success => {
+                        if(success) console.log('Successfully refreshed and wrote tokens to disk');
+                        else console.error('Failed to save tokens to disk');
+                    })
+                } else {
+                    console.error(`Failed to refresh tokens: ${json.status} -> ${json.error}`);
+                }
+                return json.access_token;
+            });
+        })
     }
 }
