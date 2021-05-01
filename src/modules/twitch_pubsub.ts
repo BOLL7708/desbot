@@ -84,34 +84,32 @@ class TwitchPubsub {
         this._pingTimestamp = Date.now()
     }
 
-    private refreshToken() {
+    private async refreshToken() {
         let config = Config.instance.twitch
-        Settings.loadSettings(Settings.TWITCH_TOKENS).then(tokenData => {
-            console.table(tokenData)
-            return fetch('https://id.twitch.tv/oauth2/token', {
-                method: 'post',
-                body: new URLSearchParams({
-                    'grant_type': 'refresh_token',
-                    'refresh_token': tokenData.refresh_token,
-                    'client_id': config.clientId,
-                    'client_secret': config.clientSecret
-                })
-            }).then((response) => response.json()).then(json => {
-                if (!json.error && !(json.status >= 300)) {
-                    let tokenData = {
-                        access_token: json.access_token,
-                        refresh_token: json.refresh_token,
-                        updated: new Date().toLocaleString("swe")
-                    }
-                    Settings.saveSettings(Settings.TWITCH_TOKENS, tokenData).then(success => {
-                        if(success) console.log('Successfully refreshed and wrote tokens to disk');
-                        else console.error('Failed to save tokens to disk');
-                    })
-                } else {
-                    console.error(`Failed to refresh tokens: ${json.status} -> ${json.error}`);
+        let tokenData:ITwitchTokens = await Settings.loadSettings(Settings.TWITCH_TOKENS)
+        fetch('https://id.twitch.tv/oauth2/token', {
+            method: 'post',
+            body: new URLSearchParams({
+                'grant_type': 'refresh_token',
+                'refresh_token': tokenData.refresh_token,
+                'client_id': config.clientId,
+                'client_secret': config.clientSecret
+            })
+        }).then((response) => response.json()).then(json => {
+            if (!json.error && !(json.status >= 300)) {
+                let tokenData = {
+                    access_token: json.access_token,
+                    refresh_token: json.refresh_token,
+                    updated: new Date().toLocaleString("swe")
                 }
-                return json.access_token;
-            });
-        })
+                Settings.saveSettings(Settings.TWITCH_TOKENS, tokenData).then(success => {
+                    if(success) console.log('Successfully refreshed and wrote tokens to disk');
+                    else console.error('Failed to save tokens to disk');
+                })
+            } else {
+                console.error(`Failed to refresh tokens: ${json.status} -> ${json.error}`);
+            }
+            return json.access_token;
+        });
     }
 }

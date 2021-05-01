@@ -61,4 +61,8 @@ interface IPubsubReward {
     id: string,
     callback: (data: object) => void
 }
-
+interface ITwitchTokens {
+    access_token: string,
+    refresh_token: string,
+    updated: string
+}
