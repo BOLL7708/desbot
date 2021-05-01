@@ -3,8 +3,8 @@ class GoogleTTS {
     private _sentenceQueue:ISentence[] = []
     private _speakIntervalHandle: number
     private _audio:HTMLAudioElement
-    private _voices:IGoogleVoice[] = []
-    private _userVoices:IUserVoice[] = []
+    private _voices:IGoogleVoice[] = [] // Cache
+
     constructor() {
         this.startSpeakLoop()
         this._audio = new Audio()
@@ -29,8 +29,8 @@ class GoogleTTS {
         let cleanName = sentence.userName != null ? await this.loadCleanName(sentence.userId, sentence.userName) : null
         let text = cleanName != null ? `${cleanName} said: ${sentence.text}` : sentence.text
 
-        // TODO: Check stored voice settings for user ID and use those voice settings in the request
-        let currentVoice = this._userVoices.find(voice => voice.userId == sentence.userId)
+        let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', sentence.userId)
+        if(voice == null) voice = this.getDefaultVoice(sentence.userId)
 
         console.log(text)
         fetch(url, {
@@ -40,14 +40,14 @@ class GoogleTTS {
                 text: text
             },
             voice: {
-                languageCode: currentVoice?.languageCode ?? "en-US",
-                name: currentVoice?.voiceName ?? '',
-                ssmlGender: currentVoice?.gender ?? "FEMALE"
+                languageCode: voice.languageCode,
+                name: voice.voiceName,
+                ssmlGender: voice.gender
             },
             audioConfig: {
                 audioEncoding: "OGG_OPUS",
                 speakingRate: 1.0,
-                pitch: currentVoice?.pitch ?? 0.0,
+                pitch: voice.pitch,
                 volumeGainDb: 0.0
             },
             enableTimePointing: [
@@ -96,35 +96,60 @@ class GoogleTTS {
         return result.length > 0 ? result : name
     }
 
-    setVoiceForUser(userId:number, userName:string, input:string) {
-        this.loadVoices().then(ok => {
-            let currentVoice:IUserVoice = this._userVoices.find(voice => voice.userId == userId)
-            if(currentVoice == null) {
-                currentVoice = {userId: userId, voiceName: '', languageCode: 'en-US', gender: 'FEMALE', pitch: 0.0}
-                this._userVoices.push(currentVoice)
+    async setVoiceForUser(userId:number, userName:string, input:string) {
+        let voices = await this.loadVoices()
+        let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', userId)
+        if(voice == null) voice = this.getDefaultVoice(userId)
+        
+        let inputArr = input.split(' ')
+        inputArr.forEach(setting => {
+            // Match gender
+            if(setting.toLowerCase() == 'female') voice.gender = 'FEMALE'
+            if(setting.toLowerCase() == 'male') voice.gender = 'MALE'
+            
+            // Match pitch value
+            let num = parseFloat(setting)
+            if(!isNaN(num)) voice.pitch = (num > 20) ? 20 : ((num < -20) ? -20 : num)
+            
+            // Match country code
+            if(setting[2] == '-' && setting.length == 5) voice.languageCode = setting
+            
+            // Match incoming full voice name
+            let re = new RegExp(/([a-z]+)-([A-Z]+)-([\w]+)-([A-Z])/)
+            let matches = setting.match(re)
+            if(matches != null) {
+                if(voices.find(v => v.name.toLowerCase() == matches[0].toLowerCase())) {
+                    voice.voiceName = matches[0]
+                    voice.languageCode = `${matches[1]}-${matches[2]}`
+                } else console.warn(`Voice not found: ${matches[0]}`)
             }
-            let inputArr = input.split(' ')
-            inputArr.forEach(setting => {
-                setting = setting.toLowerCase()
-                if(setting == 'female') currentVoice.gender = 'FEMALE'
-                if(setting == 'male') currentVoice.gender = 'MALE'
-                let num = parseFloat(setting)
-                if(!isNaN(num)) currentVoice.pitch = (num > 20) ? 20 : ((num < -20) ? -20 : num)
-                if(setting[2] == '-' && setting.length == 5) currentVoice.languageCode = setting
-                // if(setting)
-            })
-            this.enqueueSpeakSentence(`${this.cleanName(userName)} now sounds like this.`, null, userId)
+
+            // Match reset
+            if(setting.toLowerCase() == 'reset') voice = this.getDefaultVoice(userId)
         })
+        let success = await Settings.pushSetting(Settings.USER_VOICES, 'userId', voice)
+        console.log(`Voice saved: ${success}`)
+        this.enqueueSpeakSentence(`${this.cleanName(userName)} now sounds like this.`, null, userId)        
     }
 
-    private async loadVoices() {
+    private async loadVoices():Promise<IGoogleVoice[]> {
         if(this._voices.length == 0) {
             let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._apiKey}`
-            return fetch(url).then(response => response.json()).then(json => {
+            return fetch(url).then(response => response?.json()).then(json => {
                 let voices = json?.voices
                 if(voices != null) this._voices = voices
-                true
+                return voices
             })
-        } else Promise.resolve(true)
+        } else return this._voices
+    }
+
+    private getDefaultVoice(id:number):IUserVoice {
+        return {
+            userId: id,
+            languageCode: 'en-US',
+            voiceName: '',
+            pitch: 0.0,
+            gender: 'FEMALE'
+        }
     }
 }

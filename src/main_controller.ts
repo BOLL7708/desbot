@@ -29,7 +29,6 @@ class MainController {
         this._twitchPubsub.registerAward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSETVOICE)?.id,
             callback: (data:any) => {
-                console.table(data?.redemption)
                 let userId = data?.redemption?.user?.id
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
@@ -38,6 +37,7 @@ class MainController {
             }
         })
 
+        // Run!
         this._twitchPubsub.init()
     }
    
