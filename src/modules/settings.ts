@@ -18,7 +18,7 @@ class Settings {
         let url = this.getUrl(setting)      
         let response = await fetch(url)
         let result = response.status >= 300 ? null : await response.json()
-        this.settingsStore[setting] = result
+        if(result != null) this.settingsStore[setting] = result
         return result
     }
 
@@ -50,14 +50,13 @@ class Settings {
      * @Returns The success as a boolean.
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
-        let settings = this.settingsStore[setting]
-        if(Array.isArray(settings)) {
-            let filteredSettings = settings.filter(s => s[field] != value[field])
-            filteredSettings.push(value)
-            this.settingsStore[setting] = filteredSettings
-            return this.saveSettings(setting)
-        }
-        return false
+        console.log(`Pushing setting: ${setting}`)
+        let settings = this.settingsStore[setting]      
+        if(settings == null || !Array.isArray(settings)) settings = []      
+        let filteredSettings = settings.filter(s => s[field] != value[field])
+        filteredSettings.push(value)
+        this.settingsStore[setting] = filteredSettings
+        return this.saveSettings(setting)
     }
 
     /**
@@ -68,6 +67,7 @@ class Settings {
      * @returns The object or null if failed.
      */
     static async pullSetting(setting:string, field:string, key:any):Promise<any> {
+        console.log(`Pulling setting: ${setting}`)
         let settings = null
         if(this.settingsStore.hasOwnProperty(setting)) {
             settings = this.settingsStore[setting]

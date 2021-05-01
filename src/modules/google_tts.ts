@@ -19,16 +19,19 @@ class GoogleTTS {
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
-    private trySpeakNext() {
+    private async trySpeakNext() {
+
         if(!this._audio.paused) return
         let sentence = this._sentenceQueue.shift()
         if(typeof sentence == 'undefined') return
         
-        // TODO: Check stored voice settings for user ID and use those voice settings in the request
-        // TODO: Check stored name settings for user ID and use that when generating the string
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
-        let text = sentence.userName != null ? `${this.cleanName(sentence.userName)} said: ${sentence.text}` : sentence.text
+        let cleanName = sentence.userName != null ? await this.loadCleanName(sentence.userId, sentence.userName) : null
+        let text = cleanName != null ? `${cleanName} said: ${sentence.text}` : sentence.text
+
+        // TODO: Check stored voice settings for user ID and use those voice settings in the request
         let currentVoice = this._userVoices.find(voice => voice.userId == sentence.userId)
+
         console.log(text)
         fetch(url, {
             method: 'post',
@@ -62,8 +65,18 @@ class GoogleTTS {
         });
     }
 
+    private async loadCleanName(id:number, name:string):Promise<string> {
+        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.USER_NAMES, 'id', id)
+        let cleanName = cleanNameSetting?.short
+        if(cleanName == null) {
+            cleanName = this.cleanName(name)
+            cleanNameSetting = {id: id, name: name, short: cleanName}
+            Settings.pushSetting(Settings.USER_NAMES, 'id', cleanNameSetting)
+        }
+        return cleanName
+    }
+
     private cleanName(name:string):string {
-        // TODO: Far from perfect, might be overzealous.
         let nameArr = name.toLowerCase().split('_')
         let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b)
         namePart = namePart.replace(/[0-9]{2,}/g, '')

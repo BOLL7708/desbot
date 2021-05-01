@@ -27,6 +27,11 @@ interface IUserVoice {
     gender: string,
     pitch: number
 }
+interface IUserName {
+    id:number,
+    name:string,
+    short:string
+}
 
 /** PIPE */
 interface IPipeConfig {
