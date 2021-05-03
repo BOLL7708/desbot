@@ -129,7 +129,8 @@ class GoogleTTS {
         })
         let success = await Settings.pushSetting(Settings.USER_VOICES, 'userId', voice)
         console.log(`Voice saved: ${success}`)
-        this.enqueueSpeakSentence(`${this.cleanName(userName)} now sounds like this.`, null, userId)        
+        let cleanName = await this.loadCleanName(userId, userName)
+        this.enqueueSpeakSentence(`${cleanName} now sounds like this.`, null, userId)        
     }
 
     private async loadVoices():Promise<IGoogleVoice[]> {

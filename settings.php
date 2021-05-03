@@ -40,7 +40,7 @@ function writeSettings($filePath) {
         }
         $input[] = implode(';', $result);
     }
-    $inputString = implode("\n", $input);
+    $inputString = implode("\n", array_filter($input)); // Filter removes empty items
     return file_put_contents($filePath, $inputString);
 }
 
