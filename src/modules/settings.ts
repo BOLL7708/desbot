@@ -75,7 +75,7 @@ class Settings {
             settings = await this.loadSettings(setting)
         }
         if(Array.isArray(settings)) return settings.find(s => s[field] == key)
-        return null
+        else return settings
     }
 
     /**

@@ -1,4 +1,5 @@
 class GoogleTTS {
+    // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _apiKey:String = Config.instance.google.apiKey
     private _sentenceQueue:ISentence[] = []
     private _speakIntervalHandle: number
@@ -28,7 +29,7 @@ class GoogleTTS {
         let text = sentence.text
         if(text == null) return
 
-        let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', sentence.userName)
+        let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
         if(voice == null) voice = this.getDefaultVoice(sentence.userName)
 
         // Clean text
