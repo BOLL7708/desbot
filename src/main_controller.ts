@@ -3,6 +3,7 @@ class MainController {
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: NotificationPipe = new NotificationPipe()
     private _obs: OBSWebSockets = new OBSWebSockets()
+    private _twitchChat: TwitchChat = new TwitchChat()
 
     constructor() {
         this._pipe.sendBasic("PubSub Widget", "Initializing...")
@@ -38,6 +39,17 @@ class MainController {
 
         // Run!
         this._twitchPubsub.init()
+        this._twitchChat.init((message:TwitchMessage) => {
+            if(message?.username?.toLowerCase() == "streamlabs") { // TODO: Hardcoded now, should be a config
+                if(message?.text?.indexOf('Shoutout to') != 0) { // TODO: Hardcoded now, should be handled differently
+                    this._tts.enqueueSpeakSentence(message.text, message.username)
+                }
+            }
+            // TODO: We should fix the /me commands
+            // TODO: Toggle this on and off with commands or URL params
+            // TODO: Key all settings on username instead of userid, to work with chat
+            // TODO: limit pitch even further, or remove? Automatic?
+        })
     }
    
     private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig):IPubsubReward {

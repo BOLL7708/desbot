@@ -2,7 +2,7 @@
 <html>
     <head>
         <?=loadJSFiles()?>
-        <title>Pubsub Widget</title>
+        <title>Streaming Widget</title>
         <style>
             /* audio { display: none; } */
         </style>
