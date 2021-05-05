@@ -28,16 +28,22 @@ class GoogleTTS {
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
         let cleanName = sentence.userName != null ? await this.loadCleanName(sentence.userId, sentence.userName) : null
         let text = cleanName != null ? `${cleanName} said: ${sentence.text}` : sentence.text
+        if(text == null) return
 
         let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', sentence.userId)
         if(voice == null) voice = this.getDefaultVoice(sentence.userId)
+
+        // Clean text
+        // Links: https://stackoverflow.com/a/23571059/2076423
+        // Emojis: https://stackoverflow.com/a/63464318/2076423
+        let cleanText = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '');
 
         console.log(text)
         fetch(url, {
             method: 'post',
             body: JSON.stringify({
             input: {
-                text: text
+                text: cleanText
             },
             voice: {
                 languageCode: voice.languageCode,
@@ -46,7 +52,7 @@ class GoogleTTS {
             },
             audioConfig: {
                 audioEncoding: "OGG_OPUS",
-                speakingRate: 1.0,
+                speakingRate: 1.0 + ((cleanText.length-250)/500)*0.25, // Should probably make this a curve
                 pitch: voice.pitch,
                 volumeGainDb: 0.0
             },
@@ -77,9 +83,9 @@ class GoogleTTS {
     }
 
     private cleanName(name:string):string {
-        let nameArr = name.toLowerCase().split('_')
-        let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b)
-        namePart = namePart.replace(/[0-9]{2,}/g, '')
+        let nameArr = name.toLowerCase().split('_') // Split on _
+        let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b) // Reduce to longest word
+        namePart = namePart.replace(/[0-9]{2,}/g, '') // Replace big number groups (len: 2+)
         let numToChar:any = {
             0: 'o',
             1: 'i',
@@ -90,10 +96,10 @@ class GoogleTTS {
             7: 't'
         }
         var re = new RegExp(Object.keys(numToChar).join("|"),"gi");
-        let result = namePart.replace(re, function(matched){
+        let result = namePart.replace(re, function(matched){ // Replace leet speak with chars
             return numToChar[matched];
         });
-        return result.length > 0 ? result : name
+        return result.length > 0 ? result : name // If name ended up empty, return original
     }
 
     async setVoiceForUser(userId:number, userName:string, input:string) {
