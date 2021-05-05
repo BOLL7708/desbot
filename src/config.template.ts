@@ -22,6 +22,8 @@ class Config {
             userId: 0,
             clientId: "",
             clientSecret: "",
+            channelname: "",
+            botName: "",
             rewards: [
                 {
                     key: "",

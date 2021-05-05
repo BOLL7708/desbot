@@ -11,8 +11,7 @@ interface IGoogleConfig {
 }
 interface ISentence {
     text: string,
-    userName: string,
-    userId: number
+    userName: string
 }
 interface IGoogleVoice {
     languageCodes: string[],
@@ -21,16 +20,15 @@ interface IGoogleVoice {
     naturalSampleRateHertz: number
 }
 interface IUserVoice {
-    userId: number,
+    userName: string,
     languageCode: string,
     voiceName: string,
     gender: string,
     pitch: number
 }
 interface IUserName {
-    id:number,
-    name:string,
-    short:string
+    userName:string,
+    shortName:string
 }
 
 /** PIPE */
@@ -56,6 +54,8 @@ interface ITwitchConfig {
     userId: number,
     clientId: string,
     clientSecret: string,
+    channelName: string,
+    botName: string,
     rewards: ITwitchRewardConfig[]
 }
 interface ITwitchRewardConfig {

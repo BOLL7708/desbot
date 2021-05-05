@@ -14,24 +14,22 @@ class GoogleTTS {
         this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 1000)
     }
 
-    enqueueSpeakSentence(sentence:string, userName: string, userId: number):void {
-        this._sentenceQueue.push({text: sentence, userName: userName, userId: userId})
+    enqueueSpeakSentence(sentence:string, userName: string):void {
+        this._sentenceQueue.push({text: sentence, userName: userName})
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
     private async trySpeakNext() {
-
         if(!this._audio.paused) return
         let sentence = this._sentenceQueue.shift()
         if(typeof sentence == 'undefined') return
         
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
-        let cleanName = sentence.userName != null ? await this.loadCleanName(sentence.userId, sentence.userName) : null
-        let text = cleanName != null ? `${cleanName} said: ${sentence.text}` : sentence.text
+        let text = sentence.text
         if(text == null) return
 
-        let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', sentence.userId)
-        if(voice == null) voice = this.getDefaultVoice(sentence.userId)
+        let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', sentence.userName)
+        if(voice == null) voice = this.getDefaultVoice(sentence.userName)
 
         // Clean text
         // Links: https://stackoverflow.com/a/23571059/2076423
@@ -71,13 +69,13 @@ class GoogleTTS {
         });
     }
 
-    private async loadCleanName(id:number, name:string):Promise<string> {
-        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.USER_NAMES, 'id', id)
-        let cleanName = cleanNameSetting?.short
+    async loadCleanName(userName:string):Promise<string> {
+        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.USER_NAMES, 'userName', userName)
+        let cleanName = cleanNameSetting?.shortName
         if(cleanName == null) {
-            cleanName = this.cleanName(name)
-            cleanNameSetting = {id: id, name: name, short: cleanName}
-            Settings.pushSetting(Settings.USER_NAMES, 'id', cleanNameSetting)
+            cleanName = this.cleanName(userName)
+            cleanNameSetting = {userName: userName, shortName: cleanName}
+            Settings.pushSetting(Settings.USER_NAMES, 'userName', cleanNameSetting)
         }
         return cleanName
     }
@@ -102,10 +100,10 @@ class GoogleTTS {
         return result.length > 0 ? result : name // If name ended up empty, return original
     }
 
-    async setVoiceForUser(userId:number, userName:string, input:string) {
+    async setVoiceForUser(userName:string, input:string) {
         let voices = await this.loadVoices()
-        let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userId', userId)
-        if(voice == null) voice = this.getDefaultVoice(userId)
+        let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', userName)
+        if(voice == null) voice = this.getDefaultVoice(userName)
         
         let inputArr = input.split(' ')
         inputArr.forEach(setting => {
@@ -131,12 +129,12 @@ class GoogleTTS {
             }
 
             // Match reset
-            if(setting.toLowerCase() == 'reset') voice = this.getDefaultVoice(userId)
+            if(setting.toLowerCase() == 'reset') voice = this.getDefaultVoice(userName)
         })
         let success = await Settings.pushSetting(Settings.USER_VOICES, 'userId', voice)
         console.log(`Voice saved: ${success}`)
-        let cleanName = await this.loadCleanName(userId, userName)
-        this.enqueueSpeakSentence(`${cleanName} now sounds like this.`, null, userId)        
+        let cleanName = await this.loadCleanName(userName)
+        this.enqueueSpeakSentence(`${cleanName} now sounds like this.`, userName)        
     }
 
     private async loadVoices():Promise<IGoogleVoice[]> {
@@ -150,9 +148,9 @@ class GoogleTTS {
         } else return this._voices
     }
 
-    private getDefaultVoice(id:number):IUserVoice {
+    private getDefaultVoice(userName:string):IUserVoice {
         return {
-            userId: id,
+            userName: userName,
             languageCode: 'en-US',
             voiceName: '',
             pitch: 0.0,

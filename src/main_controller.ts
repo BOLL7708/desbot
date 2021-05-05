@@ -29,11 +29,10 @@ class MainController {
         this._twitchPubsub.registerAward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSETVOICE)?.id,
             callback: (data:any) => {
-                let userId = data?.redemption?.user?.id
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
-                console.log(`User input from ${userId} for setting voice: ${userInput}`)
-                this._tts.setVoiceForUser(userId, userName, userInput)
+                console.log(`User input from ${userName} for setting voice: ${userInput}`)
+                this._tts.setVoiceForUser(userName, userInput)
             }
         })
 
@@ -52,16 +51,22 @@ class MainController {
         return reward
     }
 
-    private buildTTSReward(twitchReward:ITwitchRewardConfig, ttsKey: string):IPubsubReward {
+    private buildTTSReward(twitchReward:ITwitchRewardConfig, ttsKey: string):IPubsubReward {       
         let reward: IPubsubReward = {
             id: twitchReward.id,
             callback: (data:any) => {
-                console.log("TTS Reward triggered")
-                this._tts.enqueueSpeakSentence(
-                    data?.redemption?.user_input,
-                    data?.redemption?.user?.display_name,
-                    parseInt(data?.redemption?.user?.id)
-                )
+                let userName = data?.redemption?.user?.login
+                let inputText = data?.redemption?.user_input
+                if(userName != null && inputText != null) {
+                    this._tts.loadCleanName(userName).then(name => {
+                        let text = `${name} said: ${inputText}`
+                        console.log("TTS Reward triggered")
+                        this._tts.enqueueSpeakSentence(
+                            text,
+                            userName
+                        )
+                    })
+                }
             }
         }
         return reward
