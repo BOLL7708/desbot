@@ -132,7 +132,7 @@ class GoogleTTS {
             // Match reset
             if(setting.toLowerCase() == 'reset') voice = this.getDefaultVoice(userName)
         })
-        let success = await Settings.pushSetting(Settings.USER_VOICES, 'userId', voice)
+        let success = await Settings.pushSetting(Settings.USER_VOICES, 'userName', voice)
         console.log(`Voice saved: ${success}`)
         let cleanName = await this.loadCleanName(userName)
         this.enqueueSpeakSentence(`${cleanName} now sounds like this.`, userName)        

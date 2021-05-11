@@ -18,7 +18,9 @@ class Settings {
         let url = this.getUrl(setting)      
         let response = await fetch(url)
         let result = response.status >= 300 ? null : await response.json()
-        if(result != null) this.settingsStore[setting] = result
+        if(result != null) {
+            this.settingsStore[setting] = result
+        }
         return result
     }
 
@@ -29,13 +31,15 @@ class Settings {
      * @returns 
      */
     static async saveSettings(setting:string, settings:any=null):Promise<boolean> {
-        console.log(`Saving settings for: ${setting}`)
+        console.table(settings)
         let url = this.getUrl(setting)
         if(settings == null) settings = this.settingsStore[setting]
         if(settings != null) {
+            let payload = JSON.stringify(settings)
+            console.log(`Saving settings(${payload.length}) for: ${setting}`)
             let response = await fetch(url, {
                 method: 'post',
-                body: JSON.stringify(settings)
+                body: payload
             })
             return response.status < 300
         }

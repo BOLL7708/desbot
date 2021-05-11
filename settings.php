@@ -30,7 +30,7 @@ if($method === 'POST') {
 function writeSettings($filePath) {
     $inputJson = file_get_contents('php://input');
     $inputRows = json_decode($inputJson);
-    if(is_object($inputRows)) $inputRows = [$inputRows];
+    if(!is_array($inputRows)) $inputRows = [$inputRows];
     $input = array();
     foreach($inputRows as $row) {
         $result = [];
@@ -61,7 +61,7 @@ function readSettings($filePath) {
         }
         $output[] = $result;
     }
-    return count($output) == 1 ? $output[0] : $output;
+    return $output;
 }
 
 function getFilePath($filename) {

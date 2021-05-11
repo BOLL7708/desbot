@@ -29,7 +29,7 @@ class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.loadSettings(Settings.TWITCH_TOKENS).then(tokenData => {
+        Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens').then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",
@@ -86,7 +86,7 @@ class TwitchPubsub {
 
     private async refreshToken() {
         let config = Config.instance.twitch
-        let tokenData:ITwitchTokens = await Settings.loadSettings(Settings.TWITCH_TOKENS)
+        let tokenData:ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
         fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',
             body: new URLSearchParams({
@@ -98,11 +98,12 @@ class TwitchPubsub {
         }).then((response) => response.json()).then(json => {
             if (!json.error && !(json.status >= 300)) {
                 let tokenData = {
+                    type: 'tokens',
                     access_token: json.access_token,
                     refresh_token: json.refresh_token,
                     updated: new Date().toLocaleString("swe")
                 }
-                Settings.saveSettings(Settings.TWITCH_TOKENS, tokenData).then(success => {
+                Settings.pushSetting(Settings.TWITCH_TOKENS, 'type', tokenData).then(success => {
                     if(success) console.log('Successfully refreshed and wrote tokens to disk');
                     else console.error('Failed to save tokens to disk');
                 })
