@@ -31,12 +31,11 @@ class Settings {
      * @returns 
      */
     static async saveSettings(setting:string, settings:any=null):Promise<boolean> {
-        console.table(settings)
         let url = this.getUrl(setting)
         if(settings == null) settings = this.settingsStore[setting]
         if(settings != null) {
             let payload = JSON.stringify(settings)
-            console.log(`Saving settings(${payload.length}) for: ${setting}`)
+            console.log(`Saving settings (${payload.length}b): ${setting}`)
             let response = await fetch(url, {
                 method: 'post',
                 body: payload
