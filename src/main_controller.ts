@@ -12,11 +12,13 @@ class MainController {
         /** OBS */
         this._twitchPubsub.registerAward(this.buildOBSReward(
             Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_ROOMPEEK),
-            Config.instance.obs.sources.find(source => source.key == Config.KEY_ROOMPEEK)
+            Config.instance.obs.sources.find(source => source.key == Config.KEY_ROOMPEEK),
+            Images.YELLOW_DOT
         ))
         this._twitchPubsub.registerAward(this.buildOBSReward(
             Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_HEADPEEK),
-            Config.instance.obs.sources.find(source => source.key == Config.KEY_HEADPEEK)
+            Config.instance.obs.sources.find(source => source.key == Config.KEY_HEADPEEK),
+            Images.PINK_DOT
         ))
         
         /** TTS */
@@ -73,12 +75,27 @@ class MainController {
         this._twitchTokens.refresh()
     }
    
-    private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig):IPubsubReward {
+    private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null):IPubsubReward {
         let reward: IPubsubReward = {
             id: twitchReward.id,
             callback: (data:any) => {
                 console.log("OBS Reward triggered")
                 this._obs.showSource(obsSourceConfig)
+                if(image != null) {
+                    let msg = NotificationPipe.getEmptyCustomMessage()
+                    msg.properties.headset = true
+                    msg.properties.horizontal = false
+                    msg.properties.channel = 1
+                    msg.properties.duration = 9000
+                    msg.properties.width = 0.025
+                    msg.properties.distance = 0.25
+                    msg.properties.yaw = -30
+                    msg.properties.pitch = -30
+                    msg.transition.duration = 500,
+                    msg.transition2.duration = 500
+                    msg.image = image
+                    this._pipe.sendCustom(msg)
+                }
             }
         }
         return reward
