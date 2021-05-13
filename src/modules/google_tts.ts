@@ -5,6 +5,7 @@ class GoogleTTS {
     private _speakIntervalHandle: number
     private _audio:HTMLAudioElement
     private _voices:IGoogleVoice[] = [] // Cache
+    private _languages:string[] = [] // Cache
 
     constructor() {
         this.startSpeakLoop()
@@ -32,12 +33,10 @@ class GoogleTTS {
         let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
         if(voice == null) voice = this.getDefaultVoice(sentence.userName)
 
-        // Clean text
-        // Links: https://stackoverflow.com/a/23571059/2076423
-        // Emojis: https://stackoverflow.com/a/63464318/2076423
-        let cleanText = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, '').replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '');
-
+        let cleanText = this.cleanText(text)
+ 
         console.log(text)
+        let textVar:number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
         fetch(url, {
             method: 'post',
             body: JSON.stringify({
@@ -51,8 +50,8 @@ class GoogleTTS {
             },
             audioConfig: {
                 audioEncoding: "OGG_OPUS",
-                speakingRate: 1.0 + ((cleanText.length-250)/500)*0.25, // Should probably make this a curve
-                pitch: voice.pitch,
+                speakingRate: 1.0 + textVar * 0.25, // Should probably make this a curve
+                pitch: textVar * 2,
                 volumeGainDb: 0.0
             },
             enableTimePointing: [
@@ -101,8 +100,17 @@ class GoogleTTS {
         return result.length > 0 ? result : name // If name ended up empty, return original
     }
 
+    private cleanText(text:string):string {
+        text = text.toLowerCase()
+        let matches = text.match(/(\D)\1{2,}/g) // 2+ len group of non-digits https://stackoverflow.com/a/6306113
+        matches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        return text
+            .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Links: https://stackoverflow.com/a/23571059/2076423
+            .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, ''); // Emojis: https://stackoverflow.com/a/63464318/2076423
+    }
+
     async setVoiceForUser(userName:string, input:string) {
-        let voices = await this.loadVoices()
+        await this.loadVoicesAndLanguages() // Fills member caches
         let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', userName)
         if(voice == null) voice = this.getDefaultVoice(userName)
         
@@ -112,18 +120,18 @@ class GoogleTTS {
             if(setting.toLowerCase() == 'female') voice.gender = 'FEMALE'
             if(setting.toLowerCase() == 'male') voice.gender = 'MALE'
             
-            // Match pitch value
+            // Match pitch value (currently not used but still registered)
             let num = parseFloat(setting)
             if(!isNaN(num)) voice.pitch = (num > 20) ? 20 : ((num < -20) ? -20 : num)
             
             // Match country code
-            if(setting[2] == '-' && setting.length == 5) voice.languageCode = setting
+            if(setting[2] == '-' && setting.length == 5 && this._languages.includes(setting.toLowerCase())) voice.languageCode = setting
             
             // Match incoming full voice name
             let re = new RegExp(/([a-z]+)-([A-Z]+)-([\w]+)-([A-Z])/)
             let matches = setting.match(re)
             if(matches != null) {
-                if(voices.find(v => v.name.toLowerCase() == matches[0].toLowerCase())) {
+                if(this._voices.find(v => v.name.toLowerCase() == matches[0].toLowerCase())) {
                     voice.voiceName = matches[0]
                     voice.languageCode = `${matches[1]}-${matches[2]}`
                 } else console.warn(`Voice not found: ${matches[0]}`)
@@ -138,15 +146,26 @@ class GoogleTTS {
         this.enqueueSpeakSentence(`${cleanName} now sounds like this.`, userName)        
     }
 
-    private async loadVoices():Promise<IGoogleVoice[]> {
+    private async loadVoicesAndLanguages():Promise<boolean> {
         if(this._voices.length == 0) {
             let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._apiKey}`
             return fetch(url).then(response => response?.json()).then(json => {
+                console.log("Voices loaded!")
                 let voices = json?.voices
-                if(voices != null) this._voices = voices
-                return voices
+                if(voices != null) {
+                    voices = voices.filter(voice => voice.name.indexOf('Wavenet') >= 0)
+                    this._voices = voices
+                    voices.forEach(voice => {
+                        voice.languageCodes.forEach(code => {
+                            code = code.toLowerCase()
+                            if(this._languages.indexOf(code) < 0) this._languages.push(code)
+                        })
+                    })
+                    return true
+                }
+                else return false
             })
-        } else return this._voices
+        } else return true
     }
 
     private getDefaultVoice(userName:string):IUserVoice {
