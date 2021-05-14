@@ -49,11 +49,13 @@ class MainController {
                 if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
                     this._ttsEnabledUsers.push(username)
                     console.log(`User added to TTS list: ${username}`)
+                    // TODO: TTS that the user has gained a voice? Maybe whisper instead?
                 }
                 setTimeout(()=>{
                     let index = this._ttsEnabledUsers.indexOf(username)
                     let removed = this._ttsEnabledUsers.splice(index)
                     console.log(`User removed from TTS list: ${removed}`)
+                    // TODO: TTS that the user has lost their voice? Maybe whisper instead?
                 }, 5*60*1000)
             }
         })
@@ -98,7 +100,7 @@ class MainController {
                     let ignore:string[] = Config.instance.twitch.usersWithTtsIgnore
                     if(msg.text == null || msg.text.length == 0 || ignore.indexOf(msg.text[0]) == 0) return
                     let text = msg.isAction ? `${name} ${msg.text}` : `${name} said: ${msg.text}`
-                    this._tts.enqueueSpeakSentence(text, name)
+                    this._tts.enqueueSpeakSentence(text, username)
                 })
             }
 

@@ -33,6 +33,8 @@ class GoogleTTS {
         let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
         if(voice == null) voice = this.getDefaultVoice(sentence.userName)
 
+        // TODO: Change it so sentence contains variable for various templates for the name, "said" or "/me" or "none"
+        // TODO: Skip saying who said it if it's the last as the previous person.
         let cleanText = this.cleanText(text)
  
         console.log(text)
