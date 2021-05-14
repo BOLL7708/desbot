@@ -5,6 +5,7 @@ class MainController {
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: NotificationPipe = new NotificationPipe()
     private _obs: OBSWebSockets = new OBSWebSockets()
+    private _ttsEnabledUsers: string[] = []
 
     constructor() {
         this._pipe.sendBasic("PubSub Widget", "Initializing...")
@@ -24,7 +25,8 @@ class MainController {
         /** TTS */
         this._twitchPubsub.registerAward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSPEAK)?.id,
-            callback: (data:any) => {
+            callback: (data:ITwitchRedemptionMessage) => {
+                // if(!this._twitchChat.isConnected()) return // TODO: Need to remake the reward registration so it works for chat and/or pubsub
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
                 if(userName != null && inputText != null) {
@@ -41,14 +43,23 @@ class MainController {
         })
         this._twitchPubsub.registerAward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSPEAKTIME)?.id,
-            callback: (data:any) => {
+            callback: (data:ITwitchRedemptionMessage) => {
                 console.log("TTS Time Reward")
-                // TODO: This should set a timer here to pipe chat for a specific user to tts.
+                let username = data?.redemption?.user?.login
+                if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
+                    this._ttsEnabledUsers.push(username)
+                    console.log(`User added to TTS list: ${username}`)
+                }
+                setTimeout(()=>{
+                    let index = this._ttsEnabledUsers.indexOf(username)
+                    let removed = this._ttsEnabledUsers.splice(index)
+                    console.log(`User removed from TTS list: ${removed}`)
+                }, 5*60*1000)
             }
         })
         this._twitchPubsub.registerAward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSETVOICE)?.id,
-            callback: (data:any) => {
+            callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
                 console.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`)
@@ -60,16 +71,39 @@ class MainController {
         /** Chat */
         this._twitchPubsub.init()
 
-        this._twitchChat.init((message:TwitchMessage) => {
-            if(message?.username?.toLowerCase() == "streamlabs") { // TODO: Hardcoded now, should be a config
-                if(message?.text?.indexOf('Shoutout to') != 0) { // TODO: Hardcoded now, should be handled differently
-                    this._tts.enqueueSpeakSentence(message.text, message.username)
-                }
+        this._twitchChat.init((messageCmd:TwitchMessageCmd) => {
+            let msg = messageCmd.message
+            let username = msg?.username?.toLowerCase()
+            if(username == null || username.length == 0) return
+
+            // console.table(messageCmd.properties)
+            // TODO: For now skip reading rewards, in the future register rewards for both pubsub and chat.
+            if(typeof messageCmd.properties['custom-reward-id'] === 'string') {
+                console.log("Twitch Chat: Skipped as it's a reward.")
+                return
             }
+
+            // Bots
+            let ttsUsers:string[] = Config.instance.twitch.usersWithTts
+            let ttsTriggers:string[] = Config.instance.twitch.usersWithTtsTriggers
+            if(ttsUsers.indexOf(username) >= 0) {
+                ttsTriggers.forEach(trigger => {
+                    if(msg.text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(msg.text, username)
+                })
+            }
+
+            // Reward users
+            if(this._ttsEnabledUsers.indexOf(msg?.username?.toLowerCase()) >= 0) {
+                this._tts.loadCleanName(username).then(name => {
+                    let ignore:string[] = Config.instance.twitch.usersWithTtsIgnore
+                    if(msg.text == null || msg.text.length == 0 || ignore.indexOf(msg.text[0]) == 0) return
+                    let text = msg.isAction ? `${name} ${msg.text}` : `${name} said: ${msg.text}`
+                    this._tts.enqueueSpeakSentence(text, name)
+                })
+            }
+
             // TODO: We should fix the /me commands
             // TODO: Toggle this on and off with commands or URL params
-            // TODO: Key all settings on username instead of userid, to work with chat
-            // TODO: limit pitch even further, or remove? Automatic?
         })
 
         this._twitchTokens.refresh()

@@ -24,6 +24,9 @@ class Config {
             clientSecret: "",
             channelname: "",
             botName: "",
+            usersWithTts: [],
+            usersWithTtsTriggers: [],
+            usersWithTtsIgnore: [],
             rewards: [
                 {
                     key: "",

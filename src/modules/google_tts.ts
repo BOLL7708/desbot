@@ -103,7 +103,7 @@ class GoogleTTS {
     private cleanText(text:string):string {
         text = text.toLowerCase()
         let matches = text.match(/(\D)\1{2,}/g) // 2+ len group of non-digits https://stackoverflow.com/a/6306113
-        matches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        if(matches != null) matches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
         return text
             .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Links: https://stackoverflow.com/a/23571059/2076423
             .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, ''); // Emojis: https://stackoverflow.com/a/63464318/2076423
