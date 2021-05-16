@@ -6,6 +6,7 @@ class MainController {
     private _pipe: NotificationPipe = new NotificationPipe()
     private _obs: OBSWebSockets = new OBSWebSockets()
     private _ttsEnabledUsers: string[] = []
+    private _ttsForAll: boolean = false
 
     constructor() {
         this._pipe.sendBasic("PubSub Widget", "Initializing...")
@@ -74,9 +75,15 @@ class MainController {
         this._twitchPubsub.init()
 
         this._twitchChat.init((messageCmd:TwitchMessageCmd) => {
+            // TODO: Should all this be specified in the config, like with the PubSub rewards kind of are? How generic to make this?
             let msg = messageCmd.message
-            let username = msg?.username?.toLowerCase()
-            if(username == null || username.length == 0) return
+            if(msg == null) return
+            let username:string = msg.username?.toLowerCase()
+            if(typeof username !== 'string' || username.length == 0) return
+            let text:string = msg.text?.trim()
+            if(typeof text !== 'string' || text.length == 0) return
+            let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') >= 0
+            let isMod = messageCmd.properties?.mod == '1'
 
             // console.table(messageCmd.properties)
             // TODO: For now skip reading rewards, in the future register rewards for both pubsub and chat.
@@ -85,24 +92,52 @@ class MainController {
                 return
             }
 
+            // Commands
+            // TODO: Move settings for this into config? Like if broadcaster only/mod only/per command with callback?
+            if(text != null && text.indexOf('!') == 0 && (isBroadcaster || isMod)) {
+                let command = text.split(' ').shift().substr(1)
+                switch(command) {
+                    case 'ttson': 
+                        this._ttsForAll = true
+                        this._tts.enqueueSpeakSentence("Global TTS activated", null)
+                        return
+                    case 'ttsoff': 
+                        this._ttsForAll = false
+                        this._tts.enqueueSpeakSentence("Global TTS terminated", null)
+                        return
+                    default: 
+                        console.log(`Unhandled command: ${command}`)
+                }
+            }
+
             // Bots
             let ttsUsers:string[] = Config.instance.twitch.usersWithTts
             let ttsTriggers:string[] = Config.instance.twitch.usersWithTtsTriggers
-            if(ttsUsers.indexOf(username) >= 0) {
-                ttsTriggers.forEach(trigger => {
-                    if(msg.text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(msg.text, username)
-                })
-            }
-
-            // Reward users
-            if(this._ttsEnabledUsers.indexOf(msg?.username?.toLowerCase()) >= 0) {
+            let say = () => {
                 this._tts.loadCleanName(username).then(name => {
                     let ignore:string[] = Config.instance.twitch.usersWithTtsIgnore
-                    if(msg.text == null || msg.text.length == 0 || ignore.indexOf(msg.text[0]) == 0) return
-                    let text = msg.isAction ? `${name} ${msg.text}` : `${name} said: ${msg.text}`
-                    this._tts.enqueueSpeakSentence(text, username)
+                    if(text == null || text.length == 0 || ignore.indexOf(text[0]) == 0) return
+                    let spokenText = msg.isAction ? `${name} ${text}` : `${name} said: ${text}`
+                    this._tts.enqueueSpeakSentence(spokenText, username)
                 })
             }
+            if(ttsUsers.indexOf(username) >= 0) {
+                // Announcement bots
+                ttsTriggers.forEach(trigger => {
+                    if(msg.text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(text, username)
+                })
+            } else {
+                if(this._ttsForAll) {
+                    // TTS is on for everyone
+                    say()
+                }
+                else if(this._ttsEnabledUsers.indexOf(username) >= 0) {
+                    // Reward users
+                    say()
+                }
+            }
+
+            
 
             // TODO: We should fix the /me commands
             // TODO: Toggle this on and off with commands or URL params

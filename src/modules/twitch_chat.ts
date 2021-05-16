@@ -55,7 +55,7 @@ class TwitchMessageCmd {
     public properties:Record<string,string> = {}
     public message:TwitchMessage
     constructor(data:string) {
-        let [props, msg] = Utils.splitOnFirst(':', data)
+        let [props, msg] = Utils.splitOnFirst(' :', data)
         this.message = new TwitchMessage(msg)
         let rows:string[] = props.split(';')
         for(let i=0; i<rows.length; i++) {
