@@ -17,7 +17,7 @@ class GoogleTTS {
     }
 
     private startSpeakLoop() {
-        this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 1000)
+        this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 500)
     }
 
     enqueueSpeakSentence(sentence:string, userName: string, type:number=0):void {

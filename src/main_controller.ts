@@ -121,13 +121,14 @@ class MainController {
                     if(text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(text, username, GoogleTTS.TYPE_ANNOUNCEMENT)
                 })
             } else {
+                let type = msg.isAction ? GoogleTTS.TYPE_ACTION : GoogleTTS.TYPE_SAID
                 if(this._ttsForAll) {
                     // TTS is on for everyone
-                    this._tts.enqueueSpeakSentence(text, username, msg.isAction ? GoogleTTS.TYPE_ACTION : GoogleTTS.TYPE_SAID)
+                    this._tts.enqueueSpeakSentence(text, username, type)
                 }
                 else if(this._ttsEnabledUsers.indexOf(username) >= 0) {
                     // Reward users
-                    this._tts.enqueueSpeakSentence(text, username, msg.isAction ? GoogleTTS.TYPE_ACTION : GoogleTTS.TYPE_SAID)
+                    this._tts.enqueueSpeakSentence(text, username, type)
                 }
             }
         })
