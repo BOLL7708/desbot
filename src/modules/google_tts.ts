@@ -10,6 +10,7 @@ class GoogleTTS {
     private _speakIntervalHandle: number
     private _audio: HTMLAudioElement
     private _voices: IGoogleVoice[] = [] // Cache
+    private _randomVoices: IGoogleVoice[] = [] // Cache for randomizing starter voice
     private _languages: string[] = [] // Cache
     private _isPlaying: boolean = false
     private _lastPlayed: number = 0
@@ -45,7 +46,10 @@ class GoogleTTS {
         if(text == null) return
         
         let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
-        if(voice == null) voice = this.getDefaultVoice(sentence.userName)
+        if(voice == null) {
+            voice = await this.getDefaultVoice(sentence.userName)
+            Settings.pushSetting(Settings.USER_VOICES, 'userName', voice)
+        }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
         let cleanText = Utils.cleanText(text)
@@ -96,7 +100,7 @@ class GoogleTTS {
     }
 
     async setVoiceForUser(userName:string, input:string) {
-        await this.loadVoicesAndLanguages() // Fills member caches
+        await this.loadVoicesAndLanguages() // Fills caches
         let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', userName)
         if(voice == null) voice = this.getDefaultVoice(userName)
         
@@ -140,6 +144,7 @@ class GoogleTTS {
                 if(voices != null) {
                     voices = voices.filter(voice => voice.name.indexOf('Wavenet') >= 0)
                     this._voices = voices
+                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf('en-') == 0))
                     voices.forEach(voice => {
                         voice.languageCodes.forEach(code => {
                             code = code.toLowerCase()
@@ -153,13 +158,17 @@ class GoogleTTS {
         } else return true
     }
 
-    private getDefaultVoice(userName:string):IUserVoice {
+    private async getDefaultVoice(userName:string):Promise<IUserVoice> {
+        await this.loadVoicesAndLanguages() // Fills caches
+        let randomVoice:IGoogleVoice = this._randomVoices.length > 0
+            ? this._randomVoices[Math.round(Math.random()*(this._randomVoices.length-1))]
+            : null
         return {
             userName: userName,
-            languageCode: 'en-US',
-            voiceName: '',
+            languageCode: randomVoice?.languageCodes.shift() ?? 'en-US',
+            voiceName: randomVoice?.name ?? '',
             pitch: 0.0,
-            gender: 'FEMALE'
+            gender: randomVoice?.ssmlGender ?? 'FEMALE'
         }
     }
 }
