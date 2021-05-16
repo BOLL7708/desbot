@@ -4,12 +4,16 @@ class GoogleTTS {
     static get TYPE_ANNOUNCEMENT() { return 2 } // [text]
 
     // TODO: Split this up into a TTS master class, and separate voice integrations.
-    private _apiKey:String = Config.instance.google.apiKey
-    private _sentenceQueue:ISentence[] = []
+    private _apiKey: String = Config.instance.google.apiKey
+    private _speakerTimeoutMs: number = Config.instance.google.speakerTimeoutMs
+    private _sentenceQueue: ISentence[] = []
     private _speakIntervalHandle: number
-    private _audio:HTMLAudioElement
-    private _voices:IGoogleVoice[] = [] // Cache
-    private _languages:string[] = [] // Cache
+    private _audio: HTMLAudioElement
+    private _voices: IGoogleVoice[] = [] // Cache
+    private _languages: string[] = [] // Cache
+    private _isPlaying: boolean = false
+    private _lastPlayed: number = 0
+    private _lastSpeaker: string = ''
 
     constructor() {
         this.startSpeakLoop()
@@ -20,36 +24,42 @@ class GoogleTTS {
         this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 500)
     }
 
-    enqueueSpeakSentence(sentence:string, userName: string, type:number=0):void {
+    enqueueSpeakSentence(sentence: string, userName: string, type: number=0):void {
         this._sentenceQueue.push({text: sentence, userName: userName, type: type})
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
     private async trySpeakNext() {
-        if(!this._audio.paused) return
+        if(!this._audio.paused) {
+            this._isPlaying = true
+            return
+        } else if(this._isPlaying) {
+            this._isPlaying = false
+            this._lastPlayed = Date.now()
+        }
         let sentence = this._sentenceQueue.shift()
         if(typeof sentence == 'undefined') return
         
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
         let text = sentence.text
         if(text == null) return
-
+        
         let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
         if(voice == null) voice = this.getDefaultVoice(sentence.userName)
-
-        // TODO: Change it so sentence contains variable for various templates for the name, "said" or "/me" or "none"
-        // TODO: Skip saying who said it if it's the last as the previous person.
+        
         let cleanName = await Utils.loadCleanName(sentence.userName)
         let cleanText = Utils.cleanText(text)
+        if(Date.now() - this._lastPlayed > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
-                cleanText = `${cleanName} said: ${cleanText}`
-            break;
+                cleanText = this._lastSpeaker == sentence.userName ? cleanText : `${cleanName} said: ${cleanText}`
+                break;
             case GoogleTTS.TYPE_ACTION: 
                 cleanText = `${cleanName} ${cleanText}`
-            break;
+                break;
         }
- 
+        this._lastSpeaker = sentence.userName
+            
         console.log(text)
         let textVar:number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
         fetch(url, {
@@ -79,6 +89,7 @@ class GoogleTTS {
                 this._audio.src = `data:audio/ogg;base64,${json.audioContent}`;
                 this._audio.play();
             } else {
+                this._lastSpeaker = ''
                 console.error(`Failed to generate speech: [${json.status}], ${json.error}`);
             }
         });

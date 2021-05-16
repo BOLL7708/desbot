@@ -7,7 +7,8 @@ interface IConfig {
 
 /** GOOGLE */
 interface IGoogleConfig {
-    apiKey:string
+    apiKey: string
+    speakerTimeoutMs: number
 }
 interface ISentence {
     text: string

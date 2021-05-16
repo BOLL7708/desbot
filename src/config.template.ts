@@ -1,7 +1,8 @@
 class Config {
     static instance: IConfig ={
         google: {
-            apiKey: ""
+            apiKey: "",
+            speakerTimeoutMs: 5000
         },
         pipe: {
             port: 8077
