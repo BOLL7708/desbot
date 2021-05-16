@@ -52,8 +52,8 @@ class TwitchChat {
     }
 }
 class TwitchMessageCmd {
-    public properties:Record<string,string> = {}
-    public message:TwitchMessage
+    properties:Record<string,string> = {}
+    message:TwitchMessage
     constructor(data:string) {
         let [props, msg] = Utils.splitOnFirst(' :', data)
         this.message = new TwitchMessage(msg)
@@ -67,27 +67,27 @@ class TwitchMessageCmd {
 }
 
 class TwitchMessage {
-    public data:string
-    public username:string
-    public channel:string
-    public type:string
-    public text:string
-    public isAction:boolean
+    data:string
+    username:string
+    channel:string
+    type:string
+    text:string
+    isAction:boolean
     constructor(data:string) {
         this.data = data;
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
         let matches:any = re.exec(data)
         if(matches != null) {
-            this.username = matches[1]
-            this.channel = matches[2]
-            this.type = matches[3]
-            this.text = matches[4]
             const re2 = /^\u0001ACTION ([^\u0001]+)\u0001$/
             let matches2:any = re2.exec(matches[4])
             this.isAction = matches2 != null
+            this.username = matches[1]
+            this.channel = matches[2]
+            this.type = matches[3]
+            this.text = this.isAction ? matches2[1] : matches[4]
         }
     }
-    public isOk() {
+    isOk() {
         return this.username != null && this.type != null && this.text != null
     }
 }

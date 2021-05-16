@@ -1,5 +1,5 @@
 class TwitchTokens {
-    public refresh() {
+    refresh() {
         this.refreshToken()
     }
 

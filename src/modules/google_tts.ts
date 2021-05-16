@@ -1,4 +1,8 @@
 class GoogleTTS {
+    static get TYPE_SAID() { return 0 } // [name] said: [text]
+    static get TYPE_ACTION() { return 1 } // [name] [text]
+    static get TYPE_ANNOUNCEMENT() { return 2 } // [text]
+
     // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _apiKey:String = Config.instance.google.apiKey
     private _sentenceQueue:ISentence[] = []
@@ -16,8 +20,8 @@ class GoogleTTS {
         this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 1000)
     }
 
-    enqueueSpeakSentence(sentence:string, userName: string):void {
-        this._sentenceQueue.push({text: sentence, userName: userName})
+    enqueueSpeakSentence(sentence:string, userName: string, type:number=0):void {
+        this._sentenceQueue.push({text: sentence, userName: userName, type: type})
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
@@ -35,7 +39,16 @@ class GoogleTTS {
 
         // TODO: Change it so sentence contains variable for various templates for the name, "said" or "/me" or "none"
         // TODO: Skip saying who said it if it's the last as the previous person.
-        let cleanText = this.cleanText(text)
+        let cleanName = await Utils.loadCleanName(sentence.userName)
+        let cleanText = Utils.cleanText(text)
+        switch(sentence.type) {
+            case GoogleTTS.TYPE_SAID:
+                cleanText = `${cleanName} said: ${cleanText}`
+            break;
+            case GoogleTTS.TYPE_ACTION: 
+                cleanText = `${cleanName} ${cleanText}`
+            break;
+        }
  
         console.log(text)
         let textVar:number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
@@ -71,46 +84,6 @@ class GoogleTTS {
         });
     }
 
-    async loadCleanName(userName:string):Promise<string> {
-        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.USER_NAMES, 'userName', userName)
-        let cleanName = cleanNameSetting?.shortName
-        if(cleanName == null) {
-            cleanName = this.cleanName(userName)
-            cleanNameSetting = {userName: userName, shortName: cleanName}
-            Settings.pushSetting(Settings.USER_NAMES, 'userName', cleanNameSetting)
-        }
-        return cleanName
-    }
-
-    private cleanName(name:string):string {
-        let nameArr = name.toLowerCase().split('_') // Split on _
-        let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b) // Reduce to longest word
-        namePart = namePart.replace(/[0-9]{2,}/g, '') // Replace big number groups (len: 2+)
-        let numToChar:any = {
-            0: 'o',
-            1: 'i',
-            3: 'e',
-            4: 'a',
-            5: 's',
-            6: 'g',
-            7: 't'
-        }
-        var re = new RegExp(Object.keys(numToChar).join("|"),"gi");
-        let result = namePart.replace(re, function(matched){ // Replace leet speak with chars
-            return numToChar[matched];
-        });
-        return result.length > 0 ? result : name // If name ended up empty, return original
-    }
-
-    private cleanText(text:string):string {
-        text = text.toLowerCase()
-        let matches = text.match(/(\D)\1{2,}/g) // 2+ len group of non-digits https://stackoverflow.com/a/6306113
-        if(matches != null) matches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
-        return text
-            .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Links: https://stackoverflow.com/a/23571059/2076423
-            .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, ''); // Emojis: https://stackoverflow.com/a/63464318/2076423
-    }
-
     async setVoiceForUser(userName:string, input:string) {
         await this.loadVoicesAndLanguages() // Fills member caches
         let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', userName)
@@ -144,8 +117,7 @@ class GoogleTTS {
         })
         let success = await Settings.pushSetting(Settings.USER_VOICES, 'userName', voice)
         console.log(`Voice saved: ${success}`)
-        let cleanName = await this.loadCleanName(userName)
-        this.enqueueSpeakSentence(`${cleanName} now sounds like this.`, userName)        
+        this.enqueueSpeakSentence('now sounds like this', userName, GoogleTTS.TYPE_ACTION)
     }
 
     private async loadVoicesAndLanguages():Promise<boolean> {

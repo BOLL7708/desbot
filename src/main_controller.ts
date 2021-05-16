@@ -31,14 +31,12 @@ class MainController {
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
                 if(userName != null && inputText != null) {
-                    this._tts.loadCleanName(userName).then(name => {
-                        let text = `${name} said: ${inputText}`
-                        console.log("TTS Message Reward")
-                        this._tts.enqueueSpeakSentence(
-                            text,
-                            userName
-                        )
-                    })
+                    console.log("TTS Message Reward")
+                    this._tts.enqueueSpeakSentence(
+                        inputText,
+                        userName,
+                        GoogleTTS.TYPE_SAID
+                    )
                 }
             }
         })
@@ -50,13 +48,11 @@ class MainController {
                 if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
                     this._ttsEnabledUsers.push(username)
                     console.log(`User added to TTS list: ${username}`)
-                    // TODO: TTS that the user has gained a voice? Maybe whisper instead?
                 }
                 setTimeout(()=>{
                     let index = this._ttsEnabledUsers.indexOf(username)
                     let removed = this._ttsEnabledUsers.splice(index)
                     console.log(`User removed from TTS list: ${removed}`)
-                    // TODO: TTS that the user has lost their voice? Maybe whisper instead?
                 }, 5*60*1000)
             }
         })
@@ -96,51 +92,44 @@ class MainController {
             // TODO: Move settings for this into config? Like if broadcaster only/mod only/per command with callback?
             if(text != null && text.indexOf('!') == 0 && (isBroadcaster || isMod)) {
                 let command = text.split(' ').shift().substr(1)
+                let username = Config.instance.twitch.botName
                 switch(command) {
                     case 'ttson': 
                         this._ttsForAll = true
-                        this._tts.enqueueSpeakSentence("Global TTS activated", null)
+                        this._tts.enqueueSpeakSentence("Global TTS activated", username, GoogleTTS.TYPE_ANNOUNCEMENT)
                         return
                     case 'ttsoff': 
                         this._ttsForAll = false
-                        this._tts.enqueueSpeakSentence("Global TTS terminated", null)
+                        this._tts.enqueueSpeakSentence("Global TTS terminated", username, GoogleTTS.TYPE_ANNOUNCEMENT)
                         return
-                    default: 
+                    case 'say':
+                        this._tts.enqueueSpeakSentence(Utils.splitOnFirst(' ', text).pop() , username, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        return
+                    default:
+                        // Catches invalid commands and prevents ! messages from being spoken
                         console.log(`Unhandled command: ${command}`)
+                        return
                 }
             }
 
             // Bots
             let ttsUsers:string[] = Config.instance.twitch.usersWithTts
             let ttsTriggers:string[] = Config.instance.twitch.usersWithTtsTriggers
-            let say = () => {
-                this._tts.loadCleanName(username).then(name => {
-                    let ignore:string[] = Config.instance.twitch.usersWithTtsIgnore
-                    if(text == null || text.length == 0 || ignore.indexOf(text[0]) == 0) return
-                    let spokenText = msg.isAction ? `${name} ${text}` : `${name} said: ${text}`
-                    this._tts.enqueueSpeakSentence(spokenText, username)
-                })
-            }
             if(ttsUsers.indexOf(username) >= 0) {
                 // Announcement bots
                 ttsTriggers.forEach(trigger => {
-                    if(msg.text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(text, username)
+                    if(text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(text, username, GoogleTTS.TYPE_ANNOUNCEMENT)
                 })
             } else {
                 if(this._ttsForAll) {
                     // TTS is on for everyone
-                    say()
+                    this._tts.enqueueSpeakSentence(text, username, msg.isAction ? GoogleTTS.TYPE_ACTION : GoogleTTS.TYPE_SAID)
                 }
                 else if(this._ttsEnabledUsers.indexOf(username) >= 0) {
                     // Reward users
-                    say()
+                    this._tts.enqueueSpeakSentence(text, username, msg.isAction ? GoogleTTS.TYPE_ACTION : GoogleTTS.TYPE_SAID)
                 }
             }
-
-            
-
-            // TODO: We should fix the /me commands
-            // TODO: Toggle this on and off with commands or URL params
         })
 
         this._twitchTokens.refresh()

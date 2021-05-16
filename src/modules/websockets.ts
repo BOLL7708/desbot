@@ -24,10 +24,10 @@ class WebSockets {
     private _serverUrl: string
     private _messageQueue: string[] = []
     private _messageQueueing: boolean
-    public _onOpen: Function
-    public _onClose: Function
-    public _onMessage: Function
-    public _onError: Function
+    _onOpen: Function
+    _onClose: Function
+    _onMessage: Function
+    _onError: Function
     
     init() {
         this.startConnectLoop(true)
