@@ -105,12 +105,14 @@ class MainController {
                 let username = Config.instance.twitch.botName
                 switch(command) {
                     case 'ttson': 
+                        let onText:string = !this._ttsForAll ? "Global TTS activated" : "Global TTS already on"
                         this._ttsForAll = true
-                        this._tts.enqueueSpeakSentence("Global TTS activated", username, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(onText, username, GoogleTTS.TYPE_ANNOUNCEMENT)
                         return
                     case 'ttsoff': 
+                        let offText = this._ttsForAll ? "Global TTS terminated" : "Global TTS already off"
                         this._ttsForAll = false
-                        this._tts.enqueueSpeakSentence("Global TTS terminated", username, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(offText, username, GoogleTTS.TYPE_ANNOUNCEMENT)
                         return
                     case 'say':
                         this._tts.enqueueSpeakSentence(Utils.splitOnFirst(' ', text).pop() , username, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -125,19 +127,25 @@ class MainController {
             // Bots
             let ttsUsers:string[] = Config.instance.twitch.usersWithTts
             let ttsTriggers:string[] = Config.instance.twitch.usersWithTtsTriggers
-            if(ttsUsers.indexOf(username) >= 0) {
-                // Announcement bots
+            let bits = parseInt(messageCmd.properties?.bits)
+            if(ttsUsers.indexOf(username) >= 0) { // Announcement bots
+                
                 ttsTriggers.forEach(trigger => {
                     if(text.indexOf(trigger) == 0) this._tts.enqueueSpeakSentence(text, username, GoogleTTS.TYPE_ANNOUNCEMENT)
                 })
-            } else {
-                let type = msg.isAction ? GoogleTTS.TYPE_ACTION : GoogleTTS.TYPE_SAID
-                if(this._ttsForAll) {
-                    // TTS is on for everyone
+            } else if(!isNaN(bits) && bits > 0) { // Cheers // TODO: Probably add a setting for this, and most other things here.
+                this._tts.enqueueSpeakSentence(text, username, GoogleTTS.TYPE_CHEER, bits)
+            } else { // Normal users
+                let type = GoogleTTS.TYPE_SAID
+                if(msg.isAction) type = GoogleTTS.TYPE_ACTION
+                
+                // TTS is on for everyone
+                if(this._ttsForAll) { 
                     this._tts.enqueueSpeakSentence(text, username, type)
                 }
-                else if(this._ttsEnabledUsers.indexOf(username) >= 0) {
-                    // Reward users
+                else 
+                // Reward users
+                if(this._ttsEnabledUsers.indexOf(username) >= 0) {
                     this._tts.enqueueSpeakSentence(text, username, type)
                 }
             }

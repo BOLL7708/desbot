@@ -2,6 +2,7 @@ class GoogleTTS {
     static get TYPE_SAID() { return 0 } // [name] said: [text]
     static get TYPE_ACTION() { return 1 } // [name] [text]
     static get TYPE_ANNOUNCEMENT() { return 2 } // [text]
+    static get TYPE_CHEER() { return 3 } // [name] cheered: [text]
 
     // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _apiKey: String = Config.instance.google.apiKey
@@ -25,9 +26,9 @@ class GoogleTTS {
         this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 500)
     }
 
-    enqueueSpeakSentence(sentence: string, userName: string, type: number=0):void {
+    enqueueSpeakSentence(sentence: string, userName: string, type: number=0, meta: any=null):void {
         if(sentence.trim().length == 0) return
-        this._sentenceQueue.push({text: sentence, userName: userName, type: type})
+        this._sentenceQueue.push({text: sentence, userName: userName, type: type, meta: meta})
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
@@ -53,7 +54,7 @@ class GoogleTTS {
         }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
-        let cleanText = await Utils.cleanText(text)
+        let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER)
         if(cleanText.length == 0) return console.error("TTS: Clean text had zero length")
 
         if(Date.now() - this._lastPlayed > this._speakerTimeoutMs) this._lastSpeaker = ''
@@ -64,6 +65,9 @@ class GoogleTTS {
             case GoogleTTS.TYPE_ACTION: 
                 cleanText = `${cleanName} ${cleanText}`
                 break
+            case GoogleTTS.TYPE_CHEER:
+                let bitText = sentence.meta > 1 ? 'bits' : 'bit'
+                cleanText = `${cleanName} cheered ${sentence.meta} ${bitText}: ${cleanText}`
         }
         this._lastSpeaker = sentence.userName
             
