@@ -5,6 +5,7 @@ class MainController {
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: NotificationPipe = new NotificationPipe()
     private _obs: OBSWebSockets = new OBSWebSockets()
+    private _screenshots: Screenshots = new Screenshots()
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
 
@@ -65,11 +66,20 @@ class MainController {
                 this._tts.setVoiceForUser(userName, userInput)
             }
         })
+        this._twitchPubsub.registerAward({
+            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_SCREENSHOT)?.id,
+            callback: (data:ITwitchRedemptionMessage) => {
+                let userName = data?.redemption?.user?.login
+                let userInput = data?.redemption?.user_input
+                this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._screenshots.sendScreenshotRequest(data?.redemption?.user?.login, Config.instance.screenshots.delay)
+            }
+        })
+        
+        this._twitchPubsub.init()
 
 
         /** Chat */
-        this._twitchPubsub.init()
-
         this._twitchChat.init((messageCmd:TwitchMessageCmd) => {
             // TODO: Should all this be specified in the config, like with the PubSub rewards kind of are? How generic to make this?
             let msg = messageCmd.message

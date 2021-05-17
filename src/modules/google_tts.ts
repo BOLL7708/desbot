@@ -26,24 +26,25 @@ class GoogleTTS {
     }
 
     enqueueSpeakSentence(sentence: string, userName: string, type: number=0):void {
+        if(sentence.trim().length == 0) return
         this._sentenceQueue.push({text: sentence, userName: userName, type: type})
         console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
     }
 
     private async trySpeakNext() {
         if(!this._audio.paused) {
-            this._isPlaying = true
+            this._isPlaying = this._audio.error == null
             return
         } else if(this._isPlaying) {
             this._isPlaying = false
             this._lastPlayed = Date.now()
         }
         let sentence = this._sentenceQueue.shift()
-        if(typeof sentence == 'undefined') return
+        if(typeof sentence == 'undefined') return // The queue is empty
         
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
         let text = sentence.text
-        if(text == null) return
+        if(text == null || text.length == 0) return console.error("TTS: Sentence text was null or empty")
         
         let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
         if(voice == null) {
@@ -53,14 +54,16 @@ class GoogleTTS {
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
         let cleanText = Utils.cleanText(text)
+        if(cleanText.length == 0) return console.error("TTS: Clean text had zero length")
+
         if(Date.now() - this._lastPlayed > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
                 cleanText = this._lastSpeaker == sentence.userName ? cleanText : `${cleanName} said: ${cleanText}`
-                break;
+                break
             case GoogleTTS.TYPE_ACTION: 
                 cleanText = `${cleanName} ${cleanText}`
-                break;
+                break
         }
         this._lastSpeaker = sentence.userName
             
@@ -80,7 +83,7 @@ class GoogleTTS {
             audioConfig: {
                 audioEncoding: "OGG_OPUS",
                 speakingRate: 1.0 + textVar * 0.25, // Should probably make this a curve
-                pitch: textVar * 2,
+                pitch: textVar * 1.0,
                 volumeGainDb: 0.0
             },
             enableTimePointing: [
@@ -88,13 +91,13 @@ class GoogleTTS {
             ]
           })
         }).then((response) => response.json()).then(json => {
-            if (typeof json.audioContent != 'undefined') {
-                console.log(`Successfully got speech: [${json.audioContent.length}]`);
+            if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
+                console.log(`TTS: Successfully got speech: [${json.audioContent.length}]`);
                 this._audio.src = `data:audio/ogg;base64,${json.audioContent}`;
                 this._audio.play();
             } else {
                 this._lastSpeaker = ''
-                console.error(`Failed to generate speech: [${json.status}], ${json.error}`);
+                console.error(`TTS: Failed to generate speech: [${json.status}], ${json.error}`);
             }
         });
     }

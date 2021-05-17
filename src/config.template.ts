@@ -34,6 +34,10 @@ class Config {
                     id: ""
                 }
             ]
+        },
+        screenshots: {
+            port: 8807,
+            delay: 5
         }
     }
 }

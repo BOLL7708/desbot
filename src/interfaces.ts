@@ -3,6 +3,7 @@ interface IConfig {
     pipe:IPipeConfig
     obs:IObsConfig
     twitch:ITwitchConfig
+    screenshots: IScreenshotConfig
 }
 
 /** GOOGLE */
@@ -144,4 +145,15 @@ interface ITwitchUser {
     display_name:string
     id: string
     login: string
+}
+
+/** Screenshots */
+interface IScreenshotConfig {
+    port: number
+    delay: number
+}
+interface IScreenshotRequest {
+    nonce: number,
+    delaySeconds: number,
+    userName: string
 }
