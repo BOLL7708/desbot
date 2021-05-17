@@ -53,7 +53,7 @@ class GoogleTTS {
         }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
-        let cleanText = Utils.cleanText(text)
+        let cleanText = await Utils.cleanText(text)
         if(cleanText.length == 0) return console.error("TTS: Clean text had zero length")
 
         if(Date.now() - this._lastPlayed > this._speakerTimeoutMs) this._lastSpeaker = ''
