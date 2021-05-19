@@ -1,4 +1,4 @@
-class OBSWebSockets {
+class OBS {
     private _socket: WebSockets
     private _config = Config.instance.obs;
     private _messageCounter: number = 10;
@@ -14,6 +14,8 @@ class OBSWebSockets {
     private onMessage(evt) {
         let data = JSON.parse(evt.data)
 		let id = parseInt(data["message-id"])
+        let updateType = data['update-type'];
+
         switch(id) {
 			case 1:
                 this.sha256(this._config.password + data.salt).then(secret => {
@@ -27,7 +29,16 @@ class OBSWebSockets {
 				if(data.status != "ok") this._socket.disconnect()
 				break
 			default: 
-                // console.log(evt.data)
+                switch(updateType) {
+                    case 'SwitchScenes':
+                        let sceneName = data['scene-name']
+                        console.log(sceneName)
+                        // TODO: RETURN THE VALUE TO SOME CALLBACK HERE.
+                        break
+                    default:
+                        console.log(evt.data)
+                        break
+                }
                 break
 		}
     }

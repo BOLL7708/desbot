@@ -4,7 +4,7 @@ class MainController {
     private _twitchChat: TwitchChat = new TwitchChat()
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: NotificationPipe = new NotificationPipe()
-    private _obs: OBSWebSockets = new OBSWebSockets()
+    private _obs: OBS = new OBS()
     private _screenshots: Screenshots = new Screenshots()
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
