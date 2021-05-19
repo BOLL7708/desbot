@@ -17,7 +17,8 @@ class Config {
                     sourceName: "",
                     duration: 10000
                 }
-            ]
+            ],
+            filterOnScenes: []
         },
         twitch: {
             userId: 0,

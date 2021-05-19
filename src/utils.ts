@@ -59,4 +59,12 @@ class Utils {
             .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Links: https://stackoverflow.com/a/23571059/2076423
             .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, ''); // Emojis: https://stackoverflow.com/a/63464318/2076423
     }
+
+    static async sha256(message:string) {
+        const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
+        const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
+        const byteArray = Array.from(new Uint8Array(hashBuffer)); // convert ArrayBuffer to Array
+        let base64String = btoa(String.fromCharCode(...byteArray)); // b64 encode byte array
+        return base64String;
+    }
 }

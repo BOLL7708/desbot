@@ -1,5 +1,4 @@
-
-// TTS Settinsg
+// Settings
 interface IUserVoice {
     userName: string
     languageCode: string

@@ -1,4 +1,4 @@
-/** Twitch */
+// Config
 interface ITwitchConfig {
     userId: number
     clientId: string
@@ -64,3 +64,5 @@ interface ITwitchUser {
     id: string
     login: string
 }
+
+// Callbacks

@@ -1,7 +1,9 @@
-/** PIPE */
+// Config
 interface IPipeConfig {
     port: number
 }
+
+// Data
 interface IPipeCustomMessage {
     image: string
     custom: boolean

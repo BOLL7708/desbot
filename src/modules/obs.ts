@@ -18,8 +18,8 @@ class OBS {
 
         switch(id) {
 			case 1:
-                this.sha256(this._config.password + data.salt).then(secret => {
-                    this.sha256(secret + data.challenge).then(authResponse => {
+                Utils.sha256(this._config.password + data.salt).then(secret => {
+                    Utils.sha256(secret + data.challenge).then(authResponse => {
                         this._socket.send(this.buildRequest("Authenticate", 2, {auth: authResponse}));
                     })
                 })
@@ -31,12 +31,11 @@ class OBS {
 			default: 
                 switch(updateType) {
                     case 'SwitchScenes':
-                        let sceneName = data['scene-name']
-                        console.log(sceneName)
-                        // TODO: RETURN THE VALUE TO SOME CALLBACK HERE.
+                        let sceneName:string = data['scene-name']
+                        this._sceneChangeCallback(sceneName)
                         break
                     default:
-                        console.log(evt.data)
+                        // console.log(evt.data)
                         break
                 }
                 break
@@ -73,11 +72,8 @@ class OBS {
         return JSON.stringify(request)
     }
 
-    async sha256(message:string) {
-        const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
-        const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
-        const byteArray = Array.from(new Uint8Array(hashBuffer)); // convert ArrayBuffer to Array
-        let base64String = btoa(String.fromCharCode(...byteArray)); // b64 encode byte array
-        return base64String;
+    private _sceneChangeCallback: ISceneChangeCallback = (sceneName:string) => { console.log(`OBS: No callback set for scene changes (${sceneName})`) }
+    registerSceneChangeCallback(callback:ISceneChangeCallback) {
+        this._sceneChangeCallback = callback
     }
 }

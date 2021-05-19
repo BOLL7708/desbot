@@ -1,4 +1,4 @@
-/** Screenshots */
+// Config
 interface IScreenshotConfig {
     port: number
     delay: number

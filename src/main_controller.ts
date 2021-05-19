@@ -3,7 +3,7 @@ class MainController {
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _twitchChat: TwitchChat = new TwitchChat()
     private _tts: GoogleTTS = new GoogleTTS()
-    private _pipe: NotificationPipe = new NotificationPipe()
+    private _pipe: Pipe = new Pipe()
     private _obs: OBS = new OBS()
     private _screenshots: Screenshots = new Screenshots()
     private _ttsEnabledUsers: string[] = []
@@ -152,6 +152,11 @@ class MainController {
         })
 
         this._twitchTokens.refresh()
+
+        this._obs.registerSceneChangeCallback((sceneName) => {
+            let match = Config.instance.obs.filterOnScenes.indexOf(sceneName) >= 0
+            this._ttsForAll = sceneName !== 'Main'
+        })
     }
    
     private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null):IPubsubReward {
@@ -161,7 +166,7 @@ class MainController {
                 console.log("OBS Reward triggered")
                 this._obs.showSource(obsSourceConfig)
                 if(image != null) {
-                    let msg = NotificationPipe.getEmptyCustomMessage()
+                    let msg = Pipe.getEmptyCustomMessage()
                     msg.properties.headset = true
                     msg.properties.horizontal = false
                     msg.properties.channel = 1

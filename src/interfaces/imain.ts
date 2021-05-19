@@ -1,3 +1,4 @@
+// Config
 interface IConfig {
     google:IGoogleConfig
     pipe:IPipeConfig

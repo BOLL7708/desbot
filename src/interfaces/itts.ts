@@ -1,3 +1,4 @@
+// Data
 interface ISentence {
     text: string
     userName: string

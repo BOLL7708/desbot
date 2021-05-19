@@ -1,4 +1,4 @@
-class NotificationPipe {
+class Pipe {
     private _socket:WebSockets
     constructor() {
         let config:IPipeConfig = Config.instance.pipe
