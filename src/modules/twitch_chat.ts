@@ -1,9 +1,7 @@
 class TwitchChat {
     private _socket: WebSockets
-    private _messageCallback: Function = (message: TwitchMessage) => console.log(`No message callback set, missed message: ${message.text}`)
     private _isConnected: boolean = false
-    init(messageCallback: (messageCmd: TwitchMessageCmd) => void) {
-        this._messageCallback = messageCallback
+    init() {
         this._socket = new WebSockets(
             "wss://irc-ws.chat.twitch.tv:443",
             15,
@@ -14,6 +12,11 @@ class TwitchChat {
             this.onError.bind(this)
         )
         this._socket.init();
+    }
+
+    private _chatMessageCallback: ITwitchChatMessageCallback = (message) => { console.warn('Unhandled chat message callback') }
+    registerChatMessageCallback(callback: ITwitchChatMessageCallback) {
+        this._chatMessageCallback = callback
     }
 
     isConnected(): boolean {
@@ -43,7 +46,7 @@ class TwitchChat {
             messageStrings.forEach(str => {
                 if(str == null || str.length == 0) return
                 let message: TwitchMessageCmd = new TwitchMessageCmd(str)
-                this._messageCallback(message)
+                this._chatMessageCallback(message)
             });
         }        
     }

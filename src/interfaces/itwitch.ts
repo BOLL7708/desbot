@@ -5,18 +5,18 @@ interface ITwitchConfig {
     clientSecret: string
     channelName: string
     botName: string
-    usersWithTts: string[]
-    usersWithTtsTriggers: string[]
-    usersWithTtsIgnore: string[]
+    announcerName: string
+    announcerTrigger: string
+    doNotSpeak: string[]
     rewards: ITwitchRewardConfig[]
 }
 interface ITwitchRewardConfig {
     key: string
     id: string
 }
-interface IPubsubReward {
+interface ITwitchReward {
     id: string
-    callback: (data: object) => void
+    callback: ITwitchRedemptionCallback
 }
 interface ITwitchTokens {
     access_token: string
@@ -31,12 +31,12 @@ interface ITwitchRedemption {
     channel_id: string
     id: string
     redeemed_at: string
-    reward: ITwitchReward
+    reward: ITwitchRewardData
     status: string
     user: ITwitchUser
     user_input: string
 }
-interface ITwitchReward {
+interface ITwitchRewardData {
     background_color: string
     channel_id: string
     cooldown_expires_at: string
@@ -64,5 +64,38 @@ interface ITwitchUser {
     id: string
     login: string
 }
+interface ITwitchSlashCommand {
+    trigger: string
+    mods: boolean
+    everyone: boolean
+    callback: ITwitchSlashCommandCallback
+}
+interface ITwitchAnnouncement {
+    userName: string
+    trigger: string
+    callback: ITwitchAnnouncementCallback
+}
+
 
 // Callbacks
+interface ITwitchChatCallback { // In Twitch
+    (userName: string, input: string, isAction: boolean): void
+}
+interface ITwitchRedemptionCallback {
+    (message: ITwitchRedemptionMessage): void
+}
+interface ITwitchPubsubRewardCallback {
+    (id:string, message: ITwitchRedemptionMessage): void
+}
+interface ITwitchChatMessageCallback { // In TwitchChat
+    (message: TwitchMessageCmd): void
+}
+interface ITwitchSlashCommandCallback {
+    (userName: string, input: string): void
+}
+interface ITwitchAnnouncementCallback {
+    (userName: string, input: string): void
+}
+interface ITwitchChatCheerCallback {
+    (userName: string, input: string, bits: number): void
+}

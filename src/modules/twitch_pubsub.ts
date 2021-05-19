@@ -1,18 +1,13 @@
 class TwitchPubsub {
-    private _rewards: IPubsubReward[] = []
+    
     private _socket: WebSockets
-    private _config:ITwitchConfig = Config.instance.twitch;
+    private _config: ITwitchConfig = Config.instance.twitch
     private _pingIntervalHandle: number
     private _pingTimestamp: number
-
-    registerAward(pubsubReward: IPubsubReward) {
-        this._rewards.push(pubsubReward)
-    }
+    private _onRewardCallback: ITwitchPubsubRewardCallback = (message) => { console.log('PubSub Reward unhandled') }
     
-    private onReward(id, data) {
-        let reward = this._rewards.find(reward => id == reward.id)
-        if(reward != null) reward.callback(data)
-        else console.warn(`Reward not found: ${id}`)
+    setOnRewardCallback(callback:ITwitchPubsubRewardCallback) {
+        this._onRewardCallback = callback
     }
 
     init() {
@@ -54,7 +49,7 @@ class TwitchPubsub {
                 if (payload?.type == "reward-redeemed") {
                     console.log("Reward redeemed!")
                     let id = payload?.data?.redemption?.reward?.id ?? null
-                    if(id !== null) this.onReward(id, payload?.data)
+                    if(id !== null) this._onRewardCallback(id, payload?.data)
                     else console.log(payload)
                 }
                 break
