@@ -112,34 +112,46 @@ class GoogleTTS {
         if(voice == null) voice = this.getDefaultVoice(userName)
         
         let inputArr = input.split(' ')
+        let error = ''
         inputArr.forEach(setting => {
+            setting = setting.toLowerCase()
+
             // Match gender
-            if(setting.toLowerCase() == 'female') voice.gender = 'FEMALE'
-            if(setting.toLowerCase() == 'male') voice.gender = 'MALE'
-            
-            // Match pitch value (currently not used but still registered)
-            let num = parseFloat(setting)
-            if(!isNaN(num)) voice.pitch = (num > 20) ? 20 : ((num < -20) ? -20 : num)
-            
+            if(setting == 'female' || setting == 'male') {
+                voice.voiceName = '' // Gender is not respected if we have a name
+                voice.gender = setting
+                return 
+            }
+                       
             // Match country code
-            if(setting[2] == '-' && setting.length == 5 && this._languages.includes(setting.toLowerCase())) voice.languageCode = setting
+            if(setting.indexOf('-') > 0 && setting.split('-').length == 2) {
+                if(this._languages.find(lang => lang.toLowerCase() == setting)) {
+                    voice.voiceName = '' // Language is not respected if we have a name
+                    voice.languageCode = setting
+                    return 
+                } else error = 'messed up a language code'
+            }
             
             // Match incoming full voice name
-            let re = new RegExp(/([a-z]+)-([A-Z]+)-([\w]+)-([A-Z])/)
+            let re = new RegExp(/([a-z]+)-([a-z]+)-([\w]+)-([a-z])/)
             let matches = setting.match(re)
             if(matches != null) {
-                if(this._voices.find(v => v.name.toLowerCase() == matches[0].toLowerCase())) {
+                if(this._voices.find(v => v.name.toLowerCase() == matches[0])) {
                     voice.voiceName = matches[0]
                     voice.languageCode = `${matches[1]}-${matches[2]}`
-                } else console.warn(`Voice not found: ${matches[0]}`)
+                    return
+                } else {
+                    console.warn(`Voice not found: ${matches[0]}`)
+                    error = 'messed up a voice name'
+                }
             }
 
             // Match reset
-            if(setting.toLowerCase() == 'reset') voice = this.getDefaultVoice(userName)
+            if(setting.toLowerCase() == 'reset') return voice = this.getDefaultVoice(userName)
         })
         let success = await Settings.pushSetting(Settings.USER_VOICES, 'userName', voice)
         console.log(`Voice saved: ${success}`)
-        this.enqueueSpeakSentence('now sounds like this', userName, GoogleTTS.TYPE_ACTION)
+        this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION)
     }
 
     private async loadVoicesAndLanguages():Promise<boolean> {
@@ -174,7 +186,6 @@ class GoogleTTS {
             userName: userName,
             languageCode: randomVoice?.languageCodes.shift() ?? 'en-US',
             voiceName: randomVoice?.name ?? '',
-            pitch: 0.0,
             gender: randomVoice?.ssmlGender ?? 'FEMALE'
         }
     }

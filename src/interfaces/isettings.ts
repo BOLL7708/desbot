@@ -4,7 +4,6 @@ interface IUserVoice {
     languageCode: string
     voiceName: string
     gender: string
-    pitch: number
 }
 interface IUserName {
     userName:string
