@@ -4,7 +4,16 @@ interface IScreenshotConfig {
     delay: number
 }
 interface IScreenshotRequest {
-    nonce: number,
-    delaySeconds: number,
-    userName: string
+    nonce: string
+    tag: string
+    delay: number
+}
+interface IScreenshotResponse {
+    nonce: string
+    image: string
+}
+
+// Callbacks
+interface IScreenshotCallback {
+    (screenshotResponse: IScreenshotResponse): void
 }

@@ -5,4 +5,5 @@ interface IConfig {
     obs:IObsConfig
     twitch:ITwitchConfig
     screenshots: IScreenshotConfig
+    discord: IDiscordConfig
 }

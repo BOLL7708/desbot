@@ -1,9 +1,11 @@
 class MainController {
     private _twitch: Twitch = new Twitch()
+    private _twitchHelix: TwitchHelix = new TwitchHelix()
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: Pipe = new Pipe()
     private _obs: OBS = new OBS()
     private _screenshots: Screenshots = new Screenshots()
+    private _discord: Discord = new Discord()
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
 
@@ -66,10 +68,9 @@ class MainController {
         this._twitch.registerReward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_SCREENSHOT)?.id,
             callback: (data:ITwitchRedemptionMessage) => {
-                let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
                 this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._screenshots.sendScreenshotRequest(data?.redemption?.user?.login, Config.instance.screenshots.delay)
+                this._screenshots.sendScreenshotRequest(data, Config.instance.screenshots.delay)
             }
         })
 
@@ -131,7 +132,26 @@ class MainController {
         })
 
         this._twitch.init()
-      
+
+        // this._discord.sendText(Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR), "Widget reloaded...")
+
+        this._screenshots.setScreenshotCallback((data) => {
+            let reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
+            let discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
+            let blob = Utils.b64toBlob(data.image, "image/png")
+            if(reward != null) {
+                this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
+                    var description = reward.redemption?.user_input
+                    var authorName = reward.redemption?.user?.display_name
+                    var authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
+                    var authorIconUrl = user?.profile_image_url
+                    this._discord.sendPayloadEmbed(discordCfg, blob, '', `Photograph: ${description}`, authorName, authorUrl, authorIconUrl)
+                })
+            } else {
+                this._discord.sendPayloadEmbed(discordCfg, blob, 'Manual Screenshot')
+            }
+        })
+
         this._obs.registerSceneChangeCallback((sceneName) => {
             let filterScene = Config.instance.obs.filterOnScenes.indexOf(sceneName) >= 0
             this._ttsForAll = !filterScene

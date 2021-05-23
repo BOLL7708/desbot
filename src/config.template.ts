@@ -39,6 +39,10 @@ class Config {
         screenshots: {
             port: 8807,
             delay: 5
+        },
+        discord: {
+            embedColor: 0,
+            webhooks: []
         }
     }
 }
