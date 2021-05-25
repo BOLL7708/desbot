@@ -1,7 +1,9 @@
 class Settings {
-    static USER_NAMES:string = 'settings_user_names'
-    static USER_VOICES:string = 'settings_user_voices'
-    static TWITCH_TOKENS:string = 'settings_twitch_tokens'
+    static TTS_USER_NAMES: string = 'settings_tts_names'
+    static TTS_USER_VOICES: string = 'settings_tts_voices'
+    static TTS_BLACKLIST: string = 'settings_tts_blacklist'
+    static TWITCH_TOKENS: string = 'settings_twitch_tokens'
+    
     private static settingsStore:Record<string, any> = {};
 
     /**

@@ -10,6 +10,12 @@ class MainController {
     private _ttsForAll: boolean = false
 
     constructor() {
+        // Make sure settings are precached
+        Settings.loadSettings(Settings.TTS_BLACKLIST)
+        Settings.loadSettings(Settings.TTS_USER_NAMES)
+        Settings.loadSettings(Settings.TTS_USER_VOICES)
+        Settings.loadSettings(Settings.TWITCH_TOKENS)
+
         this._pipe.sendBasic("PubSub Widget", "Initializing...")
 
         /** OBS */
@@ -97,11 +103,76 @@ class MainController {
         })
 
         this._twitch.registerCommand({
+            trigger: 'silence',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                this._tts.stopSpeaking()
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: 'ttsdie',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                this._tts.stopSpeaking(true)
+            }
+        })
+
+        this._twitch.registerCommand({
             trigger: 'say',
             mods: true,
             everyone: false,
             callback: (userName, input) => {
                 this._tts.enqueueSpeakSentence(input, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: 'nick',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                let parts = Utils.splitOnFirst(' ', input)
+                if(parts.length == 2) {
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: parts[0], shortName: parts[1]})
+                    this._tts.enqueueSpeakSentence(`${parts[0]} is now called ${parts[1]}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                }
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: 'mute',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                let parts = Utils.splitOnFirst(' ', input)
+                let name = parts[0] ?? ''
+                if(name.length > 0 && name.toLowerCase() != Config.instance.twitch.botName.toLowerCase()) {
+                    let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
+                    Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
+                    Utils.loadCleanName(name).then(cleanName => {
+                        this._tts.enqueueSpeakSentence(`${cleanName} has lost their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
+                }
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: 'unmute',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                let parts = Utils.splitOnFirst(' ', input)
+                let name = parts[0] ?? ''
+                if(name.length > 0) {
+                    let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
+                    Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })
+                    Utils.loadCleanName(name).then(cleanName => {
+                        this._tts.enqueueSpeakSentence(`${cleanName} has regained their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
+                }
             }
         })
 

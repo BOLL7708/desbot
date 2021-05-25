@@ -5,12 +5,12 @@ class Utils {
     }
 
     static async loadCleanName(userName:string):Promise<string> {
-        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.USER_NAMES, 'userName', userName)
+        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.TTS_USER_NAMES, 'userName', userName)
         let cleanName = cleanNameSetting?.shortName
         if(cleanName == null) {
             cleanName = this.cleanName(userName)
             cleanNameSetting = {userName: userName, shortName: cleanName}
-            Settings.pushSetting(Settings.USER_NAMES, 'userName', cleanNameSetting)
+            Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', cleanNameSetting)
         }
         return cleanName
     }

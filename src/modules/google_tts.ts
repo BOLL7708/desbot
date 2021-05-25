@@ -27,9 +27,18 @@ class GoogleTTS {
     }
 
     enqueueSpeakSentence(sentence: string, userName: string, type: number=0, meta: any=null):void {
-        if(sentence.trim().length == 0) return
-        this._sentenceQueue.push({text: sentence, userName: userName, type: type, meta: meta})
-        console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
+        Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName).then(blacklist => {
+            if(blacklist != null && !blacklist.active) {
+                if(sentence.trim().length == 0) return
+                this._sentenceQueue.push({text: sentence, userName: userName, type: type, meta: meta})
+                console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
+            }
+        })
+    }
+
+    stopSpeaking(andClearQueue: boolean = false) {
+        this._audio.pause()
+        if(andClearQueue) this._sentenceQueue = []
     }
 
     private async trySpeakNext() {
@@ -47,10 +56,10 @@ class GoogleTTS {
         let text = sentence.text
         if(text == null || text.length == 0) return console.error("TTS: Sentence text was null or empty")
         
-        let voice:IUserVoice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', sentence.userName)
+        let voice:IUserVoice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', sentence.userName)
         if(voice == null) {
             voice = await this.getDefaultVoice(sentence.userName)
-            Settings.pushSetting(Settings.USER_VOICES, 'userName', voice)
+            Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
@@ -108,7 +117,7 @@ class GoogleTTS {
 
     async setVoiceForUser(userName:string, input:string) {
         await this.loadVoicesAndLanguages() // Fills caches
-        let voice = await Settings.pullSetting(Settings.USER_VOICES, 'userName', userName)
+        let voice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName)
         if(voice == null) voice = this.getDefaultVoice(userName)
         
         let inputArr = input.split(' ')
@@ -149,7 +158,7 @@ class GoogleTTS {
             // Match reset
             if(setting.toLowerCase() == 'reset') return voice = this.getDefaultVoice(userName)
         })
-        let success = await Settings.pushSetting(Settings.USER_VOICES, 'userName', voice)
+        let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         console.log(`Voice saved: ${success}`)
         this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION)
     }

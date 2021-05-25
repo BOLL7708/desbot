@@ -71,7 +71,7 @@ class Twitch{
         // Commands
         if(text != null && text.indexOf('!') == 0) {
             let commandStr = text.split(' ').shift().substr(1)
-            let command = this._commands.find(cmd => commandStr == cmd.trigger)
+            let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()
             if(isBroadcaster || (command.mods && isMod)) return command.callback(userName, textStr)
         }
