@@ -6,4 +6,5 @@ interface IConfig {
     twitch:ITwitchConfig
     screenshots: IScreenshotConfig
     discord: IDiscordConfig
+    philipshue: IPhilipsHueConfig
 }

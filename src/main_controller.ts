@@ -6,6 +6,8 @@ class MainController {
     private _obs: OBS = new OBS()
     private _screenshots: Screenshots = new Screenshots()
     private _discord: Discord = new Discord()
+    private _hue: PhilipsHue = new PhilipsHue()
+    
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
 
@@ -202,6 +204,19 @@ class MainController {
             }
         })
 
+        /* COLORS */
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_NEUTRAL, 0.3691, 0.3719))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_RED, 0.6758, 0.3190))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_ORANGE, 0.5926, 0.3892))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BUTTERCUP, 0.5213, 0.4495))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_YELLOW, 0.4944, 0.4563))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_GREEN, 0.2140, 0.7090))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_CYAN, 0.1797, 0.4215))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_SKY, 0.1509, 0.1808))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BLUE, 0.1541, 0.0821))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PURPLE, 0.1541, 0.0821))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PINK, 0.3881, 0.1760))
+
         this._twitch.init()
 
         // this._discord.sendText(Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR), "Widget reloaded...")
@@ -229,7 +244,7 @@ class MainController {
         })
     }
    
-    private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null):ITwitchReward {
+    private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
         let reward: ITwitchReward = {
             id: twitchReward.id,
             callback: (data:any) => {
@@ -250,6 +265,22 @@ class MainController {
                     msg.image = image
                     this._pipe.sendCustom(msg)
                 }
+            }
+        }
+        return reward
+    }
+
+    private buildColorReward(id:string, x:number, y:number): ITwitchReward {
+        let config: ITwitchRewardConfig = Config.instance.twitch.rewards.find(reward => reward.key == id)
+        let reward: ITwitchReward = {
+            id: config.id,
+            callback: (data:ITwitchRedemptionMessage) => {
+                let userName = data?.redemption?.user?.login
+                this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
+                const lights:number[] = Config.instance.philipshue.lightsToControl
+                lights.forEach(light => {
+                    this._hue.setLightState(light, x, y)
+                })
             }
         }
         return reward
