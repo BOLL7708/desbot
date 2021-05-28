@@ -28,7 +28,7 @@ class GoogleTTS {
 
     enqueueSpeakSentence(sentence: string, userName: string, type: number=0, meta: any=null):void {
         Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName).then(blacklist => {
-            if(blacklist != null && !blacklist.active) {
+            if(blacklist == null || !blacklist.active) {
                 if(sentence.trim().length == 0) return
                 this._sentenceQueue.push({text: sentence, userName: userName, type: type, meta: meta})
                 console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
