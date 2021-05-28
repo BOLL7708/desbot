@@ -3,6 +3,7 @@ class Settings {
     static TTS_USER_VOICES: string = 'settings_tts_voices'
     static TTS_BLACKLIST: string = 'settings_tts_blacklist'
     static TWITCH_TOKENS: string = 'settings_twitch_tokens'
+    static LABELS: string = 'settings_labels'
     
     private static settingsStore:Record<string, any> = {};
 
@@ -11,8 +12,8 @@ class Settings {
      * @param setting Key for the settings file that will be loaded.
      * @returns 
      */
-    static async loadSettings(setting:string):Promise<any> {
-        if(this.settingsStore.hasOwnProperty(setting)) {
+    static async loadSettings(setting:string, ignoreCache:boolean = false):Promise<any> {
+        if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
             console.log(`Returning cache for: ${setting}`)
             return this.settingsStore[setting]
         }
@@ -71,13 +72,13 @@ class Settings {
      * @param key The value field should match.
      * @returns The object or null if failed.
      */
-    static async pullSetting(setting:string, field:string, key:any):Promise<any> {
+    static async pullSetting(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<any> {
         console.log(`Pulling setting: ${setting}`)
         let settings = null
-        if(this.settingsStore.hasOwnProperty(setting)) {
+        if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
             settings = this.settingsStore[setting]
         } else {
-            settings = await this.loadSettings(setting)
+            settings = await this.loadSettings(setting, ignoreCache)
         }
         if(Array.isArray(settings)) return settings.find(s => s[field] == key)
         else return settings

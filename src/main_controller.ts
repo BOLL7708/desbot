@@ -17,6 +17,7 @@ class MainController {
         Settings.loadSettings(Settings.TTS_USER_NAMES)
         Settings.loadSettings(Settings.TTS_USER_VOICES)
         Settings.loadSettings(Settings.TWITCH_TOKENS)
+        Settings.loadSettings(Settings.LABELS)
 
         this._pipe.sendBasic("PubSub Widget", "Initializing...")
 
@@ -201,6 +202,28 @@ class MainController {
             else if(this._ttsEnabledUsers.indexOf(userName) >= 0) {
                 // Reward users
                 this._tts.enqueueSpeakSentence(input, userName, type)
+            }
+        })
+
+        this._twitch.registerReward({
+            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_FAVORITEVIEWER)?.id,
+            callback: (message:ITwitchRedemptionMessage) => {
+                const userName = message?.redemption?.user?.login
+                const userId = message?.redemption?.user?.id
+                this._twitchHelix.getUser(parseInt(userId)).then(response => {
+                    const profileUrl = response?.profile_image_url
+                    const displayName = response?.display_name
+                    const data: ILabel = {
+                        key: Config.KEY_FAVORITEVIEWER,
+                        userName: userName,
+                        displayName: displayName,
+                        profileUrl: profileUrl
+                    }
+                    Settings.pushSetting(Settings.LABELS, 'key', data)
+                    Utils.loadCleanName(userName).then(cleanName => {
+                        this._tts.enqueueSpeakSentence(`${cleanName} is the new favorite viewer`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
+                })
             }
         })
 
