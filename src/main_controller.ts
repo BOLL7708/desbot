@@ -7,6 +7,7 @@ class MainController {
     private _screenshots: Screenshots = new Screenshots()
     private _discord: Discord = new Discord()
     private _hue: PhilipsHue = new PhilipsHue()
+    private _openvr2ws: OpenVR2WS = new OpenVR2WS()
     
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
@@ -248,16 +249,17 @@ class MainController {
             let reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
             let discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
             let blob = Utils.b64toBlob(data.image, "image/png")
+            // TODO: Get actual game title from the Steam Store, make a class for that.
             if(reward != null) {
                 this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
                     var description = reward.redemption?.user_input
                     var authorName = reward.redemption?.user?.display_name
                     var authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
                     var authorIconUrl = user?.profile_image_url
-                    this._discord.sendPayloadEmbed(discordCfg, blob, '', `Photograph: ${description}`, authorName, authorUrl, authorIconUrl)
+                    this._discord.sendPayloadEmbed(discordCfg, blob, '', `Photograph: ${description}`, authorName, authorUrl, authorIconUrl, this._openvr2ws._currentAppId)
                 })
             } else {
-                this._discord.sendPayloadEmbed(discordCfg, blob, 'Manual Screenshot')
+                this._discord.sendPayloadEmbed(discordCfg, blob, 'Manual Screenshot', null, null, null, null, this._openvr2ws._currentAppId)
             }
         })
 

@@ -7,4 +7,5 @@ interface IConfig {
     screenshots: IScreenshotConfig
     discord: IDiscordConfig
     philipshue: IPhilipsHueConfig
+    openvr2ws: IOpenVR2WSConfig
 }

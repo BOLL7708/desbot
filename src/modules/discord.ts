@@ -27,7 +27,7 @@ class Discord {
             .then(response => console.log(response))
     }
 
-    sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, title: string = null, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null) {
+    sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, title: string = null, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
         let url = `${this._baseUrl}/${config.channelId}/${config.authKey}`
         let imageEmbed = {
             embeds: [
@@ -43,7 +43,10 @@ class Discord {
                         url: authorUrl,
                         icon_url: authorIconUrl
                     },
-                    timestamp: new Date().toISOString()
+                    timestamp: new Date().toISOString(),
+                    footer: footerText ? {
+                        text: footerText
+                    } : null
                 }
             ]
         }

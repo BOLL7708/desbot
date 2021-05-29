@@ -3,10 +3,10 @@ class WebSockets {
         serverUrl:string, 
         reconnectIntervalSeconds:number = 30,
         messageQueueing:boolean = true,
-        onOpen:Function = () => {},
-        onClose:Function = () => {},
-        onMessage:Function = () => {},
-        onError:Function = () => {}
+        onOpen:IWebsocketsOpenCallback = () => {},
+        onClose:IWebsocketsCloseCallback = () => {},
+        onMessage:IWebsocketsMessageCallback = () => {},
+        onError:IWebsocketsErrorCallback = () => {}
     ) {
         this._serverUrl = serverUrl
         this._reconnectIntervalSeconds = reconnectIntervalSeconds
@@ -24,10 +24,10 @@ class WebSockets {
     private _serverUrl: string
     private _messageQueue: string[] = []
     private _messageQueueing: boolean
-    _onOpen: Function
-    _onClose: Function
-    _onMessage: Function
-    _onError: Function
+    _onOpen: IWebsocketsOpenCallback
+    _onClose: IWebsocketsCloseCallback
+    _onMessage: IWebsocketsMessageCallback
+    _onError: IWebsocketsErrorCallback
     
     init() {
         this.startConnectLoop(true)
@@ -66,7 +66,7 @@ class WebSockets {
 	    this._socket.onmessage = onMessage.bind(this)
 	    this._socket.onerror = onError.bind(this)
 
-        function onOpen(evt) {
+        function onOpen(evt: Event) {
             console.log(`${this._serverUrl}: Connected`)
             this._connected = true
             this.stopConnectLoop()
@@ -76,16 +76,16 @@ class WebSockets {
             });
             this._messageQueue = []
         }
-        function onClose(evt) {
+        function onClose(evt: CloseEvent) {
             console.warn(`${this._serverUrl}: Disconnected`)
             this._connected = false
             this.startConnectLoop()
             this._onClose(evt)
         }
-        function onMessage(evt) {
+        function onMessage(evt: MessageEvent) {
             this._onMessage(evt)
         }
-        function onError(evt) {
+        function onError(evt: Event) {
             console.error(`${this._serverUrl}:${JSON.stringify(evt)}`)
             this._socket.close()
             this.startConnectLoop()
