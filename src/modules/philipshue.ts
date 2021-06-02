@@ -7,7 +7,7 @@ class PhilipsHue {
     private loadLights() { // Not used for anything except checking states
         const url = `${this._baseUrl}/lights`
         fetch(url).then(response => response.json()).then(data => {
-            console.table(data)
+            // console.table(data)
         })
     }
     setLightState(id:number, x:number, y:number) {

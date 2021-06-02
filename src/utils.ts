@@ -87,4 +87,10 @@ class Utils {
         const blob = new Blob(byteArrays, {type: contentType});
         return blob;
     }
+
+    static hexToDecColor(hex: string): number {
+        if(hex.indexOf('#') == 0) hex = hex.substr(1)
+        if(hex.length == 3) hex = hex.split('').map(ch => ch+ch).join('')
+        return parseInt(hex, 16)
+    }
 }

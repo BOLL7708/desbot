@@ -3,7 +3,7 @@ class TwitchChat {
     private _isConnected: boolean = false
     init() {
         this._socket = new WebSockets(
-            "wss://irc-ws.chat.twitch.tv:443",
+            'wss://irc-ws.chat.twitch.tv:443',
             15,
             false,
             this.onOpen.bind(this),
@@ -55,7 +55,23 @@ class TwitchChat {
     }
 }
 class TwitchMessageCmd {
-    properties: Record<string,string> = {} // TODO: This could use an interface but so random what can show up...
+    properties: ITwitchChatMessageProperties = {
+        '@badge-info': '',
+        badges: '',
+        'client-nonce': '',
+        color: '',
+        'display-name': '',
+        emotes: '',
+        flags: '',
+        id: '',
+        mod: '',
+        'room-id': '',
+        subscriber: '',
+        'tmi-sent-ts': '',
+        turbo: '',
+        'user-id': '',
+        'user-type': ''
+    }
     message: TwitchMessage
     constructor(data:string) {
         let [props, msg] = Utils.splitOnFirst(' :', data)
@@ -85,8 +101,8 @@ class TwitchMessage {
             let matches2:any = re2.exec(matches[4])
             this.isAction = matches2 != null
             this.username = matches[1]
-            this.channel = matches[2]
-            this.type = matches[3]
+            this.type = matches[2]
+            this.channel = matches[3]
             this.text = this.isAction ? matches2[1] : matches[4]
         }
     }

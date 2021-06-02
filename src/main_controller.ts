@@ -140,7 +140,7 @@ class MainController {
             callback: (userName, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 if(parts.length == 2) {
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: parts[0], shortName: parts[1]})
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: parts[0].toLowerCase(), shortName: parts[1].toLowerCase()})
                     this._tts.enqueueSpeakSentence(`${parts[0]} is now called ${parts[1]}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
@@ -204,6 +204,27 @@ class MainController {
                 // Reward users
                 this._tts.enqueueSpeakSentence(input, userName, type)
             }
+        })
+
+        this._twitch.setAllChatCallback((message) => {
+            console.log(message)
+            this._twitchHelix.getUser(parseInt(message?.properties["user-id"]), true).then(user => {
+                let text = message?.message?.text
+                    .replace(/_/g, '\\_')
+                    .replace(/\*/g, '\\*')
+                    .replace(/~/g, '\\~')
+                    .replace(/`/g, '\\`')
+                if(message?.message?.isAction) text = `_${text}_`
+                
+                this._discord.sendMessageEmbed(
+                    Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
+                    user?.login,
+                    user?.display_name,
+                    message?.properties?.color,
+                    user?.profile_image_url,
+                    `\`${new Date().toTimeString().substr(0,5)}\` ${text}`
+                )
+            })
         })
 
         this._twitch.registerReward({
@@ -280,7 +301,7 @@ class MainController {
                     msg.properties.headset = true
                     msg.properties.horizontal = false
                     msg.properties.channel = 1
-                    msg.properties.duration = 9000
+                    msg.properties.duration = obsSourceConfig.duration-1000
                     msg.properties.width = 0.025
                     msg.properties.distance = 0.25
                     msg.properties.yaw = -30

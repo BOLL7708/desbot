@@ -92,6 +92,24 @@ interface ITwitchHelixUsersResponseData {
     created_at: string
 }
 
+interface ITwitchChatMessageProperties {
+    '@badge-info'?: string
+    badges?: string
+    'client-nonce'?: string
+    color?: string
+    'display-name'?: string
+    emotes?: string
+    flags?: string
+    id?: string
+    mod?: string
+    'room-id'?: string
+    subscriber?: string
+    'tmi-sent-ts'?: string
+    turbo?: string
+    'user-id'?: string
+    'user-type'?: string
+    [x: string]: any
+}
 
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
@@ -103,7 +121,7 @@ interface ITwitchRedemptionCallback {
 interface ITwitchPubsubRewardCallback {
     (id:string, message: ITwitchRedemptionMessage): void
 }
-interface ITwitchChatMessageCallback { // In TwitchChat
+interface ITwitchChatMessageCallback {
     (message: TwitchMessageCmd): void
 }
 interface ITwitchSlashCommandCallback {

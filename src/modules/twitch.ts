@@ -43,6 +43,11 @@ class Twitch{
     setChatCallback(callback: ITwitchChatCallback) {
         this._chatCallback = callback
     }
+
+    private _allChatCallback: ITwitchChatMessageCallback = () => { console.warn('Twitch: Unhandled chat message (all)') }
+    setAllChatCallback(callback: ITwitchChatMessageCallback) {
+        this._allChatCallback = callback
+    }
     
     private onReward(id:string, message:ITwitchRedemptionMessage) {
         let reward = this._rewards.find(reward => id == reward.id)
@@ -59,7 +64,8 @@ class Twitch{
         let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') >= 0
         let isMod = messageCmd.properties?.mod == '1'
 
-        // console.table(messageCmd.properties)
+        // For logging
+        this._allChatCallback(messageCmd)
         
         // Rewards
         // TODO: For now skip reading rewards, in the future register rewards for both pubsub and chat.
