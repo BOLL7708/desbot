@@ -1,38 +1,125 @@
 class Config {
+    static readonly KEY_ROOMPEEK: string = 'RoomPeek'
+    static readonly KEY_HEADPEEK: string = 'HeadPeek'
+    static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
+    static readonly KEY_TTSSPEAKTIME: string = 'TtsSpeakTime'
+    static readonly KEY_TTSSETVOICE: string = 'TtsSetVoice'
+    static readonly KEY_SCREENSHOT: string = 'Screenshot'
+    static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
+    static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
+    static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
+    
+    static readonly KEY_COLOR_NEUTRAL: string = 'ColorNeutral'
+    static readonly KEY_COLOR_RED: string = 'ColorRed'
+    static readonly KEY_COLOR_ORANGE: string = 'ColorOrange'
+    static readonly KEY_COLOR_BUTTERCUP: string = 'ColorButtercup'
+    static readonly KEY_COLOR_YELLOW: string = 'ColorYellow'
+    static readonly KEY_COLOR_GREEN: string = 'ColorGreen'
+    static readonly KEY_COLOR_CYAN: string = 'ColorCyan'
+    static readonly KEY_COLOR_SKY: string = 'ColorSky'
+    static readonly KEY_COLOR_BLUE: string = 'ColorBlue'
+    static readonly KEY_COLOR_PURPLE: string = 'ColorPurple'
+    static readonly KEY_COLOR_PINK: string = 'ColorPink'
+
     static instance: IConfig ={
         google: {
-            apiKey: "",
+            apiKey: '',
             speakerTimeoutMs: 5000
         },
         pipe: {
             port: 8077
         },
         obs: {
-            password: "",
+            password: '',
             port: 4445,
             sources: [
                 {
-                    key: "",
-                    sceneNames: [""],
-                    sourceName: "",
-                    duration: 10000
+                    key: Config.KEY_ROOMPEEK,
+                    sceneNames: [''],
+                    sourceName: '',
+                    duration: 11000
+                },
+                {
+                    key: Config.KEY_HEADPEEK,
+                    sceneNames: [''],
+                    sourceName: '',
+                    duration: 11000
                 }
             ],
-            filterOnScenes: []
+            filterOnScenes: ['']
         },
         twitch: {
             userId: 0,
-            clientId: "",
-            clientSecret: "",
-            channelname: "",
-            botName: "",
-            announcerName: "",
-            announcerTrigger: "",
-            doNotSpeak: [""],
+            clientId: '',
+            clientSecret: '',
+            channelName: '',
+            botName: '',
+            announcerName: '',
+            announcerTrigger: '',
+            doNotSpeak: [''],
             rewards: [
                 {
-                    key: "",
-                    id: ""
+                    key: Config.KEY_ROOMPEEK,
+                    id: ''
+                },{
+                    key: Config.KEY_HEADPEEK,
+                    id: ''
+                }
+                ,
+                {
+                    key: Config.KEY_TTSSPEAK,
+                    id: ''
+                },{
+                    key: Config.KEY_TTSSPEAKTIME,
+                    id: ''
+                },{
+                    key: Config.KEY_TTSSETVOICE,
+                    id: ''
+                }
+                ,
+                {
+                    key: Config.KEY_SCREENSHOT,
+                    id: ''
+                }
+                ,
+                {
+                    key: Config.KEY_FAVORITEVIEWER,
+                    id: ''
+                }
+                ,
+                {
+                    key: Config.KEY_COLOR_NEUTRAL,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_RED,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_ORANGE,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_BUTTERCUP,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_YELLOW,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_GREEN,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_CYAN,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_SKY,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_BLUE,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_PURPLE,
+                    id: ''
+                },{
+                    key: Config.KEY_COLOR_PINK,
+                    id: ''
                 }
             ]
         },
@@ -42,7 +129,23 @@ class Config {
         },
         discord: {
             embedColor: 0,
-            webhooks: []
+            webhooks: [{
+                key: Config.KEY_DISCORD_SSSVR,
+                channelId: '',
+                authKey: ''
+            },{
+                key: Config.KEY_DISCORD_CHAT,
+                channelId: '',
+                authKey: ''
+            }]
+        },
+        philipshue: {
+            serverPath: '',
+            userName: '',
+            lightsToControl: []
+        },
+        openvr2ws: {
+            port: 7708
         }
     }
 }

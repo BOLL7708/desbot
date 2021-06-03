@@ -108,6 +108,7 @@ interface ITwitchChatMessageProperties {
     turbo?: string
     'user-id'?: string
     'user-type'?: string
+    bits?: string
     [x: string]: any
 }
 
