@@ -4,6 +4,6 @@ class IDiscordConfig {
 }
 class IDiscordWebhookConfig {
     key: string
-    channelId: string
-    authKey: string
+    id: string
+    token: string
 }

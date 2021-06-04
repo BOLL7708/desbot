@@ -131,12 +131,12 @@ class Config {
             embedColor: 0,
             webhooks: [{
                 key: Config.KEY_DISCORD_SSSVR,
-                channelId: '',
-                authKey: ''
+                id: '',
+                token: ''
             },{
                 key: Config.KEY_DISCORD_CHAT,
-                channelId: '',
-                authKey: ''
+                id: '',
+                token: ''
             }]
         },
         philipshue: {

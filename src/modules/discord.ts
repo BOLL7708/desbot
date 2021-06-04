@@ -2,7 +2,7 @@ class Discord {
     _baseUrl: string = 'https://discord.com/api/webhooks'
     // Send chat log and perhaps screenshots to Discord aye?
     sendText(config: IDiscordWebhookConfig, content: string) {
-        let url = `${this._baseUrl}/${config.channelId}/${config.authKey}`
+        let url = `${this._baseUrl}/${config.id}/${config.token}`
         fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
@@ -11,7 +11,7 @@ class Discord {
     }
 
     sendPayload(config: IDiscordWebhookConfig, content: string, imageBlob: Blob) {
-        let url = `${this._baseUrl}/${config.channelId}/${config.authKey}`
+        let url = `${this._baseUrl}/${config.id}/${config.token}`
 
         let formData = new FormData()
         formData.append('file', imageBlob, 'image.png')
@@ -26,7 +26,7 @@ class Discord {
     }
 
     sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, title: string = null, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
-        let url = `${this._baseUrl}/${config.channelId}/${config.authKey}`
+        let url = `${this._baseUrl}/${config.id}/${config.token}`
         let imageEmbed = {
             embeds: [
                 {
@@ -62,7 +62,7 @@ class Discord {
     }
 
     sendMessageEmbed(config: IDiscordWebhookConfig, userName: string, displayName: string, color: string, iconUrl: string, message: string) {
-        let url = `${this._baseUrl}/${config.channelId}/${config.authKey}`
+        let url = `${this._baseUrl}/${config.id}/${config.token}`
         let imageEmbed = {
             username: displayName,
             avatar_url: iconUrl,
