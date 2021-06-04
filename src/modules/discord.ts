@@ -25,22 +25,18 @@ class Discord {
         fetch(url, options).then(response => console.log(response))
     }
 
-    sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, title: string = null, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
+    sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
         let url = `${this._baseUrl}/${config.id}/${config.token}`
         let imageEmbed = {
+            username: authorName,
+            avatar_url: authorIconUrl,
             embeds: [
                 {
                     image: {
                         url: 'attachment://image.png'
                     },
-                    title: title,
                     description: description,
-                    color: Config.instance.discord.embedColor,
-                    author: {
-                        name: authorName,
-                        url: authorUrl,
-                        icon_url: authorIconUrl
-                    },
+                    color: color,
                     timestamp: new Date().toISOString(),
                     footer: footerText ? {
                         text: footerText

@@ -128,7 +128,8 @@ class Config {
             delay: 5
         },
         discord: {
-            embedColor: 0,
+            remoteScreenshotEmbedColor: '#000000',
+            manualScreenshotEmbedColor: '#FFFFFF',
             webhooks: [{
                 key: Config.KEY_DISCORD_SSSVR,
                 id: '',

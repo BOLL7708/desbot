@@ -275,20 +275,22 @@ class MainController {
         // this._discord.sendText(Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR), "Widget reloaded...")
 
         this._screenshots.setScreenshotCallback((data) => {
-            let reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
-            let discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
-            let blob = Utils.b64toBlob(data.image, "image/png")
+            const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
+            const discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
+            const blob = Utils.b64toBlob(data.image, "image/png")
             // TODO: Get actual game title from the Steam Store, make a class for that.
             if(reward != null) {
                 this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
-                    var description = reward.redemption?.user_input
-                    var authorName = reward.redemption?.user?.display_name
-                    var authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
-                    var authorIconUrl = user?.profile_image_url
-                    this._discord.sendPayloadEmbed(discordCfg, blob, '', `Photograph: ${description}`, authorName, authorUrl, authorIconUrl, this._openvr2ws._currentAppId)
+                    const description = reward.redemption?.user_input
+                    const authorName = reward.redemption?.user?.display_name
+                    const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
+                    const authorIconUrl = user?.profile_image_url
+                    const color = Utils.hexToDecColor(Config.instance.discord.remoteScreenshotEmbedColor)
+                    this._discord.sendPayloadEmbed(discordCfg, blob, color, `Photograph: ${description}`, authorName, authorUrl, authorIconUrl, this._openvr2ws._currentAppId)
                 })
             } else {
-                this._discord.sendPayloadEmbed(discordCfg, blob, 'Manual Screenshot', null, null, null, null, this._openvr2ws._currentAppId)
+                const color = Utils.hexToDecColor(Config.instance.discord.manualScreenshotEmbedColor)
+                this._discord.sendPayloadEmbed(discordCfg, blob, color, 'Manual Screenshot', null, null, null, this._openvr2ws._currentAppId)
             }
         })
 
