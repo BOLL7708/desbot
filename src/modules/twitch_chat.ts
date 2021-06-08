@@ -48,7 +48,7 @@ class TwitchChat {
                 let message: TwitchMessageCmd = new TwitchMessageCmd(str)
                 this._chatMessageCallback(message)
             });
-        }        
+        }
     }
     private onError(evt: any) {
         console.log(evt)
@@ -61,7 +61,7 @@ class TwitchMessageCmd {
         'client-nonce': '',
         color: '',
         'display-name': '',
-        emotes: '',
+        emotes: null,
         flags: '',
         id: '',
         mod: '',
@@ -80,7 +80,39 @@ class TwitchMessageCmd {
         for(let i=0; i<rows.length; i++) {
             let row = rows[i]
             let [rowName, rowValue] = Utils.splitOnFirst('=', row)
-            if(rowName != null && rowName.length > 0) this.properties[rowName] = rowValue
+            if(rowName != null && rowName.length > 0) {
+                if (rowName == 'emotes') {
+                    let rawEmotes: string[] = rowValue.split('/');
+                    if (rawEmotes.length == 0) break;
+                    this.properties[rowName] = Array<ITwitchEmote>();
+                    rawEmotes.forEach((el) => {
+                        if (el.length == 0) return;
+                        let emote: string[] = el.split(':');
+
+                        if (emote[1].includes(',')) {
+                            let positions = emote[1].split(',');
+                            positions.forEach(rawPosition => {
+                                let pos: number[] = rawPosition.split('-').map(el => parseInt(el));
+                                this.properties[rowName].push({
+                                    id: emote[0],
+                                    start: pos[0],
+                                    end: pos[1]
+                                })
+                            })
+                        } else {
+                            let pos: number[] = emote[1].split('-').map(el => parseInt(el));
+                            this.properties[rowName].push({
+                                id: emote[0],
+                                start: pos[0],
+                                end: pos[1]
+                            })
+                        }
+                    })
+                    this.properties[rowName].sort((a, b) => a.start - b.start);
+                } else {
+                    this.properties[rowName] = rowValue
+                }
+            }
         }
     }
 }
