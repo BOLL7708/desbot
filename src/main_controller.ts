@@ -216,6 +216,7 @@ class MainController {
                     .replace(/`/g, '\\`')
                 if(message?.message?.isAction) text = `_${text}_`
                 
+                // TODO: This does not appear to work...
                 const bits = parseInt(message?.properties?.bits)
                 let label = ''
                 if(isNaN(bits) && bits > 0) {
@@ -224,11 +225,9 @@ class MainController {
                 }
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
                 
-                this._discord.sendMessageEmbed(
+                this._discord.sendMessage(
                     Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
-                    user?.login,
                     user?.display_name,
-                    message?.properties?.color,
                     user?.profile_image_url,
                     `${label}${text}`
                 )
