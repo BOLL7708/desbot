@@ -208,7 +208,7 @@ class MainController {
 
         this._twitch.setAllChatCallback((message) => {
             console.log(message)
-            this._twitchHelix.getUser(parseInt(message?.properties["user-id"]), true).then(user => {
+            this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
                 let text = message?.message?.text
                     .replace(/_/g, '\\_')
                     .replace(/\*/g, '\\*')
@@ -239,7 +239,7 @@ class MainController {
             callback: (message:ITwitchRedemptionMessage) => {
                 const userName = message?.redemption?.user?.login
                 const userId = message?.redemption?.user?.id
-                this._twitchHelix.getUser(parseInt(userId)).then(response => {
+                this._twitchHelix.getUser(parseInt(userId), true).then(response => {
                     const profileUrl = response?.profile_image_url
                     const displayName = response?.display_name
                     const data: ILabel = {

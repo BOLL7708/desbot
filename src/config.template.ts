@@ -24,7 +24,9 @@ class Config {
     static instance: IConfig ={
         google: {
             apiKey: '',
-            speakerTimeoutMs: 5000
+            speakerTimeoutMs: 5000,
+            randomizeVoice: false,
+            defaultVoice: ''
         },
         pipe: {
             port: 8077

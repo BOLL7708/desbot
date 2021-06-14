@@ -2,6 +2,8 @@
 interface IGoogleConfig {
     apiKey: string
     speakerTimeoutMs: number
+    randomizeVoice: boolean
+    defaultVoice: string
 }
 
 // Data
