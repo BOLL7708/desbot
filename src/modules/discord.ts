@@ -1,12 +1,16 @@
 class Discord {
     _baseUrl: string = 'https://discord.com/api/webhooks'
     // Send chat log and perhaps screenshots to Discord aye?
-    sendText(config: IDiscordWebhookConfig, content: string) {
+    sendMessage(config: IDiscordWebhookConfig, displayName: string, iconUrl: string, message: string) {
         let url = `${this._baseUrl}/${config.id}/${config.token}`
         fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({content: content})
+            body: JSON.stringify({
+                username: displayName,
+                avatar_url: iconUrl,
+                content: message
+            })
         }).catch(err => console.error(err))        
     }
 

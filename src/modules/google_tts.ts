@@ -5,7 +5,7 @@ class GoogleTTS {
     static get TYPE_CHEER() { return 3 } // [name] cheered: [text]
 
     // TODO: Split this up into a TTS master class, and separate voice integrations.
-    private _apiKey: String = Config.instance.google.apiKey
+    private _config: IGoogleConfig = Config.instance.google;
     private _speakerTimeoutMs: number = Config.instance.google.speakerTimeoutMs
     private _sentenceQueue: ISentence[] = []
     private _speakIntervalHandle: number
@@ -52,7 +52,7 @@ class GoogleTTS {
         let sentence = this._sentenceQueue.shift()
         if(typeof sentence == 'undefined') return // The queue is empty
         
-        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._apiKey}`
+        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.apiKey}`
         let text = sentence.text
         if(text == null || text.length == 0) return console.error("TTS: Sentence text was null or empty")
         
@@ -165,7 +165,7 @@ class GoogleTTS {
 
     private async loadVoicesAndLanguages():Promise<boolean> {
         if(this._voices.length == 0) {
-            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._apiKey}`
+            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._config.apiKey}`
             return fetch(url).then(response => response?.json()).then(json => {
                 console.log("Voices loaded!")
                 let voices = json?.voices
@@ -188,14 +188,21 @@ class GoogleTTS {
 
     private async getDefaultVoice(userName:string):Promise<IUserVoice> {
         await this.loadVoicesAndLanguages() // Fills caches
+        let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == this._config.defaultVoice)
         let randomVoice:IGoogleVoice = this._randomVoices.length > 0
             ? this._randomVoices[Math.round(Math.random()*(this._randomVoices.length-1))]
             : null
+        return this._config.randomizeVoice && randomVoice != null
+            ? this.buildVoice(userName, randomVoice) 
+            : this.buildVoice(userName, defaultVoice)
+    }
+
+    private buildVoice(userName: string, voice: IGoogleVoice):IUserVoice {
         return {
             userName: userName,
-            languageCode: randomVoice?.languageCodes.shift() ?? 'en-US',
-            voiceName: randomVoice?.name ?? '',
-            gender: randomVoice?.ssmlGender ?? 'FEMALE'
+            languageCode: voice?.languageCodes.shift() ?? 'en-US',
+            voiceName: voice?.name ?? '',
+            gender: voice?.ssmlGender ?? 'FEMALE'
         }
     }
 }

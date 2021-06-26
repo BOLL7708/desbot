@@ -215,7 +215,7 @@ class MainController {
 
         this._twitch.setAllChatCallback((message) => {
             console.log(message)
-            this._twitchHelix.getUser(parseInt(message?.properties["user-id"]), true).then(user => {
+            this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
                 let text = message?.message?.text
                     .replace(/_/g, '\\_')
                     .replace(/\*/g, '\\*')
@@ -223,6 +223,7 @@ class MainController {
                     .replace(/`/g, '\\`')
                 if(message?.message?.isAction) text = `_${text}_`
 
+                // TODO: This does not appear to work...
                 const bits = parseInt(message?.properties?.bits)
                 let label = ''
                 if(isNaN(bits) && bits > 0) {
@@ -233,9 +234,7 @@ class MainController {
 
                 this._discord.sendMessageEmbed(
                     Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
-                    user?.login,
                     user?.display_name,
-                    message?.properties?.color,
                     user?.profile_image_url,
                     `${label}${text}`
                 )
@@ -247,7 +246,7 @@ class MainController {
             callback: (message:ITwitchRedemptionMessage) => {
                 const userName = message?.redemption?.user?.login
                 const userId = message?.redemption?.user?.id
-                this._twitchHelix.getUser(parseInt(userId)).then(response => {
+                this._twitchHelix.getUser(parseInt(userId), true).then(response => {
                     const profileUrl = response?.profile_image_url
                     const displayName = response?.display_name
                     const data: ILabel = {
