@@ -8,7 +8,7 @@ class MainController {
     private _discord: Discord = new Discord()
     private _hue: PhilipsHue = new PhilipsHue()
     private _openvr2ws: OpenVR2WS = new OpenVR2WS()
-    
+
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
 
@@ -33,7 +33,7 @@ class MainController {
             Config.instance.obs.sources.find(source => source.key == Config.KEY_HEADPEEK),
             Images.PINK_DOT
         ))
-        
+
         /** TTS */
         this._twitch.registerReward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSPEAK)?.id,
@@ -195,12 +195,19 @@ class MainController {
         this._twitch.setChatCallback((userName, input, isAction) => {
             let type = GoogleTTS.TYPE_SAID
             if(isAction) type = GoogleTTS.TYPE_ACTION
-            
-            if(this._ttsForAll) { 
+            let skip: boolean = false;
+
+            Config.instance.twitch.doNotSpeak.forEach((prefix) => {
+                if (input.indexOf(prefix) == 0) {
+                    skip = true;
+                }
+            })
+
+            if(this._ttsForAll && !skip) {
                 // TTS is on for everyone
                 this._tts.enqueueSpeakSentence(input, userName, type)
             }
-            else if(this._ttsEnabledUsers.indexOf(userName) >= 0) {
+            else if(this._ttsEnabledUsers.indexOf(userName) >= 0 && !skip) {
                 // Reward users
                 this._tts.enqueueSpeakSentence(input, userName, type)
             }
@@ -215,7 +222,7 @@ class MainController {
                     .replace(/~/g, '\\~')
                     .replace(/`/g, '\\`')
                 if(message?.message?.isAction) text = `_${text}_`
-                
+
                 // TODO: This does not appear to work...
                 const bits = parseInt(message?.properties?.bits)
                 let label = ''
@@ -224,8 +231,8 @@ class MainController {
                     label = `\`${bits} ${unit}\` `
                 }
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
-                
-                this._discord.sendMessage(
+
+                this._discord.sendMessageEmbed(
                     Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
                     user?.display_name,
                     user?.profile_image_url,
@@ -275,7 +282,7 @@ class MainController {
 
         this._screenshots.setScreenshotCallback((data) => {
             const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
-            const discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
+            const discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)
             const blob = Utils.b64toBlob(data.image, "image/png")
             // TODO: Get actual game title from the Steam Store, make a class for that.
             if(reward != null) {
@@ -298,7 +305,7 @@ class MainController {
             this._ttsForAll = !filterScene
         })
     }
-   
+
     private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
         let reward: ITwitchReward = {
             id: twitchReward.id,

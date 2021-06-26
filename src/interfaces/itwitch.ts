@@ -64,6 +64,11 @@ interface ITwitchUser {
     id: string
     login: string
 }
+interface ITwitchEmote {
+    id: string,
+    start: number,
+    end: number
+}
 interface ITwitchSlashCommand {
     trigger: string
     mods: boolean
@@ -98,7 +103,7 @@ interface ITwitchChatMessageProperties {
     'client-nonce'?: string
     color?: string
     'display-name'?: string
-    emotes?: string
+    emotes?: ITwitchEmote[]
     flags?: string
     id?: string
     mod?: string
