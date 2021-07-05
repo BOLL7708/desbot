@@ -140,9 +140,10 @@ class MainController {
             callback: (userName, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 if(parts.length == 2) {
-                    const userName = parts[0].toLowerCase().replace('@', '')
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userName, shortName: parts[1].toLowerCase()})
-                    this._tts.enqueueSpeakSentence(`${userName} is now called ${parts[1]}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    const userToRename = parts[0].toLowerCase().replace('@', '')
+                    const newName = parts[1].toLowerCase()
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userName, shortName: newName})
+                    this._tts.enqueueSpeakSentence(`${userToRename} is now called ${newName}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
