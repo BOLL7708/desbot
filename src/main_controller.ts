@@ -140,8 +140,9 @@ class MainController {
             callback: (userName, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 if(parts.length == 2) {
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: parts[0].toLowerCase(), shortName: parts[1].toLowerCase()})
-                    this._tts.enqueueSpeakSentence(`${parts[0]} is now called ${parts[1]}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    const userName = parts[0].toLowerCase().replace('@', '')
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userName, shortName: parts[1].toLowerCase()})
+                    this._tts.enqueueSpeakSentence(`${userName} is now called ${parts[1]}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
@@ -209,6 +210,7 @@ class MainController {
         this._twitch.setAllChatCallback((message) => {
             console.log(message)
             this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
+                // Escape markdown characters
                 let text = message?.message?.text
                     .replace(/_/g, '\\_')
                     .replace(/\*/g, '\\*')
