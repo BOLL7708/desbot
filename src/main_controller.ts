@@ -140,7 +140,7 @@ class MainController {
             callback: (userName, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 if(parts.length == 2) {
-                    const userToRename = parts[0].toLowerCase().replace('@', '')
+                    const userToRename = Utils.cleanUserName(parts[0])
                     const newName = parts[1].toLowerCase()
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userName, shortName: newName})
                     this._tts.enqueueSpeakSentence(`${userToRename} is now called ${newName}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -154,8 +154,8 @@ class MainController {
             everyone: false,
             callback: (userName, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
-                let name = parts[0] ?? ''
-                if(name.length > 0 && name.toLowerCase() != Config.instance.twitch.botName.toLowerCase()) {
+                let name = Utils.cleanUserName(parts[0] ?? '')
+                if(name.length > 0 && name != Config.instance.twitch.botName.toLowerCase()) {
                     let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
                     Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
                     Utils.loadCleanName(name).then(cleanName => {
@@ -171,14 +171,19 @@ class MainController {
             everyone: false,
             callback: (userName, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
-                let name = parts[0] ?? ''
-                if(name.length > 0) {
-                    let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
-                    Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })
+                let name = Utils.cleanUserName(parts[0] ?? '')
+                if(name.length == 0) return
+                Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name).then(blacklist => {
                     Utils.loadCleanName(name).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(`${cleanName} has regained their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        if(blacklist != null && blacklist.active) {
+                            let reason = Utils.cleanSetting(parts[1] ?? '')
+                            Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
+                            this._tts.enqueueSpeakSentence(`${cleanName} has regained their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        } else {
+                            this._tts.enqueueSpeakSentence(`${cleanName} was never muted`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        }
                     })
-                }
+                })
             }
         })
 

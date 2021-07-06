@@ -60,6 +60,14 @@ class Utils {
             .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, ''); // Emojis: https://stackoverflow.com/a/63464318/2076423
     }
 
+    static cleanUserName(userName:string) {
+        return userName.trim().replace('@', '').toLowerCase()
+    }
+
+    static cleanSetting(setting:string) {
+        return setting.trim().replace('|', ' ').replace(';', ' ')
+    }
+
     static async sha256(message:string) {
         const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
         const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
