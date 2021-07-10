@@ -13,12 +13,22 @@ class Pipe {
     private onError(evt) {
         // console.table(evt)
     }
-    sendBasic(title: string, message:string) {
-        this._socket.send(JSON.stringify({
-            title: title,
-            message: message
-        }))
+    
+    sendBasic(title: string, message:string, image?:string) {
+        if(image != null) {
+            this._socket.send(JSON.stringify({
+                title: title,
+                message: message,
+                image: image
+            }))
+        } else {
+            this._socket.send(JSON.stringify({
+                title: title,
+                message: message,
+            }))
+        }
     }
+
     sendCustom(message:IPipeCustomMessage) {
         this._socket.send(JSON.stringify(message))
     }

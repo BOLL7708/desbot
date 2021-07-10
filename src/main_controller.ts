@@ -20,7 +20,7 @@ class MainController {
         Settings.loadSettings(Settings.TWITCH_TOKENS)
         Settings.loadSettings(Settings.LABELS)
 
-        this._pipe.sendBasic("PubSub Widget", "Initializing...")
+        this._pipe.sendBasic("Streaming Widget", "Initializing...")
 
         /** OBS */
         this._twitch.registerReward(this.buildOBSReward(
@@ -216,13 +216,18 @@ class MainController {
         this._twitch.setAllChatCallback((message) => {
             console.log(message)
             this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
-                // Escape markdown characters
                 let text = message?.message?.text
+                if(text == null || text.length == 0) return
+                
+                // Discord Log
+                
+                // Escape markdown characters
+                let logText = text
                     .replace(/_/g, '\\_')
                     .replace(/\*/g, '\\*')
                     .replace(/~/g, '\\~')
                     .replace(/`/g, '\\`')
-                if(message?.message?.isAction) text = `_${text}_`
+                if(message?.message?.isAction) logText = `_${logText}_`
                 
                 // TODO: This does not appear to work...
                 const bits = parseInt(message?.properties?.bits)
@@ -237,8 +242,20 @@ class MainController {
                     Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
                     user?.display_name,
                     user?.profile_image_url,
-                    `${label}${text}`
+                    `${label}${logText}`
                 )
+
+                // Pipe to VR (basic)
+
+                Utils.cleanText(text).then(cleanText => {
+                    if(user?.profile_image_url) {
+                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                            this._pipe.sendBasic("", `${user?.display_name}: ${cleanText}`, image)
+                        })
+                    } else {
+                        this._pipe.sendBasic("", `${user?.display_name}: ${cleanText}`)
+                    }
+                })
             })
         })
 
