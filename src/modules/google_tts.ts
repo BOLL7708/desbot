@@ -172,7 +172,7 @@ class GoogleTTS {
                 if(voices != null) {
                     voices = voices.filter(voice => voice.name.indexOf('Wavenet') >= 0)
                     this._voices = voices
-                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf('en-') == 0))
+                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0))
                     voices.forEach(voice => {
                         voice.languageCodes.forEach(code => {
                             code = code.toLowerCase()

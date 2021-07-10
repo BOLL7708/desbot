@@ -26,7 +26,8 @@ class Config {
             apiKey: '',
             speakerTimeoutMs: 5000,
             randomizeVoice: false,
-            defaultVoice: ''
+            randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
+            defaultVoice: '' // This will be used if randomization is turned off.
         },
         pipe: {
             port: 8077

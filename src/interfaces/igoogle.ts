@@ -3,6 +3,7 @@ interface IGoogleConfig {
     apiKey: string
     speakerTimeoutMs: number
     randomizeVoice: boolean
+    randomizeVoiceLanguageFilter: string
     defaultVoice: string
 }
 
