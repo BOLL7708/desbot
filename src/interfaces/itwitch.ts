@@ -114,7 +114,7 @@ interface ITwitchChatMessageProperties {
 
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
-    (userName: string, input: string, isAction: boolean): void
+    (userName: ITwitchUserData, input: string, isAction: boolean): void
 }
 interface ITwitchRedemptionCallback {
     (message: ITwitchRedemptionMessage): void
@@ -126,11 +126,21 @@ interface ITwitchChatMessageCallback {
     (message: TwitchMessageCmd): void
 }
 interface ITwitchSlashCommandCallback {
-    (userName: string, input: string): void
+    (userData: ITwitchUserData, input: string): void
 }
 interface ITwitchAnnouncementCallback {
-    (userName: string, input: string): void
+    (userData: ITwitchUserData, input: string): void
 }
 interface ITwitchChatCheerCallback {
-    (userName: string, input: string, bits: number): void
+    (userData: ITwitchUserData, input: string, bits: number): void
+}
+
+// Callback data
+interface ITwitchUserData {
+    userId: string
+    userName: string
+    displayName: string
+    color: string
+    isMod: boolean
+    isBroadcaster: boolean
 }

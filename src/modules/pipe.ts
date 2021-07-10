@@ -13,20 +13,30 @@ class Pipe {
     private onError(evt) {
         // console.table(evt)
     }
+
+    setOverlayTitle(title: string) {
+        this._socket.send(JSON.stringify({
+            title: title,
+            message: "Initializing Notification Pipe for Streaming Widget"
+        }))
+    }
     
-    sendBasic(title: string, message:string, image?:string) {
-        if(image != null) {
-            this._socket.send(JSON.stringify({
-                title: title,
-                message: message,
-                image: image
-            }))
-        } else {
-            this._socket.send(JSON.stringify({
-                title: title,
-                message: message,
-            }))
-        }
+    sendBasic(displayName: string, message:string, image?:string) {
+        Utils.cleanText(message).then(cleanText => {
+            const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
+            if(image != null) {
+                this._socket.send(JSON.stringify({
+                    title: "",
+                    message: text,
+                    image: image
+                }))
+            } else {
+                this._socket.send(JSON.stringify({
+                    title: "",
+                    message: text,
+                }))
+            }
+        })
     }
 
     sendCustom(message:IPipeCustomMessage) {

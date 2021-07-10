@@ -39,7 +39,7 @@ class Twitch{
         this._chatCheerCallback = callback
     }
 
-    private _chatCallback: ITwitchChatCallback = (userName, input, isAction) => { console.warn('Twitch: Unhandled chat message') }
+    private _chatCallback: ITwitchChatCallback = (userData, input, isAction) => { console.warn('Twitch: Unhandled chat message') }
     setChatCallback(callback: ITwitchChatCallback) {
         this._chatCallback = callback
     }
@@ -64,6 +64,16 @@ class Twitch{
         let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') >= 0
         let isMod = messageCmd.properties?.mod == '1'
 
+        // User data for most callbacks
+        const userData:ITwitchUserData = {
+            userId: messageCmd.properties["user-id"],
+            userName: userName,
+            displayName: messageCmd.properties?.["display-name"],
+            color: messageCmd.properties?.color,
+            isMod: isMod,
+            isBroadcaster: isBroadcaster
+        }
+
         // For logging
         this._allChatCallback(messageCmd)
         
@@ -79,20 +89,20 @@ class Twitch{
             let commandStr = text.split(' ').shift().substr(1)
             let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()
-            if(isBroadcaster || (command.mods && isMod)) return command.callback(userName, textStr)
+            if(command != null && (isBroadcaster || (command.mods && isMod))) return command.callback(userData, textStr)
         }
 
         // Bots
         let bits = parseInt(messageCmd.properties?.bits)
         let announcement = this._announcements.find(a => a.userName == userName)
         if(announcement != null ) { // Announcement bots
-            if(text.indexOf(announcement.trigger) == 0) return announcement.callback(userName, text)
+            if(text.indexOf(announcement.trigger) == 0) return announcement.callback(userData, text)
         } 
         else if(!isNaN(bits) && bits > 0) { // Cheers
-            return this._chatCheerCallback(text, userName, bits)
+            return this._chatCheerCallback(userData, text, bits)
         } 
         else { // Normal users
-            return this._chatCallback(userName, text, msg.isAction)
+            return this._chatCallback(userData, text, msg.isAction)
         }
     }
 }

@@ -11,6 +11,7 @@ class MainController {
     
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = false
+    private _pipeForAll: boolean = true
 
     constructor() {
         // Make sure settings are precached
@@ -20,7 +21,7 @@ class MainController {
         Settings.loadSettings(Settings.TWITCH_TOKENS)
         Settings.loadSettings(Settings.LABELS)
 
-        this._pipe.sendBasic("Streaming Widget", "Initializing...")
+        this._pipe.setOverlayTitle("Streaming Widget")
 
         /** OBS */
         this._twitch.registerReward(this.buildOBSReward(
@@ -187,29 +188,82 @@ class MainController {
             }
         })
 
-        this._twitch.registerAnnouncement({
-            userName: Config.instance.twitch.announcerName.toLowerCase(),
-            trigger: Config.instance.twitch.announcerTrigger.toLowerCase(),
+        this._twitch.registerCommand({
+            trigger: 'chat',
+            mods: true,
+            everyone: false,
             callback: (userName, input) => {
-                this._tts.enqueueSpeakSentence(input, userName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._pipe.sendBasic('', input)
             }
         })
 
-        this._twitch.setChatCheerCallback((userName, input, bits) => {
-            this._tts.enqueueSpeakSentence(input, userName, GoogleTTS.TYPE_CHEER, bits)
+        this._twitch.registerCommand({
+            trigger: 'chaton',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                this._pipeForAll = true
+                this._tts.enqueueSpeakSentence(`Chat enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
         })
 
-        this._twitch.setChatCallback((userName, input, isAction) => {
+        this._twitch.registerCommand({
+            trigger: 'chatoff',
+            mods: true,
+            everyone: false,
+            callback: (userName, input) => {
+                this._pipeForAll = false
+                this._tts.enqueueSpeakSentence(`Chat disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        this._twitch.registerAnnouncement({
+            userName: Config.instance.twitch.announcerName.toLowerCase(),
+            trigger: Config.instance.twitch.announcerTrigger.toLowerCase(),
+            callback: (userData, input) => {
+                this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
+
+                // Pipe to VR (basic)
+                this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                    if(user?.profile_image_url) {
+                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                            this._pipe.sendBasic(userData.displayName, input, image)
+                        })
+                    } else {
+                        this._pipe.sendBasic(userData.displayName, input)
+                    }
+                })
+            }
+        })
+
+        this._twitch.setChatCheerCallback((userData, input, bits) => {
+            this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_CHEER, bits)
+        })
+
+        this._twitch.setChatCallback((userData, input, isAction) => {
             let type = GoogleTTS.TYPE_SAID
             if(isAction) type = GoogleTTS.TYPE_ACTION
             
             if(this._ttsForAll) { 
                 // TTS is on for everyone
-                this._tts.enqueueSpeakSentence(input, userName, type)
+                this._tts.enqueueSpeakSentence(input, userData.userName, type)
             }
-            else if(this._ttsEnabledUsers.indexOf(userName) >= 0) {
+            else if(this._ttsEnabledUsers.indexOf(userData.userName) >= 0) {
                 // Reward users
-                this._tts.enqueueSpeakSentence(input, userName, type)
+                this._tts.enqueueSpeakSentence(input, userData.userName, type)
+            }
+
+            // Pipe to VR (basic)
+            if(this._pipeForAll) {
+                this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                    if(user?.profile_image_url) {
+                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                            this._pipe.sendBasic(userData.displayName, input, image)
+                        })
+                    } else {
+                        this._pipe.sendBasic(userData.displayName, input)
+                    }
+                })
             }
         })
 
@@ -244,18 +298,6 @@ class MainController {
                     user?.profile_image_url,
                     `${label}${logText}`
                 )
-
-                // Pipe to VR (basic)
-
-                Utils.cleanText(text).then(cleanText => {
-                    if(user?.profile_image_url) {
-                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic("", `${user?.display_name}: ${cleanText}`, image)
-                        })
-                    } else {
-                        this._pipe.sendBasic("", `${user?.display_name}: ${cleanText}`)
-                    }
-                })
             })
         })
 
