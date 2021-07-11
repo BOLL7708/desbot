@@ -7,51 +7,29 @@ class GoogleTTS {
     // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _config: IGoogleConfig = Config.instance.google;
     private _speakerTimeoutMs: number = Config.instance.google.speakerTimeoutMs
-    private _sentenceQueue: ISentence[] = []
-    private _speakIntervalHandle: number
-    private _audio: HTMLAudioElement
+    private _audio: AudioPlayer = new AudioPlayer()
     private _voices: IGoogleVoice[] = [] // Cache
     private _randomVoices: IGoogleVoice[] = [] // Cache for randomizing starter voice
     private _languages: string[] = [] // Cache
-    private _isPlaying: boolean = false
-    private _lastPlayed: number = 0
+    private _lastEnqueued: number = 0
     private _lastSpeaker: string = ''
 
     constructor() {
-        this.startSpeakLoop()
-        this._audio = new Audio()
-    }
-
-    private startSpeakLoop() {
-        this._speakIntervalHandle = setInterval(this.trySpeakNext.bind(this), 500)
-    }
-
-    enqueueSpeakSentence(sentence: string, userName: string, type: number=0, meta: any=null):void {
-        Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName).then(blacklist => {
-            if(blacklist == null || !blacklist.active) {
-                if(sentence.trim().length == 0) return
-                this._sentenceQueue.push({text: sentence, userName: userName, type: type, meta: meta})
-                console.log(`Enqueued sentence: ${this._sentenceQueue.length}`)
-            }
+        this._audio.setPlayedCallback((nonce, didPlay) => {
+            console.log(`TTS: Played audio with nonce ${nonce} (${didPlay})`)
         })
     }
 
     stopSpeaking(andClearQueue: boolean = false) {
-        this._audio.pause()
-        if(andClearQueue) this._sentenceQueue = []
+        this._audio.stop(andClearQueue)
     }
 
-    private async trySpeakNext() {
-        if(!this._audio.paused) {
-            this._isPlaying = this._audio.error == null
-            return
-        } else if(this._isPlaying) {
-            this._isPlaying = false
-            this._lastPlayed = Date.now()
-        }
-        let sentence = this._sentenceQueue.shift()
-        if(typeof sentence == 'undefined') return // The queue is empty
-        
+    async enqueueSpeakSentence(input: string, userName: string, type: number=0, meta: any=null) {
+        const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
+        if(blacklist != null && blacklist.active) return
+        if(input.trim().length == 0) return
+
+        const sentence = {text: input, userName: userName, type: type, meta: meta}      
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.apiKey}`
         let text = sentence.text
         if(text == null || text.length == 0) return console.error("TTS: Sentence text was null or empty")
@@ -64,9 +42,9 @@ class GoogleTTS {
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
         let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER)
-        if(cleanText.trim().length == 0) return console.error("TTS: Clean text had zero length")
+        if(cleanText.trim().length == 0) return console.warn("TTS: Clean text had zero length, skipping")
 
-        if(Date.now() - this._lastPlayed > this._speakerTimeoutMs) this._lastSpeaker = ''
+        if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
                 cleanText = this._lastSpeaker == sentence.userName ? cleanText : `${cleanName} said: ${cleanText}`
@@ -106,8 +84,11 @@ class GoogleTTS {
         }).then((response) => response.json()).then(json => {
             if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
                 console.log(`TTS: Successfully got speech: [${json.audioContent.length}]`);
-                this._audio.src = `data:audio/ogg;base64,${json.audioContent}`;
-                this._audio.play();
+                this._audio.enqueueAudio({
+                    nonce: `TTS-${Date.now()}`,
+                    src: `data:audio/ogg;base64,${json.audioContent}`
+                })
+                this._lastEnqueued = Date.now()
             } else {
                 this._lastSpeaker = ''
                 console.error(`TTS: Failed to generate speech: [${json.status}], ${json.error}`);
@@ -159,7 +140,7 @@ class GoogleTTS {
             if(setting.toLowerCase() == 'reset') return voice = this.getDefaultVoice(userName)
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
-        console.log(`Voice saved: ${success}`)
+        console.log(`TTS: Voice saved: ${success}`)
         this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION)
     }
 
