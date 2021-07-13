@@ -28,6 +28,7 @@ class GoogleTTS {
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(input.trim().length == 0) return
+        if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return
 
         const sentence = {text: input, userName: userName, type: type, meta: meta}      
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.apiKey}`

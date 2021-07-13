@@ -27,10 +27,12 @@ class Config {
             speakerTimeoutMs: 5000,
             randomizeVoice: false,
             randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
-            defaultVoice: '' // This will be used if randomization is turned off.
+            defaultVoice: '', // This will be used if randomization is turned off.
+            doNotSpeak: []
         },
         pipe: {
-            port: 8077
+            port: 8077,
+            doNotShow: []
         },
         obs: {
             password: '',
@@ -59,7 +61,6 @@ class Config {
             botName: '',
             announcerName: '',
             announcerTrigger: '',
-            doNotSpeak: [''],
             rewards: [
                 {
                     key: Config.KEY_ROOMPEEK,

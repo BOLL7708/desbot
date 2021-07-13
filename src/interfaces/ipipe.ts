@@ -1,6 +1,7 @@
 // Config
 interface IPipeConfig {
     port: number
+    doNotShow: string[]
 }
 
 // Data

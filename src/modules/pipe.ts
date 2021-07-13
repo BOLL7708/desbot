@@ -1,8 +1,8 @@
 class Pipe {
     private _socket:WebSockets
+    private _config:IPipeConfig = Config.instance.pipe
     constructor() {
-        let config:IPipeConfig = Config.instance.pipe
-        this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true)
+        this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
         this._socket.init();
@@ -22,6 +22,7 @@ class Pipe {
     }
     
     sendBasic(displayName: string, message:string, image?:string) {
+        if(Utils.matchFirstChar(message, this._config.doNotShow)) return
         Utils.cleanText(message).then(cleanText => {
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(image != null) {

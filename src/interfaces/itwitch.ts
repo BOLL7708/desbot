@@ -7,7 +7,6 @@ interface ITwitchConfig {
     botName: string
     announcerName: string
     announcerTrigger: string
-    doNotSpeak: string[]
     rewards: ITwitchRewardConfig[]
 }
 interface ITwitchRewardConfig {

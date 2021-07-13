@@ -127,4 +127,11 @@ class Utils {
         })
     }
 
+    static matchFirstChar(text:string, chars:string[]):Boolean {
+        let trimmed = text.trim()
+        for(let i in chars) {
+            if(trimmed.indexOf(chars[i]) == 0) return true
+        }
+        return false
+    }
 }

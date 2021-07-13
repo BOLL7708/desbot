@@ -5,6 +5,7 @@ interface IGoogleConfig {
     randomizeVoice: boolean
     randomizeVoiceLanguageFilter: string
     defaultVoice: string
+    doNotSpeak: string[]
 }
 
 // Data
