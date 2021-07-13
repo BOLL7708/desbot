@@ -84,6 +84,12 @@ class MainController {
                 this._screenshots.sendScreenshotRequest(data, Config.instance.screenshots.delay)
             }
         })
+        this._twitch.registerReward({
+            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_INSTANTSCREENSHOT)?.id,
+            callback: (data:ITwitchRedemptionMessage) => {
+                this._screenshots.sendScreenshotRequest(data, 0)
+            }
+        })
 
         this._twitch.registerCommand({
             trigger: 'ttson',
@@ -352,7 +358,8 @@ class MainController {
                     const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
                     const authorIconUrl = user?.profile_image_url
                     const color = Utils.hexToDecColor(Config.instance.discord.remoteScreenshotEmbedColor)
-                    this._discord.sendPayloadEmbed(discordCfg, blob, color, `Photograph: ${description}`, authorName, authorUrl, authorIconUrl, this._openvr2ws._currentAppId)
+                    const descriptionText = description != null ? `Photograph: ${description}` : "Instant shot! 📸"
+                    this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, this._openvr2ws._currentAppId)
                 })
             } else {
                 const color = Utils.hexToDecColor(Config.instance.discord.manualScreenshotEmbedColor)
