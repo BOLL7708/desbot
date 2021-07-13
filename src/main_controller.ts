@@ -87,6 +87,7 @@ class MainController {
         this._twitch.registerReward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_INSTANTSCREENSHOT)?.id,
             callback: (data:ITwitchRedemptionMessage) => {
+                this._tts.enqueueSpeakSentence(`Instant shot!`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._screenshots.sendScreenshotRequest(data, 0)
             }
         })
