@@ -60,6 +60,7 @@ class TwitchMessageCmd {
         badges: '',
         'client-nonce': '',
         color: '',
+        // 'custom-reward-id': '', // Not included as it should be unset to not be a reward.
         'display-name': '',
         emotes: '',
         flags: '',

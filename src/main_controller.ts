@@ -274,8 +274,9 @@ class MainController {
             }
         })
 
-        this._twitch.setAllChatCallback((message) => {
+        this._twitch.setAllChatCallback((message:TwitchMessageCmd) => {
             console.log(message)
+            if(message.properties["custom-reward-id"] != null) return // Skip rewards as logged elsewhere
             this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
                 let text = message?.message?.text
                 if(text == null || text.length == 0) return
@@ -283,11 +284,7 @@ class MainController {
                 // Discord Log
                 
                 // Escape markdown characters
-                let logText = text
-                    .replace(/_/g, '\\_')
-                    .replace(/\*/g, '\\*')
-                    .replace(/~/g, '\\~')
-                    .replace(/`/g, '\\`')
+                let logText = Utils.escapeMarkdown(text)
                 if(message?.message?.isAction) logText = `_${logText}_`
                 
                 // TODO: This does not appear to work...
@@ -304,6 +301,19 @@ class MainController {
                     user?.display_name,
                     user?.profile_image_url,
                     `${label}${logText}`
+                )
+            })
+        })
+
+        this._twitch.setAllRewardsCallback((message:ITwitchRedemptionMessage) => {
+            this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
+                let description = `🏆 **${message.redemption.reward.title}**`
+                if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
+                this._discord.sendMessage(
+                    Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
+                    user?.display_name,
+                    user?.profile_image_url,
+                    description
                 )
             })
         })

@@ -13,6 +13,24 @@ class Discord {
             })
         }).catch(err => console.error(err))        
     }
+    sendMessageEmbed(config: IDiscordWebhookConfig, displayName: string, iconUrl: string, color: string, description: string, message: string) {
+        let url = `${this._baseUrl}/${config.id}/${config.token}`
+        fetch(url, {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: displayName,
+                avatar_url: iconUrl,
+                content: description,
+                embeds: [
+                    {
+                        description: message,
+                        color: Utils.hexToDecColor(color)
+                    }
+                ]
+            })
+        }).catch(err => console.error(err))
+    }
 
     sendPayload(config: IDiscordWebhookConfig, content: string, imageBlob: Blob) {
         let url = `${this._baseUrl}/${config.id}/${config.token}`
@@ -51,30 +69,6 @@ class Discord {
         
         let formData = new FormData()
         formData.append('file', imageBlob, 'image.png')
-        formData.append('payload_json', JSON.stringify(imageEmbed))
-        
-        const options = {
-            method: 'POST',
-            body: formData
-        }
-        
-        fetch(url, options).then(response => console.log(response))
-    }
-
-    sendMessageEmbed(config: IDiscordWebhookConfig, userName: string, displayName: string, color: string, iconUrl: string, message: string) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
-        let imageEmbed = {
-            username: displayName,
-            avatar_url: iconUrl,
-            embeds: [
-                {
-                    description: message,
-                    color: Utils.hexToDecColor(color)
-                }
-            ]
-        }
-        
-        let formData = new FormData()
         formData.append('payload_json', JSON.stringify(imageEmbed))
         
         const options = {

@@ -48,8 +48,14 @@ class Twitch{
     setAllChatCallback(callback: ITwitchChatMessageCallback) {
         this._allChatCallback = callback
     }
+
+    private _allRewardsCallback: ITwitchRewardRedemptionCallback = () => { console.warn('Twitch: Unhandled reward redemption (all)') }
+    setAllRewardsCallback(callback: ITwitchRewardRedemptionCallback) {
+        this._allRewardsCallback = callback
+    }
     
     private onReward(id:string, message:ITwitchRedemptionMessage) {
+        this._allRewardsCallback(message)
         let reward = this._rewards.find(reward => id == reward.id)
         if(reward != null) reward.callback(message)
         else console.warn(`Reward not found: ${id}`)
