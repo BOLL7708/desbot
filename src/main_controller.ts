@@ -96,7 +96,7 @@ class MainController {
             trigger: 'ttson',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 let onText:string = !this._ttsForAll ? "Global TTS activated" : "Global TTS already on"
                 this._ttsForAll = true
                 this._tts.enqueueSpeakSentence(onText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -107,7 +107,7 @@ class MainController {
             trigger: 'ttsoff',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 let offText = this._ttsForAll ? "Global TTS terminated" : "Global TTS already off"
                 this._ttsForAll = false
                 this._tts.enqueueSpeakSentence(offText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -118,7 +118,7 @@ class MainController {
             trigger: 'silence',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 this._tts.stopSpeaking()
             }
         })
@@ -127,7 +127,7 @@ class MainController {
             trigger: 'ttsdie',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 this._tts.stopSpeaking(true)
             }
         })
@@ -136,7 +136,7 @@ class MainController {
             trigger: 'say',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 this._tts.enqueueSpeakSentence(input, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
@@ -145,12 +145,12 @@ class MainController {
             trigger: 'nick',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 if(parts.length == 2) {
                     const userToRename = Utils.cleanUserName(parts[0])
                     const newName = parts[1].toLowerCase()
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userName, shortName: newName})
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userData.userName, shortName: newName})
                     this._tts.enqueueSpeakSentence(`${userToRename} is now called ${newName}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
@@ -160,7 +160,7 @@ class MainController {
             trigger: 'mute',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 let name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length > 0 && name != Config.instance.twitch.botName.toLowerCase()) {
@@ -177,7 +177,7 @@ class MainController {
             trigger: 'unmute',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
                 let name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length == 0) return
@@ -199,7 +199,7 @@ class MainController {
             trigger: 'chat',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 this._pipe.sendBasic('', input)
             }
         })
@@ -208,7 +208,7 @@ class MainController {
             trigger: 'chaton',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 this._pipeForAll = true
                 this._tts.enqueueSpeakSentence(`Chat enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -218,7 +218,7 @@ class MainController {
             trigger: 'chatoff',
             mods: true,
             everyone: false,
-            callback: (userName, input) => {
+            callback: (userData, input) => {
                 this._pipeForAll = false
                 this._tts.enqueueSpeakSentence(`Chat disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }

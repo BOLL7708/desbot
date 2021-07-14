@@ -96,8 +96,10 @@ interface ITwitchChatMessageProperties {
     badges?: string
     'client-nonce'?: string
     color?: string
+    'custom-reward-id'?: string
     'display-name'?: string
     emotes?: string
+    'first-msg'?: string
     flags?: string
     id?: string
     mod?: string
@@ -132,6 +134,9 @@ interface ITwitchAnnouncementCallback {
 }
 interface ITwitchChatCheerCallback {
     (userData: ITwitchUserData, input: string, bits: number): void
+}
+interface ITwitchRewardRedemptionCallback {
+    (message: ITwitchRedemptionMessage): void
 }
 
 // Callback data
