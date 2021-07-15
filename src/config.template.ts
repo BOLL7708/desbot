@@ -4,6 +4,7 @@ class Config {
     static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
     static readonly KEY_TTSSPEAKTIME: string = 'TtsSpeakTime'
     static readonly KEY_TTSSETVOICE: string = 'TtsSetVoice'
+    static readonly KEY_TTSSWITCHVOICEGENDER: string = "TtsSwitchVoiceGender"
     static readonly KEY_SCREENSHOT: string = 'Screenshot'
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
@@ -78,6 +79,9 @@ class Config {
                     id: ''
                 },{
                     key: Config.KEY_TTSSETVOICE,
+                    id: ''
+                },{
+                    key: Config.KEY_TTSSWITCHVOICEGENDER,
                     id: ''
                 }
                 ,

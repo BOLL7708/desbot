@@ -21,6 +21,9 @@ class AudioPlayer {
         this._audio.addEventListener('pause', (evt)=>{
             doCallback.call(this, AudioPlayer.STATUS_ABORTED)
         })
+        this._audio.addEventListener('canplaythrough', (evt) => {
+            this._audio.play()
+        })
 
         function doCallback(status: number) {
             if(this._callback != null && this._currentNonce != null) this._callback(this._currentNonce, status)
@@ -48,7 +51,6 @@ class AudioPlayer {
             this._isPlaying = true
             this._currentNonce = audio.nonce
             this._audio.src = audio.src
-            this._audio.play()
         } else {
             console.warn('AudioPlayer: Dequeued audio but had no src value')
         }

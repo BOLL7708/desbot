@@ -77,6 +77,19 @@ class MainController {
             }
         })
         this._twitch.registerReward({
+            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSWITCHVOICEGENDER)?.id,
+            callback: (data:ITwitchRedemptionMessage) => {
+                let userName = data?.redemption?.user?.login
+                console.log(`TTS Gender Set Reward: ${userName}`)
+                Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
+                    const voiceSetting:IUserVoice = voice
+                    let gender:string = ''
+                    if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
+                    this._tts.setVoiceForUser(userName, `reset ${gender}`)
+                })
+            }
+        })
+        this._twitch.registerReward({
             id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_SCREENSHOT)?.id,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input

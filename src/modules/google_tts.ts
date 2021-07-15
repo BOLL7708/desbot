@@ -100,9 +100,10 @@ class GoogleTTS {
     async setVoiceForUser(userName:string, input:string) {
         await this.loadVoicesAndLanguages() // Fills caches
         let voice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName)
-        if(voice == null) voice = this.getDefaultVoice(userName)
+        const defaultVoice = await this.getDefaultVoice(userName)
+        if(voice == null) voice = defaultVoice
         
-        let inputArr = input.split(' ')
+        const inputArr = input.split(' ')
         let error = ''
         inputArr.forEach(setting => {
             setting = setting.toLowerCase()
@@ -111,7 +112,7 @@ class GoogleTTS {
             if(setting == 'female' || setting == 'male') {
                 voice.voiceName = '' // Gender is not respected if we have a name
                 voice.gender = setting
-                return 
+                return
             }
                        
             // Match country code
@@ -138,7 +139,10 @@ class GoogleTTS {
             }
 
             // Match reset
-            if(setting.toLowerCase() == 'reset') return voice = this.getDefaultVoice(userName)
+            if(setting.toLowerCase() == 'reset') {
+                voice = defaultVoice
+                return 
+            }
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         console.log(`TTS: Voice saved: ${success}`)
