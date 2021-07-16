@@ -1,4 +1,4 @@
-class Config {
+class ConfigTemplate { // Rename class to just 'Config' to use as the live config.
     static readonly KEY_ROOMPEEK: string = 'RoomPeek'
     static readonly KEY_HEADPEEK: string = 'HeadPeek'
     static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
@@ -6,6 +6,7 @@ class Config {
     static readonly KEY_TTSSETVOICE: string = 'TtsSetVoice'
     static readonly KEY_TTSSWITCHVOICEGENDER: string = "TtsSwitchVoiceGender"
     static readonly KEY_SCREENSHOT: string = 'Screenshot'
+    static readonly KEY_INSTANTSCREENSHOT: string = "InstantScreenshot"
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
     static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
@@ -22,7 +23,11 @@ class Config {
     static readonly KEY_COLOR_PURPLE: string = 'ColorPurple'
     static readonly KEY_COLOR_PINK: string = 'ColorPink'
 
-    static instance: IConfig ={
+    static instance: IConfig = {
+        controller: {
+            pipeForAllDefault: true,
+            ttsForAllDefault: true
+        },
         google: {
             apiKey: '',
             speakerTimeoutMs: 5000,

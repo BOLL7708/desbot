@@ -3,13 +3,11 @@
     <head>
         <?=loadJSFiles()?>
         <title>Streaming Widget</title>
-        <style>
-            /* audio { display: none; } */
-        </style>
+        <style></style>
     </head>
     <body>
         <script>
-            const mainController = new MainController();
+            const mainController = new MainController()
         </script>
     </body>
 </html>

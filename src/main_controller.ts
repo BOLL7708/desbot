@@ -10,9 +10,8 @@ class MainController {
     private _openvr2ws: OpenVR2WS = new OpenVR2WS()
     
     private _ttsEnabledUsers: string[] = []
-    private _ttsForAll: boolean = false
-    private _pipeForAll: boolean = true
-
+    private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
+    private _pipeForAll: boolean = Config.instance.controller.pipeForAllDefault
     constructor() {
         // Make sure settings are precached
         Settings.loadSettings(Settings.TTS_BLACKLIST)
