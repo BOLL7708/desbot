@@ -45,7 +45,7 @@ function writeSettings($filePath) {
 }
 
 function readSettings($filePath) {
-    $outputCsv = file_get_contents($filePath);
+    $outputCsv = str_replace("\r", '', file_get_contents($filePath));
     $outputRows = explode("\n", $outputCsv);
     $output = [];
     foreach($outputRows as $row) {
