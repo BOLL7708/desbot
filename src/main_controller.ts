@@ -22,6 +22,14 @@ class MainController {
 
         this._pipe.setOverlayTitle("Streaming Widget")
 
+        /*
+        ██████  ███████ ██     ██  █████  ██████  ██████  ███████ 
+        ██   ██ ██      ██     ██ ██   ██ ██   ██ ██   ██ ██      
+        ██████  █████   ██  █  ██ ███████ ██████  ██   ██ ███████ 
+        ██   ██ ██      ██ ███ ██ ██   ██ ██   ██ ██   ██      ██ 
+        ██   ██ ███████  ███ ███  ██   ██ ██   ██ ██████  ███████ 
+        */
+
         /** OBS */
         this._twitch.registerReward(this.buildOBSReward(
             Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_ROOMPEEK),
@@ -103,6 +111,49 @@ class MainController {
                 this._screenshots.sendScreenshotRequest(data, 0)
             }
         })
+
+        this._twitch.registerReward({
+            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_FAVORITEVIEWER)?.id,
+            callback: (message:ITwitchRedemptionMessage) => {
+                const userName = message?.redemption?.user?.login
+                const userId = message?.redemption?.user?.id
+                this._twitchHelix.getUser(parseInt(userId), true).then(response => {
+                    const profileUrl = response?.profile_image_url
+                    const displayName = response?.display_name
+                    const data: ILabel = {
+                        key: Config.KEY_FAVORITEVIEWER,
+                        userName: userName,
+                        displayName: displayName,
+                        profileUrl: profileUrl
+                    }
+                    Settings.pushSetting(Settings.LABELS, 'key', data)
+                    Utils.loadCleanName(userName).then(cleanName => {
+                        this._tts.enqueueSpeakSentence(`${cleanName} is the new favorite viewer`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
+                })
+            }
+        })
+
+        /* COLORS */
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_NEUTRAL, 0.3691, 0.3719))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_RED, 0.6758, 0.3190))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_ORANGE, 0.5926, 0.3892))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BUTTERCUP, 0.5213, 0.4495))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_YELLOW, 0.4944, 0.4563))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_GREEN, 0.2140, 0.7090))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_CYAN, 0.1797, 0.4215))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_SKY, 0.1509, 0.1808))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BLUE, 0.1541, 0.0821))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PURPLE, 0.1541, 0.0821))
+        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PINK, 0.3881, 0.1760))
+
+        /*
+         ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████ 
+        ██      ██    ██ ████  ████ ████  ████ ██   ██ ████   ██ ██   ██ ██      
+        ██      ██    ██ ██ ████ ██ ██ ████ ██ ███████ ██ ██  ██ ██   ██ ███████ 
+        ██      ██    ██ ██  ██  ██ ██  ██  ██ ██   ██ ██  ██ ██ ██   ██      ██ 
+         ██████  ██████  ██      ██ ██      ██ ██   ██ ██   ████ ██████  ███████ 
+        */
 
         this._twitch.registerCommand({
             trigger: 'ttson',
@@ -236,6 +287,14 @@ class MainController {
             }
         })
 
+        /*
+         █████  ███    ██ ███    ██  ██████  ██    ██ ███    ██  ██████ ███████ ███    ███ ███████ ███    ██ ████████ ███████ 
+        ██   ██ ████   ██ ████   ██ ██    ██ ██    ██ ████   ██ ██      ██      ████  ████ ██      ████   ██    ██    ██      
+        ███████ ██ ██  ██ ██ ██  ██ ██    ██ ██    ██ ██ ██  ██ ██      █████   ██ ████ ██ █████   ██ ██  ██    ██    ███████ 
+        ██   ██ ██  ██ ██ ██  ██ ██ ██    ██ ██    ██ ██  ██ ██ ██      ██      ██  ██  ██ ██      ██  ██ ██    ██         ██ 
+        ██   ██ ██   ████ ██   ████  ██████   ██████  ██   ████  ██████ ███████ ██      ██ ███████ ██   ████    ██    ███████ 
+        */
+
         this._twitch.registerAnnouncement({
             userName: Config.instance.twitch.announcerName.toLowerCase(),
             trigger: Config.instance.twitch.announcerTrigger.toLowerCase(),
@@ -254,6 +313,14 @@ class MainController {
                 })
             }
         })
+
+        /*
+         ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
+        ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
+        ██      ███████ ██      ██      ██████  ███████ ██      █████   ███████ 
+        ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██       ██ 
+         ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████ 
+        */
 
         this._twitch.setChatCheerCallback((userData, input, bits) => {
             this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_CHEER, bits)
@@ -330,45 +397,6 @@ class MainController {
             })
         })
 
-        this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_FAVORITEVIEWER)?.id,
-            callback: (message:ITwitchRedemptionMessage) => {
-                const userName = message?.redemption?.user?.login
-                const userId = message?.redemption?.user?.id
-                this._twitchHelix.getUser(parseInt(userId), true).then(response => {
-                    const profileUrl = response?.profile_image_url
-                    const displayName = response?.display_name
-                    const data: ILabel = {
-                        key: Config.KEY_FAVORITEVIEWER,
-                        userName: userName,
-                        displayName: displayName,
-                        profileUrl: profileUrl
-                    }
-                    Settings.pushSetting(Settings.LABELS, 'key', data)
-                    Utils.loadCleanName(userName).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(`${cleanName} is the new favorite viewer`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    })
-                })
-            }
-        })
-
-        /* COLORS */
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_NEUTRAL, 0.3691, 0.3719))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_RED, 0.6758, 0.3190))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_ORANGE, 0.5926, 0.3892))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BUTTERCUP, 0.5213, 0.4495))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_YELLOW, 0.4944, 0.4563))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_GREEN, 0.2140, 0.7090))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_CYAN, 0.1797, 0.4215))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_SKY, 0.1509, 0.1808))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BLUE, 0.1541, 0.0821))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PURPLE, 0.1541, 0.0821))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PINK, 0.3881, 0.1760))
-
-        this._twitch.init()
-
-        // this._discord.sendText(Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR), "Widget reloaded...")
-
         this._screenshots.setScreenshotCallback((data) => {
             const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
             const discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
@@ -394,8 +422,12 @@ class MainController {
             let filterScene = Config.instance.obs.filterOnScenes.indexOf(sceneName) >= 0
             this._ttsForAll = !filterScene
         })
+
+        this._twitch.init()
     }
    
+
+    
     private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
         let reward: ITwitchReward = {
             id: twitchReward.id,
