@@ -12,6 +12,7 @@ class MainController {
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
     private _pipeForAll: boolean = Config.instance.controller.pipeForAllDefault
+    private _logChatToDiscord: boolean = Config.instance.controller.logChatToDiscordDefault
     constructor() {
         // Make sure settings are precached
         Settings.loadSettings(Settings.TTS_BLACKLIST)
@@ -287,6 +288,26 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: 'logon',
+            mods: false,
+            everyone: false,
+            callback: (userData, input) => {
+                this._logChatToDiscord = true
+                this._tts.enqueueSpeakSentence(`Logging enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: 'logoff',
+            mods: false,
+            everyone: false,
+            callback: (userData, input) => {
+                this._logChatToDiscord = false
+                this._tts.enqueueSpeakSentence(`Logging disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
         /*
          █████  ███    ██ ███    ██  ██████  ██    ██ ███    ██  ██████ ███████ ███    ███ ███████ ███    ██ ████████ ███████ 
         ██   ██ ████   ██ ████   ██ ██    ██ ██    ██ ████   ██ ██      ██      ████  ████ ██      ████   ██    ██    ██      
@@ -375,12 +396,14 @@ class MainController {
                 }
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
                 
-                this._discord.sendMessage(
-                    Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
-                    user?.display_name,
-                    user?.profile_image_url,
-                    `${label}${logText}`
-                )
+                if(this._logChatToDiscord) {
+                    this._discord.sendMessage(
+                        Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
+                        user?.display_name,
+                        user?.profile_image_url,
+                        `${label}${logText}`
+                    )
+                }
             })
         })
 
@@ -388,12 +411,14 @@ class MainController {
             this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
                 let description = `🏆 **${message.redemption.reward.title}**`
                 if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
-                this._discord.sendMessage(
-                    Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
-                    user?.display_name,
-                    user?.profile_image_url,
-                    description
-                )
+                if(this._logChatToDiscord) {
+                    this._discord.sendMessage(
+                        Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
+                        user?.display_name,
+                        user?.profile_image_url,
+                        description
+                    )
+                }
             })
         })
 

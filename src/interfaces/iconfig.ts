@@ -14,4 +14,5 @@ interface IConfig {
 interface IControllerConfig {
     pipeForAllDefault: boolean
     ttsForAllDefault: boolean
+    logChatToDiscordDefault: boolean
 }

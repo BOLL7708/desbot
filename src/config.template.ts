@@ -26,7 +26,8 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
     static instance: IConfig = {
         controller: {
             pipeForAllDefault: true,
-            ttsForAllDefault: true
+            ttsForAllDefault: true,
+            logChatToDiscordDefault: true
         },
         google: {
             apiKey: '',
