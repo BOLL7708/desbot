@@ -39,25 +39,24 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         },
         pipe: {
             port: 8077,
-            doNotShow: []
+            doNotShow: [],
+            showRewardsWithIds: []
         },
         obs: {
             password: '',
             port: 4445,
-            sources: [
-                {
-                    key: Config.KEY_ROOMPEEK,
-                    sceneNames: [''],
-                    sourceName: '',
-                    duration: 11000
+            sources: {
+                [Config.KEY_ROOMPEEK]: {
+                    sceneNames: [""],
+                    sourceName: "",
+                    duration: 10000
                 },
-                {
-                    key: Config.KEY_HEADPEEK,
-                    sceneNames: [''],
-                    sourceName: '',
-                    duration: 11000
+                [Config.KEY_HEADPEEK]: {
+                    sceneNames: [""],
+                    sourceName: "",
+                    duration: 10000
                 }
-            ],
+            },
             filterOnScenes: ['']
         },
         twitch: {
@@ -68,74 +67,32 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
             botName: '',
             announcerName: '',
             announcerTrigger: '',
-            rewards: [
-                {
-                    key: Config.KEY_ROOMPEEK,
-                    id: ''
-                },{
-                    key: Config.KEY_HEADPEEK,
-                    id: ''
-                }
-                ,
-                {
-                    key: Config.KEY_TTSSPEAK,
-                    id: ''
-                },{
-                    key: Config.KEY_TTSSPEAKTIME,
-                    id: ''
-                },{
-                    key: Config.KEY_TTSSETVOICE,
-                    id: ''
-                },{
-                    key: Config.KEY_TTSSWITCHVOICEGENDER,
-                    id: ''
-                }
-                ,
-                {
-                    key: Config.KEY_SCREENSHOT,
-                    id: ''
-                }
-                ,
-                {
-                    key: Config.KEY_FAVORITEVIEWER,
-                    id: ''
-                }
-                ,
-                {
-                    key: Config.KEY_COLOR_NEUTRAL,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_RED,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_ORANGE,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_BUTTERCUP,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_YELLOW,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_GREEN,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_CYAN,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_SKY,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_BLUE,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_PURPLE,
-                    id: ''
-                },{
-                    key: Config.KEY_COLOR_PINK,
-                    id: ''
-                }
-            ]
+            rewards: {
+                [Config.KEY_ROOMPEEK]: '',
+                [Config.KEY_HEADPEEK]: '',
+
+                [Config.KEY_TTSSPEAK]: '',
+                [Config.KEY_TTSSPEAKTIME]: '',
+                [Config.KEY_TTSSETVOICE]: '',
+                [Config.KEY_TTSSWITCHVOICEGENDER]: '',
+                
+                [Config.KEY_SCREENSHOT]: '',
+                [Config.KEY_INSTANTSCREENSHOT]: '',
+
+                [Config.KEY_FAVORITEVIEWER]: '',
+                
+                [Config.KEY_COLOR_NEUTRAL]: '',
+                [Config.KEY_COLOR_RED]: '',
+                [Config.KEY_COLOR_ORANGE]: '',
+                [Config.KEY_COLOR_BUTTERCUP]: '',
+                [Config.KEY_COLOR_YELLOW]: '',
+                [Config.KEY_COLOR_GREEN]: '',
+                [Config.KEY_COLOR_CYAN]: '',
+                [Config.KEY_COLOR_SKY]: '',
+                [Config.KEY_COLOR_BLUE]: '',
+                [Config.KEY_COLOR_PURPLE]: '',
+                [Config.KEY_COLOR_PINK]: ''
+            }
         },
         screenshots: {
             port: 8807,
@@ -144,15 +101,16 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         discord: {
             remoteScreenshotEmbedColor: '#000000',
             manualScreenshotEmbedColor: '#FFFFFF',
-            webhooks: [{
-                key: Config.KEY_DISCORD_SSSVR,
-                id: '',
-                token: ''
-            },{
-                key: Config.KEY_DISCORD_CHAT,
-                id: '',
-                token: ''
-            }]
+            webhooks: {
+                [Config.KEY_DISCORD_SSSVR]: {
+                    id: '',
+                    token: ''
+                },
+                [Config.KEY_DISCORD_CHAT]: {
+                    id: '',
+                    token: ''
+                }
+            }
         },
         philipshue: {
             serverPath: '',

@@ -1,10 +1,12 @@
 class IDiscordConfig {
     remoteScreenshotEmbedColor: string
     manualScreenshotEmbedColor: string
-    webhooks: IDiscordWebhookConfig[]
+    webhooks: IDiscordWebhookConfigs
+}
+class IDiscordWebhookConfigs {
+    [key:string]: IDiscordWebhookConfig
 }
 class IDiscordWebhookConfig {
-    key: string
     id: string
     token: string
 }

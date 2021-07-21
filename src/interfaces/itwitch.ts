@@ -7,11 +7,10 @@ interface ITwitchConfig {
     botName: string
     announcerName: string
     announcerTrigger: string
-    rewards: ITwitchRewardConfig[]
+    rewards: ITwitchRewardConfigs
 }
-interface ITwitchRewardConfig {
-    key: string
-    id: string
+interface ITwitchRewardConfigs {
+    [key: string]: string
 }
 interface ITwitchReward {
     id: string

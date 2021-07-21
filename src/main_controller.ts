@@ -33,19 +33,19 @@ class MainController {
 
         /** OBS */
         this._twitch.registerReward(this.buildOBSReward(
-            Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_ROOMPEEK),
-            Config.instance.obs.sources.find(source => source.key == Config.KEY_ROOMPEEK),
+            Config.instance.twitch.rewards[Config.KEY_ROOMPEEK],
+            Config.instance.obs.sources[Config.KEY_ROOMPEEK],
             Images.YELLOW_DOT
         ))
         this._twitch.registerReward(this.buildOBSReward(
-            Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_HEADPEEK),
-            Config.instance.obs.sources.find(source => source.key == Config.KEY_HEADPEEK),
+            Config.instance.twitch.rewards[Config.KEY_HEADPEEK],
+            Config.instance.obs.sources[Config.KEY_HEADPEEK],
             Images.PINK_DOT
         ))
         
         /** TTS */
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSPEAK)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_TTSSPEAK],
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
@@ -60,7 +60,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSPEAKTIME)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_TTSSPEAKTIME],
             callback: (data:ITwitchRedemptionMessage) => {
                 console.log("TTS Time Reward")
                 let username = data?.redemption?.user?.login
@@ -76,7 +76,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSETVOICE)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_TTSSETVOICE],
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
@@ -85,7 +85,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_TTSSWITCHVOICEGENDER)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_TTSSWITCHVOICEGENDER],
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 console.log(`TTS Gender Set Reward: ${userName}`)
@@ -98,7 +98,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_SCREENSHOT)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_SCREENSHOT],
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input
                 this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -106,7 +106,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_INSTANTSCREENSHOT)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_INSTANTSCREENSHOT],
             callback: (data:ITwitchRedemptionMessage) => {
                 this._tts.enqueueSpeakSentence(`Instant shot!`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._screenshots.sendScreenshotRequest(data, 0)
@@ -114,7 +114,7 @@ class MainController {
         })
 
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards.find(reward => reward.key == Config.KEY_FAVORITEVIEWER)?.id,
+            id: Config.instance.twitch.rewards[Config.KEY_FAVORITEVIEWER],
             callback: (message:ITwitchRedemptionMessage) => {
                 const userName = message?.redemption?.user?.login
                 const userId = message?.redemption?.user?.id
@@ -399,7 +399,7 @@ class MainController {
                 
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
-                        Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
+                        Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],
                         user?.display_name,
                         user?.profile_image_url,
                         `${label}${logText}`
@@ -415,7 +415,7 @@ class MainController {
                 if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
-                        Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_CHAT),
+                        Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],
                         user?.display_name,
                         user?.profile_image_url,
                         description
@@ -426,7 +426,7 @@ class MainController {
 
         this._screenshots.setScreenshotCallback((data) => {
             const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
-            const discordCfg = Config.instance.discord.webhooks.find(hook => hook.key == Config.KEY_DISCORD_SSSVR)            
+            const discordCfg = Config.instance.discord.webhooks[Config.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(data.image, "image/png")
             // TODO: Get actual game title from the Steam Store, make a class for that.
             if(reward != null) {
@@ -454,10 +454,10 @@ class MainController {
     }
    
 
-    
-    private buildOBSReward(twitchReward:ITwitchRewardConfig, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
+
+    private buildOBSReward(twitchRewardId: string, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
         let reward: ITwitchReward = {
-            id: twitchReward.id,
+            id: twitchRewardId,
             callback: (data:any) => {
                 console.log("OBS Reward triggered")
                 this._obs.showSource(obsSourceConfig)
@@ -481,10 +481,9 @@ class MainController {
         return reward
     }
 
-    private buildColorReward(id:string, x:number, y:number): ITwitchReward {
-        let config: ITwitchRewardConfig = Config.instance.twitch.rewards.find(reward => reward.key == id)
+    private buildColorReward(twitchRewardKey:string, x:number, y:number): ITwitchReward {
         let reward: ITwitchReward = {
-            id: config.id,
+            id: Config.instance.twitch.rewards[twitchRewardKey],
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
