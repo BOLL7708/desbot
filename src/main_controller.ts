@@ -450,21 +450,23 @@ class MainController {
             const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
             const discordCfg = Config.instance.discord.webhooks[Config.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(data.image, "image/png")
-            // TODO: Get actual game title from the Steam Store, make a class for that.
-            if(reward != null) {
-                this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
-                    const description = reward.redemption?.user_input
-                    const authorName = reward.redemption?.user?.display_name
-                    const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
-                    const authorIconUrl = user?.profile_image_url
-                    const color = Utils.hexToDecColor(Config.instance.discord.remoteScreenshotEmbedColor)
-                    const descriptionText = description != null ? `Photograph: ${description}` : "Instant shot! 📸"
-                    this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, this._openvr2ws._currentAppId)
-                })
-            } else {
-                const color = Utils.hexToDecColor(Config.instance.discord.manualScreenshotEmbedColor)
-                this._discord.sendPayloadEmbed(discordCfg, blob, color, 'Manual Screenshot', null, null, null, this._openvr2ws._currentAppId)
-            }
+            SteamStore.getGameMeta(this._openvr2ws._currentAppId).then(data => {
+                const gameTitle = data != null ? data.name : this._openvr2ws._currentAppId
+                if(reward != null) {
+                    this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
+                        const description = reward.redemption?.user_input
+                        const authorName = reward.redemption?.user?.display_name
+                        const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
+                        const authorIconUrl = user?.profile_image_url
+                        const color = Utils.hexToDecColor(Config.instance.discord.remoteScreenshotEmbedColor)
+                        const descriptionText = description != null ? `Photograph: ${description}` : "Instant shot! 📸"
+                        this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                    })
+                } else {
+                    const color = Utils.hexToDecColor(Config.instance.discord.manualScreenshotEmbedColor)
+                    this._discord.sendPayloadEmbed(discordCfg, blob, color, 'Manual Screenshot', null, null, null, this._openvr2ws._currentAppId)
+                }
+            })
         })
 
         this._obs.registerSceneChangeCallback((sceneName) => {
@@ -474,8 +476,14 @@ class MainController {
 
         this._twitch.init()
     }
-   
-
+    
+    /* 
+    ██████  ██    ██ ██ ██      ██████  ███████ ██████  ███████ 
+    ██   ██ ██    ██ ██ ██      ██   ██ ██      ██   ██ ██      
+    ██████  ██    ██ ██ ██      ██   ██ █████   ██████  ███████ 
+    ██   ██ ██    ██ ██ ██      ██   ██ ██      ██   ██      ██ 
+    ██████   ██████  ██ ███████ ██████  ███████ ██   ██ ███████ 
+    */                                                         
 
     private buildOBSReward(twitchRewardId: string, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
         let reward: ITwitchReward = {
