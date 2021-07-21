@@ -40,7 +40,10 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         pipe: {
             port: 8077,
             doNotShow: [],
-            showRewardsWithIds: []
+            ignoreRewardsWithKeys: [
+                Config.KEY_SCREENSHOT,
+                Config.KEY_TTSSETVOICE
+            ]
         },
         obs: {
             password: '',

@@ -309,17 +309,18 @@ class MainController {
         })
 
         /*
-         █████  ███    ██ ███    ██  ██████  ██    ██ ███    ██  ██████ ███████ ███    ███ ███████ ███    ██ ████████ ███████ 
-        ██   ██ ████   ██ ████   ██ ██    ██ ██    ██ ████   ██ ██      ██      ████  ████ ██      ████   ██    ██    ██      
-        ███████ ██ ██  ██ ██ ██  ██ ██    ██ ██    ██ ██ ██  ██ ██      █████   ██ ████ ██ █████   ██ ██  ██    ██    ███████ 
-        ██   ██ ██  ██ ██ ██  ██ ██ ██    ██ ██    ██ ██  ██ ██ ██      ██      ██  ██  ██ ██      ██  ██ ██    ██         ██ 
-        ██   ██ ██   ████ ██   ████  ██████   ██████  ██   ████  ██████ ███████ ██      ██ ███████ ██   ████    ██    ███████ 
+         ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
+        ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
+        ██      ███████ ██      ██      ██████  ███████ ██      █████   ███████ 
+        ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██       ██ 
+         ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████ 
         */
 
         this._twitch.registerAnnouncement({
             userName: Config.instance.twitch.announcerName.toLowerCase(),
             trigger: Config.instance.twitch.announcerTrigger.toLowerCase(),
             callback: (userData, input) => {
+                // TTS
                 this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
@@ -335,16 +336,21 @@ class MainController {
             }
         })
 
-        /*
-         ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
-        ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
-        ██      ███████ ██      ██      ██████  ███████ ██      █████   ███████ 
-        ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██       ██ 
-         ██████ ██   ██ ███████ ███████ ██████  ██   ██  ██████ ██   ██ ███████ 
-        */
-
         this._twitch.setChatCheerCallback((userData, input, bits) => {
+            // TTS
             this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_CHEER, bits)
+
+            // Pipe to VR (basic)
+            const message = `[${bits}] ${input}`
+            this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                if(user?.profile_image_url) {
+                    Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                        this._pipe.sendBasic(userData.displayName, message, image)
+                    })
+                } else {
+                    this._pipe.sendBasic(userData.displayName, message)
+                }
+            })
         })
 
         this._twitch.setChatCallback((userData, input, isAction) => {
@@ -361,34 +367,33 @@ class MainController {
             }
 
             // Pipe to VR (basic)
-            if(this._pipeForAll) {
-                this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
-                    if(user?.profile_image_url) {
-                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(userData.displayName, input, image)
-                        })
-                    } else {
-                        this._pipe.sendBasic(userData.displayName, input)
-                    }
-                })
-            }
+            this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                if(user?.profile_image_url) {
+                    Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                        this._pipe.sendBasic(userData.displayName, input, image)
+                    })
+                } else {
+                    this._pipe.sendBasic(userData.displayName, input)
+                }
+            })
         })
 
         this._twitch.setAllChatCallback((message:TwitchMessageCmd) => {
             console.log(message)
-            if(message.properties["custom-reward-id"] != null) return // Skip rewards as logged elsewhere
+            const rewardId = message?.properties?.["custom-reward-id"]           
+            if(rewardId) return // Skip rewards as handled elsewhere
+            const bits = parseInt(message?.properties?.bits)
+            
+            // Discord
             this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
                 let text = message?.message?.text
                 if(text == null || text.length == 0) return
-                
-                // Discord Log
-                
-                // Escape markdown characters
+
+                // Format text
                 let logText = Utils.escapeMarkdown(text)
                 if(message?.message?.isAction) logText = `_${logText}_`
                 
                 // Label messages with bits
-                const bits = parseInt(message?.properties?.bits)
                 let label = ''
                 if(!isNaN(bits) && bits > 0) {
                     const unit = bits == 1 ? 'bit' : 'bits'
@@ -411,6 +416,8 @@ class MainController {
         // This callback was added as rewards with no text input does not come in through the chat callback
         this._twitch.setAllRewardsCallback((message:ITwitchRedemptionMessage) => {
             this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
+                
+                // Discord
                 let description = `🏆 **${message.redemption.reward.title}**`
                 if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
                 if(this._logChatToDiscord) {
@@ -420,6 +427,21 @@ class MainController {
                         user?.profile_image_url,
                         description
                     )
+                }
+
+                // Pipe to VR (basic)
+                const rewardId = message.redemption.reward.id
+                const rewardKey = Object.keys(Config.instance.twitch.rewards)
+                    .find(key => Config.instance.twitch.rewards[key] === rewardId)
+                const showReward = Config.instance.pipe.ignoreRewardsWithKeys.indexOf(rewardKey) < 0
+                if(showReward) {
+                    if(user?.profile_image_url) {
+                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                            this._pipe.sendBasic(user?.login, message.redemption.user_input, image)
+                        })
+                    } else {
+                        this._pipe.sendBasic(user?.login, message.redemption.user_input)
+                    }
                 }
             })
         })
