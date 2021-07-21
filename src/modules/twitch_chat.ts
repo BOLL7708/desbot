@@ -53,6 +53,10 @@ class TwitchChat {
     private onError(evt: any) {
         console.log(evt)
     }
+    private testMessage(message: string) {
+        this._chatMessageCallback(new TwitchMessageCmd(message));
+    }
+
 }
 class TwitchMessageCmd {
     properties: ITwitchChatMessageProperties = {

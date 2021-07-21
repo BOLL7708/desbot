@@ -387,13 +387,14 @@ class MainController {
                 let logText = Utils.escapeMarkdown(text)
                 if(message?.message?.isAction) logText = `_${logText}_`
                 
-                // TODO: This does not appear to work...
+                // Label messages with bits
                 const bits = parseInt(message?.properties?.bits)
                 let label = ''
-                if(isNaN(bits) && bits > 0) {
+                if(!isNaN(bits) && bits > 0) {
                     const unit = bits == 1 ? 'bit' : 'bits'
-                    label = `\`${bits} ${unit}\` `
+                    label = `🙌 **Cheered ${bits} ${unit}**: `
                 }
+                
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
                 
                 if(this._logChatToDiscord) {
@@ -407,6 +408,7 @@ class MainController {
             })
         })
 
+        // This callback was added as rewards with no text input does not come in through the chat callback
         this._twitch.setAllRewardsCallback((message:ITwitchRedemptionMessage) => {
             this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
                 let description = `🏆 **${message.redemption.reward.title}**`

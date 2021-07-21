@@ -32,7 +32,5 @@ function loadJSFiles() {
         } else {
             includeFile($root, $file, null);
         }
-    }
-
-    
+    }   
 }
