@@ -367,15 +367,17 @@ class MainController {
             }
 
             // Pipe to VR (basic)
-            this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
-                if(user?.profile_image_url) {
-                    Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                        this._pipe.sendBasic(userData.displayName, input, image)
-                    })
-                } else {
-                    this._pipe.sendBasic(userData.displayName, input)
-                }
-            })
+            if(this._pipeForAll) {
+                this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                    if(user?.profile_image_url) {
+                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                            this._pipe.sendBasic(userData.displayName, input, image)
+                        })
+                    } else {
+                        this._pipe.sendBasic(userData.displayName, input)
+                    }
+                })
+            }
         })
 
         this._twitch.setAllChatCallback((message:TwitchMessageCmd) => {
