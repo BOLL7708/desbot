@@ -23,7 +23,7 @@ class Pipe {
     
     sendBasic(displayName: string, message:string, image?:string) {
         if(Utils.matchFirstChar(message, this._config.doNotShow)) return
-        Utils.cleanText(message).then(cleanText => {
+        Utils.cleanText(message, true, true).then(cleanText => {
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(image != null) {
                 this._socket.send(JSON.stringify({

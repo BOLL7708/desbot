@@ -35,8 +35,8 @@ class Utils {
         return result.length > 0 ? result : name // If name ended up empty, return original
     }
 
-    static async cleanText(text:string, clearBits:boolean=false):Promise<string> {
-        text = text.toLowerCase()
+    static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false):Promise<string> {
+        if(!keepCase) text = text.toLowerCase()
         
         if(clearBits) {
             let bitMatches = text.match(/(\S+\d+)+/g) // Find all [word][number] references to clear out bit emotes

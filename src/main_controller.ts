@@ -341,14 +341,14 @@ class MainController {
             this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_CHEER, bits)
 
             // Pipe to VR (basic)
-            const message = `[${bits}] ${input}`
+            const userName = `${userData.displayName}[${bits}]`
             this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                 if(user?.profile_image_url) {
                     Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                        this._pipe.sendBasic(userData.displayName, message, image)
+                        this._pipe.sendBasic(userName, input, image)
                     })
                 } else {
-                    this._pipe.sendBasic(userData.displayName, message)
+                    this._pipe.sendBasic(userName, input)
                 }
             })
         })
@@ -464,7 +464,7 @@ class MainController {
                     })
                 } else {
                     const color = Utils.hexToDecColor(Config.instance.discord.manualScreenshotEmbedColor)
-                    this._discord.sendPayloadEmbed(discordCfg, blob, color, 'Manual Screenshot', null, null, null, this._openvr2ws._currentAppId)
+                    this._discord.sendPayloadEmbed(discordCfg, blob, color, 'Manual Screenshot', null, null, null, gameTitle)
                 }
             })
         })
