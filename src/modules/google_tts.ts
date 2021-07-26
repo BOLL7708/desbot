@@ -24,7 +24,7 @@ class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    async enqueueSpeakSentence(input: string, userName: string, type: number=0, meta: any=null) {
+    async enqueueSpeakSentence(input: string, userName: string, type: number=0, meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(input.trim().length == 0) return
@@ -42,8 +42,8 @@ class GoogleTTS {
         }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
-        let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER)
-        if(cleanText.trim().length == 0) return console.warn("TTS: Clean text had zero length, skipping")
+        let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER, false, clearRanges)
+        if(cleanText.length == 0) return console.warn("TTS: Clean text had zero length, skipping")
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
@@ -56,6 +56,7 @@ class GoogleTTS {
             case GoogleTTS.TYPE_CHEER:
                 let bitText = sentence.meta > 1 ? 'bits' : 'bit'
                 cleanText = `${cleanName} cheered ${sentence.meta} ${bitText}: ${cleanText}`
+                break
         }
         this._lastSpeaker = sentence.userName
             

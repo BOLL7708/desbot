@@ -319,51 +319,53 @@ class MainController {
         this._twitch.registerAnnouncement({
             userName: Config.instance.twitch.announcerName.toLowerCase(),
             trigger: Config.instance.twitch.announcerTrigger.toLowerCase(),
-            callback: (userData, input) => {
+            callback: (userData, messageData) => {
                 // TTS
-                this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
                 this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
                         Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(userData.displayName, input, image)
+                            this._pipe.sendBasic(userData.displayName, messageData.text, image)
                         })
                     } else {
-                        this._pipe.sendBasic(userData.displayName, input)
+                        this._pipe.sendBasic(userData.displayName, messageData.text)
                     }
                 })
             }
         })
 
-        this._twitch.setChatCheerCallback((userData, input, bits) => {
+        this._twitch.setChatCheerCallback((userData, messageData) => {
+            const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
-            this._tts.enqueueSpeakSentence(input, userData.userName, GoogleTTS.TYPE_CHEER, bits)
+            this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
-            const userName = `${userData.displayName}[${bits}]`
+            const userName = `${userData.displayName}[${messageData.bits}]`
             this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                 if(user?.profile_image_url) {
                     Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                        this._pipe.sendBasic(userName, input, image)
+                        this._pipe.sendBasic(userName, messageData.text, image, true, clearRanges)
                     })
                 } else {
-                    this._pipe.sendBasic(userName, input)
+                    this._pipe.sendBasic(userName, messageData.text, null, true, clearRanges)
                 }
             })
         })
 
-        this._twitch.setChatCallback((userData, input, isAction) => {
+        this._twitch.setChatCallback((userData, messageData) => {
+            const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             let type = GoogleTTS.TYPE_SAID
-            if(isAction) type = GoogleTTS.TYPE_ACTION
+            if(messageData.isAction) type = GoogleTTS.TYPE_ACTION
             
             if(this._ttsForAll) { 
                 // TTS is on for everyone
-                this._tts.enqueueSpeakSentence(input, userData.userName, type)
+                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, clearRanges)
             }
             else if(this._ttsEnabledUsers.indexOf(userData.userName) >= 0) {
                 // Reward users
-                this._tts.enqueueSpeakSentence(input, userData.userName, type)
+                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, clearRanges)
             }
 
             // Pipe to VR (basic)
@@ -371,16 +373,16 @@ class MainController {
                 this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
                         Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(userData.displayName, input, image)
+                            this._pipe.sendBasic(userData.displayName, messageData.text, image, false, clearRanges)
                         })
                     } else {
-                        this._pipe.sendBasic(userData.displayName, input)
+                        this._pipe.sendBasic(userData.displayName, messageData.text, null, false, clearRanges)
                     }
                 })
             }
         })
 
-        this._twitch.setAllChatCallback((message:TwitchMessageCmd) => {
+        this._twitch.setAllChatCallback((message:ITwitchMessageCmd) => {
             console.log(message)
             const rewardId = message?.properties?.["custom-reward-id"]           
             if(rewardId) return // Skip rewards as handled elsewhere

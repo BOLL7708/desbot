@@ -35,16 +35,21 @@ class Utils {
         return result.length > 0 ? result : name // If name ended up empty, return original
     }
 
-    static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false):Promise<string> {
+    static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
         if(!keepCase) text = text.toLowerCase()
+
+        if(clearRanges.length > 0) clearRanges.forEach(range => {
+            text = text.slice(0, range.start) + text.slice(range.end+1);
+        })
         
         if(clearBits) {
             let bitMatches = text.match(/(\S+\d+)+/g) // Find all [word][number] references to clear out bit emotes
-            if(bitMatches != null) bitMatches.forEach(match => text = text.replace(match, ''))
+            if(bitMatches != null) bitMatches.forEach(match => text = text.replace(match, ' '))
         }
 
-        let repeatMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of non-digits https://stackoverflow.com/a/6306113
-        if(repeatMatches != null) repeatMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        let repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
+        if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        text = text.replace(/(\d){7,}/g, '"big number"') // 7+ len group of any mixed digits
 
         let tagMatches = text.match(/(@\S*)+/g) // Matches every whole word starting with @
         if(tagMatches != null) { // Remove @ and clean
@@ -57,7 +62,9 @@ class Utils {
 
         return text
             .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Links: https://stackoverflow.com/a/23571059/2076423
-            .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, ''); // Emojis: https://stackoverflow.com/a/63464318/2076423
+            .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') // Emojis: https://stackoverflow.com/a/63464318/2076423
+            .replace(/(\s+)\1{1,}/g, ' ') // spans of spaces to single space
+            .trim()
     }
 
     static cleanUserName(userName:string) {

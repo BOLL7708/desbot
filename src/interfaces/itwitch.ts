@@ -62,6 +62,14 @@ interface ITwitchUser {
     id: string
     login: string
 }
+interface ITwitchEmote {
+    id: string,
+    positions: ITwitchEmotePosition[]
+}
+interface ITwitchEmotePosition {
+    start: number
+    end: number
+}
 interface ITwitchSlashCommand {
     trigger: string
     mods: boolean
@@ -90,14 +98,27 @@ interface ITwitchHelixUsersResponseData {
     created_at: string
 }
 
+interface ITwitchMessageCmd {
+    properties: ITwitchChatMessageProperties
+    message: ITwitchChatMessage
+}
+interface ITwitchChatMessage {
+    data: string
+    username: string
+    channel: string
+    type: string
+    text: string
+    isAction: boolean
+}
 interface ITwitchChatMessageProperties {
+    data: string
     '@badge-info'?: string
     badges?: string
     'client-nonce'?: string
     color?: string
     'custom-reward-id'?: string
     'display-name'?: string
-    emotes?: string
+    emotes?: ITwitchEmote[]
     'first-msg'?: string
     flags?: string
     id?: string
@@ -114,7 +135,7 @@ interface ITwitchChatMessageProperties {
 
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
-    (userName: ITwitchUserData, input: string, isAction: boolean): void
+    (userName: ITwitchUserData, messageData:ITwitchMessageData): void
 }
 interface ITwitchRedemptionCallback {
     (message: ITwitchRedemptionMessage): void
@@ -123,16 +144,16 @@ interface ITwitchPubsubRewardCallback {
     (id:string, message: ITwitchRedemptionMessage): void
 }
 interface ITwitchChatMessageCallback {
-    (message: TwitchMessageCmd): void
+    (message: ITwitchMessageCmd): void
 }
 interface ITwitchSlashCommandCallback {
     (userData: ITwitchUserData, input: string): void
 }
 interface ITwitchAnnouncementCallback {
-    (userData: ITwitchUserData, input: string): void
+    (userData: ITwitchUserData, messageData:ITwitchMessageData): void
 }
 interface ITwitchChatCheerCallback {
-    (userData: ITwitchUserData, input: string, bits: number): void
+    (userData: ITwitchUserData, messageData:ITwitchMessageData): void
 }
 interface ITwitchRewardRedemptionCallback {
     (message: ITwitchRedemptionMessage): void
@@ -146,4 +167,10 @@ interface ITwitchUserData {
     color: string
     isMod: boolean
     isBroadcaster: boolean
+}
+interface ITwitchMessageData {
+    text: string
+    bits: number
+    isAction: boolean
+    emotes: ITwitchEmote[]
 }

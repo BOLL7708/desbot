@@ -34,12 +34,12 @@ class Twitch{
         this._announcements.push(twitchAnnouncement)
     }
 
-    private _chatCheerCallback: ITwitchChatCheerCallback = (userName, input, bits) => { console.warn('Twitch: Unhandled cheer message') }
+    private _chatCheerCallback: ITwitchChatCheerCallback = (userName, messageData) => { console.warn('Twitch: Unhandled cheer message') }
     setChatCheerCallback(callback: ITwitchChatCheerCallback) {
         this._chatCheerCallback = callback
     }
 
-    private _chatCallback: ITwitchChatCallback = (userData, input, isAction) => { console.warn('Twitch: Unhandled chat message') }
+    private _chatCallback: ITwitchChatCallback = (userData, messageData) => { console.warn('Twitch: Unhandled chat message') }
     setChatCallback(callback: ITwitchChatCallback) {
         this._chatCallback = callback
     }
@@ -60,7 +60,7 @@ class Twitch{
         if(reward != null) reward.callback(message)
         else console.warn(`Reward not found: ${id}`)
     }
-    private onChatMessage(messageCmd: TwitchMessageCmd) {
+    private onChatMessage(messageCmd: ITwitchMessageCmd) {
         let msg = messageCmd.message
         if(msg == null) return
         let userName:string = msg.username?.toLowerCase()
@@ -84,7 +84,7 @@ class Twitch{
         this._allChatCallback(messageCmd)
         
         // Rewards
-        // TODO: For now skip reading rewards, in the future register rewards for both pubsub and chat.
+        // TODO: For now skip reading rewards, in the future register rewards for both pubsub and chat?
         if(typeof messageCmd.properties['custom-reward-id'] === 'string') {
             console.log("Twitch Chat: Skipped as it's a reward.")
             return
@@ -98,17 +98,23 @@ class Twitch{
             if(command != null && (isBroadcaster || (command.mods && isMod))) return command.callback(userData, textStr)
         }
 
-        // Bots
-        let bits = parseInt(messageCmd.properties?.bits)
-        let announcement = this._announcements.find(a => a.userName == userName)
-        if(announcement != null ) { // Announcement bots
-            if(text.indexOf(announcement.trigger) == 0) return announcement.callback(userData, text)
+        const bits = parseInt(messageCmd.properties?.bits)
+        const messageData:ITwitchMessageData = {
+            text: text,
+            bits: bits,
+            isAction: msg.isAction,
+            emotes: messageCmd.properties?.emotes || []
+        }
+
+        const announcement = this._announcements.find(a => a.userName == userName)
+        if(announcement) { // Announcement bots
+            if(text.indexOf(announcement.trigger) == 0) return announcement.callback(userData, messageData)
         } 
         else if(!isNaN(bits) && bits > 0) { // Cheers
-            return this._chatCheerCallback(userData, text, bits)
+            return this._chatCheerCallback(userData, messageData)
         } 
         else { // Normal users
-            return this._chatCallback(userData, text, msg.isAction)
+            return this._chatCallback(userData, messageData)
         }
     }
 }

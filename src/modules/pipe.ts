@@ -21,9 +21,10 @@ class Pipe {
         }))
     }
     
-    sendBasic(displayName: string, message:string, image?:string) {
+    sendBasic(displayName: string, message:string, image:string=null, hasBits:boolean=false, clearRanges:ITwitchEmotePosition[]=[]) {
         if(Utils.matchFirstChar(message, this._config.doNotShow)) return
-        Utils.cleanText(message, true, true).then(cleanText => {
+        Utils.cleanText(message, true, true, clearRanges).then(cleanText => {
+            if(cleanText.length == 0) return console.warn("Pipe: Clean text had zero length, skipping")
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(image != null) {
                 this._socket.send(JSON.stringify({

@@ -45,73 +45,16 @@ class TwitchChat {
             let messageStrings = data.split("\r\n")
             messageStrings.forEach(str => {
                 if(str == null || str.length == 0) return
-                let message: TwitchMessageCmd = new TwitchMessageCmd(str)
+                let message = TwitchFactory.buildMessageCmd(str)
                 this._chatMessageCallback(message)
             });
         }        
     }
     private onError(evt: any) {
-        console.log(evt)
+        console.error(evt)
     }
     private testMessage(message: string) {
-        this._chatMessageCallback(new TwitchMessageCmd(message));
+        this._chatMessageCallback(TwitchFactory.buildMessageCmd(message));
     }
 
-}
-class TwitchMessageCmd {
-    properties: ITwitchChatMessageProperties = {
-        '@badge-info': '',
-        badges: '',
-        'client-nonce': '',
-        color: '',
-        // 'custom-reward-id': '', // Not included as it should be unset to not be a reward.
-        'display-name': '',
-        emotes: '',
-        flags: '',
-        id: '',
-        mod: '',
-        'room-id': '',
-        subscriber: '',
-        'tmi-sent-ts': '',
-        turbo: '',
-        'user-id': '',
-        'user-type': ''
-    }
-    message: TwitchMessage
-    constructor(data:string) {
-        let [props, msg] = Utils.splitOnFirst(' :', data)
-        this.message = new TwitchMessage(msg)
-        let rows: string[] = props.split(';')
-        for(let i=0; i<rows.length; i++) {
-            let row = rows[i]
-            let [rowName, rowValue] = Utils.splitOnFirst('=', row)
-            if(rowName != null && rowName.length > 0) this.properties[rowName] = rowValue
-        }
-    }
-}
-
-class TwitchMessage {
-    data: string
-    username: string
-    channel: string
-    type: string
-    text: string
-    isAction: boolean
-    constructor(data:string) {
-        this.data = data;
-        const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
-        let matches:any = re.exec(data)
-        if(matches != null) {
-            const re2 = /^\u0001ACTION ([^\u0001]+)\u0001$/
-            let matches2:any = re2.exec(matches[4])
-            this.isAction = matches2 != null
-            this.username = matches[1]
-            this.type = matches[2]
-            this.channel = matches[3]
-            this.text = this.isAction ? matches2[1] : matches[4]
-        }
-    }
-    isOk() {
-        return this.username != null && this.type != null && this.text != null
-    }
 }
