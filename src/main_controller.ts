@@ -214,7 +214,7 @@ class MainController {
                 if(parts.length == 2) {
                     const userToRename = Utils.cleanUserName(parts[0])
                     const newName = parts[1].toLowerCase()
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userData.userName, shortName: newName})
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userToRename, shortName: newName})
                     this._tts.enqueueSpeakSentence(`${userToRename} is now called ${newName}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
