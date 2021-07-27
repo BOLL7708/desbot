@@ -42,7 +42,7 @@ class GoogleTTS {
         }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
-        let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER, false, clearRanges)
+        let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER, false, clearRanges, true)
         if(cleanText.length == 0) return console.warn("TTS: Clean text had zero length, skipping")
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
@@ -59,8 +59,7 @@ class GoogleTTS {
                 break
         }
         this._lastSpeaker = sentence.userName
-            
-        console.log(text)
+
         let textVar:number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
         fetch(url, {
             method: 'post',

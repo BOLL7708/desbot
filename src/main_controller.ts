@@ -327,10 +327,10 @@ class MainController {
                 this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
                         Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(userData.displayName, messageData.text, image)
+                            this._pipe.sendBasic(userData.displayName, messageData.text, image, false)
                         })
                     } else {
-                        this._pipe.sendBasic(userData.displayName, messageData.text)
+                        this._pipe.sendBasic(userData.displayName, messageData.text, null, false)
                     }
                 })
             }

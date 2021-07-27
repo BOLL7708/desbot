@@ -35,7 +35,7 @@ class Utils {
         return result.length > 0 ? result : name // If name ended up empty, return original
     }
 
-    static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
+    static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false, clearRanges:ITwitchEmotePosition[]=[], cleanTags:boolean=true):Promise<string> {
         if(!keepCase) text = text.toLowerCase()
 
         if(clearRanges.length > 0) clearRanges.forEach(range => {
@@ -51,12 +51,17 @@ class Utils {
         if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
         text = text.replace(/(\d){7,}/g, '"big number"') // 7+ len group of any mixed digits
 
-        let tagMatches = text.match(/(@\S*)+/g) // Matches every whole word starting with @
+        let tagMatches = text.match(/(@\w+)+/g) // Matches every whole word starting with @
         if(tagMatches != null) { // Remove @ and clean
             for(let i=0; i<tagMatches.length; i++) {
                 let match = tagMatches[i]
-                let cleanName = await Utils.loadCleanName(match.substr(1).toLowerCase())
-                text = text.replace(match, cleanName)
+                let untaggedName = match.substr(1)
+                if(cleanTags) {
+                    let cleanName = await Utils.loadCleanName(match.substr(1).toLowerCase())
+                    text = text.replace(match, cleanName)
+                } else {
+                    text = text.replace(match, untaggedName)
+                }
             }
         }
 
