@@ -2,7 +2,7 @@
 interface IPipeConfig {
     port: number
     doNotShow: string[]
-    ignoreRewardsWithKeys: string[]
+    showRewardsWithKeys: string[]
 }
 
 // Data

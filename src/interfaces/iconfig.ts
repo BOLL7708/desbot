@@ -9,6 +9,7 @@ interface IConfig {
     discord: IDiscordConfig
     philipshue: IPhilipsHueConfig
     openvr2ws: IOpenVR2WSConfig
+    audioplayer: IAudioPlayerConfig
 }
 
 interface IControllerConfig {

@@ -40,9 +40,9 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         pipe: {
             port: 8077,
             doNotShow: [],
-            ignoreRewardsWithKeys: [
-                Config.KEY_SCREENSHOT,
-                Config.KEY_TTSSETVOICE
+            showRewardsWithKeys: [
+                Config.KEY_TTSSPEAK,
+                Config.KEY_SCREENSHOT
             ]
         },
         obs: {
@@ -94,7 +94,11 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
                 [Config.KEY_COLOR_SKY]: '',
                 [Config.KEY_COLOR_BLUE]: '',
                 [Config.KEY_COLOR_PURPLE]: '',
-                [Config.KEY_COLOR_PINK]: ''
+                [Config.KEY_COLOR_PINK]: '',
+
+                [Config.KEY_SOUND_TEST1]: '',
+                [Config.KEY_SOUND_TEST2]: '',
+                [Config.KEY_SOUND_TEST3]: '',
             }
         },
         screenshots: {
@@ -122,6 +126,17 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         },
         openvr2ws: {
             port: 7708
+        },
+        audioplayer: {
+            [Config.KEY_SOUND_TEST1]: {
+                src: 'assets/'
+            },
+            [Config.KEY_SOUND_TEST2]: {
+                src: 'assets/'
+            },
+            [Config.KEY_SOUND_TEST3]: {
+                src: ['assets/', 'assets/', 'assets/']
+            }
         }
     }
 }

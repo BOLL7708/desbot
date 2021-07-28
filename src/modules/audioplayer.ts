@@ -44,13 +44,18 @@ class AudioPlayer {
     private tryPlayNext() {
         if(this._isPlaying) return
 
-        let audio = this._queue.shift()
+        const audio = this._queue.shift()
         if(typeof audio == 'undefined') return // The queue is empty
+
+        let src = audio.src
+        if(Array.isArray(src)) {
+            src = src[Math.floor(Math.random()*src.length)]
+        }
 
         if (audio.src != null) {
             this._isPlaying = true
             this._currentNonce = audio.nonce
-            this._audio.src = audio.src
+            this._audio.src = src
         } else {
             console.warn('AudioPlayer: Dequeued audio but had no src value')
         }

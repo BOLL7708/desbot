@@ -8,6 +8,7 @@ class MainController {
     private _discord: Discord = new Discord()
     private _hue: PhilipsHue = new PhilipsHue()
     private _openvr2ws: OpenVR2WS = new OpenVR2WS()
+    private _audioPlayer: AudioPlayer = new AudioPlayer()
     
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
@@ -147,6 +148,10 @@ class MainController {
         this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BLUE, 0.1541, 0.0821))
         this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PURPLE, 0.1541, 0.0821))
         this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PINK, 0.3881, 0.1760))
+
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST1))
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST2))
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST3))
 
         /*
          ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████ 
@@ -437,7 +442,7 @@ class MainController {
                 const rewardId = message.redemption.reward.id
                 const rewardKey = Object.keys(Config.instance.twitch.rewards)
                     .find(key => Config.instance.twitch.rewards[key] === rewardId)
-                const showReward = Config.instance.pipe.ignoreRewardsWithKeys.indexOf(rewardKey) < 0
+                const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardKey) >= 0
                 if(showReward) {
                     if(user?.profile_image_url) {
                         Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
@@ -476,6 +481,10 @@ class MainController {
         this._obs.registerSceneChangeCallback((sceneName) => {
             let filterScene = Config.instance.obs.filterOnScenes.indexOf(sceneName) >= 0
             this._ttsForAll = !filterScene
+        })
+
+        this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {
+            console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
         })
 
         this._twitch.init()
@@ -525,6 +534,18 @@ class MainController {
                 lights.forEach(light => {
                     this._hue.setLightState(light, x, y)
                 })
+            }
+        }
+        return reward
+    }
+
+    private buildSoundReward(twitchRewardKey:string):ITwitchReward {
+        const id = Config.instance.twitch.rewards[twitchRewardKey]
+        const audio = Config.instance.audioplayer[twitchRewardKey]
+        let reward: ITwitchReward = {
+            id: id,
+            callback: (data:ITwitchRedemptionMessage) => {
+                this._audioPlayer.enqueueAudio(audio)
             }
         }
         return reward
