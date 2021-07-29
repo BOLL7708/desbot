@@ -3,6 +3,7 @@ interface IPipeConfig {
     port: number
     doNotShow: string[]
     showRewardsWithKeys: string[]
+    rewardNotificationImages: Record<string, string>
 }
 
 // Data

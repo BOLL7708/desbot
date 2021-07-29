@@ -33,16 +33,8 @@ class MainController {
         */
 
         /** OBS */
-        this._twitch.registerReward(this.buildOBSReward(
-            Config.instance.twitch.rewards[Config.KEY_ROOMPEEK],
-            Config.instance.obs.sources[Config.KEY_ROOMPEEK],
-            Images.YELLOW_DOT
-        ))
-        this._twitch.registerReward(this.buildOBSReward(
-            Config.instance.twitch.rewards[Config.KEY_HEADPEEK],
-            Config.instance.obs.sources[Config.KEY_HEADPEEK],
-            Images.PINK_DOT
-        ))
+        this.buildOBSReward(Config.KEY_ROOMPEEK).then(reward => this._twitch.registerReward(reward))
+        this.buildOBSReward(Config.KEY_HEADPEEK).then(reward => this._twitch.registerReward(reward))
         
         /** TTS */
         this._twitch.registerReward({
@@ -331,7 +323,7 @@ class MainController {
                 // Pipe to VR (basic)
                 this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
-                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                        ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
                             this._pipe.sendBasic(userData.displayName, messageData.text, image, false)
                         })
                     } else {
@@ -350,7 +342,7 @@ class MainController {
             const userName = `${userData.displayName}[${messageData.bits}]`
             this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                 if(user?.profile_image_url) {
-                    Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                    ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
                         this._pipe.sendBasic(userName, messageData.text, image, true, clearRanges)
                     })
                 } else {
@@ -377,7 +369,7 @@ class MainController {
             if(this._pipeForAll) {
                 this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
-                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                        ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
                             this._pipe.sendBasic(userData.displayName, messageData.text, image, false, clearRanges)
                         })
                     } else {
@@ -445,7 +437,7 @@ class MainController {
                 const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardKey) >= 0
                 if(showReward) {
                     if(user?.profile_image_url) {
-                        Utils.downloadImageB64(user?.profile_image_url, true).then(image => {
+                        ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
                             this._pipe.sendBasic(user?.login, message.redemption.user_input, image)
                         })
                     } else {
@@ -498,13 +490,17 @@ class MainController {
     ██████   ██████  ██ ███████ ██████  ███████ ██   ██ ███████ 
     */                                                         
 
-    private buildOBSReward(twitchRewardId: string, obsSourceConfig: IObsSourceConfig, image:string=null): ITwitchReward {
+    private async buildOBSReward(twitchRewardKey: string): Promise<ITwitchReward> {
+        const twitchRewardId = Config.instance.twitch.rewards[twitchRewardKey]
+        const obsSourceConfig = Config.instance.obs.sources[twitchRewardKey]
+        const imagePath = Config.instance.pipe.rewardNotificationImages[twitchRewardKey]
+        const imageb64:string = await ImageLoader.getBase64(imagePath)
         let reward: ITwitchReward = {
             id: twitchRewardId,
             callback: (data:any) => {
                 console.log("OBS Reward triggered")
                 this._obs.showSource(obsSourceConfig)
-                if(image != null) {
+                if(imageb64 != null) {
                     let msg = Pipe.getEmptyCustomMessage()
                     msg.properties.headset = true
                     msg.properties.horizontal = false
@@ -514,9 +510,9 @@ class MainController {
                     msg.properties.distance = 0.25
                     msg.properties.yaw = -30
                     msg.properties.pitch = -30
-                    msg.transition.duration = 500,
-                    msg.transition2.duration = 500
-                    msg.image = image
+                    msg.transition.opacity = msg.transition2.opacity = 0,
+                    msg.transition.duration = msg.transition2.duration = 500
+                    msg.image = imageb64
                     this._pipe.sendCustom(msg)
                 }
             }

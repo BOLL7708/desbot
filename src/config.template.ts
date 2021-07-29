@@ -47,7 +47,11 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
             showRewardsWithKeys: [
                 Config.KEY_TTSSPEAK,
                 Config.KEY_SCREENSHOT
-            ]
+            ],
+            rewardNotificationImages: {
+                [Config.KEY_ROOMPEEK]: 'assets/dot_yellow.png',
+                [Config.KEY_HEADPEEK]: 'assets/dot_pink.png'
+            }
         },
         obs: {
             password: '',
@@ -133,7 +137,7 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         },
         audioplayer: {
             [Config.KEY_SOUND_TEST1]: {
-                src: 'assets/'
+                src: 'assets/audience_cheers_13.wav'
             },
             [Config.KEY_SOUND_TEST2]: {
                 src: 'assets/'

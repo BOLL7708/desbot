@@ -114,31 +114,6 @@ class Utils {
         return parseInt(hex, 16)
     }
 
-    static async downloadImageBlob(url:string):Promise<Blob> {
-        return await fetch(url).then(response => response.blob())
-    }
-
-    /**
-     * Will load a remote image into a b64 string
-     * @param url Url to image
-     * @param trimHeader Will remove the format header from b64 string
-     * @param callback Will be called after finished loading
-     */
-    static async downloadImageB64(url:string, trimHeader:boolean):Promise<string> {
-        const blob = await Utils.downloadImageBlob(url)
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                const base64data = reader.result;
-                const imageb64 = base64data.toString()
-                if(trimHeader) resolve(imageb64.substr(imageb64.indexOf(',')+1))
-                else resolve(imageb64)
-            }
-            reader.onerror = reject
-            reader.readAsDataURL(blob) 
-        })
-    }
-
     static matchFirstChar(text:string, chars:string[]):Boolean {
         let trimmed = text.trim()
         for(let i in chars) {

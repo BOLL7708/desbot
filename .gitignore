@@ -1,4 +1,7 @@
 /dist/*
 config.ts
 /settings/*.csv
+/assets/*
+*.zip
+*.7z
 desktop.ini
