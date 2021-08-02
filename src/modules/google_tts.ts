@@ -139,9 +139,16 @@ class GoogleTTS {
             }
 
             // Match reset
-            if(setting.toLowerCase() == 'reset') {
+            if(setting == 'reset' || setting == 'x') {
                 voice = defaultVoice
                 return 
+            }
+
+            // Randomize among ALL voices
+            if(setting == 'random' || setting == '?') {
+                const randomVoice = this._voices[Math.floor(Math.random()*this._voices.length)]
+                voice = this.buildVoice(userName, randomVoice)
+                return
             }
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
@@ -176,7 +183,7 @@ class GoogleTTS {
         await this.loadVoicesAndLanguages() // Fills caches
         let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == this._config.defaultVoice)
         let randomVoice:IGoogleVoice = this._randomVoices.length > 0
-            ? this._randomVoices[Math.round(Math.random()*(this._randomVoices.length-1))]
+            ? this._randomVoices[Math.floor(Math.random()*this._randomVoices.length)]
             : null
         return this._config.randomizeVoice && randomVoice != null
             ? this.buildVoice(userName, randomVoice) 

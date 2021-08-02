@@ -65,7 +65,7 @@ class MainController {
                     let index = this._ttsEnabledUsers.indexOf(username)
                     let removed = this._ttsEnabledUsers.splice(index)
                     console.log(`User removed from TTS list: ${removed}`)
-                }, 5*60*1000)
+                }, 10*60*1000)
             }
         })
         this._twitch.registerReward({
