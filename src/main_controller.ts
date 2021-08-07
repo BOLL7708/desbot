@@ -141,8 +141,8 @@ class MainController {
         this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PURPLE, 0.1541, 0.0821))
         this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PINK, 0.3881, 0.1760))
 
-        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST1))
-        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST2))
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_APPLAUSE))
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_LAUGHTER))
         this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST3))
 
         /*
@@ -342,9 +342,10 @@ class MainController {
             const userName = `${userData.displayName}[${messageData.bits}]`
             this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
                 if(user?.profile_image_url) {
-                    ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
-                        this._pipe.sendBasic(userName, messageData.text, image, true, clearRanges)
-                    })
+                    ImageLoader.getBase64(user?.profile_image_url, true)
+                        .then(image => this._pipe.sendBasic(userName, messageData.text, image, true, clearRanges))
+                        .catch(error => console.error(error))
+                    
                 } else {
                     this._pipe.sendBasic(userName, messageData.text, null, true, clearRanges)
                 }
@@ -398,7 +399,7 @@ class MainController {
                 let label = ''
                 if(!isNaN(bits) && bits > 0) {
                     const unit = bits == 1 ? 'bit' : 'bits'
-                    label = `🙌 **Cheered ${bits} ${unit}**: `
+                    label = `${Config.instance.discord.prefixCheer}**Cheered ${bits} ${unit}**: `
                 }
                 
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
@@ -419,7 +420,7 @@ class MainController {
             this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
                 
                 // Discord
-                let description = `🏆 **${message.redemption.reward.title}**`
+                let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}**`
                 if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(

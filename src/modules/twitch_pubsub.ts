@@ -47,8 +47,8 @@ class TwitchPubsub {
             case "MESSAGE": 
                 let payload = JSON.parse(unescape(data?.data?.message))
                 if (payload?.type == "reward-redeemed") {
-                    console.log("Reward redeemed!")
                     let id = payload?.data?.redemption?.reward?.id ?? null
+                    console.log(`Reward redeemed! (${id})`)
                     if(id !== null) this._onRewardCallback(id, payload?.data)
                     else console.log(payload)
                 }

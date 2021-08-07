@@ -23,6 +23,8 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
     static readonly KEY_COLOR_PURPLE: string = 'ColorPurple'
     static readonly KEY_COLOR_PINK: string = 'ColorPink'
 
+    static readonly KEY_SOUND_APPLAUSE: string = "SoundApplause"
+    static readonly KEY_SOUND_LAUGHTER: string = "SoundLaughter"
     static readonly KEY_SOUND_TEST1: string = "SoundTest1"
     static readonly KEY_SOUND_TEST2: string = "SoundTest2"
     static readonly KEY_SOUND_TEST3: string = "SoundTest3"
@@ -125,7 +127,9 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
                     id: '',
                     token: ''
                 }
-            }
+            },
+            prefixCheer: '🙌 ',
+            prefixReward: '🏆 '
         },
         philipshue: {
             serverPath: '',
