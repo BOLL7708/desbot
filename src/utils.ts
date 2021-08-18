@@ -129,4 +129,9 @@ class Utils {
             .replace(/~/g, '\\~')
             .replace(/`/g, '\\`')
     }
+
+    static removeImageHeader(image:string) {
+        const i = image.indexOf(',')
+        return image.substr(i+1)
+    }
 }
