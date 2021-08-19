@@ -106,6 +106,8 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
                 [Config.KEY_COLOR_PURPLE]: '',
                 [Config.KEY_COLOR_PINK]: '',
 
+                [Config.KEY_SOUND_APPLAUSE]: '',
+                [Config.KEY_SOUND_LAUGHTER]: '',
                 [Config.KEY_SOUND_TEST1]: '',
                 [Config.KEY_SOUND_TEST2]: '',
                 [Config.KEY_SOUND_TEST3]: '',
@@ -140,8 +142,14 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
             port: 7708
         },
         audioplayer: {
-            [Config.KEY_SOUND_TEST1]: {
+            [Config.KEY_SOUND_APPLAUSE]: {
                 src: 'assets/audience_cheers_13.wav'
+            },
+            [Config.KEY_SOUND_LAUGHTER]: {
+                src: 'assets/'
+            },
+            [Config.KEY_SOUND_TEST1]: {
+                src: 'assets/'
             },
             [Config.KEY_SOUND_TEST2]: {
                 src: 'assets/'
