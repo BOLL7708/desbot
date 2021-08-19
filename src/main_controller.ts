@@ -143,6 +143,8 @@ class MainController {
 
         this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_APPLAUSE))
         this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_LAUGHTER))
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST1))
+        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST2))
         this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST3))
 
         /*
