@@ -3,6 +3,14 @@ interface IPhilipsHueConfig {
     serverPath: string
     userName: string
     lightsToControl: number[]
+    rewards: IPhilipsHueRewardConfigs
+}
+interface IPhilipsHueRewardConfigs {
+    [key:string]:IPhilipsHueColorConfig
+}
+interface IPhilipsHueColorConfig {
+    x: number
+    y: number
 }
 interface IPhilipsHueLightConfig {
     id: number
@@ -43,7 +51,6 @@ interface IPhilipsHueLight {
     streaming: IPhilipsHueLightCapabilitiesStreaming
 }
 interface IPhilipsHueLightCapabilitiesControl {
-    
     mindimlevel: number
     maxlumen: number
     colorgamuttype: string

@@ -1,4 +1,5 @@
-class ConfigTemplate { // Rename class to just 'Config' to use as the live config.
+class ConfigTemplate { // Refactor this class to just 'Config' to use this as the live config.
+    // Static rewards
     static readonly KEY_ROOMPEEK: string = 'RoomPeek'
     static readonly KEY_HEADPEEK: string = 'HeadPeek'
     static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
@@ -11,23 +12,12 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
     static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
     
-    static readonly KEY_COLOR_NEUTRAL: string = 'ColorNeutral'
-    static readonly KEY_COLOR_RED: string = 'ColorRed'
-    static readonly KEY_COLOR_ORANGE: string = 'ColorOrange'
-    static readonly KEY_COLOR_BUTTERCUP: string = 'ColorButtercup'
-    static readonly KEY_COLOR_YELLOW: string = 'ColorYellow'
-    static readonly KEY_COLOR_GREEN: string = 'ColorGreen'
-    static readonly KEY_COLOR_CYAN: string = 'ColorCyan'
-    static readonly KEY_COLOR_SKY: string = 'ColorSky'
-    static readonly KEY_COLOR_BLUE: string = 'ColorBlue'
-    static readonly KEY_COLOR_PURPLE: string = 'ColorPurple'
-    static readonly KEY_COLOR_PINK: string = 'ColorPink'
-
-    static readonly KEY_SOUND_APPLAUSE: string = "SoundApplause"
-    static readonly KEY_SOUND_LAUGHTER: string = "SoundLaughter"
-    static readonly KEY_SOUND_TEST1: string = "SoundTest1"
-    static readonly KEY_SOUND_TEST2: string = "SoundTest2"
-    static readonly KEY_SOUND_TEST3: string = "SoundTest3"
+    // Automatically loaded rewards
+    static readonly KEY_COLOR_EXAMPLE1: string = 'twitch_reward_id'
+    static readonly KEY_COLOR_EXAMPLE2: string = 'twitch_reward_id'
+    
+    static readonly KEY_SOUND_EXAMPLE1: string = "twitch_reward_id"
+    static readonly KEY_SOUND_EXAMPLE2: string = "twitch_reward_id"
 
     static instance: IConfig = {
         controller: {
@@ -47,24 +37,24 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
             port: 8077,
             doNotShow: [],
             showRewardsWithKeys: [
-                Config.KEY_TTSSPEAK,
-                Config.KEY_SCREENSHOT
+                ConfigTemplate.KEY_TTSSPEAK,
+                ConfigTemplate.KEY_SCREENSHOT
             ],
             rewardNotificationImages: {
-                [Config.KEY_ROOMPEEK]: 'assets/dot_yellow.png',
-                [Config.KEY_HEADPEEK]: 'assets/dot_pink.png'
+                [ConfigTemplate.KEY_ROOMPEEK]: 'assets/dot_yellow.png',
+                [ConfigTemplate.KEY_HEADPEEK]: 'assets/dot_pink.png'
             }
         },
         obs: {
             password: '',
             port: 4445,
             sources: {
-                [Config.KEY_ROOMPEEK]: {
+                [ConfigTemplate.KEY_ROOMPEEK]: {
                     sceneNames: [""],
                     sourceName: "",
                     duration: 10000
                 },
-                [Config.KEY_HEADPEEK]: {
+                [ConfigTemplate.KEY_HEADPEEK]: {
                     sceneNames: [""],
                     sourceName: "",
                     duration: 10000
@@ -81,34 +71,18 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
             announcerName: '',
             announcerTrigger: '',
             rewards: {
-                [Config.KEY_ROOMPEEK]: '',
-                [Config.KEY_HEADPEEK]: '',
+                [ConfigTemplate.KEY_ROOMPEEK]: '',
+                [ConfigTemplate.KEY_HEADPEEK]: '',
 
-                [Config.KEY_TTSSPEAK]: '',
-                [Config.KEY_TTSSPEAKTIME]: '',
-                [Config.KEY_TTSSETVOICE]: '',
-                [Config.KEY_TTSSWITCHVOICEGENDER]: '',
+                [ConfigTemplate.KEY_TTSSPEAK]: '',
+                [ConfigTemplate.KEY_TTSSPEAKTIME]: '',
+                [ConfigTemplate.KEY_TTSSETVOICE]: '',
+                [ConfigTemplate.KEY_TTSSWITCHVOICEGENDER]: '',
                 
-                [Config.KEY_SCREENSHOT]: '',
-                [Config.KEY_INSTANTSCREENSHOT]: '',
+                [ConfigTemplate.KEY_SCREENSHOT]: '',
+                [ConfigTemplate.KEY_INSTANTSCREENSHOT]: '',
 
-                [Config.KEY_FAVORITEVIEWER]: '',
-                
-                [Config.KEY_COLOR_NEUTRAL]: '',
-                [Config.KEY_COLOR_RED]: '',
-                [Config.KEY_COLOR_ORANGE]: '',
-                [Config.KEY_COLOR_BUTTERCUP]: '',
-                [Config.KEY_COLOR_YELLOW]: '',
-                [Config.KEY_COLOR_GREEN]: '',
-                [Config.KEY_COLOR_CYAN]: '',
-                [Config.KEY_COLOR_SKY]: '',
-                [Config.KEY_COLOR_BLUE]: '',
-                [Config.KEY_COLOR_PURPLE]: '',
-                [Config.KEY_COLOR_PINK]: '',
-
-                [Config.KEY_SOUND_TEST1]: '',
-                [Config.KEY_SOUND_TEST2]: '',
-                [Config.KEY_SOUND_TEST3]: '',
+                [ConfigTemplate.KEY_FAVORITEVIEWER]: ''
             }
         },
         screenshots: {
@@ -119,11 +93,11 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
             remoteScreenshotEmbedColor: '#000000',
             manualScreenshotEmbedColor: '#FFFFFF',
             webhooks: {
-                [Config.KEY_DISCORD_SSSVR]: {
+                [ConfigTemplate.KEY_DISCORD_SSSVR]: {
                     id: '',
                     token: ''
                 },
-                [Config.KEY_DISCORD_CHAT]: {
+                [ConfigTemplate.KEY_DISCORD_CHAT]: {
                     id: '',
                     token: ''
                 }
@@ -134,20 +108,23 @@ class ConfigTemplate { // Rename class to just 'Config' to use as the live confi
         philipshue: {
             serverPath: '',
             userName: '',
-            lightsToControl: []
+            lightsToControl: [],
+            rewards: {
+                [ConfigTemplate.KEY_COLOR_EXAMPLE1]: { x: 0.5, y: 0.5 },
+                [ConfigTemplate.KEY_COLOR_EXAMPLE2]: { x: 0.5, y: 0.5 }
+            }
         },
         openvr2ws: {
             port: 7708
         },
         audioplayer: {
-            [Config.KEY_SOUND_TEST1]: {
-                src: 'assets/audience_cheers_13.wav'
-            },
-            [Config.KEY_SOUND_TEST2]: {
-                src: 'assets/'
-            },
-            [Config.KEY_SOUND_TEST3]: {
-                src: ['assets/', 'assets/', 'assets/']
+            rewards: {
+                [ConfigTemplate.KEY_SOUND_EXAMPLE1]: {
+                    src: 'assets/subfolder/sounds1.wav'
+                },
+                [ConfigTemplate.KEY_SOUND_EXAMPLE2]: {
+                    src: ['assets/sounds1.wav', 'assets/sounds2.wav', 'assets/sounds3.wav']
+                }
             }
         }
     }

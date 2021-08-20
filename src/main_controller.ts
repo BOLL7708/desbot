@@ -129,21 +129,16 @@ class MainController {
         })
 
         /* COLORS */
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_NEUTRAL, 0.3691, 0.3719))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_RED, 0.6758, 0.3190))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_ORANGE, 0.5926, 0.3892))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BUTTERCUP, 0.5213, 0.4495))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_YELLOW, 0.4944, 0.4563))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_GREEN, 0.2140, 0.7090))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_CYAN, 0.1797, 0.4215))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_SKY, 0.1509, 0.1808))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_BLUE, 0.1541, 0.0821))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PURPLE, 0.1541, 0.0821))
-        this._twitch.registerReward(this.buildColorReward(Config.KEY_COLOR_PINK, 0.3881, 0.1760))
+        Object.keys(Config.instance.philipshue.rewards).forEach(key => {
+            const config = Config.instance.philipshue.rewards[key]
+            this._twitch.registerReward(this.buildColorReward(key, config))
+        });
 
-        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_APPLAUSE))
-        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_LAUGHTER))
-        this._twitch.registerReward(this.buildSoundReward(Config.KEY_SOUND_TEST3))
+        /* SOUNDS */
+        Object.keys(Config.instance.audioplayer.rewards).forEach(key => {
+            const config = Config.instance.audioplayer.rewards[key]
+            this._twitch.registerReward(this.buildSoundReward(key, config))
+        });       
 
         /*
          ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████ 
@@ -521,28 +516,26 @@ class MainController {
         return reward
     }
 
-    private buildColorReward(twitchRewardKey:string, x:number, y:number): ITwitchReward {
+    private buildColorReward(twitchRewardId:string, config: IPhilipsHueColorConfig): ITwitchReward {
         let reward: ITwitchReward = {
-            id: Config.instance.twitch.rewards[twitchRewardKey],
+            id: twitchRewardId,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
                 const lights:number[] = Config.instance.philipshue.lightsToControl
                 lights.forEach(light => {
-                    this._hue.setLightState(light, x, y)
+                    this._hue.setLightState(light, config.x, config.y)
                 })
             }
         }
         return reward
     }
 
-    private buildSoundReward(twitchRewardKey:string):ITwitchReward {
-        const id = Config.instance.twitch.rewards[twitchRewardKey]
-        const audio = Config.instance.audioplayer[twitchRewardKey]
+    private buildSoundReward(twitchRewardId:string, config: IAudio):ITwitchReward {
         let reward: ITwitchReward = {
-            id: id,
+            id: twitchRewardId,
             callback: (data:ITwitchRedemptionMessage) => {
-                this._audioPlayer.enqueueAudio(audio)
+                this._audioPlayer.enqueueAudio(config)
             }
         }
         return reward
