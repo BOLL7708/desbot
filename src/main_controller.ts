@@ -31,11 +31,7 @@ class MainController {
         ██   ██ ██      ██ ███ ██ ██   ██ ██   ██ ██   ██      ██ 
         ██   ██ ███████  ███ ███  ██   ██ ██   ██ ██████  ███████ 
         */
-
-        /** OBS */
-        this.buildOBSReward(Config.KEY_ROOMPEEK).then(reward => this._twitch.registerReward(reward))
-        this.buildOBSReward(Config.KEY_HEADPEEK).then(reward => this._twitch.registerReward(reward))
-        
+      
         /** TTS */
         this._twitch.registerReward({
             id: Config.instance.twitch.rewards[Config.KEY_TTSSPEAK],
@@ -128,17 +124,30 @@ class MainController {
             }
         })
 
-        /* COLORS */
-        Object.keys(Config.instance.philipshue.rewards).forEach(key => {
-            const config = Config.instance.philipshue.rewards[key]
-            this._twitch.registerReward(this.buildColorReward(key, config))
-        });
+        /*
+         █████  ██    ██ ████████  ██████      ██████  ███████ ██     ██  █████  ██████  ██████  ███████ 
+        ██   ██ ██    ██    ██    ██    ██     ██   ██ ██      ██     ██ ██   ██ ██   ██ ██   ██ ██      
+        ███████ ██    ██    ██    ██    ██     ██████  █████   ██  █  ██ ███████ ██████  ██   ██ ███████ 
+        ██   ██ ██    ██    ██    ██    ██     ██   ██ ██      ██ ███ ██ ██   ██ ██   ██ ██   ██      ██ 
+        ██   ██  ██████     ██     ██████      ██   ██ ███████  ███ ███  ██   ██ ██   ██ ██████  ███████ 
+        */
 
-        /* SOUNDS */
-        Object.keys(Config.instance.audioplayer.rewards).forEach(key => {
-            const config = Config.instance.audioplayer.rewards[key]
-            this._twitch.registerReward(this.buildSoundReward(key, config))
-        });       
+        Config.instance.twitch.autoRewards.forEach(id => {
+            let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.instance.obs.rewards[id])
+            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.rewards[id])
+            let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.rewards[id])
+            console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}: ${id}`)
+            const reward:ITwitchReward = {
+                id: id,
+                callback: (data:ITwitchRedemptionMessage)=>{
+                    if(obsCallback != null) obsCallback(data)
+                    if(colorCallback != null) colorCallback(data)
+                    if(soundCallback != null) soundCallback(data)
+                }
+            }
+            this._twitch.registerReward(reward)
+        });   
+
 
         /*
          ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████ 
@@ -486,58 +495,31 @@ class MainController {
     ██████   ██████  ██ ███████ ██████  ███████ ██   ██ ███████ 
     */                                                         
 
-    private async buildOBSReward(twitchRewardKey: string): Promise<ITwitchReward> {
-        const twitchRewardId = Config.instance.twitch.rewards[twitchRewardKey]
-        const obsSourceConfig = Config.instance.obs.sources[twitchRewardKey]
-        const imagePath = Config.instance.pipe.rewardNotificationImages[twitchRewardKey]
-        const imageb64:string = await ImageLoader.getBase64(imagePath)
-        let reward: ITwitchReward = {
-            id: twitchRewardId,
-            callback: (data:any) => {
-                console.log("OBS Reward triggered")
-                this._obs.showSource(obsSourceConfig)
-                if(imageb64 != null) {
-                    let msg = Pipe.getEmptyCustomMessage()
-                    msg.properties.headset = true
-                    msg.properties.horizontal = false
-                    msg.properties.channel = 1
-                    msg.properties.duration = obsSourceConfig.duration-1000
-                    msg.properties.width = 0.025
-                    msg.properties.distance = 0.25
-                    msg.properties.yaw = -30
-                    msg.properties.pitch = -30
-                    msg.transition.opacity = msg.transition2.opacity = 0,
-                    msg.transition.duration = msg.transition2.duration = 500
-                    msg.image = imageb64
-                    this._pipe.sendCustom(msg)
-                }
-            }
-        }
-        return reward
+    private buildOBSCallback(_this: any, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
+        if(config) return (data:ITwitchRedemptionMessage) => {
+            console.log("OBS Reward triggered")
+            _this._obs.showSource(config)
+            _this._pipe.showNotificationImage(config.notificationImage, config.duration)
+        } 
+        else return null
     }
 
-    private buildColorReward(twitchRewardId:string, config: IPhilipsHueColorConfig): ITwitchReward {
-        let reward: ITwitchReward = {
-            id: twitchRewardId,
-            callback: (data:ITwitchRedemptionMessage) => {
-                let userName = data?.redemption?.user?.login
-                this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
-                const lights:number[] = Config.instance.philipshue.lightsToControl
-                lights.forEach(light => {
-                    this._hue.setLightState(light, config.x, config.y)
-                })
-            }
+    private buildColorCallback(_this: any, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
+        if(config) return (data:ITwitchRedemptionMessage) => {
+            let userName = data?.redemption?.user?.login
+            _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
+            const lights:number[] = Config.instance.philipshue.lightsToControl
+            lights.forEach(light => {
+                _this._hue.setLightState(light, config.x, config.y)
+            })
         }
-        return reward
+        else return null
     }
-
-    private buildSoundReward(twitchRewardId:string, config: IAudio):ITwitchReward {
-        let reward: ITwitchReward = {
-            id: twitchRewardId,
-            callback: (data:ITwitchRedemptionMessage) => {
-                this._audioPlayer.enqueueAudio(config)
-            }
+    
+    private buildSoundCallback(_this: any, config: IAudio|undefined):ITwitchRedemptionCallback|null {
+        if(config) return (data:ITwitchRedemptionMessage) => {
+            _this._audioPlayer.enqueueAudio(config)
         }
-        return reward
+        else return null
     }
 }

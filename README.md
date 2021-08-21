@@ -7,7 +7,7 @@ Readme is incredibly WIP but somewhat serviceable.
 
 To see the widget in action, join me for a stream over at my [Twitch Channel](https://twitch.tv/boll7708) to collect some channel points and try them out. 
 
-Other users that currently emply this widget are:
+Other users that are currently utilizing this widget are:
 * [c0ld vengeance](https://www.twitch.tv/c0ldvengeance)
 * [The VR Realm](https://www.twitch.tv/thevrrealm)
 

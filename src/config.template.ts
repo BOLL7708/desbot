@@ -1,7 +1,5 @@
 class ConfigTemplate { // Refactor this class to just 'Config' to use this as the live config.
     // Static rewards
-    static readonly KEY_ROOMPEEK: string = 'RoomPeek'
-    static readonly KEY_HEADPEEK: string = 'HeadPeek'
     static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
     static readonly KEY_TTSSPEAKTIME: string = 'TtsSpeakTime'
     static readonly KEY_TTSSETVOICE: string = 'TtsSetVoice'
@@ -13,11 +11,12 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
     
     // Automatically loaded rewards
-    static readonly KEY_COLOR_EXAMPLE1: string = 'twitch_reward_id'
-    static readonly KEY_COLOR_EXAMPLE2: string = 'twitch_reward_id'
-    
-    static readonly KEY_SOUND_EXAMPLE1: string = "twitch_reward_id"
-    static readonly KEY_SOUND_EXAMPLE2: string = "twitch_reward_id"
+    static readonly KEY_OBS_EXAMPLE1: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_OBS_EXAMPLE2: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_COLOR_EXAMPLE1: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_COLOR_EXAMPLE2: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_SOUND_EXAMPLE1: string = "replace_with_twitch_reward_id"
+    static readonly KEY_SOUND_EXAMPLE2: string = "replace_with_twitch_reward_id"
 
     static instance: IConfig = {
         controller: {
@@ -39,28 +38,26 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             showRewardsWithKeys: [
                 ConfigTemplate.KEY_TTSSPEAK,
                 ConfigTemplate.KEY_SCREENSHOT
-            ],
-            rewardNotificationImages: {
-                [ConfigTemplate.KEY_ROOMPEEK]: 'assets/dot_yellow.png',
-                [ConfigTemplate.KEY_HEADPEEK]: 'assets/dot_pink.png'
-            }
+            ]
         },
         obs: {
             password: '',
             port: 4445,
-            sources: {
-                [ConfigTemplate.KEY_ROOMPEEK]: {
-                    sceneNames: [""],
-                    sourceName: "",
-                    duration: 10000
+            rewards: {
+                [ConfigTemplate.KEY_OBS_EXAMPLE1]: {
+                    sceneNames: ["scene1"],
+                    sourceName: "some source",
+                    duration: 10000,
+                    notificationImage: 'assets/image.png'
                 },
-                [ConfigTemplate.KEY_HEADPEEK]: {
-                    sceneNames: [""],
-                    sourceName: "",
-                    duration: 10000
+                [ConfigTemplate.KEY_OBS_EXAMPLE2]: {
+                    sceneNames: ["scene1", "scene2"],
+                    sourceName: "some other source",
+                    duration: 20000,
+                    notificationImage: 'assets/other_image.png'
                 }
             },
-            filterOnScenes: ['']
+            filterOnScenes: [''] // WIP
         },
         twitch: {
             userId: 0,
@@ -71,9 +68,6 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             announcerName: '',
             announcerTrigger: '',
             rewards: {
-                [ConfigTemplate.KEY_ROOMPEEK]: '',
-                [ConfigTemplate.KEY_HEADPEEK]: '',
-
                 [ConfigTemplate.KEY_TTSSPEAK]: '',
                 [ConfigTemplate.KEY_TTSSPEAKTIME]: '',
                 [ConfigTemplate.KEY_TTSSETVOICE]: '',
@@ -83,7 +77,15 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.KEY_INSTANTSCREENSHOT]: '',
 
                 [ConfigTemplate.KEY_FAVORITEVIEWER]: ''
-            }
+            },
+            autoRewards: [
+                ConfigTemplate.KEY_OBS_EXAMPLE1,
+                ConfigTemplate.KEY_OBS_EXAMPLE2,
+                ConfigTemplate.KEY_COLOR_EXAMPLE1,
+                ConfigTemplate.KEY_COLOR_EXAMPLE2,
+                ConfigTemplate.KEY_SOUND_EXAMPLE1,
+                ConfigTemplate.KEY_SOUND_EXAMPLE2
+            ]
         },
         screenshots: {
             port: 8807,

@@ -8,6 +8,7 @@ interface ITwitchConfig {
     announcerName: string
     announcerTrigger: string
     rewards: ITwitchRewardConfigs
+    autoRewards: string[]
 }
 interface ITwitchRewardConfigs {
     [key: string]: string

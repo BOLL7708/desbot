@@ -82,4 +82,26 @@ class Pipe {
             }
         }
     }
+
+    // Templates
+    async showNotificationImage(imagePath: string, duration: number, top: boolean = false, left: boolean = true) {
+        const imageb64:string = await ImageLoader.getBase64(imagePath)
+        if(imageb64 != null) {
+            let msg = Pipe.getEmptyCustomMessage()
+            msg.properties.headset = true
+            msg.properties.horizontal = false
+            msg.properties.channel = 1
+            msg.properties.duration = duration-1000
+            msg.properties.width = 0.025
+            msg.properties.distance = 0.25
+            msg.properties.yaw = 30 * (left ? -1 : 1)
+            msg.properties.pitch = 30 * (top ? 1 : -1)
+            msg.transition.opacity = msg.transition2.opacity = 0,
+            msg.transition.duration = msg.transition2.duration = 500
+            msg.image = imageb64
+            this.sendCustom(msg)
+        } else {
+            console.warn('Pipe: Show Notification Image, could not find image!')
+        }
+    }
 }
