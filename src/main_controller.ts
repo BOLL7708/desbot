@@ -158,7 +158,7 @@ class MainController {
         */
 
         this._twitch.registerCommand({
-            trigger: 'ttson',
+            trigger: Config.COMMAND_TTS_ON,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -169,7 +169,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'ttsoff',
+            trigger: Config.COMMAND_TTS_OFF,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -180,7 +180,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'silence',
+            trigger: Config.COMMAND_TTS_SILENCE,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -189,7 +189,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'ttsdie',
+            trigger: Config.COMMAND_TTS_DIE,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -198,7 +198,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'say',
+            trigger: Config.COMMAND_TTS_SAY,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -207,7 +207,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'nick',
+            trigger: Config.COMMAND_TTS_NICK,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -222,7 +222,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'mute',
+            trigger: Config.COMMAND_TTS_MUTE,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -239,7 +239,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'unmute',
+            trigger: Config.COMMAND_TTS_UNMUTE,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -261,7 +261,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'chat',
+            trigger: Config.COMMAND_CHAT,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -270,7 +270,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'chaton',
+            trigger: Config.COMMAND_CHAT_ON,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -280,7 +280,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'chatoff',
+            trigger: Config.COMMAND_CHAT_OFF,
             mods: true,
             everyone: false,
             callback: (userData, input) => {
@@ -290,7 +290,7 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'logon',
+            trigger: Config.COMMAND_LOG_ON,
             mods: false,
             everyone: false,
             callback: (userData, input) => {
@@ -300,12 +300,39 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: 'logoff',
+            trigger: Config.COMMAND_LOG_OFF,
             mods: false,
             everyone: false,
             callback: (userData, input) => {
                 this._logChatToDiscord = false
                 this._tts.enqueueSpeakSentence(`Logging disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Config.COMMAND_CAMERA_ON,
+            mods: true,
+            everyone: false,
+            callback: (userData, input) => {
+                this._tts.enqueueSpeakSentence(`Camera enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._obs.showSource(Config.instance.obs.rewards[Config.KEY_ROOMPEEK], true)
+                this._obs.showSource(
+                    Config.instance.obs.rewards[
+                        Config.instance.controller.commandReferences[
+                            Config.COMMAND_CAMERA_ON]], true)
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Config.COMMAND_CAMERA_OFF,
+            mods: true,
+            everyone: false,
+            callback: (userData, input) => {
+                this._tts.enqueueSpeakSentence(`Camera disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._obs.hideSource(
+                    Config.instance.obs.rewards[
+                        Config.instance.controller.commandReferences[
+                            Config.COMMAND_CAMERA_OFF]])
             }
         })
 
@@ -499,7 +526,9 @@ class MainController {
         if(config) return (data:ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
             _this._obs.showSource(config)
-            _this._pipe.showNotificationImage(config.notificationImage, config.duration)
+            if(config.notificationImage != undefined) {
+                _this._pipe.showNotificationImage(config.notificationImage, config.duration)
+            }
         } 
         else return null
     }

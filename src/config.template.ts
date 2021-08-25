@@ -1,4 +1,21 @@
 class ConfigTemplate { // Refactor this class to just 'Config' to use this as the live config.
+    // Command references
+    static readonly COMMAND_TTS_ON: string = 'ttson'
+    static readonly COMMAND_TTS_OFF: string = 'ttsoff'
+    static readonly COMMAND_TTS_SILENCE: string = 'silence'
+    static readonly COMMAND_TTS_DIE: string = 'ttsdie'
+    static readonly COMMAND_TTS_SAY: string = 'say'
+    static readonly COMMAND_TTS_NICK: string = 'nick'
+    static readonly COMMAND_TTS_MUTE: string = 'mute'
+    static readonly COMMAND_TTS_UNMUTE: string = 'unmute'   
+    static readonly COMMAND_CHAT: string = 'chat'
+    static readonly COMMAND_CHAT_ON: string = 'chaton'
+    static readonly COMMAND_CHAT_OFF: string = 'chatoff'
+    static readonly COMMAND_LOG_ON: string = 'logon'
+    static readonly COMMAND_LOG_OFF: string = 'logoff'
+    static readonly COMMAND_CAMERA_ON: string = 'camon'
+    static readonly COMMAND_CAMERA_OFF: string = 'camoff'
+
     // Static rewards
     static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
     static readonly KEY_TTSSPEAKTIME: string = 'TtsSpeakTime'
@@ -17,12 +34,16 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_COLOR_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     static readonly KEY_SOUND_EXAMPLE1: string = "replace_with_twitch_reward_id"
     static readonly KEY_SOUND_EXAMPLE2: string = "replace_with_twitch_reward_id"
-
+    
     static instance: IConfig = {
         controller: {
             pipeForAllDefault: true,
             ttsForAllDefault: true,
-            logChatToDiscordDefault: true
+            logChatToDiscordDefault: true,
+            commandReferences: {
+                [Config.COMMAND_CAMERA_ON]: Config.KEY_ROOMPEEK,
+                [Config.COMMAND_CAMERA_OFF]: Config.KEY_ROOMPEEK
+            }
         },
         google: {
             apiKey: '',

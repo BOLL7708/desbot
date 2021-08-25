@@ -11,8 +11,8 @@ interface IObsSourceConfigs {
 interface IObsSourceConfig {
     sceneNames: string[]
     sourceName: string
-    duration: number
-    notificationImage: string
+    duration?: number
+    notificationImage?: string
 }
 
 // Callbacks

@@ -131,7 +131,7 @@ class Utils {
     }
 
     static removeImageHeader(image:string) {
-        const i = image.indexOf(',')
-        return image.substr(i+1)
+        const i = image.indexOf('base64,')
+        return image.substr(i+7)
     }
 }
