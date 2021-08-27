@@ -55,6 +55,7 @@ class AudioPlayer {
         if (audio.src != null) {
             this._isPlaying = true
             this._currentNonce = audio.nonce
+            this._audio.volume = audio.volume || 1.0
             this._audio.src = src
         } else {
             console.warn('AudioPlayer: Dequeued audio but had no src value')

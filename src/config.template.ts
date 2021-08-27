@@ -64,7 +64,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         obs: {
             password: '',
             port: 4445,
-            rewards: {
+            configs: {
                 [ConfigTemplate.KEY_OBS_EXAMPLE1]: {
                     sceneNames: ["scene1"],
                     sourceName: "some source",
@@ -132,7 +132,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             serverPath: '',
             userName: '',
             lightsToControl: [],
-            rewards: {
+            configs: {
                 [ConfigTemplate.KEY_COLOR_EXAMPLE1]: { x: 0.5, y: 0.5 },
                 [ConfigTemplate.KEY_COLOR_EXAMPLE2]: { x: 0.5, y: 0.5 }
             }
@@ -141,12 +141,14 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             port: 7708
         },
         audioplayer: {
-            rewards: {
+            configs: {
                 [ConfigTemplate.KEY_SOUND_EXAMPLE1]: {
-                    src: 'assets/subfolder/sounds1.wav'
+                    src: 'assets/subfolder/sounds1.wav', // A single value and this is all you get
+                    nonce: 'a-key' // A value returned in an audio-played callback if provided.
                 },
                 [ConfigTemplate.KEY_SOUND_EXAMPLE2]: {
-                    src: ['assets/sounds1.wav', 'assets/sounds2.wav', 'assets/sounds3.wav']
+                    src: ['assets/sounds1.wav', 'assets/sounds2.wav', 'assets/sounds3.wav'], // An array and it's random
+                    volume: 1.0 // 100%, which is also the default if not included.
                 }
             }
         }

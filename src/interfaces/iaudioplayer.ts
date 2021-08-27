@@ -1,6 +1,6 @@
 // Config
 interface IAudioPlayerConfig {
-    rewards: IAudioPlayerRewardConfigs
+    configs: IAudioPlayerRewardConfigs
 }
 interface IAudioPlayerRewardConfigs {
     [key:string]: IAudio
@@ -9,5 +9,6 @@ interface IAudioPlayerRewardConfigs {
 // Data
 interface IAudio {
     src: string | string[] // Will randomize if array
+    volume?: number
     nonce?: string
 }

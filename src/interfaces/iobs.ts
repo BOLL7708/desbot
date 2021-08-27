@@ -2,7 +2,7 @@
 interface IObsConfig {
     password:string
     port:number
-    rewards: IObsSourceConfigs
+    configs: IObsSourceConfigs
     filterOnScenes: string[]
 }
 interface IObsSourceConfigs {

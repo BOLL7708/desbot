@@ -42,23 +42,34 @@ class OBS {
 		}
     }
 
-    showSource(sourceConfig: IObsSourceConfig) {
-        let type = "SetSceneItemProperties";
-        let sourceName = sourceConfig.sourceName;
-        sourceConfig.sceneNames.forEach(sceneName => {
-            this._socket.send(this.buildRequest(type, ++this._messageCounter, {
+    showSource(config: IObsSourceConfig, ignoreDuration: boolean = false) {
+        config.sceneNames.forEach(sceneName => {
+            this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
                 "scene-name": sceneName,
-                "item": sourceName,
+                "item": config.sourceName,
                 "visible": true
             }));
-            setTimeout(() => {
-                this._socket.send(this.buildRequest(type, ++this._messageCounter, {
-                    "scene-name": sceneName,
-                    "item": sourceName,
-                    "visible": false
-                }));
-            }, sourceConfig.duration);
+            if(config.duration != undefined && !ignoreDuration) {
+                setTimeout(() => {
+                    this.hideSource(config)
+                }, config.duration);
+            }
         });
+    }
+
+    hideSource(config: IObsSourceConfig) {
+        config.sceneNames.forEach(sceneName => {
+            this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
+                "scene-name": sceneName,
+                "item": config.sourceName,
+                "visible": false
+            }));
+        });
+    }
+
+    toggleSource(config: IObsSourceConfig, visible: boolean) {
+        if(visible) this.showSource(config) 
+        else this.hideSource(config)
     }
 
     buildRequest(type:string, id:number, options:object) {

@@ -133,9 +133,9 @@ class MainController {
         */
 
         Config.instance.twitch.autoRewards.forEach(id => {
-            let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.instance.obs.rewards[id])
-            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.rewards[id])
-            let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.rewards[id])
+            let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.instance.obs.configs[id])
+            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.configs[id])
+            let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[id])
             console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}: ${id}`)
             const reward:ITwitchReward = {
                 id: id,
@@ -315,9 +315,9 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._tts.enqueueSpeakSentence(`Camera enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.showSource(Config.instance.obs.rewards[Config.KEY_ROOMPEEK], true)
+                this._obs.showSource(Config.instance.obs.configs[Config.KEY_ROOMPEEK], true)
                 this._obs.showSource(
-                    Config.instance.obs.rewards[
+                    Config.instance.obs.configs[
                         Config.instance.controller.commandReferences[
                             Config.COMMAND_CAMERA_ON]], true)
             }
@@ -330,7 +330,7 @@ class MainController {
             callback: (userData, input) => {
                 this._tts.enqueueSpeakSentence(`Camera disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._obs.hideSource(
-                    Config.instance.obs.rewards[
+                    Config.instance.obs.configs[
                         Config.instance.controller.commandReferences[
                             Config.COMMAND_CAMERA_OFF]])
             }
