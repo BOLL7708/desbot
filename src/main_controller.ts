@@ -34,7 +34,7 @@ class MainController {
       
         /** TTS */
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_TTSSPEAK],
+            id: Config.KEY_TTSSPEAK,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
@@ -49,7 +49,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_TTSSPEAKTIME],
+            id: Config.KEY_TTSSPEAKTIME,
             callback: (data:ITwitchRedemptionMessage) => {
                 console.log("TTS Time Reward")
                 let username = data?.redemption?.user?.login
@@ -65,7 +65,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_TTSSETVOICE],
+            id: Config.KEY_TTSSETVOICE,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
@@ -74,7 +74,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_TTSSWITCHVOICEGENDER],
+            id: Config.KEY_TTSSWITCHVOICEGENDER,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 console.log(`TTS Gender Set Reward: ${userName}`)
@@ -87,7 +87,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_SCREENSHOT],
+            id: Config.KEY_SCREENSHOT,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input
                 this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -95,7 +95,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_INSTANTSCREENSHOT],
+            id: Config.KEY_INSTANTSCREENSHOT,
             callback: (data:ITwitchRedemptionMessage) => {
                 this._tts.enqueueSpeakSentence(`Instant shot!`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._screenshots.sendScreenshotRequest(data, 0)
@@ -103,7 +103,7 @@ class MainController {
         })
 
         this._twitch.registerReward({
-            id: Config.instance.twitch.rewards[Config.KEY_FAVORITEVIEWER],
+            id: Config.KEY_FAVORITEVIEWER,
             callback: (message:ITwitchRedemptionMessage) => {
                 const userName = message?.redemption?.user?.login
                 const userId = message?.redemption?.user?.id
@@ -111,7 +111,7 @@ class MainController {
                     const profileUrl = response?.profile_image_url
                     const displayName = response?.display_name
                     const data: ILabel = {
-                        key: Config.KEY_FAVORITEVIEWER,
+                        key: 'FavoriteViewer',
                         userName: userName,
                         displayName: displayName,
                         profileUrl: profileUrl
@@ -475,9 +475,8 @@ class MainController {
                 }
 
                 // Pipe to VR (basic)
-                const rewardId = message.redemption.reward.id
-                const rewardKey = Object.keys(Config.instance.twitch.rewards)
-                    .find(key => Config.instance.twitch.rewards[key] === rewardId)
+                const rewardIds = Config.instance.twitch.rewards.concat(Config.instance.twitch.autoRewards)
+                const rewardKey = rewardIds.find(id => id === rewardId)
                 const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardKey) >= 0
                 if(showReward) {
                     if(user?.profile_image_url) {

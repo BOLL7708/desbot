@@ -16,24 +16,26 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly COMMAND_CAMERA_ON: string = 'camon'
     static readonly COMMAND_CAMERA_OFF: string = 'camoff'
 
-    // Static rewards
-    static readonly KEY_TTSSPEAK: string = 'TtsSpeak'
-    static readonly KEY_TTSSPEAKTIME: string = 'TtsSpeakTime'
-    static readonly KEY_TTSSETVOICE: string = 'TtsSetVoice'
-    static readonly KEY_TTSSWITCHVOICEGENDER: string = "TtsSwitchVoiceGender"
-    static readonly KEY_SCREENSHOT: string = 'Screenshot'
-    static readonly KEY_INSTANTSCREENSHOT: string = "InstantScreenshot"
+    // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
-    static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
+
+    // Static rewards
+    static readonly KEY_TTSSPEAK: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_TTSSPEAKTIME: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_TTSSETVOICE: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_TTSSWITCHVOICEGENDER: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_SCREENSHOT: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_INSTANTSCREENSHOT: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_FAVORITEVIEWER: string = 'replace_with_twitch_reward_id'
     
     // Automatically loaded rewards
     static readonly KEY_OBS_EXAMPLE1: string = 'replace_with_twitch_reward_id'
     static readonly KEY_OBS_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     static readonly KEY_COLOR_EXAMPLE1: string = 'replace_with_twitch_reward_id'
     static readonly KEY_COLOR_EXAMPLE2: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_SOUND_EXAMPLE1: string = "replace_with_twitch_reward_id"
-    static readonly KEY_SOUND_EXAMPLE2: string = "replace_with_twitch_reward_id"
+    static readonly KEY_SOUND_EXAMPLE1: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_SOUND_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     
     static instance: IConfig = {
         controller: {
@@ -66,14 +68,14 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             port: 4445,
             configs: {
                 [ConfigTemplate.KEY_OBS_EXAMPLE1]: {
-                    sceneNames: ["scene1"],
-                    sourceName: "some source",
+                    sceneNames: ['scene1'],
+                    sourceName: 'some source',
                     duration: 10000,
                     notificationImage: 'assets/image.png'
                 },
                 [ConfigTemplate.KEY_OBS_EXAMPLE2]: {
-                    sceneNames: ["scene1", "scene2"],
-                    sourceName: "some other source",
+                    sceneNames: ['scene1', 'scene2'],
+                    sourceName: 'some other source',
                     duration: 20000,
                     notificationImage: 'assets/other_image.png'
                 }
@@ -88,17 +90,15 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             botName: '',
             announcerName: '',
             announcerTrigger: '',
-            rewards: {
-                [ConfigTemplate.KEY_TTSSPEAK]: '',
-                [ConfigTemplate.KEY_TTSSPEAKTIME]: '',
-                [ConfigTemplate.KEY_TTSSETVOICE]: '',
-                [ConfigTemplate.KEY_TTSSWITCHVOICEGENDER]: '',
-                
-                [ConfigTemplate.KEY_SCREENSHOT]: '',
-                [ConfigTemplate.KEY_INSTANTSCREENSHOT]: '',
-
-                [ConfigTemplate.KEY_FAVORITEVIEWER]: ''
-            },
+            rewards: [
+                ConfigTemplate.KEY_TTSSPEAK,
+                ConfigTemplate.KEY_TTSSPEAKTIME,
+                ConfigTemplate.KEY_TTSSETVOICE,
+                ConfigTemplate.KEY_TTSSWITCHVOICEGENDER,
+                ConfigTemplate.KEY_SCREENSHOT,
+                ConfigTemplate.KEY_INSTANTSCREENSHOT,
+                ConfigTemplate.KEY_FAVORITEVIEWER
+            ],
             autoRewards: [
                 ConfigTemplate.KEY_OBS_EXAMPLE1,
                 ConfigTemplate.KEY_OBS_EXAMPLE2,
