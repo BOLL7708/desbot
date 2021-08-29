@@ -449,13 +449,25 @@ class MainController {
         // This callback was added as rewards with no text input does not come in through the chat callback
         this._twitch.setAllRewardsCallback((message:ITwitchRedemptionMessage) => {
             this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
-                
+                const rewardId = message.redemption.reward.id
+
                 // Discord
-                let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}**`
+                const amount = message.redemption.reward.redemptions_redeemed_current_stream
+                const amountStr = amount != null ? ` #${amount}` : ''
+                let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
                 if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
                         Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],
+                        user?.display_name,
+                        user?.profile_image_url,
+                        description
+                    )
+                }
+                const rewardSpecificWebhook = Config.instance.discord.webhooks[rewardId] || null
+                if(rewardSpecificWebhook != null) {
+                    this._discord.sendMessage(
+                        rewardSpecificWebhook,
                         user?.display_name,
                         user?.profile_image_url,
                         description
