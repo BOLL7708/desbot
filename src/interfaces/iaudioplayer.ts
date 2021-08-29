@@ -1,8 +1,8 @@
 // Config
 interface IAudioPlayerConfig {
-    configs: IAudioPlayerRewardConfigs
+    configs: IAudioPlayerConfigs
 }
-interface IAudioPlayerRewardConfigs {
+interface IAudioPlayerConfigs {
     [key:string]: IAudio
 }
 

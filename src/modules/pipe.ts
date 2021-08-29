@@ -1,4 +1,7 @@
 class Pipe {
+    static get TYPE_NOTIFICATION() { return 0 }
+    static get TYPE_ALERT() { return 1 }
+
     private _socket:WebSockets
     private _config:IPipeConfig = Config.instance.pipe
     constructor() {
@@ -84,13 +87,24 @@ class Pipe {
     }
 
     // Templates
+    async showPreset(preset: IPipeMessagePreset) {
+        switch(preset.type) {
+            case Pipe.TYPE_NOTIFICATION:
+                this.showNotificationImage(preset.imagePath, preset.duration, preset.top, preset.left)
+                break;
+            case Pipe.TYPE_ALERT:
+                this.showAlertMessage(preset.imagePath, preset.duration)
+                break;
+        }
+    }
+
     async showNotificationImage(imagePath: string, duration: number, top: boolean = false, left: boolean = true) {
         const imageb64:string = await ImageLoader.getBase64(imagePath)
         if(imageb64 != null) {
-            let msg = Pipe.getEmptyCustomMessage()
+            const msg = Pipe.getEmptyCustomMessage()
             msg.properties.headset = true
             msg.properties.horizontal = false
-            msg.properties.channel = 1
+            msg.properties.channel = 100
             msg.properties.duration = duration-1000
             msg.properties.width = 0.025
             msg.properties.distance = 0.25
@@ -102,6 +116,27 @@ class Pipe {
             this.sendCustom(msg)
         } else {
             console.warn('Pipe: Show Notification Image, could not find image!')
+        }
+    }
+    async showAlertMessage(imagePath: string, duration: number) {
+        const imageb64:string = await ImageLoader.getBase64(imagePath)
+        if(imageb64 != null) {
+            const msg = Pipe.getEmptyCustomMessage()
+            msg.properties.channel = 200
+            msg.properties.duration = duration-800
+            msg.properties.width = 2
+            msg.properties.distance = 2
+            msg.transition.scale = msg.transition2.scale = 0
+            msg.transition.vertical = 3
+            msg.transition2.vertical = -3
+            msg.transition.tween = 7
+            msg.transition2.tween = 6
+            msg.transition.duration = 300
+            msg.transition2.duration = 500
+            msg.image = imageb64
+            this.sendCustom(msg)
+        } else {
+            console.warn('Pipe: Show Alert Image, could not find image!')
         }
     }
 }

@@ -36,6 +36,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_COLOR_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     static readonly KEY_SOUND_EXAMPLE1: string = 'replace_with_twitch_reward_id'
     static readonly KEY_SOUND_EXAMPLE2: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_PIPE_EXAMPLE1: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_PIPE_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     
     static instance: IConfig = {
         controller: {
@@ -61,7 +63,19 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             showRewardsWithKeys: [
                 ConfigTemplate.KEY_TTSSPEAK,
                 ConfigTemplate.KEY_SCREENSHOT
-            ]
+            ],
+            configs: {
+                [ConfigTemplate.KEY_PIPE_EXAMPLE1]: {
+                    imagePath: 'assets/dot_red.png',
+                    duration: 3000,
+                    type: Pipe.TYPE_NOTIFICATION
+                },
+                [ConfigTemplate.KEY_PIPE_EXAMPLE2]: {
+                    imagePath: 'assets/whatever_image.png',
+                    duration: 5000,
+                    type: Pipe.TYPE_ALERT
+                }
+            }
         },
         obs: {
             password: '',

@@ -11,7 +11,7 @@ function loadJSFiles() {
             if($directory) {
                 echo '<script src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";
             } else {
-                echo '<script src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
+                // echo '<script src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
             }
         }
     }
@@ -32,5 +32,10 @@ function loadJSFiles() {
         } else {
             includeFile($root, $file, null);
         }
-    }   
+    }
+
+    // We want to embed config last so it can access constants in modules.
+    echo '<script src="'.$root.'utils.js?'.uniqid().'"></script>'."\n";
+    echo '<script src="'.$root.'main_controller.js?'.uniqid().'"></script>'."\n";
+    echo '<script src="'.$root.'config.js?'.uniqid().'"></script>'."\n";
 }

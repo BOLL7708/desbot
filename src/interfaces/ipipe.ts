@@ -3,6 +3,17 @@ interface IPipeConfig {
     port: number
     doNotShow: string[]
     showRewardsWithKeys: string[]
+    configs: IPipeConfigs
+}
+interface IPipeConfigs {
+    [key:string]: IPipeMessagePreset
+}
+interface IPipeMessagePreset {
+    imagePath: string
+    duration: number
+    type: number
+    top?: boolean
+    left?: boolean
 }
 
 // Data

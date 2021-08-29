@@ -14,7 +14,7 @@ class MainController {
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
     private _pipeForAll: boolean = Config.instance.controller.pipeForAllDefault
     private _logChatToDiscord: boolean = Config.instance.controller.logChatToDiscordDefault
-    private _keyedCallbacks: Record<string, Function> = {}
+    private _nonceCallbacks: Record<string, Function> = {}
 
     constructor() {
         // Make sure settings are precached
@@ -94,7 +94,7 @@ class MainController {
                 let userInput = data?.redemption?.user_input
                 const nonce = Utils.getNonce('TTS')
                 this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
-                this._keyedCallbacks[nonce] = ()=>{
+                this._nonceCallbacks[nonce] = ()=>{
                     this._screenshots.sendScreenshotRequest(data, Config.instance.screenshots.delay)
                 }
             }
@@ -141,6 +141,8 @@ class MainController {
             let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.instance.obs.configs[id])
             let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.configs[id])
             let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[id])
+            let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
+
             console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}: ${id}`)
             const reward:ITwitchReward = {
                 id: id,
@@ -148,6 +150,7 @@ class MainController {
                     if(obsCallback != null) obsCallback(data)
                     if(colorCallback != null) colorCallback(data)
                     if(soundCallback != null) soundCallback(data)
+                    if(pipeCallback != null) pipeCallback(data)
                 }
             }
             this._twitch.registerReward(reward)
@@ -525,14 +528,19 @@ class MainController {
 
         this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
+            const callback = this._nonceCallbacks[nonce] || null
+            if(callback != null) {
+                if(status == AudioPlayer.STATUS_OK) callback()
+                delete this._nonceCallbacks[nonce]
+            }
         })
 
         this._tts.setHasSpokenCallback((nonce:string, status:number) => {
             console.log(`TTS: Nonce finished playing -> ${nonce} [${status}]`)
-            const callback = this._keyedCallbacks[nonce] || null
+            const callback = this._nonceCallbacks[nonce] || null
             if(callback != null) {
                 if(status == AudioPlayer.STATUS_OK) callback()
-                delete this._keyedCallbacks[nonce]
+                delete this._nonceCallbacks[nonce]
             }
         })
 
@@ -584,6 +592,13 @@ class MainController {
     private buildSoundCallback(_this: any, config: IAudio|undefined):ITwitchRedemptionCallback|null {
         if(config) return (data:ITwitchRedemptionMessage) => {
             _this._audioPlayer.enqueueAudio(config)
+        }
+        else return null
+    }
+
+    private buildPipeCallback(_this: any, config: IPipeMessagePreset) {
+        if(config) return (data:ITwitchRedemptionMessage) => {
+            _this._pipe.showPreset(config)
         }
         else return null
     }
