@@ -15,6 +15,13 @@ class OpenVR2WS {
         this._socket.init();
     }
 
+    private _inputCallback: IOpenVR2WSInputCallback = (key, data) => { 
+        // console.warn('OpenVR2WS: Unhandled input message') // This would spam
+    }
+    setInputCallback(callback: IOpenVR2WSInputCallback) {
+        this._inputCallback = callback
+    }
+
     private onMessage(evt: MessageEvent) {
         let data:IOpenVR2WSMessage = null
         try {
@@ -30,7 +37,13 @@ class OpenVR2WS {
                         this._currentAppId = data.data.id
                     }
                     break
-                        
+                case 'Input':
+                    const inputData:IOpenVR2WSInputData = data.data
+                    this._inputCallback(data.key, inputData)
+                break
+                default:
+                    // console.log(data)
+                    break
             }
         }
     }

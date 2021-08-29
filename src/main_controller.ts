@@ -522,6 +522,17 @@ class MainController {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
         })
 
+        
+        this._openvr2ws.setInputCallback((key, data) => {
+            switch(data.input) {
+                case "Proximity": if(data.source == 'Head') {
+                    // TODO: This is unreliable as it does not always register, and dashboard will mess it up.
+                    // this._obs.toggleSource(Config.instance.obs.rewards[Config.KEY_ROOMPEEK], !data.value)
+                    console.log(`OpenVR2WS: Headset proximity changed: ${data.value}`)
+                }
+            }
+        })
+
         this._twitch.init()
     }
     
