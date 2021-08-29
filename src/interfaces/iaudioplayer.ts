@@ -12,3 +12,8 @@ interface IAudio {
     volume?: number
     nonce?: string
 }
+
+// Callbacks
+interface IAudioPlayedCallback {
+    (nonce: string, status: number): void
+}

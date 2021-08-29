@@ -134,4 +134,8 @@ class Utils {
         const i = image.indexOf('base64,')
         return image.substr(i+7)
     }
+
+    static getNonce(tag:string) {
+        return `${tag}-${Date.now()}`
+    }
 }

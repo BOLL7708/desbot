@@ -7,8 +7,8 @@ class AudioPlayer {
     private _queueLoopHandle:number = 0
     private _queue:IAudio[] = []
     private _isPlaying:boolean = false
-    private _currentNonce:string
-    private _callback:(nonce:string, status:number)=>void
+    private _currentNonce:string // Actually used but does not reference back through .call()
+    private _callback: IAudioPlayedCallback // Actually used but does not reference back through .call()
 
     constructor() {
         this.startQueueLoop()
@@ -19,7 +19,7 @@ class AudioPlayer {
             doCallback.call(this, AudioPlayer.STATUS_OK)
         })
         this._audio.addEventListener('pause', (evt)=>{
-            doCallback.call(this, AudioPlayer.STATUS_ABORTED)
+            // doCallback.call(this, AudioPlayer.STATUS_ABORTED) // TODO: Appears to do false negatives
         })
         this._audio.addEventListener('canplaythrough', (evt) => {
             this._audio.play()
@@ -27,13 +27,13 @@ class AudioPlayer {
 
         function doCallback(status: number) {
             if(this._callback != null && this._currentNonce != null) this._callback(this._currentNonce, status)
-            console.log(`AudioPlayer: Finished playing audio: ${this._currentNonce}, status: ${status}`)
+            // console.log(`AudioPlayer: Finished playing audio: ${this._currentNonce}, status: ${status}`)
             this._currentNonce = null
             this._isPlaying = false
         }
     }
 
-    public setPlayedCallback(callback:(nonce:string, status:number)=>void) {
+    public setPlayedCallback(callback: IAudioPlayedCallback) {
         this._callback = callback
     }
 

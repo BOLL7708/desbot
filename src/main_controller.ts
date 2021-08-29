@@ -14,6 +14,8 @@ class MainController {
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
     private _pipeForAll: boolean = Config.instance.controller.pipeForAllDefault
     private _logChatToDiscord: boolean = Config.instance.controller.logChatToDiscordDefault
+    private _keyedCallbacks: Record<string, Function> = {}
+
     constructor() {
         // Make sure settings are precached
         Settings.loadSettings(Settings.TTS_BLACKLIST)
@@ -90,8 +92,11 @@ class MainController {
             id: Config.KEY_SCREENSHOT,
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input
-                this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._screenshots.sendScreenshotRequest(data, Config.instance.screenshots.delay)
+                const nonce = Utils.getNonce('TTS')
+                this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                this._keyedCallbacks[nonce] = ()=>{
+                    this._screenshots.sendScreenshotRequest(data, Config.instance.screenshots.delay)
+                }
             }
         })
         this._twitch.registerReward({
@@ -367,7 +372,7 @@ class MainController {
         this._twitch.setChatCheerCallback((userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
-            this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, messageData.bits, clearRanges)
+            this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
             const userName = `${userData.displayName}[${messageData.bits}]`
@@ -390,11 +395,11 @@ class MainController {
             
             if(this._ttsForAll) { 
                 // TTS is on for everyone
-                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, clearRanges)
+                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
             }
             else if(this._ttsEnabledUsers.indexOf(userData.userName) >= 0) {
                 // Reward users
-                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, clearRanges)
+                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
             }
 
             // Pipe to VR (basic)
@@ -520,6 +525,15 @@ class MainController {
 
         this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
+        })
+
+        this._tts.setHasSpokenCallback((nonce:string, status:number) => {
+            console.log(`TTS: Nonce finished playing -> ${nonce} [${status}]`)
+            const callback = this._keyedCallbacks[nonce] || null
+            if(callback != null) {
+                if(status == AudioPlayer.STATUS_OK) callback()
+                delete this._keyedCallbacks[nonce]
+            }
         })
 
         

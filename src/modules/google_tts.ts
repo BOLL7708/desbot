@@ -13,18 +13,18 @@ class GoogleTTS {
     private _languages: string[] = [] // Cache
     private _lastEnqueued: number = 0
     private _lastSpeaker: string = ''
+    private _callback: IAudioPlayedCallback
 
-    constructor() {
-        this._audio.setPlayedCallback((nonce, didPlay) => {
-            console.log(`TTS: Played audio with nonce ${nonce} (${didPlay})`)
-        })
+    setHasSpokenCallback(callback: IAudioPlayedCallback) {
+        this._callback = callback
+        this._audio.setPlayedCallback(callback)
     }
 
     stopSpeaking(andClearQueue: boolean = false) {
         this._audio.stop(andClearQueue)
     }
 
-    async enqueueSpeakSentence(input: string, userName: string, type: number=0, meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
+    async enqueueSpeakSentence(input: string, userName: string, type: number=0, nonce:string='', meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(input.trim().length == 0) return
@@ -86,18 +86,19 @@ class GoogleTTS {
             if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
                 console.log(`TTS: Successfully got speech: [${json.audioContent.length}]`);
                 this._audio.enqueueAudio({
-                    nonce: `TTS-${Date.now()}`,
+                    nonce: nonce,
                     src: `data:audio/ogg;base64,${json.audioContent}`
                 })
                 this._lastEnqueued = Date.now()
             } else {
                 this._lastSpeaker = ''
                 console.error(`TTS: Failed to generate speech: [${json.status}], ${json.error}`);
+                this._callback?.call(this, nonce, AudioPlayer.STATUS_ERROR)
             }
         });
     }
 
-    async setVoiceForUser(userName:string, input:string) {
+    async setVoiceForUser(userName:string, input:string, nonce:string='') {
         await this.loadVoicesAndLanguages() // Fills caches
         let voice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName)
         const defaultVoice = await this.getDefaultVoice(userName)
@@ -153,7 +154,7 @@ class GoogleTTS {
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         console.log(`TTS: Voice saved: ${success}`)
-        this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION)
+        this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION, nonce)
     }
 
     private async loadVoicesAndLanguages():Promise<boolean> {
