@@ -27,6 +27,7 @@ interface IPipeCustomMessage {
 interface IPipeCustomProperties {
     headset: boolean
     horizontal: boolean
+    level: boolean
     channel: number
     hz: number
     duration: number

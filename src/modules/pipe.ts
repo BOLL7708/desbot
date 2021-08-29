@@ -55,6 +55,7 @@ class Pipe {
             properties: {
                 headset: false,
                 horizontal: true,
+                level: false,
                 channel: 0,
                 hz: -1,
                 duration: 1000,
@@ -123,6 +124,7 @@ class Pipe {
         if(imageb64 != null) {
             const msg = Pipe.getEmptyCustomMessage()
             msg.properties.channel = 200
+            msg.properties.level = true
             msg.properties.duration = duration-800
             msg.properties.width = 2
             msg.properties.distance = 2
