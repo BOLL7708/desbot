@@ -143,7 +143,7 @@ class MainController {
             let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[id])
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
 
-            console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}: ${id}`)
+            console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}: ${id}`)
             const reward:ITwitchReward = {
                 id: id,
                 callback: (data:ITwitchRedemptionMessage)=>{
@@ -261,7 +261,7 @@ class MainController {
                             Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
                             this._tts.enqueueSpeakSentence(`${cleanName} has regained their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         } else {
-                            this._tts.enqueueSpeakSentence(`${cleanName} was never muted`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                            this._tts.enqueueSpeakSentence(`${cleanName} is not muted`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         }
                     })
                 })
@@ -463,7 +463,7 @@ class MainController {
                 const amount = message.redemption.reward.redemptions_redeemed_current_stream
                 const amountStr = amount != null ? ` #${amount}` : ''
                 let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
-                if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(message.redemption.user_input)}`
+                if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(Utils.fixLinks(message.redemption.user_input))}`
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
                         Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],

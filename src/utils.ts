@@ -130,6 +130,20 @@ class Utils {
             .replace(/`/g, '\\`')
     }
 
+    /**
+     * Fixes links that lack protocol, adds https://
+     * @param text Text to fix links in
+     * @returns resulting text with fixed links
+     */
+    static fixLinks(text:string):string {
+        // Matching start/space + NOT http(s):// and then word.word(/|?)word
+        // The first space is group 1, the link without HTTPS is group 2
+        const pattern = /(\s|^)(?:(?!https?:\/\/))(\S+\.\S+(?:\/|\?)+\S+)/g
+        
+        // We add the space back in to retain link integrity
+        return text.replace(pattern, "$1https://$2") 
+    }
+
     static removeImageHeader(image:string) {
         const i = image.indexOf('base64,')
         return image.substr(i+7)
