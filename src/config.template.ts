@@ -45,8 +45,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             ttsForAllDefault: true,
             logChatToDiscordDefault: true,
             commandReferences: {
-                [Config.COMMAND_CAMERA_ON]: Config.KEY_ROOMPEEK,
-                [Config.COMMAND_CAMERA_OFF]: Config.KEY_ROOMPEEK
+                [ConfigTemplate.COMMAND_CAMERA_ON]: ConfigTemplate.KEY_OBS_EXAMPLE1,
+                [ConfigTemplate.COMMAND_CAMERA_OFF]: ConfigTemplate.KEY_COLOR_EXAMPLE2
             }
         },
         google: {

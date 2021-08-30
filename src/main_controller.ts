@@ -322,12 +322,9 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
+                const key = Config.instance.controller.commandReferences[Config.COMMAND_CAMERA_ON]
                 this._tts.enqueueSpeakSentence(`Camera enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.showSource(Config.instance.obs.configs[Config.KEY_ROOMPEEK], true)
-                this._obs.showSource(
-                    Config.instance.obs.configs[
-                        Config.instance.controller.commandReferences[
-                            Config.COMMAND_CAMERA_ON]], true)
+                this._obs.showSource(Config.instance.obs.configs[key], true)
             }
         })
 
@@ -336,11 +333,9 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
+                const key = Config.instance.controller.commandReferences[Config.COMMAND_CAMERA_OFF]
                 this._tts.enqueueSpeakSentence(`Camera disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.hideSource(
-                    Config.instance.obs.configs[
-                        Config.instance.controller.commandReferences[
-                            Config.COMMAND_CAMERA_OFF]])
+                this._obs.hideSource(Config.instance.obs.configs[key])
             }
         })
 
