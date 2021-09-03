@@ -66,7 +66,7 @@ class Utils {
         }
 
         return text
-            .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '') // Links: https://stackoverflow.com/a/23571059/2076423
+            .replace(/(?:https?|ftp):\/\/[\n\S]+/g, 'link') // Links: https://stackoverflow.com/a/23571059/2076423
             .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') // Emojis: https://stackoverflow.com/a/63464318/2076423
             .replace(/(\s+)\1{1,}/g, ' ') // spans of spaces to single space
             .trim()

@@ -103,7 +103,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             channelName: '',
             botName: '',
             announcerName: '',
-            announcerTrigger: '',
+            announcerTriggers: [''],
             rewards: [
                 ConfigTemplate.KEY_TTSSPEAK,
                 ConfigTemplate.KEY_TTSSPEAKTIME,

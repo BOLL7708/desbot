@@ -349,7 +349,7 @@ class MainController {
 
         this._twitch.registerAnnouncement({
             userName: Config.instance.twitch.announcerName.toLowerCase(),
-            trigger: Config.instance.twitch.announcerTrigger.toLowerCase(),
+            triggers: Config.instance.twitch.announcerTriggers,
             callback: (userData, messageData) => {
                 // TTS
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)

@@ -6,7 +6,7 @@ interface ITwitchConfig {
     channelName: string
     botName: string
     announcerName: string
-    announcerTrigger: string
+    announcerTriggers: string[]
     rewards: string[]
     autoRewards: string[]
 }
@@ -76,7 +76,7 @@ interface ITwitchSlashCommand {
 }
 interface ITwitchAnnouncement {
     userName: string
-    trigger: string
+    triggers: string[]
     callback: ITwitchAnnouncementCallback
 }
 interface ITwitchHelixUsersResponse {
