@@ -98,6 +98,10 @@ class GoogleTTS {
         });
     }
 
+    enqueueSoundEffect(audio: IAudio) {
+        this._audio.enqueueAudio(audio)
+    }
+
     async setVoiceForUser(userName:string, input:string, nonce:string='') {
         await this.loadVoicesAndLanguages() // Fills caches
         let voice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName)

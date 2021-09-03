@@ -148,7 +148,7 @@ interface ITwitchSlashCommandCallback {
     (userData: ITwitchUserData, input: string): void
 }
 interface ITwitchAnnouncementCallback {
-    (userData: ITwitchUserData, messageData:ITwitchMessageData): void
+    (userData: ITwitchUserData, messageData:ITwitchMessageData, firstWord:string): void
 }
 interface ITwitchChatCheerCallback {
     (userData: ITwitchUserData, messageData:ITwitchMessageData): void

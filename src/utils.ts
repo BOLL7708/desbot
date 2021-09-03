@@ -124,6 +124,7 @@ class Utils {
 
     static escapeMarkdown(text:string):string {
         return text
+            .replace(/\\/g, '\\\\')
             .replace(/_/g, '\\_')
             .replace(/\*/g, '\\*')
             .replace(/~/g, '\\~')

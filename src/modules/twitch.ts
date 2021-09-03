@@ -109,7 +109,7 @@ class Twitch{
         const announcement = this._announcements.find(a => a.userName == userName)
         if(announcement) { // Announcement bots
             const firstWord = text.split(' ')[0]
-            if(text.length >= 1 && announcement.triggers.indexOf(firstWord) != -1) return announcement.callback(userData, messageData)
+            if(text.length >= 1 && announcement.triggers.indexOf(firstWord) != -1) return announcement.callback(userData, messageData, firstWord)
         } 
         else if(!isNaN(bits) && bits > 0) { // Cheers
             return this._chatCheerCallback(userData, messageData)

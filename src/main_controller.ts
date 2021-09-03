@@ -350,8 +350,11 @@ class MainController {
         this._twitch.registerAnnouncement({
             userName: Config.instance.twitch.announcerName.toLowerCase(),
             triggers: Config.instance.twitch.announcerTriggers,
-            callback: (userData, messageData) => {
+            callback: (userData, messageData, firstWord) => {
                 // TTS
+                if(Config.instance.audioplayer.configs.hasOwnProperty(firstWord)) {
+                    this._tts.enqueueSoundEffect(Config.instance.audioplayer.configs[firstWord])
+                }
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
