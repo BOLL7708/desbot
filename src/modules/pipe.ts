@@ -1,4 +1,5 @@
 class Pipe {
+    static get TYPE_OVERRIDE() { return -1 }
     static get TYPE_NOTIFICATION() { return 0 }
     static get TYPE_ALERT() { return 1 }
 
@@ -48,7 +49,8 @@ class Pipe {
         this._socket.send(JSON.stringify(message))
     }
 
-    static getEmptyCustomMessage():IPipeCustomMessage {
+    // Matches the defaults in OpenVRNotificationPipe
+    static getEmptyCustomMessage():IPipeCustomMessage { 
         return {
             image: null,
             custom: true,
@@ -90,12 +92,26 @@ class Pipe {
     // Templates
     async showPreset(preset: IPipeMessagePreset) {
         switch(preset.type) {
+            case Pipe.TYPE_OVERRIDE:
+                this.showCustom(preset.imagePath, preset.duration, preset.override)
+                break;
             case Pipe.TYPE_NOTIFICATION:
                 this.showNotificationImage(preset.imagePath, preset.duration, preset.top, preset.left)
                 break;
             case Pipe.TYPE_ALERT:
                 this.showAlertMessage(preset.imagePath, preset.duration)
                 break;
+        }
+    }
+
+    async showCustom(imagePath: string, duration: number, override: IPipeCustomMessage) {
+        const imageb64:string = await ImageLoader.getBase64(imagePath)
+        if(imageb64 != null) {
+            if(duration >= 0) override.properties.duration = duration;
+            override.image = imageb64
+            this.sendCustom(override)
+        } else {
+            console.warn('Pipe: Show Custom, could not find image!')
         }
     }
 

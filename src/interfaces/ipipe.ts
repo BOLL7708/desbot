@@ -14,6 +14,7 @@ interface IPipeMessagePreset {
     type: number
     top?: boolean
     left?: boolean
+    override?: IPipeCustomMessage
 }
 
 // Data
