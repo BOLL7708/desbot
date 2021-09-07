@@ -6,6 +6,7 @@ interface ITwitchConfig {
     channelName: string
     botName: string
     announcerName: string
+    chatNotificationSound: string
     announcerTriggers: string[]
     rewards: string[]
     autoRewards: string[]

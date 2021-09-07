@@ -15,6 +15,7 @@ interface IConfig {
 interface IControllerConfig {
     pipeForAllDefault: boolean
     ttsForAllDefault: boolean
+    pingForChat: boolean
     logChatToDiscordDefault: boolean
     commandReferences: IConfigCommandReferences
 }

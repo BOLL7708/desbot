@@ -13,6 +13,7 @@ class MainController {
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
     private _pipeForAll: boolean = Config.instance.controller.pipeForAllDefault
+    private _pingForChat: boolean = Config.instance.controller.pingForChat
     private _logChatToDiscord: boolean = Config.instance.controller.logChatToDiscordDefault
     private _nonceCallbacks: Record<string, Function> = {}
 
@@ -298,6 +299,26 @@ class MainController {
         })
 
         this._twitch.registerCommand({
+            trigger: Config.COMMAND_PING_ON,
+            mods: true,
+            everyone: false,
+            callback: (userData, input) => {
+                this._pingForChat = true
+                this._tts.enqueueSpeakSentence(`Chat ping enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Config.COMMAND_PING_OFF,
+            mods: true,
+            everyone: false,
+            callback: (userData, input) => {
+                this._pingForChat = false
+                this._tts.enqueueSpeakSentence(`Chat ping disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        this._twitch.registerCommand({
             trigger: Config.COMMAND_LOG_ON,
             mods: false,
             everyone: false,
@@ -397,10 +418,13 @@ class MainController {
             if(this._ttsForAll) { 
                 // TTS is on for everyone
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
-            }
-            else if(this._ttsEnabledUsers.indexOf(userData.userName) >= 0) {
+            } else if(this._ttsEnabledUsers.indexOf(userData.userName) >= 0) {
                 // Reward users
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
+            } else if(this._pingForChat && Config.instance.twitch.chatNotificationSound != null) {
+                // Chat sound
+                const soundEffect = Config.instance.audioplayer.configs[Config.instance.twitch.chatNotificationSound]
+                if(!Utils.matchFirstChar(messageData.text, Config.instance.google.doNotSpeak)) this._tts.enqueueSoundEffect(soundEffect)
             }
 
             // Pipe to VR (basic)

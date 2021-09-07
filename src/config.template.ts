@@ -11,6 +11,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly COMMAND_CHAT: string = 'chat'
     static readonly COMMAND_CHAT_ON: string = 'chaton'
     static readonly COMMAND_CHAT_OFF: string = 'chatoff'
+    static readonly COMMAND_PING_ON: string = 'pingon'
+    static readonly COMMAND_PING_OFF: string = 'pingoff'
     static readonly COMMAND_LOG_ON: string = 'logon'
     static readonly COMMAND_LOG_OFF: string = 'logoff'
     static readonly COMMAND_CAMERA_ON: string = 'camon'
@@ -19,6 +21,9 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
+
+    // Static audio
+    static readonly KEY_SOUND_CHAT: string = 'ChatSound'
 
     // Static rewards
     static readonly KEY_TTSSPEAK: string = 'replace_with_twitch_reward_id'
@@ -43,6 +48,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         controller: {
             pipeForAllDefault: true,
             ttsForAllDefault: true,
+            pingForChat: true,
             logChatToDiscordDefault: true,
             commandReferences: {
                 [ConfigTemplate.COMMAND_CAMERA_ON]: ConfigTemplate.KEY_OBS_EXAMPLE1,
@@ -104,6 +110,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             botName: '',
             announcerName: '',
             announcerTriggers: [''],
+            chatNotificationSound: ConfigTemplate.KEY_SOUND_CHAT,
             rewards: [
                 ConfigTemplate.KEY_TTSSPEAK,
                 ConfigTemplate.KEY_TTSSPEAKTIME,
@@ -156,6 +163,10 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         },
         audioplayer: {
             configs: {
+                [ConfigTemplate.KEY_SOUND_CHAT]: {
+                    src: 'assets/add_chat_sound.wav',
+                    volume: 0.5
+                },
                 [ConfigTemplate.KEY_SOUND_EXAMPLE1]: {
                     src: 'assets/subfolder/sounds1.wav', // A single value and this is all you get
                     nonce: 'a-key' // A value returned in an audio-played callback if provided.
