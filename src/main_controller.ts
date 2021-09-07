@@ -221,9 +221,16 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 let parts = Utils.splitOnFirst(' ', input)
-                if(parts.length == 2) {
-                    const userToRename = Utils.cleanUserName(parts[0])
-                    const newName = parts[1].toLowerCase()
+                let userToRename:string = null
+                let newName:string = null
+                if(parts[1].trim().length == 0) { // Rename yourself
+                    userToRename = userData.userName
+                    newName = parts[0].toLowerCase()
+                } else { // Rename someone else
+                    userToRename = Utils.cleanUserName(parts[0])
+                    newName = parts[1].toLowerCase()
+                }
+                if(userToRename != null || newName != null) {                    
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userToRename, shortName: newName})
                     this._tts.enqueueSpeakSentence(`${userToRename} is now called ${newName}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
