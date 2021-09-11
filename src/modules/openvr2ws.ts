@@ -61,11 +61,14 @@ class OpenVR2WS {
         console.error(evt)
     }
 
+    private _settingCounter = 0
+
     public async setSetting(config: IOpenVR2WSSetting) {
         const password = await Utils.sha256(Config.instance.openvr2ws.password)
         const appId = this._currentAppId.toString()
         switch(config.type) {
             case OpenVR2WS.TYPE_WORLDSCALE:
+                this._settingCounter++
                 const message = {
                     key: 'RemoteSetting',
                     value: password,
@@ -76,9 +79,12 @@ class OpenVR2WS {
                 this.sendMessage(message)
                 if(config.duration != undefined) {
                     setTimeout(() => {
-                        message.value4 = (1).toString() // Reset to 100%
-                        this.sendMessage(message)
-                    }, config.duration);
+                        if(--this._settingCounter <= 0) {
+                            this._settingCounter = 0
+                            message.value4 = (1).toString() // Reset to 100%
+                            this.sendMessage(message)
+                        }
+                    }, config.duration);                    
                 }
                 break
         }
