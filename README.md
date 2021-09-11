@@ -1,23 +1,24 @@
 # Streaming Widget
 A very bespoke browser-based widget for streaming.
 
-This has been worked on as my own streaming solution, but I will try to make it usable by others, keep in mind it is still very much adapted to my own streaming setup, but comes ready with a pre-filled config sans private API keys etc.
+This has been worked on as my own streaming solution, but I will try to make it usable by others, keep in mind it is still very much adapted to my own streaming setup, but comes ready with a prepared config template.
 
-Readme is incredibly WIP but somewhat serviceable.
+Readme is WIP but somewhat serviceable. Please post an issue if you need clarifications.
 
-To see the widget in action, join me for a stream over at my [Twitch Channel](https://twitch.tv/boll7708) to collect some channel points and try them out. 
+To see the widget in action, join me for a stream over at my [Twitch Channel](https://twitch.tv/boll7708) to collect some channel points and try the rewards out. They're cheap!
 
 Other users that are currently utilizing this widget are:
 * [c0ld vengeance](https://www.twitch.tv/c0ldvengeance)
 * [The VR Realm](https://www.twitch.tv/thevrrealm)
 
 # What can it do?
-1. Text to speech from rewards, of a bot's every message with optional filter or just every chat message. It's using GCP TTS with Wavenet voices.
-2. OBS remote control, show/hide sources in OBS Studio from rewards.
+1. Text to speech from rewards, a bot announcer or just every chat message. It's using GCP TTS with Wavenet voices and has a range of text transforms and name reconstruction.
+2. OBS remote control, show/hide sources in OBS Studio.
 3. Display SteamVR notifications though [OpenVRNotificationPipe](https://github.com/BOLL7708/OpenVRNotificationPipe)
 4. Ability to trigger SteamVR screenshots via [SuperScreenShotterVR](https://github.com/BOLL7708/SuperScreenShotterVR)
-5. Logging of chat or screenshots from SSVR (with embeds!) to Discord.
-6. Listen to any rewards from Twitch PubSub and any chat message through Twitch Chat.
+5. Ability to change SteamVR settings via [OpenVR2WS](https://github.com/BOLL7708/OpenVR2WS)
+6. Logging of chat or screenshots from SSVR (with embeds!) to Discord.
+7. Listen to any rewards from Twitch PubSub and any chat message through Twitch Chat.
 
 # Environment Setup
 
