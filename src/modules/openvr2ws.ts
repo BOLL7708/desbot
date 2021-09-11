@@ -1,6 +1,7 @@
 class OpenVR2WS {
+    static get TYPE_WORLDSCALE() { return 1 }
+
     private _socket: WebSockets
-    private _isConnected: boolean = false
     _currentAppId: string
     
     constructor() {
@@ -22,6 +23,10 @@ class OpenVR2WS {
         this._inputCallback = callback
     }
 
+    public sendMessage(message: IOpenVRWSCommandMessage) {
+        this._socket.send(JSON.stringify(message));
+    }
+
     private onMessage(evt: MessageEvent) {
         let data:IOpenVR2WSMessage = null
         try {
@@ -40,14 +45,42 @@ class OpenVR2WS {
                 case 'Input':
                     const inputData:IOpenVR2WSInputData = data.data
                     this._inputCallback(data.key, inputData)
-                break
+                    break
+                case 'RemoteSetting':
+                    const success = data.data.success
+                    if(!success) console.warn(data)
+                    break
                 default:
                     // console.log(data)
                     break
             }
         }
     }
+
     private onError(evt: any) {
         console.error(evt)
+    }
+
+    public async setSetting(config: IOpenVR2WSSetting) {
+        const password = await Utils.sha256(Config.instance.openvr2ws.password)
+        const appId = this._currentAppId.toString()
+        switch(config.type) {
+            case OpenVR2WS.TYPE_WORLDSCALE:
+                const message = {
+                    key: 'RemoteSetting',
+                    value: password,
+                    value2: appId,
+                    value3: 'worldScale',
+                    value4: config.value.toString()
+                }
+                this.sendMessage(message)
+                if(config.duration != undefined) {
+                    setTimeout(() => {
+                        message.value4 = (1).toString() // Reset to 100%
+                        this.sendMessage(message)
+                    }, config.duration);
+                }
+                break
+        }
     }
 }

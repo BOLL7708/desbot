@@ -43,6 +43,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_SOUND_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     static readonly KEY_PIPE_EXAMPLE1: string = 'replace_with_twitch_reward_id'
     static readonly KEY_PIPE_EXAMPLE2: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_SETTING_EXAMPLE1: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_SETTING_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     
     static instance: IConfig = {
         controller: {
@@ -126,7 +128,9 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 ConfigTemplate.KEY_COLOR_EXAMPLE1,
                 ConfigTemplate.KEY_COLOR_EXAMPLE2,
                 ConfigTemplate.KEY_SOUND_EXAMPLE1,
-                ConfigTemplate.KEY_SOUND_EXAMPLE2
+                ConfigTemplate.KEY_SOUND_EXAMPLE2,
+                ConfigTemplate.KEY_SETTING_EXAMPLE1,
+                ConfigTemplate.KEY_SETTING_EXAMPLE2
             ]
         },
         screenshots: {
@@ -159,7 +163,19 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             }
         },
         openvr2ws: {
-            port: 7708
+            port: 7708,
+            password: 'for remote settings',
+            configs: {
+                [ConfigTemplate.KEY_SETTING_EXAMPLE1]: {
+                    type: OpenVR2WS.TYPE_WORLDSCALE,
+                    value: 0.5
+                },
+                [ConfigTemplate.KEY_SETTING_EXAMPLE1]: {
+                    type: OpenVR2WS.TYPE_WORLDSCALE,
+                    value: 2.0,
+                    duration: 10000
+                }
+            }
         },
         audioplayer: {
             configs: {

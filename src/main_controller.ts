@@ -143,8 +143,9 @@ class MainController {
             let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.configs[id])
             let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[id])
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
+            let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[id])
 
-            console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}: ${id}`)
+            console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}${openvr2wsSettingCallback?'🏭':''}: ${id}`)
             const reward:ITwitchReward = {
                 id: id,
                 callback: (data:ITwitchRedemptionMessage)=>{
@@ -152,6 +153,7 @@ class MainController {
                     if(colorCallback != null) colorCallback(data)
                     if(soundCallback != null) soundCallback(data)
                     if(pipeCallback != null) pipeCallback(data)
+                    if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
                 }
             }
             this._twitch.registerReward(reward)
@@ -630,5 +632,11 @@ class MainController {
             _this._pipe.showPreset(config)
         }
         else return null
+    }
+
+    private buildOpenVR2WSSettingCallback(_this: any, config: IOpenVR2WSSetting) {
+        if(config) return (data:ITwitchRedemptionMessage) => {
+            _this._openvr2ws.setSetting(config)
+        }
     }
 }
