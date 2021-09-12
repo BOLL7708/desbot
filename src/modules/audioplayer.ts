@@ -64,7 +64,11 @@ class AudioPlayer {
 
     enqueueAudio(audio: IAudio) {
         console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
-        this._queue.push(audio)
+        if(audio.repeat != undefined) {
+            for(let i=0; i<audio.repeat; i++) this._queue.push(audio)
+        } else {
+            this._queue.push(audio)
+        }
     }
 
     stop(andClearQueue: boolean = false) {

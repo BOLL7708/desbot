@@ -11,6 +11,7 @@ interface IAudio {
     src: string | string[] // Will randomize if array
     volume?: number
     nonce?: string
+    repeat?: number
 }
 
 // Callbacks

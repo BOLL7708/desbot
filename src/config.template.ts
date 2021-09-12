@@ -17,6 +17,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly COMMAND_LOG_OFF: string = 'logoff'
     static readonly COMMAND_CAMERA_ON: string = 'camon'
     static readonly COMMAND_CAMERA_OFF: string = 'camoff'
+    static readonly COMMAND_SCALE: string = 'scale'
 
     // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'

@@ -369,6 +369,18 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: Config.COMMAND_SCALE,
+            mods: true,
+            everyone: false,
+            callback: (userData, input) => {
+                this._openvr2ws.setSetting({
+                    type: OpenVR2WS.TYPE_WORLDSCALE,
+                    value: parseFloat(input)
+                })
+            }
+        })
+
         /*
          ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
         ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
