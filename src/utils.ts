@@ -129,7 +129,7 @@ class Utils {
             .replace(/\*/g, '\\*')
             .replace(/~/g, '\\~')
             .replace(/`/g, '\\`')
-            .replace(/@/g, '(at)')
+            .replace(/@/g, '**(at)**')
     }
 
     /**
@@ -153,5 +153,16 @@ class Utils {
 
     static getNonce(tag:string) {
         return `${tag}-${Date.now()}`
+    }
+
+    static log(message:string, color:string) {
+        const formatNormal = `color: ${color}; font-weight: normal;`
+        const formatBold = `color: ${color}; font-weight: bold;`
+        var formats = [formatNormal];
+        for(var i=0; i<message.length;i++) {
+            if (message[i] === "<") formats.push(formatBold);
+            else if (message[i] === ">") formats.push(formatNormal);
+        }
+        console.log(`%c${message}`.replace(/</g, '%c').replace(/>/g, '%c'), ...formats)
     }
 }

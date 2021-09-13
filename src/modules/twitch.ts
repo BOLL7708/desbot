@@ -26,7 +26,14 @@ class Twitch{
 
     private _commands: ITwitchSlashCommand[] = []
     registerCommand(twitchSlashCommand: ITwitchSlashCommand) {
-        this._commands.push(twitchSlashCommand)
+		if(twitchSlashCommand.trigger.length != 0) {
+            this._commands.push(twitchSlashCommand)
+            const who = twitchSlashCommand.everyone?'everyone':twitchSlashCommand.mods?'moderators':'the streamer'
+            const message = `Registering Slash Command: <${twitchSlashCommand.trigger}> for ${who}`
+            Utils.log(message, 'green')
+        } else {
+            Utils.log('Skipped registering a slash command!', 'purple')
+        }
     }
 
     private _announcements: ITwitchAnnouncement[] = []

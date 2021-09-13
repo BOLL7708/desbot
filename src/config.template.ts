@@ -1,5 +1,6 @@
 class ConfigTemplate { // Refactor this class to just 'Config' to use this as the live config.
-    // Command references
+    
+	// Command references, to disable a command just set it to an empty string: ''
     static readonly COMMAND_TTS_ON: string = 'ttson'
     static readonly COMMAND_TTS_OFF: string = 'ttsoff'
     static readonly COMMAND_TTS_SILENCE: string = 'silence'
@@ -46,6 +47,10 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_PIPE_EXAMPLE2: string = 'replace_with_twitch_reward_id'
     static readonly KEY_SETTING_EXAMPLE1: string = 'replace_with_twitch_reward_id'
     static readonly KEY_SETTING_EXAMPLE2: string = 'replace_with_twitch_reward_id'
+	
+	// Message triggers used for TTS and audio referencing
+	static readonly KEY_ANNOUNCE_EXAMPLE: string = '❓' // Any character, word or emote you want to match
+	
     
     static instance: IConfig = {
         controller: {
@@ -109,10 +114,10 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             userId: 0,
             clientId: '',
             clientSecret: '',
-            channelName: '',
-            botName: '',
-            announcerName: '',
-            announcerTriggers: [''],
+            channelName: 'Name of the channel to connect to',
+            botName: 'Name of the bot listening to chat', // Pretty sure this has to be the name the tokens are associated with. 
+            announcerName: 'Name of the bot you are listening to',
+            announcerTriggers: ['❗', ConfigTemplate.KEY_ANNOUNCE_EXAMPLE],
             chatNotificationSound: ConfigTemplate.KEY_SOUND_CHAT,
             rewards: [
                 ConfigTemplate.KEY_TTSSPEAK,
@@ -186,12 +191,15 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 },
                 [ConfigTemplate.KEY_SOUND_EXAMPLE1]: {
                     src: 'assets/subfolder/sounds1.wav', // A single value and this is all you get
-                    nonce: 'a-key' // A value returned in an audio-played callback if provided.
+                    nonce: 'a-key' // A value returned in a callback on finished playing, if provided.
                 },
                 [ConfigTemplate.KEY_SOUND_EXAMPLE2]: {
                     src: ['assets/sounds1.wav', 'assets/sounds2.wav', 'assets/sounds3.wav'], // An array and it's random
                     volume: 1.0 // 100%, which is also the default if not included.
-                }
+                },
+				[ConfigTemplate.KEY_ANNOUNCE_EXAMPLE]: {
+					src: 'sound file that will be played before TTS for an announcement'
+				}
             }
         }
     }

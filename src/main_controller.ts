@@ -145,7 +145,7 @@ class MainController {
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[id])
 
-            console.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}${openvr2wsSettingCallback?'🏭':''}: ${id}`)
+            Utils.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}${openvr2wsSettingCallback?'🏭':''}: ${id}`, 'green')
             const reward:ITwitchReward = {
                 id: id,
                 callback: (data:ITwitchRedemptionMessage)=>{
@@ -374,9 +374,11 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
+                const value = input == '' ? 100 : Math.max(10, Math.min(1000, parseFloat(input)))
+                this._tts.enqueueSpeakSentence(`World scale set to ${value}%`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
                     type: OpenVR2WS.TYPE_WORLDSCALE,
-                    value: parseFloat(input)
+                    value: value/100.0
                 })
             }
         })
