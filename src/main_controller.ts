@@ -474,7 +474,7 @@ class MainController {
                 if(text == null || text.length == 0) return
 
                 // Format text
-                let logText = Utils.escapeMarkdown(text)
+                let logText = Utils.escapeForDiscord(text)
                 if(message?.message?.isAction) logText = `_${logText}_`
                 
                 // Label messages with bits
@@ -506,7 +506,7 @@ class MainController {
                 const amount = message.redemption.reward.redemptions_redeemed_current_stream
                 const amountStr = amount != null ? ` #${amount}` : ''
                 let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
-                if(message.redemption.user_input) description +=  `: ${Utils.escapeMarkdown(Utils.fixLinks(message.redemption.user_input))}`
+                if(message.redemption.user_input) description +=  `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
                         Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],

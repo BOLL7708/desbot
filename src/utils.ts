@@ -122,13 +122,14 @@ class Utils {
         return false
     }
 
-    static escapeMarkdown(text:string):string {
+    static escapeForDiscord(text:string):string {
         return text
             .replace(/\\/g, '\\\\')
             .replace(/_/g, '\\_')
             .replace(/\*/g, '\\*')
             .replace(/~/g, '\\~')
             .replace(/`/g, '\\`')
+            .replace(/@/g, '(at)')
     }
 
     /**
