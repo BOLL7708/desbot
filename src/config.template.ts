@@ -61,6 +61,25 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             commandReferences: {
                 [ConfigTemplate.COMMAND_CAMERA_ON]: ConfigTemplate.KEY_OBS_EXAMPLE1,
                 [ConfigTemplate.COMMAND_CAMERA_OFF]: ConfigTemplate.KEY_COLOR_EXAMPLE2
+            },
+            speechReferences: { // %s is a templated value, gets replaced.
+                [ConfigTemplate.KEY_SCREENSHOT]: 'Photograph %s',
+                [ConfigTemplate.KEY_INSTANTSCREENSHOT]: 'Instant shot!',
+                [ConfigTemplate.KEY_FAVORITEVIEWER]: '%s is the new favorite viewer',
+                [ConfigTemplate.COMMAND_TTS_ON]: ['Global TTS activated', 'Global TTS already on'],
+                [ConfigTemplate.COMMAND_TTS_OFF]: ['Global TTS terminated', 'Global TTS already off'],
+                [ConfigTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
+                [ConfigTemplate.COMMAND_TTS_MUTE]: '%s has lost their voice',
+                [ConfigTemplate.COMMAND_TTS_UNMUTE]: ['%s has regained their voice', '%s is not muted'],
+                [ConfigTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
+                [ConfigTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
+                [ConfigTemplate.COMMAND_PING_ON]: 'Chat ping enabled',
+                [ConfigTemplate.COMMAND_PING_OFF]: 'Chat ping disabled',
+                [ConfigTemplate.COMMAND_LOG_ON]: 'Logging enabled',
+                [ConfigTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
+                [ConfigTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
+                [ConfigTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
+                [ConfigTemplate.COMMAND_SCALE]: 'World scale set to %s%'
             }
         },
         google: {

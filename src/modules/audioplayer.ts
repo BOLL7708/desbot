@@ -49,7 +49,7 @@ class AudioPlayer {
 
         let src = audio.src
         if(Array.isArray(src)) {
-            src = src[Math.floor(Math.random()*src.length)]
+            src = Utils.randomFromArray<string>(src)
         }
 
         if (audio.src != null) {

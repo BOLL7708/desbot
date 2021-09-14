@@ -94,7 +94,8 @@ class MainController {
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input
                 const nonce = Utils.getNonce('TTS')
-                this._tts.enqueueSpeakSentence(`Photograph ${userInput}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                const speech = Config.instance.controller.speechReferences[Config.KEY_SCREENSHOT]
+                this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
                     this._screenshots.sendScreenshotRequest(data, Config.instance.screenshots.delay)
                 }
@@ -103,7 +104,8 @@ class MainController {
         this._twitch.registerReward({
             id: Config.KEY_INSTANTSCREENSHOT,
             callback: (data:ITwitchRedemptionMessage) => {
-                this._tts.enqueueSpeakSentence(`Instant shot!`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.KEY_INSTANTSCREENSHOT]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._screenshots.sendScreenshotRequest(data, 0)
             }
         })
@@ -124,7 +126,8 @@ class MainController {
                     }
                     Settings.pushSetting(Settings.LABELS, 'key', data)
                     Utils.loadCleanName(userName).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(`${cleanName} is the new favorite viewer`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        const speech = Config.instance.controller.speechReferences[Config.KEY_FAVORITEVIEWER]
+                        this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 })
             }
@@ -173,7 +176,8 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
-                let onText:string = !this._ttsForAll ? "Global TTS activated" : "Global TTS already on"
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_ON]
+                const onText:string = !this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = true
                 this._tts.enqueueSpeakSentence(onText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -184,7 +188,8 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
-                let offText = this._ttsForAll ? "Global TTS terminated" : "Global TTS already off"
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_OFF]
+                const offText = this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = false
                 this._tts.enqueueSpeakSentence(offText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -222,7 +227,7 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
-                let parts = Utils.splitOnFirst(' ', input)
+                const parts = Utils.splitOnFirst(' ', input)
                 let userToRename:string = null
                 let newName:string = null
                 if(parts[1].trim().length == 0) { // Rename yourself
@@ -234,7 +239,8 @@ class MainController {
                 }
                 if(userToRename != null || newName != null) {                    
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userToRename, shortName: newName})
-                    this._tts.enqueueSpeakSentence(`${userToRename} is now called ${newName}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_NICK]
+                    this._tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
@@ -244,13 +250,14 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
-                let parts = Utils.splitOnFirst(' ', input)
-                let name = Utils.cleanUserName(parts[0] ?? '')
+                const parts = Utils.splitOnFirst(' ', input)
+                const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length > 0 && name != Config.instance.twitch.botName.toLowerCase()) {
                     let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
                     Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
                     Utils.loadCleanName(name).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(`${cleanName} has lost their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_MUTE]
+                        this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 }
             }
@@ -261,17 +268,18 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
-                let parts = Utils.splitOnFirst(' ', input)
-                let name = Utils.cleanUserName(parts[0] ?? '')
+                const parts = Utils.splitOnFirst(' ', input)
+                const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length == 0) return
                 Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name).then(blacklist => {
                     Utils.loadCleanName(name).then(cleanName => {
+                        const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_UNMUTE]
                         if(blacklist != null && blacklist.active) {
-                            let reason = Utils.cleanSetting(parts[1] ?? '')
+                            const reason = Utils.cleanSetting(parts[1] ?? '')
                             Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                            this._tts.enqueueSpeakSentence(`${cleanName} has regained their voice`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                            this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         } else {
-                            this._tts.enqueueSpeakSentence(`${cleanName} is not muted`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                            this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         }
                     })
                 })
@@ -293,7 +301,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._pipeForAll = true
-                this._tts.enqueueSpeakSentence(`Chat enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_CHAT_ON]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -303,7 +312,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._pipeForAll = false
-                this._tts.enqueueSpeakSentence(`Chat disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_CHAT_OFF]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -313,7 +323,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._pingForChat = true
-                this._tts.enqueueSpeakSentence(`Chat ping enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_PING_ON]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -323,7 +334,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._pingForChat = false
-                this._tts.enqueueSpeakSentence(`Chat ping disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_PING_OFF]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -333,7 +345,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._logChatToDiscord = true
-                this._tts.enqueueSpeakSentence(`Logging enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_LOG_ON]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -343,7 +356,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._logChatToDiscord = false
-                this._tts.enqueueSpeakSentence(`Logging disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_LOG_OFF]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -353,7 +367,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 const key = Config.instance.controller.commandReferences[Config.COMMAND_CAMERA_ON]
-                this._tts.enqueueSpeakSentence(`Camera enabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_CAMERA_ON]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._obs.showSource(Config.instance.obs.configs[key], true)
             }
         })
@@ -364,7 +379,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 const key = Config.instance.controller.commandReferences[Config.COMMAND_CAMERA_OFF]
-                this._tts.enqueueSpeakSentence(`Camera disabled`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_CAMERA_OFF]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._obs.hideSource(Config.instance.obs.configs[key])
             }
         })
@@ -375,7 +391,8 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 const value = input == '' ? 100 : Math.max(10, Math.min(1000, parseFloat(input)))
-                this._tts.enqueueSpeakSentence(`World scale set to ${value}%`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_SCALE]
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
                     type: OpenVR2WS.TYPE_WORLDSCALE,
                     value: value/100.0
@@ -624,7 +641,7 @@ class MainController {
 
     private buildColorCallback(_this: any, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (data:ITwitchRedemptionMessage) => {
-            let userName = data?.redemption?.user?.login
+            const userName = data?.redemption?.user?.login
             _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
             const lights:number[] = Config.instance.philipshue.lightsToControl
             lights.forEach(light => {

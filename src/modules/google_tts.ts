@@ -24,9 +24,10 @@ class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    async enqueueSpeakSentence(input: string, userName: string, type: number=0, nonce:string='', meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
+    async enqueueSpeakSentence(input: string|string[], userName: string, type: number=0, nonce:string='', meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
+        if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
         if(input.trim().length == 0) return
         if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return
 

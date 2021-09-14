@@ -165,4 +165,15 @@ class Utils {
         }
         console.log(`%c${message}`.replace(/</g, '%c').replace(/>/g, '%c'), ...formats)
     }
+
+    static template(text: string|string[], ...values):string {
+        if(Array.isArray(text)) text = text.shift()
+        return text.replace(/\%s/g, function(_) {
+            return values.shift()
+        })
+    }
+
+    static randomFromArray<Type>(arr: Type[]): Type {
+        return arr[Math.floor(Math.random()*arr.length)]
+    }
 }

@@ -18,8 +18,13 @@ interface IControllerConfig {
     pingForChat: boolean
     logChatToDiscordDefault: boolean
     commandReferences: IConfigCommandReferences
+    speechReferences: IConfigSpeechReferences
 }
 
 interface IConfigCommandReferences {
     [key: string]: string
+}
+
+interface IConfigSpeechReferences {
+    [key: string]: string|string[]
 }
