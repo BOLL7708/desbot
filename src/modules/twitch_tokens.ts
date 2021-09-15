@@ -1,12 +1,8 @@
 class TwitchTokens {
-    refresh() {
-        this.refreshToken()
-    }
-
-    private async refreshToken() {
+    async refreshToken():Promise<string> {
         let config:ITwitchConfig = Config.instance.twitch
         let tokenData:ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
-        fetch('https://id.twitch.tv/oauth2/token', {
+        return fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',
             body: new URLSearchParams({
                 'grant_type': 'refresh_token',

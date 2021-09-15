@@ -1,4 +1,6 @@
 class WebSockets {
+    private LOG_COLOR: string = 'gray'
+
     constructor(
         serverUrl:string, 
         reconnectIntervalSeconds:number = 30,
@@ -37,7 +39,7 @@ class WebSockets {
             this._socket.send(message)
         } else if(this._messageQueueing) {
             this._messageQueue.push(message)
-            console.log(`${this._serverUrl}: Not connected, adding to queue...`)
+            Utils.log(`WS: ${this._serverUrl}: Not connected, adding to queue...`, this.LOG_COLOR)
         }
     }
     reconnect() {
@@ -58,16 +60,16 @@ class WebSockets {
     }
 
     private connect() {
-        console.log(this)
         this._socket = null
         this._socket = new WebSocket(this._serverUrl)
 	    this._socket.onopen = onOpen.bind(this)
 	    this._socket.onclose = onClose.bind(this)
 	    this._socket.onmessage = onMessage.bind(this)
 	    this._socket.onerror = onError.bind(this)
+        const that = this;
 
         function onOpen(evt: Event) {
-            console.log(`${this._serverUrl}: Connected`)
+            Utils.log(`WS: ${this._serverUrl}: Connected`, that.LOG_COLOR, true)
             this._connected = true
             this.stopConnectLoop()
             this._onOpen(evt)
@@ -77,7 +79,7 @@ class WebSockets {
             this._messageQueue = []
         }
         function onClose(evt: CloseEvent) {
-            console.warn(`${this._serverUrl}: Disconnected`)
+            Utils.log(`WS: ${this._serverUrl}: Disconnected`, that.LOG_COLOR, true)
             this._connected = false
             this.startConnectLoop()
             this._onClose(evt)
@@ -86,7 +88,7 @@ class WebSockets {
             this._onMessage(evt)
         }
         function onError(evt: Event) {
-            console.error(`${this._serverUrl}:${JSON.stringify(evt)}`)
+            console.error(`WS: ${this._serverUrl}:${JSON.stringify(evt)}`)
             this._socket.close()
             this.startConnectLoop()
             this._onError(evt)

@@ -1,4 +1,5 @@
 class TwitchChat {
+    private LOG_COLOR: string = 'purple'
     private _socket: WebSockets
     private _isConnected: boolean = false
     init() {
@@ -26,7 +27,7 @@ class TwitchChat {
     private async onOpen(evt: any) {
         let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
         let config: ITwitchConfig = Config.instance.twitch
-        console.log("Twitch chat connected")
+        Utils.log("Twitch chat connected", this.LOG_COLOR, true, true)
         this._socket.send(`PASS oauth:${tokenData.access_token}`)
         this._socket.send(`NICK ${config.botName}`)
         this._socket.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
@@ -35,12 +36,12 @@ class TwitchChat {
     }
     private onClose(evt: any) {
         this._isConnected = false
-        console.log("Twitch chat disconnected")
+        Utils.log("Twitch chat disconnected", this.LOG_COLOR, true, true)
     }
     private onMessage(evt: any) {
         let data = evt?.data
         if(data != null) {
-            console.log(data)
+            Utils.log(data, this.LOG_COLOR)
             if(data.indexOf('PING') == 0) return this._socket.send('PONG :tmi.twitch.tv\r\n')
             let messageStrings = data.split("\r\n")
             messageStrings.forEach(str => {

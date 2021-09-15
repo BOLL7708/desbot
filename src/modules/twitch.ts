@@ -2,11 +2,13 @@ class Twitch{
     private _twitchTokens: TwitchTokens = new TwitchTokens()
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _twitchChat: TwitchChat = new TwitchChat()
+    private LOG_COLOR_COMMAND: string = 'maroon'
 
     constructor() {
-        this._twitchPubsub.init()
-        this._twitchChat.init()
-        this._twitchTokens.refresh()
+        this._twitchTokens.refreshToken().then(token => {
+            this._twitchPubsub.init()
+            this._twitchChat.init()
+        })
     }
 
     init() {
@@ -30,9 +32,9 @@ class Twitch{
             this._commands.push(twitchSlashCommand)
             const who = twitchSlashCommand.everyone?'everyone':twitchSlashCommand.mods?'moderators':'the streamer'
             const message = `Registering Slash Command: <${twitchSlashCommand.trigger}> for ${who}`
-            Utils.log(message, 'green')
+            Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
-            Utils.log('Skipped registering a slash command!', 'purple')
+            Utils.logWithBold('Skipped registering a slash command!', this.LOG_COLOR_COMMAND)
         }
     }
 

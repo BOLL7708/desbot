@@ -4,7 +4,8 @@ class Settings {
     static TTS_BLACKLIST: string = 'settings_tts_blacklist'
     static TWITCH_TOKENS: string = 'settings_twitch_tokens'
     static LABELS: string = 'settings_labels'
-    
+    private static LOG_COLOR: string = 'blue'
+
     private static settingsStore:Record<string, any> = {};
 
     /**
@@ -17,7 +18,7 @@ class Settings {
             console.log(`Returning cache for: ${setting}`)
             return this.settingsStore[setting]
         }
-        console.log(`Loading settings for: ${setting}`)
+        Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
         let url = this.getUrl(setting)      
         let response = await fetch(url)
         let result = response.status >= 300 ? null : await response.json()
@@ -38,7 +39,7 @@ class Settings {
         if(settings == null) settings = this.settingsStore[setting]
         if(settings != null) {
             let payload = JSON.stringify(settings)
-            console.log(`Saving settings (${payload.length}b): ${setting}`)
+            Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
             let response = await fetch(url, {
                 method: 'post',
                 body: payload
@@ -56,7 +57,7 @@ class Settings {
      * @Returns The success as a boolean.
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
-        console.log(`Pushing setting: ${setting}`)
+        Utils.log(`Pushing setting: ${setting}`, this.LOG_COLOR)
         let settings = this.settingsStore[setting]      
         if(settings == null || !Array.isArray(settings)) settings = []      
         let filteredSettings = settings.filter(s => s[field] != value[field])
@@ -73,7 +74,7 @@ class Settings {
      * @returns The object or null if failed.
      */
     static async pullSetting(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<any> {
-        console.log(`Pulling setting: ${setting}`)
+        Utils.log(`Pulling setting: ${setting}`, this.LOG_COLOR)
         let settings = null
         if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
             settings = this.settingsStore[setting]

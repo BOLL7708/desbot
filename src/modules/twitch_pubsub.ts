@@ -1,5 +1,5 @@
 class TwitchPubsub {
-    
+    private LOG_COLOR: string = 'teal'
     private _socket: WebSockets
     private _config: ITwitchConfig = Config.instance.twitch
     private _pingIntervalHandle: number
@@ -34,11 +34,13 @@ class TwitchPubsub {
             }
             this._socket.send(JSON.stringify(payload))
             this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
+            Utils.log('PubSub connected', this.LOG_COLOR, true, true)
         })
     }
 
     private onClose(evt:any) {
         clearInterval(this._pingIntervalHandle)
+        Utils.log('PubSub disconnected', this.LOG_COLOR, true, true)
     }
 
     private onMessage(evt:any) {
@@ -48,7 +50,7 @@ class TwitchPubsub {
                 let payload = JSON.parse(unescape(data?.data?.message))
                 if (payload?.type == "reward-redeemed") {
                     let id = payload?.data?.redemption?.reward?.id ?? null
-                    console.log(`Reward redeemed! (${id})`)
+                    Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                     if(id !== null) this._onRewardCallback(id, payload?.data)
                     else console.log(payload)
                 }
@@ -62,10 +64,10 @@ class TwitchPubsub {
                 if(Date.now() - this._pingTimestamp > 10000) this._socket.reconnect()
                 break
             case "RESPONSE":
-                console.log(evt.data)
+                Utils.log(evt.data, this.LOG_COLOR)
                 break;
             default:
-                console.log(`Unhandled message: ${data.type}`)
+                Utils.log(`Unhandled message: ${data.type}`, this.LOG_COLOR)
                 break;
         }  
     }

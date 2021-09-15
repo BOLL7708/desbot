@@ -155,7 +155,7 @@ class Utils {
         return `${tag}-${Date.now()}`
     }
 
-    static log(message:string, color:string) {
+    static logWithBold(message:string, color:string) {
         const formatNormal = `color: ${color}; font-weight: normal;`
         const formatBold = `color: ${color}; font-weight: bold;`
         var formats = [formatNormal];
@@ -164,6 +164,13 @@ class Utils {
             else if (message[i] === ">") formats.push(formatNormal);
         }
         console.log(`%c${message}`.replace(/</g, '%c').replace(/>/g, '%c'), ...formats)
+    }
+
+    static log(message, color:string, bold:boolean=false, big:boolean=false) {
+        let format = `color: ${color};`
+        if(bold) format += 'font-weight: bold;'
+        if(big) format += 'font-size: 150%;'
+        console.log(`%c${message}`, format)
     }
 
     static template(text: string|string[], ...values):string {

@@ -18,6 +18,14 @@ class MainController {
     private _nonceCallbacks: Record<string, Function> = {}
 
     constructor() {
+        /*
+        ██ ███    ██ ██ ████████ 
+        ██ ████   ██ ██    ██    
+        ██ ██ ██  ██ ██    ██    
+        ██ ██  ██ ██ ██    ██    
+        ██ ██   ████ ██    ██    
+        */
+
         // Make sure settings are precached
         Settings.loadSettings(Settings.TTS_BLACKLIST)
         Settings.loadSettings(Settings.TTS_USER_NAMES)
@@ -155,7 +163,7 @@ class MainController {
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[id])
 
-            Utils.log(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}${openvr2wsSettingCallback?'🏭':''}: ${id}`, 'green')
+            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}${openvr2wsSettingCallback?'🏭':''}: ${id}`, 'green')
             const reward:ITwitchReward = {
                 id: id,
                 callback: (data:ITwitchRedemptionMessage)=>{
