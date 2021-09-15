@@ -27,6 +27,13 @@ class MainController {
 
         this._pipe.setOverlayTitle("Streaming Widget")
 
+        function setEmptySoundForTTS() {
+            const audio = this._pingForChat ? Config.instance.audioplayer.configs[Config.KEY_SOUND_CHAT] : null           
+            this._tts.setEmptyMessageSound(audio)
+        }
+
+        setEmptySoundForTTS.call(this)
+
         /*
         ██████  ███████ ██     ██  █████  ██████  ██████  ███████ 
         ██   ██ ██      ██     ██ ██   ██ ██   ██ ██   ██ ██      
@@ -323,6 +330,7 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._pingForChat = true
+                setEmptySoundForTTS.call(this)
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_PING_ON]
                 this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -334,6 +342,7 @@ class MainController {
             everyone: false,
             callback: (userData, input) => {
                 this._pingForChat = false
+                setEmptySoundForTTS.call(this)
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_PING_OFF]
                 this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }

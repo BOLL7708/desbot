@@ -14,10 +14,19 @@ class GoogleTTS {
     private _lastEnqueued: number = 0
     private _lastSpeaker: string = ''
     private _callback: IAudioPlayedCallback
+    private _emptyMessageSound: IAudio|null
 
     setHasSpokenCallback(callback: IAudioPlayedCallback) {
         this._callback = callback
         this._audio.setPlayedCallback(callback)
+    }
+
+    setEmptyMessageSound(audio:IAudio|null) {
+        this._emptyMessageSound = audio
+    }
+
+    private enqueueEmptyMessageSound() {
+        if(this._emptyMessageSound != null) this._audio.enqueueAudio(this._emptyMessageSound)
     }
 
     stopSpeaking(andClearQueue: boolean = false) {
@@ -28,14 +37,17 @@ class GoogleTTS {
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
-        if(input.trim().length == 0) return
-        if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return
+        if(input.trim().length == 0) return this.enqueueEmptyMessageSound()
+        if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return // Will not even make empty message sound, so secret!
 
         const sentence = {text: input, userName: userName, type: type, meta: meta}      
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.apiKey}`
         let text = sentence.text
-        if(text == null || text.length == 0) return console.error("TTS: Sentence text was null or empty")
-        
+        if(text == null || text.length == 0) {
+            this.enqueueEmptyMessageSound()
+            console.error("TTS: Sentence text was null or empty")
+            return 
+        }
         let voice:IUserVoice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', sentence.userName)
         if(voice == null) {
             voice = await this.getDefaultVoice(sentence.userName)
@@ -44,7 +56,11 @@ class GoogleTTS {
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
         let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER, false, clearRanges, true)
-        if(cleanText.length == 0) return console.warn("TTS: Clean text had zero length, skipping")
+        if(cleanText.length == 0) {
+            this.enqueueEmptyMessageSound()
+            console.warn("TTS: Clean text had zero length, skipping")
+            return
+        }
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
