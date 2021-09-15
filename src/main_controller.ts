@@ -32,6 +32,7 @@ class MainController {
         Settings.loadSettings(Settings.TTS_USER_VOICES)
         Settings.loadSettings(Settings.TWITCH_TOKENS)
         Settings.loadSettings(Settings.LABELS)
+        Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
 
         this._pipe.setOverlayTitle("Streaming Widget")
 
@@ -414,6 +415,25 @@ class MainController {
                     type: OpenVR2WS.TYPE_WORLDSCALE,
                     value: value/100.0
                 })
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Config.COMMAND_DICTIONARY,
+            mods: true,
+            everyone: false,
+            callback: (userData, input) => {
+                const words = input.split(' ')
+                const speech = Config.instance.controller.speechReferences[Config.COMMAND_DICTIONARY]
+                if(words.length >= 2) {
+                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0], substitute: words[1]})
+                    this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.DICTIONARY))
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                } else {
+                    Utils.loadCleanName(userData.userName).then(cleanName => {
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
+                }
             }
         })
 

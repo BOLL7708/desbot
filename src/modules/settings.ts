@@ -4,9 +4,11 @@ class Settings {
     static TTS_BLACKLIST: string = 'settings_tts_blacklist'
     static TWITCH_TOKENS: string = 'settings_twitch_tokens'
     static LABELS: string = 'settings_labels'
+    static DICTIONARY: string = 'settings_tts_dictionary'
+
     private static LOG_COLOR: string = 'blue'
 
-    private static settingsStore:Record<string, any> = {};
+    private static _settingsStore:Record<string, any> = {};
 
     /**
      * Will load settings off disk, to an in-memory cache, that will be used next time.
@@ -14,16 +16,16 @@ class Settings {
      * @returns 
      */
     static async loadSettings(setting:string, ignoreCache:boolean = false):Promise<any> {
-        if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
+        if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
             console.log(`Returning cache for: ${setting}`)
-            return this.settingsStore[setting]
+            return this._settingsStore[setting]
         }
         Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
         let url = this.getUrl(setting)      
         let response = await fetch(url)
         let result = response.status >= 300 ? null : await response.json()
         if(result != null) {
-            this.settingsStore[setting] = result
+            this._settingsStore[setting] = result
         }
         return result
     }
@@ -36,9 +38,10 @@ class Settings {
      */
     static async saveSettings(setting:string, settings:any=null):Promise<boolean> {
         let url = this.getUrl(setting)
-        if(settings == null) settings = this.settingsStore[setting]
+        if(settings == null) settings = this._settingsStore[setting]
         if(settings != null) {
             let payload = JSON.stringify(settings)
+            payload.replace(/\|/g, '').replace(/;/g, '')
             Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
             let response = await fetch(url, {
                 method: 'post',
@@ -58,11 +61,11 @@ class Settings {
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
         Utils.log(`Pushing setting: ${setting}`, this.LOG_COLOR)
-        let settings = this.settingsStore[setting]      
+        let settings = this._settingsStore[setting]      
         if(settings == null || !Array.isArray(settings)) settings = []      
         let filteredSettings = settings.filter(s => s[field] != value[field])
         filteredSettings.push(value)
-        this.settingsStore[setting] = filteredSettings
+        this._settingsStore[setting] = filteredSettings
         return this.saveSettings(setting)
     }
 
@@ -76,8 +79,8 @@ class Settings {
     static async pullSetting(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<any> {
         Utils.log(`Pulling setting: ${setting}`, this.LOG_COLOR)
         let settings = null
-        if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
-            settings = this.settingsStore[setting]
+        if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
+            settings = this._settingsStore[setting]
         } else {
             settings = await this.loadSettings(setting, ignoreCache)
         }
@@ -92,5 +95,9 @@ class Settings {
      */
     private static getUrl(setting:string) {
         return `./settings.php?setting=${setting}`
+    }
+
+    public static getFullSettings(setting:string):any {
+        return this._settingsStore[setting]
     }
 }

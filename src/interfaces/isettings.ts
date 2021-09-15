@@ -6,6 +6,10 @@ interface IUserVoice {
     gender: string
 }
 interface IUserName {
-    userName:string
-    shortName:string
+    userName: string
+    shortName: string
+}
+interface IDictionaryPair {
+    original: string
+    substitute: string
 }

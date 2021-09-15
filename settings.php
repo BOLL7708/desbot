@@ -35,6 +35,7 @@ function writeSettings($filePath) {
     foreach($inputRows as $row) {
         $result = [];
         foreach($row as $key => $value) {
+            $value = str_replace(['|', ';'], ['', ''], $value);
             if(is_numeric($key)) $result[] = $value;
             else $result[] = "$key|$value";
         }

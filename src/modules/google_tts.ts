@@ -15,6 +15,7 @@ class GoogleTTS {
     private _lastSpeaker: string = ''
     private _callback: IAudioPlayedCallback
     private _emptyMessageSound: IAudio|null
+    private _dictionary: Record<string, string> = {}
 
     setHasSpokenCallback(callback: IAudioPlayedCallback) {
         this._callback = callback
@@ -31,6 +32,22 @@ class GoogleTTS {
 
     stopSpeaking(andClearQueue: boolean = false) {
         this._audio.stop(andClearQueue)
+    }
+
+    setDictionary(dictionary: IDictionaryPair[]) {
+        if(dictionary != null) {
+            dictionary.forEach(pair => {
+                if(pair.original && pair.substitute) this._dictionary[pair.original] = pair.substitute
+            })
+        }
+    }
+
+    private applyDictionary(text: string):string {
+        const words = text.split(' ')
+        words.forEach((word, i) => { 
+            if(this._dictionary.hasOwnProperty(word)) words[i] = this._dictionary[word]
+        })
+        return words.join(' ')
     }
 
     async enqueueSpeakSentence(input: string|string[], userName: string, type: number=0, nonce:string='', meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
@@ -61,6 +78,8 @@ class GoogleTTS {
             console.warn("TTS: Clean text had zero length, skipping")
             return
         }
+        
+        cleanText = this.applyDictionary(cleanText)
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
