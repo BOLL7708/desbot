@@ -45,12 +45,20 @@ class GoogleTTS {
     private applyDictionary(text: string):string {
         const words = text.split(' ')
         words.forEach((word, i) => { 
-            if(this._dictionary.hasOwnProperty(word)) words[i] = this._dictionary[word]
+            if(this._dictionary.hasOwnProperty(word.toLowerCase())) words[i] = this._dictionary[word]
         })
         return words.join(' ')
     }
 
-    async enqueueSpeakSentence(input: string|string[], userName: string, type: number=0, nonce:string='', meta: any=null, clearRanges:ITwitchEmotePosition[]=[]) {
+    async enqueueSpeakSentence(
+        input: string|string[], 
+        userName: string, 
+        type: number=0, 
+        nonce: string='', 
+        meta: any=null, 
+        clearRanges: ITwitchEmotePosition[]=[],
+        useDictionary: boolean = true
+    ) {
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
@@ -79,7 +87,7 @@ class GoogleTTS {
             return
         }
         
-        cleanText = this.applyDictionary(cleanText)
+        if(useDictionary) cleanText = this.applyDictionary(cleanText)
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {

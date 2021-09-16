@@ -423,12 +423,12 @@ class MainController {
             mods: true,
             everyone: false,
             callback: (userData, input) => {
-                const words = input.split(' ')
+                const words = Utils.splitOnFirst(' ', input)
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_DICTIONARY]
-                if(words.length >= 2) {
-                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0], substitute: words[1]})
+                if(words.length == 2) {
+                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
                     this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.DICTIONARY))
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
                 } else {
                     Utils.loadCleanName(userData.userName).then(cleanName => {
                         this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
