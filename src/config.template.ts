@@ -235,7 +235,11 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             enabled: false,
             width: 200,
             height: 300,
-            transitionDuration: 500
+            transitionDuration: 500,
+            fontFamily: 'sans-serif',
+            fontColor: 'white',
+            fontSize: '150%',
+            direction: 'left' // left, right, top, bottom
         }
     }
 }

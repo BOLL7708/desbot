@@ -1,27 +1,34 @@
 class Sign {
     private _config: ISignConfig = Config.instance.sign
     private _div: HTMLDivElement
-    private _hiddenPos: string = `-${this._config.width}px`
+    private _hiddenPos: string
     private _img: HTMLImageElement
     private _title: HTMLParagraphElement
     private _subtitle: HTMLParagraphElement
     private _queue: ISignShowConfig[] = []
     private _queueLoopHandle: number = 0
+    private _isVisible 
 
     constructor() {
+        this._config.direction = this._config.direction.toLowerCase()
+        switch(this._config.direction) {
+            case 'right':
+            case 'left': this._hiddenPos = `-${this._config.width}px`
+            case 'bottom':
+            case 'top': this._hiddenPos = `-${this._config.height}px`
+        }
         const div = document.createElement('div')
-        // TODO: Move things like font, text color, animation direct, all to config.
         div.style.width = `${this._config.width}px`
         div.style.height = `${this._config.height}px`
         div.style.background = 'transparent'
         div.style.position = 'absolute'
-        div.style.left = `-${this._config.width}px`
-        div.style.opacity = '0'
-        div.style.transition = `left ${this._config.transitionDuration}ms, opacity ${this._config.transitionDuration}ms`
-        div.style.fontFamily = 'PT Sans Narrow'
-        div.style.fontSize = '150%'
+        div.style[this._config.direction] = this._hiddenPos // Hidden
+        div.style.opacity = '0' // Hidden
+        div.style.transition = `${this._config.direction} ${this._config.transitionDuration}ms, opacity ${this._config.transitionDuration}ms`
+        div.style.fontFamily = this._config.fontFamily
+        div.style.color = this._config.fontColor
+        div.style.fontSize = this._config.fontSize
         div.style.fontWeight = 'bold'
-        div.style.color = 'white'
         div.style.textAlign = 'center'
         div.style.whiteSpace = 'nowrap'
         div.style.overflow = 'hidden'
@@ -59,27 +66,30 @@ class Sign {
     }
 
     tryShowNext() {
-        if(this.isSignVisible()) return
+        if(this._isVisible) return
         const config = this._queue.shift()
         if(config == undefined) return // The queue is empty
         this.show(config)
     }
 
-    private isSignVisible():boolean {
-        return this._div.style.left != this._hiddenPos
-    }
-
     private show(config: ISignShowConfig) {
-        this._img.src = config.image
-        this._img.onload = ()=>{
+        this._isVisible = true
+        this._img.onload = ()=>{ // Wait for image to load
             this._title.innerText = config.title
             this._subtitle.innerText = config.subtitle
-            this._div.style.left = '0'
+            this._div.style[this._config.direction] = '0'
             this._div.style.opacity = '1.0'
-            setTimeout(()=>{
-                this._div.style.left = this._hiddenPos
+            setTimeout(()=>{ // Wait before hiding
+                this._div.style[this._config.direction] = this._hiddenPos
                 this._div.style.opacity = '0.0'
-            }, config.duration)
+                setTimeout(()=>{ // Wait for the animation back to finish
+                    this._isVisible = false
+                }, this._config.transitionDuration)
+            }, config.duration+this._config.transitionDuration)
         }
+        this._img.onerror = ()=>{
+            this._isVisible = false
+        }
+        this._img.src = config.image       
     }
 }

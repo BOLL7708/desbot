@@ -4,7 +4,10 @@ interface ISignConfig {
     width: number
     height: number
     transitionDuration: number
-    // Direction of apperance
+    fontFamily: string
+    fontColor: string
+    fontSize: string
+    direction: string // left, right, top, bottom
 }
 
 // Settings
