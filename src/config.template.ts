@@ -208,7 +208,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.KEY_SETTING_EXAMPLE1]: {
                     type: OpenVR2WS.TYPE_WORLDSCALE,
                     value: 2.0,
-                    duration: 10000
+                    duration: 10 // Seconds
                 }
             }
         },

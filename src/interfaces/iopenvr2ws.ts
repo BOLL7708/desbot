@@ -10,7 +10,7 @@ interface IOpenVR2WSConfigs {
 interface IOpenVR2WSSetting {
     type: number
     value: boolean|number|string
-    duration?: number
+    duration?: number // Seconds
 }
 
 // Data

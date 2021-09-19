@@ -2,6 +2,9 @@ class OpenVR2WS {
     static get TYPE_WORLDSCALE() { return 1 }
 
     private _socket: WebSockets
+    private _resetLoopHandle: number = 0
+    private _resetMessages: Record<number, IOpenVRWSCommandMessage> = {}
+    private _resetTimers: Record<number, number> = {}
     _currentAppId: string
     
     constructor() {
@@ -14,6 +17,13 @@ class OpenVR2WS {
         this._socket._onMessage = this.onMessage.bind(this),
         this._socket._onError = this.onError.bind(this)
         this._socket.init();
+
+        this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE] = 0
+        this.startResetLoop()
+    }
+
+    private startResetLoop() {
+        this._resetLoopHandle = setInterval(this.resetSettings.bind(this), 1000)
     }
 
     private _inputCallback: IOpenVR2WSInputCallback = (key, data) => { 
@@ -61,15 +71,13 @@ class OpenVR2WS {
         console.error(evt)
     }
 
-    private _settingCounter = 0
-
     public async setSetting(config: IOpenVR2WSSetting) {
         const password = await Utils.sha256(Config.instance.openvr2ws.password)
         const appId = this._currentAppId.toString()
         switch(config.type) {
             case OpenVR2WS.TYPE_WORLDSCALE:
-                this._settingCounter++
-                const message = {
+                this._resetTimers[config.type] = config.duration ?? 10
+                const message:IOpenVRWSCommandMessage = {
                     key: 'RemoteSetting',
                     value: password,
                     value2: appId,
@@ -77,16 +85,18 @@ class OpenVR2WS {
                     value4: config.value.toString()
                 }
                 this.sendMessage(message)
-                if(config.duration != undefined) {
-                    setTimeout(() => {
-                        if(--this._settingCounter <= 0) {
-                            this._settingCounter = 0
-                            message.value4 = (1).toString() // Reset to 100%
-                            this.sendMessage(message)
-                        }
-                    }, config.duration);                    
-                }
+                message.value4 = (1).toString() // Reset to 100%
+                this._resetMessages[config.type] = message
                 break
+        }
+    }
+
+    public resetSettings() {
+        this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE]--
+        if(this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE] == 0) {
+            const message = this._resetMessages[OpenVR2WS.TYPE_WORLDSCALE]
+            if(message != undefined) this.sendMessage(message)
+            // TODO: Also trigger some callback so we can play a sound effect?
         }
     }
 }
