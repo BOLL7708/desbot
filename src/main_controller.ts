@@ -9,6 +9,7 @@ class MainController {
     private _hue: PhilipsHue = new PhilipsHue()
     private _openvr2ws: OpenVR2WS = new OpenVR2WS()
     private _audioPlayer: AudioPlayer = new AudioPlayer()
+    private _sign: Sign = new Sign()
     
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
@@ -134,6 +135,17 @@ class MainController {
                 this._twitchHelix.getUser(parseInt(userId), true).then(response => {
                     const profileUrl = response?.profile_image_url
                     const displayName = response?.display_name
+
+                    // TODO: Not sure if this is a good idea or not to have always on display.
+                    /* 
+                    this._sign.enqueueSign({
+                        title: 'Favorite Viewer',
+                        image: profileUrl,
+                        subtitle: displayName,
+                        duration: -1
+                    })
+                    */
+
                     const data: ILabel = {
                         key: 'FavoriteViewer',
                         userName: userName,
@@ -143,6 +155,7 @@ class MainController {
                     Settings.pushSetting(Settings.LABELS, 'key', data)
                     Utils.loadCleanName(userName).then(cleanName => {
                         const speech = Config.instance.controller.speechReferences[Config.KEY_FAVORITEVIEWER]
+                        // TODO: Add audience_cheers_13.wav SFX
                         this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 })
@@ -164,7 +177,7 @@ class MainController {
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[id])
 
-            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'👨‍🔧':''}${openvr2wsSettingCallback?'🏭':''}: ${id}`, 'green')
+            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}: ${id}`, 'green')
             const reward:ITwitchReward = {
                 id: id,
                 callback: (data:ITwitchRedemptionMessage)=>{
@@ -600,22 +613,44 @@ class MainController {
         this._screenshots.setScreenshotCallback((data) => {
             const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
             const discordCfg = Config.instance.discord.webhooks[Config.KEY_DISCORD_SSSVR]
-            const blob = Utils.b64toBlob(data.image, "image/png")
+            const blob = Utils.b64toBlob(data.image)
+            const dataUrl = Utils.b64ToDataUrl(data.image)
             SteamStore.getGameMeta(this._openvr2ws._currentAppId).then(data => {
                 const gameTitle = data != null ? data.name : this._openvr2ws._currentAppId
                 if(reward != null) {
                     this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
-                        const description = reward.redemption?.user_input
                         const authorName = reward.redemption?.user?.display_name
+                        
+                        // Discord
+                        const description = reward.redemption?.user_input
                         const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
                         const authorIconUrl = user?.profile_image_url
                         const color = Utils.hexToDecColor(Config.instance.discord.remoteScreenshotEmbedColor)
-                        const descriptionText = description != null ? `Photograph: ${description}` : "Instant shot! 📸"
+                        const descriptionText = description != null 
+                            ? Utils.template(Config.instance.screenshots.callback.discordRewardTitle, description) 
+                            : Config.instance.screenshots.callback.discordRewardInstantTitle
                         this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+
+                        // Sign
+                        this._sign.enqueueSign({
+                            title: Config.instance.screenshots.callback.signTitle,
+                            image: dataUrl,
+                            subtitle: authorName,
+                            duration: Config.instance.screenshots.callback.signDuration
+                        })
                     })
                 } else {
+                    // Discord
                     const color = Utils.hexToDecColor(Config.instance.discord.manualScreenshotEmbedColor)
-                    this._discord.sendPayloadEmbed(discordCfg, blob, color, 'Manual Screenshot', null, null, null, gameTitle)
+                    this._discord.sendPayloadEmbed(discordCfg, blob, color, Config.instance.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
+
+                    // Sign
+                    this._sign.enqueueSign({
+                        title: Config.instance.screenshots.callback.signTitle,
+                        image: dataUrl,
+                        subtitle: Config.instance.screenshots.callback.signManualSubtitle,
+                        duration: Config.instance.screenshots.callback.signDuration
+                    })
                 }
             })
         })

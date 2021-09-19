@@ -10,6 +10,7 @@ interface IConfig {
     philipshue: IPhilipsHueConfig
     openvr2ws: IOpenVR2WSConfig
     audioplayer: IAudioPlayerConfig
+    sign: ISignConfig
 }
 
 interface IControllerConfig {

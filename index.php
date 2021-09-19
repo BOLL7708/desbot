@@ -3,7 +3,12 @@
     <head>
         <?=loadJSFiles()?>
         <title>Streaming Widget</title>
-        <style></style>
+        <style>
+            p { 
+                margin: 0.25em; 
+                text-shadow: 0 0 6px #000f;
+            }
+        </style>
     </head>
     <body>
         <script>

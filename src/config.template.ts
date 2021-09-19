@@ -80,7 +80,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
                 [ConfigTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
                 [ConfigTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
-                [ConfigTemplate.COMMAND_SCALE]: 'World scale set to %s%'
+                [ConfigTemplate.COMMAND_SCALE]: 'World scale set to %s%',
+                [ConfigTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry']
             }
         },
         google: {
@@ -161,7 +162,15 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         },
         screenshots: {
             port: 8807,
-            delay: 5
+            delay: 5,
+            callback: {
+                discordManualTitle: 'Manual Screenshot',
+                discordRewardTitle: 'Photograph: %s', // Template value is the reward description
+                discordRewardInstantTitle: 'Instant shot! 📸',
+                signTitle: 'Screenshot',
+                signManualSubtitle: 'Manual shot!',
+                signDuration: 5000
+            }
         },
         discord: {
             remoteScreenshotEmbedColor: '#000000',
@@ -221,6 +230,12 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
 					src: 'sound file that will be played before TTS for an announcement'
 				}
             }
+        },
+        sign: {
+            enabled: false,
+            width: 200,
+            height: 300,
+            transitionDuration: 500
         }
     }
 }

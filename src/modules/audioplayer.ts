@@ -45,7 +45,7 @@ class AudioPlayer {
         if(this._isPlaying) return
 
         const audio = this._queue.shift()
-        if(typeof audio == 'undefined') return // The queue is empty
+        if(audio == undefined) return // The queue is empty
 
         let src = audio.src
         if(Array.isArray(src)) {

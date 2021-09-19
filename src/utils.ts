@@ -22,11 +22,9 @@ class Utils {
         let numToChar:any = {
             0: 'o',
             1: 'i',
-            2: 'z',
             3: 'e',
             4: 'a',
             5: 's',
-            6: 'g',
             7: 't',
             8: 'b'
         }
@@ -90,7 +88,7 @@ class Utils {
         return base64String;
     }
 
-    static b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+    static b64toBlob = (b64Data, contentType='image/png', sliceSize=512) => {
         const byteCharacters = atob(b64Data);
         const byteArrays = [];
     
@@ -108,6 +106,10 @@ class Utils {
     
         const blob = new Blob(byteArrays, {type: contentType});
         return blob;
+    }
+
+    static b64ToDataUrl(b64data, contentType='image/png'):string {
+        return `data:${contentType};base64,${b64data}`
     }
 
     static hexToDecColor(hex: string): number {
