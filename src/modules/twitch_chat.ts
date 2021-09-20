@@ -57,5 +57,4 @@ class TwitchChat {
     private testMessage(message: string) {
         this._chatMessageCallback(TwitchFactory.buildMessageCmd(message));
     }
-
 }

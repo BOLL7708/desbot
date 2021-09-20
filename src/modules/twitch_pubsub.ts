@@ -6,7 +6,7 @@ class TwitchPubsub {
     private _pingTimestamp: number
     private _onRewardCallback: ITwitchPubsubRewardCallback = (message) => { console.log('PubSub Reward unhandled') }
     
-    setOnRewardCallback(callback:ITwitchPubsubRewardCallback) {
+    setOnRewardCallback(callback: ITwitchPubsubRewardCallback) {
         this._onRewardCallback = callback
     }
 
@@ -46,7 +46,7 @@ class TwitchPubsub {
     private onMessage(evt:any) {
         let data = JSON.parse(evt.data)
         switch(data.type) {
-            case "MESSAGE": 
+            case "MESSAGE":
                 let payload = JSON.parse(unescape(data?.data?.message))
                 if (payload?.type == "reward-redeemed") {
                     let id = payload?.data?.redemption?.reward?.id ?? null
@@ -55,7 +55,7 @@ class TwitchPubsub {
                     else console.log(payload)
                 }
                 break
-            case "RECONNECT": 
+            case "RECONNECT":
                 // Server is doing maintenance or similar and wants us to reconnect
                 this._socket.reconnect()
                 break
@@ -69,7 +69,7 @@ class TwitchPubsub {
             default:
                 Utils.log(`Unhandled message: ${data.type}`, this.LOG_COLOR)
                 break;
-        }  
+        }
     }
 
     private ping() {

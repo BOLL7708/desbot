@@ -20,4 +20,15 @@ class TwitchHelix {
         if(result != null) this._userCache[id] = result
         return result
     }
+
+    /**
+     * Rewards is a big can of worms. 
+     * 1. Set up all the rewards we want in the config, barebones.
+     * 2. Load all current IDs from a settings file.
+     * 3. If any reward is missing an ID, create it on Twitch.
+     * 
+     */
+    async setRewardStatus(rewardId: string, enabled: boolean) {
+        
+    }
 }
