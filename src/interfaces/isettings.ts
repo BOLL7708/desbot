@@ -13,3 +13,7 @@ interface IDictionaryPair {
     original: string
     substitute: string
 }
+interface ITwitchRewardPair {
+    key: string
+    id: string
+}

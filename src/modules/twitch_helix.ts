@@ -28,7 +28,48 @@ class TwitchHelix {
      * 3. If any reward is missing an ID, create it on Twitch.
      * 
      */
-    async setRewardStatus(rewardId: string, enabled: boolean) {
-        
+    async createReward(userId: number, createData: ITwitchHelixRewardCreate):Promise<ITwitchHelixCreateRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${userId}`
+        let headers = {
+            Authorization: `Bearer ${this._tokens.access_token}`,
+            'Client-Id': Config.instance.twitch.clientId,
+            'Content-Type': 'application/json'
+        }
+        let request = {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(createData)
+        }
+
+        let response: ITwitchHelixCreateRewardResponse = await fetch(url, request).then(res => res.json())
+        return response
+    }
+
+    async getRewards(userId: number, rewardId: string=""):Promise<ITwitchHelixCreateRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${userId}&only_manageable_rewards=true`
+        if(rewardId.length > 0) url += `&id=${rewardId}`
+        let headers = {
+            Authorization: `Bearer ${this._tokens.access_token}`,
+            'Client-Id': Config.instance.twitch.clientId,
+        }
+        let response: ITwitchHelixCreateRewardResponse = await fetch(url, {headers: headers}).then(res => res.json())
+        return response
+    }
+
+    async updateReward(userId: number, rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixCreateRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${userId}&id=${rewardId}`
+        let headers = {
+            Authorization: `Bearer ${this._tokens.access_token}`,
+            'Client-Id': Config.instance.twitch.clientId,
+            'Content-Type': 'application/json'
+        }
+        let request = {
+            method: 'PATCH',
+            headers: headers,
+            body: JSON.stringify(updateData)
+        }
+
+        let response: ITwitchHelixCreateRewardResponse = await fetch(url, request).then(res => res.json())
+        return response
     }
 }

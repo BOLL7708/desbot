@@ -240,6 +240,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             fontColor: 'white',
             fontSize: '150%',
             direction: 'left' // left, right, top, bottom
-        }
+        },
+        rewards: {}
     }
 }

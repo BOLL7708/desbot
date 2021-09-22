@@ -11,6 +11,7 @@ interface IConfig {
     openvr2ws: IOpenVR2WSConfig
     audioplayer: IAudioPlayerConfig
     sign: ISignConfig
+    rewards: IConfigTwitchRewards
 }
 
 interface IControllerConfig {
@@ -28,4 +29,8 @@ interface IConfigCommandReferences {
 
 interface IConfigSpeechReferences {
     [key: string]: string|string[]
+}
+
+interface IConfigTwitchRewards {
+    [key: string]: ITwitchHelixRewardCreate
 }

@@ -187,4 +187,9 @@ class Utils {
     static randomFromArray<Type>(arr: Type[]): Type {
         return arr[Math.floor(Math.random()*arr.length)]
     }
+
+    static async getRewardId(key: string): Promise<string> {
+        const reward:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'key', key)
+        return reward.id
+    }
 }

@@ -19,6 +19,30 @@ class MainController {
     private _nonceCallbacks: Record<string, Function> = {}
 
     constructor() {
+        this.init()
+    }
+    
+    private async init() {
+        // Make sure settings are precached
+        await Settings.loadSettings(Settings.TTS_BLACKLIST)
+        await Settings.loadSettings(Settings.TTS_USER_NAMES)
+        await Settings.loadSettings(Settings.TTS_USER_VOICES)
+        await Settings.loadSettings(Settings.TWITCH_TOKENS)
+        await Settings.loadSettings(Settings.TWITCH_REWARDS)
+        await Settings.loadSettings(Settings.LABELS)
+        await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
+
+        // Load reward IDs from settings
+        let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
+        if(storedRewards == undefined) storedRewards = []
+        const allRewardKeys = Config.instance.twitch.rewards.concat(Config.instance.twitch.autoRewards)
+        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))        
+        for(const key of missingRewardKeys) {
+            const setup = Config.instance.rewards[key]
+            let reward = await this._twitchHelix.createReward(Config.instance.twitch.userId, setup)
+            if(reward?.data?.length > 0) Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+        }
+
         /*
         ██ ███    ██ ██ ████████ 
         ██ ████   ██ ██    ██    
@@ -26,15 +50,7 @@ class MainController {
         ██ ██  ██ ██ ██    ██    
         ██ ██   ████ ██    ██    
         */
-
-        // Make sure settings are precached
-        Settings.loadSettings(Settings.TTS_BLACKLIST)
-        Settings.loadSettings(Settings.TTS_USER_NAMES)
-        Settings.loadSettings(Settings.TTS_USER_VOICES)
-        Settings.loadSettings(Settings.TWITCH_TOKENS)
-        Settings.loadSettings(Settings.LABELS)
-        Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
-
+        
         this._pipe.setOverlayTitle("Streaming Widget")
 
         function setEmptySoundForTTS() {
@@ -51,10 +67,10 @@ class MainController {
         ██   ██ ██      ██ ███ ██ ██   ██ ██   ██ ██   ██      ██ 
         ██   ██ ███████  ███ ███  ██   ██ ██   ██ ██████  ███████ 
         */
-      
+
         /** TTS */
         this._twitch.registerReward({
-            id: Config.KEY_TTSSPEAK,
+            id: await Utils.getRewardId(Config.KEY_TTSSPEAK),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
@@ -69,7 +85,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.KEY_TTSSPEAKTIME,
+            id: await Utils.getRewardId(Config.KEY_TTSSPEAKTIME),
             callback: (data:ITwitchRedemptionMessage) => {
                 console.log("TTS Time Reward")
                 let username = data?.redemption?.user?.login
@@ -85,7 +101,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.KEY_TTSSETVOICE,
+            id: await Utils.getRewardId(Config.KEY_TTSSETVOICE),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
@@ -94,7 +110,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.KEY_TTSSWITCHVOICEGENDER,
+            id: await Utils.getRewardId(Config.KEY_TTSSWITCHVOICEGENDER),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 console.log(`TTS Gender Set Reward: ${userName}`)
@@ -107,7 +123,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.KEY_SCREENSHOT,
+            id: await Utils.getRewardId(Config.KEY_SCREENSHOT),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input
                 const nonce = Utils.getNonce('TTS')
@@ -119,7 +135,7 @@ class MainController {
             }
         })
         this._twitch.registerReward({
-            id: Config.KEY_INSTANTSCREENSHOT,
+            id: await Utils.getRewardId(Config.KEY_INSTANTSCREENSHOT),
             callback: (data:ITwitchRedemptionMessage) => {
                 const speech = Config.instance.controller.speechReferences[Config.KEY_INSTANTSCREENSHOT]
                 this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -128,7 +144,7 @@ class MainController {
         })
 
         this._twitch.registerReward({
-            id: Config.KEY_FAVORITEVIEWER,
+            id: await Utils.getRewardId(Config.KEY_FAVORITEVIEWER),
             callback: (message:ITwitchRedemptionMessage) => {
                 const userName = message?.redemption?.user?.login
                 const userId = message?.redemption?.user?.id
@@ -170,16 +186,16 @@ class MainController {
         ██   ██  ██████     ██     ██████      ██   ██ ███████  ███ ███  ██   ██ ██   ██ ██████  ███████ 
         */
 
-        Config.instance.twitch.autoRewards.forEach(id => {
-            let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.instance.obs.configs[id])
-            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.configs[id])
-            let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[id])
-            let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[id])
-            let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[id])
+        for(const key of Config.instance.twitch.autoRewards) {
+            let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.instance.obs.configs[key])
+            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.instance.philipshue.configs[key])
+            let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[key])
+            let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[key])
+            let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[key])
 
-            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}: ${id}`, 'green')
+            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}: ${key}`, 'green')
             const reward:ITwitchReward = {
-                id: id,
+                id: await Utils.getRewardId(key),
                 callback: (data:ITwitchRedemptionMessage)=>{
                     if(obsCallback != null) obsCallback(data)
                     if(colorCallback != null) colorCallback(data)
@@ -189,8 +205,7 @@ class MainController {
                 }
             }
             this._twitch.registerReward(reward)
-        });   
-
+        }
 
         /*
          ██████  ██████  ███    ███ ███    ███  █████  ███    ██ ██████  ███████ 

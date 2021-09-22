@@ -3,6 +3,7 @@ class Settings {
     static TTS_USER_VOICES: string = 'settings_tts_voices'
     static TTS_BLACKLIST: string = 'settings_tts_blacklist'
     static TWITCH_TOKENS: string = 'settings_twitch_tokens'
+    static TWITCH_REWARDS: string = 'settings_twitch_rewards'
     static LABELS: string = 'settings_labels'
     static DICTIONARY: string = 'settings_tts_dictionary'
 
@@ -77,7 +78,6 @@ class Settings {
      * @returns The object or null if failed.
      */
     static async pullSetting(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<any> {
-        Utils.log(`Pulling setting: ${setting}`, this.LOG_COLOR)
         let settings = null
         if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
             settings = this._settingsStore[setting]
