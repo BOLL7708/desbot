@@ -40,8 +40,11 @@ class MainController {
         for(const key of missingRewardKeys) {
             const setup = Config.instance.rewards[key]
             let reward = await this._twitchHelix.createReward(Config.instance.twitch.userId, setup)
-            if(reward?.data?.length > 0) Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+            if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
         }
+
+        this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
+        this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
 
         /*
         ██ ███    ██ ██ ████████ 
@@ -219,11 +222,13 @@ class MainController {
             trigger: Config.COMMAND_TTS_ON,
             mods: true,
             everyone: false,
-            callback: (userData, input) => {
+            callback: async (userData, input) => {
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_ON]
                 const onText:string = !this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = true
                 this._tts.enqueueSpeakSentence(onText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: false})
+                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: false})
             }
         })
 
@@ -231,11 +236,13 @@ class MainController {
             trigger: Config.COMMAND_TTS_OFF,
             mods: true,
             everyone: false,
-            callback: (userData, input) => {
+            callback: async (userData, input) => {
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_OFF]
                 const offText = this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = false
                 this._tts.enqueueSpeakSentence(offText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: true})
+                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: true})
             }
         })
 
