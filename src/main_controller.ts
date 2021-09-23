@@ -472,6 +472,25 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: Config.COMMAND_UPDATEREWARDS,
+            mods: false,
+            everyone: false,
+            callback: async (userData, input) => {
+                let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
+                if(storedRewards == undefined) storedRewards = []
+                for(const pair of storedRewards) {
+                    const setup = Config.instance.rewards[pair.key]
+                    const response = await this._twitchHelix.updateReward(Config.instance.twitch.userId, pair.id, setup)
+                    if(response?.data[0]?.id == pair.id) {
+                        Utils.logWithBold(`Reward <${pair.key}> successfully updated.`, 'green')
+                    } else {
+                        Utils.logWithBold(`Reward <${pair.key}> did not update.`, 'red')
+                    }
+                }
+            }
+        })
+
         /*
          ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
         ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
