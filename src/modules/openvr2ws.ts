@@ -76,7 +76,6 @@ class OpenVR2WS {
         const appId = this._currentAppId.toString()
         switch(config.type) {
             case OpenVR2WS.TYPE_WORLDSCALE:
-                this._resetTimers[config.type] = config.duration ?? 10
                 const message:IOpenVRWSCommandMessage = {
                     key: 'RemoteSetting',
                     value: password,
@@ -86,7 +85,9 @@ class OpenVR2WS {
                 }
                 this.sendMessage(message)
                 message.value4 = (1).toString() // Reset to 100%
-                this._resetMessages[config.type] = message
+                const duration = config.duration ?? -1
+                this._resetTimers[config.type] = duration
+                this._resetMessages[config.type] = duration > 0 ? message : undefined
                 break
         }
     }
