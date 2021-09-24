@@ -67,6 +67,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 streamer: true,
                 moderators: true,
                 VIPs: false,
+                subscribers: false,
                 everyone: false
             },
             commandPermissionsReferences: {

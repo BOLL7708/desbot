@@ -270,7 +270,7 @@ class MainController {
                 const parts = Utils.splitOnFirst(' ', input)
                 let userToRename:string = null
                 let newName:string = null
-                if(parts[1].trim().length == 0 || userData.isVIP) { // Rename yourself
+                if(parts[1].trim().length == 0 || userData.isVIP || userData.isSubscriber) { // Rename yourself
                     userToRename = userData.userName
                     newName = parts[0].toLowerCase()
                 } else { // Rename someone else

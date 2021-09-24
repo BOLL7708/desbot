@@ -37,6 +37,7 @@ class Twitch{
             this._commands.push(twitchSlashCommand)
             const who: string[] = []
             if(twitchSlashCommand.permissions.everyone) who.push('everyone')
+            if(twitchSlashCommand.permissions.subscribers) who.push('subs')
             if(twitchSlashCommand.permissions.VIPs) who.push('VIPs')
             if(twitchSlashCommand.permissions.moderators) who.push('mods')
             if(twitchSlashCommand.permissions.streamer) who.push('streamer')
@@ -86,8 +87,9 @@ class Twitch{
         let text:string = msg.text?.trim()
         if(typeof text !== 'string' || text.length == 0) return
         let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') >= 0
-        let isMod = messageCmd.properties?.mod == '1'
-        let isVIP = messageCmd.properties?.badges?.split(',').indexOf('vip/1') >= 0
+        let isModerator = messageCmd.properties?.mod == '1'
+        let isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
+        let isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
 
         // User data for most callbacks
         const userData:ITwitchUserData = {
@@ -95,8 +97,9 @@ class Twitch{
             userName: userName,
             displayName: messageCmd.properties?.["display-name"],
             color: messageCmd.properties?.color,
-            isMod: isMod,
+            isModerator: isModerator,
             isVIP: isVIP,
+            isSubscriber: isSubscriber,
             isBroadcaster: isBroadcaster
         }
 
@@ -118,8 +121,9 @@ class Twitch{
             if(command != null 
                 && (
                     (command.permissions.streamer && isBroadcaster)
-                    || (command.permissions.moderators && isMod) 
+                    || (command.permissions.moderators && isModerator) 
                     || (command.permissions.VIPs && isVIP) 
+                    || (command.permissions.subscribers && isSubscriber)
                     || command.permissions.everyone
                 )
             ) return command.callback(userData, textStr)

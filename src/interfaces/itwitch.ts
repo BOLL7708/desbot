@@ -29,6 +29,7 @@ interface ICommandPermissions {
     streamer?: boolean
     moderators?: boolean
     VIPs?: boolean
+    subscribers?: boolean
     everyone?: boolean
 }
 interface ITwitchAnnouncement {
@@ -66,8 +67,9 @@ interface ITwitchUserData {
     userName: string
     displayName: string
     color: string
-    isMod: boolean
+    isModerator: boolean
     isVIP: boolean
+    isSubscriber: boolean
     isBroadcaster: boolean
 }
 interface ITwitchMessageData {
