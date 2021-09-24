@@ -30,41 +30,40 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_SOUND_CHAT: string = 'ChatSound'
 
     // Static rewards
-    static readonly KEY_TTSSPEAK: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_TTSSPEAKTIME: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_TTSSETVOICE: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_TTSSWITCHVOICEGENDER: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_SCREENSHOT: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_INSTANTSCREENSHOT: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_FAVORITEVIEWER: string = 'replace_with_twitch_reward_id'
-    
+    static readonly KEY_TTSSPEAK: string = 'Speak'
+    static readonly KEY_TTSSPEAKTIME: string = 'SpeakTime'
+    static readonly KEY_TTSSETVOICE: string = 'SetVoice'
+    static readonly KEY_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
+    static readonly KEY_SCREENSHOT: string = 'Screenshot'
+    static readonly KEY_INSTANTSCREENSHOT: string = 'InstantScreenshot'
+    static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
+	
     // Automatically loaded rewards
-    static readonly KEY_OBS_EXAMPLE1: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_OBS_EXAMPLE2: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_COLOR_EXAMPLE1: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_COLOR_EXAMPLE2: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_SOUND_EXAMPLE1: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_SOUND_EXAMPLE2: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_PIPE_EXAMPLE1: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_PIPE_EXAMPLE2: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_SETTING_EXAMPLE1: string = 'replace_with_twitch_reward_id'
-    static readonly KEY_SETTING_EXAMPLE2: string = 'replace_with_twitch_reward_id'
+    static readonly KEY_OBS_EXAMPLE1: string = 'ObsExample1'
+    static readonly KEY_OBS_EXAMPLE2: string = 'ObsExample2'
+    static readonly KEY_COLOR_EXAMPLE1: string = 'ColorExample1'
+    static readonly KEY_COLOR_EXAMPLE2: string = 'ColorExample2'
+    static readonly KEY_SOUND_EXAMPLE1: string = 'SoundExample1'
+    static readonly KEY_SOUND_EXAMPLE2: string = 'SoundExample2'
+    static readonly KEY_PIPE_EXAMPLE1: string = 'PipeExample1'
+    static readonly KEY_PIPE_EXAMPLE2: string = 'PipeExample2'
+    static readonly KEY_SETTING_EXAMPLE1: string = 'SettingExample1'
+    static readonly KEY_SETTING_EXAMPLE2: string = 'SettingExample2'
 	
 	// Message triggers used for TTS and audio referencing
 	static readonly KEY_ANNOUNCE_EXAMPLE: string = '❓' // Any character, word or emote you want to match
-	
     
     static instance: IConfig = {
-        controller: {
+        controller: { // Set defaults for the widget
             pipeForAllDefault: true,
             ttsForAllDefault: true,
             pingForChat: true,
             logChatToDiscordDefault: true,
-            commandReferences: {
+            commandReferences: { // A reference so a command can trigger things that would be in an automatic reward.
                 [ConfigTemplate.COMMAND_CAMERA_ON]: ConfigTemplate.KEY_OBS_EXAMPLE1,
                 [ConfigTemplate.COMMAND_CAMERA_OFF]: ConfigTemplate.KEY_COLOR_EXAMPLE2
             },
-            speechReferences: { // %s is a templated value, gets replaced.
+            speechReferences: { // %s is a templated value, those gets replaced by parameters.
                 [ConfigTemplate.KEY_SCREENSHOT]: 'Photograph %s',
                 [ConfigTemplate.KEY_INSTANTSCREENSHOT]: 'Instant shot!',
                 [ConfigTemplate.KEY_FAVORITEVIEWER]: '%s is the new favorite viewer',
@@ -85,7 +84,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry']
             }
         },
-        google: {
+        google: { // TTS
             apiKey: '',
             speakerTimeoutMs: 5000,
             randomizeVoice: false,
@@ -93,7 +92,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             defaultVoice: '', // This will be used if randomization is turned off.
             doNotSpeak: []
         },
-        pipe: {
+        pipe: { // In-VR-overlays and notifications with OpenVRNotificationPipe
             port: 8077,
             doNotShow: [],
             showRewardsWithKeys: [
@@ -113,7 +112,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 }
             }
         },
-        obs: {
+        obs: { // Toggle sources in OBS on and off with the obs-websocket plugin.
             password: '',
             port: 4445,
             configs: {
@@ -132,7 +131,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             },
             filterOnScenes: [''] // WIP
         },
-        twitch: {
+        twitch: { // Various Twitch services, like chat and rewards.
             userId: 0,
             clientId: '',
             clientSecret: '',
@@ -161,7 +160,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 ConfigTemplate.KEY_SETTING_EXAMPLE2
             ]
         },
-        screenshots: {
+        screenshots: { // Trigger and transmit screenshots with SuperScreenShotterVR.
             port: 8807,
             delay: 5,
             callback: {
@@ -173,7 +172,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 signDuration: 5000
             }
         },
-        discord: {
+        discord: { // Send things to Discord
             remoteScreenshotEmbedColor: '#000000',
             manualScreenshotEmbedColor: '#FFFFFF',
             webhooks: {
@@ -189,7 +188,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             prefixCheer: '🙌 ',
             prefixReward: '🏆 '
         },
-        philipshue: {
+        philipshue: { // Control Philips Hue lights
             serverPath: '',
             userName: '',
             lightsToControl: [],
@@ -198,7 +197,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.KEY_COLOR_EXAMPLE2]: { x: 0.5, y: 0.5 }
             }
         },
-        openvr2ws: {
+        openvr2ws: { // Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS
             port: 7708,
             password: 'for remote settings',
             configs: {
@@ -213,7 +212,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 }
             }
         },
-        audioplayer: {
+        audioplayer: { // Play sound effects
             configs: {
                 [ConfigTemplate.KEY_SOUND_CHAT]: {
                     src: 'assets/add_chat_sound.wav',
@@ -232,7 +231,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
 				}
             }
         },
-        sign: {
+        sign: { // Show on-screen notification with title+image+subtitle
             enabled: false,
             width: 200,
             height: 300,
@@ -242,6 +241,75 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             fontSize: '150%',
             direction: 'left' // left, right, top, bottom
         },
-        rewards: {}
+        rewards: { // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
+			// You should fill this out with at least the minimum for each reward, the title has to be unique.
+			
+			// Default rewards, you can remove the ones you don't want or set them to not be enabled with is_enabled=false.
+			[ConfigTemplate.KEY_TTSSPEAK]: {
+                title: 'TTS',
+                cost: 10,
+                prompt: 'Your message is read aloud.',
+                background_color: '#808080',
+                is_user_input_required: true
+            },
+            [ConfigTemplate.KEY_TTSSPEAKTIME]: {
+                title: 'TTS for 10m',
+                cost: 100,
+                prompt: 'Your messages are read aloud for 10 minutes.',
+                background_color: '#808080'
+            },
+            [ConfigTemplate.KEY_TTSSETVOICE]: {
+                title: 'Set TTS voice',
+                cost: 10,
+                prompt: 'Change the settings for your TTS voice.',
+                background_color: '#808080',
+                is_user_input_required: true
+            },
+            [ConfigTemplate.KEY_TTSSWITCHVOICEGENDER]: {
+                title: 'TTS Gender Flip',
+                cost: 10,
+                prompt: "Switch your TTS voice gender.",
+                background_color: '#808080'
+            },
+            [ConfigTemplate.KEY_SCREENSHOT]: {
+                title: 'Take a Screenshot with description',
+                cost: 15,
+                prompt: 'Your description will be read aloud before triggering a screenshot.',
+                background_color: '#808080',
+                is_user_input_required: true
+            },
+            [ConfigTemplate.KEY_INSTANTSCREENSHOT]: {
+                title: 'Take a screenshot',
+                cost: 10,
+                prompt: 'Immediately trigger a screenshot.',
+                background_color: '#808080'
+            },
+			
+			// Examples of auto rewards, all are minimum input except the last which shows off all properties possible for a reward.
+			[ConfigTemplate.KEY_OBS_EXAMPLE1]: { title: 'OBS Example 1', cost: 100 },
+			[ConfigTemplate.KEY_OBS_EXAMPLE2]: { title: 'OBS Example 2', cost: 100 },
+			[ConfigTemplate.KEY_COLOR_EXAMPLE1]: { title: 'Color Example 1', cost: 100 },
+			[ConfigTemplate.KEY_COLOR_EXAMPLE2]: { title: 'Color Example 2', cost: 100 },
+			[ConfigTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
+			[ConfigTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
+			[ConfigTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },
+			[ConfigTemplate.KEY_PIPE_EXAMPLE2]: { title: 'Pipe Example 2', cost: 100 },
+			[ConfigTemplate.KEY_SETTING_EXAMPLE1]: { title: 'Setting Example 1', cost: 100 },
+			[ConfigTemplate.KEY_SETTING_EXAMPLE2]: {
+                title: 'A unique title',
+                cost: 100,
+                prompt: 'The description',
+                is_enabled: true,
+                background_color: "#FFFFFF",
+                is_user_input_required: true,
+                is_max_per_stream_enabled: true,
+                max_per_stream: 10,
+                is_max_per_user_per_stream_enabled: true,
+                max_per_user_per_stream: 2,
+                is_global_cooldown_enabled: true,
+                global_cooldown_seconds: 45,
+                should_redemptions_skip_request_queue: true
+            }
+		}
     }
 }
