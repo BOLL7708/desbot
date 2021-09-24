@@ -20,6 +20,8 @@ interface IControllerConfig {
     pingForChat: boolean
     logChatToDiscordDefault: boolean
     commandReferences: IConfigCommandReferences
+    commandPermissionsDefault: ICommandPermissions
+    commandPermissionsReferences: IConfigCommandPermissions
     speechReferences: IConfigSpeechReferences
 }
 
@@ -33,4 +35,8 @@ interface IConfigSpeechReferences {
 
 interface IConfigTwitchRewards {
     [key: string]: ITwitchHelixRewardCreate
+}
+
+interface IConfigCommandPermissions {
+    [key: string]: ICommandPermissions
 }

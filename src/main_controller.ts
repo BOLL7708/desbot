@@ -220,8 +220,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_ON,
-            mods: true,
-            everyone: false,
             callback: async (userData, input) => {
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_ON]
                 const onText:string = !this._ttsForAll ? speech[0] : speech[1]
@@ -234,8 +232,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_OFF,
-            mods: true,
-            everyone: false,
             callback: async (userData, input) => {
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_TTS_OFF]
                 const offText = this._ttsForAll ? speech[0] : speech[1]
@@ -248,8 +244,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_SILENCE,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._tts.stopSpeaking()
             }
@@ -257,8 +251,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_DIE,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._tts.stopSpeaking(true)
             }
@@ -266,8 +258,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_SAY,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._tts.enqueueSpeakSentence(input, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -275,13 +265,12 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_NICK,
-            mods: true,
-            everyone: false,
+            permissions: Config.instance.controller.commandPermissionsReferences[Config.COMMAND_TTS_NICK],
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 let userToRename:string = null
                 let newName:string = null
-                if(parts[1].trim().length == 0) { // Rename yourself
+                if(parts[1].trim().length == 0 || userData.isVIP) { // Rename yourself
                     userToRename = userData.userName
                     newName = parts[0].toLowerCase()
                 } else { // Rename someone else
@@ -298,8 +287,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_MUTE,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
@@ -316,8 +303,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_TTS_UNMUTE,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
@@ -339,8 +324,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_CHAT,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._pipe.sendBasic('', input)
             }
@@ -348,8 +331,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_CHAT_ON,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._pipeForAll = true
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_CHAT_ON]
@@ -359,8 +340,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_CHAT_OFF,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._pipeForAll = false
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_CHAT_OFF]
@@ -370,8 +349,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_PING_ON,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._pingForChat = true
                 setEmptySoundForTTS.call(this)
@@ -382,8 +359,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_PING_OFF,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 this._pingForChat = false
                 setEmptySoundForTTS.call(this)
@@ -394,8 +369,7 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_LOG_ON,
-            mods: false,
-            everyone: false,
+            permissions: Config.instance.controller.commandPermissionsReferences[Config.COMMAND_LOG_ON],
             callback: (userData, input) => {
                 this._logChatToDiscord = true
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_LOG_ON]
@@ -405,8 +379,7 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_LOG_OFF,
-            mods: false,
-            everyone: false,
+            permissions: Config.instance.controller.commandPermissionsReferences[Config.COMMAND_LOG_OFF],
             callback: (userData, input) => {
                 this._logChatToDiscord = false
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_LOG_OFF]
@@ -416,8 +389,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_CAMERA_ON,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 const key = Config.instance.controller.commandReferences[Config.COMMAND_CAMERA_ON]
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_CAMERA_ON]
@@ -428,8 +399,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_CAMERA_OFF,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 const key = Config.instance.controller.commandReferences[Config.COMMAND_CAMERA_OFF]
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_CAMERA_OFF]
@@ -440,8 +409,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_SCALE,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 const value = input == '' ? 100 : Math.max(10, Math.min(1000, parseFloat(input)))
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_SCALE]
@@ -455,8 +422,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_DICTIONARY,
-            mods: true,
-            everyone: false,
             callback: (userData, input) => {
                 const words = Utils.splitOnFirst(' ', input)
                 const speech = Config.instance.controller.speechReferences[Config.COMMAND_DICTIONARY]
@@ -474,8 +439,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Config.COMMAND_UPDATEREWARDS,
-            mods: false,
-            everyone: false,
             callback: async (userData, input) => {
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []

@@ -22,9 +22,14 @@ interface ITwitchTokens {
 }
 interface ITwitchSlashCommand {
     trigger: string
-    mods: boolean
-    everyone: boolean
+    permissions?: ICommandPermissions
     callback: ITwitchSlashCommandCallback
+}
+interface ICommandPermissions {
+    streamer?: boolean
+    moderators?: boolean
+    VIPs?: boolean
+    everyone?: boolean
 }
 interface ITwitchAnnouncement {
     userName: string
@@ -62,6 +67,7 @@ interface ITwitchUserData {
     displayName: string
     color: string
     isMod: boolean
+    isVIP: boolean
     isBroadcaster: boolean
 }
 interface ITwitchMessageData {

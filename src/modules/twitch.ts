@@ -29,9 +29,18 @@ class Twitch{
     private _commands: ITwitchSlashCommand[] = []
     registerCommand(twitchSlashCommand: ITwitchSlashCommand) {
 		if(twitchSlashCommand.trigger.length != 0) {
+            // Use Default permission if none were provided.
+            if(twitchSlashCommand.permissions == undefined) twitchSlashCommand.permissions = {}
+            twitchSlashCommand.permissions = { ...Config.instance.controller.commandPermissionsDefault, ...twitchSlashCommand.permissions }
+           
+            // Store the command
             this._commands.push(twitchSlashCommand)
-            const who = twitchSlashCommand.everyone?'everyone':twitchSlashCommand.mods?'moderators':'the streamer'
-            const message = `Registering Slash Command: <${twitchSlashCommand.trigger}> for ${who}`
+            const who: string[] = []
+            if(twitchSlashCommand.permissions.everyone) who.push('everyone')
+            if(twitchSlashCommand.permissions.VIPs) who.push('VIPs')
+            if(twitchSlashCommand.permissions.moderators) who.push('mods')
+            if(twitchSlashCommand.permissions.streamer) who.push('streamer')
+            const message = `Registering Slash Command: <${twitchSlashCommand.trigger}> for ${who.join(' + ')}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
             Utils.logWithBold('Skipped registering a slash command!', this.LOG_COLOR_COMMAND)
@@ -78,6 +87,7 @@ class Twitch{
         if(typeof text !== 'string' || text.length == 0) return
         let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') >= 0
         let isMod = messageCmd.properties?.mod == '1'
+        let isVIP = messageCmd.properties?.badges?.split(',').indexOf('vip/1') >= 0
 
         // User data for most callbacks
         const userData:ITwitchUserData = {
@@ -86,6 +96,7 @@ class Twitch{
             displayName: messageCmd.properties?.["display-name"],
             color: messageCmd.properties?.color,
             isMod: isMod,
+            isVIP: isVIP,
             isBroadcaster: isBroadcaster
         }
 
@@ -102,9 +113,16 @@ class Twitch{
         // Commands
         if(text != null && text.indexOf('!') == 0) {
             let commandStr = text.split(' ').shift().substr(1)
-            let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
+            let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())           
             let textStr = Utils.splitOnFirst(' ', text).pop()
-            if(command != null && (isBroadcaster || (command.mods && isMod))) return command.callback(userData, textStr)
+            if(command != null 
+                && (
+                    (command.permissions.streamer && isBroadcaster)
+                    || (command.permissions.moderators && isMod) 
+                    || (command.permissions.VIPs && isVIP) 
+                    || command.permissions.everyone
+                )
+            ) return command.callback(userData, textStr)
         }
 
         const bits = parseInt(messageCmd.properties?.bits)

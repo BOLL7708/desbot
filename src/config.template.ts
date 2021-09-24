@@ -63,6 +63,17 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.COMMAND_CAMERA_ON]: ConfigTemplate.KEY_OBS_EXAMPLE1,
                 [ConfigTemplate.COMMAND_CAMERA_OFF]: ConfigTemplate.KEY_COLOR_EXAMPLE2
             },
+            commandPermissionsDefault: {
+                streamer: true,
+                moderators: true,
+                VIPs: false,
+                everyone: false
+            },
+            commandPermissionsReferences: {
+                [Config.COMMAND_LOG_ON]: {moderators: false},
+                [Config.COMMAND_LOG_OFF]: {moderators: false},
+                [Config.COMMAND_TTS_NICK]: {VIPs: true}
+            },
             speechReferences: { // %s is a templated value, those gets replaced by parameters.
                 [ConfigTemplate.KEY_SCREENSHOT]: 'Photograph %s',
                 [ConfigTemplate.KEY_INSTANTSCREENSHOT]: 'Instant shot!',
