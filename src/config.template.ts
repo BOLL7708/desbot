@@ -71,9 +71,9 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 everyone: false
             },
             commandPermissionsReferences: {
-                [Config.COMMAND_LOG_ON]: {moderators: false},
-                [Config.COMMAND_LOG_OFF]: {moderators: false},
-                [Config.COMMAND_TTS_NICK]: {VIPs: true}
+                [ConfigTemplate.COMMAND_LOG_ON]: {moderators: false},
+                [ConfigTemplate.COMMAND_LOG_OFF]: {moderators: false},
+                [ConfigTemplate.COMMAND_TTS_NICK]: {VIPs: true}
             },
             speechReferences: { // %s is a templated value, those gets replaced by parameters.
                 [ConfigTemplate.KEY_SCREENSHOT]: 'Photograph %s',
@@ -294,6 +294,12 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 title: 'Take a screenshot',
                 cost: 10,
                 prompt: 'Immediately trigger a screenshot.',
+                background_color: '#808080'
+            },
+            [Config.KEY_FAVORITEVIEWER]: {
+                title: 'Favorite Viewer',
+                cost: 10,
+                prompt: 'You are the Favorite Viewer',
                 background_color: '#808080'
             },
 			
