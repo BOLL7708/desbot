@@ -62,7 +62,12 @@ class Sign {
     }
 
     enqueueSign(config: ISignShowConfig) {
-        this._queue.push(config)
+        if(
+            config.title == undefined 
+            || config.subtitle == undefined 
+            || config.image == undefined
+        ) Utils.log(`Could not enqueue sign, config incomplete: ${JSON.stringify(config)}`, 'red')
+        else this._queue.push(config)
     }
 
     tryShowNext() {

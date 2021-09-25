@@ -8,12 +8,16 @@ interface ISignConfig {
     fontColor: string
     fontSize: string
     direction: string // left, right, top, bottom
+    configs: ISignShowConfigs
 }
 
 // Settings
 interface ISignShowConfig {
-    title: string
-    image: string
-    subtitle: string
-    duration: number
+    title?: string
+    image?: string
+    subtitle?: string
+    duration: number // ms
+}
+interface ISignShowConfigs {
+    [key: string]: ISignShowConfig
 }

@@ -46,7 +46,11 @@ class TwitchHelix {
         return response
     }
 
-    async getRewards(rewardId: string=""):Promise<ITwitchHelixCreateRewardResponse> {
+    async getRewards():Promise<ITwitchHelixCreateRewardResponse> {
+        return this.getReward("")
+    }
+
+    async getReward(rewardId: string):Promise<ITwitchHelixCreateRewardResponse> {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         let headers = {

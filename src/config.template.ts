@@ -37,6 +37,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly KEY_SCREENSHOT: string = 'Screenshot'
     static readonly KEY_INSTANTSCREENSHOT: string = 'InstantScreenshot'
     static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
+    static readonly KEY_CHANNELTROPHY: string = 'ChannelTrophy'
 	
     // Automatically loaded rewards
     static readonly KEY_OBS_EXAMPLE1: string = 'ObsExample1'
@@ -222,7 +223,11 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             fontFamily: 'sans-serif',
             fontColor: 'white',
             fontSize: '150%',
-            direction: 'left' // left, right, top, bottom
+            direction: 'left', // left, right, top, bottom
+            configs: {
+                [ConfigTemplate.KEY_SETTING_EXAMPLE1]: {duration: 5000, title: 'Setting Example 1'},
+                [ConfigTemplate.KEY_OBS_EXAMPLE2]: {duration: 5000, title: 'OBS Example 2!'}
+            }
         },
         twitch: { // Various Twitch services, like chat and rewards.
             userId: 0,
@@ -233,14 +238,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             announcerName: 'Name of the bot you are listening to',
             announcerTriggers: ['❗', ConfigTemplate.KEY_ANNOUNCE_EXAMPLE],
             chatNotificationSound: ConfigTemplate.KEY_SOUND_CHAT,
-            rewards: [
-                ConfigTemplate.KEY_TTSSPEAK,
-                ConfigTemplate.KEY_TTSSPEAKTIME,
-                ConfigTemplate.KEY_TTSSETVOICE,
-                ConfigTemplate.KEY_TTSSWITCHVOICEGENDER,
-                ConfigTemplate.KEY_SCREENSHOT,
-                ConfigTemplate.KEY_INSTANTSCREENSHOT,
-                ConfigTemplate.KEY_FAVORITEVIEWER
+            skipUpdatingRewards: [
+                ConfigTemplate.KEY_CHANNELTROPHY
             ],
             autoRewards: [
                 ConfigTemplate.KEY_OBS_EXAMPLE1,

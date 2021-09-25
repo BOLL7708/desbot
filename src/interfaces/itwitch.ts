@@ -8,7 +8,7 @@ interface ITwitchConfig {
     announcerName: string
     chatNotificationSound: string
     announcerTriggers: string[]
-    rewards: string[]
+    skipUpdatingRewards: string[]
     autoRewards: string[]
     rewardConfigs: ITwitchRewards
     rewardConfigProfileDefault: ITwitchRewardProfileConfig

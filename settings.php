@@ -30,6 +30,11 @@ if($method === 'POST') {
 function writeSettings($filePath) {
     $inputJson = file_get_contents('php://input');
     $inputRows = json_decode($inputJson);
+
+    if(!is_object($inputRows) && !is_array($inputRows)) {
+        return file_put_contents($filePath, $inputRows);
+    }
+
     if(!is_array($inputRows)) $inputRows = [$inputRows];
     $input = array();
     foreach($inputRows as $row) {

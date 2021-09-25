@@ -6,6 +6,7 @@ class Settings {
     static TWITCH_REWARDS: string = 'settings_twitch_rewards'
     static LABELS: string = 'settings_labels'
     static DICTIONARY: string = 'settings_tts_dictionary'
+    static TROPHYHOLDER: string = 'settings_trophy'
 
     private static LOG_COLOR: string = 'blue'
 
@@ -62,12 +63,16 @@ class Settings {
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
         Utils.log(`Pushing setting: ${setting}`, this.LOG_COLOR)
-        let settings = this._settingsStore[setting]      
-        if(settings == null || !Array.isArray(settings)) settings = []      
+        let settings = this._settingsStore[setting]
+        if(settings == null || !Array.isArray(settings)) settings = []
         let filteredSettings = settings.filter(s => s[field] != value[field])
         filteredSettings.push(value)
         this._settingsStore[setting] = filteredSettings
         return this.saveSettings(setting)
+    }
+
+    static async pushLabel(setting:string, value:string):Promise<boolean> {
+        return this.saveSettings(setting, value)
     }
 
     /**

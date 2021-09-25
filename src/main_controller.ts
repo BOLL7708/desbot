@@ -35,7 +35,9 @@ class MainController {
         // Load reward IDs from settings
         let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
         if(storedRewards == undefined) storedRewards = []
-        const allRewardKeys = Config.instance.twitch.rewards.concat(Config.instance.twitch.autoRewards)
+
+        // Create missing rewards if any
+        const allRewardKeys = Object.keys(Config.instance.twitch.rewardConfigs)
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))        
         for(const key of missingRewardKeys) {
             const setup = Config.instance.twitch.rewardConfigs[key]
@@ -181,6 +183,38 @@ class MainController {
             }
         })
 
+        this._twitch.registerReward({
+            id: await Utils.getRewardId(Config.KEY_CHANNELTROPHY),
+            callback: async (message:ITwitchRedemptionMessage) => {
+                const user = await this._twitchHelix.getUser(parseInt(message.redemption.user.id))
+                if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Config.KEY_CHANNELTROPHY}`, 'red')
+                
+                const signCallback = this.buildSignCallback(this, Config.instance.sign.configs[Config.KEY_CHANNELTROPHY])
+                signCallback?.call(this, message)
+                const soundCallback = this.buildSoundCallback(this, Config.instance.audioplayer.configs[Config.KEY_CHANNELTROPHY])
+                soundCallback?.call(this, message)
+
+                const rewardId = await Utils.getRewardId(Config.KEY_CHANNELTROPHY)
+                const rewardData = await this._twitchHelix.getReward(rewardId)
+                if(rewardData?.data?.length == 1) {
+                    Settings.pushLabel(Settings.TROPHYHOLDER, `${user.display_name}`)
+                    const cost = rewardData.data[0].cost
+                    const config = Config.instance.twitch.rewardConfigs[Config.KEY_CHANNELTROPHY]
+                    if(config != undefined) {
+                        let titleArr = config.title.split(' ')
+                        titleArr.pop()
+                        titleArr.push(`${user.display_name}!`)
+                        const updatedReward = await this._twitchHelix.updateReward(rewardId, {
+                            title: titleArr.join(' '),
+                            cost: cost+1,
+                            prompt: `Currently held by ${user.display_name}! ${config.prompt}`
+                        })
+                        if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, 'red')
+                    } else Utils.log(`Channel Trophy redeemed, but no config found.`, 'red')
+                } else Utils.log(`Could not retrieve Reward Data for reward: ${Config.KEY_CHANNELTROPHY}`, 'red')
+            }
+        })
+
         /*
          █████  ██    ██ ████████  ██████      ██████  ███████ ██     ██  █████  ██████  ██████  ███████ 
         ██   ██ ██    ██    ██    ██    ██     ██   ██ ██      ██     ██ ██   ██ ██   ██ ██   ██ ██      
@@ -195,6 +229,7 @@ class MainController {
             let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.instance.audioplayer.configs[key])
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[key])
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[key])
+            let signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.instance.sign.configs[key])
 
             Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}: ${key}`, 'green')
             const reward:ITwitchReward = {
@@ -205,6 +240,7 @@ class MainController {
                     if(soundCallback != null) soundCallback(data)
                     if(pipeCallback != null) pipeCallback(data)
                     if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
+                    if(signCallback != null) signCallback(data)
                 }
             }
             this._twitch.registerReward(reward)
@@ -443,12 +479,13 @@ class MainController {
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
-                    const setup = Config.instance.twitch.rewardConfigs[pair.key]
-                    const response = await this._twitchHelix.updateReward(pair.id, setup)
-                    if(response?.data[0]?.id == pair.id) {
-                        Utils.logWithBold(`Reward <${pair.key}> successfully updated.`, 'green')
+                    const config = Config.instance.twitch.rewardConfigs[pair.key]
+                    if(config != undefined && Config.instance.twitch.skipUpdatingRewards.indexOf(pair.key) < 0) {
+                        const response = await this._twitchHelix.updateReward(pair.id, config)
+                        const success = response?.data[0]?.id == pair.id
+                        Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success?'green':'red')
                     } else {
-                        Utils.logWithBold(`Reward <${pair.key}> did not update.`, 'red')
+                        Utils.logWithBold(`Reward <${pair.key}> update skipped or unavailable.`, 'purple')
                     }
                 }
             }
@@ -571,47 +608,45 @@ class MainController {
         })
 
         // This callback was added as rewards with no text input does not come in through the chat callback
-        this._twitch.setAllRewardsCallback((message:ITwitchRedemptionMessage) => {
-            this._twitchHelix.getUser(parseInt(message.redemption.user.id)).then(user => {
-                const rewardId = message.redemption.reward.id
+        this._twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
+            const user = await this._twitchHelix.getUser(parseInt(message.redemption.user.id))          
+            const rewardPair:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'id', message.redemption.reward.id)
 
-                // Discord
-                const amount = message.redemption.reward.redemptions_redeemed_current_stream
-                const amountStr = amount != null ? ` #${amount}` : ''
-                let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
-                if(message.redemption.user_input) description +=  `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
-                if(this._logChatToDiscord) {
-                    this._discord.sendMessage(
-                        Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],
-                        user?.display_name,
-                        user?.profile_image_url,
-                        description
-                    )
-                }
-                const rewardSpecificWebhook = Config.instance.discord.webhooks[rewardId] || null
-                if(rewardSpecificWebhook != null) {
-                    this._discord.sendMessage(
-                        rewardSpecificWebhook,
-                        user?.display_name,
-                        user?.profile_image_url,
-                        description
-                    )
-                }
+            // Discord
+            const amount = message.redemption.reward.redemptions_redeemed_current_stream
+            const amountStr = amount != null ? ` #${amount}` : ''
+            let description = `${Config.instance.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
+            if(message.redemption.user_input) description +=  `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
+            if(this._logChatToDiscord) {
+                this._discord.sendMessage(
+                    Config.instance.discord.webhooks[Config.KEY_DISCORD_CHAT],
+                    user?.display_name,
+                    user?.profile_image_url,
+                    description
+                )
+            }
+            const rewardSpecificWebhook = Config.instance.discord.webhooks[rewardPair.key] || null
+            if(rewardSpecificWebhook != null) {
+                this._discord.sendMessage(
+                    rewardSpecificWebhook,
+                    user?.display_name,
+                    user?.profile_image_url,
+                    description
+                )
+            }
 
-                // Pipe to VR (basic)
-                const rewardIds = Config.instance.twitch.rewards.concat(Config.instance.twitch.autoRewards)
-                const rewardKey = rewardIds.find(id => id === rewardId)
-                const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardKey) >= 0
-                if(showReward) {
-                    if(user?.profile_image_url) {
-                        ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(user?.login, message.redemption.user_input, image)
-                        })
-                    } else {
-                        this._pipe.sendBasic(user?.login, message.redemption.user_input)
-                    }
+            // Pipe to VR (basic)
+            const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardPair.key) >= 0
+            if(showReward) {
+                if(user?.profile_image_url) {
+                    ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
+                        this._pipe.sendBasic(user?.login, message.redemption.user_input, image)
+                    })
+                } else {
+                    this._pipe.sendBasic(user?.login, message.redemption.user_input)
                 }
-            })
+            }
+            
         })
 
         this._screenshots.setScreenshotCallback((data) => {
@@ -717,7 +752,7 @@ class MainController {
     */                                                         
 
     private buildOBSCallback(_this: any, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
-        if(config) return (data:ITwitchRedemptionMessage) => {
+        if(config) return (message:ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
             _this._obs.showSource(config)
             if(config.notificationImage != undefined) {
@@ -728,8 +763,8 @@ class MainController {
     }
 
     private buildColorCallback(_this: any, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
-        if(config) return (data:ITwitchRedemptionMessage) => {
-            const userName = data?.redemption?.user?.login
+        if(config) return (message:ITwitchRedemptionMessage) => {
+            const userName = message?.redemption?.user?.login
             _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
             const lights:number[] = Config.instance.philipshue.lightsToControl
             lights.forEach(light => {
@@ -740,22 +775,34 @@ class MainController {
     }
     
     private buildSoundCallback(_this: any, config: IAudio|undefined):ITwitchRedemptionCallback|null {
-        if(config) return (data:ITwitchRedemptionMessage) => {
+        if(config) return (message:ITwitchRedemptionMessage) => {
             _this._audioPlayer.enqueueAudio(config)
         }
         else return null
     }
 
     private buildPipeCallback(_this: any, config: IPipeMessagePreset) {
-        if(config) return (data:ITwitchRedemptionMessage) => {
+        if(config) return (message:ITwitchRedemptionMessage) => {
             _this._pipe.showPreset(config)
         }
         else return null
     }
 
     private buildOpenVR2WSSettingCallback(_this: any, config: IOpenVR2WSSetting) {
-        if(config) return (data:ITwitchRedemptionMessage) => {
+        if(config) return (message:ITwitchRedemptionMessage) => {
             _this._openvr2ws.setSetting(config)
+        }
+    }
+
+    private buildSignCallback(_this: any, config: ISignShowConfig) {
+        if(config) return (message:ITwitchRedemptionMessage) => {
+            this._twitchHelix.getUser(parseInt(message?.redemption?.user?.id)).then(user => {
+                const clonedConfig = JSON.parse(JSON.stringify(config))
+                if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
+                if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user.display_name
+                if(clonedConfig.image == undefined) clonedConfig.image = user.profile_image_url
+                _this._sign.enqueueSign(clonedConfig)
+            })
         }
     }
 }
