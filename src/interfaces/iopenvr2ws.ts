@@ -36,5 +36,8 @@ interface IOpenVRWSCommandMessage {
 
 // Callbacks
 interface IOpenVR2WSInputCallback {
-    (key:string, data: IOpenVR2WSInputData): void
+    (key: string, data: IOpenVR2WSInputData): void
+}
+interface IOpenVR2WSAppIdCallback {
+    (appId: string): void
 }

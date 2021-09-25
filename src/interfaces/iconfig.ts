@@ -4,14 +4,13 @@ interface IConfig {
     google: IGoogleConfig
     pipe: IPipeConfig
     obs: IObsConfig
-    twitch: ITwitchConfig
     screenshots: IScreenshotConfig
     discord: IDiscordConfig
     philipshue: IPhilipsHueConfig
     openvr2ws: IOpenVR2WSConfig
     audioplayer: IAudioPlayerConfig
     sign: ISignConfig
-    rewards: IConfigTwitchRewards
+    twitch: ITwitchConfig
 }
 
 interface IControllerConfig {
@@ -31,10 +30,6 @@ interface IConfigCommandReferences {
 
 interface IConfigSpeechReferences {
     [key: string]: string|string[]
-}
-
-interface IConfigTwitchRewards {
-    [key: string]: ITwitchHelixRewardCreate
 }
 
 interface IConfigCommandPermissions {

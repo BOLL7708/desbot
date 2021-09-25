@@ -2,6 +2,7 @@ class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
     _tokens: ITwitchTokens
     _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
+    _userId = Config.instance.twitch.userId
 
     constructor() {
         Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
@@ -28,8 +29,8 @@ class TwitchHelix {
      * 3. If any reward is missing an ID, create it on Twitch.
      * 
      */
-    async createReward(userId: number, createData: ITwitchHelixRewardCreate):Promise<ITwitchHelixCreateRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${userId}`
+    async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixCreateRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
             'Client-Id': Config.instance.twitch.clientId,
@@ -45,8 +46,8 @@ class TwitchHelix {
         return response
     }
 
-    async getRewards(userId: number, rewardId: string=""):Promise<ITwitchHelixCreateRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${userId}&only_manageable_rewards=true`
+    async getRewards(rewardId: string=""):Promise<ITwitchHelixCreateRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
@@ -56,8 +57,8 @@ class TwitchHelix {
         return response
     }
 
-    async updateReward(userId: number, rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixCreateRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${userId}&id=${rewardId}`
+    async updateReward(rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixCreateRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&id=${rewardId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
             'Client-Id': Config.instance.twitch.clientId,
@@ -71,5 +72,14 @@ class TwitchHelix {
 
         let response: ITwitchHelixCreateRewardResponse = await fetch(url, request).then(res => res.json())
         return response
+    }
+
+    async toggleRewards(kvp: Record<string, boolean>) {
+        for(const key in kvp) {
+            const pair:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'key', key)
+            if(pair?.id != undefined) {
+                this.updateReward(pair.id, {is_enabled: kvp[key]})
+            }
+        }
     }
 }

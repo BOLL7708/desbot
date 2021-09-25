@@ -10,6 +10,9 @@ interface ITwitchConfig {
     announcerTriggers: string[]
     rewards: string[]
     autoRewards: string[]
+    rewardConfigs: ITwitchRewards
+    rewardConfigProfileDefault: ITwitchRewardProfileConfig
+    rewardConfigProfilePerGame: ITwitchRewardProfilePerGame
 }
 interface ITwitchReward {
     id: string
@@ -36,6 +39,18 @@ interface ITwitchAnnouncement {
     userName: string
     triggers: string[]
     callback: ITwitchAnnouncementCallback
+}
+
+interface ITwitchRewards {
+    [key: string]: ITwitchHelixRewardConfig
+}
+
+interface ITwitchRewardProfileConfig {
+    [key: string]: boolean
+}
+
+interface ITwitchRewardProfilePerGame {
+    [key: string]: ITwitchRewardProfileConfig
 }
 
 // Callbacks

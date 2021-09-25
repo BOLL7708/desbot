@@ -19,7 +19,7 @@ class MainController {
     private _nonceCallbacks: Record<string, Function> = {}
 
     constructor() {
-        this.init()
+        this.init() // To allow init to be async
     }
     
     private async init() {
@@ -38,13 +38,13 @@ class MainController {
         const allRewardKeys = Config.instance.twitch.rewards.concat(Config.instance.twitch.autoRewards)
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))        
         for(const key of missingRewardKeys) {
-            const setup = Config.instance.rewards[key]
-            let reward = await this._twitchHelix.createReward(Config.instance.twitch.userId, setup)
+            const setup = Config.instance.twitch.rewardConfigs[key]
+            let reward = await this._twitchHelix.createReward(setup)
             if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
         }
 
-        this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
-        this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
+        this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
+        this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
 
         /*
         ██ ███    ██ ██ ████████ 
@@ -225,8 +225,8 @@ class MainController {
                 const onText:string = !this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = true
                 this._tts.enqueueSpeakSentence(onText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: false})
-                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: false})
+                this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: false})
+                this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: false})
             }
         })
 
@@ -237,8 +237,8 @@ class MainController {
                 const offText = this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = false
                 this._tts.enqueueSpeakSentence(offText, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: true})
-                this._twitchHelix.updateReward(Config.instance.twitch.userId, await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: true})
+                this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: true})
+                this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: true})
             }
         })
 
@@ -443,8 +443,8 @@ class MainController {
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
-                    const setup = Config.instance.rewards[pair.key]
-                    const response = await this._twitchHelix.updateReward(Config.instance.twitch.userId, pair.id, setup)
+                    const setup = Config.instance.twitch.rewardConfigs[pair.key]
+                    const response = await this._twitchHelix.updateReward(pair.id, setup)
                     if(response?.data[0]?.id == pair.id) {
                         Utils.logWithBold(`Reward <${pair.key}> successfully updated.`, 'green')
                     } else {
@@ -693,7 +693,19 @@ class MainController {
             }
         })
 
+        this._openvr2ws.setAppIdCallback((appId) => {
+            const profile = Config.instance.twitch.rewardConfigProfilePerGame[appId]
+            if(profile != undefined) {
+                Utils.log(`Applying game profile for: ${appId}`, 'green')
+                this._twitchHelix.toggleRewards(profile)
+            } else {
+                Utils.log(`No game profile for: ${appId}, applying default`, 'green')
+                this._twitchHelix.toggleRewards(Config.instance.twitch.rewardConfigProfileDefault)
+            }
+        })
+
         this._twitch.init()
+        this._openvr2ws.init()
     }
     
     /* 

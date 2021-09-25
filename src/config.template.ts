@@ -143,35 +143,6 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             },
             filterOnScenes: [''] // WIP
         },
-        twitch: { // Various Twitch services, like chat and rewards.
-            userId: 0,
-            clientId: '',
-            clientSecret: '',
-            channelName: 'Name of the channel to connect to',
-            botName: 'Name of the bot listening to chat', // Pretty sure this has to be the name the tokens are associated with. 
-            announcerName: 'Name of the bot you are listening to',
-            announcerTriggers: ['❗', ConfigTemplate.KEY_ANNOUNCE_EXAMPLE],
-            chatNotificationSound: ConfigTemplate.KEY_SOUND_CHAT,
-            rewards: [
-                ConfigTemplate.KEY_TTSSPEAK,
-                ConfigTemplate.KEY_TTSSPEAKTIME,
-                ConfigTemplate.KEY_TTSSETVOICE,
-                ConfigTemplate.KEY_TTSSWITCHVOICEGENDER,
-                ConfigTemplate.KEY_SCREENSHOT,
-                ConfigTemplate.KEY_INSTANTSCREENSHOT,
-                ConfigTemplate.KEY_FAVORITEVIEWER
-            ],
-            autoRewards: [
-                ConfigTemplate.KEY_OBS_EXAMPLE1,
-                ConfigTemplate.KEY_OBS_EXAMPLE2,
-                ConfigTemplate.KEY_COLOR_EXAMPLE1,
-                ConfigTemplate.KEY_COLOR_EXAMPLE2,
-                ConfigTemplate.KEY_SOUND_EXAMPLE1,
-                ConfigTemplate.KEY_SOUND_EXAMPLE2,
-                ConfigTemplate.KEY_SETTING_EXAMPLE1,
-                ConfigTemplate.KEY_SETTING_EXAMPLE2
-            ]
-        },
         screenshots: { // Trigger and transmit screenshots with SuperScreenShotterVR.
             port: 8807,
             delay: 5,
@@ -253,81 +224,120 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             fontSize: '150%',
             direction: 'left' // left, right, top, bottom
         },
-        rewards: { // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
-			// You should fill this out with at least the minimum for each reward, the title has to be unique.
-			
-			// Default rewards, you can remove the ones you don't want or set them to not be enabled with is_enabled=false.
-			[ConfigTemplate.KEY_TTSSPEAK]: {
-                title: 'TTS',
-                cost: 10,
-                prompt: 'Your message is read aloud.',
-                background_color: '#808080',
-                is_user_input_required: true
+        twitch: { // Various Twitch services, like chat and rewards.
+            userId: 0,
+            clientId: '',
+            clientSecret: '',
+            channelName: 'Name of the channel to connect to',
+            botName: 'Name of the bot listening to chat', // Pretty sure this has to be the name the tokens are associated with. 
+            announcerName: 'Name of the bot you are listening to',
+            announcerTriggers: ['❗', ConfigTemplate.KEY_ANNOUNCE_EXAMPLE],
+            chatNotificationSound: ConfigTemplate.KEY_SOUND_CHAT,
+            rewards: [
+                ConfigTemplate.KEY_TTSSPEAK,
+                ConfigTemplate.KEY_TTSSPEAKTIME,
+                ConfigTemplate.KEY_TTSSETVOICE,
+                ConfigTemplate.KEY_TTSSWITCHVOICEGENDER,
+                ConfigTemplate.KEY_SCREENSHOT,
+                ConfigTemplate.KEY_INSTANTSCREENSHOT,
+                ConfigTemplate.KEY_FAVORITEVIEWER
+            ],
+            autoRewards: [
+                ConfigTemplate.KEY_OBS_EXAMPLE1,
+                ConfigTemplate.KEY_OBS_EXAMPLE2,
+                ConfigTemplate.KEY_COLOR_EXAMPLE1,
+                ConfigTemplate.KEY_COLOR_EXAMPLE2,
+                ConfigTemplate.KEY_SOUND_EXAMPLE1,
+                ConfigTemplate.KEY_SOUND_EXAMPLE2,
+                ConfigTemplate.KEY_SETTING_EXAMPLE1,
+                ConfigTemplate.KEY_SETTING_EXAMPLE2
+            ],
+            rewardConfigs: { // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
+                // You should fill this out with at least the minimum for each reward, the title has to be unique.
+                
+                // Default rewards, you can remove the ones you don't want or set them to not be enabled with is_enabled=false.
+                [ConfigTemplate.KEY_TTSSPEAK]: {
+                    title: 'TTS',
+                    cost: 10,
+                    prompt: 'Your message is read aloud.',
+                    background_color: '#808080',
+                    is_user_input_required: true
+                },
+                [ConfigTemplate.KEY_TTSSPEAKTIME]: {
+                    title: 'TTS for 10m',
+                    cost: 100,
+                    prompt: 'Your messages are read aloud for 10 minutes.',
+                    background_color: '#808080'
+                },
+                [ConfigTemplate.KEY_TTSSETVOICE]: {
+                    title: 'Set TTS voice',
+                    cost: 10,
+                    prompt: 'Change the settings for your TTS voice.',
+                    background_color: '#808080',
+                    is_user_input_required: true
+                },
+                [ConfigTemplate.KEY_TTSSWITCHVOICEGENDER]: {
+                    title: 'TTS Gender Flip',
+                    cost: 10,
+                    prompt: "Switch your TTS voice gender.",
+                    background_color: '#808080'
+                },
+                [ConfigTemplate.KEY_SCREENSHOT]: {
+                    title: 'Take a Screenshot with description',
+                    cost: 15,
+                    prompt: 'Your description will be read aloud before triggering a screenshot.',
+                    background_color: '#808080',
+                    is_user_input_required: true
+                },
+                [ConfigTemplate.KEY_INSTANTSCREENSHOT]: {
+                    title: 'Take a screenshot',
+                    cost: 10,
+                    prompt: 'Immediately trigger a screenshot.',
+                    background_color: '#808080'
+                },
+                [Config.KEY_FAVORITEVIEWER]: {
+                    title: 'Favorite Viewer',
+                    cost: 10,
+                    prompt: 'You are the Favorite Viewer',
+                    background_color: '#808080'
+                },
+                
+                // Examples of auto rewards, all are minimum input except the last which shows off all properties possible for a reward.
+                [ConfigTemplate.KEY_OBS_EXAMPLE1]: { title: 'OBS Example 1', cost: 100 },
+                [ConfigTemplate.KEY_OBS_EXAMPLE2]: { title: 'OBS Example 2', cost: 100 },
+                [ConfigTemplate.KEY_COLOR_EXAMPLE1]: { title: 'Color Example 1', cost: 100 },
+                [ConfigTemplate.KEY_COLOR_EXAMPLE2]: { title: 'Color Example 2', cost: 100 },
+                [ConfigTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
+                [ConfigTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
+                [ConfigTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },
+                [ConfigTemplate.KEY_PIPE_EXAMPLE2]: { title: 'Pipe Example 2', cost: 100 },
+                [ConfigTemplate.KEY_SETTING_EXAMPLE1]: { title: 'Setting Example 1', cost: 100 },
+                [ConfigTemplate.KEY_SETTING_EXAMPLE2]: {
+                    title: 'A unique title',
+                    cost: 100,
+                    prompt: 'The description',
+                    is_enabled: true,
+                    background_color: "#FFFFFF",
+                    is_user_input_required: true,
+                    is_max_per_stream_enabled: true,
+                    max_per_stream: 10,
+                    is_max_per_user_per_stream_enabled: true,
+                    max_per_user_per_stream: 2,
+                    is_global_cooldown_enabled: true,
+                    global_cooldown_seconds: 45,
+                    should_redemptions_skip_request_queue: true
+                }
             },
-            [ConfigTemplate.KEY_TTSSPEAKTIME]: {
-                title: 'TTS for 10m',
-                cost: 100,
-                prompt: 'Your messages are read aloud for 10 minutes.',
-                background_color: '#808080'
+            rewardConfigProfileDefault: { // These will be applied if a game does not have a profile
+                [ConfigTemplate.KEY_SETTING_EXAMPLE1]: true,
+                [ConfigTemplate.KEY_SETTING_EXAMPLE1]: false,
             },
-            [ConfigTemplate.KEY_TTSSETVOICE]: {
-                title: 'Set TTS voice',
-                cost: 10,
-                prompt: 'Change the settings for your TTS voice.',
-                background_color: '#808080',
-                is_user_input_required: true
-            },
-            [ConfigTemplate.KEY_TTSSWITCHVOICEGENDER]: {
-                title: 'TTS Gender Flip',
-                cost: 10,
-                prompt: "Switch your TTS voice gender.",
-                background_color: '#808080'
-            },
-            [ConfigTemplate.KEY_SCREENSHOT]: {
-                title: 'Take a Screenshot with description',
-                cost: 15,
-                prompt: 'Your description will be read aloud before triggering a screenshot.',
-                background_color: '#808080',
-                is_user_input_required: true
-            },
-            [ConfigTemplate.KEY_INSTANTSCREENSHOT]: {
-                title: 'Take a screenshot',
-                cost: 10,
-                prompt: 'Immediately trigger a screenshot.',
-                background_color: '#808080'
-            },
-            [Config.KEY_FAVORITEVIEWER]: {
-                title: 'Favorite Viewer',
-                cost: 10,
-                prompt: 'You are the Favorite Viewer',
-                background_color: '#808080'
-            },
-			
-			// Examples of auto rewards, all are minimum input except the last which shows off all properties possible for a reward.
-			[ConfigTemplate.KEY_OBS_EXAMPLE1]: { title: 'OBS Example 1', cost: 100 },
-			[ConfigTemplate.KEY_OBS_EXAMPLE2]: { title: 'OBS Example 2', cost: 100 },
-			[ConfigTemplate.KEY_COLOR_EXAMPLE1]: { title: 'Color Example 1', cost: 100 },
-			[ConfigTemplate.KEY_COLOR_EXAMPLE2]: { title: 'Color Example 2', cost: 100 },
-			[ConfigTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
-			[ConfigTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
-			[ConfigTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },
-			[ConfigTemplate.KEY_PIPE_EXAMPLE2]: { title: 'Pipe Example 2', cost: 100 },
-			[ConfigTemplate.KEY_SETTING_EXAMPLE1]: { title: 'Setting Example 1', cost: 100 },
-			[ConfigTemplate.KEY_SETTING_EXAMPLE2]: {
-                title: 'A unique title',
-                cost: 100,
-                prompt: 'The description',
-                is_enabled: true,
-                background_color: "#FFFFFF",
-                is_user_input_required: true,
-                is_max_per_stream_enabled: true,
-                max_per_stream: 10,
-                is_max_per_user_per_stream_enabled: true,
-                max_per_user_per_stream: 2,
-                is_global_cooldown_enabled: true,
-                global_cooldown_seconds: 45,
-                should_redemptions_skip_request_queue: true
+            rewardConfigProfilePerGame: { // These are applied if an app ID is matched
+                'steam.app.450390': { // The Lab
+                    [ConfigTemplate.KEY_SETTING_EXAMPLE1]: false,
+                    [ConfigTemplate.KEY_SETTING_EXAMPLE1]: true,
+                }
             }
-		}
+        }
     }
 }
