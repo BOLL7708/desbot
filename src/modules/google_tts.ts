@@ -105,7 +105,7 @@ class GoogleTTS {
         this._lastSpeaker = sentence.userName
 
         let textVar:number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
-        fetch(url, {
+        return fetch(url, {
             method: 'post',
             body: JSON.stringify({
             input: {

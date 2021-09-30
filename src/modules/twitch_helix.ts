@@ -29,7 +29,7 @@ class TwitchHelix {
      * 3. If any reward is missing an ID, create it on Twitch.
      * 
      */
-    async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixCreateRewardResponse> {
+    async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixRewardResponse> {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
@@ -42,26 +42,26 @@ class TwitchHelix {
             body: JSON.stringify(createData)
         }
 
-        let response: ITwitchHelixCreateRewardResponse = await fetch(url, request).then(res => res.json())
+        let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
         return response
     }
 
-    async getRewards():Promise<ITwitchHelixCreateRewardResponse> {
+    async getRewards():Promise<ITwitchHelixRewardResponse> {
         return this.getReward("")
     }
 
-    async getReward(rewardId: string):Promise<ITwitchHelixCreateRewardResponse> {
+    async getReward(rewardId: string):Promise<ITwitchHelixRewardResponse> {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
             'Client-Id': Config.instance.twitch.clientId,
         }
-        let response: ITwitchHelixCreateRewardResponse = await fetch(url, {headers: headers}).then(res => res.json())
+        let response: ITwitchHelixRewardResponse = await fetch(url, {headers: headers}).then(res => res.json())
         return response
     }
 
-    async updateReward(rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixCreateRewardResponse> {
+    async updateReward(rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse> {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&id=${rewardId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
@@ -74,7 +74,7 @@ class TwitchHelix {
             body: JSON.stringify(updateData)
         }
 
-        let response: ITwitchHelixCreateRewardResponse = await fetch(url, request).then(res => res.json())
+        let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
         return response
     }
 

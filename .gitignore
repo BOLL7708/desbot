@@ -5,3 +5,4 @@ config.ts
 *.zip
 *.7z
 desktop.ini
+*.exe

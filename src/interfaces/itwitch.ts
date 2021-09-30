@@ -10,6 +10,7 @@ interface ITwitchConfig {
     announcerTriggers: string[]
     skipUpdatingRewards: string[]
     autoRewards: string[]
+    disableAutoRewardAfterUse: string[]
     rewardConfigs: ITwitchRewards
     rewardConfigProfileDefault: ITwitchRewardProfileConfig
     rewardConfigProfilePerGame: ITwitchRewardProfilePerGame

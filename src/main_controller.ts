@@ -47,6 +47,7 @@ class MainController {
 
         this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
+        this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
 
         /*
         ██ ███    ██ ██ ████████ 
@@ -197,9 +198,9 @@ class MainController {
                 const rewardId = await Utils.getRewardId(Config.KEY_CHANNELTROPHY)
                 const rewardData = await this._twitchHelix.getReward(rewardId)
                 if(rewardData?.data?.length == 1) {
-                    Settings.pushLabel(Settings.TROPHYHOLDER, `${user.display_name}`)
                     const cost = rewardData.data[0].cost
                     const config = Config.instance.twitch.rewardConfigs[Config.KEY_CHANNELTROPHY]
+                    Settings.pushLabel(Settings.LABEL_CHANNEL_TROPHY, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
                     if(config != undefined) {
                         let titleArr = config.title.split(' ')
                         titleArr.pop()
@@ -212,6 +213,25 @@ class MainController {
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, 'red')
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, 'red')
                 } else Utils.log(`Could not retrieve Reward Data for reward: ${Config.KEY_CHANNELTROPHY}`, 'red')
+            }
+        })
+
+        this._twitch.registerReward({
+            id: await Utils.getRewardId(Config.KEY_UNLOCKREWARDTIMER),
+            callback: async (message: ITwitchRedemptionMessage) => {
+                const speech = Config.instance.controller.speechReferences[Config.KEY_UNLOCKREWARDTIMER][0]
+                await this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSoundEffect(Config.instance.audioplayer.configs[Config.KEY_UNLOCKREWARDTIMER])
+                this._twitchHelix.updateReward(await Utils.getRewardId(Config.KEY_UNLOCKREWARDTIMER), {is_enabled: false})
+                setTimeout(async ()=>{
+                    const rewardId = await Utils.getRewardId(Config.instance.controller.rewardReferences[Config.KEY_UNLOCKREWARDTIMER])
+                    const rewardData = await this._twitchHelix.getReward(rewardId)
+                    const cost = rewardData.data[0].cost
+                    const speech = Config.instance.controller.speechReferences[Config.KEY_UNLOCKREWARDTIMER][1]
+                    this._tts.enqueueSoundEffect(Config.instance.audioplayer.configs[Config.KEY_UNLOCKREWARDTIMER])
+                    this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._twitchHelix.updateReward(rewardId, {is_enabled: true, cost: cost+500})
+                }, 30*60*1000)
             }
         })
 
@@ -234,7 +254,11 @@ class MainController {
             Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}: ${key}`, 'green')
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
-                callback: (data:ITwitchRedemptionMessage)=>{
+                callback: async (data:ITwitchRedemptionMessage)=>{
+                    if(Config.instance.twitch.disableAutoRewardAfterUse.indexOf(key) >= 0) {
+                        const id = await Utils.getRewardId(key)
+                        this._twitchHelix.updateReward(id, {is_enabled: false})
+                    }
                     if(obsCallback != null) obsCallback(data)
                     if(colorCallback != null) colorCallback(data)
                     if(soundCallback != null) soundCallback(data)

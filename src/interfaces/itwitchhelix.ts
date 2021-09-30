@@ -41,10 +41,10 @@ interface ITwitchHelixRewardConfigShared {
 }
 
 // Responses
-interface ITwitchHelixCreateRewardResponse {
-    data: ITwitchHelixCreateRewardResponseData[]
+interface ITwitchHelixRewardResponse {
+    data: ITwitchHelixRewardResponseData[]
 }
-interface ITwitchHelixCreateRewardResponseData {
+interface ITwitchHelixRewardResponseData {
     broadcaster_name: string
     broadcaster_login: string
     broadcaster_id: string

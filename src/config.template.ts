@@ -21,6 +21,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
     static readonly COMMAND_SCALE: string = 'scale'
 	static readonly COMMAND_DICTIONARY: string = 'word'
     static readonly COMMAND_UPDATEREWARDS: string = 'update'
+    static readonly KEY_UNLOCKREWARDTIMER: string = 'UnlockRewardTimer'
 
     // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
@@ -95,7 +96,10 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
                 [ConfigTemplate.COMMAND_SCALE]: 'World scale set to %s%',
                 [ConfigTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry']
-            }
+            },
+            rewardReferences: { // References between static and automatic rewards.
+                [ConfigTemplate.KEY_UNLOCKREWARDTIMER]: ConfigTemplate.KEY_SETTING_EXAMPLE1
+            } 
         },
         google: { // TTS
             apiKey: '',
@@ -175,7 +179,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         philipshue: { // Control Philips Hue lights
             serverPath: '',
             userName: '',
-            lightsToControl: [],
+            lightsToControl: [], // IDs of lights to affect with the color rewards
             configs: {
                 [ConfigTemplate.KEY_COLOR_EXAMPLE1]: { x: 0.5, y: 0.5 },
                 [ConfigTemplate.KEY_COLOR_EXAMPLE2]: { x: 0.5, y: 0.5 }
@@ -251,6 +255,9 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 ConfigTemplate.KEY_SETTING_EXAMPLE1,
                 ConfigTemplate.KEY_SETTING_EXAMPLE2
             ],
+            disableAutoRewardAfterUse: [
+                ConfigTemplate.KEY_UNLOCKREWARDTIMER
+            ], // Rewards listed here will be disabled as soon as they have been used, meaning they will vanish.
             rewardConfigs: { // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
                 // You should fill this out with at least the minimum for each reward, the title has to be unique.
                 

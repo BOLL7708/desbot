@@ -22,6 +22,7 @@ interface IControllerConfig {
     commandPermissionsDefault: ICommandPermissions
     commandPermissionsReferences: IConfigCommandPermissions
     speechReferences: IConfigSpeechReferences
+    rewardReferences: IConfigRewardReferences
 }
 
 interface IConfigCommandReferences {
@@ -34,4 +35,8 @@ interface IConfigSpeechReferences {
 
 interface IConfigCommandPermissions {
     [key: string]: ICommandPermissions
+}
+
+interface IConfigRewardReferences {
+    [key: string]: string
 }

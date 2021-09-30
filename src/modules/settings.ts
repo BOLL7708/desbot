@@ -6,7 +6,7 @@ class Settings {
     static TWITCH_REWARDS: string = 'settings_twitch_rewards'
     static LABELS: string = 'settings_labels'
     static DICTIONARY: string = 'settings_tts_dictionary'
-    static TROPHYHOLDER: string = 'settings_trophy'
+    static LABEL_CHANNEL_TROPHY: string = 'label_channel_trophy'
 
     private static LOG_COLOR: string = 'blue'
 
