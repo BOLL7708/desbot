@@ -23,6 +23,7 @@ interface IControllerConfig {
     commandPermissionsReferences: IConfigCommandPermissions
     speechReferences: IConfigSpeechReferences
     rewardReferences: IConfigRewardReferences
+    phpPassword: string
 }
 
 interface IConfigCommandReferences {

@@ -1,10 +1,18 @@
 <?php
+include_once('./inc/utils.php');
+
 $method = $_SERVER['REQUEST_METHOD'];
 $setting = $_GET['setting'] ?? null;
+$password = getallheaders()['password'] ?? null;
 
+$cfg = include_once('./config.php');
+if($cfg->password != Utils::decode($password)) {
+    http_response_code(403);
+    exit("Unauthorized");
+}
 if($setting === null) {
     http_response_code(422);
-    exit("No settings file defined");
+    exit("Missing parameter(s)");
 }
 $filePath = getFilePath($setting);
 

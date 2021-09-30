@@ -99,7 +99,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             },
             rewardReferences: { // References between static and automatic rewards.
                 [ConfigTemplate.KEY_UNLOCKREWARDTIMER]: ConfigTemplate.KEY_SETTING_EXAMPLE1
-            } 
+            },
+            phpPassword: 'set this to whatever you put in config.php when you made that config'
         },
         google: { // TTS
             apiKey: '',

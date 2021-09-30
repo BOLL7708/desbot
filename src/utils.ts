@@ -192,4 +192,10 @@ class Utils {
         const reward:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'key', key)
         return reward.id
     }
+
+    static encode(value: string): string {
+        let b64 = btoa(value)
+        let b64url = b64.replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '')
+        return b64url
+    }
 }

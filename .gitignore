@@ -1,5 +1,6 @@
 /dist/*
 config.ts
+config.php
 /settings/*.csv
 /assets/*
 *.zip

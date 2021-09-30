@@ -1,7 +1,7 @@
 <?php include_once('inc/utils.php'); ?>
 <html>
     <head>
-        <?=loadJSFiles()?>
+        <?=Utils::loadJSFiles()?>
         <title>Streaming Widget</title>
         <style>
             p { 
