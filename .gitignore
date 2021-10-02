@@ -1,6 +1,9 @@
 /dist/*
 config.ts
 config.php
+/src/data/games.ts
+/src/data/presets.ts
+/src/data/keys.ts
 /settings/*.csv
 /assets/*
 *.zip

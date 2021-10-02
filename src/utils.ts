@@ -190,7 +190,7 @@ class Utils {
 
     static async getRewardId(key: string): Promise<string> {
         const reward:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'key', key)
-        return reward.id
+        return reward?.id ?? null
     }
 
     static encode(value: string): string {

@@ -18,7 +18,7 @@ class FavoriteViewerController {
     }
 
     private async checkForUpdates() {
-        const userData:IFavoriteViewer = await Settings.pullSetting(Settings.LABELS, 'key', Config.KEY_FAVORITEVIEWER, true)
+        const userData:IFavoriteViewer = await Settings.pullSetting(Settings.LABELS, 'key', Keys.KEY_FAVORITEVIEWER, true)
         if(userData && userData.userName && userData.userName != this._currentUser) {
             console.log(`New favorite viewer: ${userData.userName} != ${this._currentUser}`)
             this._currentUser = userData.userName

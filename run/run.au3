@@ -1,3 +1,4 @@
+Opt("SendKeyDelay", 20)
 Local $count = $CmdLine[0]
 If $count == 2 Then
 	Local $window = $CmdLine[1]
