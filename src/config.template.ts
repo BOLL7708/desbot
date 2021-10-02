@@ -234,6 +234,9 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 [ConfigTemplate.KEY_OBS_EXAMPLE2]: {duration: 5000, title: 'OBS Example 2!'}
             }
         },
+        run: {
+            
+        },
         twitch: { // Various Twitch services, like chat and rewards.
             userId: 0,
             clientId: '',

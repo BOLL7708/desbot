@@ -10,6 +10,7 @@ interface IConfig {
     openvr2ws: IOpenVR2WSConfig
     audioplayer: IAudioPlayerConfig
     sign: ISignConfig
+    run: IRunConfig
     twitch: ITwitchConfig
 }
 

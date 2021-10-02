@@ -250,8 +250,9 @@ class MainController {
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.instance.pipe.configs[key])
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.instance.openvr2ws.configs[key])
             let signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.instance.sign.configs[key])
+            let runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.instance.run[key])
 
-            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}: ${key}`, 'green')
+            Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}${runCallback?'🛴':''}: ${key}`, 'green')
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
                 callback: async (data:ITwitchRedemptionMessage)=>{
@@ -265,6 +266,7 @@ class MainController {
                     if(pipeCallback != null) pipeCallback(data)
                     if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
                     if(signCallback != null) signCallback(data)
+                    if(runCallback != null) runCallback(data)
                 }
             }
             this._twitch.registerReward(reward)
@@ -776,7 +778,7 @@ class MainController {
     */                                                         
 
     private buildOBSCallback(_this: any, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
-        if(config) return (message:ITwitchRedemptionMessage) => {
+        if(config) return (message: ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
             _this._obs.showSource(config)
             if(config.notificationImage != undefined) {
@@ -787,7 +789,7 @@ class MainController {
     }
 
     private buildColorCallback(_this: any, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
-        if(config) return (message:ITwitchRedemptionMessage) => {
+        if(config) return (message: ITwitchRedemptionMessage) => {
             const userName = message?.redemption?.user?.login
             _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
             const lights:number[] = Config.instance.philipshue.lightsToControl
@@ -799,27 +801,27 @@ class MainController {
     }
     
     private buildSoundCallback(_this: any, config: IAudio|undefined):ITwitchRedemptionCallback|null {
-        if(config) return (message:ITwitchRedemptionMessage) => {
+        if(config) return (message: ITwitchRedemptionMessage) => {
             _this._audioPlayer.enqueueAudio(config)
         }
         else return null
     }
 
     private buildPipeCallback(_this: any, config: IPipeMessagePreset) {
-        if(config) return (message:ITwitchRedemptionMessage) => {
+        if(config) return (message: ITwitchRedemptionMessage) => {
             _this._pipe.showPreset(config)
         }
         else return null
     }
 
     private buildOpenVR2WSSettingCallback(_this: any, config: IOpenVR2WSSetting) {
-        if(config) return (message:ITwitchRedemptionMessage) => {
+        if(config) return (message: ITwitchRedemptionMessage) => {
             _this._openvr2ws.setSetting(config)
         }
     }
 
     private buildSignCallback(_this: any, config: ISignShowConfig) {
-        if(config) return (message:ITwitchRedemptionMessage) => {
+        if(config) return (message: ITwitchRedemptionMessage) => {
             this._twitchHelix.getUser(parseInt(message?.redemption?.user?.id)).then(user => {
                 const clonedConfig = JSON.parse(JSON.stringify(config))
                 if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
@@ -827,6 +829,13 @@ class MainController {
                 if(clonedConfig.image == undefined) clonedConfig.image = user.profile_image_url
                 _this._sign.enqueueSign(clonedConfig)
             })
+        }
+    }
+
+    private buildRunCallback(_this: any, config: IRunCommand) {
+        if(config) return (message: ITwitchRedemptionMessage) => {
+            _this._tts.enqueueSpeakSentence('Triggered command', Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            Run.executeCommand(config)
         }
     }
 }
