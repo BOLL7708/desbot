@@ -107,7 +107,7 @@ class Pipe {
     async showCustom(imagePath: string, duration: number, override: IPipeCustomMessage) {
         const imageb64:string = await ImageLoader.getBase64(imagePath)
         if(imageb64 != null) {
-            if(duration >= 0) override.properties.duration = duration;
+            if(duration > -1) override.properties.duration = duration;
             override.image = imageb64
             this.sendCustom(override)
         } else {

@@ -23,6 +23,8 @@ class Twitch{
 
     private _rewards: ITwitchReward[] = []
     registerReward(twitchReward: ITwitchReward) {
+        const existingRewardIndex = this._rewards.findIndex((reward) => reward.id == twitchReward.id )
+        if(existingRewardIndex > -1) this._rewards.splice(existingRewardIndex, 1)
         this._rewards.push(twitchReward)
     }
 
@@ -86,7 +88,7 @@ class Twitch{
         if(typeof userName !== 'string' || userName.length == 0) return
         let text:string = msg.text?.trim()
         if(typeof text !== 'string' || text.length == 0) return
-        let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') >= 0
+        let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') > -1
         let isModerator = messageCmd.properties?.mod == '1'
         let isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
         let isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null

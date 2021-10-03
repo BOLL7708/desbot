@@ -59,7 +59,7 @@ class TwitchFactory {
         const emoteStrings:string[] = data ? data.split('/') : []
         const result:ITwitchEmote[] = emoteStrings.map(str => { 
             const [id, rest]:string[] = str.split(':')
-            const positionPairs:string[] = (rest && rest.indexOf(',') >= 0) 
+            const positionPairs:string[] = (rest && rest.indexOf(',') > -1) 
                 ? rest.split(',') 
                 : [rest]
             const positions:ITwitchEmotePosition[] = positionPairs.map(pair => {

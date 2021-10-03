@@ -32,23 +32,6 @@ class MainController {
         await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
 
-        // Load reward IDs from settings
-        let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
-        if(storedRewards == undefined) storedRewards = []
-
-        // Create missing rewards if any
-        const allRewardKeys = Object.keys(Config.instance.twitch.rewardConfigs)
-        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))        
-        for(const key of missingRewardKeys) {
-            const setup = Config.instance.twitch.rewardConfigs[key]
-            let reward = await this._twitchHelix.createReward(setup)
-            if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
-        }
-
-        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
-        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
-        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
-
         /*
         ██ ███    ██ ██ ████████ 
         ██ ████   ██ ██    ██    
@@ -73,6 +56,23 @@ class MainController {
         ██   ██ ██      ██ ███ ██ ██   ██ ██   ██ ██   ██      ██ 
         ██   ██ ███████  ███ ███  ██   ██ ██   ██ ██████  ███████ 
         */
+
+        // Load reward IDs from settings
+        let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
+        if(storedRewards == undefined) storedRewards = []
+
+        // Create missing rewards if any
+        const allRewardKeys = Object.keys(Config.instance.twitch.rewardConfigs)
+        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))        
+        for(const key of missingRewardKeys) {
+            const setup = Config.instance.twitch.rewardConfigs[key]
+            let reward = await this._twitchHelix.createReward(setup)
+            if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+        }
+
+        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
+        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
+        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
 
         /** TTS */
         this._twitch.registerReward({
@@ -255,7 +255,7 @@ class MainController {
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
                 callback: async (data:ITwitchRedemptionMessage)=>{
-                    if(Config.instance.twitch.disableAutoRewardAfterUse.indexOf(key) >= 0) {
+                    if(Config.instance.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
                         const id = await Utils.getRewardId(key)
                         this._twitchHelix.updateReward(id, {is_enabled: false})
                     }
@@ -521,6 +521,13 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_RELOADWIDGET,
+            callback: (userData, input) => {
+                window.location.reload();
+            }
+        })
+
         /*
          ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
         ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
@@ -579,7 +586,7 @@ class MainController {
             if(this._ttsForAll) { 
                 // TTS is on for everyone
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
-            } else if(this._ttsEnabledUsers.indexOf(userData.userName) >= 0) {
+            } else if(this._ttsEnabledUsers.indexOf(userData.userName) > -1) {
                 // Reward users
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
             } else if(this._pingForChat && Config.instance.twitch.chatNotificationSound != null) {
@@ -666,7 +673,7 @@ class MainController {
             }
 
             // Pipe to VR (basic)
-            const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardPair.key) >= 0
+            const showReward = Config.instance.pipe.showRewardsWithKeys.indexOf(rewardPair.key) > -1
             if(showReward) {
                 if(user?.profile_image_url) {
                     ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
@@ -725,7 +732,7 @@ class MainController {
         })
 
         this._obs.registerSceneChangeCallback((sceneName) => {
-            let filterScene = Config.instance.obs.filterOnScenes.indexOf(sceneName) >= 0
+            let filterScene = Config.instance.obs.filterOnScenes.indexOf(sceneName) > -1
             this._ttsForAll = !filterScene
         })
 
@@ -758,7 +765,8 @@ class MainController {
             }
         })
 
-        this._openvr2ws.setAppIdCallback((appId) => {
+        this._openvr2ws.setAppIdCallback(async (appId) => {
+            // General reward toggling
             const profile = Config.instance.twitch.rewardConfigProfilePerGame[appId]
             if(profile != undefined) {
                 Utils.log(`Applying game profile for: ${appId}`, 'green')
@@ -766,6 +774,49 @@ class MainController {
             } else {
                 Utils.log(`No game profile for: ${appId}, applying default`, 'green')
                 this._twitchHelix.toggleRewards(Config.instance.twitch.rewardConfigProfileDefault)
+            }
+
+            // Game specific reward configuration
+            const allGameRewardKeys = Config.instance.twitch.gameSpecificRewards
+            const gameSpecificRewards = Config.instance.twitch.gameSpecificRewardsPerGame[appId]
+            const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+
+            // Update rewards
+
+            // Disable all resuable generic rewards that are not in use.
+            const unavailableRewardKeys = allGameRewardKeys.filter((key) => !availableRewardKeys.includes(key))
+            for(const rewardKey of unavailableRewardKeys) {
+                const rewardId = await Utils.getRewardId(rewardKey)
+                Utils.log(`DISABLING REWARD! ${rewardKey} : ${rewardId}`, 'red', true)
+                this._twitchHelix.updateReward(rewardId, {
+                    is_enabled: false
+                })
+            }
+
+            // Update and enable all reusable generic rewards in use.
+            for(const rewardKey in gameSpecificRewards) {
+                const rewardId = await Utils.getRewardId(rewardKey)
+                const rewardConfig = gameSpecificRewards[rewardKey]
+                Utils.log(`UPDATING REWARD! ${rewardKey} : ${rewardId}`, 'purple', true)
+                this._twitchHelix.updateReward(rewardId, {
+                    ...rewardConfig,
+                    ...{
+                        is_enabled: true
+                    }
+                })
+            }
+
+            // Update reward callbacks
+            const runConfigs = Config.instance.run.gameSpecificConfigs[appId]
+            for(const rewardKey in gameSpecificRewards) {
+                const rewardId = await Utils.getRewardId(rewardKey)
+                const runConfig = runConfigs[rewardKey]
+                if(runConfig != undefined) {
+                    this._twitch.registerReward({
+                        id: rewardId,
+                        callback: this.buildRunCallback(this, runConfig)
+                    })
+                } else Utils.log(`Could not find run config for ${appId}:${rewardKey}`, 'red')
             }
         })
 
@@ -779,7 +830,7 @@ class MainController {
     ██████  ██    ██ ██ ██      ██   ██ █████   ██████  ███████ 
     ██   ██ ██    ██ ██ ██      ██   ██ ██      ██   ██      ██ 
     ██████   ██████  ██ ███████ ██████  ███████ ██   ██ ███████ 
-    */                                                         
+    */
 
     private buildOBSCallback(_this: any, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
@@ -838,7 +889,8 @@ class MainController {
 
     private buildRunCallback(_this: any, config: IRunCommand) {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            _this._tts.enqueueSpeakSentence('Triggered command', Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            const speech = message?.redemption?.reward?.title
+            if(speech != undefined) _this._tts.enqueueSpeakSentence(`Running: ${speech}`, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             Run.executeCommand(config)
         }
     }

@@ -212,7 +212,7 @@ class GoogleTTS {
                 console.log("Voices loaded!")
                 let voices = json?.voices
                 if(voices != null) {
-                    voices = voices.filter(voice => voice.name.indexOf('Wavenet') >= 0)
+                    voices = voices.filter(voice => voice.name.indexOf('Wavenet') > -1)
                     this._voices = voices
                     this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0))
                     voices.forEach(voice => {

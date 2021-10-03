@@ -34,6 +34,7 @@ class OpenVR2WS {
         // console.log(`Game ID callback: ${appId}`)
     }
     setAppIdCallback(callback: IOpenVR2WSAppIdCallback) {
+        callback.call(undefined) // To disable game specific rewards
         this._appIdCallback = callback
     }
 

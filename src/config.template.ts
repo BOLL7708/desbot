@@ -179,7 +179,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             }
         },
         run: {
-            
+            configs: {},
+            gameSpecificConfigs: {}
         },
         twitch: { // Various Twitch services, like chat and rewards.
             userId: 0,
@@ -290,6 +291,15 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 'steam.app.450390': { // The Lab
                     [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
                     [KeysTemplate.KEY_SETTING_EXAMPLE1]: true,
+                }
+            },
+            gameSpecificRewards: [ // Rewards deemed to be game specific, will be disabled if no config is available.
+                KeysTemplate.KEY_GAME_EXAMPLE1,
+                KeysTemplate.KEY_GAME_EXAMPLE2
+            ],
+            gameSpecificRewardsPerGame: {
+                'steam.app.450390': {
+                    
                 }
             }
         }

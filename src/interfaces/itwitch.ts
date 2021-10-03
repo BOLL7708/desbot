@@ -14,6 +14,8 @@ interface ITwitchConfig {
     rewardConfigs: ITwitchRewards
     rewardConfigProfileDefault: ITwitchRewardProfileConfig
     rewardConfigProfilePerGame: ITwitchRewardProfilePerGame
+    gameSpecificRewards: string[]
+    gameSpecificRewardsPerGame: ITwitchRewardsForSpecificGames
 }
 interface ITwitchReward {
     id: string
@@ -45,13 +47,14 @@ interface ITwitchAnnouncement {
 interface ITwitchRewards {
     [key: string]: ITwitchHelixRewardConfig
 }
-
 interface ITwitchRewardProfileConfig {
     [key: string]: boolean
 }
-
 interface ITwitchRewardProfilePerGame {
     [key: string]: ITwitchRewardProfileConfig
+}
+interface ITwitchRewardsForSpecificGames {
+    [key: string]: {[key: string]: ITwitchHelixRewardUpdate}
 }
 
 // Callbacks

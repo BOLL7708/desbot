@@ -7,12 +7,15 @@ class Run {
     }
 
     static executeCommand(preset: IRunCommand) {
-        const commandString = preset.commands.map((cmd)=>{return `${cmd.command} ${cmd.value}`}).join('{ENTER}')
-        console.log(commandString)
+        const commandString = preset.commands.map((cmd)=>{
+            return cmd.value != undefined ? `${cmd.command} ${cmd.value}` : cmd.command
+        }).join('{ENTER}')
         this.execute(preset.window, commandString)
         if(preset.duration !== undefined) {
             setTimeout(()=>{
-                const defaultCommandString = preset.commands.map((cmd)=>{return `${cmd.command} ${cmd.defaultValue}`}).join('{ENTER}')
+                const defaultCommandString = preset.commands.map((cmd)=>{
+                    return cmd.defaultValue != undefined ? `${cmd.command} ${cmd.defaultValue}` : cmd.command
+                }).join('{ENTER}')
                 this.execute(preset.window, defaultCommandString)
             }, preset.duration*1000)
         }
