@@ -37,6 +37,9 @@ class OpenVR2WS {
         callback.call(undefined) // To disable game specific rewards
         this._appIdCallback = callback
     }
+    triggerAppIdCallback(appId: string) {
+        this._appIdCallback(appId)
+    }
 
     private _inputCallback: IOpenVR2WSInputCallback = (key, data) => { 
         // console.warn('OpenVR2WS: Unhandled input message')

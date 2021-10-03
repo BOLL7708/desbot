@@ -15,6 +15,7 @@ class MainController {
     private _ttsForAll: boolean = Config.instance.controller.ttsForAllDefault
     private _pipeForAll: boolean = Config.instance.controller.pipeForAllDefault
     private _pingForChat: boolean = Config.instance.controller.pingForChat
+    private _useGameSpecificRewards: boolean = Config.instance.controller.useGameSpecificRewards
     private _logChatToDiscord: boolean = Config.instance.controller.logChatToDiscordDefault
     private _nonceCallbacks: Record<string, Function> = {}
 
@@ -528,6 +529,26 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_GAMEREWARDS_ON,
+            callback: (userData, input) => {
+                this._useGameSpecificRewards = true
+                const speech = Config.instance.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._openvr2ws.triggerAppIdCallback(this._openvr2ws._lastAppId)
+            }
+        })
+        
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_GAMEREWARDS_OFF,
+            callback: (userData, input) => {
+                this._useGameSpecificRewards = false
+                const speech = Config.instance.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
+                this._tts.enqueueSpeakSentence(speech, Config.instance.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._openvr2ws.triggerAppIdCallback('')
+            }
+        })
+
         /*
          ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
         ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
@@ -766,7 +787,9 @@ class MainController {
         })
 
         this._openvr2ws.setAppIdCallback(async (appId) => {
-            // General reward toggling
+            /**
+             * General reward toggling
+             */
             const profile = Config.instance.twitch.rewardConfigProfilePerGame[appId]
             if(profile != undefined) {
                 Utils.log(`Applying game profile for: ${appId}`, 'green')
@@ -776,7 +799,11 @@ class MainController {
                 this._twitchHelix.toggleRewards(Config.instance.twitch.rewardConfigProfileDefault)
             }
 
-            // Game specific reward configuration
+            /**
+             * Game specific reward configuration
+             */
+            if(!this._useGameSpecificRewards) appId = undefined // This will disable all rewards.
+
             const allGameRewardKeys = Config.instance.twitch.gameSpecificRewards
             const gameSpecificRewards = Config.instance.twitch.gameSpecificRewardsPerGame[appId]
             const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
@@ -787,7 +814,7 @@ class MainController {
             const unavailableRewardKeys = allGameRewardKeys.filter((key) => !availableRewardKeys.includes(key))
             for(const rewardKey of unavailableRewardKeys) {
                 const rewardId = await Utils.getRewardId(rewardKey)
-                Utils.log(`DISABLING REWARD! ${rewardKey} : ${rewardId}`, 'red', true)
+                Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, 'red')
                 this._twitchHelix.updateReward(rewardId, {
                     is_enabled: false
                 })
@@ -797,12 +824,10 @@ class MainController {
             for(const rewardKey in gameSpecificRewards) {
                 const rewardId = await Utils.getRewardId(rewardKey)
                 const rewardConfig = gameSpecificRewards[rewardKey]
-                Utils.log(`UPDATING REWARD! ${rewardKey} : ${rewardId}`, 'purple', true)
+                Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, 'purple')
                 this._twitchHelix.updateReward(rewardId, {
                     ...rewardConfig,
-                    ...{
-                        is_enabled: true
-                    }
+                    ...{is_enabled: true}
                 })
             }
 
@@ -816,7 +841,7 @@ class MainController {
                         id: rewardId,
                         callback: this.buildRunCallback(this, runConfig)
                     })
-                } else Utils.log(`Could not find run config for ${appId}:${rewardKey}`, 'red')
+                } else Utils.logWithBold(`Could not find run config for <${appId}:${rewardKey}>`, 'red')
             }
         })
 

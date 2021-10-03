@@ -5,6 +5,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             ttsForAllDefault: true,
             pingForChat: true,
             logChatToDiscordDefault: true,
+            useGameSpecificRewards: false,
             commandReferences: { // A reference so a command can trigger things that would be in an automatic reward.
                 [KeysTemplate.COMMAND_CAMERA_ON]: KeysTemplate.KEY_OBS_EXAMPLE1,
                 [KeysTemplate.COMMAND_CAMERA_OFF]: KeysTemplate.KEY_COLOR_EXAMPLE2

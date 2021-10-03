@@ -19,6 +19,7 @@ interface IControllerConfig {
     ttsForAllDefault: boolean
     pingForChat: boolean
     logChatToDiscordDefault: boolean
+    useGameSpecificRewards: boolean
     commandReferences: IConfigCommandReferences
     commandPermissionsDefault: ICommandPermissions
     commandPermissionsReferences: IConfigCommandPermissions
