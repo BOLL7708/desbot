@@ -1,6 +1,7 @@
 /dist/*
 config.ts
 config.php
+secure.ts
 /src/data/games.ts
 /src/data/presets.ts
 /src/data/keys.ts

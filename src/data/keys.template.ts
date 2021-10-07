@@ -1,4 +1,5 @@
-// Copy and rename to keys.ts, apply your changes, reference these in your config.
+// Rename this file to keys.ts, refactor the class to Keys.
+// Apply your changes, reference these in your config and elsewhere.
 class KeysTemplate {
     // Command references, to disable a command just set it to an empty string: ''
     static readonly COMMAND_TTS_ON: string = 'ttson'
@@ -22,6 +23,8 @@ class KeysTemplate {
     static readonly COMMAND_DICTIONARY: string = 'word'
     static readonly COMMAND_UPDATEREWARDS: string = 'update'
     static readonly COMMAND_RELOADWIDGET: string = 'reload'
+    static readonly COMMAND_GAMEREWARDS_ON: string = 'rewardson'
+    static readonly COMMAND_GAMEREWARDS_OFF: string = 'rewardsoff'
 
     // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'

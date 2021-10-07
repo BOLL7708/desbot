@@ -38,6 +38,7 @@ class Utils {
         // We want to embed config last so it can access constants in modules.
         echo '<script src="'.$root.'utils.js?'.uniqid().'"></script>'."\n";
         echo '<script src="'.$root.'main_controller.js?'.uniqid().'"></script>'."\n";
+        echo '<script src="'.$root.'secure.js?'.uniqid().'"></script>'."\n";
         echo '<script src="'.$root.'config.js?'.uniqid().'"></script>'."\n";
     }
     

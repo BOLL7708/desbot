@@ -48,7 +48,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             phpPassword: 'set this to whatever you put in config.php when you made that config'
         },
         google: { // TTS
-            apiKey: '',
+            apiKey: SecureTemplate.GoogleTTS,
             speakerTimeoutMs: 5000,
             randomizeVoice: false,
             randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
@@ -76,7 +76,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
             }
         },
         obs: { // Toggle sources in OBS on and off with the obs-websocket plugin.
-            password: '',
+            password: SecureTemplate.OBS,
             port: 4445,
             configs: {
                 [KeysTemplate.KEY_OBS_EXAMPLE1]: {
@@ -109,22 +109,13 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         discord: { // Send things to Discord
             remoteScreenshotEmbedColor: '#000000',
             manualScreenshotEmbedColor: '#FFFFFF',
-            webhooks: {
-                [KeysTemplate.KEY_DISCORD_SSSVR]: {
-                    id: '',
-                    token: ''
-                },
-                [KeysTemplate.KEY_DISCORD_CHAT]: {
-                    id: '',
-                    token: ''
-                }
-            },
+            webhooks: SecureTemplate.DiscordWebhooks,
             prefixCheer: '🙌 ',
             prefixReward: '🏆 '
         },
         philipshue: { // Control Philips Hue lights
-            serverPath: '',
-            userName: '',
+            serverPath: 'http://a-local-IP',
+            userName: SecureTemplate.PhilipsHue,
             lightsToControl: [], // IDs of lights to affect with the color rewards
             configs: {
                 [KeysTemplate.KEY_COLOR_EXAMPLE1]: { x: 0.5, y: 0.5 },
@@ -133,7 +124,7 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         },
         openvr2ws: { // Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS
             port: 7708,
-            password: 'for remote settings',
+            password: SecureTemplate.OpenVR2WS,
             configs: {
                 [KeysTemplate.KEY_SETTING_EXAMPLE1]: {
                     type: OpenVR2WS.TYPE_WORLDSCALE,
@@ -185,8 +176,8 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
         },
         twitch: { // Various Twitch services, like chat and rewards.
             userId: 0,
-            clientId: '',
-            clientSecret: '',
+            clientId: SecureTemplate.TwitchClientID,
+            clientSecret: SecureTemplate.TwitchClientSecret,
             channelName: 'Name of the channel to connect to',
             botName: 'Name of the bot listening to chat', // Pretty sure this has to be the name the tokens are associated with. 
             announcerName: 'Name of the bot you are listening to',

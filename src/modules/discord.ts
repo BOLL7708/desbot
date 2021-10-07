@@ -1,8 +1,6 @@
 class Discord {
-    _baseUrl: string = 'https://discord.com/api/webhooks'
     // Send chat log and perhaps screenshots to Discord aye?
-    sendMessage(config: IDiscordWebhookConfig, displayName: string, iconUrl: string, message: string) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
+    sendMessage(url: string, displayName: string, iconUrl: string, message: string) {
         fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
@@ -13,8 +11,7 @@ class Discord {
             })
         }).catch(err => console.error(err))        
     }
-    sendMessageEmbed(config: IDiscordWebhookConfig, displayName: string, iconUrl: string, color: string, description: string, message: string) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
+    sendMessageEmbed(url: string, displayName: string, iconUrl: string, color: string, description: string, message: string) {
         fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
@@ -32,9 +29,7 @@ class Discord {
         }).catch(err => console.error(err))
     }
 
-    sendPayload(config: IDiscordWebhookConfig, content: string, imageBlob: Blob) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
-
+    sendPayload(url: string, content: string, imageBlob: Blob) {
         let formData = new FormData()
         formData.append('file', imageBlob, 'image.png')
         formData.append('content', content)
@@ -47,8 +42,7 @@ class Discord {
         fetch(url, options).then(response => console.log(response))
     }
 
-    sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
+    sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
         let imageEmbed = {
             username: authorName,
             avatar_url: authorIconUrl,
