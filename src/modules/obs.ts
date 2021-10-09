@@ -2,6 +2,7 @@ class OBS {
     private _socket: WebSockets
     private _config = Config.instance.obs;
     private _messageCounter: number = 10;
+    private _screenshotMessageIds: number[] = []
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
@@ -40,6 +41,11 @@ class OBS {
                         // console.log(evt.data)
                         break
                 }
+                const ssIndex = this._screenshotMessageIds.indexOf(id)
+                if(ssIndex > -1) {
+                    this._screenshotMessageIds.splice(ssIndex, 1)
+                    this._sourceScreenshotCallback(data.img)
+                }
                 break
 		}
     }
@@ -74,7 +80,20 @@ class OBS {
         else this.hideSource(config)
     }
 
-    buildRequest(type:string, id:number, options:object) {
+    takeSourceScreenshot() {
+        const date = new Date()
+        const time = date.toLocaleString("sv-SE").replace(' ', '_').replace(/\:/g, '').replace(/\-/g, '')
+        const ms = date.getMilliseconds()
+        const id = ++this._messageCounter;
+        this._screenshotMessageIds.push(id)
+        this._socket.send(this.buildRequest("TakeSourceScreenshot", id, {
+            "sourceName": this._config.sourceScreenshotConfig.sourceName,
+            "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
+            "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}.png`
+        }));
+    }
+
+    buildRequest(type: string, id: number, options: object) {
         let request = {
             "request-type": type,
             "message-id": `${id}`
@@ -85,8 +104,13 @@ class OBS {
         return JSON.stringify(request)
     }
 
-    private _sceneChangeCallback: ISceneChangeCallback = (sceneName:string) => { console.log(`OBS: No callback set for scene changes (${sceneName})`) }
+    private _sceneChangeCallback: ISceneChangeCallback = (sceneName: string) => { console.log(`OBS: No callback set for scene changes (${sceneName})`) }
     registerSceneChangeCallback(callback:ISceneChangeCallback) {
         this._sceneChangeCallback = callback
+    }
+
+    private _sourceScreenshotCallback: ISourceScreenshotCallback = (img: string) => { console.log('OBS: No callback set for source screenshots') }
+    registerSourceScreenshotCallback(callback:ISourceScreenshotCallback) {
+        this._sourceScreenshotCallback = callback
     }
 }

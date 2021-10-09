@@ -9,6 +9,7 @@ class SecureTemplate {
     static TwitchClientSecret: string = 'Used for Twitch functionality'
     static DiscordWebhooks: IDiscordWebhookConfig = {
         [KeysTemplate.KEY_DISCORD_SSSVR]: 'The webhook URL you want to use for screenshots',
-        [KeysTemplate.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging chat'
+        [KeysTemplate.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging chat',
+        [KeysTemplate.COMMAND_SOURCESCREENSHOT]: 'The webhook URL you want to use for OBS screenshots'
     }
 }

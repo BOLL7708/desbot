@@ -99,7 +99,15 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                     notificationImage: 'assets/other_image.png'
                 }
             },
-            filterOnScenes: [''] // WIP
+            filterOnScenes: [''], // WIP
+            sourceScreenshotConfig: {
+                sourceName: 'A source name in OBS',
+                embedPictureFormat: 'png',
+                saveToFilePath: 'C:\\A file path\\on your\\disk\\',
+                discordTitle: 'OBS Screenshot',
+                signTitle: 'Screenshot',
+                signDuration: 10000 // ms
+            }
         },
         screenshots: { // Trigger and transmit screenshots with SuperScreenShotterVR.
             port: 8807,
@@ -160,7 +168,10 @@ class ConfigTemplate { // Refactor this class to just 'Config' to use this as th
                 },
 				[KeysTemplate.KEY_ANNOUNCE_EXAMPLE]: {
 					src: 'sound file that will be played before TTS for an announcement'
-				}
+				},
+                [Keys.COMMAND_SOURCESCREENSHOT]: {
+                    src: 'assets/some sound that is not in the repo.wav'
+                }
             }
         },
         sign: { // Show on-screen notification with title+image+subtitle

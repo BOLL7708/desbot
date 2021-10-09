@@ -550,6 +550,13 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_SOURCESCREENSHOT,
+            callback: (userData, input) => {
+                this._obs.takeSourceScreenshot()
+            }
+        })
+
         /*
          ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
         ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
@@ -751,6 +758,30 @@ class MainController {
                     })
                 }
             })
+        })
+
+        this._obs.registerSourceScreenshotCallback((img) => {
+            const b64data = img.split(',').pop()
+            const discordCfg = Config.instance.discord.webhooks[Keys.COMMAND_SOURCESCREENSHOT]
+            const blob = Utils.b64toBlob(b64data)
+            const dataUrl = Utils.b64ToDataUrl(b64data)
+
+            // Discord
+            const color = Utils.hexToDecColor(Config.instance.discord.remoteScreenshotEmbedColor)
+            const descriptionText = Config.instance.obs.sourceScreenshotConfig.discordTitle
+            this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText)
+
+            // Sign
+            this._sign.enqueueSign({
+                title: Config.instance.obs.sourceScreenshotConfig.signTitle,
+                image: dataUrl,
+                subtitle: '',
+                duration: Config.instance.obs.sourceScreenshotConfig.signDuration
+            })
+
+            // Sound effect
+            const soundConfig = Config.instance.audioplayer.configs[Keys.COMMAND_SOURCESCREENSHOT]
+            if(soundConfig != undefined) this._audioPlayer.enqueueAudio(soundConfig)
         })
 
         this._obs.registerSceneChangeCallback((sceneName) => {
