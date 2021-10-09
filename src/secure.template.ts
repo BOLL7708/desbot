@@ -5,10 +5,10 @@ class SecureTemplate {
     static OpenVR2WS: string = 'Used to receive app IDs and change SteamVR settings'
     static GoogleTTS: string = 'Used to access the Google Cloud Platform for TTS'
     static PhilipsHue: string = 'Used to control Philips Hue lights locally'
-    static TwitchClientSecret: string = 'Used for Twitch functionality'
     static TwitchClientID: string = 'Used for Twitch functionality'
+    static TwitchClientSecret: string = 'Used for Twitch functionality'
     static DiscordWebhooks: IDiscordWebhookConfig = {
         [KeysTemplate.KEY_DISCORD_SSSVR]: 'The webhook URL you want to use for screenshots',
-        [Keys.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging chat'
+        [KeysTemplate.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging chat'
     }
 }

@@ -337,12 +337,13 @@ class MainController {
                 const parts = Utils.splitOnFirst(' ', input)
                 let userToRename:string = null
                 let newName:string = null
-                if(parts[1].trim().length == 0 || userData.isVIP || userData.isSubscriber) { // Rename yourself
-                    userToRename = userData.userName
-                    newName = parts[0].toLowerCase()
-                } else { // Rename someone else
+                // Rename someone else
+                if((userData.isBroadcaster || userData.isModerator) && parts[0].indexOf('@') > -1) { 
                     userToRename = Utils.cleanUserName(parts[0])
                     newName = parts[1].toLowerCase()
+                } else { // Rename yourself
+                    userToRename = userData.userName
+                    newName = input.toLowerCase()
                 }
                 if(userToRename != null || newName != null) {                    
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userToRename, shortName: newName})

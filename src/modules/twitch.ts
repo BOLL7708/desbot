@@ -119,7 +119,7 @@ class Twitch{
         if(text != null && text.indexOf('!') == 0) {
             let commandStr = text.split(' ').shift().substr(1)
             let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())           
-            let textStr = Utils.splitOnFirst(' ', text).pop()
+            let textStr = Utils.splitOnFirst(' ', text).pop().trim()
             if(command != null 
                 && (
                     (command.permissions.streamer && isBroadcaster)
