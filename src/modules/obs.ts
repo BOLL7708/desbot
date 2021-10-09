@@ -6,6 +6,8 @@ class OBS {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onMessage = this.onMessage.bind(this)
+    }
+    init() {
         this._socket.init()
     }
     private onOpen(evt) {

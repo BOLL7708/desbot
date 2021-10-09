@@ -8,6 +8,8 @@ class Screenshots {
         this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
+    }
+    init() {
         this._socket.init();
     }
     private onMessage(evt) {

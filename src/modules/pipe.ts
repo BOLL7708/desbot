@@ -9,10 +9,12 @@ class Pipe {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
-        this._socket.init();
+    }
+    init() {
+        this._socket.init()
     }
     private onMessage(evt) {
-        console.log(evt.data);
+        console.log(evt.data)
     }
     private onError(evt) {
         // console.table(evt)

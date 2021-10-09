@@ -20,6 +20,7 @@ interface IControllerConfig {
     pingForChat: boolean
     logChatToDiscordDefault: boolean
     useGameSpecificRewards: boolean
+    websocketsUsed: IConfigWebsocketsUsed
     commandReferences: IConfigCommandReferences
     commandPermissionsDefault: ICommandPermissions
     commandPermissionsReferences: IConfigCommandPermissions
@@ -42,4 +43,12 @@ interface IConfigCommandPermissions {
 
 interface IConfigRewardReferences {
     [key: string]: string
+}
+
+interface IConfigWebsocketsUsed {
+    twitch: boolean
+    openvr2ws: boolean
+    pipe: boolean
+    obs: boolean
+    screenshots: boolean
 }

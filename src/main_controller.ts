@@ -846,8 +846,11 @@ class MainController {
             }
         })
 
-        this._twitch.init()
-        this._openvr2ws.init()
+        if(Config.instance.controller.websocketsUsed.twitch) this._twitch.init()
+        if(Config.instance.controller.websocketsUsed.openvr2ws) this._openvr2ws.init()
+        if(Config.instance.controller.websocketsUsed.pipe) this._pipe.init()
+        if(Config.instance.controller.websocketsUsed.obs) this._obs.init()
+        if(Config.instance.controller.websocketsUsed.screenshots) this._screenshots.init()
     }
     
     /* 
