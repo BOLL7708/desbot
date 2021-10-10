@@ -1,19 +1,4 @@
 // Config
-interface IConfig {
-    controller: IControllerConfig
-    google: IGoogleConfig
-    pipe: IPipeConfig
-    obs: IObsConfig
-    screenshots: IScreenshotConfig
-    discord: IDiscordConfig
-    philipshue: IPhilipsHueConfig
-    openvr2ws: IOpenVR2WSConfig
-    audioplayer: IAudioPlayerConfig
-    sign: ISignConfig
-    run: IRunConfig
-    twitch: ITwitchConfig
-}
-
 interface IControllerConfig {
     pipeForAllDefault: boolean
     ttsForAllDefault: boolean

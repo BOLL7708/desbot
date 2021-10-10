@@ -2,7 +2,7 @@ class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
     _tokens: ITwitchTokens
     _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
-    _userId = Config.instance.twitch.userId
+    _userId = Config.twitch.userId
 
     constructor() {
         Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
@@ -14,7 +14,7 @@ class TwitchHelix {
         let url = `${this._baseUrl}/users/?id=${id}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
-            'Client-Id': Config.instance.twitch.clientId
+            'Client-Id': Config.twitch.clientId
         }
         let response: ITwitchHelixUsersResponse = await (await fetch(url, {headers: headers}))?.json()
         let result: ITwitchHelixUsersResponseData = response?.data.find(d => parseInt(d.id) == id)
@@ -33,7 +33,7 @@ class TwitchHelix {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
-            'Client-Id': Config.instance.twitch.clientId,
+            'Client-Id': Config.twitch.clientId,
             'Content-Type': 'application/json'
         }
         let request = {
@@ -55,7 +55,7 @@ class TwitchHelix {
         if(rewardId.length > 0) url += `&id=${rewardId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
-            'Client-Id': Config.instance.twitch.clientId,
+            'Client-Id': Config.twitch.clientId,
         }
         let response: ITwitchHelixRewardResponse = await fetch(url, {headers: headers}).then(res => res.json())
         return response
@@ -65,7 +65,7 @@ class TwitchHelix {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&id=${rewardId}`
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
-            'Client-Id': Config.instance.twitch.clientId,
+            'Client-Id': Config.twitch.clientId,
             'Content-Type': 'application/json'
         }
         let request = {

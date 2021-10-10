@@ -25,7 +25,7 @@ class Settings {
         Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
         let url = this.getUrl(setting)      
         let response = await fetch(url, {
-            headers: {password: Utils.encode(Config.instance.controller.phpPassword)}
+            headers: {password: Utils.encode(Config.controller.phpPassword)}
         })
         let result = response.status >= 300 ? null : await response.json()
         if(result != null) {
@@ -48,7 +48,7 @@ class Settings {
             payload.replace(/\|/g, '').replace(/;/g, '')
             Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
             let response = await fetch(url, {
-                headers: {password: Utils.encode(Config.instance.controller.phpPassword)},
+                headers: {password: Utils.encode(Config.controller.phpPassword)},
                 method: 'post',
                 body: payload
             })

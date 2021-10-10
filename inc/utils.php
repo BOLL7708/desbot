@@ -2,17 +2,24 @@
 
 class Utils {
     static function loadJSFiles() {
-        function includeFile($root, $file, $directory) {
-            $name = $file->getFilename();
+        function includeFile($root, $file, $directory=null) {
+            if(is_string($file)) {
+                $name = $file;
+                $fileArr = explode('.', $file);
+                $ext = array_pop($fileArr);
+            } else {
+                $name = $file->getFilename();
+                $ext = $file->getExtension();
+            }
             if(
-                $file->getExtension() == 'js' 
+                $ext == 'js' 
                 && strpos($name, 'template') === false
                 && strpos($directory, 'interfaces') === false
             ) {
-                if($directory) {
+                if(is_string($directory)) {
                     echo '<script src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";
-                } else {
-                    // echo '<script src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
+                } elseif ($directory) {
+                    echo '<script src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
                 }
             }
         }
@@ -35,11 +42,14 @@ class Utils {
             }
         }
     
+        $configOverride = $_REQUEST['config'] ?? null;
+
         // We want to embed config last so it can access constants in modules.
-        echo '<script src="'.$root.'utils.js?'.uniqid().'"></script>'."\n";
-        echo '<script src="'.$root.'main_controller.js?'.uniqid().'"></script>'."\n";
-        echo '<script src="'.$root.'secure.js?'.uniqid().'"></script>'."\n";
-        echo '<script src="'.$root.'config.js?'.uniqid().'"></script>'."\n";
+        includeFile($root, 'utils.js', true);
+        includeFile($root, 'main_controller.js', true);
+        includeFile($root, 'secure.base.js', true);
+        includeFile($root, 'config.base.js', true);
+        if($configOverride != null) includeFile($root, "config.$configOverride.js", true);
     }
     
     static function decode($b64url) {

@@ -7,9 +7,10 @@ Readme is WIP but somewhat serviceable. Please post an issue if you need clarifi
 
 To see the widget in action, join me for a stream over at my [Twitch Channel](https://twitch.tv/boll7708) to collect some channel points and try the rewards out. They're cheap!
 
-Other users that are currently utilizing this widget are:
+Other streamers that are using or have used this widget are:
 * [c0ld vengeance](https://www.twitch.tv/c0ldvengeance)
 * [The VR Realm](https://www.twitch.tv/thevrrealm)
+* [WoBoLoKo](https://www.twitch.tv/woboloko)
 
 # What can it do?
 1. Text to speech from rewards, a bot announcer or just every chat message. It's using GCP TTS with Wavenet voices and has a range of text transforms and name reconstruction.

@@ -9,7 +9,7 @@ class OpenVR2WS {
     _lastAppId: string // Updated only when a new valid ID is received
     
     constructor() {
-        const port = Config.instance.openvr2ws.port
+        const port = Config.openvr2ws.port
         this._socket = new WebSockets(
             `ws://localhost:${port}`,
             10,
@@ -90,7 +90,7 @@ class OpenVR2WS {
     }
 
     public async setSetting(config: IOpenVR2WSSetting) {
-        const password = await Utils.sha256(Config.instance.openvr2ws.password)
+        const password = await Utils.sha256(Config.openvr2ws.password)
         const appId = this._currentAppId.toString()
         switch(config.type) {
             case OpenVR2WS.TYPE_WORLDSCALE:

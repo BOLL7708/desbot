@@ -26,7 +26,7 @@ class TwitchChat {
 
     private async onOpen(evt: any) {
         let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
-        let config: ITwitchConfig = Config.instance.twitch
+        let config: ITwitchConfig = Config.twitch
         Utils.log("Twitch chat connected", this.LOG_COLOR, true, true)
         this._socket.send(`PASS oauth:${tokenData.access_token}`)
         this._socket.send(`NICK ${config.botName}`)

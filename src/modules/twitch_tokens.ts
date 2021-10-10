@@ -1,6 +1,6 @@
 class TwitchTokens {
     async refreshToken():Promise<string> {
-        let config:ITwitchConfig = Config.instance.twitch
+        let config:ITwitchConfig = Config.twitch
         let tokenData:ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
         return fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',

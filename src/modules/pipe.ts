@@ -4,7 +4,7 @@ class Pipe {
     static get TYPE_ALERT() { return 1 }
 
     private _socket:WebSockets
-    private _config:IPipeConfig = Config.instance.pipe
+    private _config:IPipeConfig = Config.pipe
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)

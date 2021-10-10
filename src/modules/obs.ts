@@ -1,6 +1,6 @@
 class OBS {
     private _socket: WebSockets
-    private _config = Config.instance.obs;
+    private _config = Config.obs;
     private _messageCounter: number = 10;
     private _screenshotMessageIds: number[] = []
     constructor() {

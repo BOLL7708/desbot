@@ -1,5 +1,5 @@
 class PhilipsHue {
-    private _config = Config.instance.philipshue
+    private _config = Config.philipshue
     private _baseUrl = `${this._config.serverPath}/api/${this._config.userName}`
     constructor() {
         this.loadLights()

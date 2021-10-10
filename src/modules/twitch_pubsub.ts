@@ -1,7 +1,7 @@
 class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
     private _socket: WebSockets
-    private _config: ITwitchConfig = Config.instance.twitch
+    private _config: ITwitchConfig = Config.twitch
     private _pingIntervalHandle: number
     private _pingTimestamp: number
     private _onRewardCallback: ITwitchPubsubRewardCallback = (message) => { console.log('PubSub Reward unhandled') }

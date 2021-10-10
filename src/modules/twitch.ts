@@ -33,7 +33,7 @@ class Twitch{
 		if(twitchSlashCommand.trigger.length != 0) {
             // Use Default permission if none were provided.
             if(twitchSlashCommand.permissions == undefined) twitchSlashCommand.permissions = {}
-            twitchSlashCommand.permissions = { ...Config.instance.controller.commandPermissionsDefault, ...twitchSlashCommand.permissions }
+            twitchSlashCommand.permissions = { ...Config.controller.commandPermissionsDefault, ...twitchSlashCommand.permissions }
            
             // Store the command
             this._commands.push(twitchSlashCommand)

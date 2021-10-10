@@ -5,8 +5,8 @@ class GoogleTTS {
     static get TYPE_CHEER() { return 3 } // [name] cheered: [text]
 
     // TODO: Split this up into a TTS master class, and separate voice integrations.
-    private _config: IGoogleConfig = Config.instance.google;
-    private _speakerTimeoutMs: number = Config.instance.google.speakerTimeoutMs
+    private _config: IGoogleConfig = Config.google;
+    private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
     private _audio: AudioPlayer = new AudioPlayer()
     private _voices: IGoogleVoice[] = [] // Cache
     private _randomVoices: IGoogleVoice[] = [] // Cache for randomizing starter voice

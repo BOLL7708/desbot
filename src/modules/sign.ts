@@ -1,5 +1,5 @@
 class Sign {
-    private _config: ISignConfig = Config.instance.sign
+    private _config: ISignConfig = Config.sign
     private _div: HTMLDivElement
     private _hiddenPos: string
     private _img: HTMLImageElement
