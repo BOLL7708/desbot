@@ -151,7 +151,11 @@ class MainController {
             callback: (data:ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._screenshots.sendScreenshotRequest(data, 0)
+                if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
+                    this._screenshots.sendScreenshotRequest(data, 0)
+                } else {
+                    this._obs.takeSourceScreenshot(data)
+                }
             }
         })
 
@@ -558,7 +562,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SOURCESCREENSHOT,
             callback: (userData, input) => {
-                this._obs.takeSourceScreenshot()
+                this._obs.takeSourceScreenshot(null)
             }
         })
 
@@ -725,8 +729,8 @@ class MainController {
             const discordCfg = Config.discord.webhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(data.image)
             const dataUrl = Utils.b64ToDataUrl(data.image)
-            SteamStore.getGameMeta(this._openvr2ws._currentAppId).then(data => {
-                const gameTitle = data != null ? data.name : this._openvr2ws._currentAppId
+            SteamStore.getGameMeta(this._openvr2ws._currentAppId).then(gameData => {
+                const gameTitle = gameData != null ? gameData.name : this._openvr2ws._currentAppId
                 if(reward != null) {
                     this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
                         const authorName = reward.redemption?.user?.display_name
@@ -765,28 +769,37 @@ class MainController {
             })
         })
 
-        this._obs.registerSourceScreenshotCallback((img) => {
+        this._obs.registerSourceScreenshotCallback((img, reward) => {
             const b64data = img.split(',').pop()
             const discordCfg = Config.discord.webhooks[Keys.COMMAND_SOURCESCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
 
-            // Discord
-            const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
-            const descriptionText = Config.obs.sourceScreenshotConfig.discordTitle
-            this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText)
+            if(reward != null) {
+                this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
+                    const authorName = reward.redemption?.user?.display_name
+                    
+                    // Discord
+                    const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
+                    const authorIconUrl = user?.profile_image_url
+                    const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
+                    const descriptionText = Config.screenshots.callback.discordRewardInstantTitle
+                    const gameTitle = Config.obs.sourceScreenshotConfig.discordGameTitle
+                    this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
-            // Sign
-            this._sign.enqueueSign({
-                title: Config.obs.sourceScreenshotConfig.signTitle,
-                image: dataUrl,
-                subtitle: '',
-                duration: Config.obs.sourceScreenshotConfig.signDuration
-            })
+                    // Sign
+                    this._sign.enqueueSign({
+                        title: Config.screenshots.callback.signTitle,
+                        image: dataUrl,
+                        subtitle: authorName,
+                        duration: Config.screenshots.callback.signDuration
+                    })
+                })
 
-            // Sound effect
-            const soundConfig = Config.audioplayer.configs[Keys.COMMAND_SOURCESCREENSHOT]
-            if(soundConfig != undefined) this._audioPlayer.enqueueAudio(soundConfig)
+                // Sound effect
+                const soundConfig = Config.audioplayer.configs[Keys.COMMAND_SOURCESCREENSHOT]
+                if(soundConfig != undefined) this._audioPlayer.enqueueAudio(soundConfig)
+            }
         })
 
         this._obs.registerSceneChangeCallback((sceneName) => {

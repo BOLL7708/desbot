@@ -20,6 +20,7 @@ interface IObsSourceScreenshotConfig {
     embedPictureFormat: string
     saveToFilePath: string
     discordTitle: string
+    discordGameTitle: string
     signTitle: string
     signDuration: number // ms
 }
@@ -29,5 +30,5 @@ interface ISceneChangeCallback {
     (sceneName:string): void
 }
 interface ISourceScreenshotCallback {
-    (img:string): void
+    (img:string, data: ITwitchRedemptionMessage): void
 }

@@ -2,7 +2,7 @@ class OBS {
     private _socket: WebSockets
     private _config = Config.obs;
     private _messageCounter: number = 10;
-    private _screenshotMessageIds: number[] = []
+    private _screenshotRequests: ITwitchRedemptionMessage[] = []
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
@@ -15,9 +15,12 @@ class OBS {
         this._socket.send(this.buildRequest("GetAuthRequired", 1, {}))
     }
     private onMessage(evt) {
-        let data = JSON.parse(evt.data)
-		let id = parseInt(data["message-id"])
-        let updateType = data['update-type'];
+        const data = JSON.parse(evt.data)
+		const id = parseInt(data["message-id"])
+        const updateType = data['update-type'];
+        const error = data['error']
+
+        if(error != undefined) return Utils.log(`OBS Return Message Error: ${error}`, 'red')
 
         switch(id) {
 			case 1:
@@ -41,10 +44,12 @@ class OBS {
                         // console.log(evt.data)
                         break
                 }
-                const ssIndex = this._screenshotMessageIds.indexOf(id)
-                if(ssIndex > -1) {
-                    this._screenshotMessageIds.splice(ssIndex, 1)
-                    this._sourceScreenshotCallback(data.img)
+                const reward = this._screenshotRequests[id]
+                const img = data.img
+                if(reward != undefined && img != undefined) {
+                    this._sourceScreenshotCallback(img, reward)
+                } else {
+                    Utils.log(`Screenshot callback was missing reward(${reward!=undefined}) or image(${img!=undefined})`, 'red')
                 }
                 break
 		}
@@ -80,12 +85,12 @@ class OBS {
         else this.hideSource(config)
     }
 
-    takeSourceScreenshot() {
+    takeSourceScreenshot(rewardData:ITwitchRedemptionMessage) {
         const date = new Date()
         const time = date.toLocaleString("sv-SE").replace(' ', '_').replace(/\:/g, '').replace(/\-/g, '')
         const ms = date.getMilliseconds()
         const id = ++this._messageCounter;
-        this._screenshotMessageIds.push(id)
+        this._screenshotRequests[id] = rewardData
         this._socket.send(this.buildRequest("TakeSourceScreenshot", id, {
             "sourceName": this._config.sourceScreenshotConfig.sourceName,
             "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
@@ -109,7 +114,7 @@ class OBS {
         this._sceneChangeCallback = callback
     }
 
-    private _sourceScreenshotCallback: ISourceScreenshotCallback = (img: string) => { console.log('OBS: No callback set for source screenshots') }
+    private _sourceScreenshotCallback: ISourceScreenshotCallback = (img: string, reward: ITwitchRedemptionMessage) => { console.log('OBS: No callback set for source screenshots') }
     registerSourceScreenshotCallback(callback:ISourceScreenshotCallback) {
         this._sourceScreenshotCallback = callback
     }
