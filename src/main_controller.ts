@@ -75,8 +75,14 @@ class MainController {
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
 
-        // Disable unwanted auto rewards
-        for(const key of Config.twitch.disableAutoRewards) {
+        // Enable default rewards
+        const enableRewards = Config.twitch.defaultRewards.filter(reward => { return !Config.twitch.disableRewards.includes(reward) })
+        for(const key of enableRewards) {
+            this._twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true})
+        }
+        
+        // Disable unwanted rewards
+        for(const key of Config.twitch.disableRewards) {
             this._twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
         }
 

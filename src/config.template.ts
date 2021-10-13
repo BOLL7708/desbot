@@ -206,6 +206,11 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     skipUpdatingRewards: [
         KeysTemplate.KEY_CHANNELTROPHY
     ],
+    defaultRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
+        KeysTemplate.KEY_SCREENSHOT,
+        KeysTemplate.KEY_INSTANTSCREENSHOT
+    ], // These will be turned on by default
+    disableRewards: [], // Used to disable certain rewards in override configs.
     autoRewards: [
         KeysTemplate.KEY_OBS_EXAMPLE1,
         KeysTemplate.KEY_OBS_EXAMPLE2,
@@ -216,7 +221,6 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         KeysTemplate.KEY_SETTING_EXAMPLE1,
         KeysTemplate.KEY_SETTING_EXAMPLE2
     ],
-    disableAutoRewards: [], // Used to disable certain rewards in override configs.
     disableAutoRewardAfterUse: [
         KeysTemplate.KEY_UNLOCKREWARDTIMER
     ], // Rewards listed here will be disabled as soon as they have been used, meaning they will vanish.
