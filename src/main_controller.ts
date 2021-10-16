@@ -148,7 +148,14 @@ class MainController {
                 const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
                 this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
-                    this._screenshots.sendScreenshotRequest(data, Config.screenshots.delay)
+                    if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
+                        this._screenshots.sendScreenshotRequest(data, Config.screenshots.delay)
+                    } else {
+                        setTimeout(()=>{
+                            const requestData:IScreenshotRequestData = { userId: parseInt(data.redemption.user.id), userInput: data.redemption.user_input }
+                            this._obs.takeSourceScreenshot(requestData)
+                        }, Config.screenshots.delay*1000)
+                    }    
                 }
             }
         })
@@ -160,7 +167,8 @@ class MainController {
                 if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
                     this._screenshots.sendScreenshotRequest(data, 0)
                 } else {
-                    this._obs.takeSourceScreenshot(data)
+                    const requestData:IScreenshotRequestData = { userId: parseInt(data.redemption.user.id), userInput: data.redemption.user_input }
+                    this._obs.takeSourceScreenshot(requestData)
                 }
             }
         })
@@ -568,7 +576,19 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SOURCESCREENSHOT,
             callback: (userData, input) => {
-                this._obs.takeSourceScreenshot(null)
+                if(input.length > 0) {
+                    const nonce = Utils.getNonce('TTS')
+                    const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT] // TODO: Separate key here?
+                    this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                    this._nonceCallbacks[nonce] = ()=>{
+                        setTimeout(()=>{
+                            const requestData:IScreenshotRequestData = { userId: parseInt(userData.userId), userInput: input }
+                            this._obs.takeSourceScreenshot(requestData)
+                        }, Config.screenshots.delay*1000)
+                    }
+                } else {
+                    this._obs.takeSourceScreenshot({ userId: parseInt(userData.userId), userInput: '' })
+                }
             }
         })
 
@@ -730,76 +750,79 @@ class MainController {
             
         })
 
-        this._screenshots.setScreenshotCallback((data) => {
-            const reward = this._screenshots.getScreenshotRequest(parseInt(data.nonce))
+        this._screenshots.setScreenshotCallback(async (responseData) => {
+            const requestData = this._screenshots.getScreenshotRequest(parseInt(responseData.nonce))
             const discordCfg = Config.discord.webhooks[Keys.KEY_DISCORD_SSSVR]
-            const blob = Utils.b64toBlob(data.image)
-            const dataUrl = Utils.b64ToDataUrl(data.image)
-            SteamStore.getGameMeta(this._openvr2ws._currentAppId).then(gameData => {
-                const gameTitle = gameData != null ? gameData.name : this._openvr2ws._currentAppId
-                if(reward != null) {
-                    this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
-                        const authorName = reward.redemption?.user?.display_name
-                        
-                        // Discord
-                        const description = reward.redemption?.user_input
-                        const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
-                        const authorIconUrl = user?.profile_image_url
-                        const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
-                        const descriptionText = description != null 
-                            ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
-                            : Config.screenshots.callback.discordRewardInstantTitle
-                        this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+            const blob = Utils.b64toBlob(responseData.image)
+            const dataUrl = Utils.b64ToDataUrl(responseData.image)
+            const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
+            const gameTitle = gameData != null ? gameData.name : this._openvr2ws._currentAppId
+            if(requestData != null) {
+                const userData = await this._twitchHelix.getUser(requestData.userId)
+                const authorName = userData?.display_name ?? ''
+                
+                // Discord
+                const description = requestData.userInput
+                const authorUrl = `https://twitch.tv/${userData.login ?? ''}`
+                const authorIconUrl = userData?.profile_image_url ?? ''
+                const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
+                const descriptionText = description?.trim().length > 0
+                    ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
+                    : Config.screenshots.callback.discordRewardInstantTitle
+                this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
-                        // Sign
-                        this._sign.enqueueSign({
-                            title: Config.screenshots.callback.signTitle,
-                            image: dataUrl,
-                            subtitle: authorName,
-                            duration: Config.screenshots.callback.signDuration
-                        })
-                    })
-                } else {
-                    // Discord
-                    const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
-                    this._discord.sendPayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
+                // Sign
+                this._sign.enqueueSign({
+                    title: Config.screenshots.callback.signTitle,
+                    image: dataUrl,
+                    subtitle: authorName,
+                    duration: Config.screenshots.callback.signDuration
+                })
+            } else {
+                // Discord
+                const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
+                this._discord.sendPayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
 
-                    // Sign
-                    this._sign.enqueueSign({
-                        title: Config.screenshots.callback.signTitle,
-                        image: dataUrl,
-                        subtitle: Config.screenshots.callback.signManualSubtitle,
-                        duration: Config.screenshots.callback.signDuration
-                    })
-                }
-            })
+                // Sign
+                this._sign.enqueueSign({
+                    title: Config.screenshots.callback.signTitle,
+                    image: dataUrl,
+                    subtitle: Config.screenshots.callback.signManualSubtitle,
+                    duration: Config.screenshots.callback.signDuration
+                })
+            }
+            
         })
 
-        this._obs.registerSourceScreenshotCallback((img, reward) => {
+        this._obs.registerSourceScreenshotCallback(async (img, requestData) => {
             const b64data = img.split(',').pop()
             const discordCfg = Config.discord.webhooks[Keys.COMMAND_SOURCESCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
 
-            if(reward != null) {
-                this._twitchHelix.getUser(parseInt(reward.redemption?.user?.id)).then(user => {
-                    const authorName = reward.redemption?.user?.display_name
-                    
-                    // Discord
-                    const authorUrl = `https://twitch.tv/${reward.redemption?.user?.login ?? ''}`
-                    const authorIconUrl = user?.profile_image_url
-                    const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
-                    const descriptionText = Config.screenshots.callback.discordRewardInstantTitle
-                    const gameTitle = Config.obs.sourceScreenshotConfig.discordGameTitle
-                    this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+            if(requestData != null) {
+                const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
+                const gameTitle = gameData != null ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
-                    // Sign
-                    this._sign.enqueueSign({
-                        title: Config.screenshots.callback.signTitle,
-                        image: dataUrl,
-                        subtitle: authorName,
-                        duration: Config.screenshots.callback.signDuration
-                    })
+                const userData = await this._twitchHelix.getUser(requestData.userId)
+                const authorName = userData?.display_name ?? ''
+                        
+                // Discord
+                const description = requestData.userInput
+                const authorUrl = `https://twitch.tv/${userData.login ?? ''}`
+                const authorIconUrl = userData?.profile_image_url ?? ''
+                const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
+                const descriptionText = description?.trim().length > 0
+                ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
+                : Config.obs.sourceScreenshotConfig.discordDescription
+                this._discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+
+                // Sign
+                this._sign.enqueueSign({
+                    title: Config.screenshots.callback.signTitle,
+                    image: dataUrl,
+                    subtitle: authorName,
+                    duration: Config.screenshots.callback.signDuration
                 })
 
                 // Sound effect

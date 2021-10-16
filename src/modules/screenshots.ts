@@ -1,8 +1,8 @@
 class Screenshots {
     private _socket: WebSockets
     private _messageCounter: number = 0
-    private _screenshotRequests: ITwitchRedemptionMessage[] = []
-    private _messageCallback: IScreenshotCallback = (data) => { console.warn('Screenshot: unhandled response') }
+    private _screenshotRequests: IScreenshotRequestData[] = []
+    private _messageCallback: IScreenshotCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
     constructor() {
         let config:IScreenshotConfig = Config.screenshots
         this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true)
@@ -29,10 +29,13 @@ class Screenshots {
             delay: delaySeconds,
             tag: rewardData.redemption.user.login
         }
-        this._screenshotRequests[this._messageCounter] = rewardData
+        this._screenshotRequests[this._messageCounter] = {
+            userId: parseInt(rewardData?.redemption?.user?.id), 
+            userInput: rewardData.redemption.user_input
+        }
         this._socket.send(JSON.stringify(message))
     }
-    getScreenshotRequest(nonce: number):ITwitchRedemptionMessage {
+    getScreenshotRequest(nonce: number):IScreenshotRequestData {
         return this._screenshotRequests.splice(nonce, 1).pop()
     }
 }

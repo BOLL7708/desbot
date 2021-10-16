@@ -9,7 +9,7 @@ class TwitchHelix {
             .then(tokenData => this._tokens = tokenData)
     }
     
-    async getUser(id: number, skipCache: boolean = false) {
+    async getUser(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
         if(!skipCache && this._userCache[id] != null) return this._userCache[id]
         let url = `${this._baseUrl}/users/?id=${id}`
         let headers = {

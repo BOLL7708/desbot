@@ -37,3 +37,8 @@ interface IConfigWebsocketsUsed {
     obs: boolean
     screenshots: boolean
 }
+
+interface IScreenshotRequestData {
+    userId: number
+    userInput: string
+}

@@ -105,7 +105,7 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
         sourceName: 'A source name in OBS',
         embedPictureFormat: 'png',
         saveToFilePath: 'C:\\A file path\\on your\\disk\\',
-        discordTitle: 'OBS Screenshot',
+		discordDescription: 'OBS Screenshot',
         discordGameTitle: 'Your current game or platform depending on how often you want to change this',
         signTitle: 'Screenshot',
         signDuration: 10000 // ms
