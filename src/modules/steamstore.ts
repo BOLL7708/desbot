@@ -1,7 +1,7 @@
 class SteamStore {
     static _gameCache: Record<number, any> = {}
     static async getGameMeta(appId: string):Promise<ISteamGameData> {
-        const id = parseInt(appId.split('.').pop())
+        const id = parseInt(appId?.split('.').pop())
         if(!isNaN(id)) {
             if(this._gameCache[id]) return this._gameCache[id]
             const encodedUrl = btoa(`https://store.steampowered.com/api/appdetails?appids=${id}`)
