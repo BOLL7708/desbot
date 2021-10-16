@@ -8,7 +8,8 @@ Config.controller = { // Set defaults for the widget
     logChatToDiscordDefault: true,
     useGameSpecificRewards: false,
     websocketsUsed: {
-        twitch: true,
+        twitchChat: true,
+        twitchPubsub: true,
         openvr2ws: true,
         pipe: true,
         obs: true,
@@ -195,14 +196,19 @@ Config.run = {
     gameSpecificConfigs: {}
 }
 Config.twitch = { // Various Twitch services, like chat and rewards.
-    userId: 0,
+    userId: 0, // https://www.streamweasels.com/support/convert-twitch-username-to-user-id/
     clientId: Secure.TwitchClientID,
     clientSecret: Secure.TwitchClientSecret,
     channelName: 'Name of the channel to connect to',
+    
     botName: 'Name of the bot listening to chat', // Pretty sure this has to be the name the tokens are associated with. 
     announcerName: 'Name of the bot you are listening to',
     announcerTriggers: ['❗', KeysTemplate.KEY_ANNOUNCE_EXAMPLE],
     chatNotificationSound: KeysTemplate.KEY_SOUND_CHAT,
+
+    proxyChatBotName: 'RestreamBot',
+    proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/, // Match three groups: Source, User and Message.
+
     skipUpdatingRewards: [
         KeysTemplate.KEY_CHANNELTROPHY
     ],

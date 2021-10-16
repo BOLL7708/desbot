@@ -4,10 +4,15 @@ interface ITwitchConfig {
     clientId: string
     clientSecret: string
     channelName: string
+
     botName: string
     announcerName: string
     chatNotificationSound: string
     announcerTriggers: string[]
+
+    proxyChatBotName: string
+    proxyChatFormat: RegExp
+
     skipUpdatingRewards: string[]
     defaultRewards: string[]
     disableRewards: string[]

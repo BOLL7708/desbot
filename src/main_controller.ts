@@ -924,7 +924,7 @@ class MainController {
             }
         })
 
-        if(Config.controller.websocketsUsed.twitch) this._twitch.init()
+        this._twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
         if(Config.controller.websocketsUsed.openvr2ws) this._openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) this._pipe.init()
         if(Config.controller.websocketsUsed.obs) this._obs.init()

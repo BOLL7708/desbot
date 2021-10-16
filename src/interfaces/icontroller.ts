@@ -31,7 +31,8 @@ interface IConfigRewardReferences {
 }
 
 interface IConfigWebsocketsUsed {
-    twitch: boolean
+    twitchChat: boolean
+    twitchPubsub: boolean
     openvr2ws: boolean
     pipe: boolean
     obs: boolean

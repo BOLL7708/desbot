@@ -4,20 +4,15 @@ class Twitch{
     private _twitchChat: TwitchChat = new TwitchChat()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
-    constructor() {
-        this._twitchTokens.refreshToken().then(token => {
-            this._twitchPubsub.init()
-            this._twitchChat.init()
-        })
-    }
-
-    init() {
-        this._twitchPubsub.setOnRewardCallback((id, message) => {
-            this.onReward(id, message)
-            // TODO: This should check if chat is connected and that handle messages that comes with user input
-        })
+    async init(initChat: boolean = true, initPubsub: boolean = true) {
+        await this._twitchTokens.refreshToken()
+        if(initChat) this._twitchChat.init()
+        if(initPubsub) this._twitchPubsub.init()
         this._twitchChat.registerChatMessageCallback((message) => {
             this.onChatMessage(message)
+        })
+        this._twitchPubsub.setOnRewardCallback((id, message) => {
+            this.onReward(id, message)
         })
     }
 
@@ -88,10 +83,20 @@ class Twitch{
         if(typeof userName !== 'string' || userName.length == 0) return
         let text:string = msg.text?.trim()
         if(typeof text !== 'string' || text.length == 0) return
-        let isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') > -1
-        let isModerator = messageCmd.properties?.mod == '1'
-        let isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
-        let isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
+        const isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') > -1
+        const isModerator = messageCmd.properties?.mod == '1'
+        const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
+        const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
+        
+        // Chat proxy
+        if(Config.twitch.proxyChatBotName.toLowerCase() == userName) {
+            const matches = text.match(Config.twitch.proxyChatFormat)
+            if(matches.length == 4) {
+                userName = matches[2]
+                text = matches[3]
+                Utils.log(`Got proxy message from ${matches[1]}: ${userName} [${text.length}]`, 'purple')
+            }
+        }
 
         // User data for most callbacks
         const userData:ITwitchUserData = {
@@ -109,7 +114,6 @@ class Twitch{
         this._allChatCallback(messageCmd)
         
         // Rewards
-        // TODO: For now skip reading rewards, in the future register rewards for both pubsub and chat?
         if(typeof messageCmd.properties['custom-reward-id'] === 'string') {
             console.log("Twitch Chat: Skipped as it's a reward.")
             return
