@@ -12,6 +12,8 @@ interface ITwitchConfig {
 
     proxyChatBotName: string
     proxyChatFormat: RegExp
+    
+    ignoreModerators: string[]
 
     skipUpdatingRewards: string[]
     defaultRewards: string[]

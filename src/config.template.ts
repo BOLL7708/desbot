@@ -209,6 +209,10 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     proxyChatBotName: 'RestreamBot',
     proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/, // Match three groups: Source, User and Message.
 
+    ignoreModerators: [ // Will ignore someone's moderator status for commands, useful for bots.
+        'RestreamBot' // This can't reference things set in this config as they are not set yet.
+    ],
+
     skipUpdatingRewards: [
         KeysTemplate.KEY_CHANNELTROPHY
     ],

@@ -84,10 +84,12 @@ class Twitch{
         let text:string = msg.text?.trim()
         if(typeof text !== 'string' || text.length == 0) return
         const isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') > -1
-        const isModerator = messageCmd.properties?.mod == '1'
+        const isModerator = messageCmd.properties?.mod == '1' && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
         
+        Utils.log(`${userName} is Moderator? ${isModerator?'YES':'NO'}`, 'red')
+
         // Chat proxy
         if(Config.twitch.proxyChatBotName.toLowerCase() == userName) {
             const matches = text.match(Config.twitch.proxyChatFormat)
