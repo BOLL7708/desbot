@@ -32,6 +32,7 @@ class MainController {
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
         await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
+        await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY)
 
         /*
         ██ ███    ██ ██ ████████ 
@@ -178,7 +179,7 @@ class MainController {
             callback: (message:ITwitchRedemptionMessage) => {
                 const userName = message?.redemption?.user?.login
                 const userId = message?.redemption?.user?.id
-                this._twitchHelix.getUser(parseInt(userId), true).then(response => {
+                this._twitchHelix.getUserById(parseInt(userId), true).then(response => {
                     const profileUrl = response?.profile_image_url
                     const displayName = response?.display_name
 
@@ -211,14 +212,22 @@ class MainController {
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
             callback: async (message:ITwitchRedemptionMessage) => {
-                const user = await this._twitchHelix.getUser(parseInt(message.redemption.user.id))
+                // Save stat
+                const index = message.redemption.reward.redemptions_redeemed_current_stream
+                const price = message.redemption.reward.cost
+                const displayName = message.redemption.user.display_name
+                Settings.pushRow(Settings.STATS_CHANNEL_TROPHY, {userName: displayName, index: index, price: price})
+
+                const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, 'red')
                 
+                // Effects
                 const signCallback = this.buildSignCallback(this, Config.sign.configs[Keys.KEY_CHANNELTROPHY])
                 signCallback?.call(this, message)
                 const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY])
                 soundCallback?.call(this, message)
 
+                // Update reward
                 const rewardId = await Utils.getRewardId(Keys.KEY_CHANNELTROPHY)
                 const rewardData = await this._twitchHelix.getReward(rewardId)
                 if(rewardData?.data?.length == 1) {
@@ -576,6 +585,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SOURCESCREENSHOT,
             callback: (userData, input) => {
+                // TODO: Add SSSVR support here for Doc? Also perhaps move all screenshot functionality
                 if(input.length > 0) {
                     const nonce = Utils.getNonce('TTS')
                     const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT] // TODO: Separate key here?
@@ -588,6 +598,209 @@ class MainController {
                     }
                 } else {
                     this._obs.takeSourceScreenshot({ userId: parseInt(userData.userId), userInput: '' })
+                }
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
+            callback: async (userData, input) => {
+                const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
+                
+                // Spending
+                const totalSpentPerUser: Record<string, number> = {}
+                const totalSpentPerUserPerStream: Record<string, number>[] = []
+                const totalSpentPerStream: number[] = []
+                const topSpentInStreak: Record<string, number> = {}
+                let topSpentInStreakLastStream: Record<string, number> = {}
+                let totalSpent: number = 0
+
+                // Redemptions
+                const totalRedeemedPerUser: Record<string, number> = {}
+                const totalRedeemedPerUserPerStream: Record<string, number>[] = []
+                const totalRedeemedPerStream: number[] = []
+                let totalRedeemed: number = 0
+
+                const totalFirstRedemptions: Record<string, number> = {}
+                const totalLastRedemptions: Record<string, number> = {}
+                let firstRedemptionLastStream: string
+                let lastRedemptionLastStream: string
+
+                // Perhaps not productive?
+                const totalSteals: Record<string, number> = {}
+                const totalSelfSteals: Record<string, number> = {}
+
+                // For working with the data
+                const displayNames: Record<string, string> = {}
+                let lastIndex: number = Number.MAX_SAFE_INTEGER;
+                let lastName: string = ''
+                let streakBuffer: number = 0
+
+                stats.forEach(stat => {
+                    const name = stat.userName.toLowerCase()
+                    displayNames[name] = stat.userName
+                    const index = parseInt(stat.index)
+                    const price = parseInt(stat.price)
+
+                    if(index <= lastIndex) { // New stream!
+                        totalSpentPerStream.push(0)
+                        totalRedeemedPerStream.push(0)
+                        totalSpentPerUserPerStream.push({})
+                        totalRedeemedPerUserPerStream.push({})
+                        firstRedemptionLastStream = name
+                        countUp(totalFirstRedemptions, name)
+                        countUp(totalLastRedemptions, lastRedemptionLastStream)
+                        lastName = '' // Break streaks across streams    
+                        topSpentInStreakLastStream = {}
+                    }
+                    incrementPerStream(totalSpentPerStream, price)
+                    incrementPerStream(totalRedeemedPerStream)
+                    totalSpent += price
+                    totalRedeemed++
+                    countUp(totalSpentPerUser, name, price)
+                    countUpPerStream(totalSpentPerUserPerStream, name, price)                   
+                    countUp(totalRedeemedPerUser, name)
+                    countUpPerStream(totalRedeemedPerUserPerStream, name)
+                    if(lastRedemptionLastStream != undefined) {
+                        if(name == lastRedemptionLastStream) {
+                            countUp(totalSelfSteals, name)
+                        } else {
+                            const stealKey = `${name}|${lastRedemptionLastStream}`
+                            countUp(totalSteals, stealKey)
+                        }
+                    }
+                    if(name == lastName) {
+                        streakBuffer += price
+                        console.log(`Count up streak buffer for ${name}, now ${streakBuffer}`)
+                    }
+                    else {
+                        if(lastName != '') {
+                            updateIfLarger(topSpentInStreak, lastName, streakBuffer)
+                            updateIfLarger(topSpentInStreakLastStream, lastName, streakBuffer)
+                        }
+                        console.log(`Streak ended for ${lastName}, started for: ${name} with ${price}`)
+                        streakBuffer = price
+                    }
+
+                    lastRedemptionLastStream = name
+                    lastIndex = index
+                    lastName = name
+                });
+
+                const embeds: IDiscordEmbed[] = []
+
+                function buildFieldWithList(name: string, inline: boolean, template: string, values: [string, number][], amount: number):IDiscordEmbedField {
+                    const emotes = ['🥇', '🥈', '🥉'];
+                    let valueArr: string[] = []
+                    for(let i=0; i<Math.min(amount, values.length); i++) {
+                        const pair = values[values.length-(i+1)]
+                        const displayName = displayNames[pair[0]]
+                        const value = pair[1]
+                        const emote = emotes[i] ?? '🥔';
+                        valueArr.push(emote+Utils.template(template, displayName, value))
+                    }
+                    const field: IDiscordEmbedField = {
+                        name: name,
+                        value: valueArr.join('\n'),
+                        inline: inline
+                    }
+                    return field
+                }
+
+                // Maybe pick out top spent in a single stream before popping here.
+                const sortedTopSpendersLastStream = sortObject(totalSpentPerUserPerStream.pop())
+                const totalParticipantsLastStream = sortedTopSpendersLastStream.length
+                const sortedTopSpentInStreakLastStream = sortObject(topSpentInStreakLastStream)
+                const topSpenderLastStream = sortedTopSpendersLastStream[sortedTopSpendersLastStream.length-1]
+                const topSpenderLastStreamUser = await this._twitchHelix.getUserByLogin(topSpenderLastStream[0])
+                embeds.push({
+                    title: '**Stream Statistics**',
+                    thumbnail: {url: topSpenderLastStreamUser.profile_image_url},
+                    fields: [
+                        buildFieldWithList("Top Spenders", false, " %s: **%s**", sortedTopSpendersLastStream, 3),
+                        buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 3),
+                        {
+                            // Add the things we should also speak out loud, like even 100's
+                            name: "Notable Redemptions",
+                            value: [
+                                `⭐ First: ${displayNames[firstRedemptionLastStream]}`,
+                                `🏁 Last: ${displayNames[lastRedemptionLastStream]}`
+                            ].join('\n'),
+                            inline: true
+                        },
+                        {
+                            name: "Event Totals",
+                            value: [
+                                `💰 Spent: **${totalSpentPerStream[totalSpentPerStream.length-1]}**`,
+                                `🏆 Redeemed: **${totalRedeemedPerStream[totalRedeemedPerStream.length-1]}**`,
+                                `🚍 Participants: **${totalParticipantsLastStream}**`
+                            ].join('\n'),
+                            inline: false
+                        }
+                    ]
+                })
+
+                const sortedTotalSpent = sortObject(totalSpentPerUser)
+                const sortedTopStreaks = sortObject(topSpentInStreak)
+                const topTotalSpentUser = await this._twitchHelix.getUserByLogin(sortedTotalSpent[sortedTotalSpent.length-1][0])
+                embeds.push({
+                    title: '**Total Spending**',
+                    thumbnail: {url: topTotalSpentUser.profile_image_url},
+                    fields: [
+                        buildFieldWithList("Top Spenders", true, " %s: **%s**", sortedTotalSpent, 5),
+                        buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopStreaks, 5)
+                        // Top spent in one stream
+                        // Will take deeper search...
+                    ]
+                })
+
+                const sortedTotalFirstRedemptions = sortObject(totalFirstRedemptions)
+                const sortedTotalLastRedemptions = sortObject(totalLastRedemptions)
+                embeds.push({
+                    title: '**Redemptions**',
+                    fields: [
+                        buildFieldWithList("Top First Redemptions", true, " %s: **%s**", sortedTotalFirstRedemptions, 3),
+                        buildFieldWithList("Top Last Redemptions", true, " %s: **%s**", sortedTotalLastRedemptions, 3)
+                    ]
+                })
+
+                embeds.push({
+                    title: '**Historical Data**',
+                    description: [
+                        `🐳 Total spent: **${totalSpent}**`,
+                        `🤖 Total redeemed: **${totalRedeemed}**`,
+                        `🐑 Total participants: **${Object.keys(displayNames).length}**`
+                    ].join('\n')
+                })
+                
+                const sortedTotalSteals = sortObject(totalSteals)
+                const sortedTotalSelfSteals = sortObject(totalSelfSteals)
+
+                this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+                    embeds: embeds
+                })
+
+                // this._discord.sendMessageEmbeds(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], )
+
+                function incrementPerStream(a: number[], value: number = 1) {
+                    a[a.length-1] += value
+                }
+                function countUpPerStream(a: Record<string, number>[], key: string, value: number = 1) {
+                    const o = a[a.length-1]
+                    if(o[key] == undefined) o[key] = 0
+                    o[key] += value
+                }
+                function countUp(o: Record<string, number>, key: string, value: number = 1) {
+                    if(o[key] == undefined) o[key] = 0
+                    o[key] += value
+                }
+                function updateIfLarger(o: Record<string, number>, key: string, value: number) {
+                    if(o[key] == undefined) o[key] = 0
+                    if(value > o[key]) o[key] = value
+                }
+
+                function sortObject(o: Record<string, number>, ascending=true):[string, number][] {
+                    return Object.entries(o).sort(([,a],[,b]) => ascending ? a-b : b-a)
                 }
             }
         })
@@ -611,7 +824,7 @@ class MainController {
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
-                this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
                         ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
                             this._pipe.sendBasic(userData.displayName, messageData.text, image, false)
@@ -630,7 +843,7 @@ class MainController {
 
             // Pipe to VR (basic)
             const userName = `${userData.displayName}[${messageData.bits}]`
-            this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+            this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
                 if(user?.profile_image_url) {
                     ImageLoader.getBase64(user?.profile_image_url, true)
                         .then(image => this._pipe.sendBasic(userName, messageData.text, image, true, clearRanges))
@@ -661,7 +874,7 @@ class MainController {
 
             // Pipe to VR (basic)
             if(this._pipeForAll) {
-                this._twitchHelix.getUser(parseInt(userData.userId)).then(user => {
+                this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
                         ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
                             this._pipe.sendBasic(userData.displayName, messageData.text, image, false, clearRanges)
@@ -680,7 +893,7 @@ class MainController {
             const bits = parseInt(message?.properties?.bits)
             
             // Discord
-            this._twitchHelix.getUser(parseInt(message?.properties["user-id"])).then(user => {
+            this._twitchHelix.getUserById(parseInt(message?.properties["user-id"])).then(user => {
                 let text = message?.message?.text
                 if(text == null || text.length == 0) return
 
@@ -710,14 +923,14 @@ class MainController {
 
         // This callback was added as rewards with no text input does not come in through the chat callback
         this._twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
-            const user = await this._twitchHelix.getUser(parseInt(message.redemption.user.id))          
+            const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))          
             const rewardPair:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'id', message.redemption.reward.id)
 
             // Discord
             const amount = message.redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
             let description = `${Config.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
-            if(message.redemption.user_input) description +=  `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
+            if(message.redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
             if(this._logChatToDiscord) {
                 this._discord.sendMessage(
                     Config.discord.webhooks[Keys.KEY_DISCORD_CHAT],
@@ -758,7 +971,7 @@ class MainController {
             const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
             const gameTitle = gameData != null ? gameData.name : this._openvr2ws._currentAppId
             if(requestData != null) {
-                const userData = await this._twitchHelix.getUser(requestData.userId)
+                const userData = await this._twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                 
                 // Discord
@@ -804,7 +1017,7 @@ class MainController {
                 const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
                 const gameTitle = gameData != null ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
-                const userData = await this._twitchHelix.getUser(requestData.userId)
+                const userData = await this._twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                         
                 // Discord
@@ -984,7 +1197,7 @@ class MainController {
 
     private buildSignCallback(_this: any, config: ISignShowConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            this._twitchHelix.getUser(parseInt(message?.redemption?.user?.id)).then(user => {
+            this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
                 const clonedConfig = JSON.parse(JSON.stringify(config))
                 if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
                 if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user.display_name

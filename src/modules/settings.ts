@@ -7,6 +7,7 @@ class Settings {
     static LABELS: string = 'settings_labels'
     static DICTIONARY: string = 'settings_tts_dictionary'
     static LABEL_CHANNEL_TROPHY: string = 'label_channel_trophy'
+    static STATS_CHANNEL_TROPHY: string = 'stats_channel_trophy'
 
     private static LOG_COLOR: string = 'blue'
 
@@ -71,6 +72,15 @@ class Settings {
         let filteredSettings = settings.filter(s => s[field] != value[field])
         filteredSettings.push(value)
         this._settingsStore[setting] = filteredSettings
+        return this.saveSettings(setting)
+    }
+
+    static async pushRow(setting:string, value:any):Promise<boolean> {
+        Utils.log(`Pushing row: ${setting}`, this.LOG_COLOR)
+        let settings = this._settingsStore[setting]
+        if(settings == null || !Array.isArray(settings)) settings = []
+        settings.push(value)
+        this._settingsStore[setting] = settings
         return this.saveSettings(setting)
     }
 

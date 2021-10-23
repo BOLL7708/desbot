@@ -14,6 +14,7 @@ if($setting === null) {
     http_response_code(422);
     exit("Missing parameter(s)");
 }
+$setting = str_replace(['.', '/', '\\'], '', $setting);
 $filePath = getFilePath($setting);
 
 if($method === 'POST') { 

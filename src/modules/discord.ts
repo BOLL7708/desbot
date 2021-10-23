@@ -11,39 +11,38 @@ class Discord {
             })
         }).catch(err => console.error(err))        
     }
+
+    // TODO: This is not used anywhere
     sendMessageEmbed(url: string, displayName: string, iconUrl: string, color: string, description: string, message: string) {
+        const payload: IDiscordWebookPayload = {
+            username: displayName,
+            avatar_url: iconUrl,
+            content: description,
+            embeds: [
+                {
+                    description: message,
+                    color: Utils.hexToDecColor(color)
+                }
+            ]
+        }
         fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                username: displayName,
-                avatar_url: iconUrl,
-                content: description,
-                embeds: [
-                    {
-                        description: message,
-                        color: Utils.hexToDecColor(color)
-                    }
-                ]
-            })
+            body: JSON.stringify(payload)
         }).catch(err => console.error(err))
     }
 
-    sendPayload(url: string, content: string, imageBlob: Blob) {
-        let formData = new FormData()
-        formData.append('file', imageBlob, 'image.png')
-        formData.append('content', content)
-
-        const options = {
-            method: 'POST',
-            body: formData
-        }
-
-        fetch(url, options).then(response => console.log(response))
+    sendPayload(url: string, payload: IDiscordWebookPayload) {
+        fetch(url, {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).catch(err => console.error(err))
     }
 
+    // Generalize?
     sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
-        let imageEmbed = {
+        const payload: IDiscordWebookPayload = {
             username: authorName,
             avatar_url: authorIconUrl,
             embeds: [
@@ -53,7 +52,7 @@ class Discord {
                     },
                     description: description,
                     color: color,
-                    timestamp: new Date().toISOString(),
+                    timestamp: this.getTimestamp(),
                     footer: footerText ? {
                         text: footerText
                     } : null
@@ -63,7 +62,7 @@ class Discord {
         
         let formData = new FormData()
         formData.append('file', imageBlob, 'image.png')
-        formData.append('payload_json', JSON.stringify(imageEmbed))
+        formData.append('payload_json', JSON.stringify(payload))
         
         const options = {
             method: 'POST',
@@ -71,5 +70,9 @@ class Discord {
         }
         
         fetch(url, options).then(response => console.log(response))
+    }
+
+    getTimestamp(): string {
+        return new Date().toISOString()
     }
 }

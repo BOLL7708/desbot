@@ -17,3 +17,8 @@ interface ITwitchRewardPair {
     key: string
     id: string
 }
+interface IChannelTrophyStat {
+    userName: string
+    index: string
+    price: string
+}

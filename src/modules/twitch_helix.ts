@@ -2,6 +2,7 @@ class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
     _tokens: ITwitchTokens
     _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
+    _userNameToId: Record<string, number> = {}
     _userId = Config.twitch.userId
 
     constructor() {
@@ -9,16 +10,33 @@ class TwitchHelix {
             .then(tokenData => this._tokens = tokenData)
     }
     
-    async getUser(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
+    async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
+        const id = this._userNameToId[login] ?? null;
+        if(id != null && !skipCache && this._userCache[id] != null) return this._userCache[id]
+        let url = `${this._baseUrl}/users/?login=${login}`
+        return this.getUserByUrl(url)
+    }
+
+    async getUserById(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
         if(!skipCache && this._userCache[id] != null) return this._userCache[id]
         let url = `${this._baseUrl}/users/?id=${id}`
+        return this.getUserByUrl(url)
+    }
+
+    private async getUserByUrl(url: string):Promise<ITwitchHelixUsersResponseData|null> {
         let headers = {
             Authorization: `Bearer ${this._tokens.access_token}`,
             'Client-Id': Config.twitch.clientId
         }
         let response: ITwitchHelixUsersResponse = await (await fetch(url, {headers: headers}))?.json()
-        let result: ITwitchHelixUsersResponseData = response?.data.find(d => parseInt(d.id) == id)
-        if(result != null) this._userCache[id] = result
+        let result: ITwitchHelixUsersResponseData = response?.data.pop()
+        if(result != null) {
+            const id = parseInt(result.id)
+            if(id != NaN) {
+                this._userCache[id] = result
+                this._userNameToId[result.login] = id
+            }
+        }
         return result
     }
 
