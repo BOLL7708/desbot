@@ -18,7 +18,7 @@ interface ITwitchRewardPair {
     id: string
 }
 interface IChannelTrophyStat {
-    userName: string
+    userId: string
     index: string
-    price: string
+    cost: string
 }

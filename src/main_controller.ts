@@ -213,10 +213,12 @@ class MainController {
             id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
             callback: async (message:ITwitchRedemptionMessage) => {
                 // Save stat
-                const index = message.redemption.reward.redemptions_redeemed_current_stream
-                const price = message.redemption.reward.cost
-                const displayName = message.redemption.user.display_name
-                Settings.pushRow(Settings.STATS_CHANNEL_TROPHY, {userName: displayName, index: index, price: price})
+                const row: IChannelTrophyStat = {
+                    userId: message.redemption.user.id,
+                    index: message.redemption.reward.redemptions_redeemed_current_stream,
+                    cost: message.redemption.reward.cost.toString()
+                }
+                Settings.pushRow(Settings.STATS_CHANNEL_TROPHY, row)
 
                 const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, 'red')
@@ -608,93 +610,77 @@ class MainController {
                 const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
                 
                 // Spending
-                const totalSpentPerUser: Record<string, number> = {}
-                const totalSpentPerUserPerStream: Record<string, number>[] = []
+                const totalSpentPerUser: Record<number, number> = {}
+                const totalSpentPerUserPerStream: Record<number, number>[] = []
                 const totalSpentPerStream: number[] = []
-                const topSpentInStreak: Record<string, number> = {}
-                let topSpentInStreakLastStream: Record<string, number> = {}
+                const topSpentInStreak: Record<number, number> = {}
+                let topSpentInStreakLastStream: Record<number, number> = {}
                 let totalSpent: number = 0
 
                 // Redemptions
-                const totalRedeemedPerUser: Record<string, number> = {}
-                const totalRedeemedPerUserPerStream: Record<string, number>[] = []
+                const totalRedeemedPerUser: Record<number, number> = {}
+                const totalRedeemedPerUserPerStream: Record<number, number>[] = []
                 const totalRedeemedPerStream: number[] = []
                 let totalRedeemed: number = 0
 
-                const totalFirstRedemptions: Record<string, number> = {}
-                const totalLastRedemptions: Record<string, number> = {}
-                let firstRedemptionLastStream: string
-                let lastRedemptionLastStream: string
-
-                // Perhaps not productive?
-                const totalSteals: Record<string, number> = {}
-                const totalSelfSteals: Record<string, number> = {}
+                const totalFirstRedemptions: Record<number, number> = {}
+                const totalLastRedemptions: Record<number, number> = {}
+                let firstRedemptionLastStream: number
+                let lastRedemptionLastStream: number
 
                 // For working with the data
-                const displayNames: Record<string, string> = {}
+                const userIds: number[] = []
                 let lastIndex: number = Number.MAX_SAFE_INTEGER;
-                let lastName: string = ''
+                let lastId: number = -1
                 let streakBuffer: number = 0
 
                 stats.forEach(stat => {
-                    const name = stat.userName.toLowerCase()
-                    displayNames[name] = stat.userName
+                    const userId = parseInt(stat.userId)
+                    if(!userIds.includes(userId)) userIds.push(userId)
                     const index = parseInt(stat.index)
-                    const price = parseInt(stat.price)
+                    const cost = parseInt(stat.cost)
 
                     if(index <= lastIndex) { // New stream!
                         totalSpentPerStream.push(0)
                         totalRedeemedPerStream.push(0)
                         totalSpentPerUserPerStream.push({})
                         totalRedeemedPerUserPerStream.push({})
-                        firstRedemptionLastStream = name
-                        countUp(totalFirstRedemptions, name)
+                        firstRedemptionLastStream = userId
+                        countUp(totalFirstRedemptions, userId)
                         countUp(totalLastRedemptions, lastRedemptionLastStream)
-                        lastName = '' // Break streaks across streams    
+                        lastId = -1 // Break streaks across streams    
                         topSpentInStreakLastStream = {}
                     }
-                    incrementPerStream(totalSpentPerStream, price)
+                    incrementPerStream(totalSpentPerStream, cost)
                     incrementPerStream(totalRedeemedPerStream)
-                    totalSpent += price
+                    totalSpent += cost
                     totalRedeemed++
-                    countUp(totalSpentPerUser, name, price)
-                    countUpPerStream(totalSpentPerUserPerStream, name, price)                   
-                    countUp(totalRedeemedPerUser, name)
-                    countUpPerStream(totalRedeemedPerUserPerStream, name)
-                    if(lastRedemptionLastStream != undefined) {
-                        if(name == lastRedemptionLastStream) {
-                            countUp(totalSelfSteals, name)
-                        } else {
-                            const stealKey = `${name}|${lastRedemptionLastStream}`
-                            countUp(totalSteals, stealKey)
-                        }
-                    }
-                    if(name == lastName) {
-                        streakBuffer += price
-                        console.log(`Count up streak buffer for ${name}, now ${streakBuffer}`)
-                    }
+                    countUp(totalSpentPerUser, userId, cost)
+                    countUpPerStream(totalSpentPerUserPerStream, userId, cost)
+                    countUp(totalRedeemedPerUser, userId)
+                    countUpPerStream(totalRedeemedPerUserPerStream, userId)
+                    if(userId == lastId) streakBuffer += cost
                     else {
-                        if(lastName != '') {
-                            updateIfLarger(topSpentInStreak, lastName, streakBuffer)
-                            updateIfLarger(topSpentInStreakLastStream, lastName, streakBuffer)
+                        if(lastId > -1) {
+                            updateIfLarger(topSpentInStreak, lastId, streakBuffer)
+                            updateIfLarger(topSpentInStreakLastStream, lastId, streakBuffer)
                         }
-                        console.log(`Streak ended for ${lastName}, started for: ${name} with ${price}`)
-                        streakBuffer = price
+                        console.log(`Streak ended for ${lastId}, started for: ${userId} with ${cost}`)
+                        streakBuffer = cost
                     }
-
-                    lastRedemptionLastStream = name
+                    lastRedemptionLastStream = userId
                     lastIndex = index
-                    lastName = name
+                    lastId = userId
                 });
 
                 const embeds: IDiscordEmbed[] = []
 
-                function buildFieldWithList(name: string, inline: boolean, template: string, values: [string, number][], amount: number):IDiscordEmbedField {
+                async function buildFieldWithList(name: string, inline: boolean, template: string, values: [number, number][], amount: number):Promise<IDiscordEmbedField> {
                     const emotes = ['🥇', '🥈', '🥉'];
                     let valueArr: string[] = []
                     for(let i=0; i<Math.min(amount, values.length); i++) {
                         const pair = values[values.length-(i+1)]
-                        const displayName = displayNames[pair[0]]
+                        const displayName = await getName.call(this, pair[0])
                         const value = pair[1]
                         const emote = emotes[i] ?? '🥔';
                         valueArr.push(emote+Utils.template(template, displayName, value))
@@ -707,24 +693,32 @@ class MainController {
                     return field
                 }
 
+                async function getName(userId: number):Promise<string> {
+                    const user = await this._twitchHelix.getUserById(userId)
+                    return user.display_name
+                }
+                async function getImage(userId: number):Promise<string> {
+                    const user = await this._twitchHelix.getUserById(userId)
+                    return user.profile_image_url
+                }
+
                 // Maybe pick out top spent in a single stream before popping here.
                 const sortedTopSpendersLastStream = sortObject(totalSpentPerUserPerStream.pop())
                 const totalParticipantsLastStream = sortedTopSpendersLastStream.length
                 const sortedTopSpentInStreakLastStream = sortObject(topSpentInStreakLastStream)
                 const topSpenderLastStream = sortedTopSpendersLastStream[sortedTopSpendersLastStream.length-1]
-                const topSpenderLastStreamUser = await this._twitchHelix.getUserByLogin(topSpenderLastStream[0])
                 embeds.push({
                     title: '**Stream Statistics**',
-                    thumbnail: {url: topSpenderLastStreamUser.profile_image_url},
+                    thumbnail: {url: await getImage.call(this, topSpenderLastStream[0])},
                     fields: [
-                        buildFieldWithList("Top Spenders", false, " %s: **%s**", sortedTopSpendersLastStream, 3),
-                        buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 3),
+                        await buildFieldWithList.call(this, "Top Spenders", false, " %s: **%s**", sortedTopSpendersLastStream, 3),
+                        await buildFieldWithList.call(this, "Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 3),
                         {
                             // Add the things we should also speak out loud, like even 100's
                             name: "Notable Redemptions",
                             value: [
-                                `⭐ First: ${displayNames[firstRedemptionLastStream]}`,
-                                `🏁 Last: ${displayNames[lastRedemptionLastStream]}`
+                                `⭐ First: ${await getName.call(this, firstRedemptionLastStream)}`,
+                                `🏁 Last: ${await getName.call(this, lastRedemptionLastStream)}`
                             ].join('\n'),
                             inline: true
                         },
@@ -742,13 +736,12 @@ class MainController {
 
                 const sortedTotalSpent = sortObject(totalSpentPerUser)
                 const sortedTopStreaks = sortObject(topSpentInStreak)
-                const topTotalSpentUser = await this._twitchHelix.getUserByLogin(sortedTotalSpent[sortedTotalSpent.length-1][0])
                 embeds.push({
                     title: '**Total Spending**',
-                    thumbnail: {url: topTotalSpentUser.profile_image_url},
+                    thumbnail: {url: await getImage.call(this, sortedTotalSpent[sortedTotalSpent.length-1][0])},
                     fields: [
-                        buildFieldWithList("Top Spenders", true, " %s: **%s**", sortedTotalSpent, 5),
-                        buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopStreaks, 5)
+                        await buildFieldWithList.call(this, "Top Spenders", true, " %s: **%s**", sortedTotalSpent, 5),
+                        await buildFieldWithList.call(this, "Top Spending Streaks", true, " %s: **%s**", sortedTopStreaks, 5)
                         // Top spent in one stream
                         // Will take deeper search...
                     ]
@@ -759,8 +752,8 @@ class MainController {
                 embeds.push({
                     title: '**Redemptions**',
                     fields: [
-                        buildFieldWithList("Top First Redemptions", true, " %s: **%s**", sortedTotalFirstRedemptions, 3),
-                        buildFieldWithList("Top Last Redemptions", true, " %s: **%s**", sortedTotalLastRedemptions, 3)
+                        await buildFieldWithList.call(this, "Top First Redemptions", true, " %s: **%s**", sortedTotalFirstRedemptions, 3),
+                        await buildFieldWithList.call(this, "Top Last Redemptions", true, " %s: **%s**", sortedTotalLastRedemptions, 3)
                     ]
                 })
 
@@ -769,13 +762,10 @@ class MainController {
                     description: [
                         `🐳 Total spent: **${totalSpent}**`,
                         `🤖 Total redeemed: **${totalRedeemed}**`,
-                        `🐑 Total participants: **${Object.keys(displayNames).length}**`
+                        `🐑 Total participants: **${Object.keys(userIds).length}**`
                     ].join('\n')
                 })
                 
-                const sortedTotalSteals = sortObject(totalSteals)
-                const sortedTotalSelfSteals = sortObject(totalSelfSteals)
-
                 this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                     embeds: embeds
                 })
@@ -785,22 +775,24 @@ class MainController {
                 function incrementPerStream(a: number[], value: number = 1) {
                     a[a.length-1] += value
                 }
-                function countUpPerStream(a: Record<string, number>[], key: string, value: number = 1) {
+                function countUpPerStream(a: Record<number, number>[], key: number, value: number = 1) {
                     const o = a[a.length-1]
                     if(o[key] == undefined) o[key] = 0
                     o[key] += value
                 }
-                function countUp(o: Record<string, number>, key: string, value: number = 1) {
+                function countUp(o: Record<number, number>, key: number, value: number = 1) {
                     if(o[key] == undefined) o[key] = 0
                     o[key] += value
                 }
-                function updateIfLarger(o: Record<string, number>, key: string, value: number) {
+                function updateIfLarger(o: Record<number, number>, key: number, value: number) {
                     if(o[key] == undefined) o[key] = 0
                     if(value > o[key]) o[key] = value
                 }
 
-                function sortObject(o: Record<string, number>, ascending=true):[string, number][] {
-                    return Object.entries(o).sort(([,a],[,b]) => ascending ? a-b : b-a)
+                function sortObject(o: Record<number, number>, ascending=true):[number, number][] {
+                    const sortedResult = Object.entries(o).sort(([,a],[,b]) => ascending ? a-b : b-a)
+                    const convertedResult: [number, number][] = sortedResult.map(arr => [parseInt(arr[0]), arr[1]])
+                    return convertedResult
                 }
             }
         })
