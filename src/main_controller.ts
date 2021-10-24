@@ -607,11 +607,11 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
             callback: async (userData, input) => {
+                // TODO: Add the things we should also speak out loud, like even 100's
                 const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
                 this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                     embeds: embeds
                 })
-        
             }
         })
 

@@ -2,6 +2,8 @@ class ChannelTrophy {
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix) {
         const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
 
+        /* GENERATE DATA */
+
         // Spending
         const totalSpentPerUser: Record<number, number> = {}
         const totalSpentPerUserPerStream: Record<number, number>[] = []
@@ -67,34 +69,16 @@ class ChannelTrophy {
 
         const embeds: IDiscordEmbed[] = []
 
-        async function buildFieldWithList(name: string, inline: boolean, template: string, values: [number, number][], amount: number):Promise<IDiscordEmbedField> {
-            const emotes = ['🥇', '🥈', '🥉'];
-            let valueArr: string[] = []
-            for(let i=0; i<Math.min(amount, values.length); i++) {
-                const pair = values[values.length-(i+1)]
-                const displayName = await getName(pair[0])
-                const value = pair[1]
-                const emote = emotes[i] ?? '🥔';
-                valueArr.push(emote+Utils.template(template, displayName, value))
-            }
-            const field: IDiscordEmbedField = {
-                name: name,
-                value: valueArr.join('\n'),
-                inline: inline
-            }
-            return field
-        }
-
-        async function getName(userId: number):Promise<string> {
-            const user = await _twitchHelix.getUserById(userId)
-            return user.display_name
-        }
-        async function getImage(userId: number):Promise<string> {
-            const user = await _twitchHelix.getUserById(userId)
-            return user.profile_image_url
-        }
+        /* BUILD EMBEDS */
 
         // Maybe pick out top spent in a single stream before popping here.
+        const totalSpentPerUserInSingleStream: Record<number, number> = {}
+        totalSpentPerUserPerStream.forEach(users => {
+            Object.entries(users).forEach(user => {
+                updateIfLarger(totalSpentPerUserInSingleStream, parseInt(user[0]), user[1])
+            })
+        })
+        const sortedTotalSpentPerUserInSingleStream = sortObject(totalSpentPerUserInSingleStream)
         const sortedTopSpendersLastStream = sortObject(totalSpentPerUserPerStream.pop())
         const totalParticipantsLastStream = sortedTopSpendersLastStream.length
         const sortedTopSpentInStreakLastStream = sortObject(topSpentInStreakLastStream)
@@ -106,7 +90,6 @@ class ChannelTrophy {
                 await buildFieldWithList("Top Spenders", false, " %s: **%s**", sortedTopSpendersLastStream, 3),
                 await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 3),
                 {
-                    // Add the things we should also speak out loud, like even 100's
                     name: "Notable Redemptions",
                     value: [
                         `⭐ First: ${await getName(firstRedemptionLastStream)}`,
@@ -132,10 +115,9 @@ class ChannelTrophy {
             title: '**Total Spending**',
             thumbnail: {url: await getImage(sortedTotalSpent[sortedTotalSpent.length-1][0])},
             fields: [
-                await buildFieldWithList("Top Spenders", true, " %s: **%s**", sortedTotalSpent, 5),
+                await buildFieldWithList("Top Spenders", false, " %s: **%s**", sortedTotalSpent, 5),
+                await buildFieldWithList("Top Spent in Single Stream", true, " %s: **%s**", sortedTotalSpentPerUserInSingleStream, 5),
                 await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopStreaks, 5)
-                // Top spent in one stream
-                // Will take deeper search...
             ]
         })
 
@@ -157,7 +139,20 @@ class ChannelTrophy {
                 `🐑 Total participants: **${Object.keys(userIds).length}**`
             ].join('\n')
         })
-        
+
+        /* FUNCTIONS  */
+
+        // Get helix stuff
+        async function getName(userId: number):Promise<string> {
+            const user = await _twitchHelix.getUserById(userId)
+            return user.display_name
+        }
+        async function getImage(userId: number):Promise<string> {
+            const user = await _twitchHelix.getUserById(userId)
+            return user.profile_image_url
+        }
+
+        // Handle data
         function incrementPerStream(a: number[], value: number = 1) {
             a[a.length-1] += value
         }
@@ -181,6 +176,25 @@ class ChannelTrophy {
             return convertedResult
         }
 
+        // Build output data
+        async function buildFieldWithList(name: string, inline: boolean, template: string, values: [number, number][], amount: number):Promise<IDiscordEmbedField> {
+            const emotes = ['🥇', '🥈', '🥉'];
+            let valueArr: string[] = []
+            for(let i=0; i<Math.min(amount, values.length); i++) {
+                const pair = values[values.length-(i+1)]
+                const displayName = await getName(pair[0])
+                const value = pair[1]
+                const emote = emotes[i] ?? '🥔';
+                valueArr.push(emote+Utils.template(template, displayName, value))
+            }
+            const field: IDiscordEmbedField = {
+                name: name,
+                value: valueArr.join('\n'),
+                inline: inline
+            }
+            return field
+        }
+        
         return embeds
     }
 }
