@@ -25,6 +25,7 @@ interface ITwitchConfig {
     rewardConfigProfilePerGame: ITwitchRewardProfilePerGame
     gameSpecificRewards: string[]
     gameSpecificRewardsPerGame: ITwitchRewardsForSpecificGames
+    channelTrophyUniqueNumbers: IChannelTrophyFunnyNumberTexts
 }
 interface ITwitchReward {
     id: string

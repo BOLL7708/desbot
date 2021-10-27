@@ -328,5 +328,8 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         'steam.app.450390': {
             
         }
+    },
+    channelTrophyUniqueNumbers: {
+        
     }
 }

@@ -198,4 +198,21 @@ class Utils {
         let b64url = b64.replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '')
         return b64url
     }
+
+    static numberToDiscordEmote(value: number, addHash: boolean = false): string {
+        let numbers:Record<string, string> = {
+            '0': ':zero:',
+            '1': ':one:',
+            '2': ':two:',
+            '3': ':three:',
+            '4': ':four:',
+            '5': ':five:',
+            '6': ':six:',
+            '7': ':seven:',
+            '8': ':eight:',
+            '9': ':nine:'
+        }
+        const hash:string = addHash ? ':hash:' : ''
+        return hash+value.toString().split('').map(n => numbers[n]).join('')
+    }
 }

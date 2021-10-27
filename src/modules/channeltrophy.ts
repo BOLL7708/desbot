@@ -1,5 +1,17 @@
 class ChannelTrophy {
-    static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix) {
+    static getNumberOfStreams():number {
+        const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
+        let numberOfStreams = 0
+        let lastIndex = Number.MAX_SAFE_INTEGER
+        stats.forEach(stat => {
+            const index = parseInt(stat.index)
+            if(index < lastIndex) numberOfStreams++
+            lastIndex = index
+        })
+        return numberOfStreams
+    }
+
+    static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
         const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
 
         /* GENERATE DATA */
@@ -35,13 +47,14 @@ class ChannelTrophy {
         // Random garbage
         let funnyNumbers: IChannelTrophyFunnyNumber[] = []
 
-        stats.forEach(stat => {
+        for(const stat of stats) {
             const userId = parseInt(stat.userId)
-            if(!userIds.includes(userId)) userIds.push(userId)
+            
             const index = parseInt(stat.index)
             const cost = parseInt(stat.cost)
 
             if(index <= lastIndex) { // New stream!
+                if(totalStreamCount >= (stopAfterIndex+1)) break
                 totalStreamCount++
                 totalSpentPerStream.push(0)
                 totalRedeemedPerStream.push(0)
@@ -50,7 +63,6 @@ class ChannelTrophy {
                 firstRedemptionLastStream = [userId, cost]
                 countUp(totalFirstRedemptions, userId)
                 countUp(totalLastRedemptions, lastRedemptionLastStream[0])
-                console.log(`First redeemer: ${userId}, last redeemer: ${lastRedemptionLastStream[0]}`)
                 lastId = -1 // Break streaks across streams    
                 topSpentInStreakLastStream = {}
                 funnyNumbers = []
@@ -63,6 +75,7 @@ class ChannelTrophy {
             countUpPerStream(totalSpentPerUserPerStream, userId, cost)
             countUp(totalRedeemedPerUser, userId)
             countUpPerStream(totalRedeemedPerUserPerStream, userId)
+            if(!userIds.includes(userId)) userIds.push(userId)
             if(userId == lastId) streakBuffer += cost
             else {
                 if(lastId > -1) {
@@ -77,7 +90,7 @@ class ChannelTrophy {
 
             const funnyNumberConfig = this.detectFunnyNumber(cost, userId)
             if(funnyNumberConfig != null) funnyNumbers.push(funnyNumberConfig)
-        });
+        }
         countUp(totalLastRedemptions, lastRedemptionLastStream[0]) // Without this we lose the last stream 🤣
 
         const embeds: IDiscordEmbed[] = []
@@ -99,7 +112,7 @@ class ChannelTrophy {
         const funnyNumberItems: string[] = []
         for(const config of funnyNumbers) {
             const name = await getName(config.userId)
-            const label = Utils.template(config.statLabel, name)
+            const label = Utils.template(config.label, name)
             funnyNumberItems.push(label)
         }
 
@@ -231,55 +244,89 @@ class ChannelTrophy {
         const result:IChannelTrophyFunnyNumber = {
             number: n,
             speech: '',
-            statLabel: '',
+            label: '',
             userId: userId
         }
-        if(n < 10) return null
+        // if(n < 10) return null
 
         const nameForDiscord = `%s (**${n}**)`
         const nameForTTS = '@%s grabbed'
         const nStr = n.toString()
         
-        let isRepDigit = checkRepDigit(n)
         const start = nStr.substr(0, Math.floor(nStr.length/2))
         const end = nStr.substr(Math.ceil(nStr.length/2)).split('').reverse().join('')       
         
-		// Detect patterns here, in order of awesomeness
-        // TODO: Also detect unique numbers like 7708 and maybe other things... uh.
-        if(isRepDigit) {
+		// TODO: Move this to CONFIG
+		const uniqueNumbers = Config.twitch.channelTrophyUniqueNumbers
+		
+		// Detect patterns here, in order of awesomeness or something
+		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
+			result.speech = Utils.template(uniqueNumbers[n].speech, nameForTTS, n)
+			result.label = Utils.template(uniqueNumbers[n].label, nameForDiscord)
+		} else if(checkBinary(n)) { // Power of two / binary
+			result.speech = `${nameForTTS} a power of two trophy, number ${n}`
+            result.label = `🎣 Power of two: ${nameForDiscord}`
+		} else if(n>10 && checkMonoDigit(n)) { // Monodigit
             result.speech = `${nameForTTS} a monodigit trophy, number ${n}`
-            result.statLabel = `🦄 Monodigit: ${nameForDiscord}`
-        } else if(start == end) {
+            result.label = `🦄 Monodigit: ${nameForDiscord}`
+        } else if(n>100 && start == end) { // Palindromic
             result.speech = `${nameForTTS} a palindromic trophy, number ${n}`
-            result.statLabel = `🦆 Palindromic: ${nameForDiscord}`
-        } else if(n%1000==0) {
-            result.speech = `${nameForTTS} an even 1000's trophy, number ${n}`
-            result.statLabel = `🐓 Even 1000: ${nameForDiscord}`
-        } else if(n%100==0) {
-            result.speech = `${nameForTTS} an even 100's trophy, number ${n}`
-            result.statLabel = `🐤 Even 100: ${nameForDiscord}`
-        }
+            result.label = `🦆 Palindromic: ${nameForDiscord}`
+        } else if(n%1000==0) { // Even 1000s
+            result.speech = `${nameForTTS} an even one thousands trophy, number ${n}`
+            result.label = `🐓 Even 1000s: ${nameForDiscord}`
+        } else if(n%100==0) { // Even 100s
+            result.speech = `${nameForTTS} an even one hundreds trophy, number ${n}`
+            result.label = `🐤 Even 100s: ${nameForDiscord}`
+        } else if(n>100 && checkSeries(n, true)) { // Rising series
+			result.speech = `${nameForTTS} a rising series trophy, number ${n}`
+            result.label = `🦩 Rising series: ${nameForDiscord}`
+		} else if(n>100 && checkSeries(n, false)) { // Falling series
+			result.speech = `${nameForTTS} a falling series trophy, number ${n}`
+            result.label = `🦡 Falling series: ${nameForDiscord}`
+		}
 
         // Functions
-        function checkRepDigit( num: number, base: number = 10) {
-            let prev = -1
-            while (num != 0) {
-                let digit = num % base
-                num = Math.floor(num / base)
-                if (prev != -1 && digit != prev) return false
-                prev = digit
-            }
-            return true
-        }
+		function checkMonoDigit( num: number ) {
+			const numStr = num.toString()
+			const filteredNum = num.toString().split('').filter(d => d == numStr[0])
+			return filteredNum.length == numStr.length
+		}
+		
+		function checkBinary( num: number ) {
+			return parseInt(
+                (num).toString(2).split('').reduce(
+                    (p,n) => (
+                        parseInt(p)+parseInt(n)
+                    ).toString()
+                )
+            ) == 1
+		}
+		
+		function checkSeries( num: number, rising: boolean = true ) {
+			const numStr = num.toString()
+			let firstDigit = parseInt(numStr[0])
+			const filteredNum = num.toString().split('').filter(
+				d => parseInt(d) == (rising ? firstDigit++ : firstDigit--)
+			)
+			return filteredNum.length == numStr.length
+		}
 
+		// Result
         return result.speech.length > 0 ? result : null
 	}
 }
 
+interface IChannelTrophyFunnyNumberTexts {
+    [key:number]: {
+        speech: string
+        label: string
+    }
+}
 	
 interface IChannelTrophyFunnyNumber {
     number: number
     speech: string
-    statLabel: string
+    label: string
     userId: number
 }
