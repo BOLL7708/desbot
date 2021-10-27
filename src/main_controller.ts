@@ -226,16 +226,24 @@ class MainController {
                 // Effects
                 const signCallback = this.buildSignCallback(this, Config.sign.configs[Keys.KEY_CHANNELTROPHY])
                 signCallback?.call(this, message)
-                const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY])
+                const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], true)
                 soundCallback?.call(this, message)
 
                 // Update reward
                 const rewardId = await Utils.getRewardId(Keys.KEY_CHANNELTROPHY)
                 const rewardData = await this._twitchHelix.getReward(rewardId)
-                if(rewardData?.data?.length == 1) {
+                if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
-                    const config = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
+                    
+                    // Do TTS
+                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
+                    if(funnyNumberConfig != null) this._tts.enqueueSpeakSentence(Utils.template(funnyNumberConfig.speech, user.login), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+
+                    // Update label in overlay
                     Settings.pushLabel(Settings.LABEL_CHANNEL_TROPHY, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
+                    
+                    // Update reward
+                    const config = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
                     if(config != undefined) {
                         let titleArr = config.title.split(' ')
                         titleArr.pop()
@@ -985,9 +993,10 @@ class MainController {
         else return null
     }
     
-    private buildSoundCallback(_this: any, config: IAudio|undefined):ITwitchRedemptionCallback|null {
+    private buildSoundCallback(_this: any, config: IAudio|undefined, onTtsQueue:boolean = false):ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            _this._audioPlayer.enqueueAudio(config)
+            if(onTtsQueue) _this._tts.enqueueSoundEffect(config)
+            else _this._audioPlayer.enqueueAudio(config)
         }
         else return null
     }

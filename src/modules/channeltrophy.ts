@@ -4,6 +4,9 @@ class ChannelTrophy {
 
         /* GENERATE DATA */
 
+        // Misc
+        let totalStreamCount: number = 0
+
         // Spending
         const totalSpentPerUser: Record<number, number> = {}
         const totalSpentPerUserPerStream: Record<number, number>[] = []
@@ -20,14 +23,17 @@ class ChannelTrophy {
 
         const totalFirstRedemptions: Record<number, number> = {}
         const totalLastRedemptions: Record<number, number> = {}
-        let firstRedemptionLastStream: number
-        let lastRedemptionLastStream: number
+        let firstRedemptionLastStream: [number, number] = [-1, -1]
+        let lastRedemptionLastStream: [number, number] = [-1, -1]
 
         // For working with the data
         const userIds: number[] = []
         let lastIndex: number = Number.MAX_SAFE_INTEGER;
         let lastId: number = -1
         let streakBuffer: number = 0
+
+        // Random garbage
+        let funnyNumbers: IChannelTrophyFunnyNumber[] = []
 
         stats.forEach(stat => {
             const userId = parseInt(stat.userId)
@@ -36,15 +42,18 @@ class ChannelTrophy {
             const cost = parseInt(stat.cost)
 
             if(index <= lastIndex) { // New stream!
+                totalStreamCount++
                 totalSpentPerStream.push(0)
                 totalRedeemedPerStream.push(0)
                 totalSpentPerUserPerStream.push({})
                 totalRedeemedPerUserPerStream.push({})
-                firstRedemptionLastStream = userId
+                firstRedemptionLastStream = [userId, cost]
                 countUp(totalFirstRedemptions, userId)
-                countUp(totalLastRedemptions, lastRedemptionLastStream)
+                countUp(totalLastRedemptions, lastRedemptionLastStream[0])
+                console.log(`First redeemer: ${userId}, last redeemer: ${lastRedemptionLastStream[0]}`)
                 lastId = -1 // Break streaks across streams    
                 topSpentInStreakLastStream = {}
+                funnyNumbers = []
             }
             incrementPerStream(totalSpentPerStream, cost)
             incrementPerStream(totalRedeemedPerStream)
@@ -62,16 +71,19 @@ class ChannelTrophy {
                 }
                 streakBuffer = cost
             }
-            lastRedemptionLastStream = userId
+            lastRedemptionLastStream = [userId, cost]
             lastIndex = index
             lastId = userId
+
+            const funnyNumberConfig = this.detectFunnyNumber(cost, userId)
+            if(funnyNumberConfig != null) funnyNumbers.push(funnyNumberConfig)
         });
+        countUp(totalLastRedemptions, lastRedemptionLastStream[0]) // Without this we lose the last stream 🤣
 
         const embeds: IDiscordEmbed[] = []
 
         /* BUILD EMBEDS */
 
-        // Maybe pick out top spent in a single stream before popping here.
         const totalSpentPerUserInSingleStream: Record<number, number> = {}
         totalSpentPerUserPerStream.forEach(users => {
             Object.entries(users).forEach(user => {
@@ -83,19 +95,30 @@ class ChannelTrophy {
         const totalParticipantsLastStream = sortedTopSpendersLastStream.length
         const sortedTopSpentInStreakLastStream = sortObject(topSpentInStreakLastStream)
         const topSpenderLastStream = sortedTopSpendersLastStream[sortedTopSpendersLastStream.length-1]
+
+        const funnyNumberItems: string[] = []
+        for(const config of funnyNumbers) {
+            const name = await getName(config.userId)
+            const label = Utils.template(config.statLabel, name)
+            funnyNumberItems.push(label)
+        }
+
+        console.log(funnyNumberItems)
+
         embeds.push({
             title: '**Stream Statistics**',
             thumbnail: {url: await getImage(topSpenderLastStream[0])},
             fields: [
-                await buildFieldWithList("Top Spenders", false, " %s: **%s**", sortedTopSpendersLastStream, 3),
-                await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 3),
+                await buildFieldWithList("Top Spenders", true, " %s: **%s**", sortedTopSpendersLastStream, 5),
+                await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 5),
                 {
                     name: "Notable Redemptions",
                     value: [
-                        `⭐ First: ${await getName(firstRedemptionLastStream)}`,
-                        `🏁 Last: ${await getName(lastRedemptionLastStream)}`
-                    ].join('\n'),
-                    inline: true
+                        `⭐ First: ${await getName(firstRedemptionLastStream[0])} (**${firstRedemptionLastStream[1]}**)`,
+                        ...funnyNumberItems,
+                        `🏁 Last: ${await getName(lastRedemptionLastStream[0])} (**${lastRedemptionLastStream[1]}**)`
+                    ].reverse().join('\n'),
+                    inline: false
                 },
                 {
                     name: "Event Totals",
@@ -126,8 +149,8 @@ class ChannelTrophy {
         embeds.push({
             title: '**Redemptions**',
             fields: [
-                await buildFieldWithList("Top First Redemptions", true, " %s: **%s**", sortedTotalFirstRedemptions, 3),
-                await buildFieldWithList("Top Last Redemptions", true, " %s: **%s**", sortedTotalLastRedemptions, 3)
+                await buildFieldWithList("Top First Redemptions", true, " %s: **%s**", sortedTotalFirstRedemptions, 5),
+                await buildFieldWithList("Top Last Redemptions", true, " %s: **%s**", sortedTotalLastRedemptions, 5)
             ]
         })
 
@@ -136,7 +159,8 @@ class ChannelTrophy {
             description: [
                 `🐳 Total spent: **${totalSpent}**`,
                 `🤖 Total redeemed: **${totalRedeemed}**`,
-                `🐑 Total participants: **${Object.keys(userIds).length}**`
+                `🐑 Total participants: **${Object.keys(userIds).length}**`,
+                `🦑 Total streams with trophies: **${totalStreamCount}**`
             ].join('\n')
         })
 
@@ -162,6 +186,7 @@ class ChannelTrophy {
             o[key] += value
         }
         function countUp(o: Record<number, number>, key: number, value: number = 1) {
+            if(key == -1) return
             if(o[key] == undefined) o[key] = 0
             o[key] += value
         }
@@ -197,4 +222,64 @@ class ChannelTrophy {
         
         return embeds
     }
+
+	static _funnyNumbers: Record<number, IChannelTrophyFunnyNumber> = {
+		// List funny numbers here that we should give attention
+	}
+	
+	static detectFunnyNumber(n: number, userId: number = -1):IChannelTrophyFunnyNumber|null {
+        const result:IChannelTrophyFunnyNumber = {
+            number: n,
+            speech: '',
+            statLabel: '',
+            userId: userId
+        }
+        if(n < 10) return null
+
+        const nameForDiscord = `%s (**${n}**)`
+        const nameForTTS = '@%s grabbed'
+        const nStr = n.toString()
+        
+        let isRepDigit = checkRepDigit(n)
+        const start = nStr.substr(0, Math.floor(nStr.length/2))
+        const end = nStr.substr(Math.ceil(nStr.length/2)).split('').reverse().join('')       
+        
+		// Detect patterns here, in order of awesomeness
+        // TODO: Also detect unique numbers like 7708 and maybe other things... uh.
+        if(isRepDigit) {
+            result.speech = `${nameForTTS} a monodigit trophy, number ${n}`
+            result.statLabel = `🦄 Monodigit: ${nameForDiscord}`
+        } else if(start == end) {
+            result.speech = `${nameForTTS} a palindromic trophy, number ${n}`
+            result.statLabel = `🦆 Palindromic: ${nameForDiscord}`
+        } else if(n%1000==0) {
+            result.speech = `${nameForTTS} an even 1000's trophy, number ${n}`
+            result.statLabel = `🐓 Even 1000: ${nameForDiscord}`
+        } else if(n%100==0) {
+            result.speech = `${nameForTTS} an even 100's trophy, number ${n}`
+            result.statLabel = `🐤 Even 100: ${nameForDiscord}`
+        }
+
+        // Functions
+        function checkRepDigit( num: number, base: number = 10) {
+            let prev = -1
+            while (num != 0) {
+                let digit = num % base
+                num = Math.floor(num / base)
+                if (prev != -1 && digit != prev) return false
+                prev = digit
+            }
+            return true
+        }
+
+        return result.speech.length > 0 ? result : null
+	}
+}
+
+	
+interface IChannelTrophyFunnyNumber {
+    number: number
+    speech: string
+    statLabel: string
+    userId: number
 }
