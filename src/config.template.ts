@@ -31,10 +31,11 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_LOG_OFF]: {moderators: false},
         [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true}
     },
-    speechReferences: { // %s is a templated value, those gets replaced by parameters.
+    speechReferences: { 
+        // %s is a templated value, those gets replaced by parameters like names and numbers.
+        // For pre-existing entries, make sure to keep the same number of entires if it is an array.
         [KeysTemplate.KEY_SCREENSHOT]: 'Photograph %s',
         [KeysTemplate.KEY_INSTANTSCREENSHOT]: 'Instant shot!',
-        [KeysTemplate.KEY_FAVORITEVIEWER]: '%s is the new favorite viewer',
         [KeysTemplate.COMMAND_TTS_ON]: ['Global TTS activated', 'Global TTS already on'],
         [KeysTemplate.COMMAND_TTS_OFF]: ['Global TTS terminated', 'Global TTS already off'],
         [KeysTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
@@ -49,7 +50,7 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
         [KeysTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
         [KeysTemplate.COMMAND_SCALE]: 'World scale set to %s%',
-        [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry']
+        [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s is now also said as %s', '%s messed up a dictionary entry'],
     },
     rewardReferences: { // References between static and automatic rewards.
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1
@@ -275,12 +276,6 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
             title: 'Take a screenshot',
             cost: 10,
             prompt: 'Immediately trigger a screenshot.',
-            background_color: '#808080'
-        },
-        [KeysTemplate.KEY_FAVORITEVIEWER]: {
-            title: 'Favorite Viewer',
-            cost: 10,
-            prompt: 'You are the Favorite Viewer',
             background_color: '#808080'
         },
         

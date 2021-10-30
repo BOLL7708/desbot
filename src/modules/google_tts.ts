@@ -45,7 +45,13 @@ class GoogleTTS {
     private applyDictionary(text: string):string {
         const words = text.split(' ')
         words.forEach((word, i) => { 
-            if(this._dictionary.hasOwnProperty(word.toLowerCase())) words[i] = this._dictionary[word]
+            if(this._dictionary.hasOwnProperty(word.toLowerCase())) {
+                let replaceWith = this._dictionary[word]
+                if(replaceWith.indexOf(',') > -1) {
+                    replaceWith = Utils.randomFromArray(replaceWith.split(','))
+                }
+                words[i] = replaceWith
+            }
         })
         return words.join(' ')
     }

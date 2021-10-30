@@ -42,7 +42,6 @@ class KeysTemplate {
     static readonly KEY_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
     static readonly KEY_SCREENSHOT: string = 'Screenshot'
     static readonly KEY_INSTANTSCREENSHOT: string = 'InstantScreenshot'
-    static readonly KEY_FAVORITEVIEWER: string = 'FavoriteViewer'
     static readonly KEY_CHANNELTROPHY: string = 'ChannelTrophy'
     static readonly KEY_UNLOCKREWARDTIMER: string = 'UnlockRewardTimer'
 

@@ -175,41 +175,6 @@ class MainController {
         })
 
         this._twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_FAVORITEVIEWER),
-            callback: (message:ITwitchRedemptionMessage) => {
-                const userName = message?.redemption?.user?.login
-                const userId = message?.redemption?.user?.id
-                this._twitchHelix.getUserById(parseInt(userId), true).then(response => {
-                    const profileUrl = response?.profile_image_url
-                    const displayName = response?.display_name
-
-                    // TODO: Not sure if this is a good idea or not to have always on display.
-                    /* 
-                    this._sign.enqueueSign({
-                        title: 'Favorite Viewer',
-                        image: profileUrl,
-                        subtitle: displayName,
-                        duration: -1
-                    })
-                    */
-
-                    const data: ILabel = {
-                        key: 'FavoriteViewer',
-                        userName: userName,
-                        displayName: displayName,
-                        profileUrl: profileUrl
-                    }
-                    Settings.pushSetting(Settings.LABELS, 'key', data)
-                    Utils.loadCleanName(userName).then(cleanName => {
-                        const speech = Config.controller.speechReferences[Keys.KEY_FAVORITEVIEWER]
-                        // TODO: Add audience_cheers_13.wav SFX
-                        this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    })
-                })
-            }
-        })
-
-        this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
             callback: async (message:ITwitchRedemptionMessage) => {
                 // Save stat
@@ -227,7 +192,7 @@ class MainController {
                 const signCallback = this.buildSignCallback(this, Config.sign.configs[Keys.KEY_CHANNELTROPHY])
                 signCallback?.call(this, message)
                 const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], true)
-                soundCallback?.call(this, message)
+                soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward
                 const rewardId = await Utils.getRewardId(Keys.KEY_CHANNELTROPHY)
@@ -248,9 +213,11 @@ class MainController {
                         let titleArr = config.title.split(' ')
                         titleArr.pop()
                         titleArr.push(`${user.display_name}!`)
+                        const newCost = cost+1;
                         const updatedReward = await this._twitchHelix.updateReward(rewardId, {
                             title: titleArr.join(' '),
-                            cost: cost+1,
+                            cost: newCost,
+                            global_cooldown_seconds: config.global_cooldown_seconds+Math.round(Math.log(newCost)*30),
                             prompt: `Currently held by ${user.display_name}! ${config.prompt}`
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, 'red')
@@ -532,16 +499,26 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_DICTIONARY,
-            callback: (userData, input) => {
+            callback: async (userData, input) => {
                 const words = Utils.splitOnFirst(' ', input)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
-                if(words.length == 2) {
-                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
+                console.log(words)
+                if(words.length == 2) { // Adding or updating word
+                    let substitute = words[1].toLowerCase().trim()
+                    let didAdd = false
+                    if(substitute.indexOf('+') == 0) {
+                        const oldSetting:IDictionaryPair = await Settings.pullSetting(Settings.DICTIONARY, 'original', words[0])
+                        if(oldSetting != null) {
+                            substitute = [oldSetting.substitute, substitute.substr(1)].join(',')
+                            didAdd = true
+                        }
+                    }
+                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: substitute})
                     this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.DICTIONARY))
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
-                } else {
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[didAdd?1:0], words[0], words[1]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
+                } else { // Messed up
                     Utils.loadCleanName(userData.userName).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[2], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 }
             }
@@ -625,7 +602,7 @@ class MainController {
                                 content: Utils.numberToDiscordEmote(i+1, true),
                                 embeds: embeds
                             })
-                        },(i+1)*1000)
+                        },(i)*1000) // Discord is rate limited to 5/s so queueing them up at 1/s.
                     }
 				} else {
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
