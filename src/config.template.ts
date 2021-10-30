@@ -50,7 +50,7 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
         [KeysTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
         [KeysTemplate.COMMAND_SCALE]: 'World scale set to %s%',
-        [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s is now also said as %s', '%s messed up a dictionary entry'],
+        [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry'],
     },
     rewardReferences: { // References between static and automatic rewards.
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1

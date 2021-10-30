@@ -217,6 +217,7 @@ class MainController {
                         const updatedReward = await this._twitchHelix.updateReward(rewardId, {
                             title: titleArr.join(' '),
                             cost: newCost,
+                            is_global_cooldown_enabled: true,
                             global_cooldown_seconds: config.global_cooldown_seconds+Math.round(Math.log(newCost)*30),
                             prompt: `Currently held by ${user.display_name}! ${config.prompt}`
                         })
@@ -502,23 +503,13 @@ class MainController {
             callback: async (userData, input) => {
                 const words = Utils.splitOnFirst(' ', input)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
-                console.log(words)
-                if(words.length == 2) { // Adding or updating word
-                    let substitute = words[1].toLowerCase().trim()
-                    let didAdd = false
-                    if(substitute.indexOf('+') == 0) {
-                        const oldSetting:IDictionaryPair = await Settings.pullSetting(Settings.DICTIONARY, 'original', words[0])
-                        if(oldSetting != null) {
-                            substitute = [oldSetting.substitute, substitute.substr(1)].join(',')
-                            didAdd = true
-                        }
-                    }
-                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: substitute})
+                if(words.length == 2 && words[1].trim().length > 0) {
+                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
                     this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.DICTIONARY))
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[didAdd?1:0], words[0], words[1]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
                 } else { // Messed up
                     Utils.loadCleanName(userData.userName).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[2], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 }
             }
