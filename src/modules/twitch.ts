@@ -94,7 +94,7 @@ class Twitch{
         if(Config.twitch.proxyChatBotName.toLowerCase() == userName) {
             const matches = text.match(Config.twitch.proxyChatFormat)
             if(matches.length == 4) {
-                userName = matches[2]
+                userName = matches[2].toLowerCase()
                 text = matches[3]
                 Utils.log(`Got proxy message from ${matches[1]}: ${userName} [${text.length}]`, 'purple')
             }
