@@ -8,6 +8,7 @@ class Settings {
     static DICTIONARY: string = 'settings_tts_dictionary'
     static LABEL_CHANNEL_TROPHY: string = 'label_channel_trophy'
     static STATS_CHANNEL_TROPHY: string = 'stats_channel_trophy'
+    static LABEL_WORLD_SCALE: string = 'label_world_scale'
 
     private static LOG_COLOR: string = 'blue'
 

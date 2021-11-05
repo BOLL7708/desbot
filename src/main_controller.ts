@@ -18,6 +18,7 @@ class MainController {
     private _useGameSpecificRewards: boolean = Config.controller.useGameSpecificRewards
     private _logChatToDiscord: boolean = Config.controller.logChatToDiscordDefault
     private _nonceCallbacks: Record<string, Function> = {}
+    private _scaleIntervalHandle: number
 
     constructor() {
         this.init() // To allow init to be async
@@ -488,13 +489,61 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SCALE,
             callback: (userData, input) => {
-                const value = input == '' ? 100 : Math.max(10, Math.min(1000, parseFloat(input)))
+                const parts = input.split(' ')
                 const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.setSetting({
-                    type: OpenVR2WS.TYPE_WORLDSCALE,
-                    value: value/100.0
-                })
+                if(parts.length == 3) {
+                    const fromScale = parseInt(parts[0])
+                    const toScale = parseInt(parts[1])
+                    const forMinutes = parseInt(parts[2])
+                    const intervalMs = 10000 // 10s
+                    const steps = forMinutes*60*1000/intervalMs
+                    if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
+                        // Fail to start interval
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    } else { 
+                        // Launch interval
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        let currentScale = fromScale
+                        let currentStep = 0
+                        const multiple = Math.pow((toScale/fromScale), 1/steps)
+
+                        clearInterval(this._scaleIntervalHandle)
+                        this._scaleIntervalHandle = setInterval(
+                            ()=>{
+                                this._openvr2ws.setSetting({
+                                    type: OpenVR2WS.TYPE_WORLDSCALE,
+                                    value: currentScale/100.0
+                                })
+                                Settings.pushLabel(Settings.LABEL_WORLD_SCALE, `🌍 ${Math.round(currentScale*100)/100}%`)
+                                currentScale *= multiple
+                                if(currentStep == steps) {
+                                    this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                                    clearInterval(this._scaleIntervalHandle)
+                                    setTimeout(()=>{
+                                        Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                                    }, intervalMs)
+                                }
+                                currentStep++
+                            }, 
+                            intervalMs
+                        )
+                    }
+                } else {
+                    const scale = parseInt(input)
+                    if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(input) > -1) { // Terminate interval
+                        const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
+                        clearInterval(this._scaleIntervalHandle)
+                        Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    } else { // Manual setting
+                        const value = input == '' ? 100 : Math.max(10, Math.min(1000, scale))
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._openvr2ws.setSetting({
+                            type: OpenVR2WS.TYPE_WORLDSCALE,
+                            value: value/100.0
+                        })    
+                    }
+                }
             }
         })
 
