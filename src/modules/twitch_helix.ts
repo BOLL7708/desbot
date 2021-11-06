@@ -4,6 +4,7 @@ class TwitchHelix {
     _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
     _userNameToId: Record<string, number> = {}
     _userId = Config.twitch.userId
+    _gameCache: Record<number, ITwitchHelixGamesResponseData> = {}
 
     constructor() {
         Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
@@ -103,5 +104,48 @@ class TwitchHelix {
                 this.updateReward(pair.id, {is_enabled: kvp[key]})
             }
         }
+    }
+
+    async getClips(count: number = 20, pagination?: string) {
+        count = Math.min(100, Math.max(1, count))
+        let url = `${this._baseUrl}/clips/?broadcaster_id=${this._userId}&first=${count}`
+        let headers = {
+            Authorization: `Bearer ${this._tokens.access_token}`,
+            'Client-Id': Config.twitch.clientId,
+            'Content-Type': 'application/json'
+        }
+
+        let request = {
+            method: 'GET',
+            headers: headers
+        }
+        if(pagination != undefined) {
+            url += `&after=${pagination}`
+        }
+        
+        let response: ITwitchHelixClipResponse = await fetch(url, request).then(res => res.json())        
+        return response
+    }
+
+    async getGameById(id: number, skipCache: boolean = false):Promise<ITwitchHelixGamesResponseData|null> {
+        if(!skipCache && this._gameCache[id] != null) return this._gameCache[id]
+        let url = `${this._baseUrl}/games/?id=${id}`
+        return this.getGameByUrl(url)
+    }
+
+    private async getGameByUrl(url: string):Promise<ITwitchHelixGamesResponseData|null> {
+        let headers = {
+            Authorization: `Bearer ${this._tokens.access_token}`,
+            'Client-Id': Config.twitch.clientId
+        }
+        let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
+        let result: ITwitchHelixGamesResponseData = response?.data.pop()
+        if(result != null) {
+            const id = parseInt(result.id)
+            if(id != NaN) {
+                this._gameCache[id] = result
+            }
+        }
+        return result
     }
 }

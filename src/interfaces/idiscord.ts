@@ -32,7 +32,7 @@ interface IDiscordEmbed {
     footer?: IDiscordEmbedFooter
     image?: IDiscordEmbedMedia
     thumbnail?: IDiscordEmbedMedia
-    video?: IDiscordEmbedMedia
+    video?: IDiscordEmbedMedia // Apparently not supported by webhooks
     provider?: IDiscordEmbedProvider
     author?: IDiscordEmbedAuthor
     fields?: IDiscordEmbedField[]

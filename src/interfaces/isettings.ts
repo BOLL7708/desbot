@@ -22,3 +22,6 @@ interface IChannelTrophyStat {
     index: string
     cost: string
 }
+interface ITwitchClip {
+    id: string
+}

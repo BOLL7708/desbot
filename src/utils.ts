@@ -212,7 +212,29 @@ class Utils {
             '8': ':eight:',
             '9': ':nine:'
         }
-        const hash:string = addHash ? ':hash:' : ''
+        const hash: string = addHash ? ':hash:' : ''
         return hash+value.toString().split('').map(n => numbers[n]).join('')
+    }
+
+    /**
+     * Mostly used for Discord embeds
+     * @returns string representation of current ISO timestamp
+     */
+    static getISOTimestamp(input?: string): string {
+        const date = (input != undefined) ? new Date(Date.parse(input)) : new Date()
+        return date.toISOString()
+    }
+    static getDiscordTimetag(input: string|null, format: string='F'): string {
+        const date = (input != null) ? new Date(Date.parse(input)) : new Date()
+        return `<t:${Math.round(date.getTime()/1000)}:${format}>`
+    }
+
+    /**
+     * Await this function to have a delay in an async function.
+     * @param time 
+     * @returns 
+     */
+    static delay(time: number) {
+        return new Promise(resolve => setTimeout(resolve, time));
     }
 }

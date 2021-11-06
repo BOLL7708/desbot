@@ -66,6 +66,20 @@ Config.controller = { // Set defaults for the widget
             'World scale sequence terminated'
         ],
         [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry'],
+        [KeysTemplate.COMMAND_GAMEREWARDS_ON]: 'Game specific rewards enabled',
+        [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',
+        [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: [
+            'Initiating posting all Channel Trophy statistics',
+            'Completed posting all Channel Trophy statistics',
+            'Initiating posting of Channel Trophy statistics',
+            'Completed posting of Channel Trophy statistics',
+            'Failed to post Channel Trophy statistics'
+        ],
+        [KeysTemplate.COMMAND_CLIPS]: [
+            'Starting Twitch clip import.',
+            'There are %s old clips, %s new clips.',
+            'Finished posting %s new clips.'
+        ]
     },
     rewardReferences: { // References between static and automatic rewards.
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1

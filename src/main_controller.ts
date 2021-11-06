@@ -34,6 +34,7 @@ class MainController {
         await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
         await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY)
+        await Settings.loadSettings(Settings.TWITCH_CLIPS)
 
         /*
         ██ ███    ██ ██ ████████ 
@@ -632,25 +633,84 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
             callback: async (userData, input) => {
+                const speech = Config.controller.speechReferences[Keys.COMMAND_CHANNELTROPHY_STATS]
                 const numberOfStreams = ChannelTrophy.getNumberOfStreams()
 				if(input == "all") {
+                    this._tts.enqueueSpeakSentence(speech[0], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
-                        setTimeout(async()=>{
-                            const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
-                            console.log("Number of embeds: "+embeds.length)
-                            this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
-                                content: Utils.numberToDiscordEmote(i+1, true),
-                                embeds: embeds
-                            })
-                        },(i)*1000) // Discord is rate limited to 5/s so queueing them up at 1/s.
+                        const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
+                        this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+                            content: Utils.numberToDiscordEmote(i+1, true),
+                            embeds: embeds
+                        })
+                        await Utils.delay(5000)
                     }
+                    this._tts.enqueueSpeakSentence(speech[1], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				} else {
+                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
-					this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
 						embeds: embeds
 					})
+                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				}
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_CLIPS,
+            callback: async (userData, input) => {
+                const pageCount = 20
+                let lastCount = pageCount
+                const oldClips:ITwitchClip[] = await Settings.getFullSettings(Settings.TWITCH_CLIPS)
+                const speech = Config.controller.speechReferences[Keys.COMMAND_CLIPS]
+                this._tts.enqueueSpeakSentence(Utils.template(speech[0]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+
+                // Get all clips
+                const allClips:ITwitchHelixClipResponseData[] = []
+                let pagination:string = undefined
+                let i = 0
+                while(i == 0 || (pagination != null && pagination.length > 0)) {
+                    const clipsResponse = await this._twitchHelix.getClips(pageCount, pagination)
+                    allClips.push(...clipsResponse.data)
+                    lastCount = clipsResponse.data.length
+                    pagination = clipsResponse.pagination?.cursor
+                    i++
+                }
+                const oldClipIds = oldClips == undefined ? [] : oldClips.map((clip)=>{
+                    return clip.id
+                })
+                const newClips = allClips.filter((clip)=>{
+                    return oldClipIds.indexOf(clip.id) == -1
+                })
+                const sortedClips = newClips.sort((a,b)=>{
+                    return Date.parse(a.created_at) - Date.parse(b.created_at)
+                })
+                this._tts.enqueueSpeakSentence(Utils.template(speech[1], oldClipIds.length, newClips.length), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+
+                // Post to Discord
+                let count = oldClipIds.length+1
+                for(const clip of sortedClips) {
+                    await Utils.delay(5000);
+                    let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
+                    let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
+                    let response = await this._discord.sendPayload(Config.discord.webhooks[Keys.COMMAND_CLIPS], {
+                        username: user.display_name,
+                        avatar_url: user.profile_image_url,
+                        content: [
+                            Utils.numberToDiscordEmote(count++, true),
+                            `**Title**: ${clip.title}`,
+                            `**Creator**: ${user.display_name}`,
+                            `**Created**: ${Utils.getDiscordTimetag(clip.created_at)}`,
+                            `**Game**: ${game != undefined ? game.name : 'N/A'}`,
+                            `**Link**: ${clip.url}`
+                        ].join("\n")
+                    })
+                    if(response != null) Settings.pushSetting(Settings.TWITCH_CLIPS, 'id', {id: clip.id})
+                    else break // Something is broken, don't post things out of order by stopping.
+                }
+                this._tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
