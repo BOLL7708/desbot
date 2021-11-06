@@ -18,6 +18,7 @@ class MainController {
     private _useGameSpecificRewards: boolean = Config.controller.useGameSpecificRewards
     private _logChatToDiscord: boolean = Config.controller.logChatToDiscordDefault
     private _nonceCallbacks: Record<string, Function> = {}
+    private _scaleIntervalHandle: number
 
     constructor() {
         this.init() // To allow init to be async
@@ -33,6 +34,7 @@ class MainController {
         await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
         await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY)
+        await Settings.loadSettings(Settings.TWITCH_CLIPS)
 
         /*
         ██ ███    ██ ██ ████████ 
@@ -94,7 +96,7 @@ class MainController {
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
                 if(userName != null && inputText != null) {
-                    console.log("TTS Message Reward")
+                    Utils.log("TTS Message Reward", Color.DarkOrange)
                     this._tts.enqueueSpeakSentence(
                         inputText,
                         userName,
@@ -106,16 +108,16 @@ class MainController {
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME),
             callback: (data:ITwitchRedemptionMessage) => {
-                console.log("TTS Time Reward")
+                Utils.log("TTS Time Reward", Color.DarkOrange)
                 let username = data?.redemption?.user?.login
                 if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
                     this._ttsEnabledUsers.push(username)
-                    console.log(`User added to TTS list: ${username}`)
+                    Utils.log(`User added to TTS list: ${username}`, Color.DarkOrange)
                 }
                 setTimeout(()=>{
                     let index = this._ttsEnabledUsers.indexOf(username)
                     let removed = this._ttsEnabledUsers.splice(index)
-                    console.log(`User removed from TTS list: ${removed}`)
+                    Utils.log(`User removed from TTS list: ${removed}`, Color.DarkOrange)
                 }, 10*60*1000)
             }
         })
@@ -124,7 +126,7 @@ class MainController {
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
-                console.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`)
+                Utils.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`, Color.DarkOrange)
                 this._tts.setVoiceForUser(userName, userInput)
             }
         })
@@ -132,7 +134,7 @@ class MainController {
             id: await Utils.getRewardId(Keys.KEY_TTSSWITCHVOICEGENDER),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
-                console.log(`TTS Gender Set Reward: ${userName}`)
+                Utils.log(`TTS Gender Set Reward: ${userName}`, Color.DarkOrange)
                 Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
                     const voiceSetting:IUserVoice = voice
                     let gender:string = ''
@@ -488,13 +490,61 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SCALE,
             callback: (userData, input) => {
-                const value = input == '' ? 100 : Math.max(10, Math.min(1000, parseFloat(input)))
+                const parts = input.split(' ')
                 const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.setSetting({
-                    type: OpenVR2WS.TYPE_WORLDSCALE,
-                    value: value/100.0
-                })
+                if(parts.length == 3) {
+                    const fromScale = parseInt(parts[0])
+                    const toScale = parseInt(parts[1])
+                    const forMinutes = parseInt(parts[2])
+                    const intervalMs = 10000 // 10s
+                    const steps = forMinutes*60*1000/intervalMs
+                    if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
+                        // Fail to start interval
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    } else { 
+                        // Launch interval
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        let currentScale = fromScale
+                        let currentStep = 0
+                        const multiple = Math.pow((toScale/fromScale), 1/steps)
+
+                        clearInterval(this._scaleIntervalHandle)
+                        this._scaleIntervalHandle = setInterval(
+                            ()=>{
+                                this._openvr2ws.setSetting({
+                                    type: OpenVR2WS.TYPE_WORLDSCALE,
+                                    value: currentScale/100.0
+                                })
+                                Settings.pushLabel(Settings.LABEL_WORLD_SCALE, `🌍 ${Math.round(currentScale*100)/100}%`)
+                                currentScale *= multiple
+                                if(currentStep == steps) {
+                                    this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                                    clearInterval(this._scaleIntervalHandle)
+                                    setTimeout(()=>{
+                                        Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                                    }, intervalMs)
+                                }
+                                currentStep++
+                            }, 
+                            intervalMs
+                        )
+                    }
+                } else {
+                    const scale = parseInt(input)
+                    if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(input) > -1) { // Terminate interval
+                        const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
+                        clearInterval(this._scaleIntervalHandle)
+                        Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    } else { // Manual setting
+                        const value = input == '' ? 100 : Math.max(10, Math.min(1000, scale))
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._openvr2ws.setSetting({
+                            type: OpenVR2WS.TYPE_WORLDSCALE,
+                            value: value/100.0
+                        })    
+                    }
+                }
             }
         })
 
@@ -583,25 +633,84 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
             callback: async (userData, input) => {
+                const speech = Config.controller.speechReferences[Keys.COMMAND_CHANNELTROPHY_STATS]
                 const numberOfStreams = ChannelTrophy.getNumberOfStreams()
 				if(input == "all") {
+                    this._tts.enqueueSpeakSentence(speech[0], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
-                        setTimeout(async()=>{
-                            const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
-                            console.log("Number of embeds: "+embeds.length)
-                            this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
-                                content: Utils.numberToDiscordEmote(i+1, true),
-                                embeds: embeds
-                            })
-                        },(i)*1000) // Discord is rate limited to 5/s so queueing them up at 1/s.
+                        const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
+                        this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+                            content: Utils.numberToDiscordEmote(i+1, true),
+                            embeds: embeds
+                        })
+                        await Utils.delay(5000)
                     }
+                    this._tts.enqueueSpeakSentence(speech[1], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				} else {
+                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
-					this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
 						embeds: embeds
 					})
+                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				}
+            }
+        })
+
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_CLIPS,
+            callback: async (userData, input) => {
+                const pageCount = 20
+                let lastCount = pageCount
+                const oldClips:ITwitchClip[] = await Settings.getFullSettings(Settings.TWITCH_CLIPS)
+                const speech = Config.controller.speechReferences[Keys.COMMAND_CLIPS]
+                this._tts.enqueueSpeakSentence(Utils.template(speech[0]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+
+                // Get all clips
+                const allClips:ITwitchHelixClipResponseData[] = []
+                let pagination:string = undefined
+                let i = 0
+                while(i == 0 || (pagination != null && pagination.length > 0)) {
+                    const clipsResponse = await this._twitchHelix.getClips(pageCount, pagination)
+                    allClips.push(...clipsResponse.data)
+                    lastCount = clipsResponse.data.length
+                    pagination = clipsResponse.pagination?.cursor
+                    i++
+                }
+                const oldClipIds = oldClips == undefined ? [] : oldClips.map((clip)=>{
+                    return clip.id
+                })
+                const newClips = allClips.filter((clip)=>{
+                    return oldClipIds.indexOf(clip.id) == -1
+                })
+                const sortedClips = newClips.sort((a,b)=>{
+                    return Date.parse(a.created_at) - Date.parse(b.created_at)
+                })
+                this._tts.enqueueSpeakSentence(Utils.template(speech[1], oldClipIds.length, newClips.length), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+
+                // Post to Discord
+                let count = oldClipIds.length+1
+                for(const clip of sortedClips) {
+                    await Utils.delay(5000);
+                    let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
+                    let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
+                    let response = await this._discord.sendPayload(Config.discord.webhooks[Keys.COMMAND_CLIPS], {
+                        username: user.display_name,
+                        avatar_url: user.profile_image_url,
+                        content: [
+                            Utils.numberToDiscordEmote(count++, true),
+                            `**Title**: ${clip.title}`,
+                            `**Creator**: ${user.display_name}`,
+                            `**Created**: ${Utils.getDiscordTimetag(clip.created_at)}`,
+                            `**Game**: ${game != undefined ? game.name : 'N/A'}`,
+                            `**Link**: ${clip.url}`
+                        ].join("\n")
+                    })
+                    if(response != null) Settings.pushSetting(Settings.TWITCH_CLIPS, 'id', {id: clip.id})
+                    else break // Something is broken, don't post things out of order by stopping.
+                }
+                this._tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -845,8 +954,8 @@ class MainController {
         })
 
         this._obs.registerSceneChangeCallback((sceneName) => {
-            let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
-            this._ttsForAll = !filterScene
+            // let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
+            // this._ttsForAll = !filterScene
         })
 
         this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {

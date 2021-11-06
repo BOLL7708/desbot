@@ -32,8 +32,8 @@ class Discord {
         }).catch(err => console.error(err))
     }
 
-    sendPayload(url: string, payload: IDiscordWebookPayload) {
-        fetch(url, {
+    sendPayload(url: string, payload: IDiscordWebookPayload):Promise<void|Response> {
+        return fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
@@ -52,7 +52,7 @@ class Discord {
                     },
                     description: description,
                     color: color,
-                    timestamp: this.getTimestamp(),
+                    timestamp: Utils.getISOTimestamp(),
                     footer: footerText ? {
                         text: footerText
                     } : null
@@ -70,9 +70,5 @@ class Discord {
         }
         
         fetch(url, options).then(response => console.log(response))
-    }
-
-    getTimestamp(): string {
-        return new Date().toISOString()
     }
 }

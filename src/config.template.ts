@@ -1,3 +1,10 @@
+/*
+ ██████  ██████  ███    ██ ████████ ██████   ██████  ██      ██      ███████ ██████  
+██      ██    ██ ████   ██    ██    ██   ██ ██    ██ ██      ██      ██      ██   ██ 
+██      ██    ██ ██ ██  ██    ██    ██████  ██    ██ ██      ██      █████   ██████  
+██      ██    ██ ██  ██ ██    ██    ██   ██ ██    ██ ██      ██      ██      ██   ██ 
+ ██████  ██████  ██   ████    ██    ██   ██  ██████  ███████ ███████ ███████ ██   ██ 
+*/
 // Copy this file and rename it to config.base.ts
 // You can add other config files named config.[something].ts and load one of these using a URL param:
 // index.php?config=[something] and it will be overriding things in your main config.
@@ -36,11 +43,20 @@ Config.controller = { // Set defaults for the widget
         // For pre-existing entries, make sure to keep the same number of entires if it is an array.
         [KeysTemplate.KEY_SCREENSHOT]: 'Photograph %s',
         [KeysTemplate.KEY_INSTANTSCREENSHOT]: 'Instant shot!',
-        [KeysTemplate.COMMAND_TTS_ON]: ['Global TTS activated', 'Global TTS already on'],
-        [KeysTemplate.COMMAND_TTS_OFF]: ['Global TTS terminated', 'Global TTS already off'],
+        [KeysTemplate.COMMAND_TTS_ON]: [
+            'Global TTS activated', 
+            'Global TTS already on'
+        ],
+        [KeysTemplate.COMMAND_TTS_OFF]: [
+            'Global TTS terminated', 
+            'Global TTS already off'
+        ],
         [KeysTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
         [KeysTemplate.COMMAND_TTS_MUTE]: '%s has lost their voice',
-        [KeysTemplate.COMMAND_TTS_UNMUTE]: ['%s has regained their voice', '%s is not muted'],
+        [KeysTemplate.COMMAND_TTS_UNMUTE]: [
+            '%s has regained their voice', 
+            '%s is not muted'
+        ],
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
         [KeysTemplate.COMMAND_PING_ON]: 'Chat ping enabled',
@@ -49,14 +65,42 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
         [KeysTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
         [KeysTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
-        [KeysTemplate.COMMAND_SCALE]: 'World scale set to %s%',
+        [Keys.COMMAND_SCALE]: [
+            'World scale set to %s%',
+            'World scale will change from %s to %s% over %s minutes',
+            'World scale sequence finished',
+            'World scale sequence not set',
+            'World scale sequence terminated'
+        ],
         [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry'],
+        [KeysTemplate.COMMAND_GAMEREWARDS_ON]: 'Game specific rewards enabled',
+        [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',
+        [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: [
+            'Initiating posting all Channel Trophy statistics',
+            'Completed posting all Channel Trophy statistics',
+            'Initiating posting of Channel Trophy statistics',
+            'Completed posting of Channel Trophy statistics',
+            'Failed to post Channel Trophy statistics'
+        ],
+        [KeysTemplate.COMMAND_CLIPS]: [
+            'Starting Twitch clip import.',
+            'There are %s old clips, %s new clips.',
+            'Finished posting %s new clips.'
+        ]
     },
     rewardReferences: { // References between static and automatic rewards.
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1
     },
     phpPassword: Secure.PHPPassword
 }
+
+/*
+ ██████   ██████   ██████   ██████  ██      ███████ 
+██       ██    ██ ██    ██ ██       ██      ██      
+██   ███ ██    ██ ██    ██ ██   ███ ██      █████   
+██    ██ ██    ██ ██    ██ ██    ██ ██      ██      
+ ██████   ██████   ██████   ██████  ███████ ███████
+*/
 Config.google = { // TTS
     apiKey: Secure.GoogleTTS,
     speakerTimeoutMs: 5000,
@@ -65,6 +109,14 @@ Config.google = { // TTS
     defaultVoice: '', // This will be used if randomization is turned off.
     doNotSpeak: []
 },
+
+/*
+██████  ██ ██████  ███████ 
+██   ██ ██ ██   ██ ██      
+██████  ██ ██████  █████   
+██      ██ ██      ██      
+██      ██ ██      ███████
+*/
 Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
     port: 8077,
     doNotShow: [],
@@ -85,6 +137,14 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
         }
     }
 }
+
+/*
+ ██████  ██████  ███████ 
+██    ██ ██   ██ ██      
+██    ██ ██████  ███████ 
+██    ██ ██   ██      ██ 
+ ██████  ██████  ███████ 
+*/
 Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin.
     password: Secure.OBS,
     port: 4445,
@@ -113,6 +173,14 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
         signDuration: 10000 // ms
     }
 }
+
+/*
+███████  ██████ ██████  ███████ ███████ ███    ██ ███████ ██   ██  ██████  ████████ 
+██      ██      ██   ██ ██      ██      ████   ██ ██      ██   ██ ██    ██    ██    
+███████ ██      ██████  █████   █████   ██ ██  ██ ███████ ███████ ██    ██    ██    
+     ██ ██      ██   ██ ██      ██      ██  ██ ██      ██ ██   ██ ██    ██    ██    
+███████  ██████ ██   ██ ███████ ███████ ██   ████ ███████ ██   ██  ██████     ██
+*/
 Config.screenshots = { // Trigger and transmit screenshots with SuperScreenShotterVR.
     port: 8807,
     delay: 5,
@@ -125,6 +193,14 @@ Config.screenshots = { // Trigger and transmit screenshots with SuperScreenShott
         signDuration: 5000
     }
 }
+
+/*
+██████  ██ ███████  ██████  ██████  ██████  ██████  
+██   ██ ██ ██      ██      ██    ██ ██   ██ ██   ██ 
+██   ██ ██ ███████ ██      ██    ██ ██████  ██   ██ 
+██   ██ ██      ██ ██      ██    ██ ██   ██ ██   ██ 
+██████  ██ ███████  ██████  ██████  ██   ██ ██████  
+*/
 Config.discord = { // Send things to Discord
     remoteScreenshotEmbedColor: '#000000',
     manualScreenshotEmbedColor: '#FFFFFF',
@@ -132,6 +208,14 @@ Config.discord = { // Send things to Discord
     prefixCheer: '🙌 ',
     prefixReward: '🏆 '
 }
+
+/*
+██████  ██   ██ ██ ██      ██ ██████  ███████ ██   ██ ██    ██ ███████ 
+██   ██ ██   ██ ██ ██      ██ ██   ██ ██      ██   ██ ██    ██ ██      
+██████  ███████ ██ ██      ██ ██████  ███████ ███████ ██    ██ █████   
+██      ██   ██ ██ ██      ██ ██           ██ ██   ██ ██    ██ ██      
+██      ██   ██ ██ ███████ ██ ██      ███████ ██   ██  ██████  ███████ 
+*/
 Config.philipshue = { // Control Philips Hue lights
     serverPath: 'http://a-local-IP',
     userName: Secure.PhilipsHue,
@@ -141,6 +225,14 @@ Config.philipshue = { // Control Philips Hue lights
         [KeysTemplate.KEY_COLOR_EXAMPLE2]: { x: 0.5, y: 0.5 }
     }
 }
+
+/*
+ ██████  ██████  ███████ ███    ██ ██    ██ ██████  ██████  ██     ██ ███████ 
+██    ██ ██   ██ ██      ████   ██ ██    ██ ██   ██      ██ ██     ██ ██      
+██    ██ ██████  █████   ██ ██  ██ ██    ██ ██████   █████  ██  █  ██ ███████ 
+██    ██ ██      ██      ██  ██ ██  ██  ██  ██   ██ ██      ██ ███ ██      ██ 
+ ██████  ██      ███████ ██   ████   ████   ██   ██ ███████  ███ ███  ███████ 
+*/
 Config.openvr2ws = { // Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS
     port: 7708,
     password: Secure.OpenVR2WS,
@@ -156,6 +248,14 @@ Config.openvr2ws = { // Get things like currently played SteamVR game and change
         }
     }
 }
+
+/*
+ █████  ██    ██ ██████  ██  ██████  ██████  ██       █████  ██    ██ ███████ ██████  
+██   ██ ██    ██ ██   ██ ██ ██    ██ ██   ██ ██      ██   ██  ██  ██  ██      ██   ██ 
+███████ ██    ██ ██   ██ ██ ██    ██ ██████  ██      ███████   ████   █████   ██████  
+██   ██ ██    ██ ██   ██ ██ ██    ██ ██      ██      ██   ██    ██    ██      ██   ██ 
+██   ██  ██████  ██████  ██  ██████  ██      ███████ ██   ██    ██    ███████ ██   ██ 
+*/
 Config.audioplayer = { // Play sound effects
     configs: {
         [KeysTemplate.KEY_SOUND_CHAT]: {
@@ -178,6 +278,14 @@ Config.audioplayer = { // Play sound effects
         }
     }
 }
+
+/*
+███████ ██  ██████  ███    ██ 
+██      ██ ██       ████   ██ 
+███████ ██ ██   ███ ██ ██  ██ 
+     ██ ██ ██    ██ ██  ██ ██ 
+███████ ██  ██████  ██   ████ 
+*/
 Config.sign = { // Show on-screen notification with title+image+subtitle
     enabled: false,
     width: 200,
@@ -192,10 +300,26 @@ Config.sign = { // Show on-screen notification with title+image+subtitle
         [KeysTemplate.KEY_OBS_EXAMPLE2]: {duration: 5000, title: 'OBS Example 2!'}
     }
 }
+
+/*
+██████  ██    ██ ███    ██ 
+██   ██ ██    ██ ████   ██ 
+██████  ██    ██ ██ ██  ██ 
+██   ██ ██    ██ ██  ██ ██ 
+██   ██  ██████  ██   ████ 
+*/
 Config.run = {
     configs: {},
     gameSpecificConfigs: {}
 }
+
+/*
+████████ ██     ██ ██ ████████  ██████ ██   ██ 
+   ██    ██     ██ ██    ██    ██      ██   ██ 
+   ██    ██  █  ██ ██    ██    ██      ███████ 
+   ██    ██ ███ ██ ██    ██    ██      ██   ██ 
+   ██     ███ ███  ██    ██     ██████ ██   ██ 
+*/
 Config.twitch = { // Various Twitch services, like chat and rewards.
     userId: 0, // https://www.streamweasels.com/support/convert-twitch-username-to-user-id/
     clientId: Secure.TwitchClientID,

@@ -83,3 +83,41 @@ interface ITwitchHelixRewardResponseData {
     redemptions_redeemed_current_stream: any // Not specified in docs
     cooldown_expires_at: any // Not specified in docs
 }
+
+interface ITwitchHelixClipResponse {
+    data: ITwitchHelixClipResponseData[],
+    pagination: {
+        cursor: string
+    }
+}
+interface ITwitchHelixClipResponseData {
+    id: string
+    url: string
+    embed_url: string
+    broadcaster_id: string
+    broadcaster_name: string
+    creator_id: string
+    creator_name: string
+    video_id: string
+    game_id: string
+    language: string
+    title: string
+    view_count: number
+    created_at: string
+    thumbnail_url: string
+    duration: number
+}
+
+interface ITwitchHelixGamesResponse {
+    data: ITwitchHelixGamesResponseData[]
+    pagination: {
+        cursor: string
+    }
+}
+
+interface ITwitchHelixGamesResponseData {
+    box_art_url: string
+    id: string
+    name: string
+}
+

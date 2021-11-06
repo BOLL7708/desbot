@@ -26,7 +26,8 @@ class KeysTemplate {
     static readonly COMMAND_GAMEREWARDS_ON: string = 'rewardson'
     static readonly COMMAND_GAMEREWARDS_OFF: string = 'rewardsoff'
     static readonly COMMAND_SOURCESCREENSHOT: string = 'screenshot'
-    static readonly COMMAND_CHANNELTROPHY_STATS: string = 'channeltrophystats'
+    static readonly COMMAND_CHANNELTROPHY_STATS: string = 'trophy'
+    static readonly COMMAND_CLIPS: string = 'clips'
 
     // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
