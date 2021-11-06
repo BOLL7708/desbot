@@ -6,6 +6,7 @@ interface IGoogleConfig {
     randomizeVoiceLanguageFilter: string
     defaultVoice: string
     doNotSpeak: string[]
+    symbolsToIgnoreForDictionary: string[]
 }
 
 // Data

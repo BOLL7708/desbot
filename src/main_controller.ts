@@ -344,7 +344,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_NICK,
-            permissions: Config.controller.commandPermissionsReferences[Keys.COMMAND_TTS_NICK],
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 let userToRename:string = null
@@ -449,7 +448,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_ON,
-            permissions: Config.controller.commandPermissionsReferences[Keys.COMMAND_LOG_ON],
             callback: (userData, input) => {
                 this._logChatToDiscord = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
@@ -459,7 +457,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_OFF,
-            permissions: Config.controller.commandPermissionsReferences[Keys.COMMAND_LOG_OFF],
             callback: (userData, input) => {
                 this._logChatToDiscord = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
@@ -502,6 +499,7 @@ class MainController {
                         // Fail to start interval
                         this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { 
+                        // TODO: Disable all scale rewards
                         // Launch interval
                         this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         let currentScale = fromScale
@@ -522,6 +520,7 @@ class MainController {
                                     clearInterval(this._scaleIntervalHandle)
                                     setTimeout(()=>{
                                         Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                                        // TODO: Enable the right scale rewards again? Maybe
                                     }, intervalMs)
                                 }
                                 currentStep++

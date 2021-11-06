@@ -44,13 +44,32 @@ class GoogleTTS {
 
     private applyDictionary(text: string):string {
         const words = text.split(' ')
-        words.forEach((word, i) => { 
-            if(this._dictionary.hasOwnProperty(word.toLowerCase())) {
-                let replaceWith = this._dictionary[word]
-                if(replaceWith.indexOf(',') > -1) {
+        words.forEach((word, i) => {
+            // Ignore these symbols at the start and end of a word
+            const symbols = Config.google.symbolsToIgnoreForDictionary
+            let wordKey = word.toLowerCase()
+            let startSymbol = ''
+            let endSymbol = ''
+            
+            // Math start symbol
+            if(symbols.indexOf(wordKey[0]) > -1) {
+                startSymbol = wordKey[0]
+                wordKey = wordKey.substr(1)
+            }
+
+            // Match end symbol
+            if(symbols.indexOf(wordKey[wordKey.length-1]) > -1) {
+                endSymbol = wordKey[wordKey.length-1]
+                wordKey = wordKey.substr(0, wordKey.length-1)
+            }
+            
+            // Actual replacement
+            if(this._dictionary.hasOwnProperty(wordKey)) {
+                let replaceWith = this._dictionary[wordKey]
+                if(replaceWith.indexOf(',') > -1) { // Randomize if we find a list of words
                     replaceWith = Utils.randomFromArray(replaceWith.split(','))
                 }
-                words[i] = replaceWith
+                words[i] = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
             }
         })
         return words.join(' ')
