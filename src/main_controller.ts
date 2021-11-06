@@ -96,7 +96,7 @@ class MainController {
                 let userName = data?.redemption?.user?.login
                 let inputText = data?.redemption?.user_input
                 if(userName != null && inputText != null) {
-                    console.log("TTS Message Reward")
+                    Utils.log("TTS Message Reward", Color.DarkOrange)
                     this._tts.enqueueSpeakSentence(
                         inputText,
                         userName,
@@ -108,16 +108,16 @@ class MainController {
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME),
             callback: (data:ITwitchRedemptionMessage) => {
-                console.log("TTS Time Reward")
+                Utils.log("TTS Time Reward", Color.DarkOrange)
                 let username = data?.redemption?.user?.login
                 if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
                     this._ttsEnabledUsers.push(username)
-                    console.log(`User added to TTS list: ${username}`)
+                    Utils.log(`User added to TTS list: ${username}`, Color.DarkOrange)
                 }
                 setTimeout(()=>{
                     let index = this._ttsEnabledUsers.indexOf(username)
                     let removed = this._ttsEnabledUsers.splice(index)
-                    console.log(`User removed from TTS list: ${removed}`)
+                    Utils.log(`User removed from TTS list: ${removed}`, Color.DarkOrange)
                 }, 10*60*1000)
             }
         })
@@ -126,7 +126,7 @@ class MainController {
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
                 let userInput = data?.redemption?.user_input
-                console.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`)
+                Utils.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`, Color.DarkOrange)
                 this._tts.setVoiceForUser(userName, userInput)
             }
         })
@@ -134,7 +134,7 @@ class MainController {
             id: await Utils.getRewardId(Keys.KEY_TTSSWITCHVOICEGENDER),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userName = data?.redemption?.user?.login
-                console.log(`TTS Gender Set Reward: ${userName}`)
+                Utils.log(`TTS Gender Set Reward: ${userName}`, Color.DarkOrange)
                 Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
                     const voiceSetting:IUserVoice = voice
                     let gender:string = ''
@@ -954,8 +954,8 @@ class MainController {
         })
 
         this._obs.registerSceneChangeCallback((sceneName) => {
-            let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
-            this._ttsForAll = !filterScene
+            // let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
+            // this._ttsForAll = !filterScene
         })
 
         this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {

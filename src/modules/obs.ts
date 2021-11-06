@@ -48,8 +48,6 @@ class OBS {
                 const img = data.img
                 if(screenshotRequestData != undefined && img != undefined) {
                     this._sourceScreenshotCallback(img, screenshotRequestData)
-                } else {
-                    Utils.log(`Screenshot callback was missing reward(${screenshotRequestData!=undefined}) or image(${img!=undefined})`, 'red')
                 }
                 break
 		}
