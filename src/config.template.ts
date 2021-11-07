@@ -355,7 +355,8 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         KeysTemplate.KEY_SOUND_EXAMPLE1,
         KeysTemplate.KEY_SOUND_EXAMPLE2,
         KeysTemplate.KEY_SETTING_EXAMPLE1,
-        KeysTemplate.KEY_SETTING_EXAMPLE2
+        KeysTemplate.KEY_SETTING_EXAMPLE2,
+        KeysTemplate.KEY_WEB_EXAMPLE1
     ],
     disableAutoRewardAfterUse: [
         KeysTemplate.KEY_UNLOCKREWARDTIMER
@@ -451,5 +452,20 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     },
     channelTrophyUniqueNumbers: {
         
+    }
+}
+
+/*
+██     ██ ███████ ██████  
+██     ██ ██      ██   ██ 
+██  █  ██ █████   ██████  
+██ ███ ██ ██      ██   ██ 
+ ███ ███  ███████ ██████  
+*/
+Config.web = {
+    configs: {
+        [KeysTemplate.KEY_WEB_EXAMPLE1]: {
+            url: 'https://the.web-URL-you-want-to.load'
+        }
     }
 }

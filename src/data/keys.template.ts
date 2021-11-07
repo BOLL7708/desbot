@@ -59,6 +59,7 @@ class KeysTemplate {
     static readonly KEY_SETTING_EXAMPLE2: string = 'SettingExample2'
     static readonly KEY_GAME_EXAMPLE1: string = 'GameExample1'
     static readonly KEY_GAME_EXAMPLE2: string = 'GameExample2'
+    static readonly KEY_WEB_EXAMPLE1: string = 'WebExample1'
 
     // Message triggers used for TTS and audio referencing
     static readonly KEY_ANNOUNCE_EXAMPLE: string = '❓' // Any character, word or emote you want to match
