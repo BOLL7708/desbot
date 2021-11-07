@@ -26,14 +26,14 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_CAMERA_ON]: KeysTemplate.KEY_OBS_EXAMPLE1,
         [KeysTemplate.COMMAND_CAMERA_OFF]: KeysTemplate.KEY_COLOR_EXAMPLE2
     },
-    commandPermissionsDefault: {
+    commandPermissionsDefault: { // The default permissions for all commands, see overrides below.
         streamer: true,
         moderators: true,
         VIPs: false,
         subscribers: false,
         everyone: false
     },
-    commandPermissionsReferences: {
+    commandPermissionsReferences: { // This is where you can have deviating permissions per command so you steer access individually.
         [KeysTemplate.COMMAND_LOG_ON]: {moderators: false},
         [KeysTemplate.COMMAND_LOG_OFF]: {moderators: false},
         [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true}
@@ -107,7 +107,8 @@ Config.google = { // TTS
     randomizeVoice: false,
     randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
     defaultVoice: '', // This will be used if randomization is turned off.
-    doNotSpeak: []
+    doNotSpeak: ['!'],
+    symbolsToIgnoreForDictionary: ['.', ',', ':', '!', '?', '#', '(', ')']
 },
 
 /*
@@ -354,7 +355,8 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         KeysTemplate.KEY_SOUND_EXAMPLE1,
         KeysTemplate.KEY_SOUND_EXAMPLE2,
         KeysTemplate.KEY_SETTING_EXAMPLE1,
-        KeysTemplate.KEY_SETTING_EXAMPLE2
+        KeysTemplate.KEY_SETTING_EXAMPLE2,
+        KeysTemplate.KEY_WEB_EXAMPLE1
     ],
     disableAutoRewardAfterUse: [
         KeysTemplate.KEY_UNLOCKREWARDTIMER
@@ -450,5 +452,20 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     },
     channelTrophyUniqueNumbers: {
         
+    }
+}
+
+/*
+██     ██ ███████ ██████  
+██     ██ ██      ██   ██ 
+██  █  ██ █████   ██████  
+██ ███ ██ ██      ██   ██ 
+ ███ ███  ███████ ██████  
+*/
+Config.web = {
+    configs: {
+        [KeysTemplate.KEY_WEB_EXAMPLE1]: {
+            url: 'https://the.web-URL-you-want-to.load'
+        }
     }
 }

@@ -11,4 +11,5 @@ class Config {
     static sign: ISignConfig = undefined
     static run: IRunConfig = undefined
     static twitch: ITwitchConfig = undefined
+    static web: IWebConfig = undefined
 }

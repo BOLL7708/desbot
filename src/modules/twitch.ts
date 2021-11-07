@@ -27,8 +27,9 @@ class Twitch{
     registerCommand(twitchSlashCommand: ITwitchSlashCommand) {
 		if(twitchSlashCommand.trigger.length != 0) {
             // Use Default permission if none were provided.
-            if(twitchSlashCommand.permissions == undefined) twitchSlashCommand.permissions = {}
-            twitchSlashCommand.permissions = { ...Config.controller.commandPermissionsDefault, ...twitchSlashCommand.permissions }
+            const permissions = Config.controller.commandPermissionsReferences[twitchSlashCommand.trigger]
+            if(permissions == undefined) twitchSlashCommand.permissions = {}
+            twitchSlashCommand.permissions = { ...Config.controller.commandPermissionsDefault, ...permissions, ...twitchSlashCommand.permissions }
            
             // Store the command
             this._commands.push(twitchSlashCommand)
@@ -87,8 +88,6 @@ class Twitch{
         const isModerator = messageCmd.properties?.mod == '1' && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
-        
-        Utils.log(`${userName} is Moderator? ${isModerator?'YES':'NO'}`, 'red')
 
         // Chat proxy
         if(Config.twitch.proxyChatBotName.toLowerCase() == userName) {

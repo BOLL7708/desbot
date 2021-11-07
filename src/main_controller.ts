@@ -264,7 +264,8 @@ class MainController {
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
             let signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
             let runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.run[key])
-
+            let webCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildWebCallback(this, Config.web.configs[key])
+            
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
                 callback: async (data:ITwitchRedemptionMessage)=>{
@@ -279,6 +280,7 @@ class MainController {
                     if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
                     if(signCallback != null) signCallback(data)
                     if(runCallback != null) runCallback(data)
+                    if(webCallback != null) webCallback(data)
                 }
             }
             if(reward.id != null) {
@@ -344,7 +346,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_NICK,
-            permissions: Config.controller.commandPermissionsReferences[Keys.COMMAND_TTS_NICK],
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 let userToRename:string = null
@@ -449,7 +450,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_ON,
-            permissions: Config.controller.commandPermissionsReferences[Keys.COMMAND_LOG_ON],
             callback: (userData, input) => {
                 this._logChatToDiscord = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
@@ -459,7 +459,6 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_OFF,
-            permissions: Config.controller.commandPermissionsReferences[Keys.COMMAND_LOG_OFF],
             callback: (userData, input) => {
                 this._logChatToDiscord = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
@@ -502,6 +501,7 @@ class MainController {
                         // Fail to start interval
                         this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { 
+                        // TODO: Disable all scale rewards
                         // Launch interval
                         this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         let currentScale = fromScale
@@ -522,6 +522,7 @@ class MainController {
                                     clearInterval(this._scaleIntervalHandle)
                                     setTimeout(()=>{
                                         Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                                        // TODO: Enable the right scale rewards again? Maybe
                                     }, intervalMs)
                                 }
                                 currentStep++
@@ -1122,6 +1123,12 @@ class MainController {
             const speech = message?.redemption?.reward?.title
             if(speech != undefined) _this._tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
             Run.executeCommand(config)
+        }
+    }
+
+    private buildWebCallback(_this: any, config: IWebRequestConfig) {
+        if(config) return (message: ITwitchRedemptionMessage) => {
+            fetch(config.url, {mode: 'no-cors'}).then(result => console.log(result))
         }
     }
 }
