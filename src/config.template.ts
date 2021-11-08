@@ -65,7 +65,7 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
         [KeysTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
         [KeysTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
-        [Keys.COMMAND_SCALE]: [
+        [KeysTemplate.COMMAND_SCALE]: [
             'World scale set to %s%',
             'World scale will change from %s to %s% over %s minutes',
             'World scale sequence finished',
