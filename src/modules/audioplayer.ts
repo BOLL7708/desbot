@@ -3,15 +3,15 @@ class AudioPlayer {
     static get STATUS_ERROR() { return 1 }
     static get STATUS_ABORTED() { return 2 }
 
-    private _audio:HTMLAudioElement = new Audio()
-    private _queueLoopHandle:number = 0
-    private _queue:IAudio[] = []
-    private _isPlaying:boolean = false
-    private _currentNonce:string // Actually used but does not reference back through .call()
+    private _audio: HTMLAudioElement = new Audio()
+    private _queueLoopHandle: number = 0
+    private _queue: IAudio[] = []
+    private _isPlaying: boolean = false
+    private _currentNonce: string // Actually used but does not reference back through .call()
     private _callback: IAudioPlayedCallback // Actually used but does not reference back through .call()
 
     constructor() {
-        this.startQueueLoop()
+        this._queueLoopHandle = setInterval(this.tryPlayNext.bind(this), 250)
         this._audio.addEventListener('error', (evt)=>{
             doCallback.call(this, AudioPlayer.STATUS_ERROR)
         })
@@ -35,10 +35,6 @@ class AudioPlayer {
 
     public setPlayedCallback(callback: IAudioPlayedCallback) {
         this._callback = callback
-    }
-
-    private startQueueLoop() {
-        this._queueLoopHandle = setInterval(this.tryPlayNext.bind(this), 500)
     }
 
     private tryPlayNext() {

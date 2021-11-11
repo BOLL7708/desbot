@@ -17,6 +17,35 @@ class GoogleTTS {
     private _emptyMessageSound: IAudio|null
     private _dictionary: Record<string, string> = {}
 
+    private _count = 0
+    private _preloadQueue: Record<number, IAudio|null> = {}
+    private _preloadQueueLoopHandle: number = 0
+    private _dequeueCount = 0
+    private _dequeueIndex = ""
+    private _dequeueMaxTries = 6
+
+    constructor() {
+        this._preloadQueueLoopHandle = setInterval(this.checkForFinishedDownloads.bind(this), 250)
+    }
+
+    private checkForFinishedDownloads() {
+        const key = Object.keys(this._preloadQueue).shift()
+        if(key != undefined) {
+            if(this._dequeueIndex == key) this._dequeueCount++
+            const entry = this._preloadQueue[key]
+            if(entry != null) {
+                this._dequeueCount = 0
+                this._audio.enqueueAudio(entry)
+                delete this._preloadQueue[key]
+            } 
+            else if(this._dequeueCount >= this._dequeueMaxTries) {
+                this._dequeueCount = 0
+                delete this._preloadQueue[key]
+                Utils.log(`Cancelled TTS, index: ${this._dequeueIndex}, count: ${this._dequeueCount}`, 'red')
+            }
+        }
+    }
+
     setHasSpokenCallback(callback: IAudioPlayedCallback) {
         this._callback = callback
         this._audio.setPlayedCallback(callback)
@@ -26,8 +55,9 @@ class GoogleTTS {
         this._emptyMessageSound = audio
     }
 
-    private enqueueEmptyMessageSound() {
-        if(this._emptyMessageSound != null) this._audio.enqueueAudio(this._emptyMessageSound)
+    private enqueueEmptyMessageSound(serial: number) {
+        if(this._emptyMessageSound != null) this._preloadQueue[serial] = this._emptyMessageSound
+        else delete this._preloadQueue[serial]
     }
 
     stopSpeaking(andClearQueue: boolean = false) {
@@ -84,17 +114,20 @@ class GoogleTTS {
         clearRanges: ITwitchEmotePosition[]=[],
         useDictionary: boolean = true
     ) {
+        const serial = ++this._count
+        this._preloadQueue[serial] = null
+
         const blacklist = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
-        if(input.trim().length == 0) return this.enqueueEmptyMessageSound()
+        if(input.trim().length == 0) return this.enqueueEmptyMessageSound(serial)
         if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return // Will not even make empty message sound, so secret!
 
         const sentence = {text: input, userName: userName, type: type, meta: meta}      
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.apiKey}`
         let text = sentence.text
         if(text == null || text.length == 0) {
-            this.enqueueEmptyMessageSound()
+            this.enqueueEmptyMessageSound(serial)
             console.error("TTS: Sentence text was null or empty")
             return 
         }
@@ -107,7 +140,7 @@ class GoogleTTS {
         let cleanName = await Utils.loadCleanName(sentence.userName)
         let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER, false, clearRanges, true)
         if(cleanText.length == 0) {
-            this.enqueueEmptyMessageSound()
+            this.enqueueEmptyMessageSound(serial)
             console.warn("TTS: Clean text had zero length, skipping")
             return
         }
@@ -154,12 +187,13 @@ class GoogleTTS {
         }).then((response) => response.json()).then(json => {
             if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
                 console.log(`TTS: Successfully got speech: [${json.audioContent.length}]`);
-                this._audio.enqueueAudio({
+                this._preloadQueue[serial] = {
                     nonce: nonce,
                     src: `data:audio/ogg;base64,${json.audioContent}`
-                })
-                this._lastEnqueued = Date.now()
+                }
+                this._lastEnqueued = Date.now() // TODO: Fix this shit not working now
             } else {
+                delete this._preloadQueue[serial]
                 this._lastSpeaker = ''
                 console.error(`TTS: Failed to generate speech: [${json.status}], ${json.error}`);
                 this._callback?.call(this, nonce, AudioPlayer.STATUS_ERROR)
@@ -168,7 +202,8 @@ class GoogleTTS {
     }
 
     enqueueSoundEffect(audio: IAudio) {
-        this._audio.enqueueAudio(audio)
+        const serial = ++this._count
+        this._preloadQueue[serial] = audio
     }
 
     async setVoiceForUser(userName:string, input:string, nonce:string='') {
