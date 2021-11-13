@@ -6,9 +6,10 @@ class TwitchHelix {
     _userId = Config.twitch.userId
     _gameCache: Record<number, ITwitchHelixGamesResponseData> = {}
 
-    constructor() {
-        Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
-            .then(tokenData => this._tokens = tokenData)
+    constructor() {}
+
+    init() {
+        Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens').then(tokenData => this._tokens = tokenData)
     }
     
     async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {

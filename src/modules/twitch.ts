@@ -1,11 +1,9 @@
 class Twitch{
-    private _twitchTokens: TwitchTokens = new TwitchTokens()
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _twitchChat: TwitchChat = new TwitchChat()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true, initPubsub: boolean = true) {
-        await this._twitchTokens.refreshToken()
         if(initChat) this._twitchChat.init()
         if(initPubsub) this._twitchPubsub.init()
         this._twitchChat.registerChatMessageCallback((message) => {

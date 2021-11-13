@@ -1,6 +1,7 @@
 class MainController {
     private _twitch: Twitch = new Twitch()
     private _twitchHelix: TwitchHelix = new TwitchHelix()
+    private _twitchTokens: TwitchTokens = new TwitchTokens()
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: Pipe = new Pipe()
     private _obs: OBS = new OBS()
@@ -43,7 +44,9 @@ class MainController {
         ██ ██  ██ ██ ██    ██    
         ██ ██   ████ ██    ██    
         */
-        
+        await this._twitchTokens.refreshToken()
+        this._twitchHelix.init()
+
         this._pipe.setOverlayTitle("Streaming Widget")
 
         function setEmptySoundForTTS() {

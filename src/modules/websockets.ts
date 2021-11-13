@@ -1,5 +1,5 @@
 class WebSockets {
-    private LOG_COLOR: string = 'gray'
+    private LOG_COLOR: string = Color.Gray
 
     constructor(
         serverUrl:string, 
