@@ -22,7 +22,7 @@ class GoogleTTS {
     private _preloadQueueLoopHandle: number = 0
     private _dequeueCount = 0
     private _dequeueIndex = ""
-    private _dequeueMaxTries = 6
+    private _dequeueMaxTries = 10
 
     constructor() {
         this._preloadQueueLoopHandle = setInterval(this.checkForFinishedDownloads.bind(this), 250)
@@ -32,16 +32,19 @@ class GoogleTTS {
         const key = Object.keys(this._preloadQueue).shift()
         if(key != undefined) {
             if(this._dequeueIndex == key) this._dequeueCount++
+            this._dequeueIndex == key
             const entry = this._preloadQueue[key]
-            if(entry != null) {
+            if(entry != null) { // Still fetching generated TTS
+                delete this._preloadQueue[key]
                 this._dequeueCount = 0
                 this._audio.enqueueAudio(entry)
-                delete this._preloadQueue[key]
-            } 
-            else if(this._dequeueCount >= this._dequeueMaxTries) {
-                this._dequeueCount = 0
+            } else // The request for this TTS has timed out
+            if(this._dequeueCount > this._dequeueMaxTries) {
                 delete this._preloadQueue[key]
                 Utils.log(`Cancelled TTS, index: ${this._dequeueIndex}, count: ${this._dequeueCount}`, 'red')
+                this._dequeueCount = 0
+            } else { // We are still waiting for this TTS
+                Utils.log(`No audio to enqueue for [${key}] yet, retry count: ${this._dequeueCount}`, 'gray')
             }
         }
     }
