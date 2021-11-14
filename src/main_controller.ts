@@ -639,6 +639,7 @@ class MainController {
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHANNELTROPHY_STATS]
                 const numberOfStreams = ChannelTrophy.getNumberOfStreams()
+                const streamNumber = parseInt(input)
 				if(input == "all") {
                     this._tts.enqueueSpeakSentence(speech[0], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
@@ -650,6 +651,14 @@ class MainController {
                         await Utils.delay(5000)
                     }
                     this._tts.enqueueSpeakSentence(speech[1], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                } else if (!isNaN(streamNumber)) {
+                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, streamNumber-1)
+					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+                        content: Utils.numberToDiscordEmote(streamNumber, true),
+						embeds: embeds
+					})
+                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				} else {
                     this._tts.enqueueSpeakSentence(speech[2], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)

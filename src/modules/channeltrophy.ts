@@ -76,7 +76,9 @@ class ChannelTrophy {
             countUp(totalRedeemedPerUser, userId)
             countUpPerStream(totalRedeemedPerUserPerStream, userId)
             if(!userIds.includes(userId)) userIds.push(userId)
-            if(userId == lastId) streakBuffer += cost
+            if(userId == lastId) {
+                streakBuffer += cost
+            }
             else {
                 if(lastId > -1) {
                     updateIfLarger(topSpentInStreak, lastId, streakBuffer)
@@ -91,6 +93,8 @@ class ChannelTrophy {
             const funnyNumberConfig = this.detectFunnyNumber(cost, userId)
             if(funnyNumberConfig != null) funnyNumbers.push(funnyNumberConfig)
         }
+        updateIfLarger(topSpentInStreak, lastId, streakBuffer)
+        updateIfLarger(topSpentInStreakLastStream, lastId, streakBuffer)
         countUp(totalLastRedemptions, lastRedemptionLastStream[0]) // Without this we lose the last stream 🤣
 
         const embeds: IDiscordEmbed[] = []
@@ -256,7 +260,7 @@ class ChannelTrophy {
         const start = nStr.substr(0, Math.floor(nStr.length/2))
         const end = nStr.substr(Math.ceil(nStr.length/2)).split('').reverse().join('')       
         
-		// TODO: Move this to CONFIG
+		// Not sure if this actually works, but let's hope so.
 		const uniqueNumbers = Config.twitch.channelTrophyUniqueNumbers
 		
 		// Detect patterns here, in order of awesomeness or something
