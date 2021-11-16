@@ -282,22 +282,31 @@ class ChannelTrophy {
         } else if(n%100==0) { // Even 100s
             result.speech = `${nameForTTS} an even one hundreds trophy, number ${n}`
             result.label = `🐤 Even 100s: ${nameForDiscord}`
-        } else if(n>100 && checkSeries(n, true)) { // Rising series
+        } else if(n>100 && checkSeries(n, 1, true)) { // Rising series
 			result.speech = `${nameForTTS} a rising series trophy, number ${n}`
             result.label = `🦩 Rising series: ${nameForDiscord}`
-		} else if(n>100 && checkSeries(n, false)) { // Falling series
+		} else if(n>100 && checkSeries(n, 1, false)) { // Falling series
 			result.speech = `${nameForTTS} a falling series trophy, number ${n}`
-            result.label = `🦡 Falling series: ${nameForDiscord}`
-		}
+            result.label = `🐇 Falling series: ${nameForDiscord}`
+		} else if(n>100 && checkSeries(n, 2, true)) { // Rising series
+			result.speech = `${nameForTTS} a rising two series trophy, number ${n}`
+            result.label = `🦅 Rising 2-series: ${nameForDiscord}`
+		} else if(n>100 && checkSeries(n, 2, false)) { // Falling series
+			result.speech = `${nameForTTS} a falling two series trophy, number ${n}`
+            result.label = `🦡 Falling 2-series: ${nameForDiscord}`
+		} else if(checkPrime(n)) {
+            result.speech = `${nameForTTS} a prime trophy, number ${n}`
+            result.label = `🐈 Prime: ${nameForDiscord}`
+        } 
 
         // Functions
-		function checkMonoDigit( num: number ) {
+		function checkMonoDigit( num: number ): boolean {
 			const numStr = num.toString()
 			const filteredNum = num.toString().split('').filter(d => d == numStr[0])
 			return filteredNum.length == numStr.length
 		}
 		
-		function checkBinary( num: number ) {
+		function checkBinary( num: number ): boolean {
 			return parseInt(
                 (num).toString(2).split('').reduce(
                     (p,n) => (
@@ -307,14 +316,31 @@ class ChannelTrophy {
             ) == 1
 		}
 		
-		function checkSeries( num: number, rising: boolean = true ) {
+		function checkSeries( num: number, step: number, rising: boolean ): boolean {
 			const numStr = num.toString()
 			let firstDigit = parseInt(numStr[0])
 			const filteredNum = num.toString().split('').filter(
-				d => parseInt(d) == (rising ? firstDigit++ : firstDigit--)
+				d => {
+                    let result = parseInt(d) == firstDigit
+                    if(rising) firstDigit += step 
+                    else firstDigit -= step
+                    return result
+                }
 			)
 			return filteredNum.length == numStr.length
 		}
+
+        function checkPrime( num: number ): boolean {
+            const sqrtnum = Math.floor(Math.sqrt(num))
+            let prime = num != 1
+            for(let i=2; i<sqrtnum+1; i++) {
+                if(num % i == 0) {
+                    prime = false
+                    break
+                }
+            }
+            return prime
+        }
 
 		// Result
         return result.speech.length > 0 ? result : null
