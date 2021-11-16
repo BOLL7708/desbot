@@ -18,10 +18,10 @@ class GoogleTTS {
     private _dictionary: Record<string, string> = {}
 
     private _count = 0
-    private _preloadQueue: Record<number, IAudio|null> = {}
+    private _preloadEmptyKey: string = 'This request has not finished or failed yet.'
+    private _preloadQueue: Record<number, IAudio|null|string> = {}
     private _preloadQueueLoopHandle: number = 0
     private _dequeueCount = 0
-    private _dequeueIndex = ""
     private _dequeueMaxTries = 10
 
     constructor() {
@@ -29,22 +29,28 @@ class GoogleTTS {
     }
 
     private checkForFinishedDownloads() {
-        const key = Object.keys(this._preloadQueue).shift()
+        const key = Object.keys(this._preloadQueue).shift() // Get oldest key
         if(key != undefined) {
-            if(this._dequeueIndex == key) this._dequeueCount++
-            this._dequeueIndex == key
-            const entry = this._preloadQueue[key]
-            if(entry != null) { // Still fetching generated TTS
-                delete this._preloadQueue[key]
+            const entry = this._preloadQueue[key] // Get stored entry for key
+            if(entry !== this._preloadEmptyKey) { // If not empty we have had a result
+                if(entry != null) { 
+                    // Presumed a successful result, transition queue
+                    delete this._preloadQueue[key]
+                    this._audio.enqueueAudio(entry)
+                } else {
+                    // The request has failed
+                    delete this._preloadQueue[key]
+                    Utils.log(`TTS request [${key}] failed.`, Color.DarkRed)
+                }
                 this._dequeueCount = 0
-                this._audio.enqueueAudio(entry)
-            } else // The request for this TTS has timed out
-            if(this._dequeueCount > this._dequeueMaxTries) {
-                delete this._preloadQueue[key]
-                Utils.log(`Cancelled TTS, index: ${this._dequeueIndex}, count: ${this._dequeueCount}`, 'red')
-                this._dequeueCount = 0
-            } else { // We are still waiting for this TTS
-                Utils.log(`No audio to enqueue for [${key}] yet, retry count: ${this._dequeueCount}`, 'gray')
+            } else { // We are still waiting for this request to finish
+                this._dequeueCount++;
+                if(this._dequeueCount > this._dequeueMaxTries) {
+                    // The request for this TTS has timed out
+                    delete this._preloadQueue[key]
+                    this._dequeueCount = 0;
+                    Utils.log(`TTS request [${key}] timed out. (${this._dequeueCount})`, Color.DarkRed)
+                }
             }
         }
     }
