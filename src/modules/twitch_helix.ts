@@ -8,8 +8,8 @@ class TwitchHelix {
 
     constructor() {}
 
-    init() {
-        Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens').then(tokenData => this._tokens = tokenData)
+    async init() {
+        return Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens').then(tokenData => this._tokens = tokenData)
     }
     
     async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {

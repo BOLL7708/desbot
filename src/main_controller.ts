@@ -45,7 +45,7 @@ class MainController {
         ██ ██   ████ ██    ██    
         */
         await this._twitchTokens.refreshToken()
-        this._twitchHelix.init()
+        await this._twitchHelix.init()
 
         this._pipe.setOverlayTitle("Streaming Widget")
 
