@@ -3,7 +3,7 @@ class AudioPlayer {
     static get STATUS_ERROR() { return 1 }
     static get STATUS_ABORTED() { return 2 }
 
-    private _audio: HTMLAudioElement = new Audio()
+    private _audio: HTMLAudioElement = null
     private _queueLoopHandle: number = 0
     private _queue: IAudio[] = []
     private _isPlaying: boolean = false
@@ -12,6 +12,18 @@ class AudioPlayer {
 
     constructor() {
         this._queueLoopHandle = setInterval(this.tryPlayNext.bind(this), 250)
+        this.initAudio()
+    }
+
+    private initAudio() {
+        this._isPlaying = false
+        this._currentNonce = null
+        if(this._audio != null) {
+            this._audio.pause()
+            delete this._audio
+        }
+        this._audio = new Audio()
+        this._audio.volume = 1.0
         this._audio.addEventListener('error', (evt)=>{
             doCallback.call(this, AudioPlayer.STATUS_ERROR)
         })
@@ -68,7 +80,7 @@ class AudioPlayer {
     }
 
     stop(andClearQueue: boolean = false) {
-        this._audio.pause()
+        this.initAudio()
         if(andClearQueue) this._queue = []
     }
 
