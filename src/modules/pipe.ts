@@ -93,15 +93,16 @@ class Pipe {
 
     // Templates
     async showPreset(preset: IPipeMessagePreset) {
+        const imagePath = Array.isArray(preset.imagePath) ? Utils.randomFromArray(preset.imagePath) : preset.imagePath
         switch(preset.type) {
             case Pipe.TYPE_OVERRIDE:
-                this.showCustom(preset.imagePath, preset.duration, preset.override)
+                this.showCustom(imagePath, preset.duration, preset.override)
                 break;
             case Pipe.TYPE_NOTIFICATION:
-                this.showNotificationImage(preset.imagePath, preset.duration, preset.top, preset.left)
+                this.showNotificationImage(imagePath, preset.duration, preset.top, preset.left)
                 break;
             case Pipe.TYPE_ALERT:
-                this.showAlertMessage(preset.imagePath, preset.duration)
+                this.showAlertMessage(imagePath, preset.duration)
                 break;
         }
     }

@@ -9,7 +9,7 @@ interface IPipeConfigs {
     [key:string]: IPipeMessagePreset
 }
 interface IPipeMessagePreset {
-    imagePath: string
+    imagePath: string|string[]
     duration: number
     type: number
     top?: boolean
