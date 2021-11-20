@@ -1,13 +1,6 @@
 interface IRunConfig {
-    configs: IRunCommands
-    gameSpecificConfigs: IRunGameSpecificCommands
-}
-
-interface IRunGameSpecificCommands {
-    [key: string]: IRunCommands
-}
-interface IRunCommands {
-    [key: string]: IRunCommand
+    configs: { [key:string]: IRunCommand }
+    gameSpecificConfigs: { [key:string]: { [key:string]: IRunCommand }}
 }
 interface IRunCommand {
     window: string
@@ -15,7 +8,7 @@ interface IRunCommand {
     duration?: number // Seconds before reset
 }
 interface IRunCommandConfig {
-    command: string
+    command: string|string[]
     value?: any, // Use this if you are planning to reset to default
     defaultValue?: any // Resets to this if available
 }
