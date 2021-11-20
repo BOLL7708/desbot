@@ -2,12 +2,9 @@
 interface IObsConfig {
     password:string
     port:number
-    configs: IObsSourceConfigs
+    configs: { [key:string]: IObsSourceConfig }
     filterOnScenes: string[]
     sourceScreenshotConfig: IObsSourceScreenshotConfig
-}
-interface IObsSourceConfigs {
-    [key:string]: IObsSourceConfig
 }
 interface IObsSourceConfig {
     sourceName: string

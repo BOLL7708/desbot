@@ -5,38 +5,20 @@ interface IControllerConfig {
     pingForChat: boolean
     logChatToDiscordDefault: boolean
     useGameSpecificRewards: boolean
-    websocketsUsed: IConfigWebsocketsUsed
-    commandReferences: IConfigCommandReferences
+    websocketsUsed: {
+        twitchChat: boolean
+        twitchPubsub: boolean
+        openvr2ws: boolean
+        pipe: boolean
+        obs: boolean
+        screenshots: boolean
+    }
+    commandReferences: { [key: string]: string }
     commandPermissionsDefault: ICommandPermissions
-    commandPermissionsReferences: IConfigCommandPermissions
-    speechReferences: IConfigSpeechReferences
-    rewardReferences: IConfigRewardReferences
+    commandPermissionsReferences: { [key: string]: ICommandPermissions }
+    speechReferences: { [key: string]: string|string[] }
+    rewardReferences: { [key: string]: string }
     phpPassword: string
-}
-
-interface IConfigCommandReferences {
-    [key: string]: string
-}
-
-interface IConfigSpeechReferences {
-    [key: string]: string|string[]
-}
-
-interface IConfigCommandPermissions {
-    [key: string]: ICommandPermissions
-}
-
-interface IConfigRewardReferences {
-    [key: string]: string
-}
-
-interface IConfigWebsocketsUsed {
-    twitchChat: boolean
-    twitchPubsub: boolean
-    openvr2ws: boolean
-    pipe: boolean
-    obs: boolean
-    screenshots: boolean
 }
 
 interface IScreenshotRequestData {

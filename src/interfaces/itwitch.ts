@@ -20,11 +20,11 @@ interface ITwitchConfig {
     disableRewards: string[]
     autoRewards: string[]
     disableAutoRewardAfterUse: string[]
-    rewardConfigs: ITwitchRewards
     rewardConfigProfileDefault: ITwitchRewardProfileConfig
-    rewardConfigProfilePerGame: ITwitchRewardProfilePerGame
+    rewardConfigs: { [key: string]: ITwitchHelixRewardConfig }
+    rewardConfigProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
     gameSpecificRewards: string[]
-    gameSpecificRewardsPerGame: ITwitchRewardsForSpecificGames
+    gameSpecificRewardsPerGame: { [key: string]: { [key: string]: ITwitchHelixRewardUpdate } }
     channelTrophyUniqueNumbers: IChannelTrophyFunnyNumberTexts
 }
 interface ITwitchReward {
@@ -54,19 +54,9 @@ interface ITwitchAnnouncement {
     callback: ITwitchAnnouncementCallback
 }
 
-interface ITwitchRewards {
-    [key: string]: ITwitchHelixRewardConfig
-}
 interface ITwitchRewardProfileConfig {
     [key: string]: boolean
 }
-interface ITwitchRewardProfilePerGame {
-    [key: string]: ITwitchRewardProfileConfig
-}
-interface ITwitchRewardsForSpecificGames {
-    [key: string]: {[key: string]: ITwitchHelixRewardUpdate}
-}
-
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
     (userName: ITwitchUserData, messageData:ITwitchMessageData): void

@@ -3,10 +3,7 @@ interface IPhilipsHueConfig {
     serverPath: string
     userName: string
     lightsToControl: number[]
-    configs: IPhilipsHueRewardConfigs
-}
-interface IPhilipsHueRewardConfigs {
-    [key:string]:IPhilipsHueColorConfig
+    configs: { [key:string]:IPhilipsHueColorConfig }
 }
 interface IPhilipsHueColorConfig {
     x: number

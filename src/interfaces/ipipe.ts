@@ -3,10 +3,7 @@ interface IPipeConfig {
     port: number
     doNotShow: string[]
     showRewardsWithKeys: string[]
-    configs: IPipeConfigs
-}
-interface IPipeConfigs {
-    [key:string]: IPipeMessagePreset
+    configs: { [key:string]: IPipeMessagePreset }
 }
 interface IPipeMessagePreset {
     imagePath: string|string[]

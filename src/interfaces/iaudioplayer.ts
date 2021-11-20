@@ -1,9 +1,6 @@
 // Config
 interface IAudioPlayerConfig {
-    configs: IAudioPlayerConfigs
-}
-interface IAudioPlayerConfigs {
-    [key:string]: IAudio
+    configs: { [key:string]: IAudio }
 }
 
 // Data
