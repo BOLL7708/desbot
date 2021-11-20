@@ -53,34 +53,51 @@ class OBS {
 		}
     }
 
-    showSource(config: IObsSourceConfig, ignoreDuration: boolean = false) {
-        config.sceneNames.forEach(sceneName => {
-            this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
-                "scene-name": sceneName,
-                "item": config.sourceName,
-                "visible": true
-            }));
-            if(config.duration != undefined && !ignoreDuration) {
-                setTimeout(() => {
-                    this.hideSource(config)
-                }, config.duration);
-            }
-        });
+    show(config: IObsSourceConfig, ignoreDuration: boolean = false) {
+        if(config.sceneNames != undefined) {
+            config.sceneNames.forEach(sceneName => {
+                this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
+                    "scene-name": sceneName,
+                    "item": config.sourceName,
+                    "visible": true
+                }))
+            })
+        } else 
+        if(config.filterName != undefined) {
+            this._socket.send(this.buildRequest("SetSourceFilterVisibility", ++this._messageCounter, {
+                "sourceName": config.sourceName,
+                "filterName": config.filterName,
+                "filterEnabled": true
+            })) 
+        }
+        if(config.duration != undefined && !ignoreDuration) {
+            setTimeout(() => {
+                this.hide(config)
+            }, config.duration)
+        }
+    }
+    hide(config: IObsSourceConfig) {
+        if(config.sceneNames != undefined) {
+            config.sceneNames.forEach(sceneName => {
+                this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
+                    "scene-name": sceneName,
+                    "item": config.sourceName,
+                    "visible": false
+                }));
+            });
+        } else
+        if (config.filterName != undefined) {
+            this._socket.send(this.buildRequest("SetSourceFilterVisibility", ++this._messageCounter, {
+                "sourceName": config.sourceName,
+                "filterName": config.filterName,
+                "filterEnabled": false
+            }));            
+        }
     }
 
-    hideSource(config: IObsSourceConfig) {
-        config.sceneNames.forEach(sceneName => {
-            this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
-                "scene-name": sceneName,
-                "item": config.sourceName,
-                "visible": false
-            }));
-        });
-    }
-
-    toggleSource(config: IObsSourceConfig, visible: boolean) {
-        if(visible) this.showSource(config) 
-        else this.hideSource(config)
+    toggle(config: IObsSourceConfig, visible: boolean) {
+        if(visible) this.show(config) 
+        else this.hide(config)
     }
 
     takeSourceScreenshot(requestData:IScreenshotRequestData) {

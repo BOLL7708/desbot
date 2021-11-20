@@ -475,7 +475,7 @@ class MainController {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.showSource(Config.obs.configs[key], true)
+                this._obs.show(Config.obs.configs[key], true)
             }
         })
 
@@ -485,7 +485,7 @@ class MainController {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.hideSource(Config.obs.configs[key])
+                this._obs.hide(Config.obs.configs[key])
             }
         })
 
@@ -541,7 +541,7 @@ class MainController {
                         Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
                         this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { // Manual setting
-                        const value = input == '' ? 100 : Math.max(10, Math.min(1000, scale))
+                        const value = Math.max(10, Math.min(1000, scale || 100))
                         this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         this._openvr2ws.setSetting({
                             type: OpenVR2WS.TYPE_WORLDSCALE,
@@ -1077,7 +1077,7 @@ class MainController {
     private buildOBSCallback(_this: any, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
-            _this._obs.showSource(config)
+            _this._obs.show(config)
             if(config.notificationImage != undefined) {
                 _this._pipe.showNotificationImage(config.notificationImage, config.duration)
             }

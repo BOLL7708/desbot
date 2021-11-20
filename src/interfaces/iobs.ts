@@ -10,10 +10,11 @@ interface IObsSourceConfigs {
     [key:string]: IObsSourceConfig
 }
 interface IObsSourceConfig {
-    sceneNames: string[]
     sourceName: string
+    sceneNames?: string[]
     duration?: number
     notificationImage?: string
+    filterName?: string
 }
 interface IObsSourceScreenshotConfig {
     sourceName: string

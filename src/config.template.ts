@@ -161,6 +161,11 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
             sourceName: 'some other source',
             duration: 20000,
             notificationImage: 'assets/other_image.png'
+        },
+        [KeysTemplate.KEY_OBS_EXAMPLE3]: {
+            sourceName: 'some source with a filter',
+            duration: 5000,
+            filterName: 'a filter name'
         }
     },
     filterOnScenes: [''], // WIP

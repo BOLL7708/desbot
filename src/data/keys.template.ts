@@ -49,6 +49,7 @@ class KeysTemplate {
     // Automatically loaded rewards
     static readonly KEY_OBS_EXAMPLE1: string = 'ObsExample1'
     static readonly KEY_OBS_EXAMPLE2: string = 'ObsExample2'
+    static readonly KEY_OBS_EXAMPLE3: string = 'ObsExample3'
     static readonly KEY_COLOR_EXAMPLE1: string = 'ColorExample1'
     static readonly KEY_COLOR_EXAMPLE2: string = 'ColorExample2'
     static readonly KEY_SOUND_EXAMPLE1: string = 'SoundExample1'
