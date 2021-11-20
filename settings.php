@@ -17,10 +17,11 @@ if($setting === null) {
 $setting = str_replace(['.', '/', '\\'], '', $setting);
 $filePath = getFilePath($setting);
 
+// TODO: Add a switch here and add PUT to append a file?
 if($method === 'POST') { 
     // Save settings
     $success = writeSettings($filePath);
-    if($success) exit("Settings written");
+    if($success !== false) exit("Settings written");
     else {
         http_response_code(400);
         exit("Could not write file to disk");
@@ -37,13 +38,16 @@ if($method === 'POST') {
 }
 
 function writeSettings($filePath) {
+    // Get and decode input
     $inputJson = file_get_contents('php://input');
     $inputRows = json_decode($inputJson);
 
+    //Check if input was actually JSON, else just write the contents to file as it's a label
     if(!is_object($inputRows) && !is_array($inputRows)) {
         return file_put_contents($filePath, $inputRows);
     }
 
+    // Encode input to CSV, write settings file
     if(!is_array($inputRows)) $inputRows = [$inputRows];
     $input = array();
     foreach($inputRows as $row) {
