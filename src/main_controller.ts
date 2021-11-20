@@ -157,8 +157,9 @@ class MainController {
                     if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
                         this._screenshots.sendScreenshotRequest(data, Config.screenshots.delay)
                     } else {
-                        setTimeout(()=>{
-                            const requestData:IScreenshotRequestData = { userId: parseInt(data.redemption.user.id), userInput: data.redemption.user_input }
+                        setTimeout(async ()=>{
+                            const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
+                            const requestData:IScreenshotRequestData = { userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                             this._obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delay*1000)
                     }    
@@ -167,13 +168,14 @@ class MainController {
         })
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_INSTANTSCREENSHOT),
-            callback: (data:ITwitchRedemptionMessage) => {
+            callback: async (data:ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
                     this._screenshots.sendScreenshotRequest(data, 0)
                 } else {
-                    const requestData:IScreenshotRequestData = { userId: parseInt(data.redemption.user.id), userInput: data.redemption.user_input }
+                    const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
+                    const requestData:IScreenshotRequestData = { userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                     this._obs.takeSourceScreenshot(requestData)
                 }
             }
@@ -668,12 +670,12 @@ class MainController {
                     this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                     this._nonceCallbacks[nonce] = ()=>{
                         setTimeout(()=>{
-                            const requestData:IScreenshotRequestData = { userId: parseInt(userData.userId), userInput: input }
+                            const requestData:IScreenshotRequestData = { userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
                             this._obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delay*1000)
                     }
                 } else {
-                    this._obs.takeSourceScreenshot({ userId: parseInt(userData.userId), userInput: '' })
+                    this._obs.takeSourceScreenshot({ userId: parseInt(userData.userId), userName: userData.userName, userInput: '' })
                 }
             }
         })

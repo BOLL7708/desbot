@@ -23,5 +23,6 @@ interface IControllerConfig {
 
 interface IScreenshotRequestData {
     userId: number
+    userName: string
     userInput: string
 }

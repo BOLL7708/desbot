@@ -105,11 +105,12 @@ class OBS {
         const time = date.toLocaleString("sv-SE").replace(' ', '_').replace(/\:/g, '').replace(/\-/g, '')
         const ms = date.getMilliseconds()
         const id = ++this._messageCounter;
+        const user = requestData.userName.length > 0 ? `_${requestData.userName}` : ''
         this._screenshotRequests[id] = requestData
         this._socket.send(this.buildRequest("TakeSourceScreenshot", id, {
             "sourceName": this._config.sourceScreenshotConfig.sourceName,
             "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
-            "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}.png`
+            "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}${user}.png`
         }));
     }
 

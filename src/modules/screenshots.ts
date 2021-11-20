@@ -30,7 +30,8 @@ class Screenshots {
             tag: rewardData.redemption.user.login
         }
         this._screenshotRequests[this._messageCounter] = {
-            userId: parseInt(rewardData?.redemption?.user?.id), 
+            userId: parseInt(rewardData?.redemption?.user?.id),
+            userName: rewardData.redemption.user.login,
             userInput: rewardData.redemption.user_input
         }
         this._socket.send(JSON.stringify(message))
