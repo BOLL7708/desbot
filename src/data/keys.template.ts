@@ -29,6 +29,11 @@ class KeysTemplate {
     static readonly COMMAND_CHANNELTROPHY_STATS: string = 'trophy'
     static readonly COMMAND_CLIPS: string = 'clips'
 
+    // Dangerous WIP SteamVR settings commands
+    static readonly COMMAND_REFRESHRATE: string = 'hz'
+    static readonly COMMAND_BRIGHTNESS: string = 'lux'
+    static readonly COMMAND_VRVIEWEYE: string = 'eye'
+    
     // Discord
     static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'

@@ -1,5 +1,8 @@
 class OpenVR2WS {
     static get TYPE_WORLDSCALE() { return 1 }
+    static get TYPE_BRIGHTNESS() { return 2 }
+    static get TYPE_REFRESHRATE() { return 3 }
+    static get TYPE_VRVIEWEYE() { return 4 }
 
     private _socket: WebSockets
     private _resetLoopHandle: number = 0
@@ -92,21 +95,45 @@ class OpenVR2WS {
     public async setSetting(config: IOpenVR2WSSetting) {
         const password = await Utils.sha256(Config.openvr2ws.password)
         const appId = this._currentAppId.toString()
+        const message :IOpenVRWSCommandMessage = {
+            key: 'RemoteSetting',
+            value: password,
+            value2: 'steamvr',
+            value3: '',
+            value4: ''
+        }
+        const duration = config.duration ?? -1
         switch(config.type) {
             case OpenVR2WS.TYPE_WORLDSCALE:
-                const message:IOpenVRWSCommandMessage = {
-                    key: 'RemoteSetting',
-                    value: password,
-                    value2: appId,
-                    value3: 'worldScale',
-                    value4: config.value.toString()
-                }
+                message.value2 = appId
+                message.value3 = 'worldScale'
+                message.value4 = config.value.toString()
                 this.sendMessage(message)
                 message.value4 = (1).toString() // Reset to 100%
-                const duration = config.duration ?? -1
                 this._resetTimers[config.type] = duration
                 this._resetMessages[config.type] = duration > 0 ? message : undefined
                 break
+            case OpenVR2WS.TYPE_BRIGHTNESS:
+                message.value3 = 'analogGain'
+                message.value4 = config.value.toString()
+                this.sendMessage(message)
+                message.value4 = (1.30).toString() // Reset to 130%
+                this._resetTimers[config.type] = duration
+                this._resetMessages[config.type] = duration > 0 ? message : undefined
+                break
+            case OpenVR2WS.TYPE_REFRESHRATE:
+                message.value3 = 'preferredRefreshRate'
+                message.value4 = config.value.toString()
+                this.sendMessage(message)
+                message.value4 = (120).toString() // Reset to 120 Hz
+                this._resetTimers[config.type] = duration
+                this._resetMessages[config.type] = duration > 0 ? message : undefined
+                break;
+            case OpenVR2WS.TYPE_VRVIEWEYE:
+                message.value3 = 'mirrorViewEye'
+                message.value4 = config.value.toString()
+                this.sendMessage(message)
+                break;
         }
     }
 

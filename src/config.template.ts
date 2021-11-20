@@ -36,7 +36,10 @@ Config.controller = { // Set defaults for the widget
     commandPermissionsReferences: { // This is where you can have deviating permissions per command so you steer access individually.
         [KeysTemplate.COMMAND_LOG_ON]: {moderators: false},
         [KeysTemplate.COMMAND_LOG_OFF]: {moderators: false},
-        [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true}
+        [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true},
+        [KeysTemplate.COMMAND_BRIGHTNESS]: {moderators: false},
+        [KeysTemplate.COMMAND_REFRESHRATE]: {moderators: false},
+        [KeysTemplate.COMMAND_VRVIEWEYE]: {moderators: false}
     },
     speechReferences: { 
         // %s is a templated value, those gets replaced by parameters like names and numbers.
@@ -72,6 +75,9 @@ Config.controller = { // Set defaults for the widget
             'World scale sequence not set',
             'World scale sequence terminated'
         ],
+        [KeysTemplate.COMMAND_BRIGHTNESS]: 'Headset brightness set to %s%',
+        [KeysTemplate.COMMAND_REFRESHRATE]: 'Headset refresh rate set to %s hertz',
+        [KeysTemplate.COMMAND_VRVIEWEYE]: 'Output eye mode changed to %s',
         [KeysTemplate.COMMAND_DICTIONARY]: ['%s is now said as %s', '%s messed up a dictionary entry'],
         [KeysTemplate.COMMAND_GAMEREWARDS_ON]: 'Game specific rewards enabled',
         [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',

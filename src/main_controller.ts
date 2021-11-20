@@ -552,6 +552,50 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
+            trigger: Keys.COMMAND_BRIGHTNESS,
+            callback: (userData, input) => {
+                const brightness = parseInt(input) || 130
+                const speech = Config.controller.speechReferences[Keys.COMMAND_BRIGHTNESS]
+                const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._openvr2ws.setSetting({
+                    type: OpenVR2WS.TYPE_BRIGHTNESS,
+                    value: value/100.0
+                })
+            }
+        })
+
+        this._twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
+            trigger: Keys.COMMAND_REFRESHRATE,
+            callback: (userData, input) => {
+                const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
+                const possibleRefreshRate = parseInt(input) || 120
+                const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
+                const speech = Config.controller.speechReferences[Keys.COMMAND_REFRESHRATE]
+                const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._openvr2ws.setSetting({
+                    type: OpenVR2WS.TYPE_REFRESHRATE,
+                    value: value
+                })
+            }
+        })
+
+        this._twitch.registerCommand({ // Currently not actually effective due to how the VR View does not listen to config changes
+            trigger: Keys.COMMAND_VRVIEWEYE,
+            callback: (userData, input) => {
+                const eyeMode = parseInt(input) || 4
+                const speech = Config.controller.speechReferences[Keys.COMMAND_VRVIEWEYE]
+                const value = Math.max(0, Math.min(5, eyeMode))
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._openvr2ws.setSetting({
+                    type: OpenVR2WS.TYPE_VRVIEWEYE,
+                    value: value
+                })
+            }
+        })
+
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_DICTIONARY,
             callback: async (userData, input) => {
