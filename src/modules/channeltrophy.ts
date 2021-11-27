@@ -113,14 +113,15 @@ class ChannelTrophy {
         const sortedTopSpentInStreakLastStream = sortObject(topSpentInStreakLastStream)
         const topSpenderLastStream = sortedTopSpendersLastStream[sortedTopSpendersLastStream.length-1]
 
-        const funnyNumberItems: string[] = []
+        const funnyNumberItems: string[] = [`⭐ First: ${await getName(firstRedemptionLastStream[0])} (**${firstRedemptionLastStream[1]}**)`]
         for(const config of funnyNumbers) {
             const name = await getName(config.userId)
             const label = Utils.template(config.label, name)
             funnyNumberItems.push(label)
         }
+		funnyNumberItems.push(`🏁 Last: ${await getName(lastRedemptionLastStream[0])} (**${lastRedemptionLastStream[1]}**)`)
+		funnyNumberItems.reverse()
 
-        console.log(funnyNumberItems)
 
         embeds.push({
             title: '**Stream Statistics**',
@@ -128,15 +129,7 @@ class ChannelTrophy {
             fields: [
                 await buildFieldWithList("Top Spenders", true, " %s: **%s**", sortedTopSpendersLastStream, 5),
                 await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 5),
-                {
-                    name: "Notable Redemptions",
-                    value: [
-                        `⭐ First: ${await getName(firstRedemptionLastStream[0])} (**${firstRedemptionLastStream[1]}**)`,
-                        ...funnyNumberItems,
-                        `🏁 Last: ${await getName(lastRedemptionLastStream[0])} (**${lastRedemptionLastStream[1]}**)`
-                    ].reverse().join('\n'),
-                    inline: false
-                },
+				...buildFieldsOutOfList("Notable Redemptions", funnyNumberItems),
                 {
                     name: "Event Totals",
                     value: [
@@ -236,6 +229,23 @@ class ChannelTrophy {
             }
             return field
         }
+		
+		function buildFieldsOutOfList(title: string, list: string[]):IDiscordEmbedField[] {
+			let listClone = JSON.parse(JSON.stringify(list))
+			let fields: IDiscordEmbedField[] = []
+            let isFirst: boolean = true
+			while(listClone.length > 0) {
+				const groupOfItems = listClone.splice(0, 20)
+                const field: IDiscordEmbedField = {
+                    name: isFirst ? title : `${title} (continued)`,
+					value: groupOfItems.join('\n'),
+					inline: false
+				}
+                isFirst = false
+				fields.push(field)
+			}
+			return fields
+		}
         
         return embeds
     }
@@ -270,6 +280,9 @@ class ChannelTrophy {
 		} else if(checkBinary(n)) { // Power of two / binary
 			result.speech = `${nameForTTS} a power of two trophy, number ${n}`
             result.label = `🎣 Power of two: ${nameForDiscord}`
+        } else if(checkFibonacci(n)) { // Fibonacci
+            result.speech = `${nameForTTS} a fibonacci trophy, number ${n}`
+            result.label = `🐚 Fibonacci: ${nameForDiscord}`
 		} else if(n>10 && checkMonoDigit(n)) { // Monodigit
             result.speech = `${nameForTTS} a monodigit trophy, number ${n}`
             result.label = `🦄 Monodigit: ${nameForDiscord}`
@@ -342,6 +355,18 @@ class ChannelTrophy {
             return prime
         }
 
+        function checkFibonacci( num: number ): boolean {
+            let a = 0
+            let b = 1
+            let c = a + b
+            while(c < num) {
+                a = b
+                b = c
+                c = a + b
+            }
+            return c == num
+        }
+        
 		// Result
         return result.speech.length > 0 ? result : null
 	}
