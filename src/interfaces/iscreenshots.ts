@@ -19,7 +19,7 @@ interface IScreenshotCallbackConfig {
     discordRewardInstantTitle: string
     signTitle: string
     signManualSubtitle: string
-    signDuration: number
+    signDurationMs: number
 }
 
 // Callbacks

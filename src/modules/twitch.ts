@@ -1,6 +1,7 @@
 class Twitch{
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _twitchChat: TwitchChat = new TwitchChat()
+    private _cooldowns: {[key: string]: number} = {}
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true, initPubsub: boolean = true) {
@@ -120,10 +121,11 @@ class Twitch{
 
         // Commands
         if(text != null && text.indexOf('!') == 0) {
-            let commandStr = text.split(' ').shift().substr(1)
-            let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())           
+            let commandStr = text.split(' ').shift().substr(1).toLocaleLowerCase()
+            let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop().trim()
             if(command != null 
+                && (command.cooldown == undefined || new Date().getTime() > (this._cooldowns[commandStr] ?? 0))
                 && (
                     (command.permissions.streamer && isBroadcaster)
                     || (command.permissions.moderators && isModerator) 
@@ -131,7 +133,12 @@ class Twitch{
                     || (command.permissions.subscribers && isSubscriber)
                     || command.permissions.everyone
                 )
-            ) return command.callback(userData, textStr)
+            ) {
+                if(command.cooldown != undefined) {
+                    this._cooldowns[commandStr] = new Date().getTime()+command.cooldown*1000
+                }
+                return command.callback(userData, textStr)
+            }
         }
 
         const bits = parseInt(messageCmd.properties?.bits)

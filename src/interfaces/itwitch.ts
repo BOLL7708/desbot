@@ -38,7 +38,8 @@ interface ITwitchTokens {
 }
 interface ITwitchSlashCommand {
     trigger: string
-    permissions?: ICommandPermissions
+    permissions?: ICommandPermissions // Filled in at registration, loaded from config.
+    cooldown?: number
     callback: ITwitchSlashCommandCallback
 }
 interface ICommandPermissions {

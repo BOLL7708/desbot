@@ -16,5 +16,5 @@ interface ISignShowConfig {
     title?: string
     image?: string
     subtitle?: string
-    duration: number // ms
+    durationMs: number // ms
 }

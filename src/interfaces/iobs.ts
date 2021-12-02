@@ -9,7 +9,7 @@ interface IObsConfig {
 interface IObsSourceConfig {
     sourceName: string
     sceneNames?: string[]
-    duration?: number
+    durationMs?: number
     notificationImage?: string
     filterName?: string
 }
@@ -20,7 +20,7 @@ interface IObsSourceScreenshotConfig {
 	discordDescription: string
     discordGameTitle: string
     signTitle: string
-    signDuration: number // ms
+    signDurationMs: number // ms
 }
 
 // Callbacks

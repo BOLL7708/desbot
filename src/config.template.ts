@@ -39,7 +39,8 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true},
         [KeysTemplate.COMMAND_BRIGHTNESS]: {moderators: false},
         [KeysTemplate.COMMAND_REFRESHRATE]: {moderators: false},
-        [KeysTemplate.COMMAND_VRVIEWEYE]: {moderators: false}
+        [KeysTemplate.COMMAND_VRVIEWEYE]: {moderators: false},
+        [KeysTemplate.COMMAND_GAME]: {everyone: true}
     },
     speechReferences: { 
         // %s is a templated value, those gets replaced by parameters like names and numbers.
@@ -134,12 +135,12 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
     configs: {
         [KeysTemplate.KEY_PIPE_EXAMPLE1]: {
             imagePath: 'assets/dot_red.png',
-            duration: 3000,
+            durationMs: 3000,
             type: Pipe.TYPE_NOTIFICATION
         },
         [KeysTemplate.KEY_PIPE_EXAMPLE2]: {
             imagePath: 'assets/whatever_image.png',
-            duration: 5000,
+            durationMs: 5000,
             type: Pipe.TYPE_ALERT
         }
     }
@@ -159,18 +160,18 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
         [KeysTemplate.KEY_OBS_EXAMPLE1]: {
             sceneNames: ['scene1'],
             sourceName: 'some source',
-            duration: 10000,
+            durationMs: 10000,
             notificationImage: 'assets/image.png'
         },
         [KeysTemplate.KEY_OBS_EXAMPLE2]: {
             sceneNames: ['scene1', 'scene2'],
             sourceName: 'some other source',
-            duration: 20000,
+            durationMs: 20000,
             notificationImage: 'assets/other_image.png'
         },
         [KeysTemplate.KEY_OBS_EXAMPLE3]: {
             sourceName: 'some source with a filter',
-            duration: 5000,
+            durationMs: 5000,
             filterName: 'a filter name'
         }
     },
@@ -182,7 +183,7 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
 		discordDescription: 'OBS Screenshot',
         discordGameTitle: 'Your current game or platform depending on how often you want to change this',
         signTitle: 'Screenshot',
-        signDuration: 10000 // ms
+        signDurationMs: 10000 // ms
     }
 }
 
@@ -202,7 +203,7 @@ Config.screenshots = { // Trigger and transmit screenshots with SuperScreenShott
         discordRewardInstantTitle: 'Instant shot! 📸',
         signTitle: 'Screenshot',
         signManualSubtitle: 'Manual shot!',
-        signDuration: 5000
+        signDurationMs: 5000
     }
 }
 
@@ -308,8 +309,8 @@ Config.sign = { // Show on-screen notification with title+image+subtitle
     fontSize: '150%',
     direction: 'left', // left, right, top, bottom
     configs: {
-        [KeysTemplate.KEY_SETTING_EXAMPLE1]: {duration: 5000, title: 'Setting Example 1'},
-        [KeysTemplate.KEY_OBS_EXAMPLE2]: {duration: 5000, title: 'OBS Example 2!'}
+        [KeysTemplate.KEY_SETTING_EXAMPLE1]: {durationMs: 5000, title: 'Setting Example 1'},
+        [KeysTemplate.KEY_OBS_EXAMPLE2]: {durationMs: 5000, title: 'OBS Example 2!'}
     }
 }
 

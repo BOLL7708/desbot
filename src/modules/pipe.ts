@@ -96,13 +96,13 @@ class Pipe {
         const imagePath = Array.isArray(preset.imagePath) ? Utils.randomFromArray(preset.imagePath) : preset.imagePath
         switch(preset.type) {
             case Pipe.TYPE_OVERRIDE:
-                this.showCustom(imagePath, preset.duration, preset.override)
+                this.showCustom(imagePath, preset.durationMs, preset.override)
                 break;
             case Pipe.TYPE_NOTIFICATION:
-                this.showNotificationImage(imagePath, preset.duration, preset.top, preset.left)
+                this.showNotificationImage(imagePath, preset.durationMs, preset.top, preset.left)
                 break;
             case Pipe.TYPE_ALERT:
-                this.showAlertMessage(imagePath, preset.duration)
+                this.showAlertMessage(imagePath, preset.durationMs)
                 break;
         }
     }

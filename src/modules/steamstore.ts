@@ -16,4 +16,21 @@ class SteamStore {
             }
         } return null
     }
+
+    static getPrice(data: ISteamGameData): string {
+        const currencies = {
+            "EUR": "€",
+            "USD": "$",
+            "GBP": "£"
+        }
+        const isFree: boolean = data.is_free ?? false
+        const price: number = isFree ? 0 : data.price_overview.final ?? -1
+        const currencyStr: string = isFree ? '' : data.price_overview.currency ?? ''
+        const discount: number = isFree ? 0 : data.price_overview.discount_percent ?? 0
+        const currency: string = currencies[currencyStr] ?? ''
+        const discountStr: string = discount > 0 ? ` (${discount}%)` : ''
+        return isFree ? 'Free'
+            : price < 0 ? 'No price' 
+            : `${currency}${price/100}${discountStr}`
+    }
 }

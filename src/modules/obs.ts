@@ -70,10 +70,10 @@ class OBS {
                 "filterEnabled": true
             })) 
         }
-        if(config.duration != undefined && !ignoreDuration) {
+        if(config.durationMs != undefined && !ignoreDuration) {
             setTimeout(() => {
                 this.hide(config)
-            }, config.duration)
+            }, config.durationMs)
         }
     }
     hide(config: IObsSourceConfig) {

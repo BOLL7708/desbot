@@ -7,7 +7,7 @@ interface IPipeConfig {
 }
 interface IPipeMessagePreset {
     imagePath: string|string[]
-    duration: number
+    durationMs: number
     type: number
     top?: boolean
     left?: boolean

@@ -28,7 +28,8 @@ class KeysTemplate {
     static readonly COMMAND_SOURCESCREENSHOT: string = 'screenshot'
     static readonly COMMAND_CHANNELTROPHY_STATS: string = 'trophy'
     static readonly COMMAND_CLIPS: string = 'clips'
-
+    static readonly COMMAND_GAME: string = 'game'
+    
     // Dangerous WIP SteamVR settings commands
     static readonly COMMAND_REFRESHRATE: string = 'hz'
     static readonly COMMAND_BRIGHTNESS: string = 'lux'

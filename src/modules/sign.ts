@@ -28,16 +28,15 @@ class Sign {
         div.style.fontFamily = this._config.fontFamily
         div.style.color = this._config.fontColor
         div.style.fontSize = this._config.fontSize
-        div.style.fontWeight = 'bold'
         div.style.textAlign = 'center'
-        div.style.whiteSpace = 'nowrap'
-        div.style.overflow = 'hidden'
-        div.style.textOverflow = 'ellipsis'
+        div.style.padding = '0 5%'
+        div.style.boxSizing = 'border-box'
         
         const title = document.createElement('p')
+        title.style.fontWeight = 'bold'
         const imageContainer = document.createElement('p')
         const image = new Image()
-        image.style.width = '90%'
+        image.style.width = '100%'
         image.style.borderRadius = '5%'
         image.style.boxShadow = '0 3px 3px 3px #0003'
         const subtitle = document.createElement('p')
@@ -90,7 +89,7 @@ class Sign {
                 setTimeout(()=>{ // Wait for the animation back to finish
                     this._isVisible = false
                 }, this._config.transitionDuration)
-            }, config.duration+this._config.transitionDuration)
+            }, config.durationMs+this._config.transitionDuration)
         }
         this._img.onerror = ()=>{
             this._isVisible = false

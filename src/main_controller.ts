@@ -773,6 +773,22 @@ class MainController {
             }
         })
 
+        this._twitch.registerCommand({
+            trigger: Keys.COMMAND_GAME,
+            cooldown: 30,
+            callback: async (userData, input) => {
+                const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
+                const price = SteamStore.getPrice(gameData)
+                const name = gameData.name ?? 'N/A'
+                this._sign.enqueueSign({
+                    title: 'Current Game',
+                    image: gameData.header_image,
+                    subtitle: `${name}\n${price}`,
+                    durationMs: 10000
+                })
+            }
+        })
+
         /*
          ██████  █████  ██      ██      ██████   █████   ██████ ██   ██ ███████ 
         ██      ██   ██ ██      ██      ██   ██ ██   ██ ██      ██  ██  ██      
@@ -957,7 +973,7 @@ class MainController {
                     title: Config.screenshots.callback.signTitle,
                     image: dataUrl,
                     subtitle: authorName,
-                    duration: Config.screenshots.callback.signDuration
+                    durationMs: Config.screenshots.callback.signDurationMs
                 })
             } else {
                 // Discord
@@ -969,7 +985,7 @@ class MainController {
                     title: Config.screenshots.callback.signTitle,
                     image: dataUrl,
                     subtitle: Config.screenshots.callback.signManualSubtitle,
-                    duration: Config.screenshots.callback.signDuration
+                    durationMs: Config.screenshots.callback.signDurationMs
                 })
             }
             
@@ -1003,7 +1019,7 @@ class MainController {
                     title: Config.screenshots.callback.signTitle,
                     image: dataUrl,
                     subtitle: authorName,
-                    duration: Config.screenshots.callback.signDuration
+                    durationMs: Config.screenshots.callback.signDurationMs
                 })
 
                 // Sound effect
@@ -1104,6 +1120,17 @@ class MainController {
                     })
                 } else Utils.logWithBold(`Could not find run config for <${appId}:${rewardKey}>`, 'red')
             }
+
+            // Show game in sign
+            const gameData = await SteamStore.getGameMeta(appId)
+            const price = SteamStore.getPrice(gameData)
+            const name = gameData.name ?? 'N/A'
+            this._sign.enqueueSign({
+                title: 'Current Game',
+                image: gameData.header_image,
+                subtitle: `${name}\n${price}`,
+                durationMs: 20000
+            })
         })
 
         this._twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
@@ -1126,7 +1153,7 @@ class MainController {
             console.log("OBS Reward triggered")
             _this._obs.show(config)
             if(config.notificationImage != undefined) {
-                _this._pipe.showNotificationImage(config.notificationImage, config.duration)
+                _this._pipe.showNotificationImage(config.notificationImage, config.durationMs)
             }
         } 
         else return null
