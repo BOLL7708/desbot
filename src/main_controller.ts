@@ -775,17 +775,19 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_GAME,
-            cooldown: 30,
+            cooldown: 3*60,
             callback: async (userData, input) => {
-                const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
-                const price = SteamStore.getPrice(gameData)
-                const name = gameData.name ?? 'N/A'
-                this._sign.enqueueSign({
-                    title: 'Current Game',
-                    image: gameData.header_image,
-                    subtitle: `${name}\n${price}`,
-                    durationMs: 10000
-                })
+                if(this._openvr2ws._lastAppId != undefined) {
+                    const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
+                    const price = SteamStore.getPrice(gameData)
+                    const name = gameData.name ?? 'N/A'
+                    this._sign.enqueueSign({
+                        title: 'Current Game',
+                        image: gameData.header_image,
+                        subtitle: `${name}\n${price}`,
+                        durationMs: 10000
+                    })
+                } else Utils.log('Game Update: No game to show', Color.Red)
             }
         })
 
@@ -1122,15 +1124,17 @@ class MainController {
             }
 
             // Show game in sign
-            const gameData = await SteamStore.getGameMeta(appId)
-            const price = SteamStore.getPrice(gameData)
-            const name = gameData.name ?? 'N/A'
-            this._sign.enqueueSign({
-                title: 'Current Game',
-                image: gameData.header_image,
-                subtitle: `${name}\n${price}`,
-                durationMs: 20000
-            })
+            if(appId != undefined) {
+                const gameData = await SteamStore.getGameMeta(appId)
+                const price = SteamStore.getPrice(gameData)
+                const name = gameData.name ?? 'N/A'
+                this._sign.enqueueSign({
+                    title: 'Current Game',
+                    image: gameData.header_image,
+                    subtitle: `${name}\n${price}`,
+                    durationMs: 20000
+                })
+            }
         })
 
         this._twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
