@@ -775,8 +775,17 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_GAME,
-            cooldown: 3*60,
             callback: async (userData, input) => {
+                if(this._openvr2ws._lastAppId != undefined) {
+                    const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
+                    const price = SteamStore.getPrice(gameData)
+                    const name = gameData.name ?? 'N/A'
+                    const link = gameData.steam_appid != undefined ? `https://store.steampowered.com/app/${gameData.steam_appid}` : 'N/A'
+                    this._twitch._twitchChat.sendMessageToUser(userData.userName, `Current Game: ${name} - Price: ${price} - Store: ${link}`)
+                }
+            },
+            cooldown: 3*60,
+            cooldownCallback: async (userData, input) => {
                 if(this._openvr2ws._lastAppId != undefined) {
                     const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
                     const price = SteamStore.getPrice(gameData)
@@ -787,7 +796,7 @@ class MainController {
                         subtitle: `${name}\n${price}`,
                         durationMs: 10000
                     })
-                } else Utils.log('Game Update: No game to show', Color.Red)
+                }
             }
         })
 

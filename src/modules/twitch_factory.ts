@@ -28,7 +28,7 @@ class TwitchFactory {
     private static buildMessageProperties(data:string):ITwitchChatMessageProperties {
         const rows: string[] = data.split(';')
         const props:any = {}
-        rows.forEach(row => {
+        rows.forEach(row => { // Fill props with all incoming data pairs
             const [first, rest] = Utils.splitOnFirst('=', row)
             props[first] = rest
         })

@@ -48,7 +48,7 @@ class TwitchChat {
                 if(str == null || str.length == 0) return
                 let message = TwitchFactory.buildMessageCmd(str)
                 this._chatMessageCallback(message)
-            });
+            })
         }        
     }
     private onError(evt: any) {
@@ -56,5 +56,12 @@ class TwitchChat {
     }
     private testMessage(message: string) {
         this._chatMessageCallback(TwitchFactory.buildMessageCmd(message));
+    }
+    sendMessageToChannel(message: string) {
+        this._socket.send(`PRIVMSG #${Config.twitch.channelName} :${message}`)
+    }
+
+    sendMessageToUser(username: string, message: string) {
+        this._socket.send(`PRIVMSG #${Config.twitch.channelName} :/w ${username} ${message}`)
     }
 }

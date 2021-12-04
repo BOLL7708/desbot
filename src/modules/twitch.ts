@@ -1,6 +1,6 @@
 class Twitch{
+    _twitchChat: TwitchChat = new TwitchChat()
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
-    private _twitchChat: TwitchChat = new TwitchChat()
     private _cooldowns: {[key: string]: number} = {}
     private LOG_COLOR_COMMAND: string = 'maroon'
 
@@ -124,20 +124,32 @@ class Twitch{
             let commandStr = text.split(' ').shift().substr(1).toLocaleLowerCase()
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop().trim()
-            if(command != null 
-                && (command.cooldown == undefined || new Date().getTime() > (this._cooldowns[commandStr] ?? 0))
-                && (
-                    (command.permissions.streamer && isBroadcaster)
-                    || (command.permissions.moderators && isModerator) 
-                    || (command.permissions.VIPs && isVIP) 
-                    || (command.permissions.subscribers && isSubscriber)
-                    || command.permissions.everyone
-                )
-            ) {
+
+            const allowedRole = (
+                (command.permissions.streamer && isBroadcaster)
+                || (command.permissions.moderators && isModerator) 
+                || (command.permissions.VIPs && isVIP) 
+                || (command.permissions.subscribers && isSubscriber)
+                || command.permissions.everyone
+            )
+            const allowedByCooldown = (
+                isBroadcaster 
+                || isModerator 
+                || command.cooldown == undefined 
+                || new Date().getTime() > (this._cooldowns[commandStr] ?? 0)
+            )
+
+            if(command != null) {
+                if(allowedRole) {
+                    command.callback(userData, textStr)
+                }
+                if(allowedRole && allowedByCooldown) {
+                    command.cooldownCallback(userData, textStr)
+                }
                 if(command.cooldown != undefined) {
                     this._cooldowns[commandStr] = new Date().getTime()+command.cooldown*1000
                 }
-                return command.callback(userData, textStr)
+                return
             }
         }
 

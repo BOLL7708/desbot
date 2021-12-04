@@ -39,8 +39,9 @@ interface ITwitchTokens {
 interface ITwitchSlashCommand {
     trigger: string
     permissions?: ICommandPermissions // Filled in at registration, loaded from config.
-    cooldown?: number
     callback: ITwitchSlashCommandCallback
+    cooldown?: number
+    cooldownCallback?: ITwitchSlashCommandCallback
 }
 interface ICommandPermissions {
     streamer?: boolean
