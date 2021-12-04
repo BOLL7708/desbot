@@ -117,7 +117,7 @@ class Settings {
         return `./settings.php?setting=${setting}`
     }
 
-    public static getFullSettings(setting:string):any {
+    public static getFullSettings(setting:string):any[] {
         Utils.log(`Pulling full settings: ${setting}`, this.LOG_COLOR)
         return this._settingsStore[setting]
     }

@@ -125,14 +125,14 @@ class Twitch{
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop().trim()
 
-            const allowedRole = (
+            const allowedRole = command != null && (
                 (command.permissions.streamer && isBroadcaster)
                 || (command.permissions.moderators && isModerator) 
                 || (command.permissions.VIPs && isVIP) 
                 || (command.permissions.subscribers && isSubscriber)
                 || command.permissions.everyone
             )
-            const allowedByCooldown = (
+            const allowedByCooldown = command != null && (
                 isBroadcaster 
                 || isModerator 
                 || command.cooldown == undefined 

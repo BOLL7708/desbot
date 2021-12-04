@@ -23,7 +23,7 @@ class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens').then(tokenData => {
+        Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.botName).then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",

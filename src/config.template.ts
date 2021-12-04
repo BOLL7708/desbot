@@ -339,7 +339,8 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     clientSecret: Secure.TwitchClientSecret,
     channelName: 'Name of the channel to connect to',
     
-    botName: 'Name of the bot listening to chat', // Pretty sure this has to be the name the tokens are associated with. 
+    botName: 'Name of the user editing rewards', // Pretty sure this has to be the name the tokens are associated with. 
+    chatbotName: 'Name of the user that listens to and post chat and whispers',
     announcerName: 'Name of the bot you are listening to',
     announcerTriggers: ['❗', KeysTemplate.KEY_ANNOUNCE_EXAMPLE],
     chatNotificationSound: KeysTemplate.KEY_SOUND_CHAT,

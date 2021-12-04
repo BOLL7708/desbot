@@ -6,6 +6,7 @@ interface ITwitchConfig {
     channelName: string
 
     botName: string
+    chatbotName: string
     announcerName: string
     chatNotificationSound: string
     announcerTriggers: string[]
@@ -32,6 +33,7 @@ interface ITwitchReward {
     callback: ITwitchRedemptionCallback
 }
 interface ITwitchTokens {
+    username: string
     access_token: string
     refresh_token: string
     updated: string
