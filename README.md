@@ -9,24 +9,27 @@ To see the widget in action, join me for a stream over at my [Twitch Channel](ht
 
 Other streamers that are using or have used this widget are:
 * [c0ld vengeance](https://www.twitch.tv/c0ldvengeance)
-* [The VR Realm](https://www.twitch.tv/thevrrealm)
+* [DrOculusVR](https://www.twitch.tv/droculusvr)
+* [The VR Realm](https://www.twitch.tv/thevrrealm) (retired)
 * [WoBoLoKo](https://www.twitch.tv/woboloko)
 
 # What can it do?
-1. Text to speech from rewards, a bot announcer or just every chat message. It's using GCP TTS with Wavenet voices and has a range of text transforms and name reconstruction.
-2. OBS remote control, show/hide sources in OBS Studio.
+1. Text to speech from rewards, a bot announcer or just every chat message. It's using GCP TTS with Wavenet voices and has a range of text transforms and name cleanup.
+2. OBS remote control, show/hide sources and/or filters in OBS Studio.
 3. Display SteamVR notifications though [OpenVRNotificationPipe](https://github.com/BOLL7708/OpenVRNotificationPipe)
 4. Ability to trigger SteamVR screenshots via [SuperScreenShotterVR](https://github.com/BOLL7708/SuperScreenShotterVR)
 5. Ability to change SteamVR settings via [OpenVR2WS](https://github.com/BOLL7708/OpenVR2WS)
-6. Logging of chat or screenshots from SSVR (with embeds!) to Discord.
+6. Logging of chat or screenshots from SSSVR (with embeds!) to Discord.
 7. Listen to any rewards from Twitch PubSub and any chat message through Twitch Chat.
+8. Trigger console commands in games via [AutoIt](https://www.autoitscript.com/)
+9. Register and manage rewards on Twitch, toggle on game switch, use game profiles etc.
 
 # Environment Setup
 
 ## PHP
 Parts of the widget needs PHP as to write files to disk, you can easily get this by:
 1. Install [XAMPP](https://www.apachefriends.org/index.html). 
-2. Run the the `XAMPP Control Panel` as administrator and register Apache to run as a service by checking the checkbox on the left side, meaning it will be running at all times. If you don't do this you will have to launch it manually when you want to use the widget.
+2. Run the `XAMPP Control Panel` as administrator and register Apache to run as a service by checking the checkbox on the left side, meaning it will be running at all times. If you don't do this you will have to launch it manually when you want to use the widget.
 3. Locate the `/xampp/htdocs/` as that is where we will put the widget files.
 
 ## Get the code
