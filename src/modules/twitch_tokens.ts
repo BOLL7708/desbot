@@ -4,17 +4,16 @@ class TwitchTokens {
         let config:ITwitchConfig = Config.twitch
         let tokenData:ITwitchTokens[] = await Settings.getFullSettings(Settings.TWITCH_TOKENS)
         
-        tokenData.forEach(async data => {
-            fetch('https://id.twitch.tv/oauth2/token', {
-                    method: 'post',
-                    body: new URLSearchParams({
-                        'grant_type': 'refresh_token',
-                        'refresh_token': data.refresh_token,
-                        'client_id': config.clientId,
-                        'client_secret': config.clientSecret
-                    })
-                }
-            ).then((response) => response.json()
+        for await (let data of tokenData) {
+            await fetch('https://id.twitch.tv/oauth2/token', {
+                method: 'post',
+                body: new URLSearchParams({
+                    'grant_type': 'refresh_token',
+                    'refresh_token': data.refresh_token,
+                    'client_id': config.clientId,
+                    'client_secret': config.clientSecret
+                })
+            }).then((response) => response.json()
             ).then(async json => {
                 if (!json.error && !(json.status >= 300)) {
                     let tokenData = {
@@ -31,6 +30,6 @@ class TwitchTokens {
                     console.error(`Failed to refresh tokens for ${data.username}: ${json.status} -> ${json.error}`);
                 }
             })
-        })
+        }
     }
 }
