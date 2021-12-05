@@ -1,15 +1,17 @@
 class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
-    _tokens: ITwitchTokens
     _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
     _userNameToId: Record<string, number> = {}
-    _userId = Config.twitch.userId
     _gameCache: Record<number, ITwitchHelixGamesResponseData> = {}
+    _channelUserTokens: ITwitchTokens
+    static _channelUserId = -1
 
     constructor() {}
 
     async init() {
-        return Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.botName).then(tokenData => this._tokens = tokenData)
+        await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
+        const user = await this.getUserByLogin(Config.twitch.channelName, false)
+        TwitchHelix._channelUserId = parseInt(user.id)
     }
     
     async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
@@ -27,7 +29,7 @@ class TwitchHelix {
 
     private async getUserByUrl(url: string):Promise<ITwitchHelixUsersResponseData|null> {
         let headers = {
-            Authorization: `Bearer ${this._tokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
             'Client-Id': Config.twitch.clientId
         }
         let response: ITwitchHelixUsersResponse = await (await fetch(url, {headers: headers}))?.json()
@@ -50,9 +52,9 @@ class TwitchHelix {
      * 
      */
     async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}`
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}`
         let headers = {
-            Authorization: `Bearer ${this._tokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
             'Client-Id': Config.twitch.clientId,
             'Content-Type': 'application/json'
         }
@@ -71,10 +73,10 @@ class TwitchHelix {
     }
 
     async getReward(rewardId: string):Promise<ITwitchHelixRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&only_manageable_rewards=true`
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         let headers = {
-            Authorization: `Bearer ${this._tokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
             'Client-Id': Config.twitch.clientId,
         }
         let response: ITwitchHelixRewardResponse = await fetch(url, {headers: headers}).then(res => res.json())
@@ -82,9 +84,9 @@ class TwitchHelix {
     }
 
     async updateReward(rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${this._userId}&id=${rewardId}`
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}&id=${rewardId}`
         let headers = {
-            Authorization: `Bearer ${this._tokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
             'Client-Id': Config.twitch.clientId,
             'Content-Type': 'application/json'
         }
@@ -109,9 +111,9 @@ class TwitchHelix {
 
     async getClips(count: number = 20, pagination?: string) {
         count = Math.min(100, Math.max(1, count))
-        let url = `${this._baseUrl}/clips/?broadcaster_id=${this._userId}&first=${count}`
+        let url = `${this._baseUrl}/clips/?broadcaster_id=${TwitchHelix._channelUserId}&first=${count}`
         let headers = {
-            Authorization: `Bearer ${this._tokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
             'Client-Id': Config.twitch.clientId,
             'Content-Type': 'application/json'
         }
@@ -136,7 +138,7 @@ class TwitchHelix {
 
     private async getGameByUrl(url: string):Promise<ITwitchHelixGamesResponseData|null> {
         let headers = {
-            Authorization: `Bearer ${this._tokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
             'Client-Id': Config.twitch.clientId
         }
         let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()

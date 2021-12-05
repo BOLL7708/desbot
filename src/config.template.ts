@@ -334,18 +334,15 @@ Config.run = {
    ██     ███ ███  ██    ██     ██████ ██   ██ 
 */
 Config.twitch = { // Various Twitch services, like chat and rewards.
-    userId: 0, // https://www.streamweasels.com/support/convert-twitch-username-to-user-id/
     clientId: Secure.TwitchClientID,
     clientSecret: Secure.TwitchClientSecret,
-    channelName: 'Name of the channel to connect to',
-    
-    botName: 'Name of the user editing rewards', // Pretty sure this has to be the name the tokens are associated with. 
-    chatbotName: 'Name of the user that listens to and post chat and whispers',
-    announcerName: 'Name of the bot you are listening to',
+    channelName: 'ChannelName', // Name of the channel to connect to and the username that will be used to register and manage rewards
+    chatbotName: 'ChatbotName', // Name of the user that listens to and post chat and whispers
+    announcerName: 'AnnouncterName', // Name of a bot you are listening to for announcement
     announcerTriggers: ['❗', KeysTemplate.KEY_ANNOUNCE_EXAMPLE],
     chatNotificationSound: KeysTemplate.KEY_SOUND_CHAT,
 
-    proxyChatBotName: 'RestreamBot',
+    proxyChatBotName: 'RestreamBot', // Name of a chat mirroring bot that you want to read as user messages
     proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/, // Match three groups: Source, User and Message.
 
     ignoreModerators: [ // Will ignore someone's moderator status for commands, useful for bots.

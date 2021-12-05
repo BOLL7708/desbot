@@ -152,7 +152,7 @@ class MainController {
                 let userInput = data?.redemption?.user_input
                 const nonce = Utils.getNonce('TTS')
                 const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
-                this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
                     if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
                         this._screenshots.sendScreenshotRequest(data, Config.screenshots.delay)
@@ -170,7 +170,7 @@ class MainController {
             id: await Utils.getRewardId(Keys.KEY_INSTANTSCREENSHOT),
             callback: async (data:ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
                     this._screenshots.sendScreenshotRequest(data, 0)
                 } else {
@@ -209,7 +209,7 @@ class MainController {
                     
                     // Do TTS
                     const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
-                    if(funnyNumberConfig != null) this._tts.enqueueSpeakSentence(Utils.template(funnyNumberConfig.speech, user.login), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    if(funnyNumberConfig != null) this._tts.enqueueSpeakSentence(Utils.template(funnyNumberConfig.speech, user.login), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                     // Update label in overlay
                     Settings.pushLabel(Settings.LABEL_CHANNEL_TROPHY, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
@@ -238,7 +238,7 @@ class MainController {
             id: await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER),
             callback: async (message: ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_UNLOCKREWARDTIMER][0]
-                await this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                await this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._tts.enqueueSoundEffect(Config.audioplayer.configs[Keys.KEY_UNLOCKREWARDTIMER])
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: false})
                 setTimeout(async ()=>{
@@ -247,7 +247,7 @@ class MainController {
                     const cost = rewardData.data[0].cost
                     const speech = Config.controller.speechReferences[Keys.KEY_UNLOCKREWARDTIMER][1]
                     this._tts.enqueueSoundEffect(Config.audioplayer.configs[Keys.KEY_UNLOCKREWARDTIMER])
-                    this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     this._twitchHelix.updateReward(rewardId, {is_enabled: true, cost: cost+500})
                 }, 30*60*1000)
             }
@@ -310,7 +310,7 @@ class MainController {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_ON]
                 const onText:string = !this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = true
-                this._tts.enqueueSpeakSentence(onText, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: false})
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: false})
             }
@@ -322,7 +322,7 @@ class MainController {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_OFF]
                 const offText = this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = false
-                this._tts.enqueueSpeakSentence(offText, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: true})
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: true})
             }
@@ -345,7 +345,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_SAY,
             callback: (userData, input) => {
-                this._tts.enqueueSpeakSentence(input, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(input, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -366,7 +366,7 @@ class MainController {
                 if(userToRename != null || newName != null) {                    
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userToRename, shortName: newName})
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
-                    this._tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
@@ -376,12 +376,12 @@ class MainController {
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
-                if(name.length > 0 && name != Config.twitch.botName.toLowerCase()) {
+                if(name.length > 0 && name != Config.twitch.chatbotName.toLowerCase()) {
                     let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
                     Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
                     Utils.loadCleanName(name).then(cleanName => {
                         const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
-                        this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 }
             }
@@ -399,9 +399,9 @@ class MainController {
                         if(blacklist != null && blacklist.active) {
                             const reason = Utils.cleanSetting(parts[1] ?? '')
                             Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                            this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                            this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         } else {
-                            this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                            this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         }
                     })
                 })
@@ -420,7 +420,7 @@ class MainController {
             callback: (userData, input) => {
                 this._pipeForAll = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -429,7 +429,7 @@ class MainController {
             callback: (userData, input) => {
                 this._pipeForAll = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -439,7 +439,7 @@ class MainController {
                 this._pingForChat = true
                 setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -449,7 +449,7 @@ class MainController {
                 this._pingForChat = false
                 setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -458,7 +458,7 @@ class MainController {
             callback: (userData, input) => {
                 this._logChatToDiscord = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -467,7 +467,7 @@ class MainController {
             callback: (userData, input) => {
                 this._logChatToDiscord = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -476,7 +476,7 @@ class MainController {
             callback: (userData, input) => {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._obs.show(Config.obs.configs[key], true)
             }
         })
@@ -486,7 +486,7 @@ class MainController {
             callback: (userData, input) => {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._obs.hide(Config.obs.configs[key])
             }
         })
@@ -504,11 +504,11 @@ class MainController {
                     const steps = forMinutes*60*1000/intervalMs
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
                         // Fail to start interval
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { 
                         // TODO: Disable all scale rewards
                         // Launch interval
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         let currentScale = fromScale
                         let currentStep = 0
                         const multiple = Math.pow((toScale/fromScale), 1/steps)
@@ -523,7 +523,7 @@ class MainController {
                                 Settings.pushLabel(Settings.LABEL_WORLD_SCALE, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
-                                    this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                                    this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                                     clearInterval(this._scaleIntervalHandle)
                                     setTimeout(()=>{
                                         Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
@@ -541,10 +541,10 @@ class MainController {
                         const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                         clearInterval(this._scaleIntervalHandle)
                         Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { // Manual setting
                         const value = Math.max(10, Math.min(1000, scale || 100))
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         this._openvr2ws.setSetting({
                             type: OpenVR2WS.TYPE_WORLDSCALE,
                             value: value/100.0
@@ -560,7 +560,7 @@ class MainController {
                 const brightness = parseInt(input) || 130
                 const speech = Config.controller.speechReferences[Keys.COMMAND_BRIGHTNESS]
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
                     type: OpenVR2WS.TYPE_BRIGHTNESS,
                     value: value/100.0
@@ -576,7 +576,7 @@ class MainController {
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
                 const speech = Config.controller.speechReferences[Keys.COMMAND_REFRESHRATE]
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
                     type: OpenVR2WS.TYPE_REFRESHRATE,
                     value: value
@@ -590,7 +590,7 @@ class MainController {
                 const eyeMode = parseInt(input) || 4
                 const speech = Config.controller.speechReferences[Keys.COMMAND_VRVIEWEYE]
                 const value = Math.max(0, Math.min(5, eyeMode))
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
                     type: OpenVR2WS.TYPE_VRVIEWEYE,
                     value: value
@@ -606,10 +606,10 @@ class MainController {
                 if(words.length == 2 && words[1].trim().length > 0) {
                     Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
                     this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.DICTIONARY))
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
                 } else { // Messed up
                     Utils.loadCleanName(userData.userName).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                 }
             }
@@ -645,7 +645,7 @@ class MainController {
             callback: (userData, input) => {
                 this._useGameSpecificRewards = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.triggerAppIdCallback(this._openvr2ws._lastAppId)
             }
         })
@@ -655,7 +655,7 @@ class MainController {
             callback: (userData, input) => {
                 this._useGameSpecificRewards = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.triggerAppIdCallback('')
             }
         })
@@ -667,7 +667,7 @@ class MainController {
                 if(input.length > 0) {
                     const nonce = Utils.getNonce('TTS')
                     const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT] // TODO: Separate key here?
-                    this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                    this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                     this._nonceCallbacks[nonce] = ()=>{
                         setTimeout(()=>{
                             const requestData:IScreenshotRequestData = { userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
@@ -687,7 +687,7 @@ class MainController {
                 const numberOfStreams = ChannelTrophy.getNumberOfStreams()
                 const streamNumber = parseInt(input)
 				if(input == "all") {
-                    this._tts.enqueueSpeakSentence(speech[0], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
                         const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
                         this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
@@ -696,23 +696,23 @@ class MainController {
                         })
                         await Utils.delay(5000)
                     }
-                    this._tts.enqueueSpeakSentence(speech[1], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech[1], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else if (!isNaN(streamNumber)) {
-                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, streamNumber-1)
 					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
 						embeds: embeds
 					})
-                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				} else {
-                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
 					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
 						embeds: embeds
 					})
-                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 				}
             }
         })
@@ -724,7 +724,7 @@ class MainController {
                 let lastCount = pageCount
                 const oldClips:ITwitchClip[] = await Settings.getFullSettings(Settings.TWITCH_CLIPS)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CLIPS]
-                this._tts.enqueueSpeakSentence(Utils.template(speech[0]), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(Utils.template(speech[0]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Get all clips
                 const allClips:ITwitchHelixClipResponseData[] = []
@@ -746,7 +746,7 @@ class MainController {
                 const sortedClips = newClips.sort((a,b)=>{
                     return Date.parse(a.created_at) - Date.parse(b.created_at)
                 })
-                this._tts.enqueueSpeakSentence(Utils.template(speech[1], oldClipIds.length, newClips.length), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(Utils.template(speech[1], oldClipIds.length, newClips.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Post to Discord
                 let count = oldClipIds.length+1
@@ -769,7 +769,7 @@ class MainController {
                     if(response != null) Settings.pushSetting(Settings.TWITCH_CLIPS, 'id', {id: clip.id})
                     else break // Something is broken, don't post things out of order by stopping.
                 }
-                this._tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -1220,7 +1220,7 @@ class MainController {
     private buildRunCallback(_this: any, config: IRunCommand) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             const speech = message?.redemption?.reward?.title
-            if(speech != undefined) _this._tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.botName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            if(speech != undefined) _this._tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             Run.executeCommand(config)
         }
     }

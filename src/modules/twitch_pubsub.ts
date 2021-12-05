@@ -23,12 +23,12 @@ class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.botName).then(tokenData => {
+        Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",
                 data: {
-                    topics: [`channel-points-channel-v1.${this._config.userId}`], // ID should come from Helix user request (huh?)
+                    topics: [`channel-points-channel-v1.${TwitchHelix._channelUserId}`], // ID should come from Helix user request (huh?)
                     auth_token: tokenData.access_token
                 }
             }

@@ -1,11 +1,8 @@
 // Config
 interface ITwitchConfig {
-    userId: number
     clientId: string
     clientSecret: string
     channelName: string
-
-    botName: string
     chatbotName: string
     announcerName: string
     chatNotificationSound: string

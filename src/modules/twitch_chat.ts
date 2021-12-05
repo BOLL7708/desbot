@@ -29,7 +29,7 @@ class TwitchChat {
         let config: ITwitchConfig = Config.twitch
         Utils.log("Twitch chat connected", this.LOG_COLOR, true, true)
         this._socket.send(`PASS oauth:${tokenData.access_token}`)
-        this._socket.send(`NICK ${config.botName}`)
+        this._socket.send(`NICK ${config.channelName}`)
         this._socket.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
         this._socket.send(`JOIN #${config.channelName}`)
         this._isConnected = true
