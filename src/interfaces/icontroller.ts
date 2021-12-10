@@ -1,10 +1,7 @@
 // Config
 interface IControllerConfig {
-    pipeForAllDefault: boolean
-    ttsForAllDefault: boolean
-    pingForChat: boolean
-    logChatToDiscordDefault: boolean
-    useGameSpecificRewards: boolean
+    defaults: IControllerDefaults
+    gameDefaults: { [key: string]: IControllerDefaults }
     websocketsUsed: {
         twitchChat: boolean
         twitchPubsub: boolean
@@ -19,6 +16,14 @@ interface IControllerConfig {
     speechReferences: { [key: string]: string|string[] }
     rewardReferences: { [key: string]: string }
     phpPassword: string
+}
+
+interface IControllerDefaults {
+    pipeAllChat?: boolean
+    ttsForAll?: boolean
+    pingForChat?: boolean
+    logChatToDiscord?: boolean
+    useGameSpecificRewards?: boolean
 }
 
 interface IScreenshotRequestData {

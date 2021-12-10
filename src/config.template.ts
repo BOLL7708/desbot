@@ -9,11 +9,18 @@
 // You can add other config files named config.[something].ts and load one of these using a URL param:
 // index.php?config=[something] and it will be overriding things in your main config.
 Config.controller = { // Set defaults for the widget
-    pipeForAllDefault: true,
-    ttsForAllDefault: true,
-    pingForChat: true,
-    logChatToDiscordDefault: true,
-    useGameSpecificRewards: false,
+    defaults: {
+        pipeAllChat: true,
+        ttsForAll: true,
+        pingForChat: true,
+        logChatToDiscord: true,
+        useGameSpecificRewards: true
+    },
+    gameDefaults: { // Profiles for games that changes the defaults above
+        'steam.app.450390': {
+            pipeAllChat: false
+        }
+    }, 
     websocketsUsed: {
         twitchChat: true,
         twitchPubsub: true,

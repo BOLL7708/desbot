@@ -13,11 +13,11 @@ class MainController {
     private _sign: Sign = new Sign()
     
     private _ttsEnabledUsers: string[] = []
-    private _ttsForAll: boolean = Config.controller.ttsForAllDefault
-    private _pipeForAll: boolean = Config.controller.pipeForAllDefault
-    private _pingForChat: boolean = Config.controller.pingForChat
-    private _useGameSpecificRewards: boolean = Config.controller.useGameSpecificRewards
-    private _logChatToDiscord: boolean = Config.controller.logChatToDiscordDefault
+    private _ttsForAll: boolean = Config.controller.defaults.ttsForAll
+    private _pipeAllChat: boolean = Config.controller.defaults.pipeAllChat
+    private _pingForChat: boolean = Config.controller.defaults.pingForChat
+    private _useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards
+    private _logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord
     private _nonceCallbacks: Record<string, Function> = {}
     private _scaleIntervalHandle: number
 
@@ -418,7 +418,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_ON,
             callback: (userData, input) => {
-                this._pipeForAll = true
+                this._pipeAllChat = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_ON]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -427,7 +427,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_OFF,
             callback: (userData, input) => {
-                this._pipeForAll = false
+                this._pipeAllChat = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_OFF]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -868,7 +868,7 @@ class MainController {
             }
 
             // Pipe to VR (basic)
-            if(this._pipeForAll) {
+            if(this._pipeAllChat) {
                 this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
                         ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
@@ -1075,15 +1075,33 @@ class MainController {
 
         this._openvr2ws.setAppIdCallback(async (appId) => {
             /**
+             * Controller defaults loading
+             */
+            const controllerGameDefaults = Config.controller.gameDefaults[appId]
+            let combinedSettings = Config.controller.defaults
+            if(controllerGameDefaults != undefined) {
+                combinedSettings = {...combinedSettings, ...controllerGameDefaults}
+                Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
+            } else {
+                Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
+            }
+            this._ttsForAll = combinedSettings.ttsForAll
+            this._pipeAllChat = combinedSettings.pipeAllChat
+            this._pingForChat = combinedSettings.pingForChat
+            setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
+            this._logChatToDiscord = combinedSettings.logChatToDiscord
+            this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards
+
+            /**
              * General reward toggling
              */
             const defaultProfile = Config.twitch.rewardConfigProfileDefault
             const profile = Config.twitch.rewardConfigProfilePerGame[appId]
             if(profile != undefined) {
-                Utils.log(`Applying game profile for: ${appId}`, 'green')
+                Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
                 this._twitchHelix.toggleRewards({...defaultProfile, ...profile})
             } else {
-                Utils.log(`No game profile for: ${appId}, applying default`, 'green')
+                Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green)
                 this._twitchHelix.toggleRewards(defaultProfile)
             }
 
