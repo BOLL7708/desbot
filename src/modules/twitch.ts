@@ -76,6 +76,7 @@ class Twitch{
         if(reward != null) reward.callback(message)
         else console.warn(`Reward not found: ${id}`)
     }
+
     private onChatMessage(messageCmd: ITwitchMessageCmd) {
         let msg = messageCmd.message
         if(msg == null) return
@@ -143,7 +144,7 @@ class Twitch{
                 if(allowedRole) {
                     command.callback(userData, textStr)
                 }
-                if(allowedRole && allowedByCooldown) {
+                if(allowedRole && allowedByCooldown && command.cooldownCallback != null) {
                     command.cooldownCallback(userData, textStr)
                 }
                 if(command.cooldown != undefined) {
@@ -172,5 +173,11 @@ class Twitch{
         else { // Normal users
             return this._chatCallback(userData, messageData)
         }
+    }
+
+    runCommand(commandStr: string) {
+        Utils.log(`Run command: ${commandStr}`, Color.Purple)
+        let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
+        if(command != undefined) command.callback(undefined, '')
     }
 }

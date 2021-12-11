@@ -1077,20 +1077,24 @@ class MainController {
             /**
              * Controller defaults loading
              */
-            const controllerGameDefaults = Config.controller.gameDefaults[appId]
-            let combinedSettings = Config.controller.defaults
-            if(controllerGameDefaults != undefined) {
-                combinedSettings = {...combinedSettings, ...controllerGameDefaults}
-                Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
-            } else {
-                Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
+            if(appId != undefined) {
+                const controllerGameDefaults = Config.controller.gameDefaults[appId]
+                let combinedSettings = Config.controller.defaults
+                if(controllerGameDefaults != undefined) {
+                    combinedSettings = {...combinedSettings, ...controllerGameDefaults}
+                    Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
+                } else {
+                    Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
+                }
+                
+                // TTS runs the command due to doing more things than just toggling the flag.
+                this._twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
+                this._pipeAllChat = combinedSettings.pipeAllChat
+                this._pingForChat = combinedSettings.pingForChat
+                setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
+                this._logChatToDiscord = combinedSettings.logChatToDiscord
+                this._useGameSpecificRewards = true // OBS: Running the command for this will create infinite loop.
             }
-            this._ttsForAll = combinedSettings.ttsForAll
-            this._pipeAllChat = combinedSettings.pipeAllChat
-            this._pingForChat = combinedSettings.pingForChat
-            setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
-            this._logChatToDiscord = combinedSettings.logChatToDiscord
-            this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards
 
             /**
              * General reward toggling
