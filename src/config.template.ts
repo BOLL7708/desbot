@@ -14,7 +14,8 @@ Config.controller = { // Set defaults for the widget
         ttsForAll: true,
         pingForChat: true,
         logChatToDiscord: true,
-        useGameSpecificRewards: true
+        useGameSpecificRewards: true,
+        updateTwitchGame: true
     },
     gameDefaults: { // Profiles for games that changes the defaults above
         'steam.app.450390': {

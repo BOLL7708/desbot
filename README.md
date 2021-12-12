@@ -78,7 +78,8 @@ Download the [Twitch Authenticator](https://github.com/jeppevinkel/twitch-oauth)
   "whispers:edit",
   "channel:read:redemptions",
   "channel:read:subscriptions",
-  "channel:manage:redemptions"
+  "channel:manage:redemptions",
+  "channel:manage:broadcast"
 ]
 ```
 Copy or rename the Twitch tokens file `settings_twitch_tokens.csv.template`, found in `/streaming_widget/settings/`, so it does not have `.template` in the name. Put the resulting tokens into the new file.

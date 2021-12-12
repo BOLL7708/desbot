@@ -24,6 +24,7 @@ interface IControllerDefaults {
     pingForChat?: boolean
     logChatToDiscord?: boolean
     useGameSpecificRewards?: boolean
+    updateTwitchGame?: boolean
 }
 
 interface IScreenshotRequestData {

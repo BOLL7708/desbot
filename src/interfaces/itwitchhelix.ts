@@ -121,3 +121,22 @@ interface ITwitchHelixGamesResponseData {
     name: string
 }
 
+interface ITwitchHelixCategoriesResponse {
+    data: ITwitchHelixCategoriesResponseData[],
+    pagination: {
+        cursor: string
+    }
+}
+
+interface ITwitchHelixCategoriesResponseData {
+    id: string
+    name: string
+    box_art_url: string
+}
+
+interface ITwitchHelixChannelRequest {
+    game_id?: string
+    broadcaster_language?: string
+    title?: string
+    delay?: number
+}

@@ -18,6 +18,7 @@ class MainController {
     private _pingForChat: boolean = Config.controller.defaults.pingForChat
     private _useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards
     private _logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord
+    private _updateTwitchGame: boolean = Config.controller.defaults.updateTwitchGame
     private _nonceCallbacks: Record<string, Function> = {}
     private _scaleIntervalHandle: number
 
@@ -1093,7 +1094,8 @@ class MainController {
                 this._pingForChat = combinedSettings.pingForChat
                 setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
                 this._logChatToDiscord = combinedSettings.logChatToDiscord
-                this._useGameSpecificRewards = true // OBS: Running the command for this will create infinite loop.
+                this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
+                this._updateTwitchGame = combinedSettings.updateTwitchGame
             }
 
             /**
@@ -1165,6 +1167,25 @@ class MainController {
                     subtitle: `${name}\n${price}`,
                     durationMs: 20000
                 })
+            }
+
+            // Update category on Twitch
+            if(appId != undefined && this._updateTwitchGame) {
+                const gameData = await SteamStore.getGameMeta(appId)
+                const twitchGameData = await this._twitchHelix.searchForGame(gameData.name)
+                if(twitchGameData != undefined) {
+                    const request: ITwitchHelixChannelRequest = {
+                        game_id: twitchGameData.id
+                    }
+                    const response = await this._twitchHelix.updateChannelInformation(request)
+                    const speech = Config.controller.speechReferences[Keys.KEY_CALLBACK_APPID]
+                    Utils.log(`Steam title: ${gameData.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
+                    if(response) {
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    } else {
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    }
+                }
             }
         })
 

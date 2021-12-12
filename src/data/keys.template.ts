@@ -42,6 +42,9 @@ class KeysTemplate {
     // Static audio
     static readonly KEY_SOUND_CHAT: string = 'ChatSound'
 
+    // Callback keys
+    static readonly KEY_CALLBACK_APPID: string = 'CallbackAppID'
+
     // Static rewards
     static readonly KEY_TTSSPEAK: string = 'Speak'
     static readonly KEY_TTSSPEAKTIME: string = 'SpeakTime'

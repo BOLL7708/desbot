@@ -33,9 +33,7 @@ class OpenVR2WS {
         this._resetLoopHandle = setInterval(this.resetSettings.bind(this), 1000)
     }
 
-    private _appIdCallback: IOpenVR2WSAppIdCallback = (appId) => {
-        // console.log(`Game ID callback: ${appId}`)
-    }
+    private _appIdCallback: IOpenVR2WSAppIdCallback = (appId) => {}
     setAppIdCallback(callback: IOpenVR2WSAppIdCallback) {
         callback.call(undefined) // To disable game specific rewards
         this._appIdCallback = callback
