@@ -16,6 +16,7 @@ interface IControllerConfig {
     speechReferences: { [key: string]: string|string[] }
     rewardReferences: { [key: string]: string }
     phpPassword: string
+    defaultTwitchGameCategory: string
 }
 
 interface IControllerDefaults {
@@ -24,7 +25,7 @@ interface IControllerDefaults {
     pingForChat?: boolean
     logChatToDiscord?: boolean
     useGameSpecificRewards?: boolean
-    updateTwitchGame?: boolean
+    updateTwitchGameCategory?: boolean
 }
 
 interface IScreenshotRequestData {

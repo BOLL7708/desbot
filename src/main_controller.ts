@@ -18,7 +18,7 @@ class MainController {
     private _pingForChat: boolean = Config.controller.defaults.pingForChat
     private _useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards
     private _logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord
-    private _updateTwitchGame: boolean = Config.controller.defaults.updateTwitchGame
+    private _updateTwitchGameCategory: boolean = Config.controller.defaults.updateTwitchGameCategory
     private _nonceCallbacks: Record<string, Function> = {}
     private _scaleIntervalHandle: number
 
@@ -1095,7 +1095,7 @@ class MainController {
                 setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
                 this._logChatToDiscord = combinedSettings.logChatToDiscord
                 this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
-                this._updateTwitchGame = combinedSettings.updateTwitchGame
+                this._updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory
             }
 
             /**
@@ -1170,9 +1170,22 @@ class MainController {
             }
 
             // Update category on Twitch
-            if(appId != undefined && this._updateTwitchGame) {
+            if(appId != undefined && this._updateTwitchGameCategory) {
                 const gameData = await SteamStore.getGameMeta(appId)
-                const twitchGameData = await this._twitchHelix.searchForGame(gameData.name)
+                let twitchGameData = await this._twitchHelix.searchForGame(gameData.name)
+                if(twitchGameData == null && typeof gameData.name == 'string') {
+                    let nameParts = gameData.name.split(' ')
+                    if(nameParts.length >= 2) {
+                        // This is to also match games that are "name VR" on Steam but "name" on Twitch
+                        // so we effectively trim off VR and see if we get a match.
+                        nameParts.pop()
+                        twitchGameData = await this._twitchHelix.searchForGame(nameParts.join(' '))
+                    }
+                }
+                if(twitchGameData == null) {
+                    // If still no Twitch match, we load a possible default category.
+                    twitchGameData = await this._twitchHelix.searchForGame(Config.controller.defaultTwitchGameCategory)
+                }
                 if(twitchGameData != undefined) {
                     const request: ITwitchHelixChannelRequest = {
                         game_id: twitchGameData.id
@@ -1185,6 +1198,8 @@ class MainController {
                     } else {
                         this._tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     }
+                } else {
+                    Utils.log(`Steam title: ${gameData.name} did not match any Twitch Category`, Color.Red)
                 }
             }
         })

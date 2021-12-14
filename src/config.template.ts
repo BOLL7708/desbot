@@ -15,13 +15,13 @@ Config.controller = { // Set defaults for the widget
         pingForChat: true,
         logChatToDiscord: true,
         useGameSpecificRewards: true,
-        updateTwitchGame: true
+        updateTwitchGameCategory: true
     },
     gameDefaults: { // Profiles for games that changes the defaults above
         'steam.app.450390': {
             pipeAllChat: false
         }
-    }, 
+    },
     websocketsUsed: {
         twitchChat: true,
         twitchPubsub: true,
@@ -106,7 +106,8 @@ Config.controller = { // Set defaults for the widget
     rewardReferences: { // References between static and automatic rewards.
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1
     },
-    phpPassword: Secure.PHPPassword
+    phpPassword: Secure.PHPPassword,
+    defaultTwitchGameCategory: 'Games + Demos'
 }
 
 /*
