@@ -17,16 +17,15 @@ if($setting === null) {
 $setting = str_replace(['.', '/', '\\'], '', $setting);
 $filePath = getFilePath($setting);
 
-// TODO: Add a switch here and add PUT to append a file?
-if($method === 'POST') { 
+if($method === 'POST' || $method === 'PUT') { 
     // Save settings
-    $success = writeSettings($filePath);
+    $success = writeSettings($filePath, $method === 'PUT');
     if($success !== false) exit("Settings written");
     else {
         http_response_code(400);
         exit("Could not write file to disk");
     }
-} else { 
+} else { // GET
     // Load settings
     if(!file_exists($filePath)) {
         http_response_code(404); 
@@ -37,14 +36,15 @@ if($method === 'POST') {
     exit(json_encode($contents));
 }
 
-function writeSettings($filePath) {
+function writeSettings($filePath, $append = false) {
     // Get and decode input
     $inputJson = file_get_contents('php://input');
     $inputRows = json_decode($inputJson);
 
     //Check if input was actually JSON, else just write the contents to file as it's a label
     if(!is_object($inputRows) && !is_array($inputRows)) {
-        return file_put_contents($filePath, $inputRows);
+        if($append) $inputRows .= "\n";
+        return file_put_contents($filePath, $inputRows, $append ? FILE_APPEND : 0);
     }
 
     // Encode input to CSV, write settings file
@@ -60,7 +60,8 @@ function writeSettings($filePath) {
         $input[] = implode(';', $result);
     }
     $inputString = implode("\n", array_filter($input)); // Filter removes empty items
-    return file_put_contents($filePath, $inputString);
+    if($append) $inputString .= "\n";
+    return file_put_contents($filePath, $inputString, $append ? FILE_APPEND : 0);
 }
 
 function readSettings($filePath) {

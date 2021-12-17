@@ -41,7 +41,7 @@ Config.controller = { // Set defaults for the widget
         subscribers: false,
         everyone: false
     },
-    commandPermissionsReferences: { // This is where you can have deviating permissions per command so you steer access individually.
+    commandPermissionsOverrides: { // This is where you can have deviating permissions per command so you steer access individually.
         [KeysTemplate.COMMAND_LOG_ON]: {moderators: false},
         [KeysTemplate.COMMAND_LOG_OFF]: {moderators: false},
         [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true},
@@ -101,6 +101,10 @@ Config.controller = { // Set defaults for the widget
             'Starting Twitch clip import.',
             'There are %s old clips, %s new clips.',
             'Finished posting %s new clips.'
+        ],
+        [KeysTemplate.KEY_CALLBACK_APPID]: [
+            'Twitch game updated: %s',
+            'Twitch game not matched: %s'
         ]
     },
     rewardReferences: { // References between static and automatic rewards.

@@ -27,7 +27,7 @@ class MainController {
     }
     
     private async init() {
-        // Make sure settings are precached
+        // Make sure settings are pre-cached
         await Settings.loadSettings(Settings.TTS_BLACKLIST)
         await Settings.loadSettings(Settings.TTS_USER_NAMES)
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
@@ -35,7 +35,7 @@ class MainController {
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
         await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
-        await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY)
+        await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY) // TODO: Can skip this if we append instead of overwrite
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
 
         /*

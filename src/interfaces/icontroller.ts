@@ -12,7 +12,7 @@ interface IControllerConfig {
     }
     commandReferences: { [key: string]: string }
     commandPermissionsDefault: ICommandPermissions
-    commandPermissionsReferences: { [key: string]: ICommandPermissions }
+    commandPermissionsOverrides: { [key: string]: ICommandPermissions }
     speechReferences: { [key: string]: string|string[] }
     rewardReferences: { [key: string]: string }
     phpPassword: string

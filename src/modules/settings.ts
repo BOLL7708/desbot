@@ -43,16 +43,16 @@ class Settings {
      * @param settings Settings object or array, null to save cache.
      * @returns 
      */
-    static async saveSettings(setting:string, settings:any=null):Promise<boolean> {
+    static async saveSettings(setting:string, settings:any=null, append:boolean=false):Promise<boolean> {
         let url = this.getUrl(setting)
         if(settings == null) settings = this._settingsStore[setting]
         if(settings != null) {
             let payload = JSON.stringify(settings)
             payload.replace(/\|/g, '').replace(/;/g, '')
-            Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
+            if(setting != Settings.LOG_OUTPUT) Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
             let response = await fetch(url, {
                 headers: {password: Utils.encode(Config.controller.phpPassword)},
-                method: 'post',
+                method: append ? 'put' : 'post',
                 body: payload
             })
             return response.status < 300
@@ -84,6 +84,10 @@ class Settings {
         settings.push(value)
         this._settingsStore[setting] = settings
         return this.saveSettings(setting)
+    }
+
+    static async appendSetting(setting:string, value:any):Promise<boolean> {
+        return this.saveSettings(setting, value, true)
     }
 
     static async pushLabel(setting:string, value:string):Promise<boolean> {

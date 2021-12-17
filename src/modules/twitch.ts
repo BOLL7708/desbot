@@ -26,7 +26,7 @@ class Twitch{
     registerCommand(twitchSlashCommand: ITwitchSlashCommand) {
 		if(twitchSlashCommand.trigger.length != 0) {
             // Use Default permission if none were provided.
-            const permissions = Config.controller.commandPermissionsReferences[twitchSlashCommand.trigger]
+            const permissions = Config.controller.commandPermissionsOverrides[twitchSlashCommand.trigger]
             if(permissions == undefined) twitchSlashCommand.permissions = {}
             twitchSlashCommand.permissions = { ...Config.controller.commandPermissionsDefault, ...permissions, ...twitchSlashCommand.permissions }
            
