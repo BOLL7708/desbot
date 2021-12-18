@@ -35,7 +35,6 @@ class MainController {
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
         await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
-        await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY) // TODO: Can skip this if we append instead of overwrite
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
 
         /*
@@ -71,7 +70,7 @@ class MainController {
 
         // Create missing rewards if any
         const allRewardKeys = Object.keys(Config.twitch.rewardConfigs)
-        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))        
+        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
             const setup = Config.twitch.rewardConfigs[key]
             let reward = await this._twitchHelix.createReward(setup)
@@ -97,8 +96,8 @@ class MainController {
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAK),
             callback: (data:ITwitchRedemptionMessage) => {
-                let userName = data?.redemption?.user?.login
-                let inputText = data?.redemption?.user_input
+                const userName = data?.redemption?.user?.login
+                const inputText = data?.redemption?.user_input
                 if(userName != null && inputText != null) {
                     Utils.log("TTS Message Reward", Color.DarkOrange)
                     this._tts.enqueueSpeakSentence(
@@ -113,31 +112,33 @@ class MainController {
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME),
             callback: (data:ITwitchRedemptionMessage) => {
                 Utils.log("TTS Time Reward", Color.DarkOrange)
-                let username = data?.redemption?.user?.login
+                const username = data?.redemption?.user?.login
                 if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
                     this._ttsEnabledUsers.push(username)
                     Utils.log(`User added to TTS list: ${username}`, Color.DarkOrange)
                 }
                 setTimeout(()=>{
-                    let index = this._ttsEnabledUsers.indexOf(username)
-                    let removed = this._ttsEnabledUsers.splice(index)
+                    const index = this._ttsEnabledUsers.indexOf(username)
+                    const removed = this._ttsEnabledUsers.splice(index)
                     Utils.log(`User removed from TTS list: ${removed}`, Color.DarkOrange)
                 }, 10*60*1000)
             }
         })
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSETVOICE),
-            callback: (data:ITwitchRedemptionMessage) => {
-                let userName = data?.redemption?.user?.login
-                let userInput = data?.redemption?.user_input
+            callback: async (data:ITwitchRedemptionMessage) => {
+                const userName = data?.redemption?.user?.login
+                const displayName = data?.redemption?.user?.display_name
+                const userInput = data?.redemption?.user_input
                 Utils.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`, Color.DarkOrange)
-                this._tts.setVoiceForUser(userName, userInput)
+                const voiceName = await this._tts.setVoiceForUser(userName, userInput)
+                this._twitch._twitchChat.sendMessageToChannel(`@${displayName} voice: ${voiceName}`)
             }
         })
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSWITCHVOICEGENDER),
             callback: (data:ITwitchRedemptionMessage) => {
-                let userName = data?.redemption?.user?.login
+                const userName = data?.redemption?.user?.login
                 Utils.log(`TTS Gender Set Reward: ${userName}`, Color.DarkOrange)
                 Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
                     const voiceSetting:IUserVoice = voice
@@ -191,7 +192,7 @@ class MainController {
                     index: message.redemption.reward.redemptions_redeemed_current_stream,
                     cost: message.redemption.reward.cost.toString()
                 }
-                Settings.pushRow(Settings.STATS_CHANNEL_TROPHY, row)
+                Settings.appendSetting(Settings.STATS_CHANNEL_TROPHY, row)
 
                 const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, 'red')
@@ -625,10 +626,14 @@ class MainController {
                     const config = Config.twitch.rewardConfigs[pair.key]
                     if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) < 0) {
                         const response = await this._twitchHelix.updateReward(pair.id, config)
-                        const success = response?.data[0]?.id == pair.id
-                        Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success?'green':'red')
+                        if(response != null && response.data != null) {
+                            const success = response?.data[0]?.id == pair.id
+                            Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
+                        } else {
+                            Utils.logWithBold(`Reward <${pair.key}> update unsuccessful.`, Color.Red)
+                        }                       
                     } else {
-                        Utils.logWithBold(`Reward <${pair.key}> update skipped or unavailable.`, 'purple')
+                        Utils.logWithBold(`Reward <${pair.key}> update skipped or unavailable.`, Color.Purple)
                     }
                 }
             }
@@ -685,7 +690,7 @@ class MainController {
             trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHANNELTROPHY_STATS]
-                const numberOfStreams = ChannelTrophy.getNumberOfStreams()
+                const numberOfStreams = await ChannelTrophy.getNumberOfStreams()
                 const streamNumber = parseInt(input)
 				if(input == "all") {
                     this._tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)

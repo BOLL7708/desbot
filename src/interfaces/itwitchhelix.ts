@@ -42,7 +42,10 @@ interface ITwitchHelixRewardConfigShared {
 
 // Responses
 interface ITwitchHelixRewardResponse {
-    data: ITwitchHelixRewardResponseData[]
+    data?: ITwitchHelixRewardResponseData[]
+    error?: string
+    message?: string
+    status?: number
 }
 interface ITwitchHelixRewardResponseData {
     broadcaster_name: string

@@ -98,8 +98,8 @@ class TwitchHelix {
             headers: headers,
             body: JSON.stringify(updateData)
         }
-
         let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
+        if(response.error != undefined) Utils.log(`Failed to update Twitch reward ${rewardId}: ${response.error}(${response.status}) -> ${response.message}`, Color.Red)
         return response
     }
 

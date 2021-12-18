@@ -79,7 +79,7 @@ function readSettings($filePath) {
                 $result[] = $field;
             }
         }
-        $output[] = $result;
+        if(strlen($row) > 0) $output[] = $result;
     }
     return $output;
 }

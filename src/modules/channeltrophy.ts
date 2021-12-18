@@ -1,5 +1,6 @@
 class ChannelTrophy {
-    static getNumberOfStreams():number {
+    static async getNumberOfStreams():Promise<number> {
+        await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY, true)
         const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
@@ -12,6 +13,7 @@ class ChannelTrophy {
     }
 
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
+        await Settings.loadSettings(Settings.STATS_CHANNEL_TROPHY, true)
         const stats:IChannelTrophyStat[] = Settings.getFullSettings(Settings.STATS_CHANNEL_TROPHY)
 
         /* GENERATE DATA */

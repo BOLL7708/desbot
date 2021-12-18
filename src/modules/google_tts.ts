@@ -215,7 +215,7 @@ class GoogleTTS {
         this._preloadQueue[serial] = audio
     }
 
-    async setVoiceForUser(userName:string, input:string, nonce:string='') {
+    async setVoiceForUser(userName:string, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
         let voice = await Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName)
         const defaultVoice = await this.getDefaultVoice(userName)
@@ -263,7 +263,7 @@ class GoogleTTS {
             }
 
             // Randomize among ALL voices
-            if(setting == 'random' || setting == '?') {
+            if(setting == 'random' || setting == 'rand' || setting == '?') {
                 const randomVoice = this._voices[Math.floor(Math.random()*this._voices.length)]
                 voice = this.buildVoice(userName, randomVoice)
                 return
@@ -272,6 +272,7 @@ class GoogleTTS {
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         console.log(`TTS: Voice saved: ${success}`)
         this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION, nonce)
+        return voice.voiceName
     }
 
     private async loadVoicesAndLanguages():Promise<boolean> {
