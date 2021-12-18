@@ -82,7 +82,11 @@ class TwitchHelix {
         return response
     }
 
-    async updateReward(rewardId: string, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse> {
+    async updateReward(rewardId: string|null, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|null> {
+        if(rewardId == null) {
+            console.warn("Tried to update reward but the ID is null")
+            return new Promise<null>(resolve => resolve(null))
+        }
         const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}&id=${rewardId}`
         const headers = {
             Authorization: `Bearer ${this._channelUserTokens.access_token}`,
