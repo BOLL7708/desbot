@@ -135,7 +135,7 @@ class Color{
     static SlateGrey: string = "slategrey"
     static Snow: string = "snow"
     static SpringGreen: string = "springgreen"
-    static SteelGlue: string = "steelblue"
+    static SteelBlue: string = "steelblue"
     static Tan: string = "tan"
     static Teal: string = "teal"
     static Thistle: string = "thistle"

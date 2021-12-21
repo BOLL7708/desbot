@@ -267,7 +267,7 @@ Config.openvr2ws = { // Get things like currently played SteamVR game and change
             type: OpenVR2WS.TYPE_WORLDSCALE,
             value: 0.5
         },
-        [KeysTemplate.KEY_SETTING_EXAMPLE1]: {
+        [KeysTemplate.KEY_SETTING_EXAMPLE2]: {
             type: OpenVR2WS.TYPE_WORLDSCALE,
             value: 2.0,
             duration: 10 // Seconds
@@ -456,12 +456,16 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     },
     rewardConfigProfileDefault: { // These will be applied if a game does not have a profile
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: true,
+        [KeysTemplate.KEY_SETTING_EXAMPLE1]: false
+    },
+    rewardConfigProfileNoGame: { // These are applied if the appId is undefined, which means not playing a VR Steam game
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
+        [KeysTemplate.KEY_SETTING_EXAMPLE2]: true
     },
     rewardConfigProfilePerGame: { // These are applied if an app ID is matched
         'steam.app.450390': { // The Lab
             [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
-            [KeysTemplate.KEY_SETTING_EXAMPLE1]: true,
+            [KeysTemplate.KEY_SETTING_EXAMPLE2]: true,
         }
     },
     gameSpecificRewards: [ // Rewards deemed to be game specific, will be disabled if no config is available.

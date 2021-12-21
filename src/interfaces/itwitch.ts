@@ -21,6 +21,7 @@ interface ITwitchConfig {
     rewardConfigProfileDefault: ITwitchRewardProfileConfig
     rewardConfigs: { [key: string]: ITwitchHelixRewardConfig }
     rewardConfigProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
+    rewardConfigProfileNoGame: { [key: string]: boolean }
     gameSpecificRewards: string[]
     gameSpecificRewardsPerGame: { [key: string]: { [key: string]: ITwitchHelixRewardUpdate } }
     channelTrophyUniqueNumbers: IChannelTrophyFunnyNumberTexts
