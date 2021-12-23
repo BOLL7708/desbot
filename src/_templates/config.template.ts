@@ -18,9 +18,12 @@ Config.controller = { // Set defaults for the widget
         updateTwitchGameCategory: true
     },
     gameDefaults: { // Profiles for games that changes the defaults above
-        'steam.app.450390': {
+        // Specify overrides here
+        [GamesTemplate.THE_LAB]: {
             pipeAllChat: false
-        }
+        },
+        // Or define a preset and load that
+        [GamesTemplate.HALFLIFE_ALYX]: ControllerPresetsTemplate.NO_TTS
     },
     websocketsUsed: {
         twitchChat: true,
@@ -155,6 +158,12 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
             imagePath: 'assets/whatever_image.png',
             durationMs: 5000,
             type: Pipe.TYPE_ALERT
+        },
+        [KeysTemplate.KEY_PIPE_EXAMPLE3]: {
+            imagePath: 'assets/dot_green.png',
+            durationMs: 3000,
+            type: Pipe.TYPE_OVERRIDE,
+            override: PipePresetsTemplate.PIPE_EXAMPLE1
         }
     }
 }
@@ -458,29 +467,50 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         global_cooldown_seconds: 45,
         should_redemptions_skip_request_queue: true
     },
-    rewardConfigProfileDefault: { // These will be applied if a game does not have a profile
+    
+    // Default for turning rewards on or off depending on SteamVR game
+    // Applied when no specific profile is found
+    rewardConfigProfileDefault: {
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: true,
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: false
     },
-    rewardConfigProfileNoGame: { // These are applied if the appId is undefined, which means not playing a VR Steam game, it will be applied on top of the defaults above.
+    
+    // Turn rewards on or off if there is no game
+    // will be applied on top of default
+    rewardConfigProfileNoGame: {
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
         [KeysTemplate.KEY_SETTING_EXAMPLE2]: true
     },
-    rewardConfigProfilePerGame: { // These are applied if an app ID is matched
+
+    // Turn rewards on or off depending on which SteamVR game is detected
+    // will be applied on top of default
+    rewardConfigProfilePerGame: {
+        // Specify overrides here
         [GamesTemplate.THE_LAB]: {
-            [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
+            [KeysTemplate.KEY_SETTING_EXAMPLE1]: true,
             [KeysTemplate.KEY_SETTING_EXAMPLE2]: true,
-        }
+        },
+        // Or define a preset and load that
+        [GamesTemplate.HALFLIFE_ALYX]: GamePresetsTemplate.REWARDS_EXAMPLE1
     },
-    gameSpecificRewards: [ // Rewards deemed to be game specific, will be disabled if no config is available.
+
+    // Rewards that are game specific, will be disabled if no config is available
+    gameSpecificRewards: [ 
         KeysTemplate.KEY_GAME_EXAMPLE1,
         KeysTemplate.KEY_GAME_EXAMPLE2
     ],
-    gameSpecificRewardsPerGame: {
 
+    // Configuration for rewards that will be updated per game
+    gameSpecificRewardsPerGame: {
+        // TODO
     },
+
+    // Numbers that overrides/complements defined patterns
     channelTrophyUniqueNumbers: {
-        
+        1337: {
+            speech: `%s trophy with number %s`,
+            label: `Special Trophy taken by %s`
+        }
     }
 }
 

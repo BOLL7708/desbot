@@ -2,9 +2,9 @@
 /src/_configs/*.ts
 config.php
 
-/src/data/games.ts
-/src/data/presets.ts
-/src/data/keys.ts
+/src/_data/games.ts
+/src/_data/presets.ts
+/src/_data/!keys.ts
 
 /settings/*.csv
 /assets/*
