@@ -13,12 +13,12 @@ class Utils {
             }
             if(
                 $ext == 'js' 
-                && strpos($name, 'template') === false
+                && strpos($directory, '_templates') === false
                 && strpos($directory, 'interfaces') === false
             ) {
-                if(is_string($directory)) {
+                if(is_string($directory) && file_exists($root.$directory.'/'.$name)) {
                     echo '<script src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";
-                } elseif ($directory) {
+                } elseif (file_exists($root.$name)) {
                     echo '<script src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
                 }
             }
@@ -29,27 +29,41 @@ class Utils {
         foreach ($dir as $file) {
             $name = $file->getFilename();
             if (
-                $file->isDir() && 
-                !$file->isDot() && 
-                substr($name,0,1) != '.'
+                $file->isDir() 
+                && strpos($name, '_configs') === false
+                && !$file->isDot()
+                && substr($name,0,1) != '.'
             ) {
                 $dir2 = new DirectoryIterator($root.$name);
                 foreach($dir2 as $file2) {
                     includeFile($root, $file2, $name);
                 }
-            } else {
-                includeFile($root, $file, null);
             }
         }
     
         $configOverride = $_REQUEST['config'] ?? null;
 
         // We want to embed config last so it can access constants in modules.
-        includeFile($root, 'utils.js', true);
-        includeFile($root, 'main_controller.js', true);
-        includeFile($root, 'secure.base.js', true);
-        includeFile($root, 'config.base.js', true);
-        if($configOverride != null) includeFile($root, "config.$configOverride.js", true);
+        includeFile($root, 'utils.js');
+        includeFile($root, 'main_controller.js');
+        
+        // Includ everything regarding configs
+        $configPath = '_configs';
+        includeFile($root, 'secure.base.js', $configPath); // Things like tokens etc
+        includeFile($root, 'config.base.js', $configPath); // Everything else, probably
+        $configDir = new DirectoryIterator($root.$configPath);
+        foreach($configDir as $configFile) {
+            error_log($configFile->getFilename());
+            $configName = $configFile->getFileName();
+            if(
+                !$configFile->isDir()
+                && strpos($configName, '_') !== false
+            ) {
+                includeFile($root, $configName, $configPath);
+            }
+        }
+        
+        if($configOverride != null) includeFile($root, "config.$configOverride.js", $configPath);
     }
     
     static function decode($b64url) {

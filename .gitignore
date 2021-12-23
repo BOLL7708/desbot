@@ -1,12 +1,11 @@
 /dist/*
-config.*.ts
-!config.template.ts
-secure.*.ts
-!secure.template.ts
+/src/_configs/*.ts
 config.php
+
 /src/data/games.ts
 /src/data/presets.ts
 /src/data/keys.ts
+
 /settings/*.csv
 /assets/*
 *.zip

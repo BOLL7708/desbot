@@ -1110,7 +1110,7 @@ class MainController {
             const profile = Config.twitch.rewardConfigProfilePerGame[appId]
             if(appId == undefined) {
                 Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
-                this._twitchHelix.toggleRewards({... defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
+                this._twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
             } else if(profile != undefined) {
                 Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
                 this._twitchHelix.toggleRewards({...defaultProfile, ...profile})

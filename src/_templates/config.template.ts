@@ -381,12 +381,15 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         KeysTemplate.KEY_SETTING_EXAMPLE2,
         KeysTemplate.KEY_WEB_EXAMPLE1
     ],
-    disableAutoRewardAfterUse: [
+
+    // Rewards listed here will be disabled as soon as they have been used, meaning they will vanish.
+    disableAutoRewardAfterUse: [ 
         KeysTemplate.KEY_UNLOCKREWARDTIMER
-    ], // Rewards listed here will be disabled as soon as they have been used, meaning they will vanish.
-    rewardConfigs: { // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
+    ], 
+
+    // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
+    rewardConfigs: Config.twitch.rewardConfigs = {   
         // You should fill this out with at least the minimum for each reward, the title has to be unique.
-        
         // Default rewards, you can remove the ones you don't want or set them to not be enabled with is_enabled=false.
         [KeysTemplate.KEY_TTSSPEAK]: {
             title: 'TTS',
@@ -426,44 +429,45 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
             cost: 10,
             prompt: 'Immediately trigger a screenshot.',
             background_color: '#808080'
-        },
-        
-        // Examples of auto rewards, all are minimum input except the last which shows off all properties possible for a reward.
-        [KeysTemplate.KEY_OBS_EXAMPLE1]: { title: 'OBS Example 1', cost: 100 },
-        [KeysTemplate.KEY_OBS_EXAMPLE2]: { title: 'OBS Example 2', cost: 100 },
-        [KeysTemplate.KEY_COLOR_EXAMPLE1]: { title: 'Color Example 1', cost: 100 },
-        [KeysTemplate.KEY_COLOR_EXAMPLE2]: { title: 'Color Example 2', cost: 100 },
-        [KeysTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
-        [KeysTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
-        [KeysTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },
-        [KeysTemplate.KEY_PIPE_EXAMPLE2]: { title: 'Pipe Example 2', cost: 100 },
-        [KeysTemplate.KEY_SETTING_EXAMPLE1]: { title: 'Setting Example 1', cost: 100 },
-        [KeysTemplate.KEY_SETTING_EXAMPLE2]: {
-            title: 'A unique title',
-            cost: 100,
-            prompt: 'The description',
-            is_enabled: true,
-            background_color: "#FFFFFF",
-            is_user_input_required: true,
-            is_max_per_stream_enabled: true,
-            max_per_stream: 10,
-            is_max_per_user_per_stream_enabled: true,
-            max_per_user_per_stream: 2,
-            is_global_cooldown_enabled: true,
-            global_cooldown_seconds: 45,
-            should_redemptions_skip_request_queue: true
         }
+    },
+    
+    // Examples of auto rewards, they automatically load configs from other modules and runs them.
+    // All are using the minimum input except the last which shows off all properties possible for a reward.
+    [KeysTemplate.KEY_OBS_EXAMPLE1]: { title: 'OBS Example 1', cost: 100 },
+    [KeysTemplate.KEY_OBS_EXAMPLE2]: { title: 'OBS Example 2', cost: 100 },
+    [KeysTemplate.KEY_COLOR_EXAMPLE1]: { title: 'Color Example 1', cost: 100 },
+    [KeysTemplate.KEY_COLOR_EXAMPLE2]: { title: 'Color Example 2', cost: 100 },
+    [KeysTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
+    [KeysTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
+    [KeysTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },
+    [KeysTemplate.KEY_PIPE_EXAMPLE2]: { title: 'Pipe Example 2', cost: 100 },
+    [KeysTemplate.KEY_SETTING_EXAMPLE1]: { title: 'Setting Example 1', cost: 100 },
+    [KeysTemplate.KEY_SETTING_EXAMPLE2]: {
+        title: 'A unique title',
+        cost: 100,
+        prompt: 'The description',
+        is_enabled: true,
+        background_color: "#FFFFFF",
+        is_user_input_required: true,
+        is_max_per_stream_enabled: true,
+        max_per_stream: 10,
+        is_max_per_user_per_stream_enabled: true,
+        max_per_user_per_stream: 2,
+        is_global_cooldown_enabled: true,
+        global_cooldown_seconds: 45,
+        should_redemptions_skip_request_queue: true
     },
     rewardConfigProfileDefault: { // These will be applied if a game does not have a profile
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: true,
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: false
     },
-    rewardConfigProfileNoGame: { // These are applied if the appId is undefined, which means not playing a VR Steam game
+    rewardConfigProfileNoGame: { // These are applied if the appId is undefined, which means not playing a VR Steam game, it will be applied on top of the defaults above.
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
         [KeysTemplate.KEY_SETTING_EXAMPLE2]: true
     },
     rewardConfigProfilePerGame: { // These are applied if an app ID is matched
-        'steam.app.450390': { // The Lab
+        [GamesTemplate.THE_LAB]: {
             [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
             [KeysTemplate.KEY_SETTING_EXAMPLE2]: true,
         }
@@ -473,9 +477,7 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         KeysTemplate.KEY_GAME_EXAMPLE2
     ],
     gameSpecificRewardsPerGame: {
-        'steam.app.450390': {
-            
-        }
+
     },
     channelTrophyUniqueNumbers: {
         
