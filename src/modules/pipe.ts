@@ -68,26 +68,29 @@ class Pipe {
                 pitch: 0, 
                 yaw: 0
             },
-            transition: {
-                scale: 1,
-                opacity: 0,
-                vertical: 0,
-                distance: 0,
-                horizontal: 0,
-                spin: 0,
-                tween: 0,
-                duration: 100
-            },
-            transition2: {
-                scale: 1,
-                opacity: 0,
-                vertical: 0,
-                distance: 0,
-                horizontal: 0,
-                spin: 0,
-                tween: 0,
-                duration: 100
-            }
+            transitions: [
+                {
+                    scale: 1,
+                    opacity: 0,
+                    vertical: 0,
+                    distance: 0,
+                    horizontal: 0,
+                    spin: 0,
+                    tween: 0,
+                    duration: 100
+                },
+                {
+                    scale: 1,
+                    opacity: 0,
+                    vertical: 0,
+                    distance: 0,
+                    horizontal: 0,
+                    spin: 0,
+                    tween: 0,
+                    duration: 100
+                }
+            ],
+            textAreas: []
         }
     }
 
@@ -130,8 +133,8 @@ class Pipe {
             msg.properties.distance = 0.25
             msg.properties.yaw = 30 * (left ? -1 : 1)
             msg.properties.pitch = 30 * (top ? 1 : -1)
-            msg.transition.opacity = msg.transition2.opacity = 0,
-            msg.transition.duration = msg.transition2.duration = 500
+            msg.transitions[0].opacity = msg.transitions[1].opacity = 0,
+            msg.transitions[0].duration = msg.transitions[1].duration = 500
             msg.image = imageb64
             this.sendCustom(msg)
         } else {
@@ -147,13 +150,13 @@ class Pipe {
             msg.properties.duration = duration-800
             msg.properties.width = 2
             msg.properties.distance = 2
-            msg.transition.scale = msg.transition2.scale = 0
-            msg.transition.vertical = 3
-            msg.transition2.vertical = -3
-            msg.transition.tween = 7
-            msg.transition2.tween = 6
-            msg.transition.duration = 300
-            msg.transition2.duration = 500
+            msg.transitions[0].scale = msg.transitions[1].scale = 0
+            msg.transitions[0].vertical = 3
+            msg.transitions[1].vertical = -3
+            msg.transitions[0].tween = 7
+            msg.transitions[1].tween = 6
+            msg.transitions[0].duration = 300
+            msg.transitions[1].duration = 500
             msg.image = imageb64
             this.sendCustom(msg)
         } else {

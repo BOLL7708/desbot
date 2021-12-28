@@ -19,8 +19,8 @@ interface IPipeCustomMessage {
     image: string
     custom: boolean
     properties: IPipeCustomProperties
-    transition: IPipeCustomTransition
-    transition2: IPipeCustomTransition
+    transitions: IPipeCustomTransition[]
+    textAreas: IPipeCustomTextArea[]
 }
 interface IPipeCustomProperties {
     headset: boolean
@@ -43,4 +43,16 @@ interface IPipeCustomTransition {
     spin: number
     tween: number
     duration: number
+}
+interface IPipeCustomTextArea {
+    posx: number
+    posy: number
+    width: number
+    height: number
+    size: number
+    text: string
+    font: string
+    color: string
+    gravity: number
+    alignment: number
 }

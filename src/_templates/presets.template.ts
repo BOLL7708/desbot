@@ -33,25 +33,28 @@ class PipePresetsTemplate {
             pitch: 30, 
             yaw: 30
         },
-        transition: {
-            scale: 1,
-            opacity: 0,
-            vertical: 0,
-            distance: 0,
-            horizontal: 0,
-            spin: 0,
-            tween: 0,
-            duration: 100
-        },
-        transition2: {
-            scale: 1,
-            opacity: 0,
-            vertical: 0,
-            distance: 0,
-            horizontal: 0,
-            spin: 0,
-            tween: 0,
-            duration: 100
-        }
+        transitions: [
+            {
+                scale: 1,
+                opacity: 0,
+                vertical: 0,
+                distance: 0,
+                horizontal: 0,
+                spin: 0,
+                tween: 0,
+                duration: 100
+            },
+            {
+                scale: 1,
+                opacity: 0,
+                vertical: 0,
+                distance: 0,
+                horizontal: 0,
+                spin: 0,
+                tween: 0,
+                duration: 100
+            }
+        ],
+        textAreas: []
     }
 }

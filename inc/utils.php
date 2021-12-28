@@ -2,6 +2,7 @@
 
 class Utils {
     static function loadJSFiles() {
+        // Include single file
         function includeFile($root, $file, $directory=null) {
             if(is_string($file)) {
                 $name = $file;
@@ -24,6 +25,7 @@ class Utils {
             }
         }
     
+        // Scan root for subfolders except configs
         $root = './dist/';
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {
@@ -43,17 +45,16 @@ class Utils {
     
         $configOverride = $_REQUEST['config'] ?? null;
 
-        // We want to embed config last so it can access constants in modules.
+        // Manual includes from the root
         includeFile($root, 'utils.js');
         includeFile($root, 'main_controller.js');
         
-        // Includ everything regarding configs
+        // Scan root for previously skipped configs
         $configPath = '_configs';
         includeFile($root, 'secure.base.js', $configPath); // Things like tokens etc
         includeFile($root, 'config.base.js', $configPath); // Everything else, probably
         $configDir = new DirectoryIterator($root.$configPath);
         foreach($configDir as $configFile) {
-            error_log($configFile->getFilename());
             $configName = $configFile->getFileName();
             if(
                 !$configFile->isDir()
@@ -63,6 +64,7 @@ class Utils {
             }
         }
         
+        // Load any config override specified in the URL
         if($configOverride != null) includeFile($root, "config.$configOverride.js", $configPath);
     }
     
