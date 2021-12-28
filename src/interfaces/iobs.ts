@@ -11,6 +11,7 @@ interface IObsSourceConfig {
     sceneNames?: string[]
     durationMs?: number
     notificationImage?: string
+    notificationConfig?: IPipeCustomMessage
     filterName?: string
 }
 interface IObsSourceScreenshotConfig {

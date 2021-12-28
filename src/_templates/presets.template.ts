@@ -18,20 +18,71 @@ class GamePresetsTemplate {
 
 // Pipe presets
 class PipePresetsTemplate {
-    static PIPE_EXAMPLE1: IPipeCustomMessage = {
-        image: '', // Gets overridden by the Config values
+    static PIPE_DOT: IPipeCustomMessage = {
         custom: true,
         properties: {
             headset: true,
             horizontal: true,
             level: false,
             channel: 100,
-            hz: -1,
-            duration: 0, // Gets overridden by the Config values
             width: 0.025,
             distance: 0.25,
-            pitch: 30, 
-            yaw: 30
+            pitch: -30, 
+            yaw: -30
+        },
+        transitions: [],
+        textAreas: []
+    }
+    static PIPE_DROP: IPipeCustomMessage = {
+        custom: true,
+        properties: {
+            headset: false,
+            horizontal: true,
+            level: true,
+            channel: 200,
+            width: 2,
+            distance: 2,
+            pitch: 0, 
+            yaw: 0
+        },
+        transitions: [
+            {
+                scale: 0,
+                opacity: 0,
+                vertical: 3,
+                distance: 0,
+                horizontal: 0,
+                spin: 0,
+                tween: 7,
+                duration: 300
+            },
+            {
+                scale: 0,
+                opacity: 0,
+                vertical: -3,
+                distance: 0,
+                horizontal: 0,
+                spin: 0,
+                tween: 6,
+                duration: 500
+            }
+        ],
+        textAreas: []
+    }
+    static PIPE_DEFAULT: IPipeCustomMessage = {
+        image: null,
+        custom: true,
+        properties: {
+            headset: false,
+            horizontal: true,
+            level: false,
+            channel: 0,
+            hz: -1,
+            duration: 1000,
+            width: 1,
+            distance: 1,
+            pitch: 0, 
+            yaw: 0
         },
         transitions: [
             {
@@ -55,6 +106,18 @@ class PipePresetsTemplate {
                 duration: 100
             }
         ],
-        textAreas: []
+        textAreas: [
+            {
+                posx: 0,
+                posy: 0,
+                width: 0,
+                height: 0,
+                size: 0,
+                font: '',
+                color: 'white',
+                gravity: 0,
+                alignment: 0
+            }
+        ]
     }
 }

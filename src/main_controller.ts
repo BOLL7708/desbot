@@ -1231,8 +1231,13 @@ class MainController {
         if(config) return (message: ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
             _this._obs.show(config)
-            if(config.notificationImage != undefined) {
-                _this._pipe.showNotificationImage(config.notificationImage, config.durationMs)
+            if(config.notificationImage != undefined && config.notificationConfig != undefined) {
+                const pipe: Pipe = _this._pipe;
+                pipe.showPreset({
+                    imagePath: config.notificationImage,
+                    durationMs: config.durationMs,
+                    config: config.notificationConfig
+                })
             }
         } 
         else return null

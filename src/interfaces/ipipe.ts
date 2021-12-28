@@ -8,15 +8,13 @@ interface IPipeConfig {
 interface IPipeMessagePreset {
     imagePath: string|string[]
     durationMs: number
-    type: number
-    top?: boolean
-    left?: boolean
-    override?: IPipeCustomMessage
+    config: IPipeCustomMessage
+    texts?: string[]
 }
 
 // Data
 interface IPipeCustomMessage {
-    image: string
+    image?: string
     custom: boolean
     properties: IPipeCustomProperties
     transitions: IPipeCustomTransition[]
@@ -27,8 +25,8 @@ interface IPipeCustomProperties {
     horizontal: boolean
     level: boolean
     channel: number
-    hz: number
-    duration: number
+    hz?: number
+    duration?: number
     width: number
     distance: number
     pitch: number
@@ -50,7 +48,7 @@ interface IPipeCustomTextArea {
     width: number
     height: number
     size: number
-    text: string
+    text?: string
     font: string
     color: string
     gravity: number

@@ -150,20 +150,9 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
     ],
     configs: {
         [KeysTemplate.KEY_PIPE_EXAMPLE1]: {
-            imagePath: 'assets/dot_red.png',
-            durationMs: 3000,
-            type: Pipe.TYPE_NOTIFICATION
-        },
-        [KeysTemplate.KEY_PIPE_EXAMPLE2]: {
-            imagePath: 'assets/whatever_image.png',
-            durationMs: 5000,
-            type: Pipe.TYPE_ALERT
-        },
-        [KeysTemplate.KEY_PIPE_EXAMPLE3]: {
             imagePath: 'assets/dot_green.png',
             durationMs: 3000,
-            type: Pipe.TYPE_OVERRIDE,
-            override: PipePresetsTemplate.PIPE_EXAMPLE1
+            config: PipePresetsTemplate.PIPE_DOT
         }
     }
 }
@@ -183,13 +172,15 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
             sceneNames: ['scene1'],
             sourceName: 'some source',
             durationMs: 10000,
-            notificationImage: 'assets/image.png'
+            notificationImage: 'assets/image.png',
+            notificationConfig: PipePresetsTemplate.PIPE_DOT
         },
         [KeysTemplate.KEY_OBS_EXAMPLE2]: {
             sceneNames: ['scene1', 'scene2'],
             sourceName: 'some other source',
             durationMs: 20000,
-            notificationImage: 'assets/other_image.png'
+            notificationImage: 'assets/other_image.png',
+            notificationConfig: PipePresetsTemplate.PIPE_DOT
         },
         [KeysTemplate.KEY_OBS_EXAMPLE3]: {
             sourceName: 'some source with a filter',
@@ -450,7 +441,6 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     [KeysTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
     [KeysTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
     [KeysTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },
-    [KeysTemplate.KEY_PIPE_EXAMPLE2]: { title: 'Pipe Example 2', cost: 100 },
     [KeysTemplate.KEY_SETTING_EXAMPLE1]: { title: 'Setting Example 1', cost: 100 },
     [KeysTemplate.KEY_SETTING_EXAMPLE2]: {
         title: 'A unique title',

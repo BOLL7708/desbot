@@ -64,8 +64,6 @@ class KeysTemplate {
     static readonly KEY_SOUND_EXAMPLE1: string = 'SoundExample1'
     static readonly KEY_SOUND_EXAMPLE2: string = 'SoundExample2'
     static readonly KEY_PIPE_EXAMPLE1: string = 'PipeExample1'
-    static readonly KEY_PIPE_EXAMPLE2: string = 'PipeExample2'
-    static readonly KEY_PIPE_EXAMPLE3: string = 'PipeExample3'
     static readonly KEY_SETTING_EXAMPLE1: string = 'SettingExample1'
     static readonly KEY_SETTING_EXAMPLE2: string = 'SettingExample2'
     static readonly KEY_GAME_EXAMPLE1: string = 'GameExample1'
