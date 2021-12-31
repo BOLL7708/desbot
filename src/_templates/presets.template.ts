@@ -28,7 +28,9 @@ class PipePresetsTemplate {
             width: 0.025,
             distance: 0.25,
             pitch: -30, 
-            yaw: -30
+            yaw: -30,
+            offsetx: 0,
+            offsety: 0
         },
         transitions: [],
         textAreas: []
@@ -43,7 +45,9 @@ class PipePresetsTemplate {
             width: 2,
             distance: 2,
             pitch: 0, 
-            yaw: 0
+            yaw: 0,
+            offsetx: 0,
+            offsety: 0
         },
         transitions: [
             {
@@ -70,19 +74,18 @@ class PipePresetsTemplate {
         textAreas: []
     }
     static PIPE_DEFAULT: IPipeCustomMessage = {
-        image: null,
         custom: true,
         properties: {
             headset: false,
             horizontal: true,
             level: false,
             channel: 0,
-            hz: -1,
-            duration: 1000,
             width: 1,
             distance: 1,
             pitch: 0, 
-            yaw: 0
+            yaw: 0,
+            offsetx: 0,
+            offsety: 0
         },
         transitions: [
             {
