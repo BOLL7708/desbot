@@ -233,7 +233,7 @@ class ChannelTrophy {
         }
 		
 		function buildFieldsOutOfList(title: string, list: string[]):IDiscordEmbedField[] {
-			let listClone = JSON.parse(JSON.stringify(list))
+			let listClone: string[] = JSON.parse(JSON.stringify(list))
 			let fields: IDiscordEmbedField[] = []
             let isFirst: boolean = true
 			while(listClone.length > 0) {

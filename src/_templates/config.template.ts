@@ -245,10 +245,18 @@ Config.discord = { // Send things to Discord
 Config.philipshue = { // Control Philips Hue lights
     serverPath: 'http://a-local-IP',
     userName: Secure.PhilipsHue,
-    lightsToControl: [], // IDs of lights to affect with the color rewards
-    configs: {
+    lightsIds: [], // IDs of lights to affect with the color rewards
+    lightConfigs: {
         [KeysTemplate.KEY_COLOR_EXAMPLE1]: { x: 0.5, y: 0.5 },
         [KeysTemplate.KEY_COLOR_EXAMPLE2]: { x: 0.5, y: 0.5 }
+    },
+    plugConfigs: {
+        [KeysTemplate.KEY_PLUG_EXAMPLE1]: {
+            id: 3,
+            originalState: false,
+            triggerState: true,
+            duration: 30
+        }
     }
 }
 

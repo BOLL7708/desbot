@@ -184,8 +184,14 @@ class Utils {
         })
     }
 
-    static randomFromArray<Type>(arr: Type[]): Type {
-        return arr[Math.floor(Math.random()*arr.length)]
+    /**
+     * Will return a random string from an array of strings
+     * @param arr Array of strings, if not an array, will just return the string
+     * @returns The random string
+     */
+    static randomFromArray<Type>(arr: Type[]|Type): Type {
+        if(Array.isArray(arr)) return arr[Math.floor(Math.random()*arr.length)]
+        else return arr
     }
 
     static async getRewardId(key: string): Promise<string> {

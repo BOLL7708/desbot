@@ -265,7 +265,8 @@ class MainController {
 
         for(const key of Config.twitch.autoRewards) {
             let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
-            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.configs[key])
+            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
+            let plugCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPlugCallback(this, Config.philipshue.plugConfigs[key])
             let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.audioplayer.configs[key])
             let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.pipe.configs[key])
             let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
@@ -282,6 +283,7 @@ class MainController {
                     }
                     if(obsCallback != null) obsCallback(data)
                     if(colorCallback != null) colorCallback(data)
+                    if(plugCallback != null) plugCallback(data)
                     if(soundCallback != null) soundCallback(data)
                     if(pipeCallback != null) pipeCallback(data)
                     if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
@@ -291,7 +293,7 @@ class MainController {
                 }
             }
             if(reward.id != null) {
-                Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}${runCallback?'🛴':''}: ${key}`, 'green')
+                Utils.logWithBold(`Registering Automatic Reward ${obsCallback?'🎬':''}${colorCallback?'🎨':''}${plugCallback?'🔌':''}${soundCallback?'🔊':''}${pipeCallback?'🧪':''}${openvr2wsSettingCallback?'📝':''}${runCallback?'🛴':''}: ${key}`, 'green')
                 this._twitch.registerReward(reward)
             } else {
                 Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
@@ -1247,10 +1249,18 @@ class MainController {
         if(config) return (message: ITwitchRedemptionMessage) => {
             const userName = message?.redemption?.user?.login
             _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
-            const lights:number[] = Config.philipshue.lightsToControl
+            const lights:number[] = Config.philipshue.lightsIds
             lights.forEach(light => {
                 _this._hue.setLightState(light, config.x, config.y)
             })
+        }
+        else return null
+    }
+
+    private buildPlugCallback(_this: any, config: IPhilipsHuePlugConfig|undefined): ITwitchRedemptionCallback|null {
+        Utils.log(`Philips Hue plug callback built: ${config?.id}`, Color.RoyalBlue)
+        if(config) return (message: ITwitchRedemptionMessage) => {
+            _this._hue.runPlugConfig(config)
         }
         else return null
     }

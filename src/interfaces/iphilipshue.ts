@@ -2,16 +2,23 @@
 interface IPhilipsHueConfig {
     serverPath: string
     userName: string
-    lightsToControl: number[]
-    configs: { [key:string]:IPhilipsHueColorConfig }
+    lightsIds: number[]
+    lightConfigs: { [key:string]: IPhilipsHueColorConfig }
+    plugConfigs: { [key:string]: IPhilipsHuePlugConfig }
 }
 interface IPhilipsHueColorConfig {
     x: number
     y: number
 }
 interface IPhilipsHueLightConfig {
-    id: number
+    id: number // Id from the Philips Hue bridge
     rgb: boolean
+}
+interface IPhilipsHuePlugConfig {
+    id: number // Id from the Philips Hue bridge
+    originalState: boolean // What it is reset to
+    triggerState: boolean // What it is set to when triggered
+    duration?: number // Will switch back to original state if supplied
 }
 
 // Response
@@ -56,7 +63,6 @@ interface IPhilipsHueLightCapabilitiesControl {
         min: number,
         max: number
     }
-    
 }
 interface IPhilipsHueLightCapabilitiesControlCT {
     min: number
