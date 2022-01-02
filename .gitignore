@@ -1,14 +1,13 @@
-/dist/*
-/src/_configs/*.ts
-config.php
+/_configs/*
+/_settings/*
 
-/src/_data/games.ts
-/src/_data/presets.ts
-/src/_data/!keys.ts
-
-/settings/*.csv
 /assets/*
+/dist/*
+
+/src/_configs/*
+/src/_data/*
+
+desktop.ini
 *.zip
 *.7z
-desktop.ini
 *.exe

@@ -5,7 +5,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $setting = $_GET['setting'] ?? null;
 $password = getallheaders()['password'] ?? null;
 
-$cfg = include_once('./config.php');
+$cfg = include_once('./_configs/config.php');
 if($cfg->password != Utils::decode($password)) {
     http_response_code(403);
     exit("Unauthorized");
@@ -86,5 +86,5 @@ function readSettings($filePath) {
 
 function getFilePath($filename) {
     $filename = preg_replace('/\W+/', '_', $filename);
-    return "./settings/$filename.csv";
+    return "./_settings/$filename.csv";
 }

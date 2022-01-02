@@ -1,7 +1,6 @@
-// Rename this file to keys.ts, refactor the class to Keys.
-// Apply your changes, reference these in your config and elsewhere.
+// Apply your changes, reference these in your config.base.ts
 class KeysTemplate {
-    // Command references, to disable a command just set it to an empty string: ''
+    // Command references, to disable a command set it to an empty string: ''
     static readonly COMMAND_TTS_ON: string = 'ttson'
     static readonly COMMAND_TTS_OFF: string = 'ttsoff'
     static readonly COMMAND_TTS_SILENCE: string = 'silence'
