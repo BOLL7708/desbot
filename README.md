@@ -50,9 +50,12 @@ Now any time you launch `Code` in this folder it should automatically run the `T
 
 # Widget Setup
 The widget comes with a prepped config, based on what I run myself on my stream. It has a bunch of predefined keys for various rewards you can use or not. These are the steps you need to perform to set it up:
-1. Copy or rename `config.template.ts` to `config.ts`
-2. In the `config.ts` file, rename the `class` from `ConfigTemplate` to just `Config`.
-3. Fill in the missing values in the config, some are API keys and IDs you will need to acquire, see below.
+1. In the root folder, run `_first_run.cmd`, it should create folders and associated files.
+2. Read the comments and Fill in the missing values in the files listed below, some are API keys and IDs you will need to acquire, see details about that in the next sections.
+    1. `_configs/config.php`
+    2. `src/_configs/config.base.ts`
+    3. `src/_configs/secure.base.ts`
+    4. `src/_data/!keys.ts`
 
 ## TTS (WIP docs)
 1. Register for Google Cloud Platform, needs a billing accound.
@@ -82,9 +85,10 @@ Download the [Twitch Authenticator](https://github.com/jeppevinkel/twitch-oauth)
   "channel:manage:broadcast"
 ]
 ```
-Copy or rename the Twitch tokens file `settings_twitch_tokens.csv.template`, found in `/streaming_widget/settings/`, so it does not have `.template` in the name. Put the resulting tokens into the new file.
+Get the access and refresh tokens from the return, and if you want a separate bot to write in chat, do this twice, once for the channel owner and once for the chat bot. Insert these tokens in the file that resides here: `_settings/settings_twitch_tokens.csv`
 
-That's it, the Widget will refresh the tokens every time you run it to allow for as long downtime as possible between sessions.
+That's it, the Widget will refresh the tokens every time you run it to allow for as long downtime as possible between sessions.  
+**Observe**: If you run the widget for longer than 24 hours, the access token might have expired, which means you should reload the widget for things to work.
 
 ### Twitch Reward IDs
 Set up rewards on your Twitch page, execute them and the ID will pop up in the JavaScript console for the widget as they are unhandled until you put their ID in the config.
