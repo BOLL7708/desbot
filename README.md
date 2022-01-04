@@ -50,7 +50,7 @@ Now any time you launch `Code` in this folder it should automatically run the `T
 
 # Widget Setup
 The widget comes with a prepped config, based on what I run myself on my stream. It has a bunch of predefined keys for various rewards you can use or not. These are the steps you need to perform to set it up:
-1. In the root folder, run `_first_run.cmd`, it should create folders and associated files.
+1. In the root folder, run `_first_run.ps1` with PowerShell version 6 or above, it should create folders and associated files. If you get an error that you have a too old PowerShell version, you can find the latest release [here](https://github.com/PowerShell/PowerShell/releases/latest), you probably want to download the `#-win-x64.msi` version which you find near the bottom of the page.
 2. Read the comments and Fill in the missing values in the files listed below, some are API keys and IDs you will need to acquire, see details about that in the next sections.
     1. `_configs/config.php`
     2. `src/_configs/config.base.ts`

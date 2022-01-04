@@ -1,4 +1,4 @@
-set folder=backups
+set folder=_backups
 md %folder% 2>nul
 
 set archive=%date%_setup.7z

@@ -155,7 +155,7 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
     ],
     configs: {
         [KeysTemplate.KEY_PIPE_EXAMPLE1]: {
-            imagePath: 'assets/dot_green.png',
+            imagePath: '_assets/add_tiny_image_as_notification.png',
             durationMs: 3000,
             config: PipePresetsTemplate.PIPE_DOT
         }
@@ -179,14 +179,14 @@ Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin
             sceneNames: ['scene1'],
             sourceName: 'some source',
             durationMs: 10000,
-            notificationImage: 'assets/image.png',
+            notificationImage: '_assets/an_image.png',
             notificationConfig: PipePresetsTemplate.PIPE_DOT
         },
         [KeysTemplate.KEY_OBS_EXAMPLE2]: {
             sceneNames: ['scene1', 'scene2'],
             sourceName: 'some other source',
             durationMs: 20000,
-            notificationImage: 'assets/other_image.png',
+            notificationImage: '_assets/another_image.png',
             notificationConfig: PipePresetsTemplate.PIPE_DOT
         },
         [KeysTemplate.KEY_OBS_EXAMPLE3]: {
@@ -310,22 +310,22 @@ Config.openvr2ws = { // Get things like currently played SteamVR game and change
 Config.audioplayer = { // Play sound effects
     configs: {
         [KeysTemplate.KEY_SOUND_CHAT]: {
-            src: 'assets/add_chat_sound.wav',
+            src: '_assets/add_chat_sound.wav',
             volume: 0.5
         },
         [KeysTemplate.KEY_SOUND_EXAMPLE1]: {
-            src: 'assets/subfolder/sounds1.wav', // A single value and this is all you get
+            src: '_assets/subfolder/other_sounds1.wav', // A single value and this is all you get
             nonce: 'a-key' // A value returned in a callback on finished playing, if provided.
         },
         [KeysTemplate.KEY_SOUND_EXAMPLE2]: {
-            src: ['assets/sounds1.wav', 'assets/sounds2.wav', 'assets/sounds3.wav'], // An array and it's random
+            src: ['_assets/sounds1.wav', '_assets/sounds2.wav', '_assets/sounds3.wav'], // An array and it's random
             volume: 1.0 // 100%, which is also the default if not included.
         },
         [KeysTemplate.KEY_ANNOUNCE_EXAMPLE]: {
-            src: 'sound file that will be played before TTS for an announcement'
+            src: '_assets/sound file that will be played before TTS for an announcement.wav'
         },
         [KeysTemplate.COMMAND_SOURCESCREENSHOT]: {
-            src: 'assets/some sound that is not in the repo.wav'
+            src: '_assets/another sound used for the screenshot command.wav'
         }
     }
 }

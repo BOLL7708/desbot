@@ -1,8 +1,9 @@
+/dist/*
+
 /_configs/*
 /_settings/*
-
-/assets/*
-/dist/*
+/_assets/*
+/_backups/*
 
 /src/_configs/*
 /src/_data/*
