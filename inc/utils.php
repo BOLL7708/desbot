@@ -25,7 +25,7 @@ class Utils {
             }
         }
     
-        // Scan root for subfolders except configs
+        // Scan root for subfolders except configs and templates
         $root = './dist/';
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {
@@ -33,6 +33,7 @@ class Utils {
             if (
                 $file->isDir() 
                 && strpos($name, '_configs') === false
+                && strpos($name, 'templates') === false
                 && !$file->isDot()
                 && substr($name,0,1) != '.'
             ) {
