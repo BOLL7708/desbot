@@ -36,10 +36,15 @@ class ImageLoader {
                     console.log(`ImageLoader: base64 header: ${header}`)
                     if(header.indexOf('image/png') == -1) {
                         // Convert to .png
-                        const pngData = await ImageEditor.convertToPng(imageb64)
-                        
-                        ImageLoader._imageCache[url] = pngData
-                        resolve(pngData)
+                        const imageEditor = new ImageEditor()
+                        const success = await imageEditor.loadDataUrl(imageb64)
+                        if(success) {
+                            const pngData = imageEditor.getDataUrl()
+                            ImageLoader._imageCache[url] = pngData
+                            resolve(pngData)
+                        } else {
+                            reject(new Error('ImageLoader: Failed to convert to png'))
+                        }
                     } else {
                         // This works
                         resolve(imageb64)

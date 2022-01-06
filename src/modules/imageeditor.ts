@@ -1,40 +1,55 @@
 class ImageEditor {
-
-    static _pngCanvas: HTMLCanvasElement = document.createElement('canvas')
-    /**
-     * Convert to .png through canvas
-     */ 
-    static async convertToPng(imageb64: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            const img = new Image()
-            img.onload = function() {
-                ImageEditor._pngCanvas.width = img.naturalWidth
-                ImageEditor._pngCanvas.height = img.naturalHeight
-                const ctx = ImageEditor._pngCanvas.getContext('2d')
-                ctx.drawImage(img, 0, 0)
-                const pngData = ImageEditor._pngCanvas.toDataURL()
-                resolve(pngData)
-            }
-            img.src = imageb64
-        })
+    private _canvas: HTMLCanvasElement
+    private _ctx: CanvasRenderingContext2D
+    constructor() {
+        this._canvas = document.createElement('canvas')
+        this._ctx = this._canvas.getContext('2d')
     }
 
-    static async putImageInImage(
-        backgroundImageData: string, 
+    /**
+     * Will load an image URL and cache the result using ImageLoader.
+     * Do not call this inside ImageLoader, as it could cause an infinite loop.
+     * @param url
+     * @returns Promise with boolean if image was successfully loaded
+     */
+    async loadUrl(url: string):Promise<boolean> {
+        const imageData = await ImageLoader.getDataUrl(url)
+        if(imageData == null) return false
+        return this.loadDataUrl(imageData)
+    }
+    /**
+     * Loads an image from a base64 data URL
+     * @param dataUrl 
+     * @returns 
+     */
+    async loadDataUrl(dataUrl: string): Promise<boolean> {
+        const img = await Utils.makeImage(dataUrl)
+        if(img == null) return false
+        this._canvas.width = img.naturalWidth
+        this._canvas.height = img.naturalHeight
+        Utils.log(`ImageEditor: Loaded image with size ${img.naturalWidth}x${img.naturalHeight}`, Color.Green)
+        const ctx = this._canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0)
+        return true
+    }
+
+    getDataUrl(): string {
+        return this._canvas.toDataURL()
+    }
+    getData(): string {
+        return Utils.removeImageHeader(this.getDataUrl())
+    }
+
+    async drawImage(
         insertedImageData: string, 
         originx: number, 
         originy: number, 
         width: number, 
         height: number
-    ): Promise<string> {
-        const canvas: HTMLCanvasElement = document.createElement('canvas')
-        const backgroundImg: HTMLImageElement = await Utils.makeImage(backgroundImageData)
-        const profileImg: HTMLImageElement = await Utils.makeImage(insertedImageData)
-        canvas.width = backgroundImg.naturalWidth
-        canvas.height = backgroundImg.naturalHeight
-        const ctx = canvas.getContext('2d')
-        ctx.drawImage(backgroundImg, 0, 0)
-        ctx.drawImage(profileImg, originx, originy, width, height)
-        return canvas.toDataURL()
+    ): Promise<boolean> {
+        const img: HTMLImageElement = await Utils.makeImage(insertedImageData)
+        if(img == null) return false
+        this._ctx.drawImage(img, originx, originy, width, height)
+        return true
     }
 }

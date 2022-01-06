@@ -419,7 +419,7 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     ], 
 
     // A list of configurations for the rewards, which is used for initial setup and/or manual updates (!update)
-    rewardConfigs: Config.twitch.rewardConfigs = {   
+    rewardConfigs: {   
         // You should fill this out with at least the minimum for each reward, the title has to be unique.
         // Default rewards, you can remove the ones you don't want or set them to not be enabled with is_enabled=false.
         [KeysTemplate.KEY_TTSSPEAK]: {

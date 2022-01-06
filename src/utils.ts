@@ -260,11 +260,15 @@ class Utils {
      */
     static makeImage(urlOrData: string): Promise<HTMLImageElement|null> {
         return new Promise((resolve, reject) => {
-            const img = new Image()
-            img.onload = function() {
-                resolve(img)
+            if(this.isDataUrl(urlOrData) || this.isUrl(urlOrData)) {
+                const img = new Image()
+                img.onload = function() {
+                    resolve(img)
+                }
+                img.src = urlOrData
+            } else {
+                resolve(null)
             }
-            img.src = urlOrData
         })
     }
 }

@@ -990,17 +990,19 @@ class MainController {
                     // TODO: Set duration from text length?!
                     // TODO: Merge profile image onto chat image somehow
                     const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT]))
-                    const imageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
+                    const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
                     if(preset?.imagePath != undefined) {
-                        const backgroundImageb64 = await ImageLoader.getDataUrl(Utils.randomFromArray(preset.imagePath), false)
-                        const mergedImageb64 = await ImageEditor.putImageInImage(backgroundImageb64, imageDataUrl, 0, 0, 112, 112)
+                        const imageEditor = new ImageEditor()
+                        await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
+                        await imageEditor.drawImage(profileImageDataUrl, 0, 0, 112, 112)
+                        const messageDataUrl = imageEditor.getData()
                         preset.texts = [messageData.text, userData.displayName]
-                        preset.imageData = Utils.removeImageHeader(mergedImageb64)
+                        preset.imageData = messageDataUrl
                         preset.imagePath = undefined
                         this._pipe.showPreset(preset)
                     } else {                  
                         console.warn('Failed to build custom notification, showing basic instead')
-                        this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(imageDataUrl), false, clearRanges)
+                        this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(profileImageDataUrl), false, clearRanges)
                     }
                 } else {
                     this._pipe.sendBasic(userData.displayName, messageData.text, null, false, clearRanges)
