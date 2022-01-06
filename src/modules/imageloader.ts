@@ -3,7 +3,7 @@ class ImageLoader {
     static _imageCache: Record<string, string> = {}
 
     private static async getBlob(url:string):Promise<Blob> {
-        const response = await fetch(url)
+        const response = await fetch(`${url}?${Math.random()*100000}`) // This has problems with caching otherwise... hmm.
         const blob = await response.blob()
         console.log(`ImageLoader: Loaded remote blob from -> ${url}`)
         return blob

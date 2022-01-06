@@ -989,14 +989,17 @@ class MainController {
                 if(user?.profile_image_url) {
                     // TODO: Set duration from text length?!
                     // TODO: Merge profile image onto chat image somehow
+                    // TODO: Switch image to use depending on text length?!
+                    // TODO: If it's an emoji only message, skip a background entirely?
                     const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT]))
                     const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
                     if(preset?.imagePath != undefined) {
                         const imageEditor = new ImageEditor()
                         await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
-                        await imageEditor.drawImage(profileImageDataUrl, 0, 0, 112, 112)
+                        await imageEditor.drawImage(profileImageDataUrl, {x: 0, y: 0, w: 112, h: 112})
+                        await imageEditor.drawText(userData.displayName, {x: 128, y: 16, w: 896, h: 80}, 72, 'Arial Black', '#fff')
+                        await imageEditor.drawTwitchText(messageData, {x: 32, y: 144, w: 980, h: 224}, 48, 'Arial', '#fff')
                         const messageDataUrl = imageEditor.getData()
-                        preset.texts = [messageData.text, userData.displayName]
                         preset.imageData = messageDataUrl
                         preset.imagePath = undefined
                         this._pipe.showPreset(preset)
