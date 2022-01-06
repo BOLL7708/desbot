@@ -937,8 +937,8 @@ class MainController {
                 // Pipe to VR (basic)
                 this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
                     if(user?.profile_image_url) {
-                        ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(userData.displayName, messageData.text, image, false)
+                        ImageLoader.getDataUrl(user?.profile_image_url, true).then(imageDataUrl => {
+                            this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(imageDataUrl), false)
                         })
                     } else {
                         this._pipe.sendBasic(userData.displayName, messageData.text, null, false)
@@ -956,8 +956,8 @@ class MainController {
             const userName = `${userData.displayName}[${messageData.bits}]`
             this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
                 if(user?.profile_image_url) {
-                    ImageLoader.getBase64(user?.profile_image_url, true)
-                        .then(image => this._pipe.sendBasic(userName, messageData.text, image, true, clearRanges))
+                    ImageLoader.getDataUrl(user?.profile_image_url, true)
+                        .then(imageDataUrl => this._pipe.sendBasic(userName, messageData.text, Utils.removeImageHeader(imageDataUrl), true, clearRanges))
                         .catch(error => console.error(error))
                     
                 } else {
@@ -1061,11 +1061,12 @@ class MainController {
             }
 
             // Pipe to VR (basic)
+            // TODO: Another place where custom pipe needs to be implemented
             const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair.key) > -1
             if(showReward) {
                 if(user?.profile_image_url) {
-                    ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
-                        this._pipe.sendBasic(user?.login, message.redemption.user_input, image)
+                    ImageLoader.getDataUrl(user?.profile_image_url, true).then(imageDataUrl => {
+                        this._pipe.sendBasic(user?.login, message.redemption.user_input, Utils.removeImageHeader(imageDataUrl))
                     })
                 } else {
                     this._pipe.sendBasic(user?.login, message.redemption.user_input)
@@ -1398,7 +1399,7 @@ class MainController {
     private buildSignCallback(_this: any, config: ISignShowConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
-                const clonedConfig = JSON.parse(JSON.stringify(config))
+                const clonedConfig: ISignShowConfig = JSON.parse(JSON.stringify(config))
                 if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
                 if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user.display_name
                 if(clonedConfig.image == undefined) clonedConfig.image = user.profile_image_url

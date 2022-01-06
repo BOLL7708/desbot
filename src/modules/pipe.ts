@@ -48,11 +48,21 @@ class Pipe {
     }
 
     async showPreset(preset: IPipeMessagePreset) {
-        const imagePath = Array.isArray(preset.imagePath) ? Utils.randomFromArray(preset.imagePath) : preset.imagePath
-        const imageb64:string = await ImageLoader.getBase64(imagePath)
-        const config = JSON.parse(JSON.stringify(preset.config))
+        // If path exists, load image, in all cases output base64 image data
+        let imageb64: string = null
+        if(preset.imagePath != undefined) {
+            const imagePath = Array.isArray(preset.imagePath) ? Utils.randomFromArray(preset.imagePath) : preset.imagePath
+            imageb64 = await ImageLoader.getDataUrl(imagePath)
+        } else if (preset.imageData != undefined) {
+            imageb64 = preset.imageData
+        } else {
+            console.warn("Pipe: No image path nor image data found for preset")
+        }
+        
+        // If the above resulted in image data, broadcast it
+        const config: IPipeCustomMessage = JSON.parse(JSON.stringify(preset.config))
         if(imageb64 != null) {
-            config.image = imageb64
+            config.image = Utils.removeImageHeader(imageb64)
             config.properties.hz = -1
             config.properties.duration = preset.durationMs;
             if(preset.texts != undefined && preset.texts.length >= config.textAreas.length) {

@@ -6,7 +6,8 @@ interface IPipeConfig {
     configs: { [key:string]: IPipeMessagePreset }
 }
 interface IPipeMessagePreset {
-    imagePath: string|string[]
+    imagePath?: string|string[]
+    imageData?: string
     durationMs: number
     config: IPipeCustomMessage
     texts?: string[]
