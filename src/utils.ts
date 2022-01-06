@@ -39,7 +39,9 @@ class Utils {
         if(!keepCase) text = text.toLowerCase()
 
         if(clearRanges.length > 0) clearRanges.forEach(range => {
-            text = text.slice(0, range.start) + text.slice(range.end+1);
+            const charArr = [...text]
+            text = charArr.slice(0, range.start).join('') + charArr.slice(range.end+1).join('');
+            console.log(text)
         })
         
         if(clearBits) {
