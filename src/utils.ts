@@ -150,9 +150,20 @@ class Utils {
         return text.replace(pattern, "$1https://$2") 
     }
 
-    static removeImageHeader(image:string) {
-        const i = image.indexOf('base64,')
-        return image.substr(i+7)
+    static isUrl(text:string): boolean {
+        return text.match(/^https?:\/\//) != null
+    }
+
+    static isDataUrl(imageData: string): boolean {
+        return imageData.match(/^data:.*,/) != null
+    }
+
+    static removeImageHeader(imageData:string) {
+        if(this.isDataUrl(imageData)) {
+            return imageData.replace(/^data:.*,/, '')
+        } else {
+            return imageData
+        }
     }
 
     static getNonce(tag:string) {
@@ -242,5 +253,18 @@ class Utils {
      */
     static delay(time: number) {
         return new Promise(resolve => setTimeout(resolve, time));
+    }
+
+    /**
+     * Load image into element with promise
+     */
+    static makeImage(urlOrData: string): Promise<HTMLImageElement|null> {
+        return new Promise((resolve, reject) => {
+            const img = new Image()
+            img.onload = function() {
+                resolve(img)
+            }
+            img.src = urlOrData
+        })
     }
 }

@@ -18,4 +18,23 @@ class ImageEditor {
             img.src = imageb64
         })
     }
+
+    static async putImageInImage(
+        backgroundImageData: string, 
+        insertedImageData: string, 
+        originx: number, 
+        originy: number, 
+        width: number, 
+        height: number
+    ): Promise<string> {
+        const canvas: HTMLCanvasElement = document.createElement('canvas')
+        const backgroundImg: HTMLImageElement = await Utils.makeImage(backgroundImageData)
+        const profileImg: HTMLImageElement = await Utils.makeImage(insertedImageData)
+        canvas.width = backgroundImg.naturalWidth
+        canvas.height = backgroundImg.naturalHeight
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(backgroundImg, 0, 0)
+        ctx.drawImage(profileImg, originx, originy, width, height)
+        return canvas.toDataURL()
+    }
 }

@@ -966,7 +966,7 @@ class MainController {
             })
         })
 
-        this._twitch.setChatCallback((userData, messageData) => {
+        this._twitch.setChatCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             let type = GoogleTTS.TYPE_SAID
             if(messageData.isAction) type = GoogleTTS.TYPE_ACTION
@@ -985,15 +985,26 @@ class MainController {
 
             // Pipe to VR (basic)
             if(this._pipeAllChat) {
-                this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
-                    if(user?.profile_image_url) {
-                        ImageLoader.getBase64(user?.profile_image_url, true).then(image => {
-                            this._pipe.sendBasic(userData.displayName, messageData.text, image, false, clearRanges)
-                        })
-                    } else {
-                        this._pipe.sendBasic(userData.displayName, messageData.text, null, false, clearRanges)
+                const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
+                if(user?.profile_image_url) {
+                    // TODO: Set duration from text length?!
+                    // TODO: Merge profile image onto chat image somehow
+                    const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT]))
+                    const imageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
+                    if(preset?.imagePath != undefined) {
+                        const backgroundImageb64 = await ImageLoader.getDataUrl(Utils.randomFromArray(preset.imagePath), false)
+                        const mergedImageb64 = await ImageEditor.putImageInImage(backgroundImageb64, imageDataUrl, 0, 0, 112, 112)
+                        preset.texts = [messageData.text, userData.displayName]
+                        preset.imageData = Utils.removeImageHeader(mergedImageb64)
+                        preset.imagePath = undefined
+                        this._pipe.showPreset(preset)
+                    } else {                  
+                        console.warn('Failed to build custom notification, showing basic instead')
+                        this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(imageDataUrl), false, clearRanges)
                     }
-                })
+                } else {
+                    this._pipe.sendBasic(userData.displayName, messageData.text, null, false, clearRanges)
+                }
             }
         })
 
