@@ -164,12 +164,12 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
             config: PipePresetsTemplate.PIPE_CHAT
         }
     },
-    // The custom chat configs are only used if you keep the KEY_PIPE_CHAT config above.
-    customChatMessageConfig: {
+    useCustomChatNotification: false, // Also requires the above config to have a working image and Pipe preset.
+    customChatMessageConfig: { // Sets where the message text is added to the notification image.
         rect: { x: 0, y: 120, w: 500, h: 200 }, // Location in the image for the message text
         font: { size: 32, family: 'Arial', color: '#ddd', lineSpacing: 1.05 } // Text style
     },
-    customChatNameConfig: {
+    customChatNameConfig: { // Sets where the display name text is added to the notification image.
         rect: { x: 100, y: 100, w: 400, h: 100 }, // Location in the image for the chatter name
         font: { size: 32, family: 'Arial Black', outlines: [ // Text style
             // Outlines are stacked in this order with the fill on top, meaning only half their width is visible.

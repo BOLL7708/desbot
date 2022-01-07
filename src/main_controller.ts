@@ -993,7 +993,7 @@ class MainController {
                     // TODO: If it's an emoji only message, skip a background entirely?
                     const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null))
                     const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
-                    if(preset?.imagePath != undefined) {
+                    if(Config.pipe.useCustomChatNotification && preset?.imagePath != undefined) {
                         // Setup
                         const imageEditor = new ImageEditor()
                         const loaded = await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))

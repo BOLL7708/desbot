@@ -4,6 +4,7 @@ interface IPipeConfig {
     doNotShow: string[]
     showRewardsWithKeys: string[]
     configs: { [key:string]: IPipeMessagePreset }
+    useCustomChatNotification: boolean
     customChatMessageConfig: IPipeCustomMessageConfig
     customChatNameConfig: IPipeCustomMessageConfig
     customChatAvatarConfig: IImageEditorRect // TODO: Update with more formatting later
