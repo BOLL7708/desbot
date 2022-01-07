@@ -134,7 +134,7 @@ Config.google = { // TTS
     randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
     defaultVoice: '', // This will be used if randomization is turned off.
     doNotSpeak: ['!'],
-    symbolsToIgnoreForDictionary: ['.', ',', ':', '!', '?', '#', '(', ')']
+    symbolsToIgnoreForDictionary: ['.', ',', ':', '!', '?', '#', '(', ')'],
 },
 
 /*
@@ -158,8 +158,27 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
             imagePath: '_assets/add_tiny_image_as_notification.png',
             durationMs: 3000,
             config: PipePresetsTemplate.PIPE_DOT
+        },
+        [KeysTemplate.KEY_PIPE_CHAT]: { // Only keep this if you want to use custom chat notifications.
+            imagePath: '_assets/your_chat_background_image.png',
+            durationMs: 5000,
+            config: PipePresetsTemplate.PIPE_CHAT
         }
-    }
+    },
+    // The custom chat configs are only used if you keep the KEY_PIPE_CHAT config above.
+    customChatMessageConfig: {
+        rect: { x: 0, y: 120, w: 500, h: 200 }, // Location in the image for the message text
+        font: { size: 32, family: 'Arial', color: '#ddd', lineSpacing: 1.05 } // Text style
+    },
+    customChatNameConfig: {
+        rect: { x: 100, y: 100, w: 400, h: 100 }, // Location in the image for the chatter name
+        font: { size: 32, family: 'Arial Black', outlines: [ // Text style
+            // Outlines are stacked in this order with the fill on top, meaning only half their width is visible.
+            { color: 'white', width: 16 },
+            { color: 'black', width: 8 }
+        ] }
+    },
+    customChatAvatarConfig: { x: 0, y: 0, w: 100, h: 100 } // Location in the image of the avatar
 }
 
 /*

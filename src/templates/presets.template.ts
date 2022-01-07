@@ -73,6 +73,34 @@ class PipePresetsTemplate {
         ],
         textAreas: []
     }
+
+    static PIPE_CHAT: IPipeCustomMessage = {
+        custom: true,
+        properties: {
+            headset: false,
+            horizontal: true,
+            level: false,
+            channel: 10,
+            width: 0.5,
+            distance: 0.75,
+            pitch: -30,
+            yaw: 0,
+            offsetx: 0,
+            offsety: 0
+        },
+        transitions: [{
+            scale: 1,
+            opacity: 0,
+            horizontal: 0,
+            vertical: -1,
+            distance: 0,
+            spin: 0,
+            tween: 3,
+            duration: 100
+        }],
+        textAreas: []
+    }
+
     static PIPE_DEFAULT: IPipeCustomMessage = {
         custom: true,
         properties: {

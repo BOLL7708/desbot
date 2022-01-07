@@ -989,22 +989,37 @@ class MainController {
                 if(user?.profile_image_url) {
                     // TODO: Set duration from text length?!
                     // TODO: Merge profile image onto chat image somehow
-                    // TODO: Switch image to use depending on text length?!
+                    // TODO: Switch profile to use depending on text length?!
                     // TODO: If it's an emoji only message, skip a background entirely?
                     const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT]))
                     const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
                     if(preset?.imagePath != undefined) {
+                        // Setup
                         const imageEditor = new ImageEditor()
-                        await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
-                        await imageEditor.drawImage(profileImageDataUrl, {x: 0, y: 0, w: 112, h: 112})
-                        await imageEditor.drawText(userData.displayName, {x: 128, y: 16, w: 896, h: 80}, 72, 'Arial Black', '#fff')
-                        await imageEditor.drawTwitchText(messageData, {x: 32, y: 144, w: 980, h: 224}, 48, 'Arial', '#fff')
-                        const messageDataUrl = imageEditor.getData()
-                        preset.imageData = messageDataUrl
-                        preset.imagePath = undefined
-                        this._pipe.showPreset(preset)
+                        const loaded = await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
+                        
+                        if(loaded) {
+                            // Avatar
+                            await imageEditor.drawImage(profileImageDataUrl, Config.pipe.customChatAvatarConfig)
+                            
+                            // Name
+                            const nameFontConfig: IImageEditorFontSettings = JSON.parse(JSON.stringify(Config.pipe.customChatNameConfig.font))
+                            if(nameFontConfig.color == undefined) nameFontConfig.color = userData.color
+                            await imageEditor.drawText(userData.displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
+
+                            // Message
+                            await imageEditor.drawTwitchText(messageData, Config.pipe.customChatMessageConfig.rect, Config.pipe.customChatMessageConfig.font)
+
+                            // Show it
+                            const messageDataUrl = imageEditor.getData()
+                            preset.imageData = messageDataUrl
+                            preset.imagePath = undefined
+                            this._pipe.showPreset(preset)
+                        } else {
+                            console.warn('Failed to build custom notification, showing basic instead')
+                            this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(profileImageDataUrl), false, clearRanges)
+                        }
                     } else {                  
-                        console.warn('Failed to build custom notification, showing basic instead')
                         this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(profileImageDataUrl), false, clearRanges)
                     }
                 } else {

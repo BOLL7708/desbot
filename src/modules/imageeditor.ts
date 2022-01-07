@@ -42,7 +42,7 @@ class ImageEditor {
 
     async drawImage(
         imageData: string, 
-        rect: IRect
+        rect: IImageEditorRect
     ): Promise<boolean> {
         const img: HTMLImageElement = await Utils.makeImage(imageData)
         if(img == null) return false
@@ -52,20 +52,27 @@ class ImageEditor {
 
     async drawText(
         text: string,
-        rect: IRect,
-        fontSize: number,
-        fontFamily: string,
-        fontColor: string
+        rect: IImageEditorRect,
+        font: IImageEditorFontSettings
     ) {
         // Setup
-        this._ctx.font = `${fontSize}px ${fontFamily}`
-        this._ctx.fillStyle = fontColor
         this._ctx.textBaseline = 'bottom'
+        this._ctx.font = `${font.size}px ${font.family}`
+        this._ctx.fillStyle = font.color ?? 'white'
 0
         // Init text vars
         text = text.split('\n').join(' ')
         while(text.length > 1 && this._ctx.measureText(text).width > rect.w) {
             text = text.substring(0, text.length - 3) + '…'
+        }
+
+        // Outlines (under fill text)
+        if(font.outlines != undefined) {
+            for(const outline of font.outlines) {
+                this._ctx.lineWidth = outline.width
+                this._ctx.strokeStyle = outline.color
+                this._ctx.strokeText(text, rect.x, rect.y + rect.h)
+            }
         }
         this._ctx.fillText(text, rect.x, rect.y + rect.h)
     }
@@ -83,15 +90,13 @@ class ImageEditor {
      */
     async drawTwitchText(
         messageData: ITwitchMessageData,
-        rect: IRect,
-        fontSize: number,
-        fontFamily: string,
-        fontColor: string
+        rect: IImageEditorRect,
+        font: IImageEditorFontSettings
     ) {
         // Setup
-        this._ctx.font = `${fontSize}px ${fontFamily}`
-        this._ctx.fillStyle = fontColor
         this._ctx.textBaseline = 'bottom'
+        this._ctx.font = `${font.size}px ${font.family}`
+        this._ctx.fillStyle = font.color ?? 'white'
         
         // Init text vars
         const messageContent = messageData.text.split('\n').join(' ') // Probably redundant but just in case?
@@ -99,7 +104,7 @@ class ImageEditor {
         const wordSpacing = this._ctx.measureText(' ').width
 
         // Prepare emote data
-        const emotes: IEmote[] = []
+        const emotes: IImageEditorEmote[] = []
         for(const emote of messageData.emotes ?? []) {
             const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/3.0` // Does 3.0 resolution exist for all emotes? Looks nice at least.
             for(const pos of emote.positions) {
@@ -112,12 +117,12 @@ class ImageEditor {
         }
         emotes.sort((a, b) => a.start - b.start)
         
-        const emoteSize: number = fontSize
-        let nextEmote = emotes.shift();   
+        const emoteSize = font.size*(font.lineSpacing ?? 1.1)
+        let nextEmote = emotes.shift();
         let charIndex = 0;
         let lineIndex = 0;
         let x = rect.x;
-        let y = rect.y + emoteSize
+        let y = rect.y + font.size
         let outOfSpace = false
         for (const word of words) {
             const isEmote = nextEmote?.start == charIndex
@@ -129,7 +134,7 @@ class ImageEditor {
             if (x + wordWidthPx >= rect.x + rect.w) { // There is overflow
                 let ellipsize: boolean = false
                 if(x != rect.x) { // There is already text on this line
-                    const newY = rect.y + emoteSize + (emoteSize * 1.05) * (lineIndex + 1)
+                    const newY = rect.y + emoteSize * (lineIndex + 2) // 2: from first line + current line
                     if(newY > rect.y + rect.h) { // There is no space for the next line
                         outOfSpace = true
                         ellipsize = true
@@ -164,6 +169,15 @@ class ImageEditor {
                 x += wordWidthPx + wordSpacing;
                 charIndex += word.length + 1;
             } else {
+                // Outlines (under fill text)
+                if(font.outlines != undefined) {
+                    for(const outline of font.outlines) {
+                        this._ctx.lineWidth = outline.width
+                        this._ctx.strokeStyle = outline.color
+                        this._ctx.strokeText(wordToWrite, rect.x, rect.y + rect.h)
+                    }
+                }
+
                 // Text
                 this._ctx.fillText(wordToWrite, x, y);
                 x += wordWidthPx + wordSpacing;

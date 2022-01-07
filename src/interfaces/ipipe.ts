@@ -4,6 +4,9 @@ interface IPipeConfig {
     doNotShow: string[]
     showRewardsWithKeys: string[]
     configs: { [key:string]: IPipeMessagePreset }
+    customChatMessageConfig: IPipeCustomMessageConfig
+    customChatNameConfig: IPipeCustomMessageConfig
+    customChatAvatarConfig: IImageEditorRect // TODO: Update with more formatting later
 }
 interface IPipeMessagePreset {
     imagePath?: string|string[]
@@ -11,6 +14,10 @@ interface IPipeMessagePreset {
     durationMs: number
     config: IPipeCustomMessage
     texts?: string[]
+}
+interface IPipeCustomMessageConfig {
+    rect: IImageEditorRect
+    font: IImageEditorFontSettings
 }
 
 // Data
