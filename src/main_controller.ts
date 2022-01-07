@@ -991,7 +991,7 @@ class MainController {
                     // TODO: Merge profile image onto chat image somehow
                     // TODO: Switch profile to use depending on text length?!
                     // TODO: If it's an emoji only message, skip a background entirely?
-                    const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT]))
+                    const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null))
                     const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
                     if(preset?.imagePath != undefined) {
                         // Setup

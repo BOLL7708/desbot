@@ -82,24 +82,23 @@ class GoogleTTS {
     }
 
     private applyDictionary(text: string):string {
-        const words = text.split(' ')
+        // Attach spaces to some characters as they could be missing and we want to match surrounding words
+        let adjustedText = text.replace(/[\-_:;\.,()\[\]~|]/g, function(a, b) { return `${a} ` })
+
+        // Split into words and filter out empty strings in case we had double spaces due to the above.
+        const words = adjustedText.split(' ').filter(str => {return str.length > 0}) 
         words.forEach((word, i) => {
             // Ignore these symbols at the start and end of a word
-            const symbols = Config.google.symbolsToIgnoreForDictionary
             let wordKey = word.toLowerCase()
             let startSymbol = ''
             let endSymbol = ''
-            
-            // Math start symbol
-            if(symbols.indexOf(wordKey[0]) > -1) {
-                startSymbol = wordKey[0]
-                wordKey = wordKey.substr(1)
-            }
 
-            // Match end symbol
-            if(symbols.indexOf(wordKey[wordKey.length-1]) > -1) {
-                endSymbol = wordKey[wordKey.length-1]
-                wordKey = wordKey.substr(0, wordKey.length-1)
+            // Matches using unicode character categories for letters and marks
+            const match = wordKey.match(/([^\p{L}\p{M}]*)([\p{L}\p{M}]+)([^\p{L}\p{M}]*)/u)
+            if(match != null) {
+                startSymbol = match[1]
+                wordKey = match[2]
+                endSymbol = match[3]
             }
             
             // Actual replacement
