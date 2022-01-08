@@ -60,7 +60,7 @@ class Pipe {
         }
         
         // If the above resulted in image data, broadcast it
-        const config: IPipeCustomMessage = JSON.parse(JSON.stringify(preset.config))
+        const config = Object.assign({}, preset.config)
         if(imageb64 != null) {
             config.image = Utils.removeImageHeader(imageb64)
             config.properties.hz = -1

@@ -270,15 +270,15 @@ class MainController {
         */
 
         for(const key of Config.twitch.autoRewards) {
-            let obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
-            let colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
-            let plugCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPlugCallback(this, Config.philipshue.plugConfigs[key])
-            let soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.audioplayer.configs[key])
-            let pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.pipe.configs[key])
-            let openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
-            let signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
-            let runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.run[key])
-            let webCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildWebCallback(this, Config.web.configs[key])
+            const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
+            const colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
+            const plugCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPlugCallback(this, Config.philipshue.plugConfigs[key])
+            const soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.audioplayer.configs[key])
+            const pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.pipe.configs[key])
+            const openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
+            const signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
+            const runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.run[key])
+            const webCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildWebCallback(this, Config.web.configs[key])
             
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
@@ -991,7 +991,7 @@ class MainController {
                     // TODO: Merge profile image onto chat image somehow
                     // TODO: Switch profile to use depending on text length?!
                     // TODO: If it's an emoji only message, skip a background entirely?
-                    const preset: IPipeMessagePreset = JSON.parse(JSON.stringify(Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null))
+                    const preset = Object.assign({}, Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null)
                     const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
                     if(Config.pipe.useCustomChatNotification && preset?.imagePath != undefined) {
                         // Setup
@@ -1003,7 +1003,7 @@ class MainController {
                             await imageEditor.drawImage(profileImageDataUrl, Config.pipe.customChatAvatarConfig)
                             
                             // Name
-                            const nameFontConfig: IImageEditorFontSettings = JSON.parse(JSON.stringify(Config.pipe.customChatNameConfig.font))
+                            const nameFontConfig = Object.assign({}, Config.pipe.customChatNameConfig.font)
                             if(nameFontConfig.color == undefined) nameFontConfig.color = userData.color
                             await imageEditor.drawText(userData.displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
 
@@ -1416,7 +1416,19 @@ class MainController {
 
     private buildPipeCallback(_this: any, config: IPipeMessagePreset) {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            _this._pipe.showPreset(config)
+            /*
+             * We check if we don't have enough texts to fill the preset 
+             * and fill the empty spots up with the redeemer's display name.
+             */
+            const configClone = Object.assign({}, config)
+            const textAreaCount = configClone.config.textAreas.length
+            if(textAreaCount > 0 && configClone.texts == undefined) configClone.texts = []
+            const textCount = configClone.texts?.length ?? 0
+            if(textAreaCount > textCount) {
+                configClone.texts.length = textAreaCount
+                configClone.texts.fill(message.redemption.user.display_name, textCount, textAreaCount)
+            }
+            _this._pipe.showPreset(configClone)
         }
         else return null
     }
@@ -1430,7 +1442,7 @@ class MainController {
     private buildSignCallback(_this: any, config: ISignShowConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
-                const clonedConfig: ISignShowConfig = JSON.parse(JSON.stringify(config))
+                const clonedConfig = Object.assign({}, config)
                 if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
                 if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user.display_name
                 if(clonedConfig.image == undefined) clonedConfig.image = user.profile_image_url
