@@ -63,7 +63,11 @@ class TwitchHelix {
             body: JSON.stringify(createData)
         }
 
-        let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
+        let response: ITwitchHelixRewardResponse = await fetch(url, request)
+            .then(res => res.json())
+            .catch(error => {
+                Utils.log(`TwitchHelix: Error creating reward:${error}`, Color.Red)
+            })
         return response
     }
 
