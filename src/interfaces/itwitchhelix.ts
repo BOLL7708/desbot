@@ -31,11 +31,11 @@ interface ITwitchHelixRewardConfigShared {
     is_enabled?: boolean
     is_user_input_required?: boolean
     is_max_per_stream_enabled?: boolean
-    max_per_stream?: number
+    max_per_stream?: number // Needs the above parameter as well    
     is_max_per_user_per_stream_enabled?: boolean
-    max_per_user_per_stream?: number
+    max_per_user_per_stream?: number // Needs the above parameter as well
     is_global_cooldown_enabled?: boolean
-    global_cooldown_seconds?: number
+    global_cooldown_seconds?: number // Needs the above parameter as well
     is_paused?: boolean
     should_redemptions_skip_request_queue?: boolean
 }

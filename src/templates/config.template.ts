@@ -115,7 +115,8 @@ Config.controller = { // Set defaults for the widget
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1
     },
     phpPassword: Secure.PHPPassword,
-    defaultTwitchGameCategory: 'Games + Demos'
+    defaultTwitchGameCategory: 'Games + Demos',
+    resetIncrementingRewards: true
 }
 
 /*
@@ -486,7 +487,19 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
     [KeysTemplate.KEY_OBS_EXAMPLE1]: { title: 'OBS Example 1', cost: 100 },
     [KeysTemplate.KEY_OBS_EXAMPLE2]: { title: 'OBS Example 2', cost: 100 },
     [KeysTemplate.KEY_COLOR_EXAMPLE1]: { title: 'Color Example 1', cost: 100 },
-    [KeysTemplate.KEY_COLOR_EXAMPLE2]: { title: 'Color Example 2', cost: 100 },
+    // With an array, the reward will update to the next one in the list after being redeemed
+    // It will reset to the first one on widget reload, if Config.controller.resetIncrementingRewards is true.
+    // To prevent it from allowing the last reward to be used again, set maximum redemptions per stream.
+    [KeysTemplate.KEY_COLOR_EXAMPLE2]: [
+        { 
+            title: 'Color Example 2.1', 
+            cost: 100,
+            is_max_per_stream_enabled: true,
+            max_per_stream: 3
+        },
+        { title: 'Color Example 2.2', cost: 200 },
+        { title: 'Color Example 2.3', cost: 300 }
+    ],
     [KeysTemplate.KEY_SOUND_EXAMPLE1]: { title: 'Sound Example 1', cost: 100 },
     [KeysTemplate.KEY_SOUND_EXAMPLE2]: { title: 'Sound Example 2', cost: 100 },
     [KeysTemplate.KEY_PIPE_EXAMPLE1]: { title: 'Pipe Example 1', cost: 100 },

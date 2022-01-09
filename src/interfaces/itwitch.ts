@@ -19,7 +19,7 @@ interface ITwitchConfig {
     autoRewards: string[]
     disableAutoRewardAfterUse: string[]
     rewardConfigProfileDefault: ITwitchRewardProfileConfig
-    rewardConfigs: { [key: string]: ITwitchHelixRewardConfig }
+    rewardConfigs: { [key: string]: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[] }
     rewardConfigProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
     rewardConfigProfileNoGame: { [key: string]: boolean }
     gameSpecificRewards: string[]

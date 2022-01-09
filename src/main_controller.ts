@@ -77,8 +77,19 @@ class MainController {
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
             const setup = Config.twitch.rewardConfigs[key]
-            let reward = await this._twitchHelix.createReward(setup)
+            let reward = await this._twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
             if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+        }
+
+        // Reset rewards with multiple steps
+        if(Config.controller.resetIncrementingRewards) {
+            for(const key of allRewardKeys) {
+                const setup = Config.twitch.rewardConfigs[key]
+                if(Array.isArray(setup)) {
+                    Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
+                    this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
+                }
+            }
         }
 
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
@@ -221,7 +232,8 @@ class MainController {
                     Settings.pushLabel(Settings.LABEL_CHANNEL_TROPHY, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
                     
                     // Update reward
-                    const config = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
+                    const configArrOrNot = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
+                    const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         let titleArr = config.title.split(' ')
                         titleArr.pop()
@@ -268,7 +280,7 @@ class MainController {
         .##.....##.##.....##....##....##.....##....##....##..##.......##..##..##.##.....##.##....##..##.....##.##....##
         .##.....##..#######.....##.....#######.....##.....##.########..###..###..##.....##.##.....##.########...######.
         */
-
+        const incrementingRewardStates: Record<string, number> = {}
         for(const key of Config.twitch.autoRewards) {
             const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
             const colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
@@ -279,7 +291,7 @@ class MainController {
             const signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
             const runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.run[key])
             const webCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildWebCallback(this, Config.web.configs[key])
-            
+
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
                 callback: async (data:ITwitchRedemptionMessage)=>{
@@ -296,6 +308,17 @@ class MainController {
                     if(signCallback != null) signCallback(data)
                     if(runCallback != null) runCallback(data)
                     if(webCallback != null) webCallback(data)
+            
+                    // Switch to next reward if it has more configs available
+                    const rewardConfig = Config.twitch.rewardConfigs[key]
+                    if(Array.isArray(rewardConfig)) {
+                        if(incrementingRewardStates[key] == undefined) incrementingRewardStates[key] = 0
+                        incrementingRewardStates[key]++
+                        const newRewardConfig = rewardConfig[incrementingRewardStates[key]] ?? null
+                        if(newRewardConfig != null) {
+                            this._twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
+                        }
+                    }
                 }
             }
             if(reward.id != null) {
@@ -707,7 +730,8 @@ class MainController {
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
-                    const config = Config.twitch.rewardConfigs[pair.key]
+                    const configArrOrNot = Config.twitch.rewardConfigs[pair.key]
+                    const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) < 0) {
                         const response = await this._twitchHelix.updateReward(pair.id, config)
                         if(response != null && response.data != null) {
