@@ -116,7 +116,9 @@ Config.controller = { // Set defaults for the widget
     },
     phpPassword: Secure.PHPPassword,
     defaultTwitchGameCategory: 'Games + Demos',
-    resetIncrementingRewards: true
+    resetIncrementingRewardsOnLoad: [
+        KeysTemplate.KEY_COLOR_EXAMPLE2
+    ]
 }
 
 /*

@@ -33,9 +33,9 @@ class MainController {
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
         await Settings.loadSettings(Settings.TWITCH_TOKENS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
-        await Settings.loadSettings(Settings.LABELS)
         await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
+        await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
 
         /*
         .####.##....##.####.########
@@ -82,15 +82,18 @@ class MainController {
         }
 
         // Reset rewards with multiple steps
-        if(Config.controller.resetIncrementingRewards) {
-            for(const key of allRewardKeys) {
+        for(const key of allRewardKeys) {
+            if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
                 const setup = Config.twitch.rewardConfigs[key]
                 if(Array.isArray(setup)) {
                     Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
+                    const reset: ITwitchRewardCounter = {key: key, count: 0}
+                    Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, key, reset)
                     this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
                 }
             }
         }
+        
 
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
@@ -107,7 +110,14 @@ class MainController {
             this._twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
         }
 
-        /** TTS */
+        /*
+        .######..######...####..
+        ...##......##....##.....
+        ...##......##.....####..
+        ...##......##........##.
+        ...##......##.....####..
+        ........................
+        */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAK),
             callback: (data:ITwitchRedemptionMessage) => {
@@ -163,6 +173,15 @@ class MainController {
                 })
             }
         })
+
+        /*
+        ..####....####...#####...######..######..##..##...####...##..##...####...######...####..
+        .##......##..##..##..##..##......##......###.##..##......##..##..##..##....##....##.....
+        ..####...##......#####...####....####....##.###...####...######..##..##....##.....####..
+        .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
+        ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
+        ........................................................................................
+        */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_SCREENSHOT),
             callback: (data:ITwitchRedemptionMessage) => {
@@ -198,6 +217,14 @@ class MainController {
             }
         })
 
+        /*
+        .######..#####....####...#####...##..##..##..##.
+        ...##....##..##..##..##..##..##..##..##...####..
+        ...##....#####...##..##..#####...######....##...
+        ...##....##..##..##..##..##......##..##....##...
+        ...##....##..##...####...##......##..##....##...
+        ................................................
+        */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
             callback: async (message:ITwitchRedemptionMessage) => {
@@ -252,6 +279,14 @@ class MainController {
             }
         })
 
+        /*
+        .##..##..##..##..##.......####....####...##..##.
+        .##..##..###.##..##......##..##..##..##..##.##..
+        .##..##..##.###..##......##..##..##......####...
+        .##..##..##..##..##......##..##..##..##..##.##..
+        ..####...##..##..######...####....####...##..##.
+        ................................................
+        */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER),
             callback: async (message: ITwitchRedemptionMessage) => {
@@ -270,17 +305,15 @@ class MainController {
                 }, 30*60*1000)
             }
         })
-
+        
         /*
-        ....###....##.....##.########..#######.....########..########.##......##....###....########..########...######.
-        ...##.##...##.....##....##....##.....##....##.....##.##.......##..##..##...##.##...##.....##.##.....##.##....##
-        ..##...##..##.....##....##....##.....##....##.....##.##.......##..##..##..##...##..##.....##.##.....##.##......
-        .##.....##.##.....##....##....##.....##....########..######...##..##..##.##.....##.########..##.....##..######.
-        .#########.##.....##....##....##.....##....##...##...##.......##..##..##.#########.##...##...##.....##.......##
-        .##.....##.##.....##....##....##.....##....##....##..##.......##..##..##.##.....##.##....##..##.....##.##....##
-        .##.....##..#######.....##.....#######.....##.....##.########..###..###..##.....##.##.....##.########...######.
+        ..####...##..##..######...####...........#####...######..##...##...####...#####...#####....####..
+        .##..##..##..##....##....##..##..........##..##..##......##...##..##..##..##..##..##..##..##.....
+        .######..##..##....##....##..##..######..#####...####....##.#.##..######..#####...##..##...####..
+        .##..##..##..##....##....##..##..........##..##..##......#######..##..##..##..##..##..##......##.
+        .##..##...####.....##.....####...........##..##..######...##.##...##..##..##..##..#####....####..
+        .................................................................................................
         */
-        const incrementingRewardStates: Record<string, number> = {}
         for(const key of Config.twitch.autoRewards) {
             const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
             const colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
@@ -312,10 +345,13 @@ class MainController {
                     // Switch to next reward if it has more configs available
                     const rewardConfig = Config.twitch.rewardConfigs[key]
                     if(Array.isArray(rewardConfig)) {
-                        if(incrementingRewardStates[key] == undefined) incrementingRewardStates[key] = 0
-                        incrementingRewardStates[key]++
-                        const newRewardConfig = rewardConfig[incrementingRewardStates[key]] ?? null
+                        let counter: ITwitchRewardCounter = await Settings.pullSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                        if(counter == null) counter = {key: key, count: 0}
+                        console.log(counter)
+                        counter.count++
+                        const newRewardConfig = rewardConfig[counter.count] ?? null
                         if(newRewardConfig != null) {
+                            Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
                             this._twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
                         }
                     }
@@ -605,13 +641,13 @@ class MainController {
                                     type: OpenVR2WS.TYPE_WORLDSCALE,
                                     value: currentScale/100.0
                                 })
-                                Settings.pushLabel(Settings.LABEL_WORLD_SCALE, `🌍 ${Math.round(currentScale*100)/100}%`)
+                                Settings.pushLabel(Settings.LABEL_CENTER_BOTTOM, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
                                     this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                                     clearInterval(this._scaleIntervalHandle)
                                     setTimeout(()=>{
-                                        Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                                        Settings.pushLabel(Settings.LABEL_CENTER_BOTTOM, "")
                                         // TODO: Enable the right scale rewards again? Maybe
                                     }, intervalMs)
                                 }
@@ -625,7 +661,7 @@ class MainController {
                     if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(input) > -1) { // Terminate interval
                         const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                         clearInterval(this._scaleIntervalHandle)
-                        Settings.pushLabel(Settings.LABEL_WORLD_SCALE, "")
+                        Settings.pushLabel(Settings.LABEL_CENTER_BOTTOM, "")
                         this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { // Manual setting
                         const value = Math.max(10, Math.min(1000, scale || 100))

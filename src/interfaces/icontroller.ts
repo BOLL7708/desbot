@@ -17,7 +17,7 @@ interface IControllerConfig {
     rewardReferences: { [key: string]: string }
     phpPassword: string
     defaultTwitchGameCategory: string
-    resetIncrementingRewards: boolean
+    resetIncrementingRewardsOnLoad: string[]
 }
 
 interface IControllerDefaults {

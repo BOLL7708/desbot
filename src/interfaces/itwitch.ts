@@ -30,12 +30,19 @@ interface ITwitchReward {
     id: string
     callback: ITwitchRedemptionCallback
 }
+
+// Settings
 interface ITwitchTokens {
     username: string
     access_token: string
     refresh_token: string
     updated: string
 }
+interface ITwitchRewardCounter {
+    key: string
+    count: number
+}
+
 interface ITwitchSlashCommand {
     trigger: string
     permissions?: ICommandPermissions // Filled in at registration, loaded from config.

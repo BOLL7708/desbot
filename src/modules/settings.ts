@@ -4,13 +4,14 @@ class Settings {
     static TTS_BLACKLIST: string = 'settings_tts_blacklist'
     static TWITCH_TOKENS: string = 'settings_twitch_tokens'
     static TWITCH_REWARDS: string = 'settings_twitch_rewards'
+    static TWITCH_REWARD_COUNTERS: string = 'settings_twitch_reward_counters'
     static LABELS: string = 'settings_labels'
     static DICTIONARY: string = 'settings_tts_dictionary'
-    static LABEL_CHANNEL_TROPHY: string = 'label_channel_trophy'
+    static LABEL_CHANNEL_TROPHY: string = 'label_channel_trophy.txt'
     static STATS_CHANNEL_TROPHY: string = 'stats_channel_trophy'
     static TWITCH_CLIPS: string = 'twitch_clips_piped'
-    static LABEL_WORLD_SCALE: string = 'label_world_scale'
-    static LOG_OUTPUT: string = 'log_output'
+    static LABEL_CENTER_BOTTOM: string = 'label_center_bottom.txt'
+    static LOG_OUTPUT: string = 'log_output.html'
 
     private static LOG_COLOR: string = 'blue'
 

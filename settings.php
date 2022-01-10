@@ -14,8 +14,16 @@ if($setting === null) {
     http_response_code(422);
     exit("Missing parameter(s)");
 }
+
+// Extract extension and clean setting name
+$extension = 'csv';
+$settingArr = explode('.', urldecode($setting));
+if(is_array($settingArr) && count($settingArr) == 2) {
+    $setting = $settingArr[0];
+    $extension = $settingArr[1];
+}
 $setting = str_replace(['.', '/', '\\'], '', $setting);
-$filePath = getFilePath($setting);
+$filePath = getFilePath($setting, $extension);
 
 if($method === 'POST' || $method === 'PUT') { 
     // Save settings
@@ -84,7 +92,7 @@ function readSettings($filePath) {
     return $output;
 }
 
-function getFilePath($filename) {
+function getFilePath($filename, $extension) {
     $filename = preg_replace('/\W+/', '_', $filename);
-    return "./_settings/$filename.csv";
+    return "./_settings/$filename.$extension";
 }
