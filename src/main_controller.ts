@@ -33,7 +33,7 @@ class MainController {
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
         await Settings.loadSettings(Settings.TWITCH_TOKENS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
-        await Settings.loadSettings(Settings.DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
+        await Settings.loadSettings(Settings.TTS_DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
 
@@ -234,7 +234,7 @@ class MainController {
                     index: message.redemption.reward.redemptions_redeemed_current_stream,
                     cost: message.redemption.reward.cost.toString()
                 }
-                Settings.appendSetting(Settings.STATS_CHANNEL_TROPHY, row)
+                Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
 
                 const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, 'red')
@@ -256,7 +256,7 @@ class MainController {
                     if(funnyNumberConfig != null) this._tts.enqueueSpeakSentence(Utils.template(funnyNumberConfig.speech, user.login), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                     // Update label in overlay
-                    Settings.pushLabel(Settings.LABEL_CHANNEL_TROPHY, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
+                    Settings.pushLabel(Settings.CHANNEL_TROPHY_LABEL, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
                     
                     // Update reward
                     const configArrOrNot = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
@@ -641,13 +641,13 @@ class MainController {
                                     type: OpenVR2WS.TYPE_WORLDSCALE,
                                     value: currentScale/100.0
                                 })
-                                Settings.pushLabel(Settings.LABEL_CENTER_BOTTOM, `🌍 ${Math.round(currentScale*100)/100}%`)
+                                Settings.pushLabel(Settings.WORLD_SCALE_LABEL, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
                                     this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                                     clearInterval(this._scaleIntervalHandle)
                                     setTimeout(()=>{
-                                        Settings.pushLabel(Settings.LABEL_CENTER_BOTTOM, "")
+                                        Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
                                         // TODO: Enable the right scale rewards again? Maybe
                                     }, intervalMs)
                                 }
@@ -661,7 +661,7 @@ class MainController {
                     if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(input) > -1) { // Terminate interval
                         const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                         clearInterval(this._scaleIntervalHandle)
-                        Settings.pushLabel(Settings.LABEL_CENTER_BOTTOM, "")
+                        Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
                         this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { // Manual setting
                         const value = Math.max(10, Math.min(1000, scale || 100))
@@ -741,8 +741,8 @@ class MainController {
                 const words = Utils.splitOnFirst(' ', input)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
                 if(words.length == 2 && words[1].trim().length > 0) {
-                    Settings.pushSetting(Settings.DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
-                    this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.DICTIONARY))
+                    Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
+                    this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                     this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], false)
                 } else { // Messed up
                     Utils.loadCleanName(userData.userName).then(cleanName => {

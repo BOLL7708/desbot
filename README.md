@@ -85,7 +85,7 @@ Download the [Twitch Authenticator](https://github.com/jeppevinkel/twitch-oauth)
   "channel:manage:broadcast"
 ]
 ```
-Get the access and refresh tokens from the return, and if you want a separate bot to write in chat, do this twice, once for the channel owner and once for the chat bot. Insert these tokens in the file that resides here: `_settings/settings_twitch_tokens.csv`
+Get the access and refresh tokens from the return, and if you want a separate bot to write in chat, do this twice, once for the channel owner and once for the chat bot. Insert these tokens in the file that resides here: `src/_configs/secure.csv`
 
 That's it, the Widget will refresh the tokens every time you run it to allow for as long downtime as possible between sessions.  
 **Observe**: If you run the widget for longer than 24 hours, the access token might have expired, which means you should reload the widget for things to work.

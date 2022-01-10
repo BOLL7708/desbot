@@ -6,6 +6,10 @@ Secure.GoogleTTS = 'Used to access the Google Cloud Platform for TTS'
 Secure.PhilipsHue = 'Used to control Philips Hue lights locally'
 Secure.TwitchClientID = 'Used for Twitch functionality'
 Secure.TwitchClientSecret = 'Used for Twitch functionality'
+Secure.TwitchChannelAccessToken = 'Used for Twitch functionality'
+Secure.TwitchChannelRefreshToken = 'Used for Twitch functionality'
+Secure.TwitchChatbotAccessToken = 'Used for Twitch functionality, only if you have a separate chatbot user'
+Secure.TwitchChatbotRefreshToken = 'Used for Twitch functionality, only if you have a separate chatbot user'
 Secure.PHPPassword = 'Used for PHP system tasks, same as in config.php'
 Secure.DiscordWebhooks = {
     [KeysTemplate.KEY_DISCORD_SSSVR]: 'The webhook URL you want to use for VR screenshots',

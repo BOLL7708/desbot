@@ -14,7 +14,7 @@ class Utils {
             }
             if(
                 $ext == 'js' 
-                && strpos($directory, '_templates') === false
+                && strpos($directory, 'templates') === false
                 && strpos($directory, 'interfaces') === false
             ) {
                 if(is_string($directory) && file_exists($root.$directory.'/'.$name)) {
@@ -52,8 +52,8 @@ class Utils {
         
         // Scan root for previously skipped configs
         $configPath = '_configs';
-        includeFile($root, 'secure.base.js', $configPath); // Things like tokens etc
-        includeFile($root, 'config.base.js', $configPath); // Everything else, probably
+        includeFile($root, 'secure.js', $configPath); // Things like tokens etc
+        includeFile($root, 'config.js', $configPath); // Everything else, probably
         $configDir = new DirectoryIterator($root.$configPath);
         foreach($configDir as $configFile) {
             $configName = $configFile->getFileName();
