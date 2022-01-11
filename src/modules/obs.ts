@@ -24,7 +24,7 @@ class OBS {
 
         switch(id) {
 			case 1:
-                Utils.sha256(this._config.password + data.salt).then(secret => {
+                Utils.sha256(Config.credentials.OBSPassword + data.salt).then(secret => {
                     Utils.sha256(secret + data.challenge).then(authResponse => {
                         this._socket.send(this.buildRequest("Authenticate", 2, {auth: authResponse}));
                     })

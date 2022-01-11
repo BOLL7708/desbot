@@ -132,7 +132,7 @@ class GoogleTTS {
         if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return // Will not even make empty message sound, so secret!
 
         const sentence = {text: input, userName: userName, type: type, meta: meta}      
-        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.apiKey}`
+        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${Config.credentials.GoogleTTSApiKey}`
         let text = sentence.text
         if(text == null || text.length == 0) {
             this.enqueueEmptyMessageSound(serial)
@@ -276,7 +276,7 @@ class GoogleTTS {
 
     private async loadVoicesAndLanguages():Promise<boolean> {
         if(this._voices.length == 0) {
-            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._config.apiKey}`
+            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${Config.credentials.GoogleTTSApiKey}`
             return fetch(url).then(response => response?.json()).then(json => {
                 console.log("Voices loaded!")
                 let voices = json?.voices

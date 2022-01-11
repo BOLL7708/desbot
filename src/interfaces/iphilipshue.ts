@@ -1,7 +1,6 @@
 // Config
 interface IPhilipsHueConfig {
     serverPath: string
-    userName: string
     lightsIds: number[]
     lightConfigs: { [key:string]: IPhilipsHueColorConfig }
     plugConfigs: { [key:string]: IPhilipsHuePlugConfig }

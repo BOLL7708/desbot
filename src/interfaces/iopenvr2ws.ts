@@ -1,7 +1,6 @@
 // Config
 interface IOpenVR2WSConfig {
     port: number
-    password: string
     configs: { [key:string]: IOpenVR2WSSetting }
 }
 interface IOpenVR2WSSetting {

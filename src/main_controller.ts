@@ -856,7 +856,7 @@ class MainController {
                     this._tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
                         const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
-                        this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+                        this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                             content: Utils.numberToDiscordEmote(i+1, true),
                             embeds: embeds
                         })
@@ -866,7 +866,7 @@ class MainController {
                 } else if (!isNaN(streamNumber)) {
                     this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, streamNumber-1)
-					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+					const response = await this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
 						embeds: embeds
 					})
@@ -874,7 +874,7 @@ class MainController {
 				} else {
                     this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
-					const response = await this._discord.sendPayload(Secure.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+					const response = await this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
 						embeds: embeds
 					})
@@ -920,7 +920,7 @@ class MainController {
                     await Utils.delay(5000);
                     let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
                     let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
-                    let response = await this._discord.sendPayload(Config.discord.webhooks[Keys.COMMAND_CLIPS], {
+                    let response = await this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CLIPS], {
                         username: user.display_name,
                         avatar_url: user.profile_image_url,
                         content: [
@@ -1114,7 +1114,7 @@ class MainController {
                 
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
-                        Config.discord.webhooks[Keys.KEY_DISCORD_CHAT],
+                        Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
                         user?.display_name,
                         user?.profile_image_url,
                         `${label}${logText}`
@@ -1135,13 +1135,13 @@ class MainController {
             if(message.redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
             if(this._logChatToDiscord) {
                 this._discord.sendMessage(
-                    Config.discord.webhooks[Keys.KEY_DISCORD_CHAT],
+                    Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
                     user?.display_name,
                     user?.profile_image_url,
                     description
                 )
             }
-            const rewardSpecificWebhook = Config.discord.webhooks[rewardPair.key] || null
+            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair.key] || null
             if(rewardSpecificWebhook != null) {
                 this._discord.sendMessage(
                     rewardSpecificWebhook,
@@ -1168,7 +1168,7 @@ class MainController {
 
         this._screenshots.setScreenshotCallback(async (responseData) => {
             const requestData = this._screenshots.getScreenshotRequest(parseInt(responseData.nonce))
-            const discordCfg = Config.discord.webhooks[Keys.KEY_DISCORD_SSSVR]
+            const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
@@ -1212,7 +1212,7 @@ class MainController {
 
         this._obs.registerSourceScreenshotCallback(async (img, requestData) => {
             const b64data = img.split(',').pop()
-            const discordCfg = Config.discord.webhooks[Keys.COMMAND_SOURCESCREENSHOT]
+            const discordCfg = Config.credentials.DiscordWebhooks[Keys.COMMAND_SOURCESCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
 

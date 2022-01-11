@@ -1,4 +1,35 @@
 /*
+..######..########..########.########..########.##....##.########.####....###....##........######.
+.##....##.##.....##.##.......##.....##.##.......###...##....##.....##....##.##...##.......##....##
+.##.......##.....##.##.......##.....##.##.......####..##....##.....##...##...##..##.......##......
+.##.......########..######...##.....##.######...##.##.##....##.....##..##.....##.##........######.
+.##.......##...##...##.......##.....##.##.......##..####....##.....##..#########.##.............##
+.##....##.##....##..##.......##.....##.##.......##...###....##.....##..##.....##.##.......##....##
+..######..##.....##.########.########..########.##....##....##....####.##.....##.########..######.
+*/
+Config.credentials = {
+    OBSPassword: 'Used for remote control of OBS using the WebSockets plugin',
+    OpenVR2WSPassword: 'Used to receive app IDs and change SteamVR settings',
+    GoogleTTSApiKey: 'Used to access the Google Cloud Platform for TTS',
+    PhilipsHueUsername: 'Used to control Philips Hue lights locally',
+    TwitchClientID: 'Used for Twitch functionality',
+    TwitchClientSecret: 'Used for Twitch functionality',
+    TwitchChannelAccessToken: 'Used for Twitch functionality',
+    TwitchChannelRefreshToken: 'Used for Twitch functionality',
+    TwitchChatbotAccessToken: 'Used for Twitch functionality, only if you have a separate chatbot user',
+    TwitchChatbotRefreshToken: 'Used for Twitch functionality, only if you have a separate chatbot user',
+    PHPPassword: 'Used for PHP system tasks, same as in config.php',
+    DiscordWebhooks: {
+        [KeysTemplate.KEY_DISCORD_SSSVR]: 'The webhook URL you want to use for VR screenshots',
+        [KeysTemplate.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging Twitch chat',
+        [KeysTemplate.KEY_CHANNELTROPHY]: 'The webhook URL you want to use for the channel trophy',
+        [KeysTemplate.COMMAND_SOURCESCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
+        [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: 'The webhook URL you want to use for channel trophy statistics',
+        [KeysTemplate.COMMAND_CLIPS]: 'The webhook URL you want to use for Twitch clips'
+    }
+}
+
+/*
 ..######...#######..##....##.########.########...#######..##.......##.......########.########.
 .##....##.##.....##.###...##....##....##.....##.##.....##.##.......##.......##.......##.....##
 .##.......##.....##.####..##....##....##.....##.##.....##.##.......##.......##.......##.....##
@@ -114,7 +145,6 @@ Config.controller = { // Set defaults for the widget
     rewardReferences: { // References between static and automatic rewards.
         [KeysTemplate.KEY_UNLOCKREWARDTIMER]: KeysTemplate.KEY_SETTING_EXAMPLE1
     },
-    phpPassword: Secure.PHPPassword,
     defaultTwitchGameCategory: 'Games + Demos',
     resetIncrementingRewardsOnLoad: [
         KeysTemplate.KEY_COLOR_EXAMPLE2
@@ -131,7 +161,6 @@ Config.controller = { // Set defaults for the widget
 ..######....#######...#######...######...########.########
 */
 Config.google = { // TTS
-    apiKey: Secure.GoogleTTS,
     speakerTimeoutMs: 5000,
     randomizeVoice: false,
     randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
@@ -193,7 +222,6 @@ Config.pipe = { // In-VR-overlays and notifications with OpenVRNotificationPipe
 ..#######..########...######.
 */
 Config.obs = { // Toggle sources in OBS on and off with the obs-websocket plugin.
-    password: Secure.OBS,
     port: 4445,
     configs: {
         [KeysTemplate.KEY_OBS_EXAMPLE1]: {
@@ -262,7 +290,6 @@ Config.screenshots = { // Trigger and transmit screenshots with SuperScreenShott
 Config.discord = { // Send things to Discord
     remoteScreenshotEmbedColor: '#000000',
     manualScreenshotEmbedColor: '#FFFFFF',
-    webhooks: Secure.DiscordWebhooks,
     prefixCheer: '🙌 ',
     prefixReward: '🏆 '
 }
@@ -278,7 +305,6 @@ Config.discord = { // Send things to Discord
 */
 Config.philipshue = { // Control Philips Hue lights
     serverPath: 'http://a-local-IP',
-    userName: Secure.PhilipsHue,
     lightsIds: [], // IDs of lights to affect with the color rewards
     lightConfigs: {
         [KeysTemplate.KEY_COLOR_EXAMPLE1]: { x: 0.5, y: 0.5 },
@@ -305,7 +331,6 @@ Config.philipshue = { // Control Philips Hue lights
 */
 Config.openvr2ws = { // Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS
     port: 7708,
-    password: Secure.OpenVR2WS,
     configs: {
         [KeysTemplate.KEY_SETTING_EXAMPLE1]: {
             type: OpenVR2WS.TYPE_WORLDSCALE,
@@ -399,8 +424,6 @@ Config.run = {
 ....##.....###..###..####....##.....######..##.....##
 */
 Config.twitch = { // Various Twitch services, like chat and rewards.
-    clientId: Secure.TwitchClientID,
-    clientSecret: Secure.TwitchClientSecret,
     channelName: 'ChannelName', // Name of the channel to connect to and the username that will be used to register and manage rewards
     chatbotName: 'ChatbotName', // Name of the user that listens to and post chat and whispers
     announcerName: 'AnnouncterName', // Name of a bot you are listening to for announcement

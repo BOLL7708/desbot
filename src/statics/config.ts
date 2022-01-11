@@ -1,4 +1,5 @@
 class Config {
+    static credentials: ICredentialsConfig = undefined
     static controller: IControllerConfig = undefined
     static google: IGoogleConfig = undefined
     static pipe: IPipeConfig = undefined

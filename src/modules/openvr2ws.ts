@@ -91,7 +91,7 @@ class OpenVR2WS {
     }
 
     public async setSetting(config: IOpenVR2WSSetting) {
-        const password = await Utils.sha256(Config.openvr2ws.password)
+        const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
         const appId = this._currentAppId.toString()
         const message :IOpenVRWSCommandMessage = {
             key: 'RemoteSetting',

@@ -2,6 +2,9 @@
 
 class Utils {
     static function loadJSFiles() {
+        // Load PHP config
+        $config = include('_configs/config.php');
+
         // Include single file
         function includeFile($root, $file, $directory=null) {
             if(is_string($file)) {
@@ -51,22 +54,31 @@ class Utils {
         includeFile($root, 'main_controller.js');
         
         // Scan root for previously skipped configs
-        $configPath = '_configs';
-        includeFile($root, 'secure.js', $configPath); // Things like tokens etc
-        includeFile($root, 'config.js', $configPath); // Everything else, probably
+        $configPath = '_configs';       
         $configDir = new DirectoryIterator($root.$configPath);
+
+        // Include pre-configs
         foreach($configDir as $configFile) {
             $configName = $configFile->getFileName();
-            if(
-                !$configFile->isDir()
-                && strpos($configName, '_') !== false
-            ) {
+            if(!$configFile->isDir() && strpos($configName, $config->preConfigSymbol) !== false) {
                 includeFile($root, $configName, $configPath);
             }
         }
-        
+
+        // Include main config
+        includeFile($root, 'config.js', $configPath);
+
+        // Include post-configs
+        foreach($configDir as $configFile) {
+            $configName = $configFile->getFileName();
+            if(!$configFile->isDir() && strpos($configName, $config->postConfigSymbol) !== false) {
+                includeFile($root, $configName, $configPath);
+            }
+        }
+
         // Load any config override specified in the URL
-        if($configOverride != null) includeFile($root, "config.$configOverride.js", $configPath);
+        $overrideSymbol = $config->overrideConfigSymbol;
+        if($configOverride != null) includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
     }
     
     static function decode($b64url) {

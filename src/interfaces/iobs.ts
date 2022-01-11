@@ -1,6 +1,5 @@
 // Config
 interface IObsConfig {
-    password:string
     port:number
     configs: { [key:string]: IObsSourceConfig }
     filterOnScenes: string[]

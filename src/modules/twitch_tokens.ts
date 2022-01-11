@@ -4,8 +4,8 @@ class TwitchTokens {
         let channelTokenData = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName)
         if(channelTokenData == null) channelTokenData = {
             username: Config.twitch.channelName, 
-            access_token: Secure.TwitchChannelAccessToken, 
-            refresh_token: Secure.TwitchChannelRefreshToken, 
+            access_token: Config.credentials.TwitchChannelAccessToken, 
+            refresh_token: Config.credentials.TwitchChannelRefreshToken, 
             updated: ''
         }
         await this.refresh(channelTokenData)
@@ -13,8 +13,8 @@ class TwitchTokens {
             let chatbotTokenData = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
             if(chatbotTokenData == null) chatbotTokenData = {
                 username: Config.twitch.chatbotName, 
-                access_token: Secure.TwitchChatbotAccessToken, 
-                refresh_token: Secure.TwitchChatbotRefreshToken, 
+                access_token: Config.credentials.TwitchChatbotAccessToken, 
+                refresh_token: Config.credentials.TwitchChatbotRefreshToken, 
                 updated: ''
             }
             await this.refresh(chatbotTokenData)
@@ -22,14 +22,13 @@ class TwitchTokens {
     }
 
     private async refresh(data: ITwitchTokens) {
-        let config: ITwitchConfig = Config.twitch
         return fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',
             body: new URLSearchParams({
                 'grant_type': 'refresh_token',
                 'refresh_token': data.refresh_token,
-                'client_id': config.clientId,
-                'client_secret': config.clientSecret
+                'client_id': Config.credentials.TwitchClientID,
+                'client_secret': Config.credentials.TwitchClientSecret
             })
         }).then((response) => response.json()
         ).then(async json => {
