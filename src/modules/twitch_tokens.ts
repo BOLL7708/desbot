@@ -4,17 +4,17 @@ class TwitchTokens {
         let channelTokenData = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName)
         if(channelTokenData == null) channelTokenData = {
             username: Config.twitch.channelName, 
-            access_token: Config.credentials.TwitchChannelAccessToken, 
-            refresh_token: Config.credentials.TwitchChannelRefreshToken, 
+            access_token: '',
+            refresh_token: Config.credentials.TwitchChannelRefreshToken,
             updated: ''
         }
         await this.refresh(channelTokenData)
         if(Config.twitch.channelName.toLowerCase() != Config.twitch.chatbotName.toLowerCase()) {
             let chatbotTokenData = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
             if(chatbotTokenData == null) chatbotTokenData = {
-                username: Config.twitch.chatbotName, 
-                access_token: Config.credentials.TwitchChatbotAccessToken, 
-                refresh_token: Config.credentials.TwitchChatbotRefreshToken, 
+                username: Config.twitch.chatbotName,
+                access_token: '',
+                refresh_token: Config.credentials.TwitchChatbotRefreshToken ?? '',
                 updated: ''
             }
             await this.refresh(chatbotTokenData)

@@ -5,10 +5,8 @@ interface ICredentialsConfig {
     PhilipsHueUsername: string
     TwitchClientID: string
     TwitchClientSecret: string
-    TwitchChannelAccessToken: string
     TwitchChannelRefreshToken: string
-    TwitchChatbotAccessToken: string
-    TwitchChatbotRefreshToken: string
+    TwitchChatbotRefreshToken?: string
     PHPPassword: string
     DiscordWebhooks: IDiscordWebhookConfig
 }

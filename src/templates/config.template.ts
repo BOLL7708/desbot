@@ -14,10 +14,8 @@ Config.credentials = {
     PhilipsHueUsername: 'Used to control Philips Hue lights locally',
     TwitchClientID: 'Used for Twitch functionality',
     TwitchClientSecret: 'Used for Twitch functionality',
-    TwitchChannelAccessToken: 'Used for Twitch functionality',
-    TwitchChannelRefreshToken: 'Used for Twitch functionality',
-    TwitchChatbotAccessToken: 'Used for Twitch functionality, only if you have a separate chatbot user',
-    TwitchChatbotRefreshToken: 'Used for Twitch functionality, only if you have a separate chatbot user',
+    TwitchChannelRefreshToken: 'Used for Twitch functionality regarding the channel: rewards, title etc',
+    TwitchChatbotRefreshToken: 'Used for Twitch chat, can be left empty or removed if same as channel',
     PHPPassword: 'Used for PHP system tasks, same as in config.php',
     DiscordWebhooks: {
         [KeysTemplate.KEY_DISCORD_SSSVR]: 'The webhook URL you want to use for VR screenshots',

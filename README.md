@@ -53,8 +53,7 @@ The widget comes with a prepped config, based on what I run myself on my stream.
 1. In the root folder, run `_first_run.ps1` with PowerShell version 6 or above, it should create folders and associated files. If you get an error that you have a too old PowerShell version, you can find the latest release [here](https://github.com/PowerShell/PowerShell/releases/latest), you probably want to download the `#-win-x64.msi` version which you find near the bottom of the page.
 2. Read the comments and Fill in the missing values in the files listed below, some are API keys and IDs you will need to acquire, see details about that in the next sections.
     1. `_configs/config.php`
-    2. `src/_configs/config.base.ts`
-    3. `src/_configs/secure.base.ts`
+    2. `src/_configs/config.ts`
     4. `src/_data/!keys.ts`
 
 ## TTS (WIP docs)
@@ -85,7 +84,9 @@ Download the [Twitch Authenticator](https://github.com/jeppevinkel/twitch-oauth)
   "channel:manage:broadcast"
 ]
 ```
-Get the access and refresh tokens from the return, and if you want a separate bot to write in chat, do this twice, once for the channel owner and once for the chat bot. Insert these tokens in the file that resides here: `src/_configs/secure.csv`
+Get the refresh token from the return, and if you want a separate bot to write in chat, do this twice, once for the channel owner and once for the chat bot. Insert the tokens in the credentials part of the config that resides here: `src/_configs/config.ts`
+
+As a side note, the tokens in the config will not get updated, they are used for initially getting new tokens that are written to `_settings/twitch_tokens.csv`, and thoes are the ones that will be used in the future.
 
 That's it, the Widget will refresh the tokens every time you run it to allow for as long downtime as possible between sessions.  
 **Observe**: If you run the widget for longer than 24 hours, the access token might have expired, which means you should reload the widget for things to work.
