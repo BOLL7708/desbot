@@ -69,7 +69,7 @@ interface ITwitchChatCallback { // In Twitch
     (userName: ITwitchUserData, messageData:ITwitchMessageData): void
 }
 interface ITwitchRedemptionCallback {
-    (message: ITwitchRedemptionMessage): void
+    (message: ITwitchRedemptionMessage, index?: number): void
 }
 interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void

@@ -67,6 +67,7 @@ class Utils {
             }
         }
 
+        // TODO: Add Config options for opting in/out of text cleaning?
         return text
             .replace(/(?:https?|ftp):\/\/[\n\S]+/g, 'link') // Links: https://stackoverflow.com/a/23571059/2076423
             .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') // Emojis: https://stackoverflow.com/a/63464318/2076423
@@ -195,6 +196,12 @@ class Utils {
         return text.replace(/\%s/g, function(_) {
             return values.shift()
         })
+    }
+
+    static replaceTagsInString(text:string, message: ITwitchRedemptionMessage) {
+        const login = message?.redemption?.user?.login
+        if(login != undefined) text = text.replace(/%name/g, ` @${login} `)
+        return text
     }
 
     /**

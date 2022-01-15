@@ -242,7 +242,7 @@ class MainController {
                 // Effects
                 const signCallback = this.buildSignCallback(this, Config.sign.configs[Keys.KEY_CHANNELTROPHY])
                 signCallback?.call(this, message)
-                const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], true)
+                const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], undefined, true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward
@@ -318,7 +318,7 @@ class MainController {
             const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
             const colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
             const plugCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPlugCallback(this, Config.philipshue.plugConfigs[key])
-            const soundCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSoundCallback(this, Config.audioplayer.configs[key])
+            const soundCallback: null|((data: ITwitchRedemptionMessage, rewardIndex: number) => void) = this.buildSoundCallback(this, Config.audioplayer.configs[key], Config.controller.speechReferences[key])
             const pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.pipe.configs[key])
             const openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
             const signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
@@ -328,6 +328,10 @@ class MainController {
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
                 callback: async (data:ITwitchRedemptionMessage)=>{
+                    const rewardConfig = Config.twitch.rewardConfigs[key]
+                    let counter: ITwitchRewardCounter = await Settings.pullSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                    if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
+
                     if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
                         const id = await Utils.getRewardId(key)
                         this._twitchHelix.updateReward(id, {is_enabled: false})
@@ -335,7 +339,7 @@ class MainController {
                     if(obsCallback != null) obsCallback(data)
                     if(colorCallback != null) colorCallback(data)
                     if(plugCallback != null) plugCallback(data)
-                    if(soundCallback != null) soundCallback(data)
+                    if(soundCallback != null) soundCallback(data, counter?.count)
                     if(pipeCallback != null) pipeCallback(data)
                     if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
                     if(signCallback != null) signCallback(data)
@@ -343,11 +347,7 @@ class MainController {
                     if(webCallback != null) webCallback(data)
             
                     // Switch to next reward if it has more configs available
-                    const rewardConfig = Config.twitch.rewardConfigs[key]
-                    if(Array.isArray(rewardConfig)) {
-                        let counter: ITwitchRewardCounter = await Settings.pullSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                        if(counter == null) counter = {key: key, count: 0}
-                        console.log(counter)
+                    if(counter != undefined) {                       
                         counter.count++
                         const newRewardConfig = rewardConfig[counter.count] ?? null
                         if(newRewardConfig != null) {
@@ -1046,7 +1046,7 @@ class MainController {
             // Pipe to VR (basic)
             if(this._pipeAllChat) {
                 const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
-                if(user?.profile_image_url) {
+                if(user?.profile_image_url && !Utils.matchFirstChar(messageData.text, Config.pipe.doNotShow)) {
                     // TODO: Set duration from text length?!
                     // TODO: Merge profile image onto chat image somehow
                     // TODO: Switch profile to use depending on text length?!
@@ -1111,6 +1111,7 @@ class MainController {
                 }
                 
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
+                // TODO: Reference Jeppe's twitch logger for the other messages! :D
                 
                 if(this._logChatToDiscord) {
                     this._discord.sendMessage(
@@ -1431,7 +1432,7 @@ class MainController {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
-    private buildOBSCallback(_this: any, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
+    private buildOBSCallback(_this: MainController, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
             _this._obs.show(config)
@@ -1447,7 +1448,7 @@ class MainController {
         else return null
     }
 
-    private buildColorCallback(_this: any, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
+    private buildColorCallback(_this: MainController, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
             const userName = message?.redemption?.user?.login
             _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
@@ -1459,22 +1460,31 @@ class MainController {
         else return null
     }
 
-    private buildPlugCallback(_this: any, config: IPhilipsHuePlugConfig|undefined): ITwitchRedemptionCallback|null {
+    private buildPlugCallback(_this: MainController, config: IPhilipsHuePlugConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
             _this._hue.runPlugConfig(config)
         }
         else return null
     }
     
-    private buildSoundCallback(_this: any, config: IAudio|undefined, onTtsQueue:boolean = false):ITwitchRedemptionCallback|null {
-        if(config) return (message: ITwitchRedemptionMessage) => {
+    private buildSoundCallback(_this: MainController, config: IAudio|undefined, speech:string|string[]|undefined, onTtsQueue:boolean = false):ITwitchRedemptionCallback|null {
+        if(config || speech) return (message: ITwitchRedemptionMessage, index: number) => {
+            let ttsString: string = undefined
+            if(Array.isArray(speech) || typeof speech == 'string') {
+                ttsString = index != undefined && Array.isArray(speech) && speech.length > index
+                    ? speech[index]
+                    : Utils.randomFromArray(speech)
+                ttsString = Utils.replaceTagsInString(ttsString, message)
+                onTtsQueue = true
+            }
             if(onTtsQueue) _this._tts.enqueueSoundEffect(config)
             else _this._audioPlayer.enqueueAudio(config)
+            if(ttsString) _this._tts.enqueueSpeakSentence(ttsString, '', GoogleTTS.TYPE_ANNOUNCEMENT)
         }
         else return null
     }
 
-    private buildPipeCallback(_this: any, config: IPipeMessagePreset) {
+    private buildPipeCallback(_this: MainController, config: IPipeMessagePreset) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             /*
              * We check if we don't have enough texts to fill the preset 
@@ -1493,13 +1503,13 @@ class MainController {
         else return null
     }
 
-    private buildOpenVR2WSSettingCallback(_this: any, config: IOpenVR2WSSetting) {
+    private buildOpenVR2WSSettingCallback(_this: MainController, config: IOpenVR2WSSetting) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             _this._openvr2ws.setSetting(config)
         }
     }
 
-    private buildSignCallback(_this: any, config: ISignShowConfig) {
+    private buildSignCallback(_this: MainController, config: ISignShowConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
                 const clonedConfig = Object.assign({}, config)
@@ -1511,7 +1521,7 @@ class MainController {
         }
     }
 
-    private buildRunCallback(_this: any, config: IRunCommand) {
+    private buildRunCallback(_this: MainController, config: IRunCommand) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             const speech = message?.redemption?.reward?.title
             if(speech != undefined) _this._tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -1519,7 +1529,7 @@ class MainController {
         }
     }
 
-    private buildWebCallback(_this: any, config: IWebRequestConfig) {
+    private buildWebCallback(_this: MainController, config: IWebRequestConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             fetch(config.url, {mode: 'no-cors'}).then(result => console.log(result))
         }

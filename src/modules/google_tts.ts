@@ -113,6 +113,17 @@ class GoogleTTS {
         return words.join(' ')
     }
 
+    /**
+     * Will enqueue 
+     * @param input The text to be spoken
+     * @param userName The name of the user speaking
+     * @param type The type: TYPE_SAID, TYPE_ACTION, TYPE_ANNOUNCEMENT, TYPE_CHEER
+     * @param nonce Unique value that will be provided in the done speaking callback
+     * @param meta Used to provide bit count for cheering messages (at least)
+     * @param clearRanges Used to clear out Twitch emojis from the text
+     * @param useDictionary Will replace words in the text
+     * @returns
+     */
     async enqueueSpeakSentence(
         input: string|string[], 
         userName: string, 
@@ -194,7 +205,7 @@ class GoogleTTS {
           })
         }).then((response) => response.json()).then(json => {
             if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
-                console.log(`TTS: Successfully got speech: [${json.audioContent.length}]`);
+                console.log(`TTS: Successfully got speech: [${json.audioContent.length}]`)
                 this._preloadQueue[serial] = {
                     nonce: nonce,
                     src: `data:audio/ogg;base64,${json.audioContent}`
@@ -203,10 +214,10 @@ class GoogleTTS {
             } else {
                 delete this._preloadQueue[serial]
                 this._lastSpeaker = ''
-                console.error(`TTS: Failed to generate speech: [${json.status}], ${json.error}`);
+                console.error(`TTS: Failed to generate speech: [${json.status}], ${json.error}`)
                 this._callback?.call(this, nonce, AudioPlayer.STATUS_ERROR)
             }
-        });
+        })
     }
 
     enqueueSoundEffect(audio: IAudio) {
