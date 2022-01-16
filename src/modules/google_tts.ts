@@ -169,7 +169,9 @@ class GoogleTTS {
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
-                cleanText = this._lastSpeaker == sentence.userName ? cleanText : `${cleanName} said: ${cleanText}`
+                cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
+                    ? cleanText 
+                    : `${cleanName} said: ${cleanText}`
                 break
             case GoogleTTS.TYPE_ACTION: 
                 cleanText = `${cleanName} ${cleanText}`
@@ -195,7 +197,7 @@ class GoogleTTS {
             },
             audioConfig: {
                 audioEncoding: "OGG_OPUS",
-                speakingRate: 1.0 + textVar * 0.25, // Should probably make this a curve
+                speakingRate: Config.google.speakingRateOverride ?? 1.0 + textVar * 0.25, // Should probably make this a curve
                 pitch: textVar * 1.0,
                 volumeGainDb: 0.0
             },
@@ -210,7 +212,7 @@ class GoogleTTS {
                     nonce: nonce,
                     src: `data:audio/ogg;base64,${json.audioContent}`
                 }
-                this._lastEnqueued = Date.now() // TODO: Fix this shit not working now
+                this._lastEnqueued = Date.now()
             } else {
                 delete this._preloadQueue[serial]
                 this._lastSpeaker = ''
