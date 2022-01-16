@@ -23,6 +23,7 @@ class MainController {
     private _scaleIntervalHandle: number
 
     constructor() {
+        if(Config.controller.saveConsoleOutputToSettings) new LogWriter() // Saves log
         this.init() // To allow init to be async
     }
     

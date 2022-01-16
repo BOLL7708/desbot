@@ -14,7 +14,9 @@ class Settings {
 
     private static LOG_COLOR: string = 'blue'
 
-    private static _settingsStore:Record<string, any> = {};
+    private static _settingsStore: Record<string, any> = {}
+    private static _settingsCache: Record<string, any> = {}
+    private static _cacheWriteIntervalHandle: number = -1
 
     /**
      * Will load settings off disk, to an in-memory cache, that will be used next time.
@@ -87,11 +89,28 @@ class Settings {
         return this.saveSettings(setting)
     }
 
-    static async appendSetting(setting:string, value:any):Promise<boolean> {
+    static async appendSetting(setting: string, value: any): Promise<boolean> {
         return this.saveSettings(setting, value, true)
     }
 
-    static async pushLabel(setting:string, value:string):Promise<boolean> {
+    static async appendSettingAtInterval(setting: string, value: any) {
+        // Initiate interval
+        if(this._cacheWriteIntervalHandle <= 0) {           
+            this._cacheWriteIntervalHandle = setInterval(() => {
+                const cacheClone = Object.assign({}, this._settingsCache)
+                this._settingsCache = {}
+                Object.keys(cacheClone).forEach(async cacheSetting => {
+                    await this.appendSetting(cacheSetting, cacheClone[cacheSetting].join('\n'))
+                })                
+            }, 10000)
+        }
+
+        // Add setting to cache
+        if(this._settingsCache[setting] == undefined) this._settingsCache[setting] = []
+        this._settingsCache[setting].push(value)
+    }
+
+    static async pushLabel(setting: string, value: string): Promise<boolean> {
         return this.saveSettings(setting, value)
     }
 

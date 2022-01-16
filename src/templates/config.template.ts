@@ -146,7 +146,8 @@ Config.controller = { // Set defaults for the widget
     defaultTwitchGameCategory: 'Games + Demos',
     resetIncrementingRewardsOnLoad: [
         KeysTemplate.KEY_COLOR_EXAMPLE2
-    ]
+    ],
+    saveConsoleOutputToSettings: false
 }
 
 /*

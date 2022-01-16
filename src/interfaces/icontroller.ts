@@ -17,6 +17,7 @@ interface IControllerConfig {
     rewardReferences: { [key: string]: string }
     defaultTwitchGameCategory: string
     resetIncrementingRewardsOnLoad: string[]
+    saveConsoleOutputToSettings: boolean // Save console output to a file in _settings, overwritten every session.
 }
 
 interface IControllerDefaults {
