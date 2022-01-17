@@ -509,7 +509,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT,
             callback: (userData, input) => {
-                this._pipe.sendBasic('', input)
+                this._pipe.sendBasic(input)
             }
         })
 
@@ -885,6 +885,14 @@ class MainController {
         })
 
         this._twitch.registerCommand({
+            trigger: "t",
+            callback: async (userData, input) => {
+                // this._pipe.showPreset(Config.pipe.configs[Keys.KEY_MIXED_HYDRATE])
+                this._pipe.sendBasic(input, userData.displayName)
+            }
+        })
+
+        this._twitch.registerCommand({
             trigger: Keys.COMMAND_CLIPS,
             callback: async (userData, input) => {
                 const pageCount = 20
@@ -988,7 +996,7 @@ class MainController {
         this._twitch.registerAnnouncement({
             userName: Config.twitch.announcerName.toLowerCase(),
             triggers: Config.twitch.announcerTriggers,
-            callback: (userData, messageData, firstWord) => {
+            callback: async (userData, messageData, firstWord) => {
                 // TTS
                 if(Config.audioplayer.configs.hasOwnProperty(firstWord)) {
                     this._tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
@@ -996,35 +1004,19 @@ class MainController {
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
-                this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
-                    if(user?.profile_image_url) {
-                        ImageLoader.getDataUrl(user?.profile_image_url, true).then(imageDataUrl => {
-                            this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(imageDataUrl), false)
-                        })
-                    } else {
-                        this._pipe.sendBasic(userData.displayName, messageData.text, null, false)
-                    }
-                })
+                const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
+                this._pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
-        this._twitch.setChatCheerCallback((userData, messageData) => {
+        this._twitch.setChatCheerCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
             this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
-            const userName = `${userData.displayName}[${messageData.bits}]`
-            this._twitchHelix.getUserById(parseInt(userData.userId)).then(user => {
-                if(user?.profile_image_url) {
-                    ImageLoader.getDataUrl(user?.profile_image_url, true)
-                        .then(imageDataUrl => this._pipe.sendBasic(userName, messageData.text, Utils.removeImageHeader(imageDataUrl), true, clearRanges))
-                        .catch(error => console.error(error))
-                    
-                } else {
-                    this._pipe.sendBasic(userName, messageData.text, null, true, clearRanges)
-                }
-            })
+            const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
+            this._pipe.sendBasicObj(messageData, userData, user)
         })
 
         this._twitch.setChatCallback(async (userData, messageData) => {
@@ -1047,50 +1039,11 @@ class MainController {
             // Pipe to VR (basic)
             if(this._pipeAllChat) {
                 const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
-                if(user?.profile_image_url && !Utils.matchFirstChar(messageData.text, Config.pipe.doNotShow)) {
-                    // TODO: Set duration from text length?!
-                    // TODO: Merge profile image onto chat image somehow
-                    // TODO: Switch profile to use depending on text length?!
-                    // TODO: If it's an emoji only message, skip a background entirely?
-                    const preset = Object.assign({}, Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null)
-                    const profileImageDataUrl = await ImageLoader.getDataUrl(user?.profile_image_url, false)
-                    if(Config.pipe.useCustomChatNotification && preset?.imagePath != undefined) {
-                        // Setup
-                        const imageEditor = new ImageEditor()
-                        const loaded = await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
-                        
-                        if(loaded) {
-                            // Avatar
-                            await imageEditor.drawImage(profileImageDataUrl, Config.pipe.customChatAvatarConfig)
-                            
-                            // Name
-                            const nameFontConfig = Object.assign({}, Config.pipe.customChatNameConfig.font)
-                            if(nameFontConfig.color == undefined) nameFontConfig.color = userData.color
-                            await imageEditor.drawText(userData.displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
-
-                            // Message
-                            await imageEditor.drawTwitchText(messageData, Config.pipe.customChatMessageConfig.rect, Config.pipe.customChatMessageConfig.font)
-
-                            // Show it
-                            const messageDataUrl = imageEditor.getData()
-                            preset.imageData = messageDataUrl
-                            preset.imagePath = undefined
-                            this._pipe.showPreset(preset)
-                        } else {
-                            console.warn('Failed to build custom notification, showing basic instead')
-                            this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(profileImageDataUrl), false, clearRanges)
-                        }
-                    } else {                  
-                        this._pipe.sendBasic(userData.displayName, messageData.text, Utils.removeImageHeader(profileImageDataUrl), false, clearRanges)
-                    }
-                } else {
-                    this._pipe.sendBasic(userData.displayName, messageData.text, null, false, clearRanges)
-                }
+                this._pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
         this._twitch.setAllChatCallback((message:ITwitchMessageCmd) => {
-            console.log(message)
             const rewardId = message?.properties?.["custom-reward-id"]           
             if(rewardId) return // Skip rewards as handled elsewhere
             const bits = parseInt(message?.properties?.bits)
@@ -1154,18 +1107,15 @@ class MainController {
             }
 
             // Pipe to VR (basic)
-            // TODO: Another place where custom pipe needs to be implemented
             const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair.key) > -1
             if(showReward) {
-                if(user?.profile_image_url) {
-                    ImageLoader.getDataUrl(user?.profile_image_url, true).then(imageDataUrl => {
-                        this._pipe.sendBasic(user?.login, message.redemption.user_input, Utils.removeImageHeader(imageDataUrl))
-                    })
-                } else {
-                    this._pipe.sendBasic(user?.login, message.redemption.user_input)
-                }
+                this._pipe.sendBasic(
+                    message.redemption.user_input, 
+                    user?.display_name, 
+                    TwitchFactory.userColors[message.redemption.user.id] ?? Color.White,
+                    user.profile_image_url
+                )
             }
-            
         })
 
         this._screenshots.setScreenshotCallback(async (responseData) => {

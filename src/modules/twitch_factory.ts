@@ -1,4 +1,6 @@
 class TwitchFactory {
+    static userColors: Record<number, string> = {}
+
     static buildMessage(data:string):ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
         const matches:RegExpExecArray = re.exec(data)
@@ -86,6 +88,14 @@ class TwitchFactory {
         const messageCmd:ITwitchMessageCmd = {
             properties: this.buildMessageProperties(props),
             message: this.buildMessage(msg)
+        }
+        const userId = messageCmd.properties['user-id']
+        if(
+            userId 
+            && !this.userColors.hasOwnProperty(userId) 
+            && messageCmd.properties.color
+        ) {
+            this.userColors[userId] = messageCmd.properties.color
         }
         return messageCmd
     }

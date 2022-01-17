@@ -22,17 +22,89 @@ class Pipe {
             message: "Initializing Notification Pipe for Streaming Widget"
         }))
     }
+
+    async sendBasicObj(
+        messageData: ITwitchMessageData,
+        userData: ITwitchUserData,
+        helixUser: ITwitchHelixUsersResponseData
+    ) {
+        this.sendBasic(
+            messageData.text,
+            userData.displayName,
+            userData.color,
+            helixUser.profile_image_url,
+            messageData
+        )
+    }
     
-    sendBasic(displayName: string, message:string, image:string=null, hasBits:boolean=false, clearRanges:ITwitchEmotePosition[]=[]) {
-        if(Utils.matchFirstChar(message, this._config.doNotShow)) return
-        Utils.cleanText(message, hasBits, true, clearRanges, false).then(cleanText => {
-            if(cleanText.length == 0) return console.warn("Pipe: Clean text had zero length, skipping")
+    async sendBasic(
+        message: string, 
+        displayName: string = '',
+        textColor: string|undefined = undefined,
+        profileUrl: string|undefined = undefined, 
+        messageData: ITwitchMessageData|undefined = undefined
+    ) {
+        // Skip if supposed to be skipped
+        if(Utils.matchFirstChar(message, this._config.doNotShow)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
+        const hasBits = (messageData?.bits ?? 0) > 0
+        const cleanText = await Utils.cleanText(
+            message, 
+            hasBits, 
+            true, 
+            TwitchFactory.getEmotePositions(messageData?.emotes ?? []),
+            false
+        )
+        // TODO: Maybe we should also skip if there are only punctuation?
+        if(cleanText.length == 0) return console.warn("Pipe: Clean text had zero length, skipping")
+
+        // Build message
+        let done = false
+        const imageDataUrl = profileUrl != undefined
+            ? await ImageLoader.getDataUrl(profileUrl, true)
+            : null
+        const preset = Object.assign({}, Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null)
+        if(
+            Config.pipe.useCustomChatNotification
+            && preset?.imagePath != undefined // Background image
+        ) { // Custom notification
+            
+            // Setup
+            const imageEditor = new ImageEditor()
+            const loaded = await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
+            
+            if(loaded) {
+                // Avatar
+                if(imageDataUrl != null) {
+                    await imageEditor.drawImage(imageDataUrl, Config.pipe.customChatAvatarConfig)
+                }
+                
+                // Name
+                const nameFontConfig = Object.assign({}, Config.pipe.customChatNameConfig.font)
+                if(nameFontConfig.color == undefined) nameFontConfig.color = textColor ?? Color.White
+                if(displayName.length > 0) {
+                    await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
+                }
+
+                // Message
+                const customMessageData: ITwitchMessageData = messageData ?? {text: message, bits: 0, isAction: false, emotes: []}
+                await imageEditor.drawTwitchText(customMessageData, Config.pipe.customChatMessageConfig.rect, Config.pipe.customChatMessageConfig.font)
+
+                // Show it
+                const messageDataUrl = imageEditor.getData()
+                preset.imageData = messageDataUrl
+                preset.imagePath = undefined
+                this.showPreset(preset)
+                done = true
+            }
+        } 
+        
+        if(!done) { // SteamVR notification
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
-            if(image != null) {
+            if(imageDataUrl != null) {
                 this._socket.send(JSON.stringify({
                     title: "",
                     message: text,
-                    image: image
+                    image: Utils.removeImageHeader(imageDataUrl)
                 }))
             } else {
                 this._socket.send(JSON.stringify({
@@ -40,7 +112,7 @@ class Pipe {
                     message: text,
                 }))
             }
-        })
+        }
     }
 
     sendCustom(message:IPipeCustomMessage) {
