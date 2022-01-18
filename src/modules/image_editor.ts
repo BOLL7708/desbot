@@ -42,11 +42,47 @@ class ImageEditor {
 
     async drawImage(
         imageData: string, 
-        rect: IImageEditorRect
+        rect: IImageEditorRect,
+        radius: number = 0,
+        borderWidth: number = 0,
+        borderColor: string = Color.Black
     ): Promise<boolean> {
         const img: HTMLImageElement = await Utils.makeImage(imageData)
         if(img == null) return false
-        this._ctx.drawImage(img, rect.x, rect.y, rect.w, rect.h)
+        this._ctx.save()
+        const x = rect.x + borderWidth
+        const y = rect.y + borderWidth
+        const w = rect.w - borderWidth*2
+        const h = rect.h - borderWidth*2
+        this._ctx.beginPath()
+        if(radius > 0) { // Will use quadratic corners at a radius
+            this._ctx.moveTo(x+radius, y);
+            this._ctx.lineTo(x+w-radius, y);
+            this._ctx.quadraticCurveTo(x+w, y, x+w, y+radius);
+            this._ctx.lineTo(x+w, y+h-radius);
+            this._ctx.quadraticCurveTo(x+w, y+h, x+w-radius, y+h);
+            this._ctx.lineTo(x+radius, y+h);
+            this._ctx.quadraticCurveTo(x, y+h, x, y+h-radius);
+            this._ctx.lineTo(x, y+radius);
+            this._ctx.quadraticCurveTo(x, y, x+radius, y);            
+        } else if (radius < 0) { // Will make it an ellipse
+            this._ctx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, 2 * Math.PI)
+        } else { // Rectangle
+            this._ctx.rect(x, y, w, h)
+        }
+        this._ctx.closePath()
+        if(borderWidth > 0) { // Outline
+            this._ctx.strokeStyle = borderColor
+            this._ctx.lineWidth = borderWidth*2
+            this._ctx.stroke()
+            this._ctx.globalCompositeOperation = 'destination-out'
+            this._ctx.fillStyle = Color.Black
+            this._ctx.fill()
+            this._ctx.globalCompositeOperation = 'source-over'
+        }
+        this._ctx.clip()
+        this._ctx.drawImage(img, x, y, w, h)
+        this._ctx.restore()
         return true
     }
 
