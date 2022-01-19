@@ -572,6 +572,9 @@ Config.twitch = { // Various Twitch services, like chat and rewards.
         [GamesTemplate.HALFLIFE_ALYX]: GamePresetsTemplate.REWARDS_EXAMPLE1
     },
 
+    turnOnRewardForGames: {},
+    turnOffRewardForGames: {},
+
     // Rewards that are game specific, will be disabled if no config is available
     gameSpecificRewards: [ 
         KeysTemplate.KEY_GAME_EXAMPLE1,

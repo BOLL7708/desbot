@@ -20,6 +20,8 @@ interface ITwitchConfig {
     rewardConfigs: { [key: string]: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[] }
     rewardConfigProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
     rewardConfigProfileNoGame: { [key: string]: boolean }
+    turnOnRewardForGames: { [key: string]: string[] } // Turn on awards depending on if a game is running, else off
+    turnOffRewardForGames: { [key: string]: string[] } // Turn off awards depending on if a game is running, else on
     gameSpecificRewards: string[]
     gameSpecificRewardsPerGame: { [key: string]: { [key: string]: ITwitchHelixRewardUpdate } }
     channelTrophyUniqueNumbers: IChannelTrophyFunnyNumberTexts

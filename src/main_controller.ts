@@ -94,7 +94,6 @@ class MainController {
                 }
             }
         }
-        
 
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
@@ -1281,6 +1280,20 @@ class MainController {
             const allGameRewardKeys = Config.twitch.gameSpecificRewards
             const gameSpecificRewards = Config.twitch.gameSpecificRewardsPerGame[appId]
             const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+
+            /**
+             * Toggle individual rewards on/off depending on the app ID
+             */
+            for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
+                const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
+                Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
+                this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) != -1})
+            }
+            for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
+                const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
+                Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
+                this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
+            }
 
             // Update rewards
 
