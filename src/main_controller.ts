@@ -95,6 +95,7 @@ class MainController {
             }
         }
 
+        // Toggle TTS rewards
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
@@ -202,6 +203,7 @@ class MainController {
                 }
             }
         })
+        // TODO: Change this into an auto-reward with a screenshot callback for SSSVR and OBS?
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_INSTANTSCREENSHOT),
             callback: async (data:ITwitchRedemptionMessage) => {
