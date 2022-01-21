@@ -6,34 +6,39 @@ class LogWriter {
         Settings.pushLabel(Settings.LOG_OUTPUT, '')
         this.override()
     }
+	
+	private _types: string[] = [
+		'assert',
+		'debug',
+		'dir',
+		'error',
+		'info',
+		'log',
+		'trace',
+		'warn'
+	]
 
     override() {
         const oldConsole = window.console
         const consoleClone = Object.assign({}, oldConsole)
 
-        // Overrides
-        consoleClone.log = function(...data:any) {
-            LogWriter.buildAndWriteLog('', ...data)
-            oldConsole.log(...data)
+        // Override standard calls
+        for(const key of this._types) {
+            consoleClone[key] = function(...data:any) {
+                LogWriter.buildAndWriteLog(`<span>key</span>: `, ...data)
+                oldConsole[key](...data)
+            }
         }
-        consoleClone.info = function(...data:any) {
-            LogWriter.buildAndWriteLog('', ...data)
-            oldConsole.info(...data)
-        }
-        consoleClone.warn = function(...data:any) {
-            LogWriter.buildAndWriteLog(
-                '<span style="color: #5F6368; background-color: #FFFBE5;">&nbsp;WARN&nbsp;</span>: ',
-                 ...data
-            )
-            oldConsole.warn(...data)
-        }
-        consoleClone.error = function(...data:any) {
-            LogWriter.buildAndWriteLog(
-                '<span style="color: #FF0000; background-color: #FFF0F0;">&nbsp;ERROR&nbsp;</span>: ',
-                ...data
-            )
-            oldConsole.error(...data)
-        }
+
+        /*
+		TODO: Special handling:
+			dir
+			group
+			groupCollapsed
+			groupEnd
+			table?
+			
+		*/
         window.console = consoleClone;
     }
 

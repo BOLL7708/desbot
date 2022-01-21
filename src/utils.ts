@@ -16,9 +16,14 @@ class Utils {
     }
 
     static cleanName(name:string):string {
+        // Split on _ and keep the longest word
         let nameArr = name.toLowerCase().split('_') // Split on _
         let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b) // Reduce to longest word
-        namePart = namePart.replace(/[0-9]{2,}/g, '') // Replace big number groups (len: 2+)
+        
+        // Remove big number groups (len: 2+)
+        namePart = namePart.replace(/[0-9]{2,}/g, '') 
+        
+        // Replace single digits with letters
         let numToChar:any = {
             0: 'o',
             1: 'i',
@@ -29,30 +34,38 @@ class Utils {
             8: 'b'
         }
         var re = new RegExp(Object.keys(numToChar).join("|"),"gi");
-        let result = namePart.replace(re, function(matched){ // Replace leet speak with chars
+        let result = namePart.replace(re, function(matched){
             return numToChar[matched];
         });
-        return result.length > 0 ? result : name // If name ended up empty, return original
+
+        // If name ended up empty, return the original name
+        return result.length > 0 ? result : name
     }
 
     static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false, clearRanges:ITwitchEmotePosition[]=[], cleanTags:boolean=true):Promise<string> {
         if(!keepCase) text = text.toLowerCase()
 
+        // Remove Twitch emojis
         if(clearRanges.length > 0) clearRanges.forEach(range => {
             const charArr = [...text]
             text = charArr.slice(0, range.start).join('') + charArr.slice(range.end+1).join('');
             console.log(text)
         })
         
+        // Clear bit emojis
         if(clearBits) {
             let bitMatches = text.match(/(\S+\d+)+/g) // Find all [word][number] references to clear out bit emotes
             if(bitMatches != null) bitMatches.forEach(match => text = text.replace(match, ' '))
         }
 
+        // Reduce XXXXXX to XX
         let repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
         if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        
+        // Replace numbers of more than 7 digits to just big number.
         text = text.replace(/(\d){7,}/g, '"big number"') // 7+ len group of any mixed digits
 
+        // Detect name tags and replace them with their clean name
         let tagMatches = text.match(/(@\w+)+/g) // Matches every whole word starting with @
         if(tagMatches != null) { // Remove @ and clean
             for(let i=0; i<tagMatches.length; i++) {

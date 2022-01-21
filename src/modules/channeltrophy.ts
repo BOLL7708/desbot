@@ -256,8 +256,8 @@ class ChannelTrophy {
 		// List funny numbers here that we should give attention
 	}
 	
-	static detectFunnyNumber(n: number, userId: number = -1):IChannelTrophyFunnyNumber|null {
-        const result:IChannelTrophyFunnyNumber = {
+	static detectFunnyNumber(n: number, userId: number = -1): IChannelTrophyFunnyNumber|null {
+        const result: IChannelTrophyFunnyNumber = {
             number: n,
             speech: '',
             label: '',
@@ -288,6 +288,9 @@ class ChannelTrophy {
 		} else if(n>10 && checkMonoDigit(n)) { // Monodigit
             result.speech = `${nameForTTS} a monodigit trophy, number ${n}`
             result.label = `🦄 Monodigit: ${nameForDiscord}`
+        } else if(n>1000 && checkPairs(n)) {
+            result.speech = `${nameForTTS} a duodigit trophy, number ${n}`
+            result.label = `🐮 Pairs: ${nameForDiscord}`
         } else if(n>100 && start == end) { // Palindromic
             result.speech = `${nameForTTS} a palindromic trophy, number ${n}`
             result.label = `🦆 Palindromic: ${nameForDiscord}`
@@ -320,6 +323,12 @@ class ChannelTrophy {
 			const filteredNum = num.toString().split('').filter(d => d == numStr[0])
 			return filteredNum.length == numStr.length
 		}
+
+        function checkPairs( num: number ): boolean {
+            const numStr = num.toString()
+            const match = numStr.match(/^([0-9]{2})(\1+)$/)
+            return match != null
+        }
 		
 		function checkBinary( num: number ): boolean {
 			return parseInt(
@@ -374,9 +383,18 @@ class ChannelTrophy {
 	}
 }
 
+/**
+ * Channel Trophy numbers that are in addition to the pattern matched ones.
+ */
 interface IChannelTrophyFunnyNumberTexts {
     [key:number]: {
+        /**
+         * The first %s will be akin to "Grabbed by [name]" and the second %s the number of the trophy.
+         */
         speech: string
+        /**
+         * The %s is "[name] (number)"
+         */
         label: string
     }
 }
