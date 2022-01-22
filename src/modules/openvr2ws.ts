@@ -107,7 +107,7 @@ class OpenVR2WS {
                 message.value3 = 'worldScale'
                 message.value4 = config.value.toString()
                 this.sendMessage(message)
-                message.value4 = (1).toString() // Reset to 100%
+                message.value4 = (config.resetToValue ?? 1).toString() // Reset to 100%
                 this._resetTimers[config.type] = duration
                 this._resetMessages[config.type] = duration > 0 ? message : undefined
                 break
@@ -115,7 +115,7 @@ class OpenVR2WS {
                 message.value3 = 'analogGain'
                 message.value4 = config.value.toString()
                 this.sendMessage(message)
-                message.value4 = (1.30).toString() // Reset to 130%
+                message.value4 = (config.resetToValue ?? 1.30).toString() // Reset to 130%
                 this._resetTimers[config.type] = duration
                 this._resetMessages[config.type] = duration > 0 ? message : undefined
                 break
@@ -123,7 +123,7 @@ class OpenVR2WS {
                 message.value3 = 'preferredRefreshRate'
                 message.value4 = config.value.toString()
                 this.sendMessage(message)
-                message.value4 = (120).toString() // Reset to 120 Hz
+                message.value4 = (config.resetToValue ?? 120).toString() // Reset to 120 Hz
                 this._resetTimers[config.type] = duration
                 this._resetMessages[config.type] = duration > 0 ? message : undefined
                 break;

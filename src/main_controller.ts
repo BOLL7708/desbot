@@ -53,7 +53,7 @@ class MainController {
         this._pipe.setOverlayTitle("Streaming Widget")
 
         function setEmptySoundForTTS() {
-            const audio = this._pingForChat ? Config.audioplayer.configs[Keys.KEY_SOUND_CHAT] : null           
+            const audio = this._pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
             this._tts.setEmptyMessageSound(audio)
         }
 
@@ -117,7 +117,6 @@ class MainController {
         ...##......##.....####..
         ...##......##........##.
         ...##......##.....####..
-        ........................
         */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAK),
@@ -181,7 +180,6 @@ class MainController {
         ..####...##......#####...####....####....##.###...####...######..##..##....##.....####..
         .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
-        ........................................................................................
         */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_SCREENSHOT),
@@ -225,7 +223,6 @@ class MainController {
         ...##....#####...##..##..#####...######....##...
         ...##....##..##..##..##..##......##..##....##...
         ...##....##..##...####...##......##..##....##...
-        ................................................
         */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
@@ -287,7 +284,6 @@ class MainController {
         .##..##..##.###..##......##..##..##......####...
         .##..##..##..##..##......##..##..##..##..##.##..
         ..####...##..##..######...####....####...##..##.
-        ................................................
         */
         this._twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER),
@@ -314,7 +310,6 @@ class MainController {
         .######..##..##....##....##..##..######..#####...####....##.#.##..######..#####...##..##...####..
         .##..##..##..##....##....##..##..........##..##..##......#######..##..##..##..##..##..##......##.
         .##..##...####.....##.....####...........##..##..######...##.##...##..##..##..##..#####....####..
-        .................................................................................................
         */
         for(const key of Config.twitch.autoRewards) {
             const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
@@ -393,7 +388,6 @@ class MainController {
         ...##......##.....####..
         ...##......##........##.
         ...##......##.....####..
-        ........................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_ON,
@@ -464,38 +458,40 @@ class MainController {
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_MUTE,
-            callback: (userData, input) => {
+            callback: async (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length > 0 && name != Config.twitch.chatbotName.toLowerCase()) {
                     let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
-                    Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
-                    Utils.loadCleanName(name).then(cleanName => {
-                        const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
-                        this._tts.enqueueSpeakSentence(Utils.template(speech, cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    })
+                    const blacklist: IBlacklistEntry = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name)
+                    const cleanName = await Utils.loadCleanName(name)                       
+                    const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
+                    if(blacklist == null || blacklist.active == false) {
+                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    } else {
+                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    }                    
                 }
             }
         })
 
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_UNMUTE,
-            callback: (userData, input) => {
+            callback: async (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length == 0) return
-                Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name).then(blacklist => {
-                    Utils.loadCleanName(name).then(cleanName => {
-                        const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_UNMUTE]
-                        if(blacklist != null && blacklist.active) {
-                            const reason = Utils.cleanSetting(parts[1] ?? '')
-                            Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                            this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                        } else {
-                            this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                        }
-                    })
-                })
+                const blacklist: IBlacklistEntry = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name)
+                const cleanName = await Utils.loadCleanName(name)
+                const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_UNMUTE]
+                if(blacklist != null && blacklist.active) {
+                    const reason = Utils.cleanSetting(parts[1] ?? '')
+                    Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                } else {
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                }
             }
         })
 
@@ -505,7 +501,6 @@ class MainController {
         .##......######..######....##...
         .##..##..##..##..##..##....##...
         ..####...##..##..##..##....##...
-        ................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT,
@@ -558,7 +553,6 @@ class MainController {
         .##......##..##..##.###.
         .##......##..##..##..##.
         .######...####....####..
-        ........................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_ON,
@@ -584,7 +578,6 @@ class MainController {
         .##......######..##.#.##.
         .##..##..##..##..##...##.
         ..####...##..##..##...##.
-        .........................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_CAMERA_ON,
@@ -612,7 +605,6 @@ class MainController {
         ..####...##......######..##......####...
         .....##..##..##..##..##..##......##.....
         ..####....####...##..##..######..######.
-        ........................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SCALE,
@@ -683,7 +675,6 @@ class MainController {
         ..####.....##....####....######..##.#.##..##..##..#####..
         .....##....##....##......##..##..##...##...####...##..##.
         ..####.....##....######..##..##..##...##....##....##..##.
-        .........................................................
         */
         this._twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
             trigger: Keys.COMMAND_BRIGHTNESS,
@@ -735,7 +726,6 @@ class MainController {
         .##..##....##....##........##......##....##..##..##.###..######..#####.....##...
         .##..##....##....##..##....##......##....##..##..##..##..##..##..##..##....##...
         .#####...######...####.....##....######...####...##..##..##..##..##..##....##...
-        ................................................................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_DICTIONARY,
@@ -760,7 +750,6 @@ class MainController {
         .#####...####....##.#.##..######..#####...##..##...####..
         .##..##..##......#######..##..##..##..##..##..##......##.
         .##..##..######...##.##...##..##..##..##..#####....####..
-        .........................................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_UPDATEREWARDS,
@@ -811,7 +800,6 @@ class MainController {
         ...##....####....##.#.##..#####..
         ...##....##......##...##..##.....
         ...##....######..##...##..##.....
-        .................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_SOURCESCREENSHOT,
@@ -839,7 +827,6 @@ class MainController {
         ..####.....##.....####.....##....####....##.#.##.
         .....##....##........##....##....##......##...##.
         ..####.....##.....####.....##....######..##...##.
-        .................................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_RELOADWIDGET,
@@ -955,7 +942,6 @@ class MainController {
         .#####...##..##..#####...##........##....##.....
         .##......##..##..##..##..##........##....##..##.
         .##.......####...#####...######..######...####..
-        ................................................
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_GAME,
@@ -1031,10 +1017,10 @@ class MainController {
             } else if(this._ttsEnabledUsers.indexOf(userData.userName) > -1) {
                 // Reward users
                 this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
-            } else if(this._pingForChat && Config.twitch.chatNotificationSound != null) {
+            } else if(this._pingForChat && Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] != null) {
                 // Chat sound
-                const soundEffect = Config.audioplayer.configs[Config.twitch.chatNotificationSound]
-                if(!Utils.matchFirstChar(messageData.text, Config.google.doNotSpeak)) this._tts.enqueueSoundEffect(soundEffect)
+                const soundEffect = Config.audioplayer.configs[Keys.KEY_MIXED_CHAT]
+                if(!Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) this._tts.enqueueSoundEffect(soundEffect)
             }
 
             // Pipe to VR (basic)
@@ -1402,14 +1388,6 @@ class MainController {
         if(config) return (message: ITwitchRedemptionMessage) => {
             console.log("OBS Reward triggered")
             _this._obs.show(config)
-            if(config.notificationImage != undefined && config.notificationConfig != undefined) {
-                const pipe: Pipe = _this._pipe;
-                pipe.showPreset({
-                    imagePath: config.notificationImage,
-                    durationMs: config.durationMs,
-                    config: config.notificationConfig
-                })
-            }
         } 
         else return null
     }

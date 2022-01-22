@@ -46,8 +46,6 @@ class Utils {
                 }
             }
         }
-    
-        $configOverride = $_REQUEST['config'] ?? null;
 
         // Manual includes from the root
         includeFile($root, 'utils.js');
@@ -77,6 +75,7 @@ class Utils {
         }
 
         // Load any config override specified in the URL
+        $configOverride = $_REQUEST['config'] ?? null;
         $overrideSymbol = $config->overrideConfigSymbol;
         if($configOverride != null) includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
     }

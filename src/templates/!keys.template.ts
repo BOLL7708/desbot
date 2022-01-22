@@ -1,6 +1,30 @@
-// Apply your changes, reference these in your config.base.ts
+/**
+ * !Keys
+ * 
+ * This file exists to provide static references for commands and rewards that
+ * are used throughout the system for triggering things.
+ * 
+ * It's important to _NOT_ remove any keys from the Default section, but you can
+ * edit them or in the case of commands put in an empty string to disable them.
+ */
 class KeysTemplate {
-    // Command references, to disable a command set it to an empty string: ''
+    /*
+    .########..########.########....###....##.....##.##.......########
+    .##.....##.##.......##.........##.##...##.....##.##..........##...
+    .##.....##.##.......##........##...##..##.....##.##..........##...
+    .##.....##.######...######...##.....##.##.....##.##..........##...
+    .##.....##.##.......##.......#########.##.....##.##..........##...
+    .##.....##.##.......##.......##.....##.##.....##.##..........##...
+    .########..########.##.......##.....##..#######..########....##...
+    */
+
+    /*
+    ..####....####...##...##..##...##...####...##..##..#####....####..
+    .##..##..##..##..###.###..###.###..##..##..###.##..##..##..##.....
+    .##......##..##..##.#.##..##.#.##..######..##.###..##..##...####..
+    .##..##..##..##..##...##..##...##..##..##..##..##..##..##......##.
+    ..####....####...##...##..##...##..##..##..##..##..#####....####..
+    */
     static readonly COMMAND_TTS_ON: string = 'ttson'
     static readonly COMMAND_TTS_OFF: string = 'ttsoff'
     static readonly COMMAND_TTS_SILENCE: string = 'silence'
@@ -33,23 +57,15 @@ class KeysTemplate {
     static readonly COMMAND_REFRESHRATE: string = 'hz'
     static readonly COMMAND_BRIGHTNESS: string = 'lux'
     static readonly COMMAND_VRVIEWEYE: string = 'eye'
-    
-    // Discord
-    static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
-    static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
-
-    // Static audio
-    static readonly KEY_SOUND_CHAT: string = 'ChatSound'
-
-    // Pipe
-    static readonly KEY_PIPE_CHAT: string = 'ChatPipe'
-
-    // Callback keys
-    static readonly KEY_CALLBACK_APPID: string = 'CallbackAppID'
-
-    // Static rewards
+   
+    /*
+    .#####...######..##...##...####...#####...#####....####..
+    .##..##..##......##...##..##..##..##..##..##..##..##.....
+    .#####...####....##.#.##..######..#####...##..##...####..
+    .##..##..##......#######..##..##..##..##..##..##......##.
+    .##..##..######...##.##...##..##..##..##..#####....####..
+    */
     static readonly KEY_TTSSPEAK: string = 'Speak'
-    static readonly KEY_TTSSPEAKTIME: string = 'SpeakTime'
     static readonly KEY_TTSSETVOICE: string = 'SetVoice'
     static readonly KEY_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
     static readonly KEY_SCREENSHOT: string = 'Screenshot'
@@ -57,22 +73,39 @@ class KeysTemplate {
     static readonly KEY_CHANNELTROPHY: string = 'ChannelTrophy'
     static readonly KEY_UNLOCKREWARDTIMER: string = 'UnlockRewardTimer'
 
-    // Automatically loaded rewards
-    static readonly KEY_OBS_EXAMPLE1: string = 'ObsExample1'
-    static readonly KEY_OBS_EXAMPLE2: string = 'ObsExample2'
-    static readonly KEY_OBS_EXAMPLE3: string = 'ObsExample3'
-    static readonly KEY_COLOR_EXAMPLE1: string = 'ColorExample1'
-    static readonly KEY_COLOR_EXAMPLE2: string = 'ColorExample2'
-    static readonly KEY_PLUG_EXAMPLE1: string = 'PlugExample1'
-    static readonly KEY_SOUND_EXAMPLE1: string = 'SoundExample1'
-    static readonly KEY_SOUND_EXAMPLE2: string = 'SoundExample2'
-    static readonly KEY_PIPE_EXAMPLE1: string = 'PipeExample1'
-    static readonly KEY_SETTING_EXAMPLE1: string = 'SettingExample1'
-    static readonly KEY_SETTING_EXAMPLE2: string = 'SettingExample2'
-    static readonly KEY_GAME_EXAMPLE1: string = 'GameExample1'
-    static readonly KEY_GAME_EXAMPLE2: string = 'GameExample2'
-    static readonly KEY_WEB_EXAMPLE1: string = 'WebExample1'
+    /*
+    ..####...######..##..##..######..#####..
+    .##..##....##....##..##..##......##..##.
+    .##..##....##....######..####....#####..
+    .##..##....##....##..##..##......##..##.
+    ..####.....##....##..##..######..##..##.
+    */
+    
+    // Discord
+    static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
+    static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
 
-    // Message triggers used for TTS and audio referencing
-    static readonly KEY_ANNOUNCE_EXAMPLE: string = '❓' // Any character, word or emote you want to match
+    // Chat (sound, pipe, text, more?)
+    static readonly KEY_MIXED_CHAT: string = 'EverythingChat'
+
+    // Callback keys
+    static readonly KEY_CALLBACK_APPID: string = 'CallbackAppID'
+
+    /*
+    ..######..##.....##..######..########..#######..##.....##
+    .##....##.##.....##.##....##....##....##.....##.###...###
+    .##.......##.....##.##..........##....##.....##.####.####
+    .##.......##.....##..######.....##....##.....##.##.###.##
+    .##.......##.....##.......##....##....##.....##.##.....##
+    .##....##.##.....##.##....##....##....##.....##.##.....##
+    ..######...#######...######.....##.....#######..##.....##
+    */
+
+    /*
+     * Use this area to add your own keys for rewards you want.
+     * The same key is used to set various configs to be used.
+     * Mimic what you see above in the Rewards section.
+     */
+    
+    // static readonly KEY_YOURREWARD: string = 'YourRewardUniqueIdentifier'
 }

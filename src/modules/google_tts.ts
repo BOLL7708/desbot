@@ -5,7 +5,6 @@ class GoogleTTS {
     static get TYPE_CHEER() { return 3 } // [name] cheered: [text]
 
     // TODO: Split this up into a TTS master class, and separate voice integrations.
-    private _config: IGoogleConfig = Config.google;
     private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
     private _audio: AudioPlayer = new AudioPlayer()
     private _voices: IGoogleVoice[] = [] // Cache
@@ -140,7 +139,7 @@ class GoogleTTS {
         if(blacklist != null && blacklist.active) return
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
         if(input.trim().length == 0) return this.enqueueEmptyMessageSound(serial)
-        if(Utils.matchFirstChar(input, this._config.doNotSpeak)) return // Will not even make empty message sound, so secret!
+        if(Utils.matchFirstChar(input, Config.controller.secretChatSymbols)) return // Will not even make empty message sound, so secret!
 
         const sentence = {text: input, userName: userName, type: type, meta: meta}      
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${Config.credentials.GoogleTTSApiKey}`
@@ -164,14 +163,15 @@ class GoogleTTS {
             return
         }
         
-        if(useDictionary) cleanText = this.applyDictionary(cleanText)
+        if(useDictionary && type != GoogleTTS.TYPE_ANNOUNCEMENT) cleanText = this.applyDictionary(cleanText)
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
+                const speech = Config.controller.speechReferences[Keys.KEY_MIXED_CHAT] ?? '%s said: %s'
                 cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
                     ? cleanText 
-                    : `${cleanName} said: ${cleanText}`
+                    : Utils.template(speech, cleanName, cleanText)
                 break
             case GoogleTTS.TYPE_ACTION: 
                 cleanText = `${cleanName} ${cleanText}`
@@ -296,7 +296,7 @@ class GoogleTTS {
                 if(voices != null) {
                     voices = voices.filter(voice => voice.name.indexOf('Wavenet') > -1)
                     this._voices = voices
-                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0))
+                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(Config.google.randomizeVoiceLanguageFilter) == 0))
                     voices.forEach(voice => {
                         voice.languageCodes.forEach(code => {
                             code = code.toLowerCase()
@@ -312,11 +312,11 @@ class GoogleTTS {
 
     private async getDefaultVoice(userName:string):Promise<IUserVoice> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == this._config.defaultVoice)
+        let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == Config.google.defaultVoice)
         let randomVoice:IGoogleVoice = this._randomVoices.length > 0
             ? this._randomVoices[Math.floor(Math.random()*this._randomVoices.length)]
             : null
-        return this._config.randomizeVoice && randomVoice != null
+        return Config.google.randomizeVoice && randomVoice != null
             ? this.buildVoice(userName, randomVoice) 
             : this.buildVoice(userName, defaultVoice)
     }

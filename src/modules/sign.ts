@@ -24,7 +24,7 @@ class Sign {
         div.style.position = 'absolute'
         div.style[this._config.direction] = this._hiddenPos // Hidden
         div.style.opacity = '0' // Hidden
-        div.style.transition = `${this._config.direction} ${this._config.transitionDuration}ms, opacity ${this._config.transitionDuration}ms`
+        div.style.transition = `${this._config.direction} ${this._config.transitionDurationMs}ms, opacity ${this._config.transitionDurationMs}ms`
         div.style.fontFamily = this._config.fontFamily
         div.style.color = this._config.fontColor
         div.style.fontSize = this._config.fontSize
@@ -88,8 +88,8 @@ class Sign {
                 this._div.style.opacity = '0.0'
                 setTimeout(()=>{ // Wait for the animation back to finish
                     this._isVisible = false
-                }, this._config.transitionDuration)
-            }, config.durationMs+this._config.transitionDuration)
+                }, this._config.transitionDurationMs)
+            }, config.durationMs+this._config.transitionDurationMs)
         }
         this._img.onerror = ()=>{
             this._isVisible = false

@@ -205,9 +205,9 @@ class Utils {
     }
 
     static template(text: string|string[], ...values):string {
-        if(Array.isArray(text)) text = text.shift()
+        if(Array.isArray(text)) text = Utils.randomFromArray(text)
         return text.replace(/\%s/g, function(_) {
-            return values.shift()
+            return values.shift() ?? ''
         })
     }
 

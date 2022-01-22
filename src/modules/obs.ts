@@ -110,7 +110,7 @@ class OBS {
         this._socket.send(this.buildRequest("TakeSourceScreenshot", id, {
             "sourceName": this._config.sourceScreenshotConfig.sourceName,
             "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
-            "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}${user}.png`
+            "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}${user}.${this._config.sourceScreenshotConfig.embedPictureFormat}`
         }));
     }
 

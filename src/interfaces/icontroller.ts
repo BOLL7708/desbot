@@ -1,36 +1,148 @@
-// Config
+/**
+ * These are the settings for `MainController`, the main class that connects all the different modules together.
+ */
 interface IControllerConfig {
+    /**
+     * Default settings for controller functions.
+     */
     defaults: IControllerDefaults
+
+    /**
+     * Overrides settings for the controller functions based on the current game.
+     */
     gameDefaults: { [key: string]: IControllerDefaults }
+
+    /**
+     * Turn WebSockets intergrations entirely on or off
+     */
     websocketsUsed: {
+        /**
+         * Twitch Chat connection, for chat messages.
+         */
         twitchChat: boolean
+        /**
+         * Twitch PubSub connection, for reward redemptions and other channel events.
+         */
         twitchPubsub: boolean
+        /**
+         * OpenVR2WS connection, to change SteamVR settings and get SteamVR running app ID.
+         */
         openvr2ws: boolean
+        /**
+         * OpenVRNotificationPipe connection, to display messages and graphics as SteamVR overlays.
+         */
         pipe: boolean
+        /**
+         * OBS Studio connection, to toggle sources and filters.
+         */
         obs: boolean
+        /**
+         * SuperScreenShotterVR connection, to take and receive SteamVR screenshots.
+         */
         screenshots: boolean
     }
+    
+    /**
+     * A reference so a command can trigger things that would be in an automatic reward.
+     */
     commandReferences: { [key: string]: string }
+    
+    /**
+     * The default permissions for all commands, see overrides below.
+     */
     commandPermissionsDefault: ICommandPermissions
+    
+    /**
+     * This is where you can have deviating permissions per command so you steer access individually,
+     * see defaults above.
+     */
     commandPermissionsOverrides: { [key: string]: ICommandPermissions }
+
+    /**
+     * These are texts spoken by the TTS for various commands and other events.
+     * - The fixed section contains arrays that _needs_ a specific number of items in each.
+     * - The dynamic section contains single strings that can be replaced with arrays for random selection or for incrementing rewards.
+     * - %s is a templated value, those gets replaced by parameters like names and numbers.
+     */
     speechReferences: { [key: string]: string|string[] }
+
+    /**
+     * References between static and automatic rewards.
+     */
     rewardReferences: { [key: string]: string }
+
+    /**
+     * As Twitch category can be automatically matched, this is the one used when there is no match.
+     */
     defaultTwitchGameCategory: string
+
+    /**
+     * For reward with an array of configs, this will reset them to 0 when the widget reloads.
+     */
     resetIncrementingRewardsOnLoad: string[]
-    saveConsoleOutputToSettings: boolean // Save console output to a file in _settings, overwritten every session.
+
+    /**
+     * Console output will also be written to a file in the _settings folder.
+     * It buffers the output and writes it every 10 seconds.
+     */
+    saveConsoleOutputToSettings: boolean
+
+    /**
+     * Messages that start with any of these symbols will not be spoken or piped into VR.
+     */
+    secretChatSymbols: string[] 
 }
 
 interface IControllerDefaults {
+    /**
+     * Turn this on to get chat messages as notifications in SteamVR.
+     */
     pipeAllChat?: boolean
+
+    /**
+     * Turn this on to get messages from chat read out loud.
+     */
     ttsForAll?: boolean
+
+    /**
+     * Turn this on to play an audio notification for chat messages if TTS is also off or the message otherwise silent.
+     * 
+     * For this to work an audio config is necessary: `Config.audioplayer.configs[Keys.KEY_SOUND_CHAT]`
+     */
     pingForChat?: boolean
+
+    /**
+     * This pipes chat messages to a Discord webhook for logging purposes.
+     * 
+     * For this to work a Discord webhook address is required in: `Config.credentials.DiscordWebHooks[Keys.KEY_DISCORD_CHAT]`
+     */
     logChatToDiscord?: boolean
+
+    /**
+     * This will activate game specific rewards if they are available, otherwise those will be disabled.
+     */
     useGameSpecificRewards?: boolean
+
+    /**
+     * This will attempt to match the game title from Steam with one on Twitch and set the Twich game category on game change.
+     */
     updateTwitchGameCategory?: boolean
 }
 
+/**
+ * Reference data about a screenshot that is cached from triggering it until it is completed.
+ */
 interface IScreenshotRequestData {
+    /**
+     * Which user ID for the person triggering the screenshot.
+     */
     userId: number
+    /**
+     * Twitch username for the person triggering the screenshot.
+     */
     userName: string
+    /**
+     * Any description attached to the screenshot redemption.
+     */
     userInput: string
 }

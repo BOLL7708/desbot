@@ -4,7 +4,6 @@ interface IGoogleConfig {
     randomizeVoice: boolean
     randomizeVoiceLanguageFilter: string
     defaultVoice: string
-    doNotSpeak: string[] // Sentences starting with any of these symbols will be skipped and not spoken by the TTS.
     speakingRateOverride: number|undefined // 1.0 = 100%, Normally speech is faster the longer it is, this sets it to one fixed speed.
     skipSaid: boolean // Will skip the 'user' and 'said' text in "[user] said [text]" so it's only the clean text.
 }

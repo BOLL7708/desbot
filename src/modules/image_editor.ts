@@ -105,7 +105,7 @@ class ImageEditor {
         // Outlines (under fill text)
         if(font.outlines != undefined) {
             for(const outline of font.outlines) {
-                this._ctx.lineWidth = outline.width
+                this._ctx.lineWidth = outline.width*2 // Only half will be visible.
                 this._ctx.strokeStyle = outline.color
                 this._ctx.strokeText(text, rect.x, rect.y + rect.h)
             }
@@ -208,7 +208,7 @@ class ImageEditor {
                 // Outlines (under fill text)
                 if(font.outlines != undefined) {
                     for(const outline of font.outlines) {
-                        this._ctx.lineWidth = outline.width
+                        this._ctx.lineWidth = outline.width*2 // Only half will be visible.
                         this._ctx.strokeStyle = outline.color
                         this._ctx.strokeText(wordToWrite, rect.x, rect.y + rect.h)
                     }

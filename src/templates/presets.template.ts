@@ -1,106 +1,57 @@
-// Override presets for the default controller options
+/*
+ * This is a premade file with examples of how to make preset objects.
+ * It is useful if you want to reuse the same config values in multiple places.
+ * 
+ * You can create any additional container for presets here, and the name and contents is up to you.
+ * The ones provided are examples that were deemed useful.
+ */
+
+/** 
+ * Override presets for the default controller options per game, usage:
+ * ```
+ * Config.controller.gameDefaults: {
+ *     [Games.YOUR_GAME]: ControllerPresets.YOUR_PRESET
+ * }
+ * ```
+ */ 
 class ControllerPresetsTemplate {
-    static NO_CHAT: IControllerDefaults = {
-        pipeAllChat: false
-    }
-    static NO_TTS: IControllerDefaults = {
-        ttsForAll: false
-    }
+    // static YOUR_PRESET: IControllerDefaults = { ttsForAll: false }
 }
 
-// Reward presets that are toggled on game changes
+/** 
+ *  Reward presets that are toggled on game changes, usage:
+ *  ```
+ *     Config.twitch.rewardConfigProfilePerGame: {
+ *         [Games.YOUR_GAME]: GamePresets.YOUR_PRESET
+ *     }
+ * ```
+ */
 class GamePresetsTemplate {
+    /*
     static REWARDS_EXAMPLE1: ITwitchRewardProfileConfig = {
-        [KeysTemplate.KEY_SETTING_EXAMPLE1]: false,
-        [KeysTemplate.KEY_SETTING_EXAMPLE2]: false
+        [KeysTemplate.KEY_YOURREWARD]: false
     }
+    */
 }
 
-// Pipe presets
+/**
+ * Pipe presets, big configs used for the notification pipe, usage:
+ * ```
+ *     Config.pipe.configs: {
+ *         [Keys.KEY_YOURREWARD]: {
+ *             {
+ *                 imagePath: ['_assets/yourimage.png'],
+ *                 durationMs: 5000,
+ *                 config: PipePresets.YOUR_PRESET
+ *             }
+ *         }
+ *     }
+ * ```
+ * The values for these configs are best made with the example page you can open
+ * through the application itself, click the `Example` link in OpenVRNotificationPipe.
+ */ 
 class PipePresetsTemplate {
-    static PIPE_DOT: IPipeCustomMessage = {
-        custom: true,
-        properties: {
-            headset: true,
-            horizontal: true,
-            level: false,
-            channel: 100,
-            width: 0.025,
-            distance: 0.25,
-            pitch: -30, 
-            yaw: -30,
-            offsetx: 0,
-            offsety: 0
-        },
-        transitions: [],
-        textAreas: []
-    }
-    static PIPE_DROP: IPipeCustomMessage = {
-        custom: true,
-        properties: {
-            headset: false,
-            horizontal: true,
-            level: true,
-            channel: 200,
-            width: 2,
-            distance: 2,
-            pitch: 0, 
-            yaw: 0,
-            offsetx: 0,
-            offsety: 0
-        },
-        transitions: [
-            {
-                scale: 0,
-                opacity: 0,
-                vertical: 3,
-                distance: 0,
-                horizontal: 0,
-                spin: 0,
-                tween: 7,
-                duration: 300
-            },
-            {
-                scale: 0,
-                opacity: 0,
-                vertical: -3,
-                distance: 0,
-                horizontal: 0,
-                spin: 0,
-                tween: 6,
-                duration: 500
-            }
-        ],
-        textAreas: []
-    }
-
-    static PIPE_CHAT: IPipeCustomMessage = {
-        custom: true,
-        properties: {
-            headset: false,
-            horizontal: true,
-            level: false,
-            channel: 10,
-            width: 0.5,
-            distance: 0.75,
-            pitch: -30,
-            yaw: 0,
-            offsetx: 0,
-            offsety: 0
-        },
-        transitions: [{
-            scale: 1,
-            opacity: 0,
-            horizontal: 0,
-            vertical: -1,
-            distance: 0,
-            spin: 0,
-            tween: 3,
-            duration: 100
-        }],
-        textAreas: []
-    }
-
+    /*
     static PIPE_DEFAULT: IPipeCustomMessage = {
         custom: true,
         properties: {
@@ -151,4 +102,5 @@ class PipePresetsTemplate {
             }
         ]
     }
+    */
 }

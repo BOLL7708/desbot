@@ -1,23 +1,56 @@
-// Config
+/**
+ * Control Philips Hue lights or sockets
+ */
 interface IPhilipsHueConfig {
+    /**
+     * Local IP address of the Philips Hue bridge, start with the protocol: `http://`
+     */
     serverPath: string
+    /**
+     * The light numbers of all the lights you want to control.
+     */
     lightsIds: number[]
+    /**
+     * Light settings for automatic rewards to use when redeemed, keyed on `Keys.*`.
+     */
     lightConfigs: { [key:string]: IPhilipsHueColorConfig }
+    /**
+     * Plug settings for automatic rewards to use when redeemed, keyed on `Keys.*`.
+     */
     plugConfigs: { [key:string]: IPhilipsHuePlugConfig }
 }
+
+/**
+ * Color config using the XY color space.
+ * 
+ * This can be retrieved from Philips Hue API after setting the color of the lights manually.
+ * TODO: Add a function to get this through a chat command?
+ */
 interface IPhilipsHueColorConfig {
     x: number
     y: number
 }
-interface IPhilipsHueLightConfig {
-    id: number // Id from the Philips Hue bridge
-    rgb: boolean
-}
+
+/**
+ * Configuration for a Philips Hue plug.
+ */
 interface IPhilipsHuePlugConfig {
-    id: number // Id from the Philips Hue bridge
-    originalState: boolean // What it is reset to
-    triggerState: boolean // What it is set to when triggered
-    duration?: number // Will switch back to original state if supplied
+    /**
+     * Id from the Philips Hue bridge
+     */
+    id: number
+    /**
+     * What it is reset to
+     */
+    originalState: boolean
+    /**
+     * What it is set to when triggered
+     */
+    triggerState: boolean
+    /**
+     * Optional: Will switch back to original state if supplied
+     */
+    duration?: number
 }
 
 // Response
@@ -48,7 +81,7 @@ interface IPhilipsHueLight {
     capabilities: IPhilipsHueLightCapabilities
     
 }
- interface IPhilipsHueLightCapabilities {
+interface IPhilipsHueLightCapabilities {
     certified: boolean,
     control: IPhilipsHueLightCapabilitiesControl
     streaming: IPhilipsHueLightCapabilitiesStreaming

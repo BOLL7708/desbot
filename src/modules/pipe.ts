@@ -1,8 +1,7 @@
 class Pipe {
     private _socket:WebSockets
-    private _config:IPipeConfig = Config.pipe
     constructor() {
-        this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
+        this._socket = new WebSockets(`ws://localhost:${Config.pipe.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
     }
@@ -45,7 +44,7 @@ class Pipe {
         messageData: ITwitchMessageData|undefined = undefined
     ) {
         // Skip if supposed to be skipped
-        if(Utils.matchFirstChar(message, this._config.doNotShow)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
+        if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
         const cleanText = await Utils.cleanText(
             message, 
@@ -62,7 +61,7 @@ class Pipe {
         const imageDataUrl = profileUrl != undefined
             ? await ImageLoader.getDataUrl(profileUrl, true)
             : null
-        const preset = Object.assign({}, Config.pipe.configs[Keys.KEY_PIPE_CHAT] ?? null)
+        const preset = Object.assign({}, Config.pipe.configs[Keys.KEY_MIXED_CHAT] ?? null)
         if(
             Config.pipe.useCustomChatNotification
             && preset?.imagePath != undefined // Background image
