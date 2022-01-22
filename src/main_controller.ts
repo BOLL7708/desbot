@@ -97,7 +97,6 @@ class MainController {
 
         // Toggle TTS rewards
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
-        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: !this._ttsForAll})
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
 
         // Enable default rewards
@@ -131,22 +130,6 @@ class MainController {
                         GoogleTTS.TYPE_SAID
                     )
                 }
-            }
-        })
-        this._twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME),
-            callback: (data:ITwitchRedemptionMessage) => {
-                Utils.log("TTS Time Reward", Color.DarkOrange)
-                const username = data?.redemption?.user?.login
-                if(username != null && username.length != 0 && this._ttsEnabledUsers.indexOf(username) < 0) {
-                    this._ttsEnabledUsers.push(username)
-                    Utils.log(`User added to TTS list: ${username}`, Color.DarkOrange)
-                }
-                setTimeout(()=>{
-                    const index = this._ttsEnabledUsers.indexOf(username)
-                    const removed = this._ttsEnabledUsers.splice(index)
-                    Utils.log(`User removed from TTS list: ${removed}`, Color.DarkOrange)
-                }, 10*60*1000)
             }
         })
         this._twitch.registerReward({
@@ -397,7 +380,6 @@ class MainController {
                 this._ttsForAll = true
                 this._tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: false})
-                this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: false})
             }
         })
 
@@ -409,7 +391,6 @@ class MainController {
                 this._ttsForAll = false
                 this._tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: true})
-                this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAKTIME), {is_enabled: true})
             }
         })
 
