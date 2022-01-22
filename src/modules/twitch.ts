@@ -74,7 +74,7 @@ class Twitch{
         this._allRewardsCallback(message)
         let reward = this._rewards.find(reward => id == reward.id)
         if(reward != null) reward.callback(message)
-        else console.warn(`Reward not found: ${id}`)
+        else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
     }
 
     private onChatMessage(messageCmd: ITwitchMessageCmd) {
