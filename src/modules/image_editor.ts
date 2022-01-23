@@ -44,37 +44,33 @@ class ImageEditor {
         imageData: string, 
         rect: IImageEditorRect,
         radius: number = 0,
-        borderWidth: number = 0,
-        borderColor: string = Color.Black
+        outlines: IImageEditorOutline[] = []
     ): Promise<boolean> {
         const img: HTMLImageElement = await Utils.makeImage(imageData)
         if(img == null) return false
+
+        const maxBorderWidth = outlines.reduce((a,b)=>a.width>b.width?a:b).width ?? 0;
         this._ctx.save()
-        const x = rect.x + borderWidth
-        const y = rect.y + borderWidth
-        const w = rect.w - borderWidth*2
-        const h = rect.h - borderWidth*2
+        const x = rect.x + maxBorderWidth
+        const y = rect.y + maxBorderWidth
+        const w = rect.w - maxBorderWidth*2
+        const h = rect.h - maxBorderWidth*2
         this._ctx.beginPath()
         if(radius > 0) { // Will use quadratic corners at a radius
-            this._ctx.moveTo(x+radius, y);
-            this._ctx.lineTo(x+w-radius, y);
-            this._ctx.quadraticCurveTo(x+w, y, x+w, y+radius);
-            this._ctx.lineTo(x+w, y+h-radius);
-            this._ctx.quadraticCurveTo(x+w, y+h, x+w-radius, y+h);
-            this._ctx.lineTo(x+radius, y+h);
-            this._ctx.quadraticCurveTo(x, y+h, x, y+h-radius);
-            this._ctx.lineTo(x, y+radius);
-            this._ctx.quadraticCurveTo(x, y, x+radius, y);            
+            this.drawRoundedRectangle(this._ctx, {x, y, w, h}, radius)
         } else if (radius < 0) { // Will make it an ellipse
             this._ctx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, 2 * Math.PI)
         } else { // Rectangle
             this._ctx.rect(x, y, w, h)
         }
         this._ctx.closePath()
-        if(borderWidth > 0) { // Outline
-            this._ctx.strokeStyle = borderColor
-            this._ctx.lineWidth = borderWidth*2
-            this._ctx.stroke()
+        if(maxBorderWidth > 0) { // Outline
+            for(const outline of outlines) {
+                this._ctx.strokeStyle = outline.color
+                this._ctx.lineWidth = outline.width*2
+                this._ctx.stroke()                
+            }
+
             this._ctx.globalCompositeOperation = 'destination-out'
             this._ctx.fillStyle = Color.Black
             this._ctx.fill()
@@ -93,7 +89,9 @@ class ImageEditor {
     ) {
         // Setup
         this._ctx.textBaseline = 'bottom'
-        this._ctx.font = `${font.size}px ${font.family}`
+        const weight = font.weight ?? 'normal'
+        const fontStyle = `${weight} ${font.size}px ${font.family}`
+        this._ctx.font = fontStyle
         this._ctx.fillStyle = font.color ?? 'white'
 
         // Init text vars
@@ -131,7 +129,9 @@ class ImageEditor {
     ) {
         // Setup
         this._ctx.textBaseline = 'bottom'
-        this._ctx.font = `${font.size}px ${font.family}`
+        const weight = font.weight ?? 'normal'
+        const fontStyle = `${weight} ${font.size}px ${font.family}`
+        this._ctx.font = fontStyle
         this._ctx.fillStyle = font.color ?? 'white'
         
         // Init text vars
@@ -221,5 +221,17 @@ class ImageEditor {
             }
             if(outOfSpace) break // We can't fit any more
         }
+    }
+
+    private drawRoundedRectangle(context: CanvasRenderingContext2D, rect: IImageEditorRect, cornerRadius: number) {
+        context.moveTo(rect.x + cornerRadius, rect.y)
+        context.lineTo(rect.x + rect.w - cornerRadius, rect.y)
+        context.quadraticCurveTo(rect.x + rect.w, rect.y, rect.x + rect.w, rect.y + cornerRadius)
+        context.lineTo(rect.x + rect.w, rect.y + rect.h - cornerRadius)
+        context.quadraticCurveTo(rect.x + rect.w, rect.y + rect.h, rect.x + rect.w - cornerRadius, rect.y + rect.h)
+        context.lineTo(rect.x + cornerRadius, rect.y + rect.h)
+        context.quadraticCurveTo(rect.x, rect.y + rect.h, rect.x, rect.y + rect.h - cornerRadius)
+        context.lineTo(rect.x, rect.y + cornerRadius)
+        context.quadraticCurveTo(rect.x, rect.y, rect.x + cornerRadius, rect.y)
     }
 }

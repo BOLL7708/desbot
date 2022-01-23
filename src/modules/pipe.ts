@@ -39,7 +39,7 @@ class Pipe {
     async sendBasic(
         message: string, 
         displayName: string = '',
-        textColor: string|undefined = undefined,
+        userColor: string|undefined = undefined,
         profileUrl: string|undefined = undefined, 
         messageData: ITwitchMessageData|undefined = undefined
     ) {
@@ -74,12 +74,25 @@ class Pipe {
             if(loaded) {
                 // Avatar
                 if(imageDataUrl != null) {
-                    await imageEditor.drawImage(imageDataUrl, Config.pipe.customChatAvatarConfig)
+                    // Replace undefined colors in outlines with user color or default
+                    const avatarConfig = Object.assign({}, Config.pipe.customChatAvatarConfig)
+                    for(const outlineIndex in avatarConfig.outlines) {
+                        if(avatarConfig.outlines[outlineIndex].color == undefined) {
+                            avatarConfig.outlines[outlineIndex].color = userColor ?? Color.White
+                        }
+                    }
+                    // Draw image
+                    await imageEditor.drawImage(
+                        imageDataUrl, 
+                        avatarConfig.rect, 
+                        avatarConfig.cornerRadius, 
+                        avatarConfig.outlines
+                    )
                 }
                 
                 // Name
                 const nameFontConfig = Object.assign({}, Config.pipe.customChatNameConfig.font)
-                if(nameFontConfig.color == undefined) nameFontConfig.color = textColor ?? Color.White
+                if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
                 if(displayName.length > 0) {
                     await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
                 }

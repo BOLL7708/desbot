@@ -735,13 +735,13 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_UPDATEREWARDS,
             callback: async (userData, input) => {
-                // TODO: This needs to reset incremental rewards as they are reset by the update unless filtered out.
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
                     const configArrOrNot = Config.twitch.rewardConfigs[pair.key]
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
-                    if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) < 0) {
+                    if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) == -1) {
+                        // TODO: This needs to also reset incremental reward counters as the rewards are reset by the update.
                         const response = await this._twitchHelix.updateReward(pair.id, config)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id

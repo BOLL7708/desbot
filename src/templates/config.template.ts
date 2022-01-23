@@ -250,7 +250,10 @@ Config.pipe = <IPipeConfig> {
             { color: 'black', width: 4 }
         ] }
     },
-    customChatAvatarConfig: { x: 0, y: 0, w: 100, h: 100 }
+    customChatAvatarConfig: {
+        cornerRadius: 0,
+        rect: { x: 0, y: 0, w: 100, h: 100 }
+    }
 }
 
 

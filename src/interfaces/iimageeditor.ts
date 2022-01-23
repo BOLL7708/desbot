@@ -45,26 +45,30 @@ interface IImageEditorFontSettings {
      */
     size: number
     /**
-     * An HTML color, can be a text representation or a hex value.
+     * Optional: An HTML color, can be a text representation or a hex value, defaults to white.
      */
     color?: string
+    /**
+     * Optional: Canvas font weight, defaults to `normal`, can have values like `bold` or `300`.
+     */
+    weight?: string
     /**
      * Optional text outlines. 
      * 
      * The outlines are drawn in the order they are in the array, so the second item is drawn on top of the first item.
      */
-    outlines?: IImageEditorFontOutline[]
+    outlines?: IImageEditorOutline[]
     /**
      * Line spacing as a percentage of the font size. 1.0 = 100%
      */
     lineSpacing?: number
 }
 
-interface IImageEditorFontOutline {
+interface IImageEditorOutline {
     /**
-     * An HTML color, can be a text representation or a hex value.
+     * A HTML color, can be a text representation or a hex value.
      */
-    color: string
+    color: string|undefined
     /**
      * The width of the outline in pixels.
      */

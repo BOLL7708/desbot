@@ -39,11 +39,11 @@ interface IPipeConfig {
      */
     customChatNameConfig: IPipeCustomMessageConfig
     /**
-     * The placement settings for the custom chat notification avatar image.
+     * The settings for the custom chat notification avatar image.
      * 
      * Will not be drawn if the image could not be loaded.
      */
-    customChatAvatarConfig: IImageEditorRect // TODO: Update with more formatting later
+    customChatAvatarConfig: IPipeCustomMessageAvatarConfig
 }
 interface IPipeMessagePreset {
     imagePath?: string|string[]
@@ -62,18 +62,45 @@ interface IPipeCustomMessageConfig {
      */
     font: IImageEditorFontSettings
 }
-
+interface IPipeCustomMessageAvatarConfig {
+    /**
+     * The corner radius of the user avatar.
+     * - -1 = Circle.
+     * - 0 = Square.
+     * - \>0 = Pixel radius of the rounded corner.
+     */
+    cornerRadius: number
+    /**
+     * The position and size of the box we draw the avatar in.
+     */
+    rect: IImageEditorRect
+    /**
+     * Optional: Outline settings for the avatar. 
+     * 
+     * If a color is undefined it will be replaced by the user color or if not available, default to white.
+     */
+    outlines?: IImageEditorOutline[]
+}
 // Data
 
 /**
  * This is what is sent to the Pipe application
  */
 interface IPipeCustomMessage {
-    image?: string // In this solution we set the image from the preset
+    /**
+     * Optional: In this solution we set the image from the preset so this is not needed in the payload.
+     */
+    image?: string
     custom: boolean
     properties: IPipeCustomProperties
-    transitions: IPipeCustomTransition[] // Include one transition object for same in/out, two for different in/out
-    textAreas: IPipeCustomTextArea[] // Define any number of text areas to be displayed
+    /**
+     * Include one transition object for same in/out, two for different in/out.
+     */
+    transitions: IPipeCustomTransition[]
+    /**
+     * Define any number of text areas to be displayed on the image.
+     */
+    textAreas: IPipeCustomTextArea[]
 }
 
 /**
