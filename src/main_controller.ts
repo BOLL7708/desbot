@@ -173,13 +173,13 @@ class MainController {
                 this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
                     if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
-                        this._screenshots.sendScreenshotRequest(data, Config.screenshots.delay)
+                        this._screenshots.sendScreenshotRequest(data, Config.screenshots.delayOnDescription)
                     } else {
                         setTimeout(async ()=>{
                             const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
                             const requestData:IScreenshotRequestData = { userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                             this._obs.takeSourceScreenshot(requestData)
-                        }, Config.screenshots.delay*1000)
+                        }, Config.screenshots.delayOnDescription*1000)
                     }    
                 }
             }
@@ -302,7 +302,7 @@ class MainController {
             const pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.pipe.configs[key])
             const openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
             const signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
-            const runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.run[key])
+            const runCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildRunCallback(this, Config.run.configs[key])
             const webCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildWebCallback(this, Config.web.configs[key])
 
             const reward:ITwitchReward = {
@@ -735,6 +735,7 @@ class MainController {
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_UPDATEREWARDS,
             callback: async (userData, input) => {
+                // TODO: This needs to reset incremental rewards as they are reset by the update unless filtered out.
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
@@ -794,7 +795,7 @@ class MainController {
                         setTimeout(()=>{
                             const requestData:IScreenshotRequestData = { userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
                             this._obs.takeSourceScreenshot(requestData)
-                        }, Config.screenshots.delay*1000)
+                        }, Config.screenshots.delayOnDescription*1000)
                     }
                 } else {
                     this._obs.takeSourceScreenshot({ userId: parseInt(userData.userId), userName: userData.userName, userInput: '' })
@@ -960,7 +961,6 @@ class MainController {
         .##....##.##.....##.##.......##.......##.....##.##.....##.##....##.##...##..##....##
         ..######..##.....##.########.########.########..##.....##..######..##....##..######.
         */
-
         this._twitch.registerAnnouncement({
             userName: Config.twitch.announcerName.toLowerCase(),
             triggers: Config.twitch.announcerTriggers,
@@ -1101,7 +1101,9 @@ class MainController {
                 const description = requestData.userInput
                 const authorUrl = `https://twitch.tv/${userData.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
-                const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
+                const color = Utils.hexToDecColor(
+                    TwitchFactory.userColors[requestData.userId] ?? Config.discord.remoteScreenshotEmbedColor
+                )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
                     : Config.screenshots.callback.discordRewardInstantTitle
@@ -1147,7 +1149,9 @@ class MainController {
                 const description = requestData.userInput
                 const authorUrl = `https://twitch.tv/${userData.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
-                const color = Utils.hexToDecColor(Config.discord.remoteScreenshotEmbedColor)
+                const color = Utils.hexToDecColor(
+                    TwitchFactory.userColors[requestData.userId] ?? Config.discord.remoteScreenshotEmbedColor
+                )
                 const descriptionText = description?.trim().length > 0
                 ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
                 : Config.obs.sourceScreenshotConfig.discordDescription

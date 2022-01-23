@@ -36,8 +36,6 @@ Config.credentials = <ICredentialsConfig> {
 .##....##.##.....##.##...###....##....##....##..##.....##.##.......##.......##.......##....##.
 ..######...#######..##....##....##....##.....##..#######..########.########.########.##.....##
 */
-// You can add other config files named config.[something].ts and load one of these using a URL param:
-// index.php?config=[something] and it will be overriding things in your main config.
 Config.controller = <IControllerConfig> { // Set defaults for the widget
     defaults: {
         pipeAllChat: true,
@@ -174,11 +172,11 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
 .##....##..##.....##.##.....##.##....##..##.......##......
 ..######....#######...#######...######...########.########
 */
-Config.google = <IGoogleConfig> { // TTS
+Config.google = <IGoogleConfig> {
     speakerTimeoutMs: 5000,
     randomizeVoice: false,
-    randomizeVoiceLanguageFilter: 'en-', // Matches from the first character and onward, can be extended with regional setting.
-    defaultVoice: '', // This will be used if randomization is turned off.
+    randomizeVoiceLanguageFilter: 'en-',
+    defaultVoice: '',
     speakingRateOverride: undefined,
     skipSaid: false
 },
@@ -225,7 +223,7 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
 .##.........##..##........##......
 .##........####.##........########
 */
-Config.pipe = <IPipeConfig> { // In-VR-overlays and notifications with OpenVRNotificationPipe
+Config.pipe = <IPipeConfig> {
     port: 8077,
     showRewardsWithKeys: [
         KeysTemplate.KEY_TTSSPEAK,
@@ -265,9 +263,9 @@ Config.pipe = <IPipeConfig> { // In-VR-overlays and notifications with OpenVRNot
 .##....##.##....##.##....##..##.......##.......##...###.##....##.##.....##.##.....##....##...
 ..######...######..##.....##.########.########.##....##..######..##.....##..#######.....##...
 */
-Config.screenshots = <IScreenshotConfig> { // Trigger and transmit screenshots with SuperScreenShotterVR.
-    port: 8807,
-    delay: 5,
+Config.screenshots = <IScreenshotConfig> {
+    SSSVRPort: 8807,
+    delayOnDescription: 5,
     callback: {
         discordManualTitle: 'Manual Screenshot',
         discordRewardTitle: 'Photograph: %s', // Template value is the reward description
@@ -287,7 +285,7 @@ Config.screenshots = <IScreenshotConfig> { // Trigger and transmit screenshots w
 .##.....##..##..##....##.##....##.##.....##.##....##..##.....##
 .########..####..######...######...#######..##.....##.########.
 */
-Config.discord = <IDiscordConfig> { // Send things to Discord
+Config.discord = <IDiscordConfig> {
     remoteScreenshotEmbedColor: '#000000',
     manualScreenshotEmbedColor: '#FFFFFF',
     prefixCheer: '🙌 ',
@@ -356,7 +354,7 @@ Config.openvr2ws = <IOpenVR2WSConfig> {
 Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
     configs: {
         /*
-        [KeysTemplate.KEY_SOUND_CHAT]: {
+        [KeysTemplate.KEY_MIXED_CHAT]: {
             src: '_assets/your_chat_sound.wav',
             volume: 0.5
         },
@@ -379,8 +377,8 @@ Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
 .##....##..##..##....##..##...###
 ..######..####..######...##....##
 */
-Config.sign = <ISignConfig> { // Show on-screen notification with title+image+subtitle
-    enabled: false,
+Config.sign = <ISignConfig> {
+    enabled: true,
     width: 200,
     height: 300,
     transitionDurationMs: 500,
@@ -403,8 +401,25 @@ Config.sign = <ISignConfig> { // Show on-screen notification with title+image+su
 .##.....##..#######..##....##
 */
 Config.run = <IRunConfig> {
-    configs: {},
-    gameSpecificConfigs: {}
+    configs: {
+        /*
+        [Keys.KEY_YOURREWARD]: {
+            window: 'Your Game Window Title',
+            commands: [{command: 'AutoIt button {F1} written text'}, {command: 'Other button {F2} other written text'}],
+            postfixEnterStroke: false
+        }
+        */
+    },
+    gameSpecificConfigs: {
+        /*
+        [Games.YOUR_GAME]: {
+            [Keys.KEY_YOURGAMEREWARD]: {
+                window: 'Your Game Window Title',
+                commands: [{command: 'AutoIt button {F1} written text'}, {command: 'Other button {F2} other written text'}]
+            }
+        }
+        */
+    }
 }
 
 /*

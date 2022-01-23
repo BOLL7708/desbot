@@ -5,7 +5,7 @@ class Screenshots {
     private _messageCallback: IScreenshotCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
     constructor() {
         let config:IScreenshotConfig = Config.screenshots
-        this._socket = new WebSockets(`ws://localhost:${config.port}`, 10, true)
+        this._socket = new WebSockets(`ws://localhost:${config.SSSVRPort}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
     }

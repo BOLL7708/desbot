@@ -1,4 +1,6 @@
-// Config
+/**
+ * In-VR-overlays and notifications with [OpenVRNotificationPipe](https://github.com/BOLL7708/OpenVRNotificationPipe)
+ */
 interface IPipeConfig {
     /**
      * The port number set in OpenVRNotificationPipe.

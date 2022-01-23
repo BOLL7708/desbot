@@ -22,6 +22,8 @@ If $count == 2 Then
 		SendKeepActive($window)
 		Send($command)
 		SendKeepActive("")
+	Else
+		MsgBox(48, "Window not found!", "Title: " & $window & @CRLF & "Command: " & $command)
 	EndIf
 
 	; Set focus back to previous window

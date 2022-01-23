@@ -95,7 +95,7 @@ class ImageEditor {
         this._ctx.textBaseline = 'bottom'
         this._ctx.font = `${font.size}px ${font.family}`
         this._ctx.fillStyle = font.color ?? 'white'
-0
+
         // Init text vars
         text = text.split('\n').join(' ')
         while(text.length > 1 && this._ctx.measureText(text).width > rect.w) {

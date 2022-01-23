@@ -1,7 +1,33 @@
+/**
+ * Settings for sending things to Discord channels.
+ */
 interface IDiscordConfig {
+    /**
+     * Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.
+     * 
+     * Note: This has to be a hex color to work with Discord.
+     */
     remoteScreenshotEmbedColor: string
+    
+    /**
+     * Embed highlight color for manual screenshots.
+     * 
+     * Note: This has to be a hex color to work with Discord.
+     */
     manualScreenshotEmbedColor: string
+    
+    /**
+     * Prefix added to cheer messages in the log.
+     * 
+     * Note: This prefix should include a trailing space if you want air between the prefix and the message.
+     */
     prefixCheer: string
+    
+    /**
+     * Prefix added to reward messages in the log.
+     * 
+     * Note: This prefix should include a trailing space if you want air between the prefix and the message.
+     */
     prefixReward: string
 }
 interface IDiscordWebhookConfig {
