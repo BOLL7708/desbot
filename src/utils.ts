@@ -58,8 +58,11 @@ class Utils {
             if(bitMatches != null) bitMatches.forEach(match => text = text.replace(match, ' '))
         }
 
+		// Replace more than one period with ellipsis, or else TTS will say "dot" from ".." due to the repeat fix below.
+		text = text.replace(/([\.]{2,})/g, '…')
+
         // Reduce XXXXXX to XX
-        let repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
+        const repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
         if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
         
         // Replace numbers of more than 7 digits to just big number.
