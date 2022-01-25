@@ -29,6 +29,7 @@ class Utils {
         }
     
         // Scan root for subfolders except configs and templates
+        // TODO: Files appears to load in the opposite order sometimes, load them out and sort them manually.
         $root = './dist/';
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {

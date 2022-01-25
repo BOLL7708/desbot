@@ -89,12 +89,16 @@ interface IPipeCustomMessageAvatarConfig {
 interface IPipeCustomMessage {
     /**
      * Optional: In this solution we set the image from the preset so this is not needed in the payload.
+     * 
+     * See more in {@link IPipeCustomProperties}
      */
     image?: string
     custom: boolean
     properties: IPipeCustomProperties
     /**
      * Include one transition object for same in/out, two for different in/out.
+     * 
+     * See more in {@link IPipeCustomTransition}
      */
     transitions: IPipeCustomTransition[]
     /**
@@ -108,7 +112,7 @@ interface IPipeCustomMessage {
  */
 interface IPipeCustomProperties {
     /**
-     * Attach the notification tothe headset
+     * Attach the notification to the headset
      */
     headset: boolean
 

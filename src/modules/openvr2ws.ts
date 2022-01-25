@@ -3,6 +3,7 @@ class OpenVR2WS {
     static get TYPE_BRIGHTNESS() { return 2 }
     static get TYPE_REFRESHRATE() { return 3 }
     static get TYPE_VRVIEWEYE() { return 4 }
+    static get TYPE_LEFTTHUMBSTICKROTATION() { return 5 }
 
     private _socket: WebSockets
     private _resetLoopHandle: number = 0
@@ -50,6 +51,7 @@ class OpenVR2WS {
     }
 
     public sendMessage(message: IOpenVRWSCommandMessage) {
+        console.log(JSON.stringify(message))
         this._socket.send(JSON.stringify(message));
     }
 
@@ -132,15 +134,30 @@ class OpenVR2WS {
                 message.value4 = config.value.toString()
                 this.sendMessage(message)
                 break;
+            case OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION:
+                message.value2 = 'input'
+                message.value3 = 'leftThumbstickRotation_knuckles'
+                message.value4 = '180'
+                this.sendMessage(message)
+                message.value4 = (config.resetToValue ?? 0).toString() // Reset to 0°
+                this._resetTimers[config.type] = duration
+                this._resetMessages[config.type] = duration > 0 ? message : undefined
+                break;
         }
     }
 
     public resetSettings() {
+        // TODO: Also trigger some callback so we can play a sound effect?
+        // TODO: Make this more generic so we can reset all settings automatically.
         this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE]--
         if(this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE] == 0) {
             const message = this._resetMessages[OpenVR2WS.TYPE_WORLDSCALE]
             if(message != undefined) this.sendMessage(message)
-            // TODO: Also trigger some callback so we can play a sound effect?
+        }
+        this._resetTimers[OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION]--
+        if(this._resetTimers[OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION] == 0) {
+            const message = this._resetMessages[OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION]
+            if(message != undefined) this.sendMessage(message)
         }
     }
 }

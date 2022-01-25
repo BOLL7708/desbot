@@ -53,6 +53,7 @@ class OBS {
 		}
     }
 
+    // TODO: Add support for an array of configs to toggle many things at once
     show(config: IObsSourceConfig, ignoreDuration: boolean = false) {
         if(config.sceneNames != undefined) {
             config.sceneNames.forEach(sceneName => {
