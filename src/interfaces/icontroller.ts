@@ -91,6 +91,59 @@ interface IControllerConfig {
      * Messages that start with any of these symbols will not be spoken or piped into VR.
      */
     secretChatSymbols: string[] 
+
+    /**
+     * This is the settings for the Channel Trophy, a reward that a viewer can claim until someone else grabs it.
+     * 
+     * The reward will get the name of the previous redeemer, both in the title and in the prompt.
+     * 
+     * Note: The key for the channel trophy, {@link Keys}.CHANNEL_TROPHY, is also used for:
+     * - The reward config in {@link Config.twitch.rewardConfigs}.
+     * - A sound effect in {@link Config.audioplayer.configs}.
+     * - A Sign pop-in in {@link Config.sign.configs}.
+     * 
+     * These can be left out which means they just won't be used.
+     */
+    channelTrophySettings: {
+        /**
+         * The label that is written to disk, this is a templated value.
+         * 
+         * The first `%s` becomes the trophy number, the second `%s` is the name of the redeemer.
+         */
+        label: string
+        /**
+         * The reward title that is used for the reward after it has been redeemed, this is a templated value.
+         * 
+         * The `%s` is the name of the redeemer.
+         */
+        rewardTitle: string
+        /**
+         * The reward prompt that is used for the reward after it has been redeemed, this is a templated value.
+         * 
+         * The first `%s` is the name of the redeemer, the second `%s` is the existing reward prompt in {@link Config.twitch.rewardConfigs}.
+         */
+        rewardPrompt: string
+        /**
+         * The reward gets a longer cooldown with time, this is a multiplier that can be used to change it.
+         * 
+         * Formula: `[REWARD_COOLDOWN] + Math.round( Math.log( NEW_REWARD_COST ) * [THIS_VALUE] )`
+         */
+        rewardCooldownMultiplier: number
+        /**
+         * Mention pattern matched rewards when they are redeemed.
+         */
+        ttsOn: boolean
+        /**
+         * This is the name string used when mentioning it, it's a templated value.
+         * 
+         * The `%s` is the name of the redeemer, prefix an `@` to trigger name replacement.
+         */
+        ttsName: string
+        /**
+         * If your trophy is not really a trophy, give it a name here and that is what will be spoken on special numbers.
+         */
+        ttsTrophy: string
+    }
 }
 
 interface IControllerDefaults {

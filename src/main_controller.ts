@@ -219,7 +219,7 @@ class MainController {
                 Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
 
                 const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))
-                if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, 'red')
+                if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
                 const signCallback = this.buildSignCallback(this, Config.sign.configs[Keys.KEY_CHANNELTROPHY])
@@ -235,29 +235,34 @@ class MainController {
                     
                     // Do TTS
                     const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
-                    if(funnyNumberConfig != null) this._tts.enqueueSpeakSentence(Utils.template(funnyNumberConfig.speech, user.login), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-
+                    if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
+                        this._tts.enqueueSpeakSentence(
+                            Utils.template(funnyNumberConfig.speech, user.login), 
+                            Config.twitch.chatbotName, 
+                            GoogleTTS.TYPE_ANNOUNCEMENT
+                        )
+                    }
                     // Update label in overlay
-                    Settings.pushLabel(Settings.CHANNEL_TROPHY_LABEL, `🏆 Channel Trophy #${cost}\n${user.display_name}`)
+                    Settings.pushLabel(
+                        Settings.CHANNEL_TROPHY_LABEL, 
+                        Utils.template(Config.controller.channelTrophySettings.label, cost, user.display_name)
+                    )
                     
                     // Update reward
                     const configArrOrNot = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
-                        let titleArr = config.title.split(' ')
-                        titleArr.pop()
-                        titleArr.push(`${user.display_name}!`)
                         const newCost = cost+1;
                         const updatedReward = await this._twitchHelix.updateReward(rewardId, {
-                            title: titleArr.join(' '),
+                            title: Utils.template(Config.controller.channelTrophySettings.rewardTitle, user.display_name),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
-                            global_cooldown_seconds: config.global_cooldown_seconds+Math.round(Math.log(newCost)*30),
-                            prompt: `Currently held by ${user.display_name}! ${config.prompt}`
+                            global_cooldown_seconds: config.global_cooldown_seconds+Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
+                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt)
                         })
-                        if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, 'red')
-                    } else Utils.log(`Channel Trophy redeemed, but no config found.`, 'red')
-                } else Utils.log(`Could not retrieve Reward Data for reward: ${Keys.KEY_CHANNELTROPHY}`, 'red')
+                        if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
+                    } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)
+                } else Utils.log(`Could not retrieve Reward Data for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
             }
         })
 

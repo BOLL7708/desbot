@@ -160,7 +160,16 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         // KeysTemplate.KEY_YOURREWARD
     ],
     saveConsoleOutputToSettings: false,
-    secretChatSymbols: ['!']
+    secretChatSymbols: ['!'],
+    channelTrophySettings: {
+        label: '🏆 Channel Trophy #%s\n%s',
+        rewardTitle: '🏆 Held by %s!',
+        rewardPrompt: 'Currently held by %s! %s',
+        rewardCooldownMultiplier: 30,
+        ttsOn: true,
+        ttsName: '@%s grabbed',
+        ttsTrophy: 'trophy'
+    }
 }
 
 /*
@@ -503,7 +512,17 @@ Config.twitch = <ITwitchConfig> {
             cost: 10,
             prompt: 'Immediately trigger a screenshot.',
             background_color: '#808080'
-        }
+        },
+        [Keys.KEY_CHANNELTROPHY]: {
+            title: '🏆 Held by nobody!',
+            cost: 1,
+            prompt: 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!',
+            background_color: '#000000',
+            is_max_per_stream_enabled: true,
+            max_per_stream: 10000,
+            is_global_cooldown_enabled: true,
+            global_cooldown_seconds: 15
+        },
 
         /*
         ..####...##..##...####...######...####...##...##.

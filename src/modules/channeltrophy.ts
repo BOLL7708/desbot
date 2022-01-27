@@ -266,11 +266,12 @@ class ChannelTrophy {
         // if(n < 10) return null
 
         const nameForDiscord = `%s (**${n}**)`
-        const nameForTTS = '@%s grabbed'
+        const nameForTTS = Config.controller.channelTrophySettings.ttsName
         const nStr = n.toString()
+        const trophyName = Config.controller.channelTrophySettings.ttsTrophy
         
-        const start = nStr.substr(0, Math.floor(nStr.length/2))
-        const end = nStr.substr(Math.ceil(nStr.length/2)).split('').reverse().join('')       
+        const start = nStr.substring(0, Math.floor(nStr.length/2))
+        const end = nStr.substring(Math.ceil(nStr.length/2)).split('').reverse().join('')       
         
 		// Not sure if this actually works, but let's hope so.
 		const uniqueNumbers = Config.twitch.channelTrophyUniqueNumbers
@@ -280,40 +281,40 @@ class ChannelTrophy {
 			result.speech = Utils.template(uniqueNumbers[n].speech, nameForTTS, n)
 			result.label = Utils.template(uniqueNumbers[n].label, nameForDiscord)
 		} else if(checkBinary(n)) { // Power of two / binary
-			result.speech = `${nameForTTS} a power of two trophy, number ${n}`
+			result.speech = `${nameForTTS} a power of two ${trophyName}, number ${n}`
             result.label = `🎣 Power of two: ${nameForDiscord}`
         } else if(checkFibonacci(n)) { // Fibonacci
-            result.speech = `${nameForTTS} a fibonacci trophy, number ${n}`
+            result.speech = `${nameForTTS} a fibonacci ${trophyName}, number ${n}`
             result.label = `🐚 Fibonacci: ${nameForDiscord}`
 		} else if(n>10 && checkMonoDigit(n)) { // Monodigit
-            result.speech = `${nameForTTS} a monodigit trophy, number ${n}`
+            result.speech = `${nameForTTS} a monodigit ${trophyName}, number ${n}`
             result.label = `🦄 Monodigit: ${nameForDiscord}`
         } else if(n>1000 && checkPairs(n)) {
-            result.speech = `${nameForTTS} a duodigit trophy, number ${n}`
+            result.speech = `${nameForTTS} a duodigit ${trophyName}, number ${n}`
             result.label = `🐮 Pairs: ${nameForDiscord}`
         } else if(n>100 && start == end) { // Palindromic
-            result.speech = `${nameForTTS} a palindromic trophy, number ${n}`
+            result.speech = `${nameForTTS} a palindromic ${trophyName}, number ${n}`
             result.label = `🦆 Palindromic: ${nameForDiscord}`
         } else if(n%1000==0) { // Even 1000s
-            result.speech = `${nameForTTS} an even one thousands trophy, number ${n}`
+            result.speech = `${nameForTTS} an even one thousands ${trophyName}, number ${n}`
             result.label = `🐓 Even 1000s: ${nameForDiscord}`
         } else if(n%100==0) { // Even 100s
-            result.speech = `${nameForTTS} an even one hundreds trophy, number ${n}`
+            result.speech = `${nameForTTS} an even one hundreds ${trophyName}, number ${n}`
             result.label = `🐤 Even 100s: ${nameForDiscord}`
         } else if(n>100 && checkSeries(n, 1, true)) { // Rising series
-			result.speech = `${nameForTTS} a rising series trophy, number ${n}`
+			result.speech = `${nameForTTS} a rising series ${trophyName}, number ${n}`
             result.label = `🦩 Rising series: ${nameForDiscord}`
 		} else if(n>100 && checkSeries(n, 1, false)) { // Falling series
-			result.speech = `${nameForTTS} a falling series trophy, number ${n}`
+			result.speech = `${nameForTTS} a falling series ${trophyName}, number ${n}`
             result.label = `🐇 Falling series: ${nameForDiscord}`
 		} else if(n>100 && checkSeries(n, 2, true)) { // Rising series
-			result.speech = `${nameForTTS} a rising two series trophy, number ${n}`
+			result.speech = `${nameForTTS} a rising two series ${trophyName}, number ${n}`
             result.label = `🦅 Rising 2-series: ${nameForDiscord}`
 		} else if(n>100 && checkSeries(n, 2, false)) { // Falling series
-			result.speech = `${nameForTTS} a falling two series trophy, number ${n}`
+			result.speech = `${nameForTTS} a falling two series ${trophyName}, number ${n}`
             result.label = `🦡 Falling 2-series: ${nameForDiscord}`
 		} else if(checkPrime(n)) {
-            result.speech = `${nameForTTS} a prime trophy, number ${n}`
+            result.speech = `${nameForTTS} a prime ${trophyName}, number ${n}`
             result.label = `🐈 Prime: ${nameForDiscord}`
         } 
 
