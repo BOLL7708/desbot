@@ -30,19 +30,28 @@ interface ITwitchHelixRewardConfigShared {
     background_color?: string
     is_enabled?: boolean
     is_user_input_required?: boolean
+    /**
+     * Note: Also needs `max_per_stream` to be set or the update will fail.
+     */
     is_max_per_stream_enabled?: boolean
     /**
-     * Needs `is_max_per_stream_enabled` to also be set.
+     * Note: Also needs `is_max_per_stream_enabled` to be set or the update will fail.
      */
     max_per_stream?: number
+    /**
+     * Note: Also needs `max_per_user_per_stream` to be set or the update will fail.
+     */
     is_max_per_user_per_stream_enabled?: boolean
     /**
-     * Needs `is_max_per_user_per_stream_enabled` to also be set.
+     * Note: Also needs `is_max_per_user_per_stream_enabled` to be set or the update will fail.
      */
     max_per_user_per_stream?: number
+    /**
+     * Note: Also needs `global_cooldown_seconds` to be set or the update will fail.
+     */
     is_global_cooldown_enabled?: boolean
     /**
-     * Needs `is_global_cooldown_enabled` to also be set.
+     * Note: Also needs `is_global_cooldown_enabled` to be set or the update will fail.
      */
     global_cooldown_seconds?: number
     is_paused?: boolean

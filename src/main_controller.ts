@@ -87,10 +87,13 @@ class MainController {
             if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
                 const setup = Config.twitch.rewardConfigs[key]
                 if(Array.isArray(setup)) {
-                    Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                    const reset: ITwitchRewardCounter = {key: key, count: 0}
-                    Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
-                    this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
+                    const current: ITwitchRewardCounter = await Settings.pullSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                    if((current?.count ?? 0) > 0) {
+                        Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
+                        const reset: ITwitchRewardCounter = {key: key, count: 0}
+                        Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
+                        this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
+                    }
                 }
             }
         }
@@ -313,14 +316,18 @@ class MainController {
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
                 callback: async (data:ITwitchRedemptionMessage)=>{
+                    // Prep for incremental reward
                     const rewardConfig = Config.twitch.rewardConfigs[key]
                     let counter: ITwitchRewardCounter = await Settings.pullSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                     if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
 
+                    // Disable after use
                     if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
                         const id = await Utils.getRewardId(key)
                         this._twitchHelix.updateReward(id, {is_enabled: false})
                     }
+
+                    // Main callbacks
                     if(obsCallback != null) obsCallback(data)
                     if(colorCallback != null) colorCallback(data)
                     if(plugCallback != null) plugCallback(data)
@@ -331,7 +338,7 @@ class MainController {
                     if(runCallback != null) runCallback(data)
                     if(webCallback != null) webCallback(data)
             
-                    // Switch to next reward if it has more configs available
+                    // Switch to next incremental reward if it has more configs available
                     if(counter != undefined) {                       
                         counter.count++
                         const newRewardConfig = rewardConfig[counter.count] ?? null
@@ -746,11 +753,16 @@ class MainController {
                     const configArrOrNot = Config.twitch.rewardConfigs[pair.key]
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) == -1) {
-                        // TODO: This needs to also reset incremental reward counters as the rewards are reset by the update.
                         const response = await this._twitchHelix.updateReward(pair.id, config)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id
                             Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
+                            
+                            // If update was successful, also reset incremental setting as the reward should have been reset.
+                            if(Array.isArray(configArrOrNot)) {
+                                const reset: ITwitchRewardCounter = {key: pair.key, count: 0}
+                                Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
+                            }
                         } else {
                             Utils.logWithBold(`Reward <${pair.key}> update unsuccessful.`, Color.Red)
                         }                       
@@ -1413,7 +1425,7 @@ class MainController {
             }
             if(onTtsQueue) _this._tts.enqueueSoundEffect(config)
             else _this._audioPlayer.enqueueAudio(config)
-            if(ttsString) _this._tts.enqueueSpeakSentence(ttsString, '', GoogleTTS.TYPE_ANNOUNCEMENT)
+            if(ttsString) _this._tts.enqueueSpeakSentence(ttsString, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
         }
         else return null
     }
