@@ -1178,7 +1178,7 @@ class MainController {
             ) {
                 const preset = Config.screenshots.callback.pipeMessagePreset
                 if(preset != undefined) {
-                    const configClone: IPipeCustomMessage = Object.assign({}, preset.config)
+                    const configClone: IPipeCustomMessage = Utils.clone(preset.config)
                     configClone.image = responseData.image
                     configClone.properties.duration = preset.durationMs
                     if(configClone.textAreas.length > 0) {
@@ -1520,7 +1520,7 @@ class MainController {
              * We check if we don't have enough texts to fill the preset 
              * and fill the empty spots up with the redeemer's display name.
              */
-            const configClone = Object.assign({}, config)
+            const configClone = Utils.clone(config)
             const textAreaCount = configClone.config.textAreas.length
             if(textAreaCount > 0 && configClone.texts == undefined) configClone.texts = []
             const textCount = configClone.texts?.length ?? 0
@@ -1542,7 +1542,7 @@ class MainController {
     private buildSignCallback(_this: MainController, config: ISignShowConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
-                const clonedConfig = Object.assign({}, config)
+                const clonedConfig = Utils.clone(config)
                 if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
                 if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user.display_name
                 if(clonedConfig.image == undefined) clonedConfig.image = user.profile_image_url

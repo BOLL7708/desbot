@@ -302,4 +302,13 @@ class Utils {
             }
         })
     }
+
+    /**
+     * Clone anything by JSON stringify and parse
+     * @param data
+     * @returns 
+     */
+    static clone<Type>(data: Type): Type {
+        return JSON.parse(JSON.stringify(data))
+    }
 }

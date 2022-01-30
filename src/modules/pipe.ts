@@ -61,7 +61,7 @@ class Pipe {
         const imageDataUrl = profileUrl != undefined
             ? await ImageLoader.getDataUrl(profileUrl, true)
             : null
-        const preset = Object.assign({}, Config.pipe.configs[Keys.KEY_MIXED_CHAT] ?? null)
+        const preset = Utils.clone(Config.pipe.configs[Keys.KEY_MIXED_CHAT] ?? null)
         if(
             Config.pipe.useCustomChatNotification
             && preset?.imagePath != undefined // Background image
@@ -75,7 +75,7 @@ class Pipe {
                 // Avatar
                 if(imageDataUrl != null) {
                     // Replace undefined colors in outlines with user color or default
-                    const avatarConfig = Object.assign({}, Config.pipe.customChatAvatarConfig)
+                    const avatarConfig = Utils.clone(Config.pipe.customChatAvatarConfig)
                     for(const outlineIndex in avatarConfig.outlines) {
                         if(avatarConfig.outlines[outlineIndex].color == undefined) {
                             avatarConfig.outlines[outlineIndex].color = userColor ?? Color.White
@@ -91,7 +91,7 @@ class Pipe {
                 }
                 
                 // Name
-                const nameFontConfig = Object.assign({}, Config.pipe.customChatNameConfig.font)
+                const nameFontConfig = Utils.clone(Config.pipe.customChatNameConfig.font)
                 if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
                 if(displayName.length > 0) {
                     await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
@@ -144,7 +144,7 @@ class Pipe {
         }
         
         // If the above resulted in image data, broadcast it
-        const config = Object.assign({}, preset.config)
+        const config = Utils.clone(preset.config)
         if(imageb64 != null) {
             config.image = Utils.removeImageHeader(imageb64)
             config.properties.hz = -1

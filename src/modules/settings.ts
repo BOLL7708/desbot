@@ -97,7 +97,7 @@ class Settings {
         // Initiate interval
         if(this._cacheWriteIntervalHandle <= 0) {           
             this._cacheWriteIntervalHandle = setInterval(() => {
-                const cacheClone = Object.assign({}, this._settingsCache)
+                const cacheClone = Utils.clone(this._settingsCache)
                 this._settingsCache = {}
                 Object.keys(cacheClone).forEach(async cacheSetting => {
                     await this.appendSetting(cacheSetting, cacheClone[cacheSetting].join('\n'))
