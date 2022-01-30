@@ -22,7 +22,7 @@ class Screenshots {
     setScreenshotCallback(callback: IScreenshotCallback) {
         this._messageCallback = callback
     }
-    sendScreenshotRequest(rewardData:ITwitchRedemptionMessage, delaySeconds:number) {
+    sendScreenshotRequest(rewardKey: string, rewardData:ITwitchRedemptionMessage, delaySeconds:number) {
         this._messageCounter++
         let message:IScreenshotRequest = {
             nonce: `${this._messageCounter}`,
@@ -30,6 +30,7 @@ class Screenshots {
             tag: rewardData.redemption.user.login
         }
         this._screenshotRequests[this._messageCounter] = {
+            rewardKey: rewardKey,
             userId: parseInt(rewardData?.redemption?.user?.id),
             userName: rewardData.redemption.user.login,
             userInput: rewardData.redemption.user_input

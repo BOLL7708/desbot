@@ -176,11 +176,11 @@ class MainController {
                 this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
                     if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
-                        this._screenshots.sendScreenshotRequest(data, Config.screenshots.delayOnDescription)
+                        this._screenshots.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
                         setTimeout(async ()=>{
                             const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                            const requestData:IScreenshotRequestData = { userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
+                            const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                             this._obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }    
@@ -194,10 +194,10 @@ class MainController {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
-                    this._screenshots.sendScreenshotRequest(data, 0)
+                    this._screenshots.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
                 } else {
                     const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                    const requestData:IScreenshotRequestData = { userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
+                    const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                     this._obs.takeSourceScreenshot(requestData)
                 }
             }
@@ -227,7 +227,7 @@ class MainController {
                 // Effects
                 const signCallback = this.buildSignCallback(this, Config.sign.configs[Keys.KEY_CHANNELTROPHY])
                 signCallback?.call(this, message)
-                const soundCallback = this.buildSoundCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], undefined, true)
+                const soundCallback = this.buildSoundAndSpeechCallback(this, Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], undefined, true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward
@@ -306,7 +306,7 @@ class MainController {
             const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
             const colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
             const plugCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPlugCallback(this, Config.philipshue.plugConfigs[key])
-            const soundCallback: null|((data: ITwitchRedemptionMessage, rewardIndex: number) => void) = this.buildSoundCallback(this, Config.audioplayer.configs[key], Config.controller.speechReferences[key])
+            const soundCallback: null|((data: ITwitchRedemptionMessage, rewardIndex: number) => void) = this.buildSoundAndSpeechCallback(this, Config.audioplayer.configs[key], Config.controller.speechReferences[key])
             const pipeCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPipeCallback(this, Config.pipe.configs[key])
             const openvr2wsSettingCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOpenVR2WSSettingCallback(this, Config.openvr2ws.configs[key])
             const signCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildSignCallback(this, Config.sign.configs[key])
@@ -810,12 +810,12 @@ class MainController {
                     this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                     this._nonceCallbacks[nonce] = ()=>{
                         setTimeout(()=>{
-                            const requestData:IScreenshotRequestData = { userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
+                            const requestData:IScreenshotRequestData = { rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
                             this._obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }
                 } else {
-                    this._obs.takeSourceScreenshot({ userId: parseInt(userData.userId), userName: userData.userName, userInput: '' })
+                    this._obs.takeSourceScreenshot({ rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: '' })
                 }
             }
         })
@@ -978,6 +978,14 @@ class MainController {
         .##....##.##.....##.##.......##.......##.....##.##.....##.##....##.##...##..##....##
         ..######..##.....##.########.########.########..##.....##..######..##....##..######.
         */
+
+        /*
+        ..####...##..##...####...######.
+        .##..##..##..##..##..##....##...
+        .##......######..######....##...
+        .##..##..##..##..##..##....##...
+        ..####...##..##..##..##....##...
+        */
         this._twitch.registerAnnouncement({
             userName: Config.twitch.announcerName.toLowerCase(),
             triggers: Config.twitch.announcerTriggers,
@@ -1063,6 +1071,13 @@ class MainController {
             })
         })
 
+        /*
+        .#####...######..##...##...####...#####...#####....####..
+        .##..##..##......##...##..##..##..##..##..##..##..##.....
+        .#####...####....##.#.##..######..#####...##..##...####..
+        .##..##..##......#######..##..##..##..##..##..##......##.
+        .##..##..######...##.##...##..##..##..##..#####....####..
+        */
         // This callback was added as rewards with no text input does not come in through the chat callback
         this._twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
             const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))          
@@ -1103,8 +1118,17 @@ class MainController {
             }
         })
 
+        /*
+        ..####....####...#####...######..######..##..##...####...##..##...####...######...####..
+        .##......##..##..##..##..##......##......###.##..##......##..##..##..##....##....##.....
+        ..####...##......#####...####....####....##.###...####...######..##..##....##.....####..
+        .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
+        ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
+        */
         this._screenshots.setScreenshotCallback(async (responseData) => {
-            const requestData = this._screenshots.getScreenshotRequest(parseInt(responseData.nonce))
+            const requestData = responseData.nonce 
+                ? this._screenshots.getScreenshotRequest(parseInt(responseData.nonce))
+                : null
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
@@ -1146,7 +1170,30 @@ class MainController {
                     durationMs: Config.screenshots.callback.signDurationMs
                 })
             }
-            
+
+            // Pipe
+            if(
+                Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey)
+                || (requestData == null && Config.screenshots.callback.pipeEnabledForManual)
+            ) {
+                const preset = Config.screenshots.callback.pipeMessagePreset
+                if(preset != undefined) {
+                    const configClone: IPipeCustomMessage = Object.assign({}, preset.config)
+                    configClone.image = responseData.image
+                    configClone.properties.duration = preset.durationMs
+                    if(configClone.textAreas.length > 0) {
+                        configClone.textAreas[0].text = `${responseData.width}x${responseData.height}`
+                    }
+                    if(requestData != null && configClone.textAreas.length > 1) {
+                        const userData = await this._twitchHelix.getUserById(requestData.userId)
+                        const title = requestData.userInput 
+                            ? `"${requestData.userInput}"\n${userData.display_name}`
+                            : userData.display_name
+                        configClone.textAreas[1].text = title
+                    }
+                    this._pipe.sendCustom(configClone)
+                }
+            }
         })
 
         this._obs.registerSourceScreenshotCallback(async (img, requestData) => {
@@ -1188,11 +1235,25 @@ class MainController {
             }
         })
 
+        /*
+        ..####...#####....####..
+        .##..##..##..##..##.....
+        .##..##..#####....####..
+        .##..##..##..##......##.
+        ..####...#####....####..
+        */
         this._obs.registerSceneChangeCallback((sceneName) => {
             // let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
             // this._ttsForAll = !filterScene
         })
 
+        /*
+        ..####...##..##..#####...######...####..
+        .##..##..##..##..##..##....##....##..##.
+        .######..##..##..##..##....##....##..##.
+        .##..##..##..##..##..##....##....##..##.
+        .##..##...####...#####...######...####..
+        */
         this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
             const callback = this._nonceCallbacks[nonce] || null
@@ -1211,7 +1272,13 @@ class MainController {
             }
         })
 
-        
+        /*
+        .##..##..#####..
+        .##..##..##..##.
+        .##..##..#####..
+        ..####...##..##.
+        ...##....##..##.
+        */
         this._openvr2ws.setInputCallback((key, data) => {
             switch(data.input) {
                 case "Proximity": if(data.source == 'Head') {
@@ -1222,6 +1289,14 @@ class MainController {
             }
         })
 
+        /*
+        ..####...#####...#####...........######..#####..
+        .##..##..##..##..##..##............##....##..##.
+        .######..#####...#####.............##....##..##.
+        .##..##..##......##................##....##..##.
+        .##..##..##......##..............######..#####..
+        */
+        // TODO: This should be broken out so we can also use it with the Steam Web API
         this._openvr2ws.setAppIdCallback(async (appId) => {
             /**
              * Controller defaults loading
@@ -1369,6 +1444,15 @@ class MainController {
             }
         })
 
+        /*
+        .####.##....##.####.########
+        ..##..###...##..##.....##...
+        ..##..####..##..##.....##...
+        ..##..##.##.##..##.....##...
+        ..##..##..####..##.....##...
+        ..##..##...###..##.....##...
+        .####.##....##.####....##...
+        */
         this._twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
         if(Config.controller.websocketsUsed.openvr2ws) this._openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) this._pipe.init()
@@ -1413,7 +1497,7 @@ class MainController {
         else return null
     }
     
-    private buildSoundCallback(_this: MainController, config: IAudio|undefined, speech:string|string[]|undefined, onTtsQueue:boolean = false):ITwitchRedemptionCallback|null {
+    private buildSoundAndSpeechCallback(_this: MainController, config: IAudio|undefined, speech:string|string[]|undefined, onTtsQueue:boolean = false):ITwitchRedemptionCallback|null {
         if(config || speech) return (message: ITwitchRedemptionMessage, index: number) => {
             let ttsString: string = undefined
             if(Array.isArray(speech) || typeof speech == 'string') {

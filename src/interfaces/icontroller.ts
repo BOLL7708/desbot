@@ -187,15 +187,19 @@ interface IControllerDefaults {
  */
 interface IScreenshotRequestData {
     /**
-     * Which user ID for the person triggering the screenshot.
+     * Key for the reward that triggered the screenshot.
+     */
+    rewardKey: string
+    /**
+     * Twitch user ID for the redeemer.
      */
     userId: number
     /**
-     * Twitch username for the person triggering the screenshot.
+     * Twitch username for the redeemer.
      */
     userName: string
     /**
-     * Any description attached to the screenshot redemption.
+     * Input from the Twitch reward redemption.
      */
     userInput: string
 }

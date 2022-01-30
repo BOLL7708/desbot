@@ -284,7 +284,12 @@ Config.screenshots = <IScreenshotConfig> {
         discordRewardInstantTitle: 'Instant shot! 📸',
         signTitle: 'Screenshot',
         signManualSubtitle: 'Manual shot!',
-        signDurationMs: 5000
+        signDurationMs: 5000,
+        pipeEnabledForManual: false,
+        pipeEnabledForRewards: [
+            Keys.KEY_SCREENSHOT
+        ],
+        pipeMessagePreset: undefined
     }
 }
 

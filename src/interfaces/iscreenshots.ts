@@ -25,6 +25,8 @@ interface IScreenshotRequest {
 interface IScreenshotResponse {
     nonce: string
     image: string
+    width: number
+    height: number
 }
 
 interface IScreenshotCallbackConfig {
@@ -57,6 +59,18 @@ interface IScreenshotCallbackConfig {
      * Amount of time the Sign is visible in milliseconds.
      */
     signDurationMs: number
+    /**
+     * Enable manual screenshots to be output to VR through the Pipe.
+     */
+    pipeEnabledForManual: boolean,
+    /**
+     * Keys for screenshot rewards that should be output to VR through the Pipe.
+     */
+    pipeEnabledForRewards: string[]
+    /**
+     * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
+     */
+    pipeMessagePreset: IPipeMessagePreset|undefined,
 }
 
 // Callbacks
