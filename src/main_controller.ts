@@ -91,8 +91,8 @@ class MainController {
                     if((current?.count ?? 0) > 0) {
                         Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                         const reset: ITwitchRewardCounter = {key: key, count: 0}
-                        Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
-                        this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
+                        await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
+                        await this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
                     }
                 }
             }
