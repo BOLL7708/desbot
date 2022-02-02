@@ -270,8 +270,6 @@ class ChannelTrophy {
         const nStr = n.toString()
         const trophyName = Config.controller.channelTrophySettings.ttsTrophy
         
-        const start = nStr.substring(0, Math.floor(nStr.length/2))
-        const end = nStr.substring(Math.ceil(nStr.length/2)).split('').reverse().join('')       
         
 		// Not sure if this actually works, but let's hope so.
 		const uniqueNumbers = Config.twitch.channelTrophyUniqueNumbers
@@ -280,19 +278,19 @@ class ChannelTrophy {
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
 			result.speech = Utils.template(uniqueNumbers[n].speech, nameForTTS, n)
 			result.label = Utils.template(uniqueNumbers[n].label, nameForDiscord)
-		} else if(checkBinary(n)) { // Power of two / binary
+		} else if(NumberPatterns.checkIfBinary(n)) { // Power of two / binary
 			result.speech = `${nameForTTS} a power of two ${trophyName}, number ${n}`
             result.label = `🎣 Power of two: ${nameForDiscord}`
-        } else if(checkFibonacci(n)) { // Fibonacci
+        } else if(NumberPatterns.checkIfFibonacci(n)) { // Fibonacci
             result.speech = `${nameForTTS} a fibonacci ${trophyName}, number ${n}`
             result.label = `🐚 Fibonacci: ${nameForDiscord}`
-		} else if(n>10 && checkMonoDigit(n)) { // Monodigit
+		} else if(n>10 && NumberPatterns.checkIfMonoDigit(n)) { // Monodigit
             result.speech = `${nameForTTS} a monodigit ${trophyName}, number ${n}`
             result.label = `🦄 Monodigit: ${nameForDiscord}`
-        } else if(n>1000 && checkPairs(n)) {
+        } else if(n>1000 && NumberPatterns.checkIfPairs(n)) {
             result.speech = `${nameForTTS} a duodigit ${trophyName}, number ${n}`
             result.label = `🐮 Pairs: ${nameForDiscord}`
-        } else if(n>100 && start == end) { // Palindromic
+        } else if(n>100 && NumberPatterns.checkIfPalindromic(n)) { // Palindromic
             result.speech = `${nameForTTS} a palindromic ${trophyName}, number ${n}`
             result.label = `🦆 Palindromic: ${nameForDiscord}`
         } else if(n%1000==0) { // Even 1000s
@@ -301,87 +299,164 @@ class ChannelTrophy {
         } else if(n%100==0) { // Even 100s
             result.speech = `${nameForTTS} an even one hundreds ${trophyName}, number ${n}`
             result.label = `🐤 Even 100s: ${nameForDiscord}`
-        } else if(n>100 && checkSeries(n, 1, true)) { // Rising series
+        } else if(n>100 && NumberPatterns.checkIfSeries(n, 1, true)) { // Rising series
 			result.speech = `${nameForTTS} a rising series ${trophyName}, number ${n}`
             result.label = `🦩 Rising series: ${nameForDiscord}`
-		} else if(n>100 && checkSeries(n, 1, false)) { // Falling series
+		} else if(n>100 && NumberPatterns.checkIfSeries(n, 1, false)) { // Falling series
 			result.speech = `${nameForTTS} a falling series ${trophyName}, number ${n}`
             result.label = `🐇 Falling series: ${nameForDiscord}`
-		} else if(n>100 && checkSeries(n, 2, true)) { // Rising series
+		} else if(n>100 && NumberPatterns.checkIfSeries(n, 2, true)) { // Rising 2 series
 			result.speech = `${nameForTTS} a rising two series ${trophyName}, number ${n}`
             result.label = `🦅 Rising 2-series: ${nameForDiscord}`
-		} else if(n>100 && checkSeries(n, 2, false)) { // Falling series
+		} else if(n>100 && NumberPatterns.checkIfSeries(n, 2, false)) { // Falling 2 series
 			result.speech = `${nameForTTS} a falling two series ${trophyName}, number ${n}`
             result.label = `🦡 Falling 2-series: ${nameForDiscord}`
-		} else if(checkPrime(n)) {
+		} else if(NumberPatterns.checkIfTriangular(n)) {
+            result.speech = `${nameForTTS} a triangular ${trophyName}, number ${n}`
+            result.label = `🐪 Triangular: ${nameForDiscord}`
+        } else if(NumberPatterns.checkIfSquare(n)) {
+            result.speech = `${nameForTTS} a square ${trophyName}, number ${n}`
+            result.label = `🐳 Square: ${nameForDiscord}`
+        } else if(NumberPatterns.checkIfCube(n)) {
+            result.speech = `${nameForTTS} a cube ${trophyName}, number ${n}`
+            result.label = `🦧 Cube: ${nameForDiscord}`
+        } else if(NumberPatterns.checkIfPrime(n)) {
             result.speech = `${nameForTTS} a prime ${trophyName}, number ${n}`
             result.label = `🐈 Prime: ${nameForDiscord}`
-        } 
-
-        // Functions
-		function checkMonoDigit( num: number ): boolean {
-			const numStr = num.toString()
-			const filteredNum = num.toString().split('').filter(d => d == numStr[0])
-			return filteredNum.length == numStr.length
-		}
-
-        function checkPairs( num: number ): boolean {
-            const numStr = num.toString()
-            const match = numStr.match(/^([0-9]{2})(\1+)$/)
-            return match != null
-        }
-		
-		function checkBinary( num: number ): boolean {
-			return parseInt(
-                (num).toString(2).split('').reduce(
-                    (p,n) => (
-                        parseInt(p)+parseInt(n)
-                    ).toString()
-                )
-            ) == 1
-		}
-		
-		function checkSeries( num: number, step: number, rising: boolean ): boolean {
-			const numStr = num.toString()
-			let firstDigit = parseInt(numStr[0])
-			const filteredNum = num.toString().split('').filter(
-				d => {
-                    let result = parseInt(d) == firstDigit
-                    if(rising) firstDigit += step 
-                    else firstDigit -= step
-                    return result
-                }
-			)
-			return filteredNum.length == numStr.length
-		}
-
-        function checkPrime( num: number ): boolean {
-            const sqrtnum = Math.floor(Math.sqrt(num))
-            let prime = num != 1
-            for(let i=2; i<sqrtnum+1; i++) {
-                if(num % i == 0) {
-                    prime = false
-                    break
-                }
-            }
-            return prime
-        }
-
-        function checkFibonacci( num: number ): boolean {
-            let a = 0
-            let b = 1
-            let c = a + b
-            while(c < num) {
-                a = b
-                b = c
-                c = a + b
-            }
-            return c == num
         }
         
 		// Result
         return result.speech.length > 0 ? result : null
 	}
+}
+
+class NumberPatterns {
+    // Functions
+    static checkIfMonoDigit( num: number ): boolean {
+        const numStr = num.toString()
+        const filteredNum = num.toString().split('').filter(d => d == numStr[0])
+        return filteredNum.length == numStr.length
+    }
+
+    static checkIfPairs( num: number ): boolean {
+        const numStr = num.toString()
+        const match = numStr.match(/^([0-9]{2})(\1+)$/)
+        return match != null
+    }
+
+    static checkIfBinary( num: number ): boolean {
+        return parseInt(
+            (num).toString(2).split('').reduce(
+                (p,n) => (
+                    parseInt(p)+parseInt(n)
+                ).toString()
+            )
+        ) == 1
+    }
+
+    static checkIfSeries( num: number, step: number, rising: boolean ): boolean {
+        const numStr = num.toString()
+        let firstDigit = parseInt(numStr[0])
+        const filteredNum = num.toString().split('').filter(
+            d => {
+                let result = parseInt(d) == firstDigit
+                if(rising) firstDigit += step 
+                else firstDigit -= step
+                return result
+            }
+        )
+        return filteredNum.length == numStr.length
+    }
+
+    static checkIfPrime( num: number ): boolean {
+        const sqrtnum = Math.floor(Math.sqrt(num))
+        let prime = num != 1
+        for(let i=2; i<sqrtnum+1; i++) {
+            if(num % i == 0) {
+                prime = false
+                break
+            }
+        }
+        return prime
+    }
+
+    static checkIfFibonacci( num: number ): boolean {
+        let a = 0
+        let b = 1
+        let c = a + b
+        while(c < num) {
+            a = b
+            b = c
+            c = a + b
+        }
+        return c == num
+    }
+
+    static checkIfTriangular( num: number ): boolean {
+        let a = 0
+        let b = 0
+        while(b < num) {
+            a++
+            b = a*(a+1)/2
+            if(num == b) return true
+        }
+        return false
+    }
+
+    static checkIfSquare( num: number ): boolean {
+        return Math.sqrt(num) % 1 == 0
+    }
+
+    static checkIfCube( num: number ): boolean {
+        return Math.cbrt(num) % 1 == 0
+    }
+
+    static checkIfPalindromic( num: number ): boolean {
+        const nStr = num.toString()
+        const start = nStr.substring(0, Math.floor(nStr.length/2))
+        const end = nStr.substring(Math.ceil(nStr.length/2)).split('').reverse().join('')       
+        return start === end
+    }
+
+    static testAll( totalCount: number ) {
+        const result = {
+            palindromic: 0,
+            binary: 0,
+            even1000s: 0,
+            even100s: 0,
+            risingSeries: 0,
+            fallingSeries: 0,
+            rising2Series: 0,
+            falling2Series: 0,
+            prime: 0,
+            fibonacci: 0,
+            monoDigit: 0,
+            pairs: 0,
+            triangular: 0,
+            square: 0,
+            cube: 0
+        }
+        for(let i=0; i<totalCount; i++) {
+            if(this.checkIfPalindromic(i)) result.palindromic++
+            if(this.checkIfBinary(i)) result.binary++
+            if(i%1000==0) result.even1000s++
+            if(i%100==0) result.even100s++
+            if(this.checkIfSeries(i, 1, true)) result.risingSeries++
+            if(this.checkIfSeries(i, 1, false)) result.fallingSeries++
+            if(this.checkIfSeries(i, 2, true)) result.rising2Series++
+            if(this.checkIfSeries(i, 2, false)) result.falling2Series++
+            if(this.checkIfPrime(i)) result.prime++
+            if(this.checkIfFibonacci(i)) result.fibonacci++
+            if(this.checkIfMonoDigit(i)) result.monoDigit++
+            if(this.checkIfPairs(i)) result.pairs++
+            if(this.checkIfTriangular(i)) result.triangular++
+            if(this.checkIfSquare(i)) result.square++
+            if(this.checkIfCube(i)) result.cube++
+        }
+        for(let key in result) {
+            console.log(`\t${key}\t${result[key]}\t`)
+        }
+    }
 }
 
 /**
