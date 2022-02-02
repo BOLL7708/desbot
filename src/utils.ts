@@ -304,9 +304,9 @@ class Utils {
     }
 
     /**
-     * Clone anything by JSON stringify and parse
-     * @param data
-     * @returns 
+     * Clone anything data structure by JSON stringify and parse
+     * @param data Data to clone
+     * @returns The cloned data
      */
     static clone<Type>(data: Type): Type {
         return JSON.parse(JSON.stringify(data))

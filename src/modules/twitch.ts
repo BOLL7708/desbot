@@ -141,10 +141,10 @@ class Twitch{
             )
 
             if(command != null) {
-                if(allowedRole) {
+                if(allowedRole && command.callback != undefined) {
                     command.callback(userData, textStr)
                 }
-                if(allowedRole && allowedByCooldown && command.cooldownCallback != null) {
+                if(allowedRole && allowedByCooldown && command.cooldownCallback != undefined) {
                     command.cooldownCallback(userData, textStr)
                 }
                 if(command.cooldown != undefined) {

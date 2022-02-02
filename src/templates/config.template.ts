@@ -164,7 +164,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
     channelTrophySettings: {
         label: '🏆 Channel Trophy #%s\n%s',
         rewardTitle: '🏆 Held by %s!',
-        rewardPrompt: 'Currently held by %s! %s',
+        rewardPrompt: 'Currently held by %s! %s Now costs %s points!',
         rewardCooldownMultiplier: 30,
         ttsOn: true,
         ttsName: '@%s grabbed',

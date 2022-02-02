@@ -261,7 +261,7 @@ class MainController {
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: config.global_cooldown_seconds+Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt)
+                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt, newCost)
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)
@@ -944,21 +944,15 @@ class MainController {
         */
         this._twitch.registerCommand({
             trigger: Keys.COMMAND_GAME,
-            callback: async (userData, input) => {
-                if(this._openvr2ws._lastAppId != undefined) {
-                    const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
-                    const price = SteamStore.getPrice(gameData)
-                    const name = gameData.name ?? 'N/A'
-                    const link = gameData.steam_appid != undefined ? `https://store.steampowered.com/app/${gameData.steam_appid}` : 'N/A'
-                    this._twitch._twitchChat.sendMessageToUser(userData.userName, `Current Game: ${name} - Price: ${price} - Store: ${link}`)
-                }
-            },
             cooldown: 3*60,
             cooldownCallback: async (userData, input) => {
                 if(this._openvr2ws._lastAppId != undefined) {
                     const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
                     const price = SteamStore.getPrice(gameData)
+                    const releaseDate = gameData.release_date?.date ?? 'N/A'
                     const name = gameData.name ?? 'N/A'
+                    const link = gameData.steam_appid != undefined ? `https://store.steampowered.com/app/${gameData.steam_appid}` : 'N/A'
+                    this._twitch._twitchChat.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
                     this._sign.enqueueSign({
                         title: 'Current Game',
                         image: gameData.header_image,

@@ -120,7 +120,7 @@ interface IControllerConfig {
         /**
          * The reward prompt that is used for the reward after it has been redeemed, this is a templated value.
          * 
-         * The first `%s` is the name of the redeemer, the second `%s` is the existing reward prompt in {@link Config.twitch.rewardConfigs}.
+         * The first `%s` is the name of the redeemer, the second `%s` is the existing reward prompt in {@link Config.twitch.rewardConfigs}, the third `%s` is the new reward price.
          */
         rewardPrompt: string
         /**

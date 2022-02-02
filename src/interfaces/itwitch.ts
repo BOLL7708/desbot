@@ -158,10 +158,29 @@ interface ITwitchRewardCounter {
 }
 
 interface ITwitchSlashCommand {
+    /**
+     * The command that is matched from the chat.
+     */
     trigger: string
-    permissions?: ICommandPermissions // Filled in at registration, loaded from config.
-    callback: ITwitchSlashCommandCallback
+    /**
+     * Permission for who can execute this command.
+     * 
+     * Note: Filled in at registration, loaded from config.
+     */
+    permissions?: ICommandPermissions
+    /**
+     * Optional: The callback the command executes.
+     */
+    callback?: ITwitchSlashCommandCallback
+    /**
+     * Optional: The number of seconds before the `cooldownCallback` can be run again.
+     */
     cooldown?: number
+    /**
+     * Optional: A callback that can only be run once in every `cooldown` seconds.
+     * 
+     * Note: The broadcaster and moderators are exempt from cooldowns.
+     */
     cooldownCallback?: ITwitchSlashCommandCallback
 }
 /**
