@@ -34,6 +34,11 @@ interface IGoogleConfig {
     speakingRateOverride: number|undefined
     
     /**
+     * Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.
+     */
+    skipDictionaryForAnnouncements: boolean,
+
+    /**
      * Will skip the 'user' and 'said' text in "[user] said [text]" so it's only the clean text.
      */
     skipSaid: boolean

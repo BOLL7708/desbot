@@ -187,6 +187,7 @@ Config.google = <IGoogleConfig> {
     randomizeVoiceLanguageFilter: 'en-',
     defaultVoice: '',
     speakingRateOverride: undefined,
+    skipDictionaryForAnnouncements: true,
     skipSaid: false
 },
 

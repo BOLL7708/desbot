@@ -120,7 +120,7 @@ class GoogleTTS {
      * @param nonce Unique value that will be provided in the done speaking callback
      * @param meta Used to provide bit count for cheering messages (at least)
      * @param clearRanges Used to clear out Twitch emojis from the text
-     * @param useDictionary Will replace words in the text
+     * @param skipDictionary Will skip replacing words in the text, enables dictionary additions to be read out properly.
      * @returns
      */
     async enqueueSpeakSentence(
@@ -130,7 +130,7 @@ class GoogleTTS {
         nonce: string='', 
         meta: any=null, 
         clearRanges: ITwitchEmotePosition[]=[],
-        useDictionary: boolean = true
+        skipDictionary: boolean = false
     ) {
         const serial = ++this._count
         this._preloadQueue[serial] = null
@@ -162,8 +162,13 @@ class GoogleTTS {
             console.warn("TTS: Clean text had zero length, skipping")
             return
         }
-        
-        if(useDictionary && type != GoogleTTS.TYPE_ANNOUNCEMENT) cleanText = this.applyDictionary(cleanText)
+
+        if( // If announcement the dictionary can be skipped.
+            type == GoogleTTS.TYPE_ANNOUNCEMENT 
+            && Config.google.skipDictionaryForAnnouncements
+        ) skipDictionary = true
+
+        if(!skipDictionary) cleanText = this.applyDictionary(cleanText)
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {

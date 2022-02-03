@@ -122,7 +122,7 @@ class Twitch{
 
         // Commands
         if(text != null && text.indexOf('!') == 0) {
-            let commandStr = text.split(' ').shift().substr(1).toLocaleLowerCase()
+            let commandStr = text.split(' ').shift().substring(1).toLocaleLowerCase()
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop().trim()
 
