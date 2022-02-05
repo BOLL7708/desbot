@@ -13,7 +13,7 @@ interface IPipeConfig {
     /**
      * Configs used by automatic rewards, add something here using a `Keys.*` to automatically trigger a notification.
      */
-    configs: { [key:string]: IPipeMessagePreset }
+    configs: { [key:string]: (IPipeMessagePreset|IPipeMessagePreset[]) }
     /**
      * If on uses a custom notification graphic for text pipes into VR, instead of the default SteamVR notification.
      * 
@@ -112,9 +112,13 @@ interface IPipeCustomMessage {
  */
 interface IPipeCustomProperties {
     /**
-     * Attach the notification to the headset
+     * What to anchor the notification to:
+     * 0: World
+     * 1: Headset
+     * 2: Left Hand
+     * 3: Right Hand
      */
-    headset: boolean
+    anchor: number
 
     /**
      * Align the notification to the horizontal plane of the world

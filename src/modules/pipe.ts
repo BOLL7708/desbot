@@ -61,7 +61,8 @@ class Pipe {
         const imageDataUrl = profileUrl != undefined
             ? await ImageLoader.getDataUrl(profileUrl, true)
             : null
-        const preset = Utils.clone(Config.pipe.configs[Keys.KEY_MIXED_CHAT] ?? null)
+        const presets = Utils.clone(Config.pipe.configs[Keys.KEY_MIXED_CHAT] ?? null)
+        const preset = Array.isArray(presets) ? Utils.randomFromArray(presets) : presets
         if(
             Config.pipe.useCustomChatNotification
             && preset?.imagePath != undefined // Background image

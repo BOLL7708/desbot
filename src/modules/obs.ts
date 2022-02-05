@@ -41,6 +41,7 @@ class OBS {
                         this._sceneChangeCallback(sceneName)
                         break
                     default:
+                        // Uncomment the below row to get all unhandled messages in the console.
                         // console.log(evt.data)
                         break
                 }

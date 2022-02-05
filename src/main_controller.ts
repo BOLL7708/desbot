@@ -1508,21 +1508,24 @@ class MainController {
         else return null
     }
 
-    private buildPipeCallback(_this: MainController, config: IPipeMessagePreset) {
+    private buildPipeCallback(_this: MainController, config: IPipeMessagePreset|IPipeMessagePreset[]) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             /*
              * We check if we don't have enough texts to fill the preset 
              * and fill the empty spots up with the redeemer's display name.
              */
-            const configClone = Utils.clone(config)
-            const textAreaCount = configClone.config.textAreas.length
-            if(textAreaCount > 0 && configClone.texts == undefined) configClone.texts = []
-            const textCount = configClone.texts?.length ?? 0
-            if(textAreaCount > textCount) {
-                configClone.texts.length = textAreaCount
-                configClone.texts.fill(message.redemption.user.display_name, textCount, textAreaCount)
+            if(!Array.isArray(config)) config = [config]
+            for(const cfg of config) {
+                const configClone = Utils.clone(cfg)
+                const textAreaCount = configClone.config.textAreas.length
+                if(textAreaCount > 0 && configClone.texts == undefined) configClone.texts = []
+                const textCount = configClone.texts?.length ?? 0
+                if(textAreaCount > textCount) {
+                    configClone.texts.length = textAreaCount
+                    configClone.texts.fill(message.redemption.user.display_name, textCount, textAreaCount)
+                }
+                _this._pipe.showPreset(configClone)
             }
-            _this._pipe.showPreset(configClone)
         }
         else return null
     }
