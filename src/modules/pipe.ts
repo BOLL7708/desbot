@@ -65,50 +65,73 @@ class Pipe {
         const preset = Array.isArray(presets) ? Utils.randomFromArray(presets) : presets
         if(
             Config.pipe.useCustomChatNotification
-            && preset?.imagePath != undefined // Background image
         ) { // Custom notification
             
             // Setup
             const imageEditor = new ImageEditor()
-            const loaded = await imageEditor.loadUrl(Utils.randomFromArray(preset.imagePath))
             
-            if(loaded) {
-                // Avatar
-                if(imageDataUrl != null) {
-                    // Replace undefined colors in outlines with user color or default
-                    const avatarConfig = Utils.clone(Config.pipe.customChatAvatarConfig)
-                    for(const outlineIndex in avatarConfig.outlines) {
-                        if(avatarConfig.outlines[outlineIndex].color == undefined) {
-                            avatarConfig.outlines[outlineIndex].color = userColor ?? Color.White
-                        }
-                    }
-                    // Draw image
-                    await imageEditor.drawImage(
-                        imageDataUrl, 
-                        avatarConfig.rect, 
-                        avatarConfig.cornerRadius, 
-                        avatarConfig.outlines
-                    )
-                }
-                
-                // Name
-                const nameFontConfig = Utils.clone(Config.pipe.customChatNameConfig.font)
-                if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
-                if(displayName.length > 0) {
-                    await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
-                }
-
-                // Message
-                const customMessageData: ITwitchMessageData = messageData ?? {text: message, bits: 0, isAction: false, emotes: []}
-                await imageEditor.drawTwitchText(customMessageData, Config.pipe.customChatMessageConfig.rect, Config.pipe.customChatMessageConfig.font)
-
-                // Show it
-                const messageDataUrl = imageEditor.getData()
-                preset.imageData = messageDataUrl
-                preset.imagePath = undefined
-                this.showPreset(preset)
-                done = true
+            // Prepare message
+            const customMessageData: ITwitchMessageData = messageData ?? {text: message, bits: 0, isAction: false, emotes: []}
+            const margin = Config.pipe.customChatMessageConfig.margin
+            const textRect = {
+                x: margin,
+                y: Config.pipe.customChatMessageConfig.top+margin,
+                w: Config.pipe.customChatMessageConfig.width - margin * 2,
+                h: Config.pipe.customChatMessageConfig.textMaxHeight
             }
+            const textResult = await imageEditor.buildTwitchText(customMessageData, textRect, Config.pipe.customChatMessageConfig.font)
+            
+            // Draw background
+            imageEditor.initiateEmptyCanvas(
+                Config.pipe.customChatMessageConfig.width,
+                Config.pipe.customChatMessageConfig.top 
+                + textResult.pixelHeight
+                + margin * 2
+            )
+            imageEditor.drawBackground({
+                    x: 0,
+                    y: Config.pipe.customChatMessageConfig.top,
+                    w: textResult.rowsDrawn == 1 ? textResult.firstRowWidth + margin*2 : Config.pipe.customChatMessageConfig.width,
+                    h: textResult.pixelHeight + margin * 2
+                }, 
+                Config.pipe.customChatMessageConfig.cornerRadius, 
+                Color.Gray
+            )
+
+            // Draw message
+            imageEditor.drawBuiltTwitchText(textRect)
+
+            // Avatar
+            if(imageDataUrl != null) {
+                // Replace undefined colors in outlines with user color or default
+                const avatarConfig = Utils.clone(Config.pipe.customChatAvatarConfig)
+                for(const outlineIndex in avatarConfig.outlines) {
+                    if(avatarConfig.outlines[outlineIndex].color == undefined) {
+                        avatarConfig.outlines[outlineIndex].color = userColor ?? Color.White
+                    }
+                }
+                // Draw image
+                await imageEditor.drawImage(
+                    imageDataUrl, 
+                    avatarConfig.rect, 
+                    avatarConfig.cornerRadius, 
+                    avatarConfig.outlines
+                )
+            }
+
+            // Name
+            const nameFontConfig = Utils.clone(Config.pipe.customChatNameConfig.font)
+            if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
+            if(displayName.length > 0) {
+                await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
+            }
+
+            // Show it
+            const messageDataUrl = imageEditor.getData()
+            preset.imageData = messageDataUrl
+            preset.imagePath = undefined
+            this.showPreset(preset)
+            done = true
         } 
         
         if(!done) { // SteamVR notification

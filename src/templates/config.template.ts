@@ -250,7 +250,11 @@ Config.pipe = <IPipeConfig> {
     },
     useCustomChatNotification: false,
     customChatMessageConfig: {
-        rect: { x: 0, y: 120, w: 500, h: 200 },
+        width: 500,
+        top: 120,
+        margin: 0,
+        cornerRadius: 0,
+        textMaxHeight: 240,
         font: { size: 32, family: 'Arial', color: '#ddd', lineSpacing: 1.05 }
     },
     customChatNameConfig: {

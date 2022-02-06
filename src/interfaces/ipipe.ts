@@ -37,7 +37,7 @@ interface IPipeConfig {
      * 
      * Will not be drawn if no username was supplied.
      */
-    customChatNameConfig: IPipeCustomMessageConfig
+    customChatNameConfig: IPipeCustomMessageNameConfig
     /**
      * The settings for the custom chat notification avatar image.
      * 
@@ -52,14 +52,17 @@ interface IPipeMessagePreset {
     config: IPipeCustomMessage
     texts?: string[]
 }
+
 interface IPipeCustomMessageConfig {
-    /**
-     * The position and size of the box we draw text in.
-     */
+    width: number
+    top: number
+    margin: number
+    cornerRadius: number
+    textMaxHeight: number
+    font: IImageEditorFontSettings
+}
+interface IPipeCustomMessageNameConfig {
     rect: IImageEditorRect
-    /**
-     * The font settings for the text.
-     */
     font: IImageEditorFontSettings
 }
 interface IPipeCustomMessageAvatarConfig {
