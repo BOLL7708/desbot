@@ -13,7 +13,7 @@ interface IPhilipsHueConfig {
     /**
      * Light settings for automatic rewards to use when redeemed, keyed on `Keys.*`.
      */
-    lightConfigs: { [key:string]: IPhilipsHueColorConfig }
+    lightConfigs: { [key:string]: IPhilipsHueColorConfig|IPhilipsHueColorConfig[] }
     /**
      * Plug settings for automatic rewards to use when redeemed, keyed on `Keys.*`.
      */

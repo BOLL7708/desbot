@@ -18,7 +18,7 @@ interface ICredentialsConfig {
     GoogleTTSApiKey: string
 
     /**
-     * Username for your local Philis Hue hub to control lights and plugs
+     * Username for your local Philips Hue hub to control lights and plugs
      * // TODO: Fill in how to get said username.
      */
     PhilipsHueUsername: string

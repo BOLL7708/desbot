@@ -917,12 +917,12 @@ class MainController {
                     let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
                     let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
                     let response = await this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CLIPS], {
-                        username: user.display_name,
-                        avatar_url: user.profile_image_url,
+                        username: user?.display_name ?? '[Deleted User]',
+                        avatar_url: user?.profile_image_url ?? '',
                         content: [
                             Utils.numberToDiscordEmote(count++, true),
                             `**Title**: ${clip.title}`,
-                            `**Creator**: ${user.display_name}`,
+                            `**Creator**: ${user?.display_name ?? '[Deleted User]'}`,
                             `**Created**: ${Utils.getDiscordTimetag(clip.created_at)}`,
                             `**Game**: ${game != undefined ? game.name : 'N/A'}`,
                             `**Link**: ${clip.url}`
@@ -1472,13 +1472,14 @@ class MainController {
         else return null
     }
 
-    private buildColorCallback(_this: MainController, config: IPhilipsHueColorConfig|undefined): ITwitchRedemptionCallback|null {
+    private buildColorCallback(_this: MainController, config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
+            const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
             const userName = message?.redemption?.user?.login
             _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
             const lights:number[] = Config.philipshue.lightsIds
             lights.forEach(light => {
-                _this._hue.setLightState(light, config.x, config.y)
+                _this._hue.setLightState(light, cfg.x, cfg.y)
             })
         }
         else return null
