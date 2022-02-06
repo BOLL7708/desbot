@@ -172,7 +172,7 @@ interface IControllerDefaults {
     logChatToDiscord?: boolean
 
     /**
-     * This will activate game specific rewards if they are available, otherwise those will be disabled.
+     * Turns on game specific dynamic rewards if they are available, otherwise those will always be disabled.
      */
     useGameSpecificRewards?: boolean
 

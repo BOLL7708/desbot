@@ -1334,10 +1334,8 @@ class MainController {
             /**
              * Game specific reward configuration
              */
-            if(!this._useGameSpecificRewards) appId = undefined // This will disable all rewards.
-
             const allGameRewardKeys = Config.twitch.gameSpecificRewards
-            const gameSpecificRewards = Config.twitch.gameSpecificRewardsPerGame[appId]
+            const gameSpecificRewards = this._useGameSpecificRewards ? Config.twitch.gameSpecificRewardsPerGame[appId] : undefined
             const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
 
             /**
