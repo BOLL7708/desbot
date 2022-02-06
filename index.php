@@ -1,7 +1,6 @@
 <?php include_once('inc/utils.php'); ?>
 <html>
     <head>
-        <?=Utils::loadJSFiles()?>
         <title>Streaming Widget</title>
         <style>
             p { 
@@ -11,6 +10,7 @@
         </style>
     </head>
     <body>
+        <?=Utils::loadJSFiles()?>
         <script>
             const mainController = new MainController()
         </script>

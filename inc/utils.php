@@ -29,7 +29,6 @@ class Utils {
         }
     
         // Scan root for subfolders except configs and templates
-        // TODO: Files appears to load in the opposite order sometimes, load them out and sort them manually.
         $root = './dist/';
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {
@@ -44,6 +43,9 @@ class Utils {
                 $dir2 = new DirectoryIterator($root.$name);
                 foreach($dir2 as $file2) {
                     includeFile($root, $file2, $name);
+                    if($file2 == 'files.js') { // Filles a value in AssetFiles that needs to be filled before config loads.
+                        echo '<script>AssetFiles._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES).'</script>';
+                    }
                 }
             }
         }
@@ -87,4 +89,23 @@ class Utils {
         $b64 = str_pad(str_replace(['-', '_'], ['+', '/'], $b64url), $pad, '=');
         return base64_decode($b64);
     }
+
+    static function getAssetFiles() {
+        
+        function listFolderFiles($dir, $res)
+        {
+            foreach (new DirectoryIterator($dir) as $fileInfo) {
+                if (!$fileInfo->isDot()) {
+                    if ($fileInfo->isDir()) {
+                        $res = listFolderFiles($fileInfo->getPathname(), $res);
+                    } else {
+                        $res[] = str_replace('\\','/', $fileInfo->getPathname());
+                    }
+                }
+            }
+            return $res;
+        }
+
+        return listFolderFiles('_assets', []);
+    } 
 }

@@ -40,7 +40,7 @@ if($method === 'POST' || $method === 'PUT') {
         exit("File does not exist");
     }
     $contents = readSettings($filePath);
-    header("Content-Type: application/json");
+    header('Content-Type: application/json; charset=utf-8');
     exit(json_encode($contents));
 }
 
