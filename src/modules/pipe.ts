@@ -75,12 +75,14 @@ class Pipe {
             const margin = Config.pipe.customChatMessageConfig.margin
             const textRect = {
                 x: margin,
-                y: Config.pipe.customChatMessageConfig.top+margin,
+                y: Config.pipe.customChatMessageConfig.top + margin,
                 w: Config.pipe.customChatMessageConfig.width - margin * 2,
                 h: Config.pipe.customChatMessageConfig.textMaxHeight
             }
             const textResult = await imageEditor.buildTwitchText(customMessageData, textRect, Config.pipe.customChatMessageConfig.font)
-            
+            const isOneRow = textResult.rowsDrawn == 1
+            const size = textResult.pixelHeight + margin * 2
+
             // Draw background
             imageEditor.initiateEmptyCanvas(
                 Config.pipe.customChatMessageConfig.width,
@@ -89,16 +91,20 @@ class Pipe {
                 + margin * 2
             )
             imageEditor.drawBackground({
-                    x: 0,
-                    y: Config.pipe.customChatMessageConfig.top,
-                    w: textResult.rowsDrawn == 1 ? textResult.firstRowWidth + margin*2 : Config.pipe.customChatMessageConfig.width,
-                    h: textResult.pixelHeight + margin * 2
+                    x: isOneRow ? size : 0,
+                    y: isOneRow ? 0 : Config.pipe.customChatMessageConfig.top,
+                    w: isOneRow ? textResult.firstRowWidth + margin*2 : Config.pipe.customChatMessageConfig.width,
+                    h: size
                 }, 
                 Config.pipe.customChatMessageConfig.cornerRadius, 
                 Color.Gray
             )
 
             // Draw message
+            if(isOneRow) {
+                textRect.x = size + margin
+                textRect.y = margin
+            }
             imageEditor.drawBuiltTwitchText(textRect)
 
             // Avatar
@@ -110,20 +116,30 @@ class Pipe {
                         avatarConfig.outlines[outlineIndex].color = userColor ?? Color.White
                     }
                 }
+                // Draw
+                const avatarRect = isOneRow ? {
+                    x: 0,
+                    y: 0,
+                    w: size,
+                    h: size
+                } : avatarConfig.rect
+
                 // Draw image
                 await imageEditor.drawImage(
                     imageDataUrl, 
-                    avatarConfig.rect, 
+                    avatarRect, 
                     avatarConfig.cornerRadius, 
                     avatarConfig.outlines
                 )
             }
 
             // Name
-            const nameFontConfig = Utils.clone(Config.pipe.customChatNameConfig.font)
-            if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
-            if(displayName.length > 0) {
-                await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
+            if(textResult.rowsDrawn > 1) {
+                const nameFontConfig = Utils.clone(Config.pipe.customChatNameConfig.font)
+                if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
+                if(displayName.length > 0) {
+                    await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
+                }
             }
 
             // Show it

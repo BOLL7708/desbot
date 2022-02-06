@@ -109,7 +109,7 @@ class ImageEditor {
         font: IImageEditorFontSettings
     ) {
         // Setup
-        this._ctx.textBaseline = 'bottom'
+        this._ctx.textBaseline = 'middle'
         const weight = font.weight ?? 'normal'
         const fontStyle = `${weight} ${font.size}px ${font.family}`
         this._ctx.font = fontStyle
@@ -122,14 +122,15 @@ class ImageEditor {
         }
 
         // Outlines (under fill text)
+        const y = rect.y + rect.h/2
         if(font.outlines != undefined) {
             for(const outline of font.outlines) {
                 this._ctx.lineWidth = outline.width*2 // Only half will be visible.
                 this._ctx.strokeStyle = outline.color
-                this._ctx.strokeText(text, rect.x, rect.y + rect.h)
+                this._ctx.strokeText(text, rect.x, y)
             }
         }
-        this._ctx.fillText(text, rect.x, rect.y + rect.h)
+        this._ctx.fillText(text, rect.x, y)
     }
 
     private constructRoundedRectangle(context: CanvasRenderingContext2D, rect: IImageEditorRect, cornerRadius: number) {
