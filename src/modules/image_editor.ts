@@ -133,22 +133,39 @@ class ImageEditor {
         this._ctx.fillText(text, rect.x, y)
     }
 
-    private constructRoundedRectangle(context: CanvasRenderingContext2D, rect: IImageEditorRect, cornerRadius: number) {
+    private constructRoundedRectangle(context: CanvasRenderingContext2D, rect: IImageEditorRect, cornerRadius: number, margin: number = 0) {
+        const rectClone = Utils.clone(rect)
+        rectClone.x += margin
+        rectClone.y += margin
+        rectClone.w -= margin*2
+        rectClone.h -= margin*2
         context.beginPath()
-        context.moveTo(rect.x + cornerRadius, rect.y)
-        context.lineTo(rect.x + rect.w - cornerRadius, rect.y)
-        context.quadraticCurveTo(rect.x + rect.w, rect.y, rect.x + rect.w, rect.y + cornerRadius)
-        context.lineTo(rect.x + rect.w, rect.y + rect.h - cornerRadius)
-        context.quadraticCurveTo(rect.x + rect.w, rect.y + rect.h, rect.x + rect.w - cornerRadius, rect.y + rect.h)
-        context.lineTo(rect.x + cornerRadius, rect.y + rect.h)
-        context.quadraticCurveTo(rect.x, rect.y + rect.h, rect.x, rect.y + rect.h - cornerRadius)
-        context.lineTo(rect.x, rect.y + cornerRadius)
-        context.quadraticCurveTo(rect.x, rect.y, rect.x + cornerRadius, rect.y)
+        context.moveTo(rectClone.x + cornerRadius, rectClone.y)
+        context.lineTo(rectClone.x + rectClone.w - cornerRadius, rectClone.y)
+        context.quadraticCurveTo(rectClone.x + rectClone.w, rectClone.y, rectClone.x + rectClone.w, rectClone.y + cornerRadius)
+        context.lineTo(rectClone.x + rectClone.w, rectClone.y + rectClone.h - cornerRadius)
+        context.quadraticCurveTo(rectClone.x + rectClone.w, rectClone.y + rectClone.h, rectClone.x + rectClone.w - cornerRadius, rectClone.y + rectClone.h)
+        context.lineTo(rectClone.x + cornerRadius, rectClone.y + rectClone.h)
+        context.quadraticCurveTo(rectClone.x, rectClone.y + rectClone.h, rectClone.x, rectClone.y + rectClone.h - cornerRadius)
+        context.lineTo(rectClone.x, rectClone.y + cornerRadius)
+        context.quadraticCurveTo(rectClone.x, rectClone.y, rectClone.x + cornerRadius, rectClone.y)
         context.closePath()
     }
 
-    drawBackground(rect: IImageEditorRect, cornerRadius: number, color: string) {
-        this.constructRoundedRectangle(this._ctx, rect, cornerRadius)
+    /**
+     * Draw the background grahphics for the custom notification.
+     * @param rect 
+     * @param cornerRadius 
+     * @param color 
+     * @param outline 
+     */
+    drawBackground(rect: IImageEditorRect, cornerRadius: number, color: string, outline?: IImageEditorOutline) {
+        this.constructRoundedRectangle(this._ctx, rect, cornerRadius, outline.width/2)
+        if(outline != undefined) {
+            this._ctx.strokeStyle = outline?.color ?? Color.Black
+            this._ctx.lineWidth = outline?.width ?? 0
+            this._ctx.stroke()
+        }
         this._ctx.fillStyle = color
         this._ctx.fill()
     }
@@ -180,7 +197,8 @@ class ImageEditor {
         // Prepare emote data
         const emotes: IImageEditorEmote[] = []
         for(const emote of messageData.emotes ?? []) {
-            const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/3.0` // Does 3.0 resolution exist for all emotes? Looks nice at least.
+			// Using full resolution emojis appears to have murdered memory usage or something?
+            const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/` // Does 3.0 resolution exist for all emotes? Looks nice at least.
             for(const pos of emote.positions) {
                 emotes.push({
                     start: pos.start,
@@ -190,14 +208,20 @@ class ImageEditor {
             }
         }
         emotes.sort((a, b) => a.start - b.start)
-        
+        const emoteRes = emotes.length == 1 
+            ? '3.0' 
+            : emotes.length <= 3 
+                ? '2.0' 
+                : '1.0'
         const emoteSize = font.size*(font.lineSpacing ?? 1.1)
-        let nextEmote = emotes.shift();
-        let charIndex = 0;
-        let lineIndex = 0;
-        let x = 0;
+        const outlineMargin = font.outlines?.[0]?.width/2 ?? 0
+        let nextEmote = emotes.shift()
+        let charIndex = 0
+        let lineIndex = 0
+        let x = 0 + outlineMargin
         let y = 0 + font.size
         let outOfSpace = false
+        let writtenChars = 0
         for (const word of words) {
             const isEmote = nextEmote?.start == charIndex
             let wordToWrite = word
@@ -205,7 +229,7 @@ class ImageEditor {
             // Line break
             // TODO: should also break too long words? Hard to know where to break though, or ellipsize.
             let wordWidthPx = isEmote ? emoteSize : this._textCtx.measureText(word).width;
-            if (x + wordWidthPx >= rect.w) { // There is overflow
+            if (x + wordWidthPx >= rect.w - outlineMargin * 2) { // There is overflow
                 let ellipsize: boolean = false
                 if(x != 0) { // There is already text on this line
                     const newY = emoteSize * (lineIndex + 2) // 2: from first line + current line
@@ -215,7 +239,7 @@ class ImageEditor {
                     } else {
                         y = newY
                         lineIndex++
-                        x = 0
+                        x = outlineMargin
                     }
                     if(wordWidthPx > rect.h) {
                         ellipsize = true
@@ -236,12 +260,12 @@ class ImageEditor {
             // Draw
             if (isEmote) {
                 // Emote
-                const imageData = await ImageLoader.getDataUrl(nextEmote.url)
-                const img = await Utils.makeImage(imageData)
-                this._textCtx.drawImage(img, x, y - emoteSize, emoteSize, emoteSize);
-                if (emotes.length) nextEmote = emotes.shift();   
-                x += wordWidthPx + wordSpacing;
-                charIndex += word.length + 1;
+                const imageData = await ImageLoader.getDataUrl(`${nextEmote.url}/${emoteRes}`)
+                const img = await Utils.makeImage(imageData) // TODO: Make this cached?
+                this._textCtx.drawImage(img, x, y - emoteSize, emoteSize, emoteSize)
+                if (emotes.length) nextEmote = emotes.shift()
+                x += wordWidthPx + wordSpacing
+                charIndex += word.length + 1
             } else {
                 // Outlines (under fill text)
                 if(font.outlines != undefined) {
@@ -253,9 +277,10 @@ class ImageEditor {
                 }
 
                 // Text
-                this._textCtx.fillText(wordToWrite, x, y);
-                x += wordWidthPx + wordSpacing;
-                charIndex += [...word].length + 1;
+                this._textCtx.fillText(wordToWrite, x, y)
+                writtenChars += wordToWrite.length + 1
+                x += wordWidthPx + wordSpacing
+                charIndex += [...word].length + 1
             }
             if(outOfSpace) break // We can't fit any more
         }
@@ -264,7 +289,8 @@ class ImageEditor {
             firstRowWidth: x,
             rowsDrawn: lineIndex + 1,
             pixelHeight: y,
-            ellipsized: outOfSpace
+            ellipsized: outOfSpace,
+            writtenChars: writtenChars
         }
     }
 
@@ -278,4 +304,5 @@ interface ITwitchTextResult {
     rowsDrawn: number
     pixelHeight: number
     ellipsized: boolean
+    writtenChars: number
 }

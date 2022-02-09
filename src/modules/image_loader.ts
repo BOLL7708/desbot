@@ -16,8 +16,9 @@ class ImageLoader {
      * @param useCache Will load/store cached data
      */
     static async getDataUrl(url:string, useCache:boolean=true):Promise<string> {
-        const cache = (useCache && this._imageCache.hasOwnProperty(url)) 
-            ? this._imageCache[url] 
+        const urlb64 = btoa(url)
+        const cache = (useCache && this._imageCache.hasOwnProperty(urlb64)) 
+            ? this._imageCache[urlb64] 
             : null
         if(cache != null) {
             console.log('ImageLoader: Returning cached')
@@ -25,6 +26,7 @@ class ImageLoader {
                 resolve(cache) 
             })
         } else {
+            // Load image from the internet
             const blob = await this.getBlob(url)
             return new Promise((resolve, reject) => {
                 const reader = new FileReader()
@@ -39,14 +41,16 @@ class ImageLoader {
                         const imageEditor = new ImageEditor()
                         const success = await imageEditor.loadDataUrl(imageb64)
                         if(success) {
+                            console.log(`Loaded image from the internet: ${url}`)
                             const pngData = imageEditor.getDataUrl()
-                            ImageLoader._imageCache[url] = pngData
+                            ImageLoader._imageCache[urlb64] = pngData
                             resolve(pngData)
                         } else {
                             reject(new Error('ImageLoader: Failed to convert to png'))
                         }
                     } else {
-                        // This works
+                        // It was already .png
+                        ImageLoader._imageCache[urlb64] = imageb64
                         resolve(imageb64)
                     }
                 }

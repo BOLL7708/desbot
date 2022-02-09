@@ -49,7 +49,6 @@ class Utils {
         if(clearRanges.length > 0) clearRanges.forEach(range => {
             const charArr = [...text]
             text = charArr.slice(0, range.start).join('') + charArr.slice(range.end+1).join('');
-            console.log(text)
         })
         
         // Clear bit emojis
@@ -293,9 +292,7 @@ class Utils {
         return new Promise((resolve, reject) => {
             if(this.isDataUrl(urlOrData) || this.isUrl(urlOrData)) {
                 const img = new Image()
-                img.onload = function() {
-                    resolve(img)
-                }
+                img.onload = ()=>{ resolve(img) }
                 img.src = urlOrData
             } else {
                 resolve(null)

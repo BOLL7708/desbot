@@ -47,15 +47,16 @@ class Pipe {
         if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
         const cleanText = await Utils.cleanText(
-            message, 
-            hasBits, 
-            true, 
+            message,
+            hasBits,
+            true,
             TwitchFactory.getEmotePositions(messageData?.emotes ?? []),
             false
         )
+        
         // TODO: Maybe we should also skip if there are only punctuation?
-        if(cleanText.length == 0) return console.warn("Pipe: Clean text had zero length, skipping")
-
+        if(cleanText.length == 0 && !Config.pipe.useCustomChatNotification) return console.warn("Pipe: Clean text had zero length, skipping")
+        
         // Build message
         let done = false
         const imageDataUrl = profileUrl != undefined
@@ -84,20 +85,28 @@ class Pipe {
             const size = textResult.pixelHeight + margin * 2
 
             // Draw background
+            const maxCanvasWidth = Config.pipe.customChatMessageConfig.width
+            const actualCanvasWidth = isOneRow 
+                ? textResult.firstRowWidth + margin * 2 + size 
+                : maxCanvasWidth
             imageEditor.initiateEmptyCanvas(
-                Config.pipe.customChatMessageConfig.width,
+                actualCanvasWidth,
                 Config.pipe.customChatMessageConfig.top 
-                + textResult.pixelHeight
-                + margin * 2
+					+ textResult.pixelHeight
+					+ margin * 2
             )
             imageEditor.drawBackground({
                     x: isOneRow ? size : 0,
                     y: isOneRow ? 0 : Config.pipe.customChatMessageConfig.top,
-                    w: isOneRow ? textResult.firstRowWidth + margin*2 : Config.pipe.customChatMessageConfig.width,
+                    w: isOneRow ? textResult.firstRowWidth + margin * 2 : Config.pipe.customChatMessageConfig.width,
                     h: size
                 }, 
                 Config.pipe.customChatMessageConfig.cornerRadius, 
-                Color.Gray
+                Color.Gray,
+                {
+                    width: 16,
+                    color: '#666'
+                }
             )
 
             // Draw message
@@ -146,6 +155,12 @@ class Pipe {
             const messageDataUrl = imageEditor.getData()
             preset.imageData = messageDataUrl
             preset.imagePath = undefined
+            preset.durationMs = 2500 + textResult.writtenChars * 50
+            if(isOneRow) {
+                let width = preset.config.properties.width
+                // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
+                preset.config.properties.width = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
+            }
             this.showPreset(preset)
             done = true
         } 
