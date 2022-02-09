@@ -1515,7 +1515,7 @@ class MainController {
     }
 
     private buildPipeCallback(_this: MainController, config: IPipeMessagePreset|IPipeMessagePreset[]) {
-        if(config) return (message: ITwitchRedemptionMessage) => {
+        if(config) return async (message: ITwitchRedemptionMessage) => {
             /*
              * We check if we don't have enough texts to fill the preset 
              * and fill the empty spots up with the redeemer's display name.
@@ -1529,6 +1529,10 @@ class MainController {
                 if(textAreaCount > textCount) {
                     configClone.texts.length = textAreaCount
                     configClone.texts.fill(message.redemption.user.display_name, textCount, textAreaCount)
+                }
+                if(configClone.imageData == null && configClone.imagePath == null) {
+                    const user = await this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id))
+                    configClone.imagePath = user.profile_image_url
                 }
                 _this._pipe.showPreset(configClone)
             }
