@@ -1180,17 +1180,17 @@ class MainController {
                 const preset = Config.screenshots.callback.pipeMessagePreset
                 if(preset != undefined) {
                     const configClone: IPipeCustomMessage = Utils.clone(preset.config)
-                    configClone.image = responseData.image
-                    configClone.properties.duration = preset.durationMs
-                    if(configClone.textAreas.length > 0) {
-                        configClone.textAreas[0].text = `${responseData.width}x${responseData.height}`
+                    configClone.imageData = responseData.image
+                    configClone.customProperties.durationMs = preset.durationMs
+                    if(configClone.customProperties.textAreas.length > 0) {
+                        configClone.customProperties.textAreas[0].text = `${responseData.width}x${responseData.height}`
                     }
-                    if(requestData != null && configClone.textAreas.length > 1) {
+                    if(requestData != null && configClone.customProperties.textAreas.length > 1) {
                         const userData = await this._twitchHelix.getUserById(requestData.userId)
                         const title = requestData.userInput 
                             ? `"${requestData.userInput}"\n${userData.display_name}`
                             : userData.display_name
-                        configClone.textAreas[1].text = title
+                        configClone.customProperties.textAreas[1].text = title
                     }
                     this._pipe.sendCustom(configClone)
                 }
@@ -1523,7 +1523,7 @@ class MainController {
             if(!Array.isArray(config)) config = [config]
             for(const cfg of config) {
                 const configClone = Utils.clone(cfg)
-                const textAreaCount = configClone.config.textAreas.length
+                const textAreaCount = configClone.config.customProperties.textAreas.length
                 if(textAreaCount > 0 && configClone.texts == undefined) configClone.texts = []
                 const textCount = configClone.texts?.length ?? 0
                 if(textAreaCount > textCount) {

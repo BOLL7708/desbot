@@ -157,9 +157,9 @@ class Pipe {
             preset.imagePath = undefined
             preset.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
-                let width = preset.config.properties.width
+                let width = preset.config.customProperties.widthM
                 // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
-                preset.config.properties.width = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
+                preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
             }
             this.showPreset(preset)
             done = true
@@ -201,12 +201,12 @@ class Pipe {
         // If the above resulted in image data, broadcast it
         const config = Utils.clone(preset.config)
         if(imageb64 != null) {
-            config.image = Utils.removeImageHeader(imageb64)
-            config.properties.hz = -1
-            config.properties.duration = preset.durationMs;
-            if(preset.texts != undefined && preset.texts.length >= config.textAreas.length) {
+            config.imageData = Utils.removeImageHeader(imageb64)
+            config.customProperties.animationHz = -1
+            config.customProperties.durationMs = preset.durationMs;
+            if(preset.texts != undefined && preset.texts.length >= config.customProperties.textAreas.length) {
                 for(let i=0; i<preset.texts.length; i++) {
-                    config.textAreas[i].text = preset.texts[i]
+                    config.customProperties.textAreas[i].text = preset.texts[i]
                 }
             }
             this.sendCustom(config)

@@ -95,19 +95,12 @@ interface IPipeCustomMessage {
      * 
      * See more in {@link IPipeCustomProperties}
      */
-    image?: string
-    custom: boolean
-    properties: IPipeCustomProperties
+    imageData?: string
+
     /**
-     * Include one transition object for same in/out, two for different in/out.
-     * 
-     * See more in {@link IPipeCustomTransition}
+     * Properties for the custom notification.
      */
-    transitions: IPipeCustomTransition[]
-    /**
-     * Define any number of text areas to be displayed on the image.
-     */
-    textAreas: IPipeCustomTextArea[]
+    customProperties: IPipeCustomProperties
 }
 
 /**
@@ -115,69 +108,96 @@ interface IPipeCustomMessage {
  */
 interface IPipeCustomProperties {
     /**
+     * Set to true to show a custom notification instead of a basic one.
+     */
+    enabled: boolean
+
+    /**
      * What to anchor the notification to:
      * 0: World
      * 1: Headset
      * 2: Left Hand
      * 3: Right Hand
      */
-    anchor: number
+    anchorType: number
+
+    /**
+     * Fix the notification to the anchor
+     */
+    attachToAnchor: boolean
 
     /**
      * Align the notification to the horizontal plane of the world
      */
-    horizontal: boolean 
+    forceHorizontal: boolean 
     
     /**
      * Ignore headset pitch when spawning notification
      */
-    level: boolean
+    forceVertical: boolean
 
     /**
      * The channel for this notification. 
      * Each channel has a separate queue and can be shown simultaneously.
      */
-    channel: number
+    overlayChannel: number
 
     /**
      * Animation Hz, is set to -1 to run at headset Hz
      */
-    hz?: number
+    animationHz?: number
 
     /**
      * Duration in milliseconds, is set by preset so should be left out.
      */
-    duration?: number
+    durationMs?: number
 
     /**
      * Physical width of the notification in meters
      */
-    width: number
+    widthM: number
     
     /**
      * Physical distance to the notification in meters
      */
-    distance: number
-    
-    /**
-     * Angle up or down in degrees
-     */
-    pitch: number
-    
-    /**
-     * Angle left or right in degrees
-     */
-    yaw: number
-    
-    /**
-     * Offsets horizontally in meters
-     */
-    offsetx: number
+    zDistanceM: number
     
     /**
      * Offsets vertically in meters
      */
-    offsety: number
+    yDistanceM: number
+
+    /**
+     * Offsets horizontally in meters
+     */
+    xDistanceM: number
+
+    /**
+     * Angle left or right in degrees
+     */
+    yawDeg: number
+
+    /**
+     * Angle up or down in degrees
+     */
+    pitchDeg: number
+    
+    /**
+     * Spin angle in degrees
+     */
+    rollDeg: number
+
+    /**
+     * Include one transition object for same in/out, two for different in/out.
+     * 
+     * See more in {@link IPipeCustomTransition}
+     */
+     transitions: IPipeCustomTransition[]
+
+     /**
+      * Define any number of text areas to be displayed on the image.
+      */
+     textAreas: IPipeCustomTextArea[]
 }
 
 /**
@@ -185,28 +205,28 @@ interface IPipeCustomProperties {
  * A value is transitioned from, then we display the image, then to
  */
 interface IPipeCustomTransition {
-    scale: number
-    opacity: number
-    vertical: number
-    distance: number
-    horizontal: number
-    spin: number
-    tween: number
-    duration: number
+    scalePer: number
+    opacityPer: number
+    zDistanceM: number
+    yDistanceM: number
+    xDistanceM: number
+    rollDeg: number
+    durationMs: number
+    tweenType: number
 }
 
 /**
  * Layout properties for text areas
  */
 interface IPipeCustomTextArea {
-    posx: number
-    posy: number
-    width: number
-    height: number
-    size: number
     text?: string
-    font: string
-    color: string
-    gravity: number
-    alignment: number
+    xPositionPx: number
+    yPositionPx: number
+    widthPx: number
+    heightPx: number
+    fontSizePt: number
+    fontFamily: string
+    fontColor: string
+    horizontalAlignment: number
+    verticalAlignment: number
 }
