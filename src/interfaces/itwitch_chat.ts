@@ -12,6 +12,7 @@ interface ITwitchChatMessage {
     isAction: boolean
 }
 interface ITwitchChatMessageProperties {
+    // Standard
     data: string
     '@badge-info'?: string
     badges?: string
@@ -31,6 +32,14 @@ interface ITwitchChatMessageProperties {
     'user-id'?: string
     'user-type'?: string
     bits?: string
+
+    // Thread
+    'reply-parent-display-name'?: string
+    'reply-parent-msg-body'?: string
+    'reply-parent-msg-id'?: string
+    'reply-parent-user-id'?: string
+    'reply-parent-user-login'?: string
+
     [x: string]: any
 }
 

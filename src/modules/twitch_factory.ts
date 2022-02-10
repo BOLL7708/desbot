@@ -1,7 +1,7 @@
 class TwitchFactory {
     static userColors: Record<number, string> = {}
 
-    static buildMessage(data:string):ITwitchChatMessage {
+    private static buildMessage(data:string):ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
         const matches:RegExpExecArray = re.exec(data)
         let matches2:RegExpExecArray = null
@@ -11,14 +11,21 @@ class TwitchFactory {
             matches2 = re2.exec(matches[4] || '')
             isAction = matches2 != null
         }
+
+        let messageText = isAction 
+            ? (1 in (matches2  || []) ? matches2[1] : null) // Trimmed message after matching action
+            : (4 in (matches  || []) ? matches[4] : null) // Message
+        
+        /**
+         * Constructs a TwitchChatMessage object from a raw IRC message.
+         * `(x in [])` checks if that index is present in the array.
+         */
         const message:ITwitchChatMessage = {
             data: data,
             username: (1 in (matches || [])) ? matches[1] : null,
             type: (2 in (matches || [])) ? matches[2] : null,
             channel: (3 in (matches || [])) ? matches[3] : null,
-            text: isAction 
-                ? (1 in (matches2  || []) ? matches2[1] : null) 
-                : (4 in (matches  || []) ? matches[4] : null),
+            text: messageText,
             isAction: isAction
         }
         return message
@@ -36,6 +43,8 @@ class TwitchFactory {
         })
         const properties: ITwitchChatMessageProperties = {
             data: data,
+
+            // Standard
             '@badge-info': props['@badge-info'],
             badges: props.badges,
             bits: props.bits,
@@ -44,6 +53,7 @@ class TwitchFactory {
             'custom-reward-id': props['custom-reward-id'],
             'display-name': props['display-name'],
             emotes: this.buildMessageEmotes(props.emotes),
+            'first-msg': props['first-msg'],
             flags: props.flags,
             id: props.id,
             mod: props.mod,
@@ -52,7 +62,14 @@ class TwitchFactory {
             'tmi-sent-ts': props['tmi-sent-ts'],
             turbo: props.turbo,
             'user-id': props['user-id'],
-            'user-type': props['user-type']
+            'user-type': props['user-type'],
+
+            // Thread
+            'reply-parent-display-name': props['reply-parent-display-name'],
+            'reply-parent-msg-body': props['reply-parent-msg-body'],
+            'reply-parent-msg-id': props['reply-parent-msg-id'],
+            'reply-parent-user-id': props['reply-parent-user-id'],
+            'reply-parent-user-login': props['reply-parent-user-login']
         }
         return properties
     }
@@ -89,6 +106,8 @@ class TwitchFactory {
             properties: this.buildMessageProperties(props),
             message: this.buildMessage(msg)
         }
+        
+        // Cache user color
         const userId = messageCmd.properties['user-id']
         if(
             userId 
@@ -96,6 +115,15 @@ class TwitchFactory {
             && messageCmd.properties.color
         ) {
             this.userColors[userId] = messageCmd.properties.color
+        }
+
+        // Will truncate the default user tag at the start if it is a response to a thread.
+        if(messageCmd.properties['reply-parent-display-name'] != null) {
+            const replyParentUserDisplayName = messageCmd.properties['reply-parent-display-name']
+            let text = messageCmd.message.text
+            messageCmd.message.text = text.startsWith(`@${replyParentUserDisplayName} `)
+                ? text.substring(replyParentUserDisplayName.length+2) 
+                : text
         }
         return messageCmd
     }
