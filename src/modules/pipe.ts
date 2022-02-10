@@ -16,9 +16,9 @@ class Pipe {
     }
 
     setOverlayTitle(title: string) {
-        this._socket.send(JSON.stringify({
-            title: title,
-            message: "Initializing Notification Pipe for Streaming Widget"
+        this._socket.send(JSON.stringify(<IPipeBasicMessage>{
+            basicTitle: title,
+            basicMessage: "Initializing Notification Pipe for Streaming Widget"
         }))
     }
 
@@ -168,21 +168,21 @@ class Pipe {
         if(!done) { // SteamVR notification
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(imageDataUrl != null) {
-                this._socket.send(JSON.stringify({
-                    title: "",
-                    message: text,
-                    image: Utils.removeImageHeader(imageDataUrl)
+                this._socket.send(JSON.stringify(<IPipeBasicMessage>{
+                    basicTitle: "",
+                    basicMessage: text,
+                    imageData: Utils.removeImageHeader(imageDataUrl)
                 }))
             } else {
-                this._socket.send(JSON.stringify({
-                    title: "",
-                    message: text,
+                this._socket.send(JSON.stringify(<IPipeBasicMessage>{
+                    basicTitle: "",
+                    basicMessage: text,
                 }))
             }
         }
     }
 
-    sendCustom(message:IPipeCustomMessage) {
+    sendCustom(message: IPipeCustomMessage) {
         this._socket.send(JSON.stringify(message))
     }
 

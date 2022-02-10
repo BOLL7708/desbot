@@ -86,6 +86,12 @@ interface IPipeCustomMessageAvatarConfig {
 }
 // Data
 
+interface IPipeBasicMessage {
+    imageData?: string
+    basicTitle: string
+    basicMessage: string
+}
+
 /**
  * This is what is sent to the Pipe application
  */
@@ -127,14 +133,14 @@ interface IPipeCustomProperties {
     attachToAnchor: boolean
 
     /**
-     * Align the notification to the horizontal plane of the world
-     */
-    forceHorizontal: boolean 
-    
-    /**
      * Ignore headset pitch when spawning notification
      */
-    forceVertical: boolean
+    attachToHorizon: boolean 
+    
+    /**
+     * Align the notification to the horizontal plane of the world
+     */
+    alignToHorizon: boolean
 
     /**
      * The channel for this notification. 
@@ -151,6 +157,11 @@ interface IPipeCustomProperties {
      * Duration in milliseconds, is set by preset so should be left out.
      */
     durationMs?: number
+
+    /**
+     * Opacity of the notification, 1 = 100%
+     */
+    opacityPer: number
 
     /**
      * Physical width of the notification in meters
