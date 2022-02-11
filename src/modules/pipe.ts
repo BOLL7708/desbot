@@ -204,7 +204,11 @@ class Pipe {
             config.imageData = Utils.removeImageHeader(imageb64)
             config.customProperties.animationHz = -1
             config.customProperties.durationMs = preset.durationMs;
-            if(preset.texts != undefined && preset.texts.length >= config.customProperties.textAreas.length) {
+            if(
+                config.customProperties.textAreas != undefined
+                && preset.texts != undefined 
+                && preset.texts.length >= config.customProperties.textAreas.length
+            ) {
                 for(let i=0; i<preset.texts.length; i++) {
                     config.customProperties.textAreas[i].text = preset.texts[i]
                 }

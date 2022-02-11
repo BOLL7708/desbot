@@ -88,8 +88,8 @@ interface IPipeCustomMessageAvatarConfig {
 
 interface IPipeBasicMessage {
     imageData?: string
-    basicTitle: string
-    basicMessage: string
+    basicTitle?: string
+    basicMessage?: string
 }
 
 /**
@@ -106,7 +106,7 @@ interface IPipeCustomMessage {
     /**
      * Properties for the custom notification.
      */
-    customProperties: IPipeCustomProperties
+    customProperties?: IPipeCustomProperties
 }
 
 /**
@@ -116,7 +116,7 @@ interface IPipeCustomProperties {
     /**
      * Set to true to show a custom notification instead of a basic one.
      */
-    enabled: boolean
+    enabled?: boolean
 
     /**
      * What to anchor the notification to:
@@ -125,28 +125,28 @@ interface IPipeCustomProperties {
      * 2: Left Hand
      * 3: Right Hand
      */
-    anchorType: number
+    anchorType?: number
 
     /**
      * Fix the notification to the anchor
      */
-    attachToAnchor: boolean
+    attachToAnchor?: boolean
 
     /**
      * Ignore headset pitch when spawning notification
      */
-    attachToHorizon: boolean 
+    attachToHorizon?: boolean 
     
     /**
      * Align the notification to the horizontal plane of the world
      */
-    alignToHorizon: boolean
+    alignToHorizon?: boolean
 
     /**
      * The channel for this notification. 
      * Each channel has a separate queue and can be shown simultaneously.
      */
-    overlayChannel: number
+    overlayChannel?: number
 
     /**
      * Animation Hz, is set to -1 to run at headset Hz
@@ -161,54 +161,69 @@ interface IPipeCustomProperties {
     /**
      * Opacity of the notification, 1 = 100%
      */
-    opacityPer: number
+    opacityPer?: number
 
     /**
      * Physical width of the notification in meters
      */
-    widthM: number
+    widthM?: number
     
     /**
      * Physical distance to the notification in meters
      */
-    zDistanceM: number
+    zDistanceM?: number
     
     /**
      * Offsets vertically in meters
      */
-    yDistanceM: number
+    yDistanceM?: number
 
     /**
      * Offsets horizontally in meters
      */
-    xDistanceM: number
+    xDistanceM?: number
 
     /**
      * Angle left or right in degrees
      */
-    yawDeg: number
+    yawDeg?: number
 
     /**
      * Angle up or down in degrees
      */
-    pitchDeg: number
+    pitchDeg?: number
     
     /**
      * Spin angle in degrees
      */
-    rollDeg: number
+    rollDeg?: number
+
+    /**
+     * Follow settings
+     */
+    follow?: IPipeCustomFollow
 
     /**
      * Include one transition object for same in/out, two for different in/out.
      * 
      * See more in {@link IPipeCustomTransition}
      */
-     transitions: IPipeCustomTransition[]
+     transitions?: IPipeCustomTransition[]
 
      /**
       * Define any number of text areas to be displayed on the image.
       */
-     textAreas: IPipeCustomTextArea[]
+     textAreas?: IPipeCustomTextArea[]
+}
+
+/**
+ * Follow 
+ */
+interface IPipeCustomFollow {
+    enabled?: boolean,
+    triggerAngle?: number,
+    durationMs?: number,
+    tweenType?: number
 }
 
 /**
@@ -216,14 +231,14 @@ interface IPipeCustomProperties {
  * A value is transitioned from, then we display the image, then to
  */
 interface IPipeCustomTransition {
-    scalePer: number
-    opacityPer: number
-    zDistanceM: number
-    yDistanceM: number
-    xDistanceM: number
-    rollDeg: number
-    durationMs: number
-    tweenType: number
+    scalePer?: number
+    opacityPer?: number
+    zDistanceM?: number
+    yDistanceM?: number
+    xDistanceM?: number
+    rollDeg?: number
+    durationMs?: number
+    tweenType?: number
 }
 
 /**
@@ -231,13 +246,13 @@ interface IPipeCustomTransition {
  */
 interface IPipeCustomTextArea {
     text?: string
-    xPositionPx: number
-    yPositionPx: number
-    widthPx: number
-    heightPx: number
-    fontSizePt: number
-    fontFamily: string
-    fontColor: string
-    horizontalAlignment: number
-    verticalAlignment: number
+    xPositionPx?: number
+    yPositionPx?: number
+    widthPx?: number
+    heightPx?: number
+    fontSizePt?: number
+    fontFamily?: string
+    fontColor?: string
+    horizontalAlignment?: number
+    verticalAlignment?: number
 }

@@ -1523,7 +1523,7 @@ class MainController {
             if(!Array.isArray(config)) config = [config]
             for(const cfg of config) {
                 const configClone = Utils.clone(cfg)
-                const textAreaCount = configClone.config.customProperties.textAreas.length
+                const textAreaCount = configClone.config.customProperties.textAreas?.length ?? 0
                 if(textAreaCount > 0 && configClone.texts == undefined) configClone.texts = []
                 const textCount = configClone.texts?.length ?? 0
                 if(textAreaCount > textCount) {
