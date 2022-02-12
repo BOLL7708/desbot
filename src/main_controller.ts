@@ -1514,7 +1514,7 @@ class MainController {
         else return null
     }
 
-    private buildPipeCallback(_this: MainController, config: IPipeMessagePreset|IPipeMessagePreset[]) {
+    private buildPipeCallback(_this: MainController, config: IPipeMessagePreset|IPipeMessagePreset[]|undefined) {
         if(config) return async (message: ITwitchRedemptionMessage) => {
             /*
              * We check if we don't have enough texts to fill the preset 

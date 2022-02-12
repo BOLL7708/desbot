@@ -214,14 +214,18 @@ class Utils {
     }
 
     /**
-     * Meant to support more tags in the future, right now only %name ends up as the redeemers username as a tag.
+     * Meant to support more tags in the future. 
+     * - Replaces %name ends with the redeemers username as a tag.
+     * - Replaces %input with the redeemers input, if provided.
      * @param text 
      * @param message 
      * @returns 
      */
-    static replaceTagsInString(text:string, message: ITwitchRedemptionMessage) {
+    static replaceTagsInString(text: string, message: ITwitchRedemptionMessage) {
         const login = message?.redemption?.user?.login
+        const input = message?.redemption?.user_input
         if(login != undefined) text = text.replace(/%name/g, ` @${login} `)
+        if(input != undefined) text = text.replace(/%input/g, ` ${input} `)
         return text
     }
 

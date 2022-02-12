@@ -38,7 +38,7 @@ interface IObsSourceConfig {
      */
     filterName?: string
     /**
-     * Optional: The source will be hidden again after this amount of milliseconds, or provided.
+     * Optional: The source/filter will be hidden/inactivated again after this amount of milliseconds, or provided.
      */
     durationMs?: number
 }
