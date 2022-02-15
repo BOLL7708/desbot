@@ -203,6 +203,8 @@ interface IPipeCustomProperties {
      */
     follow?: IPipeCustomFollow
 
+    animations?: IPipeCustomAnimation[]
+
     /**
      * Include one transition object for same in/out, two for different in/out.
      * 
@@ -220,10 +222,19 @@ interface IPipeCustomProperties {
  * Follow 
  */
 interface IPipeCustomFollow {
-    enabled?: boolean,
-    triggerAngle?: number,
-    durationMs?: number,
+    enabled?: boolean
+    triggerAngle?: number
+    durationMs?: number
     tweenType?: number
+}
+
+interface IPipeCustomAnimation {
+    property?: number
+    amplitude?: number
+    frequency?: number
+    phase?: number
+    waveform?: number
+    flipWaveform?: boolean
 }
 
 /**
@@ -236,6 +247,8 @@ interface IPipeCustomTransition {
     zDistanceM?: number
     yDistanceM?: number
     xDistanceM?: number
+    yawDeg?: number
+    pitchDeg?: number
     rollDeg?: number
     durationMs?: number
     tweenType?: number
