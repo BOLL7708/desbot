@@ -180,118 +180,142 @@ class ImageEditor {
      * @param font Font settings
      */
     async buildTwitchText(messageData: ITwitchMessageData, rect: IImageEditorRect, font: IImageEditorFontSettings): Promise<ITwitchTextResult> {
-        // Setup
+        // Return values
+        const result: ITwitchTextResult = {
+            firstRowWidth: 0,
+            rowsDrawn: 1,
+            pixelHeight: 0,
+            ellipsized: false,
+            writtenChars: 0
+        }
+
+        // Canvas Setup
+        const outlineMarginPx = font.outlines?.[0]?.width/2 ?? 0
         this._textCanvas.width = rect.w
         this._textCanvas.height = rect.h
-        this._textCtx.textBaseline = 'bottom'
+        this._textCtx.textBaseline = 'top'
         const weight = font.weight ?? 'normal'
         const fontStyle = `${weight} ${font.size}px ${font.family}`
         this._textCtx.font = fontStyle
         this._textCtx.fillStyle = font.color ?? 'white'
-        
-        // Init text vars
-        const messageContent = messageData.text.split('\n').join(' ') // Probably redundant but just in case?
-        const words = messageContent.split(' ')
-        const wordSpacing = this._textCtx.measureText(' ').width
+        const wordSpacingPx = this._textCtx.measureText(' ').width // TODO: Multiply with scale factor from config
+        const ellipsisWidthPx = this._textCtx.measureText('…').width
+        const lineHeightPx = font.size*(font.lineSpacing ?? 1.1) 
+        const emoteSizePx = lineHeightPx // TODO: Allow a scale factor for the actual drawing?
 
-        // Prepare emote data
-        const emotes: IImageEditorEmote[] = []
+        // Generate emote data set
+        const emotes: Record<number, string> = {}
+        let emoteCount = 0
         for(const emote of messageData.emotes ?? []) {
 			// Using full resolution emojis appears to have murdered memory usage or something?
             const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/` // Does 3.0 resolution exist for all emotes? Looks nice at least.
             for(const pos of emote.positions) {
-                emotes.push({
-                    start: pos.start,
-                    end: pos.end,
-                    url: url
-                })
+                emoteCount++
+                emotes[pos.start] = url
             }
         }
-        emotes.sort((a, b) => a.start - b.start)
-        const emoteRes = emotes.length == 1 
+
+        // Generate text data set
+        interface ImageEditorTwitchWord {
+            text: string
+            length: number
+            widthPx: number
+            emoteUrl?: string
+        }
+        let totalLength = 0
+        const words: ImageEditorTwitchWord[] = messageData.text.split(' ').map(word => {
+            const emoteUrl = emotes[totalLength] ?? undefined
+            totalLength += word.length + 1
+            return <ImageEditorTwitchWord>{
+                text: word, 
+                length: word.length, 
+                widthPx: emoteUrl != undefined ? emoteSizePx : this._textCtx.measureText(word).width,
+                emoteUrl: emoteUrl
+            }
+        })
+
+        /*
+         * We have the words array of interfaces.
+         * This should allow us to draw the full text.
+         * Inlcuding Twitch emote support.
+         */
+        
+        // Prep drawing
+        const emoteRes = emoteCount <= 3  
             ? '3.0' 
-            : emotes.length <= 3 
+            : emoteCount <= 6 
                 ? '2.0' 
                 : '1.0'
-        const emoteSize = font.size*(font.lineSpacing ?? 1.1)
-        const outlineMargin = font.outlines?.[0]?.width/2 ?? 0
-        let nextEmote = emotes.shift()
-        let charIndex = 0
-        let lineIndex = 0
-        let x = 0 + outlineMargin
-        let y = 0 + font.size
-        let outOfSpace = false
-        let writtenChars = 0
-        for (const word of words) {
-            const isEmote = nextEmote?.start == charIndex
-            let wordToWrite = word
-            
-            // Line break
-            // TODO: should also break too long words? Hard to know where to break though, or ellipsize.
-            let wordWidthPx = isEmote ? emoteSize : this._textCtx.measureText(word).width;
-            if (x + wordWidthPx >= rect.w - outlineMargin * 2) { // There is overflow
-                let ellipsize: boolean = false
-                if(x != 0) { // There is already text on this line
-                    const newY = emoteSize * (lineIndex + 2) // 2: from first line + current line
-                    if(newY > rect.h) { // There is no space for the next line
-                        outOfSpace = true
-                        ellipsize = true
-                    } else {
-                        y = newY
-                        lineIndex++
-                        x = outlineMargin
-                    }
-                    if(wordWidthPx > rect.h) {
-                        ellipsize = true
-                    }
-                } else ellipsize = true
-                
-                // We need to ellipsize this word
-                if(ellipsize) {
-                    let splitCount = 0
-                    while(x + wordWidthPx >= rect.w) {
-                        splitCount++
-                        wordToWrite = word.slice(0, Math.floor(word.length/splitCount))+'…'
-                        wordWidthPx = this._textCtx.measureText(wordToWrite).width
-                    }
+        let wordPosX = outlineMarginPx
+        let wordPosY = 0
+        let isLastLine = false
+        for(let i=0; i<words.length; i++) {
+            const word = words[i]
+            const nextWord = words[i+1] ?? null
+
+            // Shorten a word if it's bigger than the box
+            const textSpacePx = rect.w - outlineMarginPx*2
+            if(word.widthPx >= textSpacePx) {
+                while(word.widthPx+ellipsisWidthPx >= textSpacePx) {
+                    word.text = word.text.substring(0, Math.floor(word.text.length/2))
+                    word.widthPx = this._textCtx.measureText(word.text).width
                 }
+                word.text += '…'
+                word.length++
+                word.widthPx += ellipsisWidthPx
             }
 
+            // Check what fits, and act on it
+            const fitBase = rect.w - wordPosX - word.widthPx - outlineMarginPx
+            const wordFits = fitBase >= 0
+            const wordFitsWithEllipsis = fitBase - ellipsisWidthPx >= 0
+            const nextWordFits = nextWord != undefined 
+                ? rect.w - wordPosX - word.widthPx - wordSpacingPx - nextWord.widthPx >= 0
+                : true
+            if(isLastLine) { // If last line, we ellipsise
+                if(!wordFits || !nextWordFits) {
+                    word.text = wordFitsWithEllipsis ? word.text+'…' : '…'
+                    word.widthPx = ellipsisWidthPx
+                    result.ellipsized = true
+                }
+            } else { // If not last line, we switch to next line
+                if(!wordFits) {
+                    wordPosY += lineHeightPx
+                    wordPosX = outlineMarginPx
+                    isLastLine = rect.h - (wordPosY + lineHeightPx * 2) < 0
+                    result.rowsDrawn++
+                }
+            }
+            // TODO: Check somewhere if X was already zero and the word does not fit, we should truncated it.
+
             // Draw
-            if (isEmote) {
+            if (word.emoteUrl != undefined) {
                 // Emote
-                const imageData = await ImageLoader.getDataUrl(`${nextEmote.url}/${emoteRes}`)
+                const imageData = await ImageLoader.getDataUrl(`${word.emoteUrl}/${emoteRes}`)
                 const img = await Utils.makeImage(imageData) // TODO: Make this cached?
-                this._textCtx.drawImage(img, x, y - emoteSize, emoteSize, emoteSize)
-                if (emotes.length) nextEmote = emotes.shift()
-                x += wordWidthPx + wordSpacing
-                charIndex += word.length + 1
+                this._textCtx.drawImage(img, wordPosX, wordPosY, word.widthPx, word.widthPx)
+                wordPosX += word.widthPx + ((nextWord?.emoteUrl != undefined) ? 0 : wordSpacingPx) // Makes neighbor emotes cozy close together                
             } else {
                 // Outlines (under fill text)
                 if(font.outlines != undefined) {
                     for(const outline of font.outlines) {
                         this._textCtx.lineWidth = outline.width*2 // Only half will be visible.
                         this._textCtx.strokeStyle = outline.color
-                        this._textCtx.strokeText(wordToWrite, x, y)
+                        this._textCtx.strokeText(word.text, wordPosX, wordPosY)
                     }
                 }
 
                 // Text
-                this._textCtx.fillText(wordToWrite, x, y)
-                writtenChars += wordToWrite.length + 1
-                x += wordWidthPx + wordSpacing
-                charIndex += [...word].length + 1
+                this._textCtx.fillText(word.text, wordPosX, wordPosY)
+                result.writtenChars += word.length+1
+                wordPosX += word.widthPx + wordSpacingPx
             }
-            if(outOfSpace) break // We can't fit any more
+            if(result.ellipsized) break // We can't fit any more words.
         }
-
-        return {
-            firstRowWidth: x,
-            rowsDrawn: lineIndex + 1,
-            pixelHeight: y,
-            ellipsized: outOfSpace,
-            writtenChars: writtenChars
-        }
+        
+        result.firstRowWidth = wordPosX
+        result.pixelHeight = wordPosY + lineHeightPx
+        return result
     }
 
     drawBuiltTwitchText(rect: IImageEditorRect) {

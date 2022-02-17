@@ -1026,14 +1026,7 @@ class MainController {
             // Pipe to VR (basic)
             if(this._pipeAllChat) {
                 const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
-                
-                // TODO: Temporary cancellation at too many emojis
-                const emotePositions = messageData.emotes?.map((emote) => emote?.positions?.length ?? 0) ?? []
-                const emoteCount = emotePositions.length > 0 ? emotePositions.reduce((prev, current) => prev + current ) : 0
-                if(emoteCount <= 15) {
-                    // Send message
-                    this._pipe.sendBasicObj(messageData, userData, user)
-                }
+                this._pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
