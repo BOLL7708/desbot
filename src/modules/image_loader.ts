@@ -49,4 +49,12 @@ class ImageLoader {
             })
         }
     }
+    
+    /**
+     * Will check if the header belongs to an image
+     * @param header Header to check
+     */
+    static isImage(header:string):boolean {
+        return header.indexOf('image/png') != -1 || header.indexOf('image/jpeg') != -1 || header.indexOf('image/jpg') != -1 || header.indexOf('image/gif') != -1 || header.indexOf('image/bmp') != -1
+    }
 }
