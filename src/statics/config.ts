@@ -31,6 +31,7 @@ class Config {
     static credentials: ICredentialsConfig = undefined
     static controller: IControllerConfig = undefined
     static google: IGoogleConfig = undefined
+    static steam: ISteamConfig = undefined
     static obs: IObsConfig = undefined
     static pipe: IPipeConfig = undefined
     static screenshots: IScreenshotConfig = undefined

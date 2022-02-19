@@ -56,6 +56,9 @@ interface IOpenVRWSCommandMessage {
 }
 
 // Callbacks
+interface IOpenVR2WSStatusCallback {
+    (status: boolean): void
+}
 interface IOpenVR2WSInputCallback {
     (key: string, data: IOpenVR2WSInputData): void
 }

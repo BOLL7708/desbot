@@ -12,6 +12,7 @@ class WebSockets {
     ) {
         this._serverUrl = serverUrl
         this._reconnectIntervalSeconds = reconnectIntervalSeconds
+        this._reconnectIntervalSecondsTotal = reconnectIntervalSeconds
         this._messageQueueing = messageQueueing
         this._onOpen = onOpen
         this._onClose = onClose
@@ -21,6 +22,7 @@ class WebSockets {
 
     private _socket: WebSocket
     private _reconnectIntervalSeconds: number
+    private _reconnectIntervalSecondsTotal: number
     private _reconnectIntervalHandle: number
     private _connected: boolean = false
     private _serverUrl: string
@@ -52,7 +54,8 @@ class WebSockets {
 
     private startConnectLoop(immediate:boolean = false) {
         this.stopConnectLoop()
-        this._reconnectIntervalHandle = setInterval(this.connect.bind(this), this._reconnectIntervalSeconds*1000)
+        this._reconnectIntervalHandle = setInterval(this.connect.bind(this), this._reconnectIntervalSecondsTotal*1000)
+        this._reconnectIntervalSecondsTotal *= 2
         if(immediate) this.connect()
     }
     private stopConnectLoop() {
@@ -60,6 +63,7 @@ class WebSockets {
     }
 
     private connect() {
+        this._socket?.close()
         this._socket = null
         this._socket = new WebSocket(this._serverUrl)
 	    this._socket.onopen = onOpen.bind(this)
@@ -70,6 +74,7 @@ class WebSockets {
 
         function onOpen(evt: Event) {
             Utils.log(`WS: ${this._serverUrl}: Connected`, that.LOG_COLOR, true)
+            this._reconnectIntervalSecondsTotal = this._reconnectIntervalSeconds
             this._connected = true
             this.stopConnectLoop()
             this._onOpen(evt)

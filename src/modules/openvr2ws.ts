@@ -9,8 +9,8 @@ class OpenVR2WS {
     private _resetLoopHandle: number = 0
     private _resetMessages: Record<number, IOpenVRWSCommandMessage> = {}
     private _resetTimers: Record<number, number> = {}
+    private _isConnected: boolean = null
     _currentAppId: string // Updated every time an ID is received
-    _lastAppId: string // Updated only when a new valid ID is received
     
     constructor() {
         const port = Config.openvr2ws.port
@@ -20,6 +20,8 @@ class OpenVR2WS {
             false
         )
         this._socket._onMessage = this.onMessage.bind(this),
+        this._socket._onOpen = this.onOpen.bind(this)
+        this._socket._onClose = this.onClose.bind(this)
         this._socket._onError = this.onError.bind(this)
     }
 
@@ -34,15 +36,16 @@ class OpenVR2WS {
         this._resetLoopHandle = setInterval(this.resetSettings.bind(this), 1000)
     }
 
-    private _appIdCallback: IOpenVR2WSAppIdCallback = (appId) => {}
-    setAppIdCallback(callback: IOpenVR2WSAppIdCallback) {
-        callback.call(undefined) // To disable game specific rewards
-        this._appIdCallback = callback
-    }
-    triggerAppIdCallback(appId: string) {
-        this._appIdCallback(appId)
+    private _statusCallback: IOpenVR2WSStatusCallback = (status) => {}
+    setStatusCallback(callback: IOpenVR2WSStatusCallback) {
+        this._statusCallback = callback
     }
 
+    private _appIdCallback: IOpenVR2WSAppIdCallback = (appId) => {}
+    setAppIdCallback(callback: IOpenVR2WSAppIdCallback) {
+        this._appIdCallback = callback
+    }
+    
     private _inputCallback: IOpenVR2WSInputCallback = (key, data) => { 
         // console.warn('OpenVR2WS: Unhandled input message')
     }
@@ -67,10 +70,7 @@ class OpenVR2WS {
                 case 'ApplicationInfo':
                     if(data.data.hasOwnProperty('id')) {
                         this._currentAppId = data.data.id
-                        if(this._currentAppId.length > 0 && this._currentAppId != this._lastAppId) {
-                            this._lastAppId = this._currentAppId
-                            this._appIdCallback(this._lastAppId)
-                        }
+                        if(this._currentAppId.length > 0) this._appIdCallback(this._currentAppId)
                     }
                     break
                 case 'Input':
@@ -85,6 +85,19 @@ class OpenVR2WS {
                     // console.log(data)
                     break
             }
+        }
+    }
+
+    private onOpen(evt: any) {
+        if(this._statusCallback && this._isConnected !== true) {
+            this._isConnected = true
+            this._statusCallback(true)
+        }
+    }
+    private onClose(evt: any) {
+        if(this._statusCallback && this._isConnected !== false) {
+            this._isConnected = false
+            this._statusCallback(false)
         }
     }
 

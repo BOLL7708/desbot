@@ -1,11 +1,11 @@
 class SteamStore {
-    static _gameCache: Record<number, any> = {}
-    static async getGameMeta(appId: string):Promise<ISteamGameData> {
-        const id = parseInt(appId?.split('.').pop())
+    static _gameCache: Record<number, ISteamStoreGameData> = {}
+    static async getGameMeta(appId: string):Promise<ISteamStoreGameData> {
+        const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
             if(this._gameCache[id]) return this._gameCache[id]
             const encodedUrl = btoa(`https://store.steampowered.com/api/appdetails?appids=${id}`)
-            const response: ISteamGameResponse = await fetch(`./proxy.php?url=${encodedUrl}`)
+            const response: ISteamStoreGameResponse = await fetch(`./proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
                 const data = response[id]?.data
@@ -17,7 +17,7 @@ class SteamStore {
         } return null
     }
 
-    static getPrice(data: ISteamGameData): string {
+    static getPrice(data: ISteamStoreGameData): string {
         if(data == null) return 'Invalid Game'
         const currencies = {
             "EUR": "€",

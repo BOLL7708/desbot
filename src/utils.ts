@@ -312,4 +312,13 @@ class Utils {
     static clone<Type>(data: Type): Type {
         return JSON.parse(JSON.stringify(data))
     }
+
+    /**
+     * Splits a Steam app key into parts and returns the parsed number
+     * @param appId 
+     * @returns application ID number or NaN if not a valid app key
+     */
+    static numberFromAppId(appId: string): number {
+        return parseInt(appId?.split('.').pop())
+    }
 }

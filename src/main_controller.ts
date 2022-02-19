@@ -16,11 +16,14 @@ class MainController {
     private _ttsForAll: boolean = Config.controller.defaults.ttsForAll
     private _pipeAllChat: boolean = Config.controller.defaults.pipeAllChat
     private _pingForChat: boolean = Config.controller.defaults.pingForChat
-    private _useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards
+    private _useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards // Used in func.call(this) so reference not counted, stupid TypeScript.
     private _logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord
-    private _updateTwitchGameCategory: boolean = Config.controller.defaults.updateTwitchGameCategory
+    private _updateTwitchGameCategory: boolean = Config.controller.defaults.updateTwitchGameCategory  // Used in func.call(this) so reference not counted, stupid TypeScript.
     private _nonceCallbacks: Record<string, Function> = {}
     private _scaleIntervalHandle: number
+    private _steamPlayerSummaryIntervalHandle: number // Used in func.call(this) so reference not counted, stupid TypeScript.
+    private _steamAchievementsIntervalHandle: number // Used in func.call(this) so reference not counted, stupid TypeScript.
+    private _lastSteamAppId: string|undefined // Used in func.call(this) so reference not counted, stupid TypeScript.
 
     constructor() {
         if(Config.controller.saveConsoleOutputToSettings) new LogWriter() // Saves log
@@ -52,12 +55,11 @@ class MainController {
 
         this._pipe.setOverlayTitle("Streaming Widget")
 
-        function setEmptySoundForTTS() {
-            const audio = this._pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
-            this._tts.setEmptyMessageSound(audio)
-        }
+        this.setEmptySoundForTTS.call(this)
 
-        setEmptySoundForTTS.call(this)
+        // Steam Web API intervals
+        if(!Config.controller.websocketsUsed.openvr2ws) this.startSteamPlayerSummaryInterval()
+        this.startSteamAchievementsInterval()
 
         /*
         .########..########.##......##....###....########..########...######.
@@ -175,9 +177,11 @@ class MainController {
                 const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
                 this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
-                    if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
+                    if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
+                        // SuperScreenShotterVR
                         this._screenshots.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
+                        // OBS Source Screenshot
                         setTimeout(async ()=>{
                             const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
                             const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
@@ -193,9 +197,11 @@ class MainController {
             callback: async (data:ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                if(Config.controller.websocketsUsed.openvr2ws && this._openvr2ws._lastAppId != undefined) {
+                if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
+                    // SuperScreenShotterVR
                     this._screenshots.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
                 } else {
+                    // OBS Source Screenshot
                     const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
                     const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                     this._obs.takeSourceScreenshot(requestData)
@@ -524,7 +530,7 @@ class MainController {
             trigger: Keys.COMMAND_PING_ON,
             callback: (userData, input) => {
                 this._pingForChat = true
-                setEmptySoundForTTS.call(this)
+                this.setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_ON]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -534,7 +540,7 @@ class MainController {
             trigger: Keys.COMMAND_PING_OFF,
             callback: (userData, input) => {
                 this._pingForChat = false
-                setEmptySoundForTTS.call(this)
+                this.setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_OFF]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -779,7 +785,7 @@ class MainController {
                 this._useGameSpecificRewards = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.triggerAppIdCallback(this._openvr2ws._lastAppId)
+                this.appIdCallback(this._lastSteamAppId)
             }
         })
         
@@ -789,7 +795,7 @@ class MainController {
                 this._useGameSpecificRewards = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.triggerAppIdCallback('')
+                this.appIdCallback('')
             }
         })
 
@@ -946,8 +952,8 @@ class MainController {
             trigger: Keys.COMMAND_GAME,
             cooldown: 3*60,
             cooldownCallback: async (userData, input) => {
-                if(this._openvr2ws._lastAppId != undefined) {
-                    const gameData = await SteamStore.getGameMeta(this._openvr2ws._lastAppId)
+                if(this._lastSteamAppId != undefined) {
+                    const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
                     const price = SteamStore.getPrice(gameData)
                     const releaseDate = gameData.release_date?.date ?? 'N/A'
                     const name = gameData.name ?? 'N/A'
@@ -1283,6 +1289,18 @@ class MainController {
             }
         })
 
+        this._openvr2ws.setStatusCallback((status) => {
+            if(status) {
+                console.log('OpenVR2WS: Connected')
+                // We are playing VR so we're scrapping the WebApi timer.
+                clearInterval(this._steamPlayerSummaryIntervalHandle)
+            } else {
+                console.log('OpenVR2WS: Disconnected')
+                // We do not get the app ID from OpenVR2WS so we use the Steam Web API instead.
+                this.startSteamPlayerSummaryInterval()
+            }
+        })
+
         /*
         ..####...#####...#####...........######..#####..
         .##..##..##..##..##..##............##....##..##.
@@ -1290,150 +1308,8 @@ class MainController {
         .##..##..##......##................##....##..##.
         .##..##..##......##..............######..#####..
         */
-        // TODO: This should be broken out so we can also use it with the Steam Web API
         this._openvr2ws.setAppIdCallback(async (appId) => {
-            /**
-             * Controller defaults loading
-             */
-            if(appId != undefined) {
-                const controllerGameDefaults = Config.controller.gameDefaults[appId]
-                let combinedSettings = Config.controller.defaults
-                if(controllerGameDefaults != undefined) {
-                    combinedSettings = {...combinedSettings, ...controllerGameDefaults}
-                    Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
-                } else {
-                    Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
-                }
-                
-                // TTS runs the command due to doing more things than just toggling the flag.
-                this._twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
-                this._pipeAllChat = combinedSettings.pipeAllChat
-                this._pingForChat = combinedSettings.pingForChat
-                setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
-                this._logChatToDiscord = combinedSettings.logChatToDiscord
-                this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
-                this._updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory
-            }
-
-            /**
-             * General reward toggling
-             */
-            const defaultProfile = Config.twitch.rewardConfigProfileDefault
-            const profile = Config.twitch.rewardConfigProfilePerGame[appId]
-            if(appId == undefined) {
-                Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
-                this._twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
-            } else if(profile != undefined) {
-                Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
-                this._twitchHelix.toggleRewards({...defaultProfile, ...profile})
-            } else {
-                Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green)
-                this._twitchHelix.toggleRewards(defaultProfile)
-            }
-
-            /**
-             * Game specific reward configuration
-             */
-            const allGameRewardKeys = Config.twitch.gameSpecificRewards
-            const gameSpecificRewards = this._useGameSpecificRewards ? Config.twitch.gameSpecificRewardsPerGame[appId] : undefined
-            const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
-
-            /**
-             * Toggle individual rewards on/off depending on the app ID
-             */
-            for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
-                const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
-                Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
-                this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) != -1})
-            }
-            for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
-                const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
-                Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
-                this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
-            }
-
-            // Update rewards
-
-            // Disable all resuable generic rewards that are not in use.
-            const unavailableRewardKeys = allGameRewardKeys.filter((key) => !availableRewardKeys.includes(key))
-            for(const rewardKey of unavailableRewardKeys) {
-                const rewardId = await Utils.getRewardId(rewardKey)
-                Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, 'red')
-                this._twitchHelix.updateReward(rewardId, {
-                    is_enabled: false
-                })
-            }
-
-            // Update and enable all reusable generic rewards in use.
-            for(const rewardKey in gameSpecificRewards) {
-                const rewardId = await Utils.getRewardId(rewardKey)
-                const rewardConfig = gameSpecificRewards[rewardKey]
-                Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, 'purple')
-                this._twitchHelix.updateReward(rewardId, {
-                    ...rewardConfig,
-                    ...{is_enabled: true}
-                })
-            }
-
-            // Update reward callbacks
-            const runConfigs = Config.run.gameSpecificConfigs[appId]
-            for(const rewardKey in gameSpecificRewards) {
-                const rewardId = await Utils.getRewardId(rewardKey)
-                const runConfig = runConfigs[rewardKey]
-                if(runConfig != undefined) {
-                    this._twitch.registerReward({
-                        id: rewardId,
-                        callback: this.buildRunCallback(this, runConfig)
-                    })
-                } else Utils.logWithBold(`Could not find run config for <${appId}:${rewardKey}>`, 'red')
-            }
-
-            // Show game in sign
-            if(appId != undefined) {
-                const gameData = await SteamStore.getGameMeta(appId)
-                const price = SteamStore.getPrice(gameData)
-                const name = gameData.name ?? 'N/A'
-                this._sign.enqueueSign({
-                    title: 'Current Game',
-                    image: gameData.header_image,
-                    subtitle: `${name}\n${price}`,
-                    durationMs: 20000
-                })
-            }
-
-            // Update category on Twitch
-            if(appId != undefined && this._updateTwitchGameCategory) {
-                const gameData = await SteamStore.getGameMeta(appId)
-                let twitchGameData = await this._twitchHelix.searchForGame(gameData.name)
-                if(twitchGameData == null && typeof gameData.name == 'string') {
-                    let nameParts = gameData.name.split(' ')
-                    if(nameParts.length >= 2) {
-                        // This is to also match games that are "name VR" on Steam but "name" on Twitch
-                        // so we effectively trim off VR and see if we get a match.
-                        nameParts.pop()
-                        twitchGameData = await this._twitchHelix.searchForGame(nameParts.join(' '))
-                    }
-                }
-                if(twitchGameData == null) {
-                    // If still no Twitch match, we load a possible default category.
-                    twitchGameData = await this._twitchHelix.searchForGame(Config.controller.defaultTwitchGameCategory)
-                }
-                if(twitchGameData != undefined) {
-                    const request: ITwitchHelixChannelRequest = {
-                        game_id: twitchGameData.id
-                    }
-                    const response = await this._twitchHelix.updateChannelInformation(request)
-                    const speech = Config.controller.speechReferences[Keys.KEY_CALLBACK_APPID]
-                    Utils.log(`Steam title: ${gameData.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
-                    if(response) {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    } else {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    }
-                } else {
-                    Utils.log(`Steam title: ${gameData.name} did not match any Twitch Category`, Color.Red)
-                }
-            }
+            this.appIdCallback.call(this, appId)
         })
 
         /*
@@ -1450,6 +1326,175 @@ class MainController {
         if(Config.controller.websocketsUsed.pipe) this._pipe.init()
         if(Config.controller.websocketsUsed.obs) this._obs.init()
         if(Config.controller.websocketsUsed.screenshots) this._screenshots.init()
+    }
+
+    /*
+    .########.##.....##.##....##..######..########.####..#######..##....##..######.
+    .##.......##.....##.###...##.##....##....##.....##..##.....##.###...##.##....##
+    .##.......##.....##.####..##.##..........##.....##..##.....##.####..##.##......
+    .######...##.....##.##.##.##.##..........##.....##..##.....##.##.##.##..######.
+    .##.......##.....##.##..####.##..........##.....##..##.....##.##..####.......##
+    .##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
+    .##........#######..##....##..######.....##....####..#######..##....##..######.
+    */
+    private setEmptySoundForTTS() {
+        const audio = this._pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
+        this._tts.setEmptyMessageSound(audio)
+    }
+
+    private async appIdCallback(appId: string) {
+        // Skip if we should ignore this app ID.
+        if(Config.steam.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
+
+        // Skip if it's the last app ID again.
+        if(appId != undefined && appId.length > 0) {
+            if(appId == this._lastSteamAppId) return
+            console.log(`Steam AppId changed: ${appId}`)
+            this._lastSteamAppId = appId
+        }
+
+        /**
+         * Controller defaults loading
+         */
+        if(appId != undefined) {
+            const controllerGameDefaults = Config.controller.gameDefaults[appId]
+            let combinedSettings = Config.controller.defaults
+            if(controllerGameDefaults != undefined) {
+                combinedSettings = {...combinedSettings, ...controllerGameDefaults}
+                Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
+            } else {
+                Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
+            }
+            
+            // TTS runs the command due to doing more things than just toggling the flag.
+            this._twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
+            this._pipeAllChat = combinedSettings.pipeAllChat
+            this._pingForChat = combinedSettings.pingForChat
+            this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
+            this._logChatToDiscord = combinedSettings.logChatToDiscord
+            this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
+            this._updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory
+        }
+
+        /**
+         * General reward toggling
+         */
+        const defaultProfile = Config.twitch.rewardConfigProfileDefault
+        const profile = Config.twitch.rewardConfigProfilePerGame[appId]
+        if(appId == undefined) {
+            Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
+            this._twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
+        } else if(profile != undefined) {
+            Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
+            this._twitchHelix.toggleRewards({...defaultProfile, ...profile})
+        } else {
+            Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green)
+            this._twitchHelix.toggleRewards(defaultProfile)
+        }
+
+        /**
+         * Game specific reward configuration
+         */
+        const allGameRewardKeys = Config.twitch.gameSpecificRewards
+        const gameSpecificRewards = this._useGameSpecificRewards ? Config.twitch.gameSpecificRewardsPerGame[appId] : undefined
+        const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+
+        /**
+         * Toggle individual rewards on/off depending on the app ID
+         */
+        for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
+            const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
+            Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
+            this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) != -1})
+        }
+        for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
+            const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
+            Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
+            this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
+        }
+
+        // Update rewards
+
+        // Disable all resuable generic rewards that are not in use.
+        const unavailableRewardKeys = allGameRewardKeys.filter((key) => !availableRewardKeys.includes(key))
+        for(const rewardKey of unavailableRewardKeys) {
+            const rewardId = await Utils.getRewardId(rewardKey)
+            Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, 'red')
+            this._twitchHelix.updateReward(rewardId, {
+                is_enabled: false
+            })
+        }
+
+        // Update and enable all reusable generic rewards in use.
+        for(const rewardKey in gameSpecificRewards) {
+            const rewardId = await Utils.getRewardId(rewardKey)
+            const rewardConfig = gameSpecificRewards[rewardKey]
+            Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, 'purple')
+            this._twitchHelix.updateReward(rewardId, {
+                ...rewardConfig,
+                ...{is_enabled: true}
+            })
+        }
+
+        // Update reward callbacks
+        const runConfigs = Config.run.gameSpecificConfigs[appId]
+        for(const rewardKey in gameSpecificRewards) {
+            const rewardId = await Utils.getRewardId(rewardKey)
+            const runConfig = runConfigs[rewardKey]
+            if(runConfig != undefined) {
+                this._twitch.registerReward({
+                    id: rewardId,
+                    callback: this.buildRunCallback(this, runConfig)
+                })
+            } else Utils.logWithBold(`Could not find run config for <${appId}:${rewardKey}>`, 'red')
+        }
+
+        // Show game in sign
+        if(appId != undefined) {
+            const gameData = await SteamStore.getGameMeta(appId)
+            const price = SteamStore.getPrice(gameData)
+            const name = gameData.name ?? 'N/A'
+            this._sign.enqueueSign({
+                title: 'Current Game',
+                image: gameData.header_image,
+                subtitle: `${name}\n${price}`,
+                durationMs: 20000
+            })
+        }
+
+        // Update category on Twitch
+        if(appId != undefined && this._updateTwitchGameCategory) {
+            const gameData = await SteamStore.getGameMeta(appId)
+            let twitchGameData = await this._twitchHelix.searchForGame(gameData.name)
+            if(twitchGameData == null && typeof gameData.name == 'string') {
+                let nameParts = gameData.name.split(' ')
+                if(nameParts.length >= 2) {
+                    // This is to also match games that are "name VR" on Steam but "name" on Twitch
+                    // so we effectively trim off VR and see if we get a match.
+                    nameParts.pop()
+                    twitchGameData = await this._twitchHelix.searchForGame(nameParts.join(' '))
+                }
+            }
+            if(twitchGameData == null) {
+                // If still no Twitch match, we load a possible default category.
+                twitchGameData = await this._twitchHelix.searchForGame(Config.controller.defaultTwitchGameCategory)
+            }
+            if(twitchGameData != undefined) {
+                const request: ITwitchHelixChannelRequest = {
+                    game_id: twitchGameData.id
+                }
+                const response = await this._twitchHelix.updateChannelInformation(request)
+                const speech = Config.controller.speechReferences[Keys.KEY_CALLBACK_APPID]
+                Utils.log(`Steam title: ${gameData.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
+                if(response) {
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                } else {
+                    this._tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                }
+            } else {
+                Utils.log(`Steam title: ${gameData.name} did not match any Twitch Category`, Color.Red)
+            }
+        }
     }
     
     /*
@@ -1563,5 +1608,45 @@ class MainController {
         if(config) return (message: ITwitchRedemptionMessage) => {
             fetch(config.url, {mode: 'no-cors'}).then(result => console.log(result))
         }
+    }
+
+    /*
+    .####.##....##.########.########.########..##.....##....###....##........######.
+    ..##..###...##....##....##.......##.....##.##.....##...##.##...##.......##....##
+    ..##..####..##....##....##.......##.....##.##.....##..##...##..##.......##......
+    ..##..##.##.##....##....######...########..##.....##.##.....##.##........######.
+    ..##..##..####....##....##.......##...##....##...##..#########.##.............##
+    ..##..##...###....##....##.......##....##....##.##...##.....##.##.......##....##
+    .####.##....##....##....########.##.....##....###....##.....##.########..######.
+    */
+
+    private startSteamPlayerSummaryInterval() {
+        if(Config.steam.playerSummaryIntervalMs) {
+            Utils.log('Starting Steam player summary interval', Color.Green)
+            this._steamPlayerSummaryIntervalHandle = setInterval(() => {
+            SteamWebApi.getPlayerSummary().then(summary => {
+                const id = parseInt(summary.gameid)
+                Utils.log(`Steam player summary game ID: ${id}`, Color.DarkBlue)
+                if(!isNaN(id) && id > 0) this.appIdCallback.call(this, `steam.app.${id}`)
+            })
+        }, Config.steam.playerSummaryIntervalMs)}
+    }
+
+    private startSteamAchievementsInterval() {
+        if(Config.steam.achievementsIntervalMs) this._steamAchievementsIntervalHandle = setInterval(async () => {
+            console.log('Steam achievements interval')
+            if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
+                const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
+                
+                // TODO: Save achievement states to settings
+                // TODO: Load and cache global achievement data
+                // TODO: Load and cache game achievement detailed data
+                // TODO: Compare incoming achievements with stored ones
+                    // If there are new ones that are from less than 24h ago, announce them.
+                    // Possibly post to Discord with image?
+
+                console.log(achievements)
+            }
+        }, Config.steam.achievementsIntervalMs)
     }
 }
