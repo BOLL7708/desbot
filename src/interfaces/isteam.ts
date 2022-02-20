@@ -12,6 +12,10 @@ interface ISteamConfig {
      */
     achievementsIntervalMs: number
     /**
+     * How old an achievement can be and still get announced.
+     */
+    ignoreAchievementsOlderThanHours: number
+    /**
      * These app IDs will be ignored for all app ID dependent features.
      */
     ignoredAppIds: string[]

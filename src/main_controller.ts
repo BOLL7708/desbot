@@ -58,8 +58,14 @@ class MainController {
         this.setEmptySoundForTTS.call(this)
 
         // Steam Web API intervals
-        if(!Config.controller.websocketsUsed.openvr2ws) this.startSteamPlayerSummaryInterval()
         this.startSteamAchievementsInterval()
+        if(!Config.controller.websocketsUsed.openvr2ws) {
+            this.startSteamPlayerSummaryInterval()
+            if(Config.steam.playerSummaryIntervalMs > 0) {
+                await this.loadPlayerSummary()
+                await this.loadAchievemenets()
+            }
+        }
 
         /*
         .########..########.##......##....###....########..########...######.
@@ -1349,8 +1355,11 @@ class MainController {
         // Skip if it's the last app ID again.
         if(appId != undefined && appId.length > 0) {
             if(appId == this._lastSteamAppId) return
-            console.log(`Steam AppId changed: ${appId}`)
+            Utils.log(`Steam AppId is new: ${appId}`, Color.DarkBlue)
+            // Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
+            await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
             this._lastSteamAppId = appId
+            Utils.log(`Steam AppId changed: ${appId}`, Color.DarkBlue)
         }
 
         /**
@@ -1496,6 +1505,50 @@ class MainController {
             }
         }
     }
+
+    /*
+    ..####...######..######...####...##...##..........##...##..######..#####............####...#####...######.
+    .##........##....##......##..##..###.###..........##...##..##......##..##..........##..##..##..##....##...
+    ..####.....##....####....######..##.#.##..........##.#.##..####....#####...........######..#####.....##...
+    .....##....##....##......##..##..##...##..........#######..##......##..##..........##..##..##........##...
+    ..####.....##....######..##..##..##...##...........##.##...######..#####...........##..##..##......######.
+    */
+    private async loadPlayerSummary() {
+        const summary = await SteamWebApi.getPlayerSummary()
+        const id = parseInt(summary?.gameid)
+        Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
+        if(!isNaN(id) && id > 0) await this.appIdCallback.call(this, `steam.app.${id}`)
+    }
+
+    private async loadAchievemenets() {
+        if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
+            const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
+            Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)
+
+            // TODO: Load and cache global achievement data
+            // TODO: Load and cache game achievement detailed data
+            // TODO: Compare incoming achievements with stored ones
+                // If there are new ones that are from less than 24h ago, announce them.
+                // Possibly post to Discord with image?
+
+            for(const achievement of achievements) {
+                const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, this._lastSteamAppId)
+                const storedAchievement = <ISteamWebApiSettingAchievement> await Settings.pullSetting(setting, 'key', achievement.apiname)
+                if(storedAchievement?.state != achievement.achieved) {
+                    console.log(achievement)
+                    await Settings.pushSetting(setting, 'key',
+                    <ISteamWebApiSettingAchievement>{
+                        key: achievement.apiname, 
+                        state: achievement.achieved
+                    })
+
+                    if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
+                        Utils.log(`New achievement unlocked! ${achievement.apiname}`, Color.Green, true, true)
+                    }
+                }
+            }
+        }
+    }
     
     /*
     .########..##.....##.####.##.......########..########.########...######.
@@ -1624,29 +1677,17 @@ class MainController {
         if(Config.steam.playerSummaryIntervalMs) {
             Utils.log('Starting Steam player summary interval', Color.Green)
             this._steamPlayerSummaryIntervalHandle = setInterval(() => {
-            SteamWebApi.getPlayerSummary().then(summary => {
-                const id = parseInt(summary.gameid)
-                Utils.log(`Steam player summary game ID: ${id}`, Color.DarkBlue)
-                if(!isNaN(id) && id > 0) this.appIdCallback.call(this, `steam.app.${id}`)
-            })
-        }, Config.steam.playerSummaryIntervalMs)}
+                this.loadPlayerSummary()
+            }, Config.steam.playerSummaryIntervalMs)
+        }
     }
 
     private startSteamAchievementsInterval() {
-        if(Config.steam.achievementsIntervalMs) this._steamAchievementsIntervalHandle = setInterval(async () => {
-            console.log('Steam achievements interval')
-            if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
-                const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
-                
-                // TODO: Save achievement states to settings
-                // TODO: Load and cache global achievement data
-                // TODO: Load and cache game achievement detailed data
-                // TODO: Compare incoming achievements with stored ones
-                    // If there are new ones that are from less than 24h ago, announce them.
-                    // Possibly post to Discord with image?
-
-                console.log(achievements)
-            }
-        }, Config.steam.achievementsIntervalMs)
+        if(Config.steam.achievementsIntervalMs) {
+            Utils.log('Starting Steam achievements interval', Color.Green)
+            this._steamAchievementsIntervalHandle = setInterval(() => {
+                this.loadAchievemenets()
+            }, Config.steam.achievementsIntervalMs)
+        }
     }
 }

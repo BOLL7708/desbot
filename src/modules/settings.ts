@@ -11,6 +11,7 @@ class Settings {
     static CHANNEL_TROPHY_STATS: string = 'channel_trophy_stats'
     static WORLD_SCALE_LABEL: string = 'world_scale_label.txt'
     static LOG_OUTPUT: string = 'log_output.html'
+    static STEAM_ACHIEVEMENTS: string = 'steam_achievements/'
 
     private static LOG_COLOR: string = 'blue'
 
@@ -144,5 +145,9 @@ class Settings {
     public static getFullSettings(setting:string):any[] {
         Utils.log(`Pulling full settings: ${setting}`, this.LOG_COLOR)
         return this._settingsStore[setting]
+    }
+
+    public static getPathFromKey(setting: string, key:string):string {
+        return setting+(key.replace(/\./g, '_'))
     }
 }

@@ -15,15 +15,32 @@ if($setting === null) {
     exit("Missing parameter(s)");
 }
 
-// Extract extension and clean setting name
+
+// Extract parts
+$setting = urldecode($setting);
+
+// Extract extension
 $extension = 'csv';
-$settingArr = explode('.', urldecode($setting));
+$settingArr = explode('.', $setting);
 if(is_array($settingArr) && count($settingArr) == 2) {
     $setting = $settingArr[0];
     $extension = $settingArr[1];
 }
+
+// Extract possibly subfolder
+$subfolder = '';
+$settingArr = explode('/', $setting);
+if(is_array($settingArr) && count($settingArr) == 2) {
+    $subfolder = $settingArr[0];
+    $setting = $settingArr[1];
+}
+if(!empty($subfolder) && !is_dir('./_settings/'.$subfolder)) {
+    mkdir('./_settings/'.$subfolder);
+}
+
+// Clean setting name
 $setting = str_replace(['.', '/', '\\'], '', $setting);
-$filePath = getFilePath($setting, $extension);
+$filePath = getFilePath($setting, $subfolder, $extension);
 
 if($method === 'POST' || $method === 'PUT') { 
     // Save settings
@@ -92,7 +109,9 @@ function readSettings($filePath) {
     return $output;
 }
 
-function getFilePath($filename, $extension) {
+function getFilePath($filename, $subfolder, $extension) {
+    $subfolder = preg_replace('/\W+/', '_', $subfolder);
     $filename = preg_replace('/\W+/', '_', $filename);
+    if(!empty($subfolder)) $filename = $subfolder.'/'.$filename;
     return "./_settings/$filename.$extension";
 }
