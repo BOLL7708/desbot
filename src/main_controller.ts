@@ -107,7 +107,6 @@ class MainController {
 
         // Toggle TTS rewards
         this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
-        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: true})
 
         // Enable default rewards
         const enableRewards = Config.twitch.defaultRewards.filter(reward => { return !Config.twitch.disableRewards.includes(reward) })
@@ -277,32 +276,6 @@ class MainController {
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)
                 } else Utils.log(`Could not retrieve Reward Data for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
-            }
-        })
-
-        /*
-        .##..##..##..##..##.......####....####...##..##.
-        .##..##..###.##..##......##..##..##..##..##.##..
-        .##..##..##.###..##......##..##..##......####...
-        .##..##..##..##..##......##..##..##..##..##.##..
-        ..####...##..##..######...####....####...##..##.
-        */
-        this._twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER),
-            callback: async (message: ITwitchRedemptionMessage) => {
-                const speech = Config.controller.speechReferences[Keys.KEY_UNLOCKREWARDTIMER][0]
-                await this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._tts.enqueueSoundEffect(Config.audioplayer.configs[Keys.KEY_UNLOCKREWARDTIMER])
-                this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_UNLOCKREWARDTIMER), {is_enabled: false})
-                setTimeout(async ()=>{
-                    const rewardId = await Utils.getRewardId(Config.controller.rewardReferences[Keys.KEY_UNLOCKREWARDTIMER])
-                    const rewardData = await this._twitchHelix.getReward(rewardId)
-                    const cost = rewardData.data[0].cost
-                    const speech = Config.controller.speechReferences[Keys.KEY_UNLOCKREWARDTIMER][1]
-                    this._tts.enqueueSoundEffect(Config.audioplayer.configs[Keys.KEY_UNLOCKREWARDTIMER])
-                    this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    this._twitchHelix.updateReward(rewardId, {is_enabled: true, cost: cost+500})
-                }, 30*60*1000)
             }
         })
         
