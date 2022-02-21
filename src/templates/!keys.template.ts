@@ -90,6 +90,7 @@ class KeysTemplate {
 
     // Callback keys
     static readonly KEY_CALLBACK_APPID: string = 'CallbackAppID'
+    static readonly KEY_CALLBACK_ACHIEVEMENT: string = 'CallbackAchievement'
 
     /*
     ..######..##.....##..######..########..#######..##.....##

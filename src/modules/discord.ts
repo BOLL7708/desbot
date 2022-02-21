@@ -40,7 +40,17 @@ class Discord {
         }).catch(err => console.error(err))
     }
 
-    // Generalize?
+    /**
+     * Currently used for screenshots. Should possibly be more generalized?
+     * @param url 
+     * @param imageBlob 
+     * @param color 
+     * @param description 
+     * @param authorName 
+     * @param authorUrl 
+     * @param authorIconUrl 
+     * @param footerText 
+     */
     sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
         const payload: IDiscordWebookPayload = {
             username: authorName,

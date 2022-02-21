@@ -1,3 +1,6 @@
+/**
+ * Loading player and game data from the Steam Web API requires API keys, see {@link: ICredentialsConfig}
+ */
 interface ISteamConfig {
     /**
      * Interval in milliseconds inbetween loads of the player summary, which will provide the current running app ID for non-VR users.

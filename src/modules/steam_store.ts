@@ -34,4 +34,14 @@ class SteamStore {
             : price < 0 ? 'No price' 
             : `${currency}${price/100}${discountStr}`
     }
+
+    static getStoreURL(appId: string|number): string {
+        if(typeof appId === 'string') appId = Utils.numberFromAppId(appId)
+        return `https://store.steampowered.com/app/${appId}`
+    }
+    static getAchievementsURL(appId: string|number, profileTag?: string): string {
+        if(typeof appId === 'string') appId = Utils.numberFromAppId(appId)
+        if(profileTag) return `https://steamcommunity.com/id/${profileTag}/stats/appid/${appId}/achievements`
+        else return `https://steamcommunity.com/stats/${appId}/achievements`        
+    }
 }

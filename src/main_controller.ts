@@ -63,7 +63,6 @@ class MainController {
             this.startSteamPlayerSummaryInterval()
             if(Config.steam.playerSummaryIntervalMs > 0) {
                 await this.loadPlayerSummary()
-                await this.loadAchievemenets()
             }
         }
 
@@ -884,14 +883,6 @@ class MainController {
         })
 
         this._twitch.registerCommand({
-            trigger: "t",
-            callback: async (userData, input) => {
-                // this._pipe.showPreset(Config.pipe.configs[Keys.KEY_MIXED_HYDRATE])
-                this._pipe.sendBasic(input, userData.displayName)
-            }
-        })
-
-        this._twitch.registerCommand({
             trigger: Keys.COMMAND_CLIPS,
             callback: async (userData, input) => {
                 const pageCount = 20
@@ -963,7 +954,7 @@ class MainController {
                     const price = SteamStore.getPrice(gameData)
                     const releaseDate = gameData.release_date?.date ?? 'N/A'
                     const name = gameData.name ?? 'N/A'
-                    const link = gameData.steam_appid != undefined ? `https://store.steampowered.com/app/${gameData.steam_appid}` : 'N/A'
+                    const link = gameData.steam_appid != undefined ? SteamStore.getStoreURL(gameData.steam_appid) : 'N/A'
                     this._twitch._twitchChat.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
                     this._sign.enqueueSign({
                         title: 'Current Game',
@@ -1358,8 +1349,11 @@ class MainController {
             Utils.log(`Steam AppId is new: ${appId}`, Color.DarkBlue)
             // Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
             await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
+            await SteamWebApi.getGameSchema(appId)
+            await SteamWebApi.getGlobalAchievementStats(appId)
             this._lastSteamAppId = appId
             Utils.log(`Steam AppId changed: ${appId}`, Color.DarkBlue)
+            await this.loadAchievemenets()
         }
 
         /**
@@ -1523,27 +1517,55 @@ class MainController {
     private async loadAchievemenets() {
         if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
             const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
-            Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)
-
-            // TODO: Load and cache global achievement data
-            // TODO: Load and cache game achievement detailed data
-            // TODO: Compare incoming achievements with stored ones
-                // If there are new ones that are from less than 24h ago, announce them.
-                // Possibly post to Discord with image?
-
+            Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
             for(const achievement of achievements) {
                 const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, this._lastSteamAppId)
                 const storedAchievement = <ISteamWebApiSettingAchievement> await Settings.pullSetting(setting, 'key', achievement.apiname)
+                // Check if the state has changed
                 if(storedAchievement?.state != achievement.achieved) {
-                    console.log(achievement)
+                    // Store achievement
                     await Settings.pushSetting(setting, 'key',
                     <ISteamWebApiSettingAchievement>{
                         key: achievement.apiname, 
                         state: achievement.achieved
                     })
-
+                    // Announce achievement
                     if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
                         Utils.log(`New achievement unlocked! ${achievement.apiname}`, Color.Green, true, true)
+                        const key = achievement.apiname
+                        const profileTag = await SteamWebApi.getProfileTag()
+                        const gameMeta = await SteamStore.getGameMeta(this._lastSteamAppId)
+                        const gameSchema = await SteamWebApi.getGameSchema(this._lastSteamAppId)
+                        const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(this._lastSteamAppId))?.find(s => s.name == key)
+                        const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
+                        const doneAchievements = achievements.map(a=>a.achieved).reduce((a,b)=>a+b)
+                        const totalAchievements = achievements.length
+                        const progressStr = `${doneAchievements}/${totalAchievements}`
+                        const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                        // TODO: Add text formatting to Config.
+                        const response = await this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.KEY_CALLBACK_ACHIEVEMENT], {
+                            username: gameMeta.name,
+                            avatar_url: gameMeta.header_image,
+                            embeds: [
+                                {
+                                    title: achievementDetails?.displayName ?? key,
+                                    description: achievementDetails?.description ?? '(no description)',
+                                    url: SteamStore.getAchievementsURL(this._lastSteamAppId, profileTag),
+                                    thumbnail: {
+                                        url: achievementDetails?.icon
+                                    },
+                                    timestamp: new Date(achievement.unlocktime*1000).toISOString(),
+                                    footer: {
+                                        text: `Progress: ${progressStr}, global rate: ${globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'}`
+                                    }
+                                    
+                                }
+                            ]
+                        })
+                        if(response == null) Utils.log(`Failed to send achievement to Discord`, Color.Red)
+                        this._twitch._twitchChat.sendMessageToChannel(
+                            `🔓 Achievement ${progressStr} unlocked: ${achievementDetails?.displayName ?? key} (${achievementDetails.description ?? 'no description'}) 🌍 ${globalStr}`,
+                        )
                     }
                 }
             }

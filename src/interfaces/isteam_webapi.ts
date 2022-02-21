@@ -121,7 +121,7 @@ interface ISteamWebApiPlayerSummaryData {
 /**
  * https://partner.steamgames.com/doc/webapi/ISteamUserStats#GetSchemaForGame
  */
-interface ISteamWebApiGameSchemas {
+interface ISteamWebApiGameSchema {
     game: {
         gameName: string
         gameVersion: string
@@ -179,3 +179,12 @@ interface ISteamWebApiPlayerAchievementData {
 }
 
 // Global Achievements
+interface IStreamWebApiGlobalAchievementStats {
+    achievementpercentages: {
+        achievements: IStreamWebApiGlobalAchievementData[]
+    }
+}
+interface IStreamWebApiGlobalAchievementData {
+    name: string
+    percent: number
+}
