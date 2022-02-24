@@ -10,7 +10,7 @@ class OpenVR2WS {
     private _resetMessages: Record<number, IOpenVRWSCommandMessage> = {}
     private _resetTimers: Record<number, number> = {}
     private _isConnected: boolean = null
-    _currentAppId: string // Updated every time an ID is received
+    private _currentAppId: string // Updated every time an ID is received
     
     constructor() {
         const port = Config.openvr2ws.port

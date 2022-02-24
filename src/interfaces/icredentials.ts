@@ -70,7 +70,10 @@ interface ICredentialsConfig {
     SteamWebAPIKey: string
 
     /**
-     * The ID of the Steam user to load datafor.
+     * The decimal 64bit ID of the Steam user to load data for.
+     * You can one of these website to get this value: 
+     * - https://steamid.io/
+     * - https://www.steamidfinder.com/
      */
     SteamUserID: string
 }

@@ -1102,8 +1102,8 @@ class MainController {
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
-            const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
-            const gameTitle = gameData != null ? gameData.name : this._openvr2ws._currentAppId
+            const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
+            const gameTitle = gameData != null ? gameData.name : this._lastSteamAppId
             if(requestData != null) {
                 const userData = await this._twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
@@ -1173,7 +1173,7 @@ class MainController {
             const dataUrl = Utils.b64ToDataUrl(b64data)
 
             if(requestData != null) {
-                const gameData = await SteamStore.getGameMeta(this._openvr2ws._currentAppId)
+                const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
                 const gameTitle = gameData != null ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
                 const userData = await this._twitchHelix.getUserById(requestData.userId)
