@@ -22,4 +22,25 @@ interface ISteamConfig {
      * These app IDs will be ignored for all app ID dependent features.
      */
     ignoredAppIds: string[]
+
+    achievementSettings: {
+        /**
+         * The information in the footer of achievement posting to Discord.
+         * 
+         * Text replacements:
+         * - current/total achievements unlocked
+         * - achievement global rate
+         */
+        discordFooter: string
+        /**
+         * The message written in chat when a new achievement is unlocked.
+         * 
+         * Text replacements:
+         * - current/total achievements unlocked
+         * - achievement name
+         * - achievement description
+         * - achievement global rate
+         */
+        twitchChatMessage: string
+    }
 }

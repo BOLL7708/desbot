@@ -64,11 +64,15 @@ The widget comes with a prepped config, based on what I run myself on my stream.
     2. `src/_configs/config.ts`
     3. `src/_data/!keys.ts`
 
-## TTS (WIP docs)
+## Google Cloud Platform Text-to-Speech (WIP docs)
 1. Register for Google Cloud Platform, needs a billing accound.
 2. Enable the Cloud Text to Speech API
 3. IAM & Admin: Add a Service Account
 4. APIs & Services: Create an API key for the Cloud Text to Speech API
+
+## Steam Web API
+This is used to check which game you are playing on Steam, and to retrieve your Steam achievements.
+* Get a key here: https://steamcommunity.com/dev/apikey
 
 ## OBS Studio
 1. It is presumed you are running [OBS Studio](obs) to manage your stream, it's optional though and most things in the widget will still work, only the remote control of OBS will not.

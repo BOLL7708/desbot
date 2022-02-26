@@ -1515,29 +1515,41 @@ class MainController {
                         const totalAchievements = achievements.length
                         const progressStr = `${doneAchievements}/${totalAchievements}`
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
-                        // TODO: Add text formatting to Config.
+                        
+                        // Discord
                         const response = await this._discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.KEY_CALLBACK_ACHIEVEMENT], {
                             username: gameMeta.name,
                             avatar_url: gameMeta.header_image,
                             embeds: [
                                 {
                                     title: achievementDetails?.displayName ?? key,
-                                    description: achievementDetails?.description ?? '(no description)',
+                                    description: achievementDetails?.description ?? '',
                                     url: SteamStore.getAchievementsURL(this._lastSteamAppId, profileTag),
                                     thumbnail: {
                                         url: achievementDetails?.icon
                                     },
                                     timestamp: new Date(achievement.unlocktime*1000).toISOString(),
                                     footer: {
-                                        text: `Progress: ${progressStr}, global rate: ${globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'}`
+                                        text: Utils.template(
+                                                Config.steam.achievementSettings.discordFooter, 
+                                                progressStr, 
+                                                globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                                            )
                                     }
-                                    
                                 }
                             ]
                         })
                         if(response == null) Utils.log(`Failed to send achievement to Discord`, Color.Red)
+
+                        // Twitch chat
                         this._twitch._twitchChat.sendMessageToChannel(
-                            `🔓 Achievement ${progressStr} unlocked: ${achievementDetails?.displayName ?? key} (${achievementDetails.description ?? 'no description'}) 🌍 ${globalStr}`,
+                            Utils.template(
+                                Config.steam.achievementSettings.twitchChatMessage, 
+                                progressStr, 
+                                achievementDetails?.displayName ?? key, 
+                                achievementDetails.description ?? 'N/A', 
+                                globalStr
+                            )
                         )
                     }
                 }

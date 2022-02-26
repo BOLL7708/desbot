@@ -205,7 +205,11 @@ Config.steam = <ISteamConfig> {
     playerSummaryIntervalMs: 0,
     achievementsIntervalMs: 0,
     ignoreAchievementsOlderThanHours: 24,
-    ignoredAppIds: []
+    ignoredAppIds: [],
+    achievementSettings: {
+        discordFooter: 'Progress: %s, global rate: %s',
+        twitchChatMessage: '🔓 Achievement %s unlocked: %s (%s) 🌍 %s'
+    }
 }
 
 /*
