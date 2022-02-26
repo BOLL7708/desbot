@@ -25,7 +25,9 @@ Config.credentials = <ICredentialsConfig> {
         [KeysTemplate.COMMAND_SOURCESCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
         [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: 'The webhook URL you want to use for channel trophy statistics',
         [KeysTemplate.COMMAND_CLIPS]: 'The webhook URL you want to use for Twitch clips'
-    }
+    },
+    SteamWebAPIKey: '',
+    SteamUserID: ''
 }
 
 /*
