@@ -46,12 +46,12 @@ class Pipe {
         // Skip if supposed to be skipped
         if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
+        const cleanTextConfig = Utils.clone(Config.pipe.cleanTextConfig)
+        cleanTextConfig.removeBitEmotes = hasBits
         const cleanText = await Utils.cleanText(
             message,
-            hasBits,
-            true,
+            cleanTextConfig,
             TwitchFactory.getEmotePositions(messageData?.emotes ?? []),
-            false
         )
         
         // TODO: Maybe we should also skip if there are only punctuation?

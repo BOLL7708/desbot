@@ -156,7 +156,13 @@ class GoogleTTS {
         }
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
-        let cleanText = await Utils.cleanText(text, sentence.type == GoogleTTS.TYPE_CHEER, false, clearRanges, true)
+        const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
+        cleanTextConfig.removeBitEmotes = sentence.type == GoogleTTS.TYPE_CHEER
+        let cleanText = await Utils.cleanText(
+            text, 
+            cleanTextConfig,
+            clearRanges,
+        )
         if(cleanText.length == 0) {
             this.enqueueEmptyMessageSound(serial)
             console.warn("TTS: Clean text had zero length, skipping")

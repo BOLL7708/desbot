@@ -42,8 +42,8 @@ class Utils {
         return result.length > 0 ? result : name
     }
 
-    static async cleanText(text:string, clearBits:boolean=false, keepCase:boolean=false, clearRanges:ITwitchEmotePosition[]=[], cleanTags:boolean=true):Promise<string> {
-        if(!keepCase) text = text.toLowerCase()
+    static async cleanText(text:string, config: ICleanTextConfig, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
+        if(!config.keepCase) text = text.toLowerCase()
 
         // Remove Twitch emojis
         if(clearRanges.length > 0) clearRanges.forEach(range => {
@@ -52,29 +52,40 @@ class Utils {
         })
         
         // Clear bit emojis
-        if(clearBits) {
+        if(config.removeBitEmotes) {
             let bitMatches = text.match(/(\S+\d+)+/g) // Find all [word][number] references to clear out bit emotes
             if(bitMatches != null) bitMatches.forEach(match => text = text.replace(match, ' '))
         }
 
-		// Replace more than one period with ellipsis, or else TTS will say "dot" from ".." due to the repeat fix below.
-		text = text.replace(/([\.]{2,})/g, '…')
+        // Remove things in ()
+        if(config.removeParantheses) {
+            text = text.replace(/(\(.*\))/g, '')
+        }
+
+		// Replace more than one period with ellipsis, or else TTS will say "dot" from ".." if reduce repeated characters is on.
+        text = text.replace(/([\.]{2,})/g, '…')
 
         // Reduce XXXXXX to XX
-        const repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
-        if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        if(config.reduceRepeatedCharacters) {
+            const repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
+            if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
+        }
         
         // Replace numbers of more than 7 digits to just big number.
-        text = text.replace(/(\d){7,}/g, '"big number"') // 7+ len group of any mixed digits
+        if(config.replaceBigNumbers) {
+            const bigNumberDigits = config.replaceBigNumbersWithDigits ?? 7;
+            const bigNumberRegex = new RegExp(`(\\d){${bigNumberDigits},}`, 'g')
+            text = text.replace(bigNumberRegex, config.replaceBigNumbersWith ?? 'big number') // 7+ len group of any mixed digits
+        }
 
         // Detect name tags and replace them with their clean name
         let tagMatches = text.match(/(@\w+)+/g) // Matches every whole word starting with @
         if(tagMatches != null) { // Remove @ and clean
             for(let i=0; i<tagMatches.length; i++) {
                 let match = tagMatches[i]
-                let untaggedName = match.substr(1)
-                if(cleanTags) {
-                    let cleanName = await Utils.loadCleanName(match.substr(1).toLowerCase())
+                let untaggedName = match.substring(1)
+                if(config.replaceUserTags) {
+                    let cleanName = await Utils.loadCleanName(match.substring(1).toLowerCase())
                     text = text.replace(match, cleanName)
                 } else {
                     text = text.replace(match, untaggedName)
@@ -82,10 +93,17 @@ class Utils {
             }
         }
 
-        // TODO: Add Config options for opting in/out of text cleaning?
+        if(config.replaceLinks) {
+            // Links: https://stackoverflow.com/a/23571059/2076423
+            text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, config.replaceLinksWith ?? 'link')
+        }
+
+        if(config.removeUnicodeEmojis) {
+            // Emojis: https://stackoverflow.com/a/63464318/2076423
+            text = text.replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') 
+        }
+
         return text
-            .replace(/(?:https?|ftp):\/\/[\n\S]+/g, 'link') // Links: https://stackoverflow.com/a/23571059/2076423
-            .replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') // Emojis: https://stackoverflow.com/a/63464318/2076423
             .replace(/(\s+)\1{1,}/g, ' ') // spans of spaces to single space
             .trim()
     }

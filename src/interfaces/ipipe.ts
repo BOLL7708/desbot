@@ -6,14 +6,17 @@ interface IPipeConfig {
      * The port number set in OpenVRNotificationPipe.
      */
     port: number
+
     /**
      * Pipe the input text for these rewards into VR.
      */
     showRewardsWithKeys: string[]
+
     /**
      * Configs used by automatic rewards, add something here using a `Keys.*` to automatically trigger a notification.
      */
     configs: { [key:string]: (IPipeMessagePreset|IPipeMessagePreset[]) }
+
     /**
      * If on uses a custom notification graphic for text pipes into VR, instead of the default SteamVR notification.
      * 
@@ -28,22 +31,30 @@ interface IPipeConfig {
      * // TODO: Possibly change this if we change how this works.
      */
     useCustomChatNotification: boolean
+
     /**
      * The text box settings for the custom chat notification text message.
      */
     customChatMessageConfig: IPipeCustomMessageConfig
+
     /**
      * The text box settings for the custom chat notification username.
      * 
      * Will not be drawn if no username was supplied.
      */
     customChatNameConfig: IPipeCustomMessageNameConfig
+
     /**
      * The settings for the custom chat notification avatar image.
      * 
      * Will not be drawn if the image could not be loaded.
      */
     customChatAvatarConfig: IPipeCustomMessageAvatarConfig
+
+    /**
+     * Configuration for cleaning the text before it is piped.
+     */
+     cleanTextConfig: ICleanTextConfig
 }
 interface IPipeMessagePreset {
     imagePath?: string|string[]

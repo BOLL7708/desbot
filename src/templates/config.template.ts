@@ -189,7 +189,20 @@ Config.google = <IGoogleConfig> {
     defaultVoice: '',
     speakingRateOverride: undefined,
     skipDictionaryForAnnouncements: true,
-    skipSaid: false
+    skipSaid: false,
+    cleanTextConfig: {
+        removeBitEmotes: false,
+        keepCase: false,
+        replaceUserTags: true,
+        removeParantheses: true,
+        reduceRepeatedCharacters: true,
+        replaceBigNumbers: true,
+        replaceBigNumbersWith: '"big number"',
+        replaceBigNumbersWithDigits: 7,
+        replaceLinks: true,
+        replaceLinksWith: '"link"',
+        removeUnicodeEmojis: true
+    }
 }
 
 /*
@@ -288,6 +301,17 @@ Config.pipe = <IPipeConfig> {
     customChatAvatarConfig: {
         cornerRadius: 0,
         rect: { x: 0, y: 0, w: 100, h: 100 }
+    },
+    cleanTextConfig: {
+        removeBitEmotes: false,
+        keepCase: true,
+        replaceUserTags: false,
+        removeParantheses: true,
+        reduceRepeatedCharacters: true,
+        replaceBigNumbers: false,
+        replaceLinks: true,
+        replaceLinksWith: 'link',
+        removeUnicodeEmojis: false
     }
 }
 

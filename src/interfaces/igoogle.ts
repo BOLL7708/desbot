@@ -42,6 +42,11 @@ interface IGoogleConfig {
      * Will skip the 'user' and 'said' text in "[user] said [text]" so it's only the clean text.
      */
     skipSaid: boolean
+
+    /**
+     * Configuration for cleaning the text before it is spoken.
+     */
+    cleanTextConfig: ICleanTextConfig
 }
 
 // Data
