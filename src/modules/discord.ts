@@ -1,8 +1,6 @@
 class Discord {
-    _baseUrl: string = 'https://discord.com/api/webhooks'
     // Send chat log and perhaps screenshots to Discord aye?
-    sendMessage(config: IDiscordWebhookConfig, displayName: string, iconUrl: string, message: string) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
+    sendMessage(url: string, displayName: string, iconUrl: string, message: string) {
         fetch(url, {
             method: 'post',
             headers: {'Content-Type': 'application/json'},
@@ -14,24 +12,47 @@ class Discord {
         }).catch(err => console.error(err))        
     }
 
-    sendPayload(config: IDiscordWebhookConfig, content: string, imageBlob: Blob) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
-
-        let formData = new FormData()
-        formData.append('file', imageBlob, 'image.png')
-        formData.append('content', content)
-
-        const options = {
-            method: 'POST',
-            body: formData
+    // TODO: This is not used anywhere
+    sendMessageEmbed(url: string, displayName: string, iconUrl: string, color: string, description: string, message: string) {
+        const payload: IDiscordWebookPayload = {
+            username: displayName,
+            avatar_url: iconUrl,
+            content: description,
+            embeds: [
+                {
+                    description: message,
+                    color: Utils.hexToDecColor(color)
+                }
+            ]
         }
-
-        fetch(url, options).then(response => console.log(response))
+        fetch(url, {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).catch(err => console.error(err))
     }
 
-    sendPayloadEmbed(config: IDiscordWebhookConfig, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
-        let imageEmbed = {
+    sendPayload(url: string, payload: IDiscordWebookPayload):Promise<void|Response> {
+        return fetch(url, {
+            method: 'post',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        }).catch(err => console.error(err))
+    }
+
+    /**
+     * Currently used for screenshots. Should possibly be more generalized?
+     * @param url 
+     * @param imageBlob 
+     * @param color 
+     * @param description 
+     * @param authorName 
+     * @param authorUrl 
+     * @param authorIconUrl 
+     * @param footerText 
+     */
+    sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
+        const payload: IDiscordWebookPayload = {
             username: authorName,
             avatar_url: authorIconUrl,
             embeds: [
@@ -41,7 +62,7 @@ class Discord {
                     },
                     description: description,
                     color: color,
-                    timestamp: new Date().toISOString(),
+                    timestamp: Utils.getISOTimestamp(),
                     footer: footerText ? {
                         text: footerText
                     } : null
@@ -51,31 +72,7 @@ class Discord {
         
         let formData = new FormData()
         formData.append('file', imageBlob, 'image.png')
-        formData.append('payload_json', JSON.stringify(imageEmbed))
-        
-        const options = {
-            method: 'POST',
-            body: formData
-        }
-        
-        fetch(url, options).then(response => console.log(response))
-    }
-
-    sendMessageEmbed(config: IDiscordWebhookConfig, userName: string, displayName: string, color: string, iconUrl: string, message: string) {
-        let url = `${this._baseUrl}/${config.id}/${config.token}`
-        let imageEmbed = {
-            username: displayName,
-            avatar_url: iconUrl,
-            embeds: [
-                {
-                    description: message,
-                    color: Utils.hexToDecColor(color)
-                }
-            ]
-        }
-        
-        let formData = new FormData()
-        formData.append('payload_json', JSON.stringify(imageEmbed))
+        formData.append('payload_json', JSON.stringify(payload))
         
         const options = {
             method: 'POST',

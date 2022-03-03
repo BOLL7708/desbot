@@ -1,11 +1,23 @@
 class Settings {
-    static TTS_USER_NAMES: string = 'settings_tts_names'
-    static TTS_USER_VOICES: string = 'settings_tts_voices'
-    static TTS_BLACKLIST: string = 'settings_tts_blacklist'
-    static TWITCH_TOKENS: string = 'settings_twitch_tokens'
-    static LABELS: string = 'settings_labels'
-    
-    private static settingsStore:Record<string, any> = {};
+    static TTS_USER_NAMES: string = 'tts_names'
+    static TTS_USER_VOICES: string = 'tts_voices'
+    static TTS_BLACKLIST: string = 'tts_blacklist'
+    static TTS_DICTIONARY: string = 'tts_dictionary'
+    static TWITCH_TOKENS: string = 'twitch_tokens'
+    static TWITCH_REWARDS: string = 'twitch_rewards'
+    static TWITCH_REWARD_COUNTERS: string = 'twitch_reward_counters'
+    static TWITCH_CLIPS: string = 'twitch_clips'
+    static CHANNEL_TROPHY_LABEL: string = 'channel_trophy_label.txt'
+    static CHANNEL_TROPHY_STATS: string = 'channel_trophy_stats'
+    static WORLD_SCALE_LABEL: string = 'world_scale_label.txt'
+    static LOG_OUTPUT: string = 'log_output.html'
+    static STEAM_ACHIEVEMENTS: string = 'steam_achievements/'
+
+    private static LOG_COLOR: string = 'blue'
+
+    private static _settingsStore: Record<string, any> = {}
+    private static _settingsCache: Record<string, any> = {}
+    private static _cacheWriteIntervalHandle: number = -1
 
     /**
      * Will load settings off disk, to an in-memory cache, that will be used next time.
@@ -13,16 +25,18 @@ class Settings {
      * @returns 
      */
     static async loadSettings(setting:string, ignoreCache:boolean = false):Promise<any> {
-        if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
+        if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
             console.log(`Returning cache for: ${setting}`)
-            return this.settingsStore[setting]
+            return this._settingsStore[setting]
         }
-        console.log(`Loading settings for: ${setting}`)
+        Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
         let url = this.getUrl(setting)      
-        let response = await fetch(url)
+        let response = await fetch(url, {
+            headers: {password: Utils.encode(Config.credentials.PHPPassword)}
+        })
         let result = response.status >= 300 ? null : await response.json()
         if(result != null) {
-            this.settingsStore[setting] = result
+            this._settingsStore[setting] = result
         }
         return result
     }
@@ -33,14 +47,16 @@ class Settings {
      * @param settings Settings object or array, null to save cache.
      * @returns 
      */
-    static async saveSettings(setting:string, settings:any=null):Promise<boolean> {
+    static async saveSettings(setting:string, settings:any=null, append:boolean=false):Promise<boolean> {
         let url = this.getUrl(setting)
-        if(settings == null) settings = this.settingsStore[setting]
+        if(settings == null) settings = this._settingsStore[setting]
         if(settings != null) {
             let payload = JSON.stringify(settings)
-            console.log(`Saving settings (${payload.length}b): ${setting}`)
+            payload.replace(/\|/g, '').replace(/;/g, '')
+            if(setting != Settings.LOG_OUTPUT) Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
             let response = await fetch(url, {
-                method: 'post',
+                headers: {password: Utils.encode(Config.credentials.PHPPassword)},
+                method: append ? 'put' : 'post',
                 body: payload
             })
             return response.status < 300
@@ -56,13 +72,47 @@ class Settings {
      * @Returns The success as a boolean.
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
-        console.log(`Pushing setting: ${setting}`)
-        let settings = this.settingsStore[setting]      
-        if(settings == null || !Array.isArray(settings)) settings = []      
+        Utils.log(`Pushing setting: ${setting}`, this.LOG_COLOR)
+        let settings = this._settingsStore[setting]
+        if(settings == null || !Array.isArray(settings)) settings = []
         let filteredSettings = settings.filter(s => s[field] != value[field])
         filteredSettings.push(value)
-        this.settingsStore[setting] = filteredSettings
+        this._settingsStore[setting] = filteredSettings
         return this.saveSettings(setting)
+    }
+
+    static async pushRow(setting:string, value:any):Promise<boolean> {
+        Utils.log(`Pushing row: ${setting}`, this.LOG_COLOR)
+        let settings = this._settingsStore[setting]
+        if(settings == null || !Array.isArray(settings)) settings = []
+        settings.push(value)
+        this._settingsStore[setting] = settings
+        return this.saveSettings(setting)
+    }
+
+    static async appendSetting(setting: string, value: any): Promise<boolean> {
+        return this.saveSettings(setting, value, true)
+    }
+
+    static async appendSettingAtInterval(setting: string, value: any) {
+        // Initiate interval
+        if(this._cacheWriteIntervalHandle <= 0) {           
+            this._cacheWriteIntervalHandle = setInterval(() => {
+                const cacheClone = Utils.clone(this._settingsCache)
+                this._settingsCache = {}
+                Object.keys(cacheClone).forEach(async cacheSetting => {
+                    await this.appendSetting(cacheSetting, cacheClone[cacheSetting].join('\n'))
+                })                
+            }, 10000)
+        }
+
+        // Add setting to cache
+        if(this._settingsCache[setting] == undefined) this._settingsCache[setting] = []
+        this._settingsCache[setting].push(value)
+    }
+
+    static async pushLabel(setting: string, value: string): Promise<boolean> {
+        return this.saveSettings(setting, value)
     }
 
     /**
@@ -73,10 +123,9 @@ class Settings {
      * @returns The object or null if failed.
      */
     static async pullSetting(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<any> {
-        console.log(`Pulling setting: ${setting}`)
         let settings = null
-        if(!ignoreCache && this.settingsStore.hasOwnProperty(setting)) {
-            settings = this.settingsStore[setting]
+        if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
+            settings = this._settingsStore[setting]
         } else {
             settings = await this.loadSettings(setting, ignoreCache)
         }
@@ -91,5 +140,14 @@ class Settings {
      */
     private static getUrl(setting:string) {
         return `./settings.php?setting=${setting}`
+    }
+
+    public static getFullSettings(setting:string):any[] {
+        Utils.log(`Pulling full settings: ${setting}`, this.LOG_COLOR)
+        return this._settingsStore[setting]
+    }
+
+    public static getPathFromKey(setting: string, key:string):string {
+        return setting+(key.replace(/\./g, '_'))
     }
 }

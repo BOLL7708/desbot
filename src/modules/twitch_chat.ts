@@ -1,4 +1,5 @@
 class TwitchChat {
+    private LOG_COLOR: string = 'purple'
     private _socket: WebSockets
     private _isConnected: boolean = false
     init() {
@@ -24,121 +25,43 @@ class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens')
-        let config: ITwitchConfig = Config.instance.twitch
-        console.log("Twitch chat connected")
+        let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
+        let config: ITwitchConfig = Config.twitch
+        Utils.log("Twitch chat connected", this.LOG_COLOR, true, true)
         this._socket.send(`PASS oauth:${tokenData.access_token}`)
-        this._socket.send(`NICK ${config.botName}`)
+        this._socket.send(`NICK ${config.channelName}`)
         this._socket.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
         this._socket.send(`JOIN #${config.channelName}`)
         this._isConnected = true
     }
     private onClose(evt: any) {
         this._isConnected = false
-        console.log("Twitch chat disconnected")
+        Utils.log("Twitch chat disconnected", this.LOG_COLOR, true, true)
     }
     private onMessage(evt: any) {
         let data = evt?.data
         if(data != null) {
-            console.log(data)
+            Utils.log(data, this.LOG_COLOR)
             if(data.indexOf('PING') == 0) return this._socket.send('PONG :tmi.twitch.tv\r\n')
             let messageStrings = data.split("\r\n")
             messageStrings.forEach(str => {
                 if(str == null || str.length == 0) return
-                let message: TwitchMessageCmd = new TwitchMessageCmd(str)
+                let message = TwitchFactory.buildMessageCmd(str)
                 this._chatMessageCallback(message)
-            });
-        }
+            })
+        }        
     }
     private onError(evt: any) {
-        console.log(evt)
+        console.error(evt)
     }
-}
-class TwitchMessageCmd {
-    properties: ITwitchChatMessageProperties = {
-        '@badge-info': '',
-        badges: '',
-        'client-nonce': '',
-        color: '',
-        'display-name': '',
-        emotes: null,
-        flags: '',
-        id: '',
-        mod: '',
-        'room-id': '',
-        subscriber: '',
-        'tmi-sent-ts': '',
-        turbo: '',
-        'user-id': '',
-        'user-type': ''
+    private testMessage(message: string) {
+        this._chatMessageCallback(TwitchFactory.buildMessageCmd(message));
     }
-    message: TwitchMessage
-    constructor(data:string) {
-        let [props, msg] = Utils.splitOnFirst(' :', data)
-        this.message = new TwitchMessage(msg)
-        let rows: string[] = props.split(';')
-        for(let i=0; i<rows.length; i++) {
-            let row = rows[i]
-            let [rowName, rowValue] = Utils.splitOnFirst('=', row)
-            if(rowName != null && rowName.length > 0) {
-                if (rowName == 'emotes') {
-                    let rawEmotes: string[] = rowValue.split('/');
-                    if (rawEmotes.length == 0) break;
-                    this.properties[rowName] = Array<ITwitchEmote>();
-                    rawEmotes.forEach((el) => {
-                        if (el.length == 0) return;
-                        let emote: string[] = el.split(':');
+    sendMessageToChannel(message: string) {
+        this._socket.send(`PRIVMSG #${Config.twitch.channelName} :${message}`)
+    }
 
-                        if (emote[1].includes(',')) {
-                            let positions = emote[1].split(',');
-                            positions.forEach(rawPosition => {
-                                let pos: number[] = rawPosition.split('-').map(el => parseInt(el));
-                                this.properties[rowName].push({
-                                    id: emote[0],
-                                    start: pos[0],
-                                    end: pos[1]
-                                })
-                            })
-                        } else {
-                            let pos: number[] = emote[1].split('-').map(el => parseInt(el));
-                            this.properties[rowName].push({
-                                id: emote[0],
-                                start: pos[0],
-                                end: pos[1]
-                            })
-                        }
-                    })
-                    this.properties[rowName].sort((a, b) => a.start - b.start);
-                } else {
-                    this.properties[rowName] = rowValue
-                }
-            }
-        }
-    }
-}
-
-class TwitchMessage {
-    data: string
-    username: string
-    channel: string
-    type: string
-    text: string
-    isAction: boolean
-    constructor(data:string) {
-        this.data = data;
-        const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
-        let matches:any = re.exec(data)
-        if(matches != null) {
-            const re2 = /^\u0001ACTION ([^\u0001]+)\u0001$/
-            let matches2:any = re2.exec(matches[4])
-            this.isAction = matches2 != null
-            this.username = matches[1]
-            this.type = matches[2]
-            this.channel = matches[3]
-            this.text = this.isAction ? matches2[1] : matches[4]
-        }
-    }
-    isOk() {
-        return this.username != null && this.type != null && this.text != null
+    sendMessageToUser(username: string, message: string) {
+        this._socket.send(`PRIVMSG #${Config.twitch.channelName} :/w ${username} ${message}`)
     }
 }

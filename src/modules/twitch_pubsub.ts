@@ -1,12 +1,12 @@
 class TwitchPubsub {
-    
+    private LOG_COLOR: string = 'teal'
     private _socket: WebSockets
-    private _config: ITwitchConfig = Config.instance.twitch
+    private _config: ITwitchConfig = Config.twitch
     private _pingIntervalHandle: number
     private _pingTimestamp: number
     private _onRewardCallback: ITwitchPubsubRewardCallback = (message) => { console.log('PubSub Reward unhandled') }
     
-    setOnRewardCallback(callback:ITwitchPubsubRewardCallback) {
+    setOnRewardCallback(callback: ITwitchPubsubRewardCallback) {
         this._onRewardCallback = callback
     }
 
@@ -23,37 +23,39 @@ class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.pullSetting(Settings.TWITCH_TOKENS, 'type', 'tokens').then(tokenData => {
+        Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",
                 data: {
-                    topics: [`channel-points-channel-v1.${this._config.userId}`], // ID should come from Helix user request (huh?)
+                    topics: [`channel-points-channel-v1.${TwitchHelix._channelUserId}`], // ID should come from Helix user request (huh?)
                     auth_token: tokenData.access_token
                 }
             }
             this._socket.send(JSON.stringify(payload))
             this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
+            Utils.log('PubSub connected', this.LOG_COLOR, true, true)
         })
     }
 
     private onClose(evt:any) {
         clearInterval(this._pingIntervalHandle)
+        Utils.log('PubSub disconnected', this.LOG_COLOR, true, true)
     }
 
     private onMessage(evt:any) {
         let data = JSON.parse(evt.data)
         switch(data.type) {
-            case "MESSAGE": 
+            case "MESSAGE":
                 let payload = JSON.parse(unescape(data?.data?.message))
                 if (payload?.type == "reward-redeemed") {
-                    console.log("Reward redeemed!")
                     let id = payload?.data?.redemption?.reward?.id ?? null
+                    Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                     if(id !== null) this._onRewardCallback(id, payload?.data)
                     else console.log(payload)
                 }
                 break
-            case "RECONNECT": 
+            case "RECONNECT":
                 // Server is doing maintenance or similar and wants us to reconnect
                 this._socket.reconnect()
                 break
@@ -62,12 +64,12 @@ class TwitchPubsub {
                 if(Date.now() - this._pingTimestamp > 10000) this._socket.reconnect()
                 break
             case "RESPONSE":
-                console.log(evt.data)
+                Utils.log(evt.data, this.LOG_COLOR)
                 break;
             default:
-                console.log(`Unhandled message: ${data.type}`)
+                Utils.log(`Unhandled message: ${data.type}`, this.LOG_COLOR)
                 break;
-        }  
+        }
     }
 
     private ping() {

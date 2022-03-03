@@ -1,3 +1,14 @@
 /dist/*
-config.ts
-/settings/*.csv
+
+/_configs/*
+/_settings/*
+/_assets/*
+/_backups/*
+
+/src/_configs/*
+/src/_data/*
+
+desktop.ini
+*.zip
+*.7z
+*.exe
