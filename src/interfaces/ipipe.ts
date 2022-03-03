@@ -144,14 +144,19 @@ interface IPipeCustomProperties {
     attachToAnchor?: boolean
 
     /**
-     * Ignore headset pitch when spawning notification
+     * Ignore anchor device yaw angle for the notification
      */
-    attachToHorizon?: boolean 
+    ignoreAnchorYaw?: boolean
+
+    /**
+     * Ignore anchor device pitch angle for the notification
+     */
+    ignoreAnchorPitch?: boolean 
     
     /**
-     * Align the notification to the horizontal plane of the world
+     * Ignore anchor device roll angle for the notification
      */
-    alignToHorizon?: boolean
+    ignoreAnchorRoll?: boolean
 
     /**
      * The channel for this notification. 
