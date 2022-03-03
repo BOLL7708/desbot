@@ -1319,13 +1319,12 @@ class MainController {
         // Skip if it's the last app ID again.
         if(appId != undefined && appId.length > 0) {
             if(appId == this._lastSteamAppId) return
-            Utils.log(`Steam AppId is new: ${appId}`, Color.DarkBlue)
+            Utils.log(`Steam AppId is new: "${appId}" != "${this._lastSteamAppId}"`, Color.DarkBlue)
+            this._lastSteamAppId = appId
             // Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
             await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
             await SteamWebApi.getGameSchema(appId)
             await SteamWebApi.getGlobalAchievementStats(appId)
-            this._lastSteamAppId = appId
-            Utils.log(`Steam AppId changed: ${appId}`, Color.DarkBlue)
             await this.loadAchievemenets()
         }
 
@@ -1483,14 +1482,14 @@ class MainController {
     private async loadPlayerSummary() {
         const summary = await SteamWebApi.getPlayerSummary()
         const id = parseInt(summary?.gameid)
-        Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
+        // Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
         if(!isNaN(id) && id > 0) await this.appIdCallback.call(this, `steam.app.${id}`)
     }
 
     private async loadAchievemenets() {
         if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
             const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
-            Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
+            // Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
             for(const achievement of achievements) {
                 const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, this._lastSteamAppId)
                 const storedAchievement = <ISteamWebApiSettingAchievement> await Settings.pullSetting(setting, 'key', achievement.apiname)
