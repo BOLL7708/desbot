@@ -1491,7 +1491,8 @@ class MainController {
         if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
             const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
             Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
-            for(const achievement of achievements) {
+            for(let i = 0; i < achievements.length; i++) {
+                const achievement = achievements[i]
                 const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, this._lastSteamAppId)
                 const storedAchievement = <ISteamWebApiSettingAchievement> await Settings.pullSetting(setting, 'key', achievement.apiname)
                 // Check if the state has changed
@@ -1511,7 +1512,7 @@ class MainController {
                         const gameSchema = await SteamWebApi.getGameSchema(this._lastSteamAppId)
                         const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(this._lastSteamAppId))?.find(s => s.name == key)
                         const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
-                        const doneAchievements = achievements.map(a=>a.achieved).reduce((a,b)=>a+b)
+                        const doneAchievements = achievements.map(a=>a.achieved).reduce((a,b)=>a+b) - (achievements.length - i)
                         const totalAchievements = achievements.length
                         const progressStr = `${doneAchievements}/${totalAchievements}`
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
