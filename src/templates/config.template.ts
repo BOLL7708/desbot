@@ -402,7 +402,7 @@ Config.openvr2ws = <IOpenVR2WSConfig> {
     configs: {
         /*
         [KeysTemplate.KEY_YOURREWARD]: {
-            type: OpenVR2WS.TYPE_WORLDSCALE,
+            setting: OpenVR2WS.SETTING_WORLD_SCALE,
             value: 0.5,
             resetToValue: 1.0,
             duration: 30

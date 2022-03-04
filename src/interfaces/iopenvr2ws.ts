@@ -8,8 +8,10 @@ interface IOpenVR2WSConfig {
     port: number
     /**
      * The configs that automatic rewards will reference to trigger SteamVR setting changes, keyed on: `Keys.*`
+     * 
+     * Can be a single config or an array to trigger them all at once.
      */
-    configs: { [key:string]: IOpenVR2WSSetting }
+    configs: { [key:string]: IOpenVR2WSSetting|IOpenVR2WSSetting[] }
 }
 
 /**
@@ -17,9 +19,11 @@ interface IOpenVR2WSConfig {
  */
 interface IOpenVR2WSSetting {
     /**
-     * The type number of the setting, reference: `OpenVR2WS.TYPE_*`
+     * The setting, reference: `OpenVR2WS.SETTING_*` for a few predefined ones.
+     * 
+     * The format is [category]|[setting]|[default], where an empty category will use the app ID for game specific settings.
      */
-    type: number
+    setting: string
     /**
      * The value to set the setting to, takes various formats.
      */

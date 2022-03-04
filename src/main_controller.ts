@@ -609,7 +609,7 @@ class MainController {
                         this._scaleIntervalHandle = setInterval(
                             ()=>{
                                 this._openvr2ws.setSetting({
-                                    type: OpenVR2WS.TYPE_WORLDSCALE,
+                                    setting: OpenVR2WS.SETTING_WORLD_SCALE,
                                     value: currentScale/100.0
                                 })
                                 Settings.pushLabel(Settings.WORLD_SCALE_LABEL, `🌍 ${Math.round(currentScale*100)/100}%`)
@@ -638,7 +638,7 @@ class MainController {
                         const value = Math.max(10, Math.min(1000, scale || 100))
                         this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         this._openvr2ws.setSetting({
-                            type: OpenVR2WS.TYPE_WORLDSCALE,
+                            setting: OpenVR2WS.SETTING_WORLD_SCALE,
                             value: value/100.0
                         })    
                     }
@@ -661,7 +661,7 @@ class MainController {
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
                 this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
-                    type: OpenVR2WS.TYPE_BRIGHTNESS,
+                    setting: OpenVR2WS.SETTING_ANALOG_GAIN,
                     value: value/100.0
                 })
             }
@@ -677,7 +677,7 @@ class MainController {
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
                 this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
-                    type: OpenVR2WS.TYPE_REFRESHRATE,
+                    setting: OpenVR2WS.SETTING_PREFERRED_REFRESH_RATE,
                     value: value
                 })
             }
@@ -691,7 +691,7 @@ class MainController {
                 const value = Math.max(0, Math.min(5, eyeMode))
                 this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._openvr2ws.setSetting({
-                    type: OpenVR2WS.TYPE_VRVIEWEYE,
+                    setting: OpenVR2WS.SETTING_MIRROR_VIEW_EYE,
                     value: value
                 })
             }
@@ -1637,7 +1637,7 @@ class MainController {
         else return null
     }
 
-    private buildOpenVR2WSSettingCallback(_this: MainController, config: IOpenVR2WSSetting) {
+    private buildOpenVR2WSSettingCallback(_this: MainController, config: IOpenVR2WSSetting|IOpenVR2WSSetting[]) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             _this._openvr2ws.setSetting(config)
         }

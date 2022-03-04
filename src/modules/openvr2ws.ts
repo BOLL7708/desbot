@@ -1,9 +1,14 @@
 class OpenVR2WS {
-    static get TYPE_WORLDSCALE() { return 1 }
-    static get TYPE_BRIGHTNESS() { return 2 }
-    static get TYPE_REFRESHRATE() { return 3 }
-    static get TYPE_VRVIEWEYE() { return 4 }
-    static get TYPE_LEFTTHUMBSTICKROTATION() { return 5 }
+    static get SETTING_WORLD_SCALE() { return '|worldScale|1' }
+    static get SETTING_ANALOG_GAIN() { return 'steamvr|analogGain|1.30' }
+    static get SETTING_PREFERRED_REFRESH_RATE() { return 'steamvr|preferredRefreshRate|120' }
+    static get SETTING_MIRROR_VIEW_EYE() { return 'steamvr|mirrorViewEye|4' }
+    static get SETTING_LEFT_THUMBSTICK_ROTATION_KNUCKLES() { return 'input|leftThumbstickRotation_knuckles|0' }
+    static get SETTING_RIGHT_THUMBSTICK_ROTATION_KNUCKLES() { return 'input|rightThumbstickRotation_knuckles|0' }
+    static get SETTING_HMD_DISPLAY_COLOR_GAIN_R() { return 'steamvr|hmdDisplayColorGainR|1.0' }
+    static get SETTING_HMD_DISPLAY_COLOR_GAIN_G() { return 'steamvr|hmdDisplayColorGainG|1.0' }
+    static get SETTING_HMD_DISPLAY_COLOR_GAIN_B() { return 'steamvr|hmdDisplayColorGainB|1.0' }
+
 
     private _socket: WebSockets
     private _resetLoopHandle: number = 0
@@ -27,8 +32,6 @@ class OpenVR2WS {
 
     init() { // Init function as we want to set the callbacks before the first messages arrive.
         this._socket.init();
-
-        this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE] = 0
         this.startResetLoop()
     }
 
@@ -105,72 +108,45 @@ class OpenVR2WS {
         console.error(evt)
     }
 
-    public async setSetting(config: IOpenVR2WSSetting) {
+    public async setSetting(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]) {
         const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
-        const appId = this._currentAppId?.toString()
-        const message :IOpenVRWSCommandMessage = {
-            key: 'RemoteSetting',
-            value: password,
-            value2: 'steamvr',
-            value3: '',
-            value4: ''
-        }
-        const duration = config.duration ?? -1
-        switch(config.type) {
-            case OpenVR2WS.TYPE_WORLDSCALE:
-                message.value2 = appId
-                message.value3 = 'worldScale'
-                message.value4 = config.value.toString()
-                this.sendMessage(message)
-                message.value4 = (config.resetToValue ?? 1).toString() // Reset to 100%
-                this._resetTimers[config.type] = duration
-                this._resetMessages[config.type] = duration > 0 ? message : undefined
-                break
-            case OpenVR2WS.TYPE_BRIGHTNESS:
-                message.value3 = 'analogGain'
-                message.value4 = config.value.toString()
-                this.sendMessage(message)
-                message.value4 = (config.resetToValue ?? 1.30).toString() // Reset to 130%
-                this._resetTimers[config.type] = duration
-                this._resetMessages[config.type] = duration > 0 ? message : undefined
-                break
-            case OpenVR2WS.TYPE_REFRESHRATE:
-                message.value3 = 'preferredRefreshRate'
-                message.value4 = config.value.toString()
-                this.sendMessage(message)
-                message.value4 = (config.resetToValue ?? 120).toString() // Reset to 120 Hz
-                this._resetTimers[config.type] = duration
-                this._resetMessages[config.type] = duration > 0 ? message : undefined
-                break;
-            case OpenVR2WS.TYPE_VRVIEWEYE:
-                message.value3 = 'mirrorViewEye'
-                message.value4 = config.value.toString()
-                this.sendMessage(message)
-                break;
-            case OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION:
-                message.value2 = 'input'
-                message.value3 = 'leftThumbstickRotation_knuckles'
-                message.value4 = '180'
-                this.sendMessage(message)
-                message.value4 = (config.resetToValue ?? 0).toString() // Reset to 0°
-                this._resetTimers[config.type] = duration
-                this._resetMessages[config.type] = duration > 0 ? message : undefined
-                break;
+        if(!Array.isArray(config)) config = [config]
+        for(const cfg of config) {
+            const settingArr = cfg.setting.split('|')
+            if(settingArr.length != 3) return Utils.log(`OpenVR2WS: Malformed setting, did not split into 3 on '|': ${cfg.setting}`, Color.Red)
+            if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString()
+            const message :IOpenVRWSCommandMessage = {
+                key: 'RemoteSetting',
+                value: password,
+                value2: settingArr[0],
+                value3: settingArr[1],
+                value4: cfg.value.toString()
+            }
+            this.sendMessage(message)
+            if(cfg.duration != null && (cfg.resetToValue != null || settingArr[2].length > 0)) {
+                message.value4 = (cfg.resetToValue ?? settingArr[2]).toString()
+                this._resetTimers[cfg.setting] = cfg.duration
+                this._resetMessages[cfg.setting] = message
+            } else {
+                this._resetTimers[cfg.setting] = -1
+                this._resetMessages[cfg.setting] = undefined
+            }
         }
     }
 
+    /**
+     * Set to run every second.
+     */
     public resetSettings() {
-        // TODO: Also trigger some callback so we can play a sound effect?
-        // TODO: Make this more generic so we can reset all settings automatically.
-        this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE]--
-        if(this._resetTimers[OpenVR2WS.TYPE_WORLDSCALE] == 0) {
-            const message = this._resetMessages[OpenVR2WS.TYPE_WORLDSCALE]
-            if(message != undefined) this.sendMessage(message)
-        }
-        this._resetTimers[OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION]--
-        if(this._resetTimers[OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION] == 0) {
-            const message = this._resetMessages[OpenVR2WS.TYPE_LEFTTHUMBSTICKROTATION]
-            if(message != undefined) this.sendMessage(message)
+        // Loop over all timers, reduce until 0, then send message
+        for(const key in this._resetTimers) {
+            this._resetTimers[key]--
+            if(this._resetTimers[key] == 0) {
+                const message = this._resetMessages[key]
+                if(message != undefined) this.sendMessage(message)
+                delete this._resetTimers[key]
+                delete this._resetMessages[key]
+            }
         }
     }
 }
