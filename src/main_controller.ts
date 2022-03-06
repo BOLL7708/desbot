@@ -831,7 +831,6 @@ class MainController {
                             content: Utils.numberToDiscordEmote(i+1, true),
                             embeds: embeds
                         })
-                        await Utils.delay(5000)
                     }
                     this._tts.enqueueSpeakSentence(speech[1], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else if (!isNaN(streamNumber)) {
@@ -888,7 +887,6 @@ class MainController {
                 // Post to Discord
                 let count = oldClipIds.length+1
                 for(const clip of sortedClips) {
-                    await Utils.delay(5000);
                     let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
                     let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
                     let response = await Discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CLIPS], {

@@ -1,12 +1,22 @@
 class Discord {
-    static _messageQueues: Record<string, FormData[]> = {} // URL, Payloads
-    static _messageIntervalHandle = setInterval(()=>{
+    private static _rateLimits: Record<string, IDiscordRateLimit> = {} // Bucket, limit?
+    private static _rateLimitBuckets: Record<string, string> = {} // Url, Bucket
+    private static _messageQueues: Record<string, FormData[]> = {} // URL, Payloads
+    private static _messageIntervalHandle = setInterval(()=>{
         for(const [key, value] of Object.entries(Discord._messageQueues)) {
             if(value.length > 0) {
-                const formData = value.shift()
-                Discord.send(key, formData)
+                const bucketName = Discord._rateLimitBuckets[key] ?? null
+                const rateLimit = Discord._rateLimits[bucketName] ?? null
+                const now = Date.now()
+                if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
+                    const formData = value.shift()
+                    Discord.send(key, formData)
+                } else {
+                    Utils.log(`Discord: Waiting for rate limit (${rateLimit.remaining}) to reset (${rateLimit.resetTimestamp-now}ms)`, Color.Gray)
+                }
             } else {
-                delete Discord._messageQueues[key]
+                // Remove queue if empty
+                if(Discord._messageQueues.hasOwnProperty(key)) delete Discord._messageQueues[key]
             }
         }
     }, 500)
@@ -33,7 +43,23 @@ class Discord {
             body: formData
         }
         fetch(url, options)
-            .then(response => Utils.log(response, Color.DeepPink))
+            .then(response => {
+                const headers: IDiscordResponseHeaders = {}
+                response.headers.forEach((value, key) => {
+                    headers[key] = value
+                })
+                const bucket = headers["x-ratelimit-bucket"]
+                if(bucket) {
+                    if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
+                    const remaining = parseInt(headers["x-ratelimit-remaining"])
+                    const reset = parseInt(headers["x-ratelimit-reset"])
+                    if(!isNaN(remaining) && !isNaN(reset)) {
+                        const resetTimestamp = reset * 1000
+                        this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
+                    }
+                }
+            }
+        )
     }
 
     /**

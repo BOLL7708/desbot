@@ -89,3 +89,23 @@ interface IDiscordEmbedField {
     value: string
     inline?: boolean
 }
+
+// Internal
+interface IDiscordRateLimit {
+    remaining: number
+    resetTimestamp: number
+}
+
+// Response rate-limit headers
+// https://discord.com/developers/docs/topics/rate-limits
+interface IDiscordResponseHeaders {
+    'content-type'?: string
+    date?: string
+    'x-ratelimit-bucket'?: string
+    'x-ratelimit-limit'?: string
+    'x-ratelimit-remaining'?: string
+    'x-ratelimit-reset'?: string
+    'x-ratelimit-reset-after'?: string
+    'x-ratelimit-global'?: string
+    'x-ratelimit-scope'?: string
+}
