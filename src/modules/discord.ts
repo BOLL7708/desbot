@@ -1,47 +1,87 @@
 class Discord {
-    // Send chat log and perhaps screenshots to Discord aye?
-    sendMessage(url: string, displayName: string, iconUrl: string, message: string) {
-        fetch(url, {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                username: displayName,
-                avatar_url: iconUrl,
-                content: message
-            })
-        }).catch(err => console.error(err))        
-    }
-
-    // TODO: This is not used anywhere
-    sendMessageEmbed(url: string, displayName: string, iconUrl: string, color: string, description: string, message: string) {
-        const payload: IDiscordWebookPayload = {
-            username: displayName,
-            avatar_url: iconUrl,
-            content: description,
-            embeds: [
-                {
-                    description: message,
-                    color: Utils.hexToDecColor(color)
-                }
-            ]
+    static _messageQueues: Record<string, FormData[]> = {} // URL, Payloads
+    static _messageIntervalHandle = setInterval(()=>{
+        for(const [key, value] of Object.entries(Discord._messageQueues)) {
+            if(value.length > 0) {
+                const formData = value.shift()
+                Discord.send(key, formData)
+            } else {
+                delete Discord._messageQueues[key]
+            }
         }
-        fetch(url, {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        }).catch(err => console.error(err))
-    }
-
-    sendPayload(url: string, payload: IDiscordWebookPayload):Promise<void|Response> {
-        return fetch(url, {
-            method: 'post',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        }).catch(err => console.error(err))
+    }, 500)
+    
+    /**
+     * Enqueue a message to be sent to Discord.
+     * @param url 
+     * @param formData 
+     */
+    private static enqueueMessage(url: string, formData: FormData) {
+        // Check if queue exists, if not, initiate it with the incoming data.
+        if (!this._messageQueues.hasOwnProperty(url)) this._messageQueues[url] = [formData]
+        else this._messageQueues[url].push(formData)
     }
 
     /**
-     * Currently used for screenshots. Should possibly be more generalized?
+     * Main send function that transmits messages to Discord over webhoooks.
+     * @param url 
+     * @param formData 
+     */
+    private static send(url: string, formData: FormData) {
+        const options = {
+            method: 'post',
+            body: formData
+        }
+        fetch(url, options)
+            .then(response => Utils.log(response, Color.DeepPink))
+    }
+
+    /**
+     * Transform the payload into what we enqueue, FormData, as that can also contain embedded media.
+     * @param payload 
+     * @returns 
+     */
+    private static getFormDataFromPayload(payload: IDiscordWebookPayload): FormData {
+        const formData = new FormData()
+        formData.append('payload_json', JSON.stringify(payload))
+        return formData
+    }
+
+    /*
+    .#####...##..##..#####...##......######...####..
+    .##..##..##..##..##..##..##........##....##..##.
+    .#####...##..##..#####...##........##....##.....
+    .##......##..##..##..##..##........##....##..##.
+    .##.......####...#####...######..######...####..
+    */
+
+    /**
+     * Used for Twitch Chat log and Twitch Reward redemptions
+     * @param url 
+     * @param displayName 
+     * @param iconUrl 
+     * @param message 
+     */
+    static sendMessage(url: string, displayName: string, iconUrl: string, message: string) {
+        this.enqueueMessage(url, this.getFormDataFromPayload({
+            username: displayName,
+            avatar_url: iconUrl,
+            content: message
+        }))
+    }
+
+    /**
+     * Used for Channel Trophy stats, Twitch clips and Steam achievements
+     * @param url 
+     * @param payload 
+     * @returns 
+     */
+    static sendPayload(url: string, payload: IDiscordWebookPayload) {
+        this.enqueueMessage(url, this.getFormDataFromPayload(payload))
+    }
+
+    /**
+     * Used for screenshots
      * @param url 
      * @param imageBlob 
      * @param color 
@@ -51,8 +91,8 @@ class Discord {
      * @param authorIconUrl 
      * @param footerText 
      */
-    sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
-        const payload: IDiscordWebookPayload = {
+    static sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
+        const formData = this.getFormDataFromPayload({
             username: authorName,
             avatar_url: authorIconUrl,
             embeds: [
@@ -68,17 +108,8 @@ class Discord {
                     } : null
                 }
             ]
-        }
-        
-        let formData = new FormData()
+        })
         formData.append('file', imageBlob, 'image.png')
-        formData.append('payload_json', JSON.stringify(payload))
-        
-        const options = {
-            method: 'POST',
-            body: formData
-        }
-        
-        fetch(url, options).then(response => console.log(response))
+        this.enqueueMessage(url, formData)
     }
 }
