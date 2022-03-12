@@ -827,7 +827,7 @@ class MainController {
                     this._tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
                         const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
-                        Discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                             content: Utils.numberToDiscordEmote(i+1, true),
                             embeds: embeds
                         })
@@ -836,19 +836,22 @@ class MainController {
                 } else if (!isNaN(streamNumber)) {
                     this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, streamNumber-1)
-					const response = await Discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+					Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
 						embeds: embeds
-					})
-                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+					}, (success) => {
+                        this._tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
+                    
 				} else {
                     this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
-					const response = await Discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
+					Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
 						embeds: embeds
-					})
-                    this._tts.enqueueSpeakSentence(speech[response != null ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+					}, (success) => {
+                        this._tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    })
 				}
             }
         })
@@ -889,7 +892,7 @@ class MainController {
                 for(const clip of sortedClips) {
                     let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
                     let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
-                    let response = await Discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CLIPS], {
+                    Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CLIPS], {
                         username: user?.display_name ?? '[Deleted User]',
                         avatar_url: user?.profile_image_url ?? '',
                         content: [
@@ -900,9 +903,9 @@ class MainController {
                             `**Game**: ${game != undefined ? game.name : 'N/A'}`,
                             `**Link**: ${clip.url}`
                         ].join("\n")
+                    }, (success)=>{
+                        if(success) Settings.pushSetting(Settings.TWITCH_CLIPS, 'id', {id: clip.id})
                     })
-                    if(response != null) Settings.pushSetting(Settings.TWITCH_CLIPS, 'id', {id: clip.id})
-                    else break // Something is broken, don't post things out of order by stopping.
                 }
                 this._tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -1028,7 +1031,7 @@ class MainController {
                 // TODO: Reference Jeppe's twitch logger for the other messages! :D
                 
                 if(this._logChatToDiscord) {
-                    Discord.sendMessage(
+                    Discord.enqueueMessage(
                         Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
                         user?.display_name,
                         user?.profile_image_url,
@@ -1056,7 +1059,7 @@ class MainController {
             let description = `${Config.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
             if(message.redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
             if(this._logChatToDiscord) {
-                Discord.sendMessage(
+                Discord.enqueueMessage(
                     Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
                     user?.display_name,
                     user?.profile_image_url,
@@ -1065,7 +1068,7 @@ class MainController {
             }
             const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair.key] || null
             if(rewardSpecificWebhook != null) {
-                Discord.sendMessage(
+                Discord.enqueueMessage(
                     rewardSpecificWebhook,
                     user?.display_name,
                     user?.profile_image_url,
@@ -1115,7 +1118,7 @@ class MainController {
                 const descriptionText = description?.trim().length > 0
                     ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
                     : Config.screenshots.callback.discordRewardInstantTitle
-                Discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
                 // Sign
                 this._sign.enqueueSign({
@@ -1127,7 +1130,7 @@ class MainController {
             } else {
                 // Discord
                 const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
-                Discord.sendPayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
+                Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
 
                 // Sign
                 this._sign.enqueueSign({
@@ -1186,7 +1189,7 @@ class MainController {
                 const descriptionText = description?.trim().length > 0
                     ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
                     : Config.obs.sourceScreenshotConfig.discordDescription
-                Discord.sendPayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
                 // Sign
                 this._sign.enqueueSign({
@@ -1513,7 +1516,7 @@ class MainController {
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
-                        Discord.sendPayload(Config.credentials.DiscordWebhooks[Keys.KEY_CALLBACK_ACHIEVEMENT], {
+                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.KEY_CALLBACK_ACHIEVEMENT], {
                             username: gameMeta.name,
                             avatar_url: gameMeta.header_image,
                             embeds: [

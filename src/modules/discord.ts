@@ -1,16 +1,17 @@
 class Discord {
     private static _rateLimits: Record<string, IDiscordRateLimit> = {} // Bucket, limit?
     private static _rateLimitBuckets: Record<string, string> = {} // Url, Bucket
-    private static _messageQueues: Record<string, FormData[]> = {} // URL, Payloads
-    private static _messageIntervalHandle = setInterval(()=>{
+    private static _messageQueues: Record<string, IDiscordQueue[]> = {} // URL, Payloads
+    private static _messageIntervalHandle = setInterval(async ()=>{
         for(const [key, value] of Object.entries(Discord._messageQueues)) {
             if(value.length > 0) {
                 const bucketName = Discord._rateLimitBuckets[key] ?? null
                 const rateLimit = Discord._rateLimits[bucketName] ?? null
                 const now = Date.now()
                 if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
-                    const formData = value.shift()
-                    Discord.send(key, formData)
+                    const item = value.shift()
+                    const result = await Discord.send(key, item.formData)
+                    if(item.callback) item.callback(result);
                 } else {
                     Utils.log(`Discord: Waiting for rate limit (${rateLimit.remaining}) to reset (${rateLimit.resetTimestamp-now}ms)`, Color.Gray)
                 }
@@ -26,10 +27,10 @@ class Discord {
      * @param url 
      * @param formData 
      */
-    private static enqueueMessage(url: string, formData: FormData) {
+    private static enqueue(url: string, formData: FormData, callback: (success: boolean)=>void = undefined) {
         // Check if queue exists, if not, initiate it with the incoming data.
-        if (!this._messageQueues.hasOwnProperty(url)) this._messageQueues[url] = [formData]
-        else this._messageQueues[url].push(formData)
+        if (!this._messageQueues.hasOwnProperty(url)) this._messageQueues[url] = [{formData: formData, callback: callback}]
+        else this._messageQueues[url].push({formData: formData, callback: callback})
     }
 
     /**
@@ -37,29 +38,29 @@ class Discord {
      * @param url 
      * @param formData 
      */
-    private static send(url: string, formData: FormData) {
+    private static async send(url: string, formData: FormData) {
         const options = {
             method: 'post',
             body: formData
         }
-        fetch(url, options)
-            .then(response => {
-                const headers: IDiscordResponseHeaders = {}
-                response.headers.forEach((value, key) => {
-                    headers[key] = value
-                })
-                const bucket = headers["x-ratelimit-bucket"]
-                if(bucket) {
-                    if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
-                    const remaining = parseInt(headers["x-ratelimit-remaining"])
-                    const reset = parseInt(headers["x-ratelimit-reset"])
-                    if(!isNaN(remaining) && !isNaN(reset)) {
-                        const resetTimestamp = reset * 1000
-                        this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
-                    }
-                }
+        const response = await fetch(url, options)
+        if(response == null || !response.ok) return new Promise<boolean>(resolve => resolve(false))
+        
+        const headers: IDiscordResponseHeaders = {}
+        response.headers.forEach((value, key) => {
+            headers[key] = value
+        })
+        const bucket = headers["x-ratelimit-bucket"]
+        if(bucket) {
+            if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
+            const remaining = parseInt(headers["x-ratelimit-remaining"])
+            const reset = parseInt(headers["x-ratelimit-reset"])
+            if(!isNaN(remaining) && !isNaN(reset)) {
+                const resetTimestamp = reset * 1000
+                this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
             }
-        )
+        }
+        return new Promise<boolean>(resolve => resolve(true))
     }
 
     /**
@@ -88,12 +89,12 @@ class Discord {
      * @param iconUrl 
      * @param message 
      */
-    static sendMessage(url: string, displayName: string, iconUrl: string, message: string) {
-        this.enqueueMessage(url, this.getFormDataFromPayload({
+    static enqueueMessage(url: string, displayName: string, iconUrl: string, message: string, callback: (success: boolean)=>void = undefined) {
+        this.enqueue(url, this.getFormDataFromPayload({
             username: displayName,
             avatar_url: iconUrl,
             content: message
-        }))
+        }), callback)
     }
 
     /**
@@ -102,8 +103,8 @@ class Discord {
      * @param payload 
      * @returns 
      */
-    static sendPayload(url: string, payload: IDiscordWebookPayload) {
-        this.enqueueMessage(url, this.getFormDataFromPayload(payload))
+    static enqueuePayload(url: string, payload: IDiscordWebookPayload, callback: (success: boolean)=>void = undefined) {
+        this.enqueue(url, this.getFormDataFromPayload(payload), callback)
     }
 
     /**
@@ -117,7 +118,16 @@ class Discord {
      * @param authorIconUrl 
      * @param footerText 
      */
-    static sendPayloadEmbed(url: string, imageBlob: Blob, color: number, description: string = null, authorName: string = null, authorUrl: string = null, authorIconUrl: string = null, footerText: string = null) {
+    static enqueuePayloadEmbed(
+        url: string, 
+        imageBlob: Blob, 
+        color: number, 
+        description: string = null, 
+        authorName: string = null, 
+        authorUrl: string = null, 
+        authorIconUrl: string = null, 
+        footerText: string = null,
+        callback: (success: boolean)=>void = undefined) {
         const formData = this.getFormDataFromPayload({
             username: authorName,
             avatar_url: authorIconUrl,
@@ -136,6 +146,6 @@ class Discord {
             ]
         })
         formData.append('file', imageBlob, 'image.png')
-        this.enqueueMessage(url, formData)
+        this.enqueue(url, formData, callback)
     }
 }
