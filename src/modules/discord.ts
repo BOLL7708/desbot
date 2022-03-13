@@ -8,7 +8,7 @@ class Discord {
                 const bucketName = Discord._rateLimitBuckets[key] ?? null
                 const rateLimit = Discord._rateLimits[bucketName] ?? null
                 const now = Date.now()
-                if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
+                if(rateLimit == null || (rateLimit.remaining > 1 && now > rateLimit.resetTimestamp)) {
                     const item = value.shift()
                     const result = await Discord.send(key, item.formData)
                     if(item.callback) item.callback(result);
@@ -44,7 +44,7 @@ class Discord {
             body: formData
         }
         const response = await fetch(url, options)
-        if(response == null || !response.ok) return new Promise<boolean>(resolve => resolve(false))
+        if(response == null) return new Promise<boolean>(resolve => resolve(false))
         
         const headers: IDiscordResponseHeaders = {}
         response.headers.forEach((value, key) => {
@@ -60,7 +60,7 @@ class Discord {
                 this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
             }
         }
-        return new Promise<boolean>(resolve => resolve(true))
+        return new Promise<boolean>(resolve => resolve(response.ok))
     }
 
     /**

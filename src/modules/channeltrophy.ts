@@ -169,7 +169,7 @@ class ChannelTrophy {
         embeds.push({
             title: '**Historical Data**',
             description: [
-                `🐳 Total spent: **${totalSpent}**`,
+                `🐋 Total spent: **${totalSpent}**`,
                 `🤖 Total redeemed: **${totalRedeemed}**`,
                 `🐑 Total participants: **${Object.keys(userIds).length}**`,
                 `🦑 Total streams with trophies: **${totalStreamCount}**`
@@ -287,9 +287,12 @@ class ChannelTrophy {
 		} else if(n>10 && NumberPatterns.checkIfMonoDigit(n)) { // Monodigit
             result.speech = `${nameForTTS} a monodigit ${trophyName}, number ${n}`
             result.label = `🦄 Monodigit: ${nameForDiscord}`
+        } else if(n>1000 && NumberPatterns.checkIfMatchingPairs(n)) {
+            result.speech = `${nameForTTS} a matching pairs ${trophyName}, number ${n}`
+            result.label = `🐮 Matching Pairs: ${nameForDiscord}`
         } else if(n>1000 && NumberPatterns.checkIfPairs(n)) {
-            result.speech = `${nameForTTS} a duodigit ${trophyName}, number ${n}`
-            result.label = `🐮 Pairs: ${nameForDiscord}`
+            result.speech = `${nameForTTS} a pairs ${trophyName}, number ${n}`
+            result.label = `🐫 Pairs: ${nameForDiscord}`
         } else if(n>100 && NumberPatterns.checkIfPalindromic(n)) { // Palindromic
             result.speech = `${nameForTTS} a palindromic ${trophyName}, number ${n}`
             result.label = `🦆 Palindromic: ${nameForDiscord}`
@@ -339,6 +342,15 @@ class NumberPatterns {
     }
 
     static checkIfPairs( num: number ): boolean {
+        const numStr = num.toString()
+        if(numStr.length % 2 != 0) return false
+        for(let i = 0; i < numStr.length; i+=2) {
+            if(numStr[i] != numStr[i+1]) return false
+        }
+        return true
+    }
+
+    static checkIfMatchingPairs( num: number ): boolean {
         const numStr = num.toString()
         const match = numStr.match(/^([0-9]{2})(\1+)$/)
         return match != null
@@ -432,6 +444,7 @@ class NumberPatterns {
             fibonacci: 0,
             monoDigit: 0,
             pairs: 0,
+            matchingPairs: 0,
             triangular: 0,
             square: 0,
             cube: 0
@@ -449,6 +462,7 @@ class NumberPatterns {
             if(this.checkIfFibonacci(i)) result.fibonacci++
             if(this.checkIfMonoDigit(i)) result.monoDigit++
             if(this.checkIfPairs(i)) result.pairs++
+            if(this.checkIfMatchingPairs(i)) result.matchingPairs++
             if(this.checkIfTriangular(i)) result.triangular++
             if(this.checkIfSquare(i)) result.square++
             if(this.checkIfCube(i)) result.cube++
