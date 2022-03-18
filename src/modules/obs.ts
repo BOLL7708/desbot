@@ -57,6 +57,12 @@ class OBS {
     // TODO: Add support for an array of configs to toggle many things at once
     show(config: IObsSourceConfig, ignoreDuration: boolean = false) {
         if(config.sceneNames != undefined) {
+            const group = Config.obs.sourceGroups.find(group => group.includes(config.key))
+            if(group) {
+                for(const k of group) {
+                    if(k != config.key) this.hide(Config.obs.configs[k])
+                }
+            }
             config.sceneNames.forEach(sceneName => {
                 this._socket.send(this.buildRequest("SetSceneItemProperties", ++this._messageCounter, {
                     "scene-name": sceneName,
@@ -66,6 +72,12 @@ class OBS {
             })
         } else 
         if(config.filterName != undefined) {
+            const group = Config.obs.filterGroups.find(group => group.includes(config.key))
+            if(group) {
+                for(const k of group) {
+                    if(k != config.key) this.hide(Config.obs.configs[k])
+                }
+            }
             this._socket.send(this.buildRequest("SetSourceFilterVisibility", ++this._messageCounter, {
                 "sourceName": config.sourceName,
                 "filterName": config.filterName,

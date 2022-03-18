@@ -248,6 +248,8 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
         }
         */
     },
+    sourceGroups: [],
+    filterGroups: [],
     filterOnScenes: [''], // WIP
     sourceScreenshotConfig: {
         sourceName: 'Your Source Name',

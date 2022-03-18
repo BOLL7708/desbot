@@ -13,6 +13,14 @@ interface IObsConfig {
      */
     configs: { [key:string]: IObsSourceConfig }
     /**
+     * When part of a group, turning one source on turns all the others off.
+     */
+    sourceGroups: string[][]
+    /**
+     * When part of a group, turning one filter on turns all the others off.
+     */
+    filterGroups: string[][]
+    /**
      * WIP: This appears buggy but would filter certain features to work in certain scenes. 
      * It changed even when messing around in the studio mode though, so for now it's disabled.
      */
@@ -41,6 +49,10 @@ interface IObsSourceConfig {
      * Optional: The source/filter will be hidden/inactivated again after this amount of milliseconds, or provided.
      */
     durationMs?: number
+    /**
+     * Optional: Set in code to reference the key that triggered it for group toggling.
+     */
+    key?: string
 }
 interface IObsSourceScreenshotConfig {
     /**

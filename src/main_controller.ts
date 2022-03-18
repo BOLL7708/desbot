@@ -286,7 +286,7 @@ class MainController {
         .##..##...####.....##.....####...........##..##..######...##.##...##..##..##..##..#####....####..
         */
         for(const key of Config.twitch.autoRewards) {
-            const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key])
+            const obsCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildOBSCallback(this, Config.obs.configs[key], key)
             const colorCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildColorCallback(this, Config.philipshue.lightConfigs[key])
             const plugCallback: null|((data: ITwitchRedemptionMessage) => void) = this.buildPlugCallback(this, Config.philipshue.plugConfigs[key])
             const soundCallback: null|((data: ITwitchRedemptionMessage, rewardIndex: number) => void) = this.buildSoundAndSpeechCallback(this, Config.audioplayer.configs[key], Config.controller.speechReferences[key])
@@ -1565,8 +1565,9 @@ class MainController {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
-    private buildOBSCallback(_this: MainController, config: IObsSourceConfig|undefined): ITwitchRedemptionCallback|null {
+    private buildOBSCallback(_this: MainController, config: IObsSourceConfig|undefined, key: string): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
+            config.key = key
             console.log("OBS Reward triggered")
             _this._obs.show(config)
         } 
