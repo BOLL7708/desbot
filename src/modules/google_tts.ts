@@ -72,7 +72,7 @@ class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    setDictionary(dictionary: IDictionaryPair[]) {
+    setDictionary(dictionary: IDictionaryEntry[]) {
         if(dictionary != null) {
             dictionary.forEach(pair => {
                 if(pair.original && pair.substitute) this._dictionary[pair.original] = pair.substitute

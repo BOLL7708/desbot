@@ -67,6 +67,11 @@ interface IControllerConfig {
     speechReferences: { [key: string]: string|string[] }
 
     /**
+     * References to texts written in chat by the bot.
+     */
+    chatReferences: { [key: string]: string|string[] }
+
+    /**
      * References between static and automatic rewards.
      */
     rewardReferences: { [key: string]: string }

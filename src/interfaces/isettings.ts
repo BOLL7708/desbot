@@ -9,9 +9,11 @@ interface IUserName {
     userName: string
     shortName: string
 }
-interface IDictionaryPair {
+interface IDictionaryEntry {
     original: string
     substitute: string
+    user: string
+    date: string
 }
 interface ITwitchRewardPair {
     key: string

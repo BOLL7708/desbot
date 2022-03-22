@@ -155,6 +155,12 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_GAMEREWARDS_ON]: 'Game specific rewards enabled',
         [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',
     },
+    chatReferences: {
+        [Keys.COMMAND_DICTIONARY]: [
+            'There is no entry for "%s" in the dictionary.',
+            '"%s" is set to "%s" in the dictionary.'
+        ]
+    },
     rewardReferences: {
         // [KeysTemplate.KEY_AREWARD]: KeysTemplate.KEY_YOURREWARD
     },

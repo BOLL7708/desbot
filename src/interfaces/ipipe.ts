@@ -130,6 +130,11 @@ interface IPipeCustomProperties {
     enabled?: boolean
 
     /**
+     * Value that will be returned in callback if provided.
+     */
+    nonce?: string
+
+    /**
      * What to anchor the notification to:
      * 0: World
      * 1: Headset

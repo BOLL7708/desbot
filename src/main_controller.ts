@@ -707,15 +707,20 @@ class MainController {
             trigger: Keys.COMMAND_DICTIONARY,
             callback: async (userData, input) => {
                 const words = Utils.splitOnFirst(' ', input)
-                const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
                 if(words.length == 2 && words[1].trim().length > 0) {
-                    Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase()})
-                    this._tts.setDictionary(<IDictionaryPair[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
+                    const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
+                    Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), user: userData.userName, date: Utils.getISOTimestamp()})
+                    this._tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
+                    this._tts.enqueueSpeakSentence(Utils.template(speech, words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
                 } else { // Messed up
-                    Utils.loadCleanName(userData.userName).then(cleanName => {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                    })
+                    const chat = Config.controller.chatReferences[Keys.COMMAND_DICTIONARY]
+                    const word = (words[0] ?? '').toLowerCase()
+                    const currentEntry = <IDictionaryEntry> await Settings.pullSetting(Settings.TTS_DICTIONARY, 'original', word)
+                    if(currentEntry) {
+                        this._twitch._twitchChat.sendMessageToChannel(Utils.template(chat[1], currentEntry.original, currentEntry.substitute))
+                    } else {
+                        this._twitch._twitchChat.sendMessageToChannel(Utils.template(chat[0], word))
+                    }
                 }
             }
         })
