@@ -9,7 +9,7 @@ class Utils {
         let cleanName = cleanNameSetting?.shortName
         if(cleanName == null) {
             cleanName = this.cleanName(userName)
-            cleanNameSetting = {userName: userName, shortName: cleanName}
+            cleanNameSetting = {userName: userName, shortName: cleanName, editor: '', datetime: Utils.getISOTimestamp()}
             Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', cleanNameSetting)
         }
         return cleanName

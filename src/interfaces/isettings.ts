@@ -8,12 +8,14 @@ interface IUserVoice {
 interface IUserName {
     userName: string
     shortName: string
+    editor: string
+    datetime: string
 }
 interface IDictionaryEntry {
     original: string
     substitute: string
-    user: string
-    date: string
+    editor: string
+    datetime: string
 }
 interface ITwitchRewardPair {
     key: string

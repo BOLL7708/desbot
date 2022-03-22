@@ -425,7 +425,8 @@ class MainController {
                     newName = input.toLowerCase()
                 }
                 if(userToRename != null || newName != null) {                    
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', {userName: userToRename, shortName: newName})
+                    const setting = <IUserName> {userName: userToRename, shortName: newName, editor: userData.userName, datetime: Utils.getISOTimestamp()}
+                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
                     this._tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
@@ -709,7 +710,8 @@ class MainController {
                 const words = Utils.splitOnFirst(' ', input)
                 if(words.length == 2 && words[1].trim().length > 0) {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
-                    Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), user: userData.userName, date: Utils.getISOTimestamp()})
+                    const setting = <IDictionaryEntry> {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), editor: userData.userName, datetime: Utils.getISOTimestamp()}
+                    Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
                     this._tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                     this._tts.enqueueSpeakSentence(Utils.template(speech, words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
                 } else { // Messed up
