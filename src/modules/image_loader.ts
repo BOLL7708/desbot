@@ -36,18 +36,8 @@ class ImageLoader {
                     const headerIndex = imageb64.indexOf(',')
                     const header = imageb64.substring(0, headerIndex)
                     console.log(`ImageLoader: base64 header: ${header}`)
-                    if(header.indexOf('image/png') == -1) {
-                        // Convert to .png
-                        const imageEditor = new ImageEditor()
-                        const success = await imageEditor.loadDataUrl(imageb64)
-                        if(success) {
-                            console.log(`Loaded image from the internet: ${url}`)
-                            const pngData = imageEditor.getDataUrl()
-                            ImageLoader._imageCache[urlb64] = pngData
-                            resolve(pngData)
-                        } else {
-                            reject(new Error('ImageLoader: Failed to convert to png'))
-                        }
+                    if(!this.isImage(header)) {
+                        reject(new Error('ImageLoader: Not an image'))
                     } else {
                         // It was already .png
                         ImageLoader._imageCache[urlb64] = imageb64
@@ -58,5 +48,13 @@ class ImageLoader {
                 reader.readAsDataURL(blob) 
             })
         }
+    }
+    
+    /**
+     * Will check if the header belongs to an image
+     * @param header Header to check
+     */
+    static isImage(header:string):boolean {
+        return header.indexOf('image/png') != -1 || header.indexOf('image/jpeg') != -1 || header.indexOf('image/jpg') != -1 || header.indexOf('image/gif') != -1 || header.indexOf('image/bmp') != -1
     }
 }
