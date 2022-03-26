@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es2019",
         "watch": true,
-        "lib": ["dom", "es2019"],
+        "lib": ["dom", "es2019", "dom.iterable"],
         "outDir": "dist",
         "rootDir": "src",
         "sourceMap": true

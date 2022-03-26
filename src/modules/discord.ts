@@ -8,10 +8,10 @@ class Discord {
                 const bucketName = Discord._rateLimitBuckets[key] ?? null
                 const rateLimit = Discord._rateLimits[bucketName] ?? null
                 const now = Date.now()
-                if(rateLimit == null || (rateLimit.remaining > 1 && now > rateLimit.resetTimestamp)) {
+                if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
                     const item = value.shift()
                     const result = await Discord.send(key, item.formData)
-                    if(item.callback) item.callback(result);
+                    if(item.callback) item.callback(result)
                 } else {
                     Utils.log(`Discord: Waiting for rate limit (${rateLimit.remaining}) to reset (${rateLimit.resetTimestamp-now}ms)`, Color.Gray)
                 }
@@ -24,8 +24,8 @@ class Discord {
     
     /**
      * Enqueue a message to be sent to Discord.
-     * @param url 
-     * @param formData 
+     * @param url
+     * @param formData
      */
     private static enqueue(url: string, formData: FormData, callback: (success: boolean)=>void = undefined) {
         // Check if queue exists, if not, initiate it with the incoming data.
@@ -35,8 +35,8 @@ class Discord {
 
     /**
      * Main send function that transmits messages to Discord over webhoooks.
-     * @param url 
-     * @param formData 
+     * @param url
+     * @param formData
      */
     private static async send(url: string, formData: FormData) {
         const options = {

@@ -2,7 +2,9 @@ class TwitchChat {
     private LOG_COLOR: string = 'purple'
     private _socket: WebSockets
     private _isConnected: boolean = false
-    init() {
+    private _userName: string = ''
+    init(userName: string) {
+        this._userName = userName
         this._socket = new WebSockets(
             'wss://irc-ws.chat.twitch.tv:443',
             15,
@@ -15,7 +17,7 @@ class TwitchChat {
         this._socket.init();
     }
 
-    private _chatMessageCallback: ITwitchChatMessageCallback = (message) => { console.warn('Unhandled chat message callback') }
+    private _chatMessageCallback: ITwitchChatMessageCallback = (message) => { /* console.warn('Unhandled chat message callback') */ }
     registerChatMessageCallback(callback: ITwitchChatMessageCallback) {
         this._chatMessageCallback = callback
     }
@@ -25,9 +27,9 @@ class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
+        let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', this._userName)
         let config: ITwitchConfig = Config.twitch
-        Utils.log("Twitch chat connected", this.LOG_COLOR, true, true)
+        Utils.log(`Twitch chat connected: ${this._userName}`, this.LOG_COLOR, true, true)
         this._socket.send(`PASS oauth:${tokenData.access_token}`)
         this._socket.send(`NICK ${config.channelName}`)
         this._socket.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
@@ -36,7 +38,7 @@ class TwitchChat {
     }
     private onClose(evt: any) {
         this._isConnected = false
-        Utils.log("Twitch chat disconnected", this.LOG_COLOR, true, true)
+        Utils.log(`Twitch chat disconnected: ${this._userName}`, this.LOG_COLOR, true, true)
     }
     private onMessage(evt: any) {
         let data = evt?.data

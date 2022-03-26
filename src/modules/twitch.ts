@@ -1,13 +1,17 @@
 class Twitch{
-    _twitchChat: TwitchChat = new TwitchChat()
+    private _twitchChatIn: TwitchChat = new TwitchChat()
+    public _twitchChatOut: TwitchChat = new TwitchChat()
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _cooldowns: {[key: string]: number} = {}
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true, initPubsub: boolean = true) {
-        if(initChat) this._twitchChat.init()
+        if(initChat) {
+            this._twitchChatIn.init(Config.twitch.channelName)
+            this._twitchChatOut.init(Config.twitch.chatbotName)
+        }
         if(initPubsub) this._twitchPubsub.init()
-        this._twitchChat.registerChatMessageCallback((message) => {
+        this._twitchChatIn.registerChatMessageCallback((message) => {
             this.onChatMessage(message)
         })
         this._twitchPubsub.setOnRewardCallback((id, message) => {

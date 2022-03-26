@@ -148,7 +148,7 @@ class MainController {
                 const userInput = data?.redemption?.user_input
                 Utils.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`, Color.DarkOrange)
                 const voiceName = await this._tts.setVoiceForUser(userName, userInput)
-                this._twitch._twitchChat.sendMessageToChannel(`@${displayName} voice: ${voiceName}`)
+                this._twitch._twitchChatOut.sendMessageToChannel(`@${displayName} voice: ${voiceName}`)
             }
         })
         this._twitch.registerReward({
@@ -719,9 +719,9 @@ class MainController {
                     const word = (words[0] ?? '').toLowerCase()
                     const currentEntry = <IDictionaryEntry> await Settings.pullSetting(Settings.TTS_DICTIONARY, 'original', word)
                     if(currentEntry) {
-                        this._twitch._twitchChat.sendMessageToChannel(Utils.template(chat[1], currentEntry.original, currentEntry.substitute))
+                        this._twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[1], currentEntry.original, currentEntry.substitute))
                     } else {
-                        this._twitch._twitchChat.sendMessageToChannel(Utils.template(chat[0], word))
+                        this._twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[0], word))
                     }
                 }
             }
@@ -935,7 +935,7 @@ class MainController {
                     const releaseDate = gameData.release_date?.date ?? 'N/A'
                     const name = gameData.name ?? 'N/A'
                     const link = gameData.steam_appid != undefined ? SteamStore.getStoreURL(gameData.steam_appid) : 'N/A'
-                    this._twitch._twitchChat.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
+                    this._twitch._twitchChatOut.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
                     this._sign.enqueueSign({
                         title: 'Current Game',
                         image: gameData.header_image,
@@ -1547,7 +1547,7 @@ class MainController {
                         })
 
                         // Twitch chat
-                        this._twitch._twitchChat.sendMessageToChannel(
+                        this._twitch._twitchChatOut.sendMessageToChannel(
                             Utils.template(
                                 Config.steam.achievementSettings.twitchChatMessage, 
                                 progressStr, 
