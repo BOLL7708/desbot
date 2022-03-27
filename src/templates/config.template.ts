@@ -511,7 +511,7 @@ Config.run = <IRunConfig> {
 Config.twitch = <ITwitchConfig> {
     channelName: 'ChannelName',
     chatbotName: 'ChatbotName',
-    announcerName: 'AnnouncterName',
+    announcerNames: ['AnnouncerName'],
     announcerTriggers: ['❗'],
 
     proxyChatBotName: 'RestreamBot',

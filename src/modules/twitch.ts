@@ -50,7 +50,7 @@ class Twitch{
     }
 
     private _announcements: ITwitchAnnouncement[] = []
-    registerAnnouncement(twitchAnnouncement: ITwitchAnnouncement) {
+    registerAnnouncers(twitchAnnouncement: ITwitchAnnouncement) {
         this._announcements.push(twitchAnnouncement)
     }
 
@@ -166,7 +166,7 @@ class Twitch{
             emotes: messageCmd.properties?.emotes || []
         }
 
-        const announcement = this._announcements.find(a => a.userName == userName)
+        const announcement = this._announcements.find(a => a.userNames.includes(userName))
         if(announcement) { // Announcement bots
             const firstWord = text.split(' ')[0]
             if(text.length >= 1 && announcement.triggers.indexOf(firstWord) != -1) return announcement.callback(userData, messageData, firstWord)

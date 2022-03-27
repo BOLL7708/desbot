@@ -17,11 +17,11 @@ interface ITwitchConfig {
      */
     chatbotName: string
     /**
-     * If you are using an external bot, you can allow it to announce things using the TTS, provide the name for it here.
+     * If you are using any bots that writes in chat, you can allow them to announce things using the TTS, provide their names here.
      * 
      * It will only announce things that are using the triggers in `anouncerTriggers`.
      */
-    announcerName: string
+    announcerNames: string[]
     /**
      * The triggers that the announcer will use to announce things. 
      * 
@@ -209,7 +209,7 @@ interface ICommandPermissions {
     everyone?: boolean
 }
 interface ITwitchAnnouncement {
-    userName: string
+    userNames: string[]
     triggers: string[]
     callback: ITwitchAnnouncementCallback
 }

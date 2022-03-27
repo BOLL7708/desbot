@@ -963,8 +963,8 @@ class MainController {
         .##..##..##..##..##..##....##...
         ..####...##..##..##..##....##...
         */
-        this._twitch.registerAnnouncement({
-            userName: Config.twitch.announcerName.toLowerCase(),
+        this._twitch.registerAnnouncers({
+            userNames: Config.twitch.announcerNames.map((name)=>{return name.toLowerCase()}),
             triggers: Config.twitch.announcerTriggers,
             callback: async (userData, messageData, firstWord) => {
                 // TTS
