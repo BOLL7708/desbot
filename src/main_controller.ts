@@ -1,15 +1,5 @@
 class MainController {
-    private _twitch: Twitch = new Twitch()
-    private _twitchHelix: TwitchHelix = new TwitchHelix()
-    private _twitchTokens: TwitchTokens = new TwitchTokens()
-    private _tts: GoogleTTS = new GoogleTTS()
-    private _pipe: Pipe = new Pipe()
-    private _obs: OBS = new OBS()
-    private _sssvr: SuperScreenShotterVR = new SuperScreenShotterVR()
-    private _hue: PhilipsHue = new PhilipsHue()
-    private _openvr2ws: OpenVR2WS = new OpenVR2WS()
-    private _audioPlayer: AudioPlayer = new AudioPlayer()
-    private _sign: Sign = new Sign()
+    private _modules = ModuleSingleton.getInstance()
     
     private _ttsEnabledUsers: string[] = []
     private _ttsForAll: boolean = Config.controller.defaults.ttsForAll
@@ -36,7 +26,7 @@ class MainController {
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
         await Settings.loadSettings(Settings.TWITCH_TOKENS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
-        await Settings.loadSettings(Settings.TTS_DICTIONARY).then(dictionary => this._tts.setDictionary(dictionary))
+        await Settings.loadSettings(Settings.TTS_DICTIONARY).then(dictionary => this._modules.tts.setDictionary(dictionary))
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
 
@@ -49,10 +39,10 @@ class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        await this._twitchTokens.refreshToken()
-        await this._twitchHelix.init()
+        await this._modules.twitchTokens.refreshToken()
+        await this._modules.twitchHelix.init()
 
-        this._pipe.setOverlayTitle("Streaming Widget")
+        this._modules.pipe.setOverlayTitle("Streaming Widget")
 
         this.setEmptySoundForTTS.call(this)
 
@@ -84,7 +74,7 @@ class MainController {
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
             const setup = Config.twitch.rewardConfigs[key]
-            let reward = await this._twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
+            let reward = await this._modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
             if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
         }
 
@@ -98,24 +88,24 @@ class MainController {
                         Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                         const reset: ITwitchRewardCounter = {key: key, count: 0}
                         await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
-                        await this._twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
+                        await this._modules.twitchHelix.updateReward(await Utils.getRewardId(key), setup[0])
                     }
                 }
             }
         }
 
         // Toggle TTS rewards
-        this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
+        this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
 
         // Enable default rewards
         const enableRewards = Config.twitch.defaultRewards.filter(reward => { return !Config.twitch.disableRewards.includes(reward) })
         for(const key of enableRewards) {
-            this._twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true})
+            this._modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true})
         }
         
         // Disable unwanted rewards
         for(const key of Config.twitch.disableRewards) {
-            this._twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
+            this._modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
         }
 
         /*
@@ -125,14 +115,14 @@ class MainController {
         ...##......##........##.
         ...##......##.....####..
         */
-        this._twitch.registerReward({
+        this._modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSPEAK),
             callback: (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
                 const inputText = data?.redemption?.user_input
                 if(userName != null && inputText != null) {
                     Utils.log("TTS Message Reward", Color.DarkOrange)
-                    this._tts.enqueueSpeakSentence(
+                    this._modules.tts.enqueueSpeakSentence(
                         inputText,
                         userName,
                         GoogleTTS.TYPE_SAID
@@ -140,18 +130,18 @@ class MainController {
                 }
             }
         })
-        this._twitch.registerReward({
+        this._modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSETVOICE),
             callback: async (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
                 const displayName = data?.redemption?.user?.display_name
                 const userInput = data?.redemption?.user_input
                 Utils.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`, Color.DarkOrange)
-                const voiceName = await this._tts.setVoiceForUser(userName, userInput)
-                this._twitch._twitchChatOut.sendMessageToChannel(`@${displayName} voice: ${voiceName}`)
+                const voiceName = await this._modules.tts.setVoiceForUser(userName, userInput)
+                this._modules.twitch._twitchChatOut.sendMessageToChannel(`@${displayName} voice: ${voiceName}`)
             }
         })
-        this._twitch.registerReward({
+        this._modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_TTSSWITCHVOICEGENDER),
             callback: (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
@@ -160,7 +150,7 @@ class MainController {
                     const voiceSetting:IUserVoice = voice
                     let gender:string = ''
                     if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
-                    this._tts.setVoiceForUser(userName, `reset ${gender}`)
+                    this._modules.tts.setVoiceForUser(userName, `reset ${gender}`)
                 })
             }
         })
@@ -172,42 +162,42 @@ class MainController {
         .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
         */
-        this._twitch.registerReward({
+        this._modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_SCREENSHOT),
             callback: (data:ITwitchRedemptionMessage) => {
                 let userInput = data?.redemption?.user_input
                 const nonce = Utils.getNonce('TTS')
                 const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
-                this._tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                 this._nonceCallbacks[nonce] = ()=>{
                     if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
                         // SuperScreenShotterVR
-                        this._sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
+                        this._modules.sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
                         // OBS Source Screenshot
                         setTimeout(async ()=>{
-                            const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
+                            const userData = await this._modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
                             const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
-                            this._obs.takeSourceScreenshot(requestData)
+                            this._modules.obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }    
                 }
             }
         })
         // TODO: Change this into an auto-reward with a screenshot callback for SSSVR and OBS?
-        this._twitch.registerReward({
+        this._modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_INSTANTSCREENSHOT),
             callback: async (data:ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
                     // SuperScreenShotterVR
-                    this._sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
+                    this._modules.sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
                 } else {
                     // OBS Source Screenshot
-                    const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
+                    const userData = await this._modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
                     const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
-                    this._obs.takeSourceScreenshot(requestData)
+                    this._modules.obs.takeSourceScreenshot(requestData)
                 }
             }
         })
@@ -219,7 +209,7 @@ class MainController {
         ...##....##..##..##..##..##......##..##....##...
         ...##....##..##...####...##......##..##....##...
         */
-        this._twitch.registerReward({
+        this._modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
             callback: async (message:ITwitchRedemptionMessage) => {
                 // Save stat
@@ -230,7 +220,7 @@ class MainController {
                 }
                 Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
 
-                const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))
+                const user = await this._modules.twitchHelix.getUserById(parseInt(message.redemption.user.id))
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
@@ -241,14 +231,14 @@ class MainController {
 
                 // Update reward
                 const rewardId = await Utils.getRewardId(Keys.KEY_CHANNELTROPHY)
-                const rewardData = await this._twitchHelix.getReward(rewardId)
+                const rewardData = await this._modules.twitchHelix.getReward(rewardId)
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
                     
                     // Do TTS
                     const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
                     if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
-                        this._tts.enqueueSpeakSentence(
+                        this._modules.tts.enqueueSpeakSentence(
                             Utils.template(funnyNumberConfig.speech, user.login), 
                             Config.twitch.chatbotName, 
                             GoogleTTS.TYPE_ANNOUNCEMENT
@@ -265,7 +255,7 @@ class MainController {
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;
-                        const updatedReward = await this._twitchHelix.updateReward(rewardId, {
+                        const updatedReward = await this._modules.twitchHelix.updateReward(rewardId, {
                             title: Utils.template(Config.controller.channelTrophySettings.rewardTitle, user.display_name),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
@@ -307,7 +297,7 @@ class MainController {
                     // Disable after use
                     if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
                         const id = await Utils.getRewardId(key)
-                        this._twitchHelix.updateReward(id, {is_enabled: false})
+                        this._modules.twitchHelix.updateReward(id, {is_enabled: false})
                     }
 
                     // Main callbacks
@@ -327,7 +317,7 @@ class MainController {
                         const newRewardConfig = rewardConfig[counter.count] ?? null
                         if(newRewardConfig != null) {
                             Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
-                            this._twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
+                            this._modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
                         }
                     }
                 }
@@ -344,7 +334,7 @@ class MainController {
                     +(runCallback?'🛴':'')
                     +(webCallback?'🌐':'')
                     +`: ${key}`, 'green')
-                this._twitch.registerReward(reward)
+                this._modules.twitch.registerReward(reward)
             } else {
                 Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
             }
@@ -367,50 +357,50 @@ class MainController {
         ...##......##........##.
         ...##......##.....####..
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_ON,
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_ON]
                 const onText:string = !this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = true
-                this._tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: false})
+                this._modules.tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: false})
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_OFF,
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_OFF]
                 const offText = this._ttsForAll ? speech[0] : speech[1]
                 this._ttsForAll = false
-                this._tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: true})
+                this._modules.tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: true})
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_SILENCE,
             callback: (userData, input) => {
-                this._tts.stopSpeaking()
+                this._modules.tts.stopSpeaking()
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_DIE,
             callback: (userData, input) => {
-                this._tts.stopSpeaking(true)
+                this._modules.tts.stopSpeaking(true)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_SAY,
             callback: (userData, input) => {
-                this._tts.enqueueSpeakSentence(input, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(input, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_NICK,
             callback: (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
@@ -428,12 +418,12 @@ class MainController {
                     const setting = <IUserName> {userName: userToRename, shortName: newName, editor: userData.userName, datetime: Utils.getISOTimestamp()}
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
-                    this._tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_MUTE,
             callback: async (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
@@ -445,15 +435,15 @@ class MainController {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
                     if(blacklist == null || blacklist.active == false) {
                         Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else {
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     }                    
                 }
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_UNMUTE,
             callback: async (userData, input) => {
                 const parts = Utils.splitOnFirst(' ', input)
@@ -465,9 +455,9 @@ class MainController {
                 if(blacklist != null && blacklist.active) {
                     const reason = Utils.cleanSetting(parts[1] ?? '')
                     Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech[0], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else {
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech[1], cleanName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
@@ -479,48 +469,48 @@ class MainController {
         .##..##..##..##..##..##....##...
         ..####...##..##..##..##....##...
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT,
             callback: (userData, input) => {
-                this._pipe.sendBasic(input)
+                this._modules.pipe.sendBasic(input)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_ON,
             callback: (userData, input) => {
                 this._pipeAllChat = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_OFF,
             callback: (userData, input) => {
                 this._pipeAllChat = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_PING_ON,
             callback: (userData, input) => {
                 this._pingForChat = true
                 this.setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_PING_OFF,
             callback: (userData, input) => {
                 this._pingForChat = false
                 this.setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -531,21 +521,21 @@ class MainController {
         .##......##..##..##..##.
         .######...####....####..
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_ON,
             callback: (userData, input) => {
                 this._logChatToDiscord = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_OFF,
             callback: (userData, input) => {
                 this._logChatToDiscord = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -556,23 +546,23 @@ class MainController {
         .##..##..##..##..##...##.
         ..####...##..##..##...##.
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CAMERA_ON,
             callback: (userData, input) => {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.show(Config.obs.configs[key], true)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.obs.show(Config.obs.configs[key], true)
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CAMERA_OFF,
             callback: (userData, input) => {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._obs.hide(Config.obs.configs[key])
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.obs.hide(Config.obs.configs[key])
             }
         })
 
@@ -583,7 +573,7 @@ class MainController {
         .....##..##..##..##..##..##......##.....
         ..####....####...##..##..######..######.
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_SCALE,
             callback: (userData, input) => {
                 const parts = input.split(' ')
@@ -596,11 +586,11 @@ class MainController {
                     const steps = forMinutes*60*1000/intervalMs
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
                         // Fail to start interval
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(Utils.template(speech[3]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { 
                         // TODO: Disable all scale rewards
                         // Launch interval
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(Utils.template(speech[1], fromScale, toScale, forMinutes), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                         let currentScale = fromScale
                         let currentStep = 0
                         const multiple = Math.pow((toScale/fromScale), 1/steps)
@@ -608,14 +598,14 @@ class MainController {
                         clearInterval(this._scaleIntervalHandle)
                         this._scaleIntervalHandle = setInterval(
                             ()=>{
-                                this._openvr2ws.setSetting({
+                                this._modules.openvr2ws.setSetting({
                                     setting: OpenVR2WS.SETTING_WORLD_SCALE,
                                     value: currentScale/100.0
                                 })
                                 Settings.pushLabel(Settings.WORLD_SCALE_LABEL, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
-                                    this._tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                                     clearInterval(this._scaleIntervalHandle)
                                     setTimeout(()=>{
                                         Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
@@ -633,11 +623,11 @@ class MainController {
                         const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                         clearInterval(this._scaleIntervalHandle)
                         Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { // Manual setting
                         const value = Math.max(10, Math.min(1000, scale || 100))
-                        this._tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                        this._openvr2ws.setSetting({
+                        this._modules.tts.enqueueSpeakSentence(Utils.template(speech[0], value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.openvr2ws.setSetting({
                             setting: OpenVR2WS.SETTING_WORLD_SCALE,
                             value: value/100.0
                         })    
@@ -653,21 +643,21 @@ class MainController {
         .....##....##....##......##..##..##...##...####...##..##.
         ..####.....##....######..##..##..##...##....##....##..##.
         */
-        this._twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
+        this._modules.twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
             trigger: Keys.COMMAND_BRIGHTNESS,
             callback: (userData, input) => {
                 const brightness = parseInt(input) || 130
                 const speech = Config.controller.speechReferences[Keys.COMMAND_BRIGHTNESS]
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.setSetting({
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.openvr2ws.setSetting({
                     setting: OpenVR2WS.SETTING_ANALOG_GAIN,
                     value: value/100.0
                 })
             }
         })
 
-        this._twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
+        this._modules.twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
             trigger: Keys.COMMAND_REFRESHRATE,
             callback: (userData, input) => {
                 const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
@@ -675,22 +665,22 @@ class MainController {
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
                 const speech = Config.controller.speechReferences[Keys.COMMAND_REFRESHRATE]
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.setSetting({
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.openvr2ws.setSetting({
                     setting: OpenVR2WS.SETTING_PREFERRED_REFRESH_RATE,
                     value: value
                 })
             }
         })
 
-        this._twitch.registerCommand({ // Currently not actually effective due to how the VR View does not listen to config changes
+        this._modules.twitch.registerCommand({ // Currently not actually effective due to how the VR View does not listen to config changes
             trigger: Keys.COMMAND_VRVIEWEYE,
             callback: (userData, input) => {
                 const eyeMode = parseInt(input) || 4
                 const speech = Config.controller.speechReferences[Keys.COMMAND_VRVIEWEYE]
                 const value = Math.max(0, Math.min(5, eyeMode))
-                this._tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this._openvr2ws.setSetting({
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.openvr2ws.setSetting({
                     setting: OpenVR2WS.SETTING_MIRROR_VIEW_EYE,
                     value: value
                 })
@@ -704,7 +694,7 @@ class MainController {
         .##..##....##....##..##....##......##....##..##..##..##..##..##..##..##....##...
         .#####...######...####.....##....######...####...##..##..##..##..##..##....##...
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_DICTIONARY,
             callback: async (userData, input) => {
                 const words = Utils.splitOnFirst(' ', input)
@@ -712,16 +702,16 @@ class MainController {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
                     const setting = <IDictionaryEntry> {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), editor: userData.userName, datetime: Utils.getISOTimestamp()}
                     Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
-                    this._tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
-                    this._tts.enqueueSpeakSentence(Utils.template(speech, words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
+                    this._modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech, words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
                 } else { // Messed up
                     const chat = Config.controller.chatReferences[Keys.COMMAND_DICTIONARY]
                     const word = (words[0] ?? '').toLowerCase()
                     const currentEntry = <IDictionaryEntry> await Settings.pullSetting(Settings.TTS_DICTIONARY, 'original', word)
                     if(currentEntry) {
-                        this._twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[1], currentEntry.original, currentEntry.substitute))
+                        this._modules.twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[1], currentEntry.original, currentEntry.substitute))
                     } else {
-                        this._twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[0], word))
+                        this._modules.twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[0], word))
                     }
                 }
             }
@@ -734,7 +724,7 @@ class MainController {
         .##..##..##......#######..##..##..##..##..##..##......##.
         .##..##..######...##.##...##..##..##..##..#####....####..
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_UPDATEREWARDS,
             callback: async (userData, input) => {
                 let storedRewards:ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
@@ -743,7 +733,7 @@ class MainController {
                     const configArrOrNot = Config.twitch.rewardConfigs[pair.key]
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) == -1) {
-                        const response = await this._twitchHelix.updateReward(pair.id, config)
+                        const response = await this._modules.twitchHelix.updateReward(pair.id, config)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id
                             Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
@@ -763,22 +753,22 @@ class MainController {
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMEREWARDS_ON,
             callback: (userData, input) => {
                 this._useGameSpecificRewards = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this.appIdCallback(this._lastSteamAppId)
             }
         })
         
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMEREWARDS_OFF,
             callback: (userData, input) => {
                 this._useGameSpecificRewards = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
-                this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this.appIdCallback('')
             }
         })
@@ -790,22 +780,22 @@ class MainController {
         ...##....##......##...##..##.....
         ...##....######..##...##..##.....
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_SOURCESCREENSHOT,
             callback: (userData, input) => {
                 // TODO: Add SSSVR support here for Doc? Also perhaps move all screenshot functionality
                 if(input.length > 0) {
                     const nonce = Utils.getNonce('TTS')
                     const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT] // TODO: Separate key here?
-                    this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                     this._nonceCallbacks[nonce] = ()=>{
                         setTimeout(()=>{
                             const requestData:ISSSVRRequestData = { rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
-                            this._obs.takeSourceScreenshot(requestData)
+                            this._modules.obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }
                 } else {
-                    this._obs.takeSourceScreenshot({ rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: '' })
+                    this._modules.obs.takeSourceScreenshot({ rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: '' })
                 }
             }
         })
@@ -817,67 +807,67 @@ class MainController {
         .....##....##........##....##....##......##...##.
         ..####.....##.....####.....##....######..##...##.
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_RELOADWIDGET,
             callback: (userData, input) => {
                 window.location.reload();
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHANNELTROPHY_STATS]
                 const numberOfStreams = await ChannelTrophy.getNumberOfStreams()
                 const streamNumber = parseInt(input)
 				if(input == "all") {
-                    this._tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
-                        const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, i)
+                        const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._modules.twitchHelix, i)
                         Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                             content: Utils.numberToDiscordEmote(i+1, true),
                             embeds: embeds
                         })
                     }
-                    this._tts.enqueueSpeakSentence(speech[1], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(speech[1], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else if (!isNaN(streamNumber)) {
-                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix, streamNumber-1)
+                    this._modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._modules.twitchHelix, streamNumber-1)
 					Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
 						embeds: embeds
 					}, (success) => {
-                        this._tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
                     
 				} else {
-                    this._tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._twitchHelix)
+                    this._modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+					const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(this._modules.twitchHelix)
 					Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
 						embeds: embeds
 					}, (success) => {
-                        this._tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        this._modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     })
 				}
             }
         })
 
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CLIPS,
             callback: async (userData, input) => {
                 const pageCount = 20
                 let lastCount = pageCount
                 const oldClips:ITwitchClip[] = await Settings.getFullSettings(Settings.TWITCH_CLIPS)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CLIPS]
-                this._tts.enqueueSpeakSentence(Utils.template(speech[0]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech[0]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Get all clips
                 const allClips:ITwitchHelixClipResponseData[] = []
                 let pagination:string = undefined
                 let i = 0
                 while(i == 0 || (pagination != null && pagination.length > 0)) {
-                    const clipsResponse = await this._twitchHelix.getClips(pageCount, pagination)
+                    const clipsResponse = await this._modules.twitchHelix.getClips(pageCount, pagination)
                     allClips.push(...clipsResponse.data)
                     lastCount = clipsResponse.data.length
                     pagination = clipsResponse.pagination?.cursor
@@ -892,13 +882,13 @@ class MainController {
                 const sortedClips = newClips.sort((a,b)=>{
                     return Date.parse(a.created_at) - Date.parse(b.created_at)
                 })
-                this._tts.enqueueSpeakSentence(Utils.template(speech[1], oldClipIds.length, newClips.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech[1], oldClipIds.length, newClips.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Post to Discord
                 let count = oldClipIds.length+1
                 for(const clip of sortedClips) {
-                    let user = await this._twitchHelix.getUserById(parseInt(clip.creator_id))
-                    let game = await this._twitchHelix.getGameById(parseInt(clip.game_id))
+                    let user = await this._modules.twitchHelix.getUserById(parseInt(clip.creator_id))
+                    let game = await this._modules.twitchHelix.getGameById(parseInt(clip.game_id))
                     Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CLIPS], {
                         username: user?.display_name ?? '[Deleted User]',
                         avatar_url: user?.profile_image_url ?? '',
@@ -914,7 +904,7 @@ class MainController {
                         if(success) Settings.pushSetting(Settings.TWITCH_CLIPS, 'id', {id: clip.id})
                     })
                 }
-                this._tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
@@ -925,7 +915,7 @@ class MainController {
         .##......##..##..##..##..##........##....##..##.
         .##.......####...#####...######..######...####..
         */
-        this._twitch.registerCommand({
+        this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAME,
             cooldown: 3*60,
             cooldownCallback: async (userData, input) => {
@@ -935,8 +925,8 @@ class MainController {
                     const releaseDate = gameData.release_date?.date ?? 'N/A'
                     const name = gameData.name ?? 'N/A'
                     const link = gameData.steam_appid != undefined ? SteamStore.getStoreURL(gameData.steam_appid) : 'N/A'
-                    this._twitch._twitchChatOut.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
-                    this._sign.enqueueSign({
+                    this._modules.twitch._twitchChatOut.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
+                    this._modules.sign.enqueueSign({
                         title: 'Current Game',
                         image: gameData.header_image,
                         subtitle: `${name}\n${price}`,
@@ -963,63 +953,63 @@ class MainController {
         .##..##..##..##..##..##....##...
         ..####...##..##..##..##....##...
         */
-        this._twitch.registerAnnouncers({
+        this._modules.twitch.registerAnnouncers({
             userNames: Config.twitch.announcerNames.map((name)=>{return name.toLowerCase()}),
             triggers: Config.twitch.announcerTriggers,
             callback: async (userData, messageData, firstWord) => {
                 // TTS
                 if(Config.audioplayer.configs.hasOwnProperty(firstWord)) {
-                    this._tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
+                    this._modules.tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
                 }
-                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                this._modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
-                const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
-                this._pipe.sendBasicObj(messageData, userData, user)
+                const user = await this._modules.twitchHelix.getUserById(parseInt(userData.userId))
+                this._modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
-        this._twitch.setChatCheerCallback(async (userData, messageData) => {
+        this._modules.twitch.setChatCheerCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
-            this._tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
+            this._modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
-            const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
-            this._pipe.sendBasicObj(messageData, userData, user)
+            const user = await this._modules.twitchHelix.getUserById(parseInt(userData.userId))
+            this._modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
-        this._twitch.setChatCallback(async (userData, messageData) => {
+        this._modules.twitch.setChatCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             let type = GoogleTTS.TYPE_SAID
             if(messageData.isAction) type = GoogleTTS.TYPE_ACTION
             
             if(this._ttsForAll) { 
                 // TTS is on for everyone
-                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
+                this._modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
             } else if(this._ttsEnabledUsers.indexOf(userData.userName) > -1) {
                 // Reward users
-                this._tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
+                this._modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
             } else if(this._pingForChat && Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] != null) {
                 // Chat sound
                 const soundEffect = Config.audioplayer.configs[Keys.KEY_MIXED_CHAT]
-                if(!Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) this._tts.enqueueSoundEffect(soundEffect)
+                if(!Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) this._modules.tts.enqueueSoundEffect(soundEffect)
             }
 
             // Pipe to VR (basic)
             if(this._pipeAllChat) {
-                const user = await this._twitchHelix.getUserById(parseInt(userData.userId))
-                this._pipe.sendBasicObj(messageData, userData, user)
+                const user = await this._modules.twitchHelix.getUserById(parseInt(userData.userId))
+                this._modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
-        this._twitch.setAllChatCallback((message:ITwitchMessageCmd) => {
+        this._modules.twitch.setAllChatCallback((message:ITwitchMessageCmd) => {
             const rewardId = message?.properties?.["custom-reward-id"]           
             if(rewardId) return // Skip rewards as handled elsewhere
             const bits = parseInt(message?.properties?.bits)
             
             // Discord
-            this._twitchHelix.getUserById(parseInt(message?.properties["user-id"])).then(user => {
+            this._modules.twitchHelix.getUserById(parseInt(message?.properties["user-id"])).then(user => {
                 let text = message?.message?.text
                 if(text == null || text.length == 0) return
 
@@ -1056,8 +1046,8 @@ class MainController {
         .##..##..######...##.##...##..##..##..##..#####....####..
         */
         // This callback was added as rewards with no text input does not come in through the chat callback
-        this._twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
-            const user = await this._twitchHelix.getUserById(parseInt(message.redemption.user.id))          
+        this._modules.twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
+            const user = await this._modules.twitchHelix.getUserById(parseInt(message.redemption.user.id))          
             const rewardPair:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'id', message.redemption.reward.id)
 
             // Discord
@@ -1086,7 +1076,7 @@ class MainController {
             // Pipe to VR (basic)
             const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair.key) > -1
             if(showReward) {
-                this._pipe.sendBasic(
+                this._modules.pipe.sendBasic(
                     message.redemption.user_input, 
                     user?.display_name, 
                     TwitchFactory.userColors[message.redemption.user.id] ?? Color.White,
@@ -1102,9 +1092,9 @@ class MainController {
         .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
         */
-        this._sssvr.setScreenshotCallback(async (responseData) => {
+        this._modules.sssvr.setScreenshotCallback(async (responseData) => {
             const requestData = responseData.nonce 
-                ? this._sssvr.getScreenshotRequest(parseInt(responseData.nonce))
+                ? this._modules.sssvr.getScreenshotRequest(parseInt(responseData.nonce))
                 : null
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
@@ -1112,7 +1102,7 @@ class MainController {
             const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
             const gameTitle = gameData != null ? gameData.name : this._lastSteamAppId
             if(requestData != null) {
-                const userData = await this._twitchHelix.getUserById(requestData.userId)
+                const userData = await this._modules.twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                 
                 // Discord
@@ -1128,7 +1118,7 @@ class MainController {
                 Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
                 // Sign
-                this._sign.enqueueSign({
+                this._modules.sign.enqueueSign({
                     title: Config.screenshots.callback.signTitle,
                     image: dataUrl,
                     subtitle: authorName,
@@ -1140,7 +1130,7 @@ class MainController {
                 Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
 
                 // Sign
-                this._sign.enqueueSign({
+                this._modules.sign.enqueueSign({
                     title: Config.screenshots.callback.signTitle,
                     image: dataUrl,
                     subtitle: Config.screenshots.callback.signManualSubtitle,
@@ -1162,18 +1152,18 @@ class MainController {
                         configClone.customProperties.textAreas[0].text = `${responseData.width}x${responseData.height}`
                     }
                     if(requestData != null && configClone.customProperties.textAreas.length > 1) {
-                        const userData = await this._twitchHelix.getUserById(requestData.userId)
+                        const userData = await this._modules.twitchHelix.getUserById(requestData.userId)
                         const title = requestData.userInput 
                             ? `"${requestData.userInput}"\n${userData.display_name}`
                             : userData.display_name
                         configClone.customProperties.textAreas[1].text = title
                     }
-                    this._pipe.sendCustom(configClone)
+                    this._modules.pipe.sendCustom(configClone)
                 }
             }
         })
 
-        this._obs.registerSourceScreenshotCallback(async (img, requestData) => {
+        this._modules.obs.registerSourceScreenshotCallback(async (img, requestData) => {
             const b64data = img.split(',').pop()
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.COMMAND_SOURCESCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
@@ -1183,7 +1173,7 @@ class MainController {
                 const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
                 const gameTitle = gameData != null ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
-                const userData = await this._twitchHelix.getUserById(requestData.userId)
+                const userData = await this._modules.twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                         
                 // Discord
@@ -1199,7 +1189,7 @@ class MainController {
                 Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
                 // Sign
-                this._sign.enqueueSign({
+                this._modules.sign.enqueueSign({
                     title: Config.screenshots.callback.signTitle,
                     image: dataUrl,
                     subtitle: authorName,
@@ -1208,7 +1198,7 @@ class MainController {
 
                 // Sound effect
                 const soundConfig = Config.audioplayer.configs[Keys.COMMAND_SOURCESCREENSHOT]
-                if(soundConfig != undefined) this._audioPlayer.enqueueAudio(soundConfig)
+                if(soundConfig != undefined) this._modules.audioPlayer.enqueueAudio(soundConfig)
             }
         })
 
@@ -1219,7 +1209,7 @@ class MainController {
         .##..##..##..##......##.
         ..####...#####....####..
         */
-        this._obs.registerSceneChangeCallback((sceneName) => {
+        this._modules.obs.registerSceneChangeCallback((sceneName) => {
             // let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
             // this._ttsForAll = !filterScene
         })
@@ -1231,7 +1221,7 @@ class MainController {
         .##..##..##..##..##..##....##....##..##.
         .##..##...####...#####...######...####..
         */
-        this._audioPlayer.setPlayedCallback((nonce:string, status:number) => {
+        this._modules.audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
             const callback = this._nonceCallbacks[nonce] || null
             if(callback != null) {
@@ -1240,7 +1230,7 @@ class MainController {
             }
         })
 
-        this._tts.setHasSpokenCallback((nonce:string, status:number) => {
+        this._modules.tts.setHasSpokenCallback((nonce:string, status:number) => {
             console.log(`TTS: Nonce finished playing -> ${nonce} [${status}]`)
             const callback = this._nonceCallbacks[nonce] || null
             if(callback != null) {
@@ -1256,17 +1246,17 @@ class MainController {
         ..####...##..##.
         ...##....##..##.
         */
-        this._openvr2ws.setInputCallback((key, data) => {
+        this._modules.openvr2ws.setInputCallback((key, data) => {
             switch(data.input) {
                 case "Proximity": if(data.source == 'Head') {
                     // TODO: This is unreliable as it does not always register, and dashboard will mess it up.
-                    // this._obs.toggleSource(Config.obs.rewards[Keys.KEY_ROOMPEEK], !data.value)
+                    // this._modules.obs.toggleSource(Config.obs.rewards[Keys.KEY_ROOMPEEK], !data.value)
                     console.log(`OpenVR2WS: Headset proximity changed: ${data.value}`)
                 }
             }
         })
 
-        this._openvr2ws.setStatusCallback((status) => {
+        this._modules.openvr2ws.setStatusCallback((status) => {
             if(status) {
                 console.log('OpenVR2WS: Connected')
                 // We are playing VR so we're scrapping the WebApi timer.
@@ -1285,7 +1275,7 @@ class MainController {
         .##..##..##......##................##....##..##.
         .##..##..##......##..............######..#####..
         */
-        this._openvr2ws.setAppIdCallback(async (appId) => {
+        this._modules.openvr2ws.setAppIdCallback(async (appId) => {
             this.appIdCallback.call(this, appId)
         })
 
@@ -1298,11 +1288,11 @@ class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        this._twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
-        if(Config.controller.websocketsUsed.openvr2ws) this._openvr2ws.init()
-        if(Config.controller.websocketsUsed.pipe) this._pipe.init()
-        if(Config.controller.websocketsUsed.obs) this._obs.init()
-        if(Config.controller.websocketsUsed.screenshots) this._sssvr.init()
+        this._modules.twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
+        if(Config.controller.websocketsUsed.openvr2ws) this._modules.openvr2ws.init()
+        if(Config.controller.websocketsUsed.pipe) this._modules.pipe.init()
+        if(Config.controller.websocketsUsed.obs) this._modules.obs.init()
+        if(Config.controller.websocketsUsed.screenshots) this._modules.sssvr.init()
     }
 
     /*
@@ -1316,7 +1306,7 @@ class MainController {
     */
     private setEmptySoundForTTS() {
         const audio = this._pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
-        this._tts.setEmptyMessageSound(audio)
+        this._modules.tts.setEmptyMessageSound(audio)
     }
 
     private async appIdCallback(appId: string) {
@@ -1349,7 +1339,7 @@ class MainController {
             }
             
             // TTS runs the command due to doing more things than just toggling the flag.
-            this._twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
+            this._modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
             this._pipeAllChat = combinedSettings.pipeAllChat
             this._pingForChat = combinedSettings.pingForChat
             this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
@@ -1365,13 +1355,13 @@ class MainController {
         const profile = Config.twitch.rewardConfigProfilePerGame[appId]
         if(appId == undefined) {
             Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
-            this._twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
+            this._modules.twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
         } else if(profile != undefined) {
             Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
-            this._twitchHelix.toggleRewards({...defaultProfile, ...profile})
+            this._modules.twitchHelix.toggleRewards({...defaultProfile, ...profile})
         } else {
             Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green)
-            this._twitchHelix.toggleRewards(defaultProfile)
+            this._modules.twitchHelix.toggleRewards(defaultProfile)
         }
 
         /**
@@ -1387,12 +1377,12 @@ class MainController {
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
             const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
             Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
-            this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) != -1})
+            this._modules.twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) != -1})
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
             const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
             Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
-            this._twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
+            this._modules.twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
         }
 
         // Update rewards
@@ -1402,7 +1392,7 @@ class MainController {
         for(const rewardKey of unavailableRewardKeys) {
             const rewardId = await Utils.getRewardId(rewardKey)
             Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, 'red')
-            this._twitchHelix.updateReward(rewardId, {
+            this._modules.twitchHelix.updateReward(rewardId, {
                 is_enabled: false
             })
         }
@@ -1412,7 +1402,7 @@ class MainController {
             const rewardId = await Utils.getRewardId(rewardKey)
             const rewardConfig = gameSpecificRewards[rewardKey]
             Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, 'purple')
-            this._twitchHelix.updateReward(rewardId, {
+            this._modules.twitchHelix.updateReward(rewardId, {
                 ...rewardConfig,
                 ...{is_enabled: true}
             })
@@ -1424,7 +1414,7 @@ class MainController {
             const rewardId = await Utils.getRewardId(rewardKey)
             const runConfig = runConfigs[rewardKey]
             if(runConfig != undefined) {
-                this._twitch.registerReward({
+                this._modules.twitch.registerReward({
                     id: rewardId,
                     callback: this.buildRunCallback(this, runConfig)
                 })
@@ -1436,7 +1426,7 @@ class MainController {
             const gameData = await SteamStore.getGameMeta(appId)
             const price = SteamStore.getPrice(gameData)
             const name = gameData.name ?? 'N/A'
-            this._sign.enqueueSign({
+            this._modules.sign.enqueueSign({
                 title: 'Current Game',
                 image: gameData.header_image,
                 subtitle: `${name}\n${price}`,
@@ -1447,31 +1437,31 @@ class MainController {
         // Update category on Twitch
         if(appId != undefined && this._updateTwitchGameCategory) {
             const gameData = await SteamStore.getGameMeta(appId)
-            let twitchGameData = await this._twitchHelix.searchForGame(gameData.name)
+            let twitchGameData = await this._modules.twitchHelix.searchForGame(gameData.name)
             if(twitchGameData == null && typeof gameData.name == 'string') {
                 let nameParts = gameData.name.split(' ')
                 if(nameParts.length >= 2) {
                     // This is to also match games that are "name VR" on Steam but "name" on Twitch
                     // so we effectively trim off VR and see if we get a match.
                     nameParts.pop()
-                    twitchGameData = await this._twitchHelix.searchForGame(nameParts.join(' '))
+                    twitchGameData = await this._modules.twitchHelix.searchForGame(nameParts.join(' '))
                 }
             }
             if(twitchGameData == null) {
                 // If still no Twitch match, we load a possible default category.
-                twitchGameData = await this._twitchHelix.searchForGame(Config.controller.defaultTwitchGameCategory)
+                twitchGameData = await this._modules.twitchHelix.searchForGame(Config.controller.defaultTwitchGameCategory)
             }
             if(twitchGameData != undefined) {
                 const request: ITwitchHelixChannelRequest = {
                     game_id: twitchGameData.id
                 }
-                const response = await this._twitchHelix.updateChannelInformation(request)
+                const response = await this._modules.twitchHelix.updateChannelInformation(request)
                 const speech = Config.controller.speechReferences[Keys.KEY_CALLBACK_APPID]
                 Utils.log(`Steam title: ${gameData.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else {
-                    this._tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    this._modules.tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             } else {
                 Utils.log(`Steam title: ${gameData.name} did not match any Twitch Category`, Color.Red)
@@ -1547,7 +1537,7 @@ class MainController {
                         })
 
                         // Twitch chat
-                        this._twitch._twitchChatOut.sendMessageToChannel(
+                        this._modules.twitch._twitchChatOut.sendMessageToChannel(
                             Utils.template(
                                 Config.steam.achievementSettings.twitchChatMessage, 
                                 progressStr, 
@@ -1576,7 +1566,7 @@ class MainController {
         if(config) return (message: ITwitchRedemptionMessage) => {
             config.key = key
             console.log("OBS Reward triggered")
-            _this._obs.show(config)
+            _this._modules.obs.show(config)
         } 
         else return null
     }
@@ -1585,10 +1575,10 @@ class MainController {
         if(config) return (message: ITwitchRedemptionMessage) => {
             const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
             const userName = message?.redemption?.user?.login
-            _this._tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
+            _this._modules.tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
             const lights:number[] = Config.philipshue.lightsIds
             lights.forEach(light => {
-                _this._hue.setLightState(light, cfg.x, cfg.y)
+                _this._modules.hue.setLightState(light, cfg.x, cfg.y)
             })
         }
         else return null
@@ -1596,7 +1586,7 @@ class MainController {
 
     private buildPlugCallback(_this: MainController, config: IPhilipsHuePlugConfig|undefined): ITwitchRedemptionCallback|null {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            _this._hue.runPlugConfig(config)
+            _this._modules.hue.runPlugConfig(config)
         }
         else return null
     }
@@ -1611,9 +1601,9 @@ class MainController {
                 ttsString = Utils.replaceTagsInString(ttsString, message)
                 onTtsQueue = true
             }
-            if(onTtsQueue) _this._tts.enqueueSoundEffect(config)
-            else _this._audioPlayer.enqueueAudio(config)
-            if(ttsString) _this._tts.enqueueSpeakSentence(ttsString, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            if(onTtsQueue) _this._modules.tts.enqueueSoundEffect(config)
+            else _this._modules.audioPlayer.enqueueAudio(config)
+            if(ttsString) _this._modules.tts.enqueueSpeakSentence(ttsString, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
         }
         else return null
     }
@@ -1635,10 +1625,10 @@ class MainController {
                     configClone.texts.fill(message.redemption.user.display_name, textCount, textAreaCount)
                 }
                 if(configClone.imageData == null && configClone.imagePath == null) {
-                    const user = await this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id))
+                    const user = await this._modules.twitchHelix.getUserById(parseInt(message?.redemption?.user?.id))
                     configClone.imagePath = user.profile_image_url
                 }
-                _this._pipe.showPreset(configClone)
+                _this._modules.pipe.showPreset(configClone)
             }
         }
         else return null
@@ -1646,18 +1636,18 @@ class MainController {
 
     private buildOpenVR2WSSettingCallback(_this: MainController, config: IOpenVR2WSSetting|IOpenVR2WSSetting[]) {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            _this._openvr2ws.setSetting(config)
+            _this._modules.openvr2ws.setSetting(config)
         }
     }
 
     private buildSignCallback(_this: MainController, config: ISignShowConfig) {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            this._twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
+            this._modules.twitchHelix.getUserById(parseInt(message?.redemption?.user?.id)).then(user => {
                 const clonedConfig = Utils.clone(config)
                 if(clonedConfig.title == undefined) clonedConfig.title = user.display_name
                 if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user.display_name
                 if(clonedConfig.image == undefined) clonedConfig.image = user.profile_image_url
-                _this._sign.enqueueSign(clonedConfig)
+                _this._modules.sign.enqueueSign(clonedConfig)
             })
         }
     }
@@ -1665,7 +1655,7 @@ class MainController {
     private buildRunCallback(_this: MainController, config: IRunCommand) {
         if(config) return (message: ITwitchRedemptionMessage) => {
             const speech = message?.redemption?.reward?.title
-            if(speech != undefined) _this._tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            if(speech != undefined) _this._modules.tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             Run.executeCommand(config)
         }
     }
@@ -1675,6 +1665,8 @@ class MainController {
             fetch(config.url, {mode: 'no-cors'}).then(result => console.log(result))
         }
     }
+
+    private build
 
     /*
     .####.##....##.########.########.########..##.....##....###....##........######.

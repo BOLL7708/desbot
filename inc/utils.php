@@ -52,6 +52,7 @@ class Utils {
 
         // Manual includes from the root
         includeFile($root, 'utils.js');
+        includeFile($root, 'module_singleton.js');
         includeFile($root, 'main_controller.js');
         
         // Scan root for previously skipped configs
