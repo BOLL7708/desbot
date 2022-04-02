@@ -1,8 +1,8 @@
-class Screenshots {
+class SuperScreenShotterVR {
     private _socket: WebSockets
     private _messageCounter: number = 0
-    private _screenshotRequests: IScreenshotRequestData[] = []
-    private _messageCallback: IScreenshotCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
+    private _screenshotRequests: ISSSVRRequestData[] = []
+    private _messageCallback: ISSSVRCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
     constructor() {
         let config:IScreenshotConfig = Config.screenshots
         this._socket = new WebSockets(`ws://localhost:${config.SSSVRPort}`, 10, true)
@@ -13,18 +13,18 @@ class Screenshots {
         this._socket.init();
     }
     private onMessage(evt) {
-        let data: IScreenshotResponse = JSON.parse(evt.data)
+        let data: ISSSVRResponse = JSON.parse(evt.data)
         this._messageCallback(data)
     }
     private onError(evt) {
         // console.table(evt)
     }
-    setScreenshotCallback(callback: IScreenshotCallback) {
+    setScreenshotCallback(callback: ISSSVRCallback) {
         this._messageCallback = callback
     }
     sendScreenshotRequest(rewardKey: string, rewardData:ITwitchRedemptionMessage, delaySeconds:number) {
         this._messageCounter++
-        let message:IScreenshotRequest = {
+        let message:ISSSVRRequest = {
             nonce: `${this._messageCounter}`,
             delay: delaySeconds,
             tag: rewardData.redemption.user.login
@@ -37,7 +37,7 @@ class Screenshots {
         }
         this._socket.send(JSON.stringify(message))
     }
-    getScreenshotRequest(nonce: number):IScreenshotRequestData {
+    getScreenshotRequest(nonce: number):ISSSVRRequestData {
         return this._screenshotRequests.splice(nonce, 1).pop()
     }
 }

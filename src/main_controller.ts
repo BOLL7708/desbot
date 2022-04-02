@@ -5,7 +5,7 @@ class MainController {
     private _tts: GoogleTTS = new GoogleTTS()
     private _pipe: Pipe = new Pipe()
     private _obs: OBS = new OBS()
-    private _screenshots: Screenshots = new Screenshots()
+    private _sssvr: SuperScreenShotterVR = new SuperScreenShotterVR()
     private _hue: PhilipsHue = new PhilipsHue()
     private _openvr2ws: OpenVR2WS = new OpenVR2WS()
     private _audioPlayer: AudioPlayer = new AudioPlayer()
@@ -182,12 +182,12 @@ class MainController {
                 this._nonceCallbacks[nonce] = ()=>{
                     if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
                         // SuperScreenShotterVR
-                        this._screenshots.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
+                        this._sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
                         // OBS Source Screenshot
                         setTimeout(async ()=>{
                             const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                            const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
+                            const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                             this._obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }    
@@ -202,11 +202,11 @@ class MainController {
                 this._tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
                     // SuperScreenShotterVR
-                    this._screenshots.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
+                    this._sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
                 } else {
                     // OBS Source Screenshot
                     const userData = await this._twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                    const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
+                    const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
                     this._obs.takeSourceScreenshot(requestData)
                 }
             }
@@ -800,7 +800,7 @@ class MainController {
                     this._tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
                     this._nonceCallbacks[nonce] = ()=>{
                         setTimeout(()=>{
-                            const requestData:IScreenshotRequestData = { rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
+                            const requestData:ISSSVRRequestData = { rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
                             this._obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }
@@ -1102,9 +1102,9 @@ class MainController {
         .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
         */
-        this._screenshots.setScreenshotCallback(async (responseData) => {
+        this._sssvr.setScreenshotCallback(async (responseData) => {
             const requestData = responseData.nonce 
-                ? this._screenshots.getScreenshotRequest(parseInt(responseData.nonce))
+                ? this._sssvr.getScreenshotRequest(parseInt(responseData.nonce))
                 : null
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
@@ -1302,7 +1302,7 @@ class MainController {
         if(Config.controller.websocketsUsed.openvr2ws) this._openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) this._pipe.init()
         if(Config.controller.websocketsUsed.obs) this._obs.init()
-        if(Config.controller.websocketsUsed.screenshots) this._screenshots.init()
+        if(Config.controller.websocketsUsed.screenshots) this._sssvr.init()
     }
 
     /*

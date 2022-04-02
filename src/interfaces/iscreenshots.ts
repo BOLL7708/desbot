@@ -17,17 +17,6 @@ interface IScreenshotConfig {
      */
     callback: IScreenshotCallbackConfig
 }
-interface IScreenshotRequest {
-    nonce: string
-    tag: string
-    delay: number
-}
-interface IScreenshotResponse {
-    nonce: string
-    image: string
-    width: number
-    height: number
-}
 
 interface IScreenshotCallbackConfig {
     /**
@@ -71,9 +60,4 @@ interface IScreenshotCallbackConfig {
      * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
      */
     pipeMessagePreset: IPipeMessagePreset|undefined,
-}
-
-// Callbacks
-interface IScreenshotCallback {
-    (screenshotResponse: IScreenshotResponse): void
 }

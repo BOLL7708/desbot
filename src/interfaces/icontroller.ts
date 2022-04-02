@@ -190,7 +190,7 @@ interface IControllerDefaults {
 /**
  * Reference data about a screenshot that is cached from triggering it until it is completed.
  */
-interface IScreenshotRequestData {
+interface ISSSVRRequestData {
     /**
      * Key for the reward that triggered the screenshot.
      */
