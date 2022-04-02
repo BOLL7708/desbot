@@ -1,5 +1,13 @@
-class ModuleSingleton {
-    private static instance: ModuleSingleton;
+/**
+ * Contains instances of various modules
+ */
+class ModulesSingleton {
+    private static _instance: ModulesSingleton;
+    private constructor() {}
+    public static getInstance(): ModulesSingleton {
+        if (!this._instance) this._instance = new ModulesSingleton();
+        return this._instance;
+    }
 
     public twitch: Twitch = new Twitch()
     public twitchHelix: TwitchHelix = new TwitchHelix()
@@ -12,10 +20,4 @@ class ModuleSingleton {
     public openvr2ws: OpenVR2WS = new OpenVR2WS()
     public audioPlayer: AudioPlayer = new AudioPlayer()
     public sign: Sign = new Sign()
-
-    private constructor() {}
-    public static getInstance(): ModuleSingleton {
-        if (!this.instance) this.instance = new ModuleSingleton();
-        return this.instance;
-    }
 }

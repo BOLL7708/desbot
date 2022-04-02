@@ -3,7 +3,7 @@
 class Utils {
     static function loadJSFiles() {
         // Load PHP config
-        $config = include('_configs/config.php');
+        $config = include_once('_configs/config.php');
 
         // Include single file
         function includeFile($root, $file, $directory=null) {
@@ -28,7 +28,7 @@ class Utils {
             }
         }
     
-        // Scan root for subfolders except configs and templates
+        // Scan root for files and subfolders except configs and templates
         $root = './dist/';
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {
@@ -39,22 +39,17 @@ class Utils {
                 && strpos($name, 'templates') === false
                 && !$file->isDot()
                 && substr($name,0,1) != '.'
-            ) {
+            ) { // Subdirectory to scan
                 $dir2 = new DirectoryIterator($root.$name);
                 foreach($dir2 as $file2) {
                     includeFile($root, $file2, $name);
-                    if($file2 == 'files.js') { // Filles a value in AssetFiles that needs to be filled before config loads.
+                    if($file2 == 'files.js') { // Fill a value in AssetFiles that needs to be filled before config loads.
                         echo '<script>AssetFiles._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES).'</script>';
                     }
                 }
-            }
+            } elseif($file->isFile()) includeFile($root, $file); // File in root
         }
 
-        // Manual includes from the root
-        includeFile($root, 'utils.js');
-        includeFile($root, 'module_singleton.js');
-        includeFile($root, 'main_controller.js');
-        
         // Scan root for previously skipped configs
         $configPath = '_configs';       
         $configDir = new DirectoryIterator($root.$configPath);

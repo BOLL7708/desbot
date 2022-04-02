@@ -1,18 +1,6 @@
 class MainController {
-    private _modules = ModuleSingleton.getInstance()
-    
-    private _ttsEnabledUsers: string[] = []
-    private _ttsForAll: boolean = Config.controller.defaults.ttsForAll
-    private _pipeAllChat: boolean = Config.controller.defaults.pipeAllChat
-    private _pingForChat: boolean = Config.controller.defaults.pingForChat
-    private _useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards // Used in func.call(this) so reference not counted, stupid TypeScript.
-    private _logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord
-    private _updateTwitchGameCategory: boolean = Config.controller.defaults.updateTwitchGameCategory  // Used in func.call(this) so reference not counted, stupid TypeScript.
-    private _nonceCallbacks: Record<string, Function> = {}
-    private _scaleIntervalHandle: number
-    private _steamPlayerSummaryIntervalHandle: number // Used in func.call(this) so reference not counted, stupid TypeScript.
-    private _steamAchievementsIntervalHandle: number // Used in func.call(this) so reference not counted, stupid TypeScript.
-    private _lastSteamAppId: string|undefined // Used in func.call(this) so reference not counted, stupid TypeScript.
+    private _modules = ModulesSingleton.getInstance()
+    private _states = StatesSingleton.getInstance()
 
     constructor() {
         if(Config.controller.saveConsoleOutputToSettings) new LogWriter() // Saves log
@@ -95,7 +83,7 @@ class MainController {
         }
 
         // Toggle TTS rewards
-        this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._ttsForAll})
+        this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !this._states.ttsForAll})
 
         // Enable default rewards
         const enableRewards = Config.twitch.defaultRewards.filter(reward => { return !Config.twitch.disableRewards.includes(reward) })
@@ -169,8 +157,8 @@ class MainController {
                 const nonce = Utils.getNonce('TTS')
                 const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
                 this._modules.tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
-                this._nonceCallbacks[nonce] = ()=>{
-                    if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
+                this._states.nonceCallbacks[nonce] = ()=>{
+                    if(Config.controller.websocketsUsed.openvr2ws && this._states.lastSteamAppId != undefined) {
                         // SuperScreenShotterVR
                         this._modules.sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
@@ -190,7 +178,7 @@ class MainController {
             callback: async (data:ITwitchRedemptionMessage) => {
                 const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                if(Config.controller.websocketsUsed.openvr2ws && this._lastSteamAppId != undefined) {
+                if(Config.controller.websocketsUsed.openvr2ws && this._states.lastSteamAppId != undefined) {
                     // SuperScreenShotterVR
                     this._modules.sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
                 } else {
@@ -361,8 +349,8 @@ class MainController {
             trigger: Keys.COMMAND_TTS_ON,
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_ON]
-                const onText:string = !this._ttsForAll ? speech[0] : speech[1]
-                this._ttsForAll = true
+                const onText:string = !this._states.ttsForAll ? speech[0] : speech[1]
+                this._states.ttsForAll = true
                 this._modules.tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: false})
             }
@@ -372,8 +360,8 @@ class MainController {
             trigger: Keys.COMMAND_TTS_OFF,
             callback: async (userData, input) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_OFF]
-                const offText = this._ttsForAll ? speech[0] : speech[1]
-                this._ttsForAll = false
+                const offText = this._states.ttsForAll ? speech[0] : speech[1]
+                this._states.ttsForAll = false
                 this._modules.tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this._modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: true})
             }
@@ -479,7 +467,7 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_ON,
             callback: (userData, input) => {
-                this._pipeAllChat = true
+                this._states.pipeAllChat = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_ON]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -488,7 +476,7 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_OFF,
             callback: (userData, input) => {
-                this._pipeAllChat = false
+                this._states.pipeAllChat = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_OFF]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -497,7 +485,7 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_PING_ON,
             callback: (userData, input) => {
-                this._pingForChat = true
+                this._states.pingForChat = true
                 this.setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_ON]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -507,7 +495,7 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_PING_OFF,
             callback: (userData, input) => {
-                this._pingForChat = false
+                this._states.pingForChat = false
                 this.setEmptySoundForTTS.call(this)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_OFF]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -524,7 +512,7 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_ON,
             callback: (userData, input) => {
-                this._logChatToDiscord = true
+                this._states.logChatToDiscord = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -533,7 +521,7 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_OFF,
             callback: (userData, input) => {
-                this._logChatToDiscord = false
+                this._states.logChatToDiscord = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
@@ -595,8 +583,8 @@ class MainController {
                         let currentStep = 0
                         const multiple = Math.pow((toScale/fromScale), 1/steps)
 
-                        clearInterval(this._scaleIntervalHandle)
-                        this._scaleIntervalHandle = setInterval(
+                        clearInterval(this._states.scaleIntervalHandle)
+                        this._states.scaleIntervalHandle = setInterval(
                             ()=>{
                                 this._modules.openvr2ws.setSetting({
                                     setting: OpenVR2WS.SETTING_WORLD_SCALE,
@@ -606,7 +594,7 @@ class MainController {
                                 currentScale *= multiple
                                 if(currentStep == steps) {
                                     this._modules.tts.enqueueSpeakSentence(Utils.template(speech[2]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                                    clearInterval(this._scaleIntervalHandle)
+                                    clearInterval(this._states.scaleIntervalHandle)
                                     setTimeout(()=>{
                                         Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
                                         // TODO: Enable the right scale rewards again? Maybe
@@ -621,7 +609,7 @@ class MainController {
                     const scale = parseInt(input)
                     if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(input) > -1) { // Terminate interval
                         const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
-                        clearInterval(this._scaleIntervalHandle)
+                        clearInterval(this._states.scaleIntervalHandle)
                         Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
                         this._modules.tts.enqueueSpeakSentence(Utils.template(speech[4]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else { // Manual setting
@@ -756,17 +744,17 @@ class MainController {
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMEREWARDS_ON,
             callback: (userData, input) => {
-                this._useGameSpecificRewards = true
+                this._states.useGameSpecificRewards = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                this.appIdCallback(this._lastSteamAppId)
+                this.appIdCallback(this._states.lastSteamAppId)
             }
         })
         
         this._modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMEREWARDS_OFF,
             callback: (userData, input) => {
-                this._useGameSpecificRewards = false
+                this._states.useGameSpecificRewards = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
                 this._modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 this.appIdCallback('')
@@ -788,7 +776,7 @@ class MainController {
                     const nonce = Utils.getNonce('TTS')
                     const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT] // TODO: Separate key here?
                     this._modules.tts.enqueueSpeakSentence(Utils.template(speech, input), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
-                    this._nonceCallbacks[nonce] = ()=>{
+                    this._states.nonceCallbacks[nonce] = ()=>{
                         setTimeout(()=>{
                             const requestData:ISSSVRRequestData = { rewardKey: '', userId: parseInt(userData.userId), userName: userData.userName, userInput: input }
                             this._modules.obs.takeSourceScreenshot(requestData)
@@ -919,8 +907,8 @@ class MainController {
             trigger: Keys.COMMAND_GAME,
             cooldown: 3*60,
             cooldownCallback: async (userData, input) => {
-                if(this._lastSteamAppId != undefined) {
-                    const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
+                if(this._states.lastSteamAppId != undefined) {
+                    const gameData = await SteamStore.getGameMeta(this._states.lastSteamAppId)
                     const price = SteamStore.getPrice(gameData)
                     const releaseDate = gameData.release_date?.date ?? 'N/A'
                     const name = gameData.name ?? 'N/A'
@@ -984,20 +972,20 @@ class MainController {
             let type = GoogleTTS.TYPE_SAID
             if(messageData.isAction) type = GoogleTTS.TYPE_ACTION
             
-            if(this._ttsForAll) { 
+            if(this._states.ttsForAll) { 
                 // TTS is on for everyone
                 this._modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
-            } else if(this._ttsEnabledUsers.indexOf(userData.userName) > -1) {
+            } else if(this._states.ttsEnabledUsers.indexOf(userData.userName) > -1) {
                 // Reward users
                 this._modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
-            } else if(this._pingForChat && Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] != null) {
+            } else if(this._states.pingForChat && Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] != null) {
                 // Chat sound
                 const soundEffect = Config.audioplayer.configs[Keys.KEY_MIXED_CHAT]
                 if(!Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) this._modules.tts.enqueueSoundEffect(soundEffect)
             }
 
             // Pipe to VR (basic)
-            if(this._pipeAllChat) {
+            if(this._states.pipeAllChat) {
                 const user = await this._modules.twitchHelix.getUserById(parseInt(userData.userId))
                 this._modules.pipe.sendBasicObj(messageData, userData, user)
             }
@@ -1027,7 +1015,7 @@ class MainController {
                 // TODO: Add more things like sub messages? Need to check that from raw logs.
                 // TODO: Reference Jeppe's twitch logger for the other messages! :D
                 
-                if(this._logChatToDiscord) {
+                if(this._states.logChatToDiscord) {
                     Discord.enqueueMessage(
                         Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
                         user?.display_name,
@@ -1055,7 +1043,7 @@ class MainController {
             const amountStr = amount != null ? ` #${amount}` : ''
             let description = `${Config.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
             if(message.redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
-            if(this._logChatToDiscord) {
+            if(this._states.logChatToDiscord) {
                 Discord.enqueueMessage(
                     Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
                     user?.display_name,
@@ -1099,8 +1087,8 @@ class MainController {
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
-            const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
-            const gameTitle = gameData != null ? gameData.name : this._lastSteamAppId
+            const gameData = await SteamStore.getGameMeta(this._states.lastSteamAppId)
+            const gameTitle = gameData != null ? gameData.name : this._states.lastSteamAppId
             if(requestData != null) {
                 const userData = await this._modules.twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
@@ -1170,7 +1158,7 @@ class MainController {
             const dataUrl = Utils.b64ToDataUrl(b64data)
 
             if(requestData != null) {
-                const gameData = await SteamStore.getGameMeta(this._lastSteamAppId)
+                const gameData = await SteamStore.getGameMeta(this._states.lastSteamAppId)
                 const gameTitle = gameData != null ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
                 const userData = await this._modules.twitchHelix.getUserById(requestData.userId)
@@ -1223,19 +1211,19 @@ class MainController {
         */
         this._modules.audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
-            const callback = this._nonceCallbacks[nonce] || null
+            const callback = this._states.nonceCallbacks[nonce] || null
             if(callback != null) {
                 if(status == AudioPlayer.STATUS_OK) callback()
-                delete this._nonceCallbacks[nonce]
+                delete this._states.nonceCallbacks[nonce]
             }
         })
 
         this._modules.tts.setHasSpokenCallback((nonce:string, status:number) => {
             console.log(`TTS: Nonce finished playing -> ${nonce} [${status}]`)
-            const callback = this._nonceCallbacks[nonce] || null
+            const callback = this._states.nonceCallbacks[nonce] || null
             if(callback != null) {
                 if(status == AudioPlayer.STATUS_OK) callback()
-                delete this._nonceCallbacks[nonce]
+                delete this._states.nonceCallbacks[nonce]
             }
         })
 
@@ -1260,7 +1248,7 @@ class MainController {
             if(status) {
                 console.log('OpenVR2WS: Connected')
                 // We are playing VR so we're scrapping the WebApi timer.
-                clearInterval(this._steamPlayerSummaryIntervalHandle)
+                clearInterval(this._states.steamPlayerSummaryIntervalHandle)
             } else {
                 console.log('OpenVR2WS: Disconnected')
                 // We do not get the app ID from OpenVR2WS so we use the Steam Web API instead.
@@ -1305,7 +1293,7 @@ class MainController {
     .##........#######..##....##..######.....##....####..#######..##....##..######.
     */
     private setEmptySoundForTTS() {
-        const audio = this._pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
+        const audio = this._states.pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
         this._modules.tts.setEmptyMessageSound(audio)
     }
 
@@ -1315,9 +1303,9 @@ class MainController {
 
         // Skip if it's the last app ID again.
         if(appId != undefined && appId.length > 0) {
-            if(appId == this._lastSteamAppId) return
-            Utils.log(`Steam AppId is new: "${appId}" != "${this._lastSteamAppId}"`, Color.DarkBlue)
-            this._lastSteamAppId = appId
+            if(appId == this._states.lastSteamAppId) return
+            Utils.log(`Steam AppId is new: "${appId}" != "${this._states.lastSteamAppId}"`, Color.DarkBlue)
+            this._states.lastSteamAppId = appId
             // Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
             await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
             await SteamWebApi.getGameSchema(appId)
@@ -1340,12 +1328,12 @@ class MainController {
             
             // TTS runs the command due to doing more things than just toggling the flag.
             this._modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
-            this._pipeAllChat = combinedSettings.pipeAllChat
-            this._pingForChat = combinedSettings.pingForChat
+            this._states.pipeAllChat = combinedSettings.pipeAllChat
+            this._states.pingForChat = combinedSettings.pingForChat
             this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
-            this._logChatToDiscord = combinedSettings.logChatToDiscord
-            this._useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
-            this._updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory
+            this._states.logChatToDiscord = combinedSettings.logChatToDiscord
+            this._states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
+            this._states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory
         }
 
         /**
@@ -1368,7 +1356,7 @@ class MainController {
          * Game specific reward configuration
          */
         const allGameRewardKeys = Config.twitch.gameSpecificRewards
-        const gameSpecificRewards = this._useGameSpecificRewards ? Config.twitch.gameSpecificRewardsPerGame[appId] : undefined
+        const gameSpecificRewards = this._states.useGameSpecificRewards ? Config.twitch.gameSpecificRewardsPerGame[appId] : undefined
         const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
 
         /**
@@ -1435,7 +1423,7 @@ class MainController {
         }
 
         // Update category on Twitch
-        if(appId != undefined && this._updateTwitchGameCategory) {
+        if(appId != undefined && this._states.updateTwitchGameCategory) {
             const gameData = await SteamStore.getGameMeta(appId)
             let twitchGameData = await this._modules.twitchHelix.searchForGame(gameData.name)
             if(twitchGameData == null && typeof gameData.name == 'string') {
@@ -1484,11 +1472,11 @@ class MainController {
     }
 
     private async loadAchievemenets() {
-        if(this._lastSteamAppId != undefined && this._lastSteamAppId.length > 0) {
-            const achievements = await SteamWebApi.getAchievements(this._lastSteamAppId)
+        if(this._states.lastSteamAppId != undefined && this._states.lastSteamAppId.length > 0) {
+            const achievements = await SteamWebApi.getAchievements(this._states.lastSteamAppId)
             // Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
             for(const achievement of achievements) {
-                const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, this._lastSteamAppId)
+                const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, this._states.lastSteamAppId)
                 const storedAchievement = <ISteamWebApiSettingAchievement> await Settings.pullSetting(setting, 'key', achievement.apiname)
                 // Check if the state has changed
                 if(storedAchievement?.state != achievement.achieved) {
@@ -1503,9 +1491,9 @@ class MainController {
                         Utils.log(`New achievement unlocked! ${achievement.apiname}`, Color.Green, true, true)
                         const key = achievement.apiname
                         const profileTag = await SteamWebApi.getProfileTag()
-                        const gameMeta = await SteamStore.getGameMeta(this._lastSteamAppId)
-                        const gameSchema = await SteamWebApi.getGameSchema(this._lastSteamAppId)
-                        const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(this._lastSteamAppId))?.find(s => s.name == key)
+                        const gameMeta = await SteamStore.getGameMeta(this._states.lastSteamAppId)
+                        const gameSchema = await SteamWebApi.getGameSchema(this._states.lastSteamAppId)
+                        const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(this._states.lastSteamAppId))?.find(s => s.name == key)
                         const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
                         const doneAchievements = achievements.map(a=>a.achieved).reduce((a,b)=>a+b)
                         const totalAchievements = achievements.length
@@ -1520,7 +1508,7 @@ class MainController {
                                 {
                                     title: achievementDetails?.displayName ?? key,
                                     description: achievementDetails?.description ?? '',
-                                    url: SteamStore.getAchievementsURL(this._lastSteamAppId, profileTag),
+                                    url: SteamStore.getAchievementsURL(this._states.lastSteamAppId, profileTag),
                                     thumbnail: {
                                         url: achievementDetails?.icon
                                     },
@@ -1681,7 +1669,7 @@ class MainController {
     private startSteamPlayerSummaryInterval() {
         if(Config.steam.playerSummaryIntervalMs) {
             Utils.log('Starting Steam player summary interval', Color.Green)
-            this._steamPlayerSummaryIntervalHandle = setInterval(() => {
+            this._states.steamPlayerSummaryIntervalHandle = setInterval(() => {
                 this.loadPlayerSummary()
             }, Config.steam.playerSummaryIntervalMs)
         }
@@ -1690,7 +1678,7 @@ class MainController {
     private startSteamAchievementsInterval() {
         if(Config.steam.achievementsIntervalMs) {
             Utils.log('Starting Steam achievements interval', Color.Green)
-            this._steamAchievementsIntervalHandle = setInterval(() => {
+            this._states.steamAchievementsIntervalHandle = setInterval(() => {
                 this.loadAchievemenets()
             }, Config.steam.achievementsIntervalMs)
         }
