@@ -1,21 +1,15 @@
-class MainController {
-    private _modules = ModulesSingleton.getInstance()
-    private _states = StatesSingleton.getInstance()
-
-
-    constructor() {
+class MainController {   
+    public static async init() {
         if(Config.controller.saveConsoleOutputToSettings) new LogWriter() // Saves log
-        this.init() // To allow init to be async
-    }
-    
-    private async init() {
+        const modules = ModulesSingleton.getInstance()
+
         // Make sure settings are pre-cached
         await Settings.loadSettings(Settings.TTS_BLACKLIST)
         await Settings.loadSettings(Settings.TTS_USER_NAMES)
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
         await Settings.loadSettings(Settings.TWITCH_TOKENS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
-        await Settings.loadSettings(Settings.TTS_DICTIONARY).then(dictionary => this._modules.tts.setDictionary(dictionary))
+        await Settings.loadSettings(Settings.TTS_DICTIONARY).then(dictionary => modules.tts.setDictionary(dictionary))
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
 
@@ -28,10 +22,10 @@ class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        await this._modules.twitchTokens.refreshToken()
-        await this._modules.twitchHelix.init()
+        await modules.twitchTokens.refreshToken()
+        await modules.twitchHelix.init()
 
-        this._modules.pipe.setOverlayTitle("Streaming Widget")
+        modules.pipe.setOverlayTitle("Streaming Widget")
 
         Functions.setEmptySoundForTTS()
 
@@ -59,11 +53,11 @@ class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        this._modules.twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
-        if(Config.controller.websocketsUsed.openvr2ws) this._modules.openvr2ws.init()
-        if(Config.controller.websocketsUsed.pipe) this._modules.pipe.init()
-        if(Config.controller.websocketsUsed.obs) this._modules.obs.init()
-        if(Config.controller.websocketsUsed.screenshots) this._modules.sssvr.init()
+        modules.twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
+        if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init()
+        if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
+        if(Config.controller.websocketsUsed.obs) modules.obs.init()
+        if(Config.controller.websocketsUsed.screenshots) modules.sssvr.init()
     }
 
 

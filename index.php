@@ -12,7 +12,7 @@
     <body>
         <?=Utils::loadJSFiles()?>
         <script>
-            const mainController = new MainController()
+            MainController.init()
         </script>
     </body>
 </html>

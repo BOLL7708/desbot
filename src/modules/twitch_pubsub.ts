@@ -53,6 +53,9 @@ class TwitchPubsub {
                     Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                     if(id !== null) this._onRewardCallback(id, payload?.data)
                     else console.log(payload)
+                } else {
+                    // TODO: Handle things like subs, gifts and raids, possibly? Check for that debug tool Jeppe linked at one point.
+                    Utils.log(`Unhandled PubSub message: ${payload?.type}`, Color.Purple)
                 }
                 break
             case "RECONNECT":

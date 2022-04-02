@@ -1,6 +1,7 @@
 class LogWriter {
     // TODO: Extend console with new functions that take color and style as arguments.
     // TODO: Add one console output that does not write to the log file.
+    // TODO: Change to static init function that does the override, so it makes more sense in main controller.
     constructor() {
         // Clear the log
         Settings.pushLabel(Settings.LOG_OUTPUT, '')
