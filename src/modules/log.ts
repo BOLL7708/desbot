@@ -1,30 +1,28 @@
 class LogWriter {
     // TODO: Extend console with new functions that take color and style as arguments.
     // TODO: Add one console output that does not write to the log file.
-    // TODO: Change to static init function that does the override, so it makes more sense in main controller.
-    constructor() {
+    public static init() {
         // Clear the log
         Settings.pushLabel(Settings.LOG_OUTPUT, '')
         this.override()
     }
-	
-	private _types: string[] = [
-		'assert',
-		'debug',
-		'dir',
-		'error',
-		'info',
-		'log',
-		'trace',
-		'warn'
-	]
 
-    override() {
+    private static override() {
+        const types = [
+            'assert',
+            'debug',
+            'dir',
+            'error',
+            'info',
+            'log',
+            'trace',
+            'warn'
+        ]
         const oldConsole = window.console
         const consoleClone = Object.assign({}, oldConsole)
 
         // Override standard calls
-        for(const key of this._types) {
+        for(const key of types) {
             consoleClone[key] = function(...data:any) {
                 LogWriter.buildAndWriteLog(`<span>key</span>: `, ...data)
                 oldConsole[key](...data)

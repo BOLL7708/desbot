@@ -1,6 +1,6 @@
 class MainController {   
     public static async init() {
-        if(Config.controller.saveConsoleOutputToSettings) new LogWriter() // Saves log
+        if(Config.controller.saveConsoleOutputToSettings) LogWriter.init()
         const modules = ModulesSingleton.getInstance()
 
         // Make sure settings are pre-cached
