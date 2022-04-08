@@ -112,4 +112,5 @@ interface IDiscordResponseHeaders {
     'x-ratelimit-reset-after'?: string
     'x-ratelimit-global'?: string
     'x-ratelimit-scope'?: string
+    [x: string]: any
 }

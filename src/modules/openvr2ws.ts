@@ -14,8 +14,8 @@ class OpenVR2WS {
     private _resetLoopHandle: number = 0
     private _resetMessages: Record<number, IOpenVRWSCommandMessage> = {}
     private _resetTimers: Record<number, number> = {}
-    private _isConnected: boolean = null
-    private _currentAppId: string // Updated every time an ID is received
+    private _isConnected?: boolean
+    private _currentAppId?: string // Updated every time an ID is received
     
     constructor() {
         const port = Config.openvr2ws.port
@@ -62,17 +62,17 @@ class OpenVR2WS {
     }
 
     private onMessage(evt: MessageEvent) {
-        let data:IOpenVR2WSMessage = null
+        let data: IOpenVR2WSMessage|undefined = undefined
         try {
             data = JSON.parse(evt?.data)
         } catch(err) {
-            console.error(err.message)
+            console.error(err)
         }
-        if(data != null) {
+        if(data != undefined) {
             switch(data.key) {
                 case 'ApplicationInfo':
-                    if(data.data.hasOwnProperty('id')) {
-                        this._currentAppId = data.data.id
+                    if(data.data?.hasOwnProperty('id') ?? '') {
+                        this._currentAppId = <string> data.data.id
                         if(this._currentAppId.length > 0) this._appIdCallback(this._currentAppId)
                     }
                     break
@@ -112,9 +112,9 @@ class OpenVR2WS {
         const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
         if(!Array.isArray(config)) config = [config]
         for(const cfg of config) {
-            const settingArr = cfg.setting.split('|')
+            const settingArr: string[] = cfg.setting.split('|') ?? []
             if(settingArr.length != 3) return Utils.log(`OpenVR2WS: Malformed setting, did not split into 3 on '|': ${cfg.setting}`, Color.Red)
-            if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString()
+            if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString() ?? ''
             const message :IOpenVRWSCommandMessage = {
                 key: 'RemoteSetting',
                 value: password,
@@ -123,13 +123,14 @@ class OpenVR2WS {
                 value4: cfg.value.toString()
             }
             this.sendMessage(message)
+            const cfgSetting = parseInt(cfg.setting)
             if(cfg.duration != null && (cfg.resetToValue != null || settingArr[2].length > 0)) {
                 message.value4 = (cfg.resetToValue ?? settingArr[2]).toString()
-                this._resetTimers[cfg.setting] = cfg.duration
-                this._resetMessages[cfg.setting] = message
+                this._resetTimers[cfgSetting] = cfg.duration
+                this._resetMessages[cfgSetting] = message
             } else {
-                this._resetTimers[cfg.setting] = -1
-                this._resetMessages[cfg.setting] = undefined
+                this._resetTimers[cfgSetting] = -1
+                delete this._resetMessages[cfgSetting]
             }
         }
     }

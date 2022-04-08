@@ -31,7 +31,7 @@ class Rewards {
             if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
                 const setup = Config.twitch.rewardConfigs[key]
                 if(Array.isArray(setup)) {
-                    const current: ITwitchRewardCounter = await Settings.pullSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                    const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                     if((current?.count ?? 0) > 0) {
                         Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                         const reset: ITwitchRewardCounter = {key: key, count: 0}
@@ -94,8 +94,8 @@ class Rewards {
             callback: (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
                 Utils.log(`TTS Gender Set Reward: ${userName}`, Color.DarkOrange)
-                Settings.pullSetting(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
-                    const voiceSetting:IUserVoice = voice
+                Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
+                    const voiceSetting = voice
                     let gender:string = ''
                     if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
                     modules.tts.setVoiceForUser(userName, `reset ${gender}`)
@@ -125,7 +125,7 @@ class Rewards {
                         // OBS Source Screenshot
                         setTimeout(async ()=>{
                             const userData = await modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                            const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
+                            const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData?.id ?? '-1'), userName: userData?.login ?? '', userInput: data.redemption.user_input }
                             modules.obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }    
@@ -144,7 +144,7 @@ class Rewards {
                 } else {
                     // OBS Source Screenshot
                     const userData = await modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                    const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData.id), userName: userData.login, userInput: data.redemption.user_input }
+                    const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData?.id ?? '-1'), userName: userData?.login ?? '', userInput: data.redemption.user_input }
                     modules.obs.takeSourceScreenshot(requestData)
                 }
             }
@@ -207,7 +207,7 @@ class Rewards {
                             title: Utils.template(Config.controller.channelTrophySettings.rewardTitle, user.display_name),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
-                            global_cooldown_seconds: config.global_cooldown_seconds+Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
+                            global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
                             prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt, newCost)
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)

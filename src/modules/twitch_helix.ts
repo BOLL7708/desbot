@@ -3,15 +3,15 @@ class TwitchHelix {
     _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
     _userNameToId: Record<string, number> = {}
     _gameCache: Record<number, ITwitchHelixGamesResponseData> = {}
-    _channelUserTokens: ITwitchTokens
+    _channelUserTokens: ITwitchTokens|null = null
     static _channelUserId = -1
 
     constructor() {}
 
     async init() {
-        await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
+        await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
         const user = await this.getUserByLogin(Config.twitch.channelName, false)
-        TwitchHelix._channelUserId = parseInt(user.id)
+        TwitchHelix._channelUserId = parseInt(user?.id ?? '-1')
     }
     
     async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
@@ -29,12 +29,12 @@ class TwitchHelix {
 
     private async getUserByUrl(url: string):Promise<ITwitchHelixUsersResponseData|null> {
         const headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID
         }
         const response: ITwitchHelixUsersResponse = await (await fetch(url, {headers: headers}))?.json()
-        const result: ITwitchHelixUsersResponseData = response?.data.pop()
-        if(result != null) {
+        const result: ITwitchHelixUsersResponseData|null = response?.data.pop() ?? null
+        if(result != undefined) {
             const id = parseInt(result.id)
             if(id != NaN) {
                 this._userCache[id] = result
@@ -53,7 +53,7 @@ class TwitchHelix {
     async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixRewardResponse> {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}`
         const headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID,
             'Content-Type': 'application/json'
         }
@@ -63,7 +63,7 @@ class TwitchHelix {
             body: JSON.stringify(createData)
         }
 
-        let response: ITwitchHelixRewardResponse = await fetch(url, request)
+        const response: ITwitchHelixRewardResponse = await fetch(url, request)
             .then(res => res.json())
             .catch(error => {
                 Utils.log(`TwitchHelix: Error creating reward:${error}`, Color.Red)
@@ -79,7 +79,7 @@ class TwitchHelix {
         let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         const headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID,
         }
         const response: ITwitchHelixRewardResponse = await fetch(url, {headers: headers}).then(res => res.json())
@@ -93,7 +93,7 @@ class TwitchHelix {
         }
         const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${TwitchHelix._channelUserId}&id=${rewardId}`
         const headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID,
             'Content-Type': 'application/json'
         }
@@ -113,18 +113,18 @@ class TwitchHelix {
 
     async toggleRewards(kvp: Record<string, boolean>) {
         for(const key in kvp) {
-            const pair:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'key', key)
+            const pair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
             if(pair?.id != undefined) {
                 this.updateReward(pair.id, {is_enabled: kvp[key]})
             }
         }
     }
 
-    async getClips(count: number = 20, pagination?: string) {
+    async getClips(count: number = 20, pagination?: string): Promise<ITwitchHelixClipResponse> {
         count = Math.min(100, Math.max(1, count))
         let url = `${this._baseUrl}/clips/?broadcaster_id=${TwitchHelix._channelUserId}&first=${count}`
         const headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID,
             'Content-Type': 'application/json'
         }
@@ -134,8 +134,7 @@ class TwitchHelix {
         if(pagination != undefined) {
             url += `&after=${pagination}`
         }
-        
-        let response: ITwitchHelixClipResponse = await fetch(url, request).then(res => res.json())        
+        const response: ITwitchHelixClipResponse = await fetch(url, request).then(res => res.json())        
         return response
     }
 
@@ -147,11 +146,11 @@ class TwitchHelix {
 
     private async getGameByUrl(url: string):Promise<ITwitchHelixGamesResponseData|null> {
         let headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID
         }
         let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
-        let result: ITwitchHelixGamesResponseData = response?.data.pop()
+        const result: ITwitchHelixGamesResponseData|null = response?.data.pop() ?? null
         if(result != null) {
             const id = parseInt(result.id)
             if(id != NaN) {
@@ -165,11 +164,11 @@ class TwitchHelix {
         // https://dev.twitch.tv/docs/api/reference#search-categories
         const url = `https://api.twitch.tv/helix/search/categories?query=${gameTitle}&first=1`
         let headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID
         }
         let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
-        let result: ITwitchHelixGamesResponseData = response?.data.pop()
+        const result: ITwitchHelixGamesResponseData|null = response?.data.pop() ?? null
         return result        
     }
 
@@ -177,7 +176,7 @@ class TwitchHelix {
         // https://dev.twitch.tv/docs/api/reference#modify-channel-information
         const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${TwitchHelix._channelUserId}`
         const headers = {
-            Authorization: `Bearer ${this._channelUserTokens.access_token}`,
+            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID,
             'Content-Type': 'application/json'
         }

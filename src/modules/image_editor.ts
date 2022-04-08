@@ -1,8 +1,8 @@
 class ImageEditor {
     private _canvas: HTMLCanvasElement
     private _textCanvas: HTMLCanvasElement
-    private _ctx: CanvasRenderingContext2D
-    private _textCtx: CanvasRenderingContext2D
+    private _ctx: CanvasRenderingContext2D|null
+    private _textCtx: CanvasRenderingContext2D|null
     constructor() {
         this._canvas = document.createElement('canvas')
         this._textCanvas = document.createElement('canvas')
@@ -32,7 +32,7 @@ class ImageEditor {
         this._canvas.width = img.naturalWidth
         this._canvas.height = img.naturalHeight
         Utils.log(`ImageEditor: Loaded image with size ${img.naturalWidth}x${img.naturalHeight}`, Color.Green)
-        this._ctx.drawImage(img, 0, 0)
+        this._ctx?.drawImage(img, 0, 0)
         return true
     }
 
@@ -44,7 +44,7 @@ class ImageEditor {
     initiateEmptyCanvas(width: number, height: number) {
         this._canvas.width = width
         this._canvas.height = height
-        this._ctx.clearRect(0, 0, width, height)
+        this._ctx?.clearRect(0, 0, width, height)
     }
 
     /*
@@ -67,39 +67,42 @@ class ImageEditor {
         radius: number = 0,
         outlines: IImageEditorOutline[] = []
     ): Promise<boolean> {
-        const img: HTMLImageElement = await Utils.makeImage(imageData)
+        const img: HTMLImageElement|null = await Utils.makeImage(imageData)
         if(img == null) return false
 
         const maxBorderWidth = outlines.reduce((a,b)=>a.width>b.width?a:b).width ?? 0;
-        this._ctx.save()
+        this._ctx?.save()
         const x = rect.x + maxBorderWidth
         const y = rect.y + maxBorderWidth
         const w = rect.w - maxBorderWidth*2
         const h = rect.h - maxBorderWidth*2
-        this._ctx.beginPath()
+        this._ctx?.beginPath()
         if(radius > 0) { // Will use quadratic corners at a radius
             this.constructRoundedRectangle(this._ctx, {x, y, w, h}, radius)
         } else if (radius < 0) { // Will make it an ellipse
-            this._ctx.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, 2 * Math.PI)
+            this._ctx?.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, 2 * Math.PI)
         } else { // Rectangle
-            this._ctx.rect(x, y, w, h)
+            this._ctx?.rect(x, y, w, h)
         }
-        this._ctx.closePath()
+        this._ctx?.closePath()
         if(maxBorderWidth > 0) { // Outline
             for(const outline of outlines) {
-                this._ctx.strokeStyle = outline.color
-                this._ctx.lineWidth = outline.width*2
-                this._ctx.stroke()                
+                if(this._ctx) {
+                    this._ctx.strokeStyle = outline.color ?? ''
+                    this._ctx.lineWidth = outline.width*2
+                    this._ctx.stroke()                
+                }
             }
-
-            this._ctx.globalCompositeOperation = 'destination-out'
-            this._ctx.fillStyle = Color.Black
-            this._ctx.fill()
-            this._ctx.globalCompositeOperation = 'source-over'
+            if(this._ctx) {
+                this._ctx.globalCompositeOperation = 'destination-out'
+                this._ctx.fillStyle = Color.Black
+                this._ctx.fill()
+                this._ctx.globalCompositeOperation = 'source-over'
+            }                                                
         }
-        this._ctx.clip()
-        this._ctx.drawImage(img, x, y, w, h)
-        this._ctx.restore()
+        this._ctx?.clip()
+        this._ctx?.drawImage(img, x, y, w, h)
+        this._ctx?.restore()
         return true
     }
 
@@ -108,6 +111,7 @@ class ImageEditor {
         rect: IImageEditorRect,
         font: IImageEditorFontSettings
     ) {
+        if(!this._ctx) return console.warn(`ImageEditor: No context to draw text`)
         // Setup
         this._ctx.textBaseline = 'middle'
         const weight = font.weight ?? 'normal'
@@ -126,14 +130,15 @@ class ImageEditor {
         if(font.outlines != undefined) {
             for(const outline of font.outlines) {
                 this._ctx.lineWidth = outline.width*2 // Only half will be visible.
-                this._ctx.strokeStyle = outline.color
+                this._ctx.strokeStyle = outline.color ?? ''
                 this._ctx.strokeText(text, rect.x, y)
             }
         }
         this._ctx.fillText(text, rect.x, y)
     }
 
-    private constructRoundedRectangle(context: CanvasRenderingContext2D, rect: IImageEditorRect, cornerRadius: number, margin: number = 0) {
+    private constructRoundedRectangle(context: CanvasRenderingContext2D|null, rect: IImageEditorRect, cornerRadius: number, margin: number = 0) {
+        if(!context) return console.warn(`ImageEditor: No context to draw rounded rectangle`)
         const rectClone = Utils.clone(rect)
         rectClone.x += margin
         rectClone.y += margin
@@ -160,14 +165,16 @@ class ImageEditor {
      * @param outline 
      */
     drawBackground(rect: IImageEditorRect, cornerRadius: number, color: string, outline?: IImageEditorOutline) {
-        this.constructRoundedRectangle(this._ctx, rect, cornerRadius, outline.width/2)
+        this.constructRoundedRectangle(this._ctx, rect, cornerRadius, outline ? outline.width/2 : 0)
         if(outline != undefined) {
-            this._ctx.strokeStyle = outline?.color ?? Color.Black
-            this._ctx.lineWidth = outline?.width ?? 0
-            this._ctx.stroke()
+            if(this._ctx) {
+                this._ctx.strokeStyle = outline?.color ?? Color.Black
+                this._ctx.lineWidth = outline?.width ?? 0
+                this._ctx.stroke()
+            }
         }
-        this._ctx.fillStyle = color
-        this._ctx.fill()
+        if(this._ctx) this._ctx.fillStyle = color
+        this._ctx?.fill()
     }
 
     /**
@@ -180,6 +187,12 @@ class ImageEditor {
      * @param font Font settings
      */
     async buildTwitchText(messageData: ITwitchMessageData, rect: IImageEditorRect, font: IImageEditorFontSettings): Promise<ITwitchTextResult> {
+        if(!this._textCtx) {
+            return new Promise<ITwitchTextResult>((resolve, reject) => {
+                reject(new Error(`ImageEditor: No context to draw Twitch text`))
+            })
+        }
+
         // Return values
         const result: ITwitchTextResult = {
             firstRowWidth: 0,
@@ -190,7 +203,7 @@ class ImageEditor {
         }
 
         // Canvas Setup
-        const outlineMarginPx = font.outlines?.[0]?.width/2 ?? 0
+        const outlineMarginPx = font.outlines && font.outlines.length >= 1 ? font.outlines[0].width : 0
         this._textCanvas.width = rect.w
         this._textCanvas.height = rect.h
         this._textCtx.textBaseline = 'top'
@@ -227,9 +240,13 @@ class ImageEditor {
             const emoteUrl = emotes[totalLength] ?? undefined
             totalLength += word.length + 1
             return <ImageEditorTwitchWord>{
-                text: word, 
-                length: word.length, 
-                widthPx: emoteUrl != undefined ? emoteSizePx : this._textCtx.measureText(word).width,
+                text: word,
+                length: word.length,
+                widthPx: emoteUrl != undefined 
+                    ? emoteSizePx
+                    : (this._textCtx
+                        ? this._textCtx.measureText(word).width
+                        : 0),
                 emoteUrl: emoteUrl
             }
         })
@@ -286,21 +303,22 @@ class ImageEditor {
                     result.rowsDrawn++
                 }
             }
-            // TODO: Check somewhere if X was already zero and the word does not fit, we should truncated it.
+            // TODO: Check somewhere if X was already zero and the word does not fit, we should truncate it.
 
             // Draw
             if (word.emoteUrl != undefined) {
                 // Emote
                 const imageData = await ImageLoader.getDataUrl(`${word.emoteUrl}/${emoteRes}`)
                 const img = await Utils.makeImage(imageData) // TODO: Make this cached?
-                this._textCtx.drawImage(img, wordPosX, wordPosY, word.widthPx, word.widthPx)
+                if(img) this._textCtx.drawImage(img, wordPosX, wordPosY, word.widthPx, word.widthPx)
+                else console.warn(`ImageEditor: Failed to load emote ${word.emoteUrl}`)
                 wordPosX += word.widthPx + ((nextWord?.emoteUrl != undefined) ? 0 : wordSpacingPx) // Makes neighbor emotes cozy close together                
             } else {
                 // Outlines (under fill text)
                 if(font.outlines != undefined) {
                     for(const outline of font.outlines) {
                         this._textCtx.lineWidth = outline.width*2 // Only half will be visible.
-                        this._textCtx.strokeStyle = outline.color
+                        this._textCtx.strokeStyle = outline.color ?? 'black'
                         this._textCtx.strokeText(word.text, wordPosX, wordPosY)
                     }
                 }
@@ -319,7 +337,7 @@ class ImageEditor {
     }
 
     drawBuiltTwitchText(rect: IImageEditorRect) {
-        this._ctx.drawImage(this._textCanvas, rect.x, rect.y)
+        this._ctx?.drawImage(this._textCanvas, rect.x, rect.y)
     }
 }
 

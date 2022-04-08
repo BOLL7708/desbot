@@ -8,10 +8,10 @@ class Pipe {
     init() {
         this._socket.init()
     }
-    private onMessage(evt) {
+    private onMessage(evt: MessageEvent) {
         console.log(evt.data)
     }
-    private onError(evt) {
+    private onError(evt: Event) {
         // console.table(evt)
     }
 
@@ -121,8 +121,9 @@ class Pipe {
                 // Replace undefined colors in outlines with user color or default
                 const avatarConfig = Utils.clone(Config.pipe.customChatAvatarConfig)
                 for(const outlineIndex in avatarConfig.outlines) {
-                    if(avatarConfig.outlines[outlineIndex].color == undefined) {
-                        avatarConfig.outlines[outlineIndex].color = userColor ?? Color.White
+                    const index = parseInt(outlineIndex)
+                    if(avatarConfig.outlines[index].color == undefined) {
+                        avatarConfig.outlines[index].color = userColor ?? Color.White
                     }
                 }
                 // Draw
@@ -157,9 +158,9 @@ class Pipe {
             preset.imagePath = undefined
             preset.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
-                let width = preset.config.customProperties.widthM
+                let width = preset.config?.customProperties?.widthM ?? 0
                 // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
-                preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
+                if(preset.config.customProperties) preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
             }
             this.showPreset(preset)
             done = true
@@ -188,7 +189,7 @@ class Pipe {
 
     async showPreset(preset: IPipeMessagePreset) {
         // If path exists, load image, in all cases output base64 image data
-        let imageb64: string = null
+        let imageb64: string|undefined
         if(preset.imagePath != undefined) {
             const imagePath = Array.isArray(preset.imagePath) ? Utils.randomFromArray(preset.imagePath) : preset.imagePath
             imageb64 = await ImageLoader.getDataUrl(imagePath)
@@ -200,18 +201,22 @@ class Pipe {
         
         // If the above resulted in image data, broadcast it
         const config = Utils.clone(preset.config)
-        if(imageb64 != null) {
+        if(imageb64) {
             config.imageData = Utils.removeImageHeader(imageb64)
-            config.customProperties.animationHz = -1
-            config.customProperties.durationMs = preset.durationMs;
-            if(
-                config.customProperties.textAreas != undefined
-                && preset.texts != undefined 
-                && preset.texts.length >= config.customProperties.textAreas.length
-            ) {
-                for(let i=0; i<preset.texts.length; i++) {
-                    config.customProperties.textAreas[i].text = preset.texts[i]
-                }
+            if(config.customProperties) {
+
+            
+               config.customProperties.animationHz = -1
+               config.customProperties.durationMs = preset.durationMs;
+               if(
+                   config.customProperties.textAreas != undefined
+                   && preset.texts != undefined 
+                   && preset.texts.length >= config.customProperties.textAreas.length
+               ) {
+                   for(let i=0; i<preset.texts.length; i++) {
+                       config.customProperties.textAreas[i].text = preset.texts[i]
+                   }
+               }
             }
             this.sendCustom(config)
         } else {

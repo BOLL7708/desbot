@@ -11,10 +11,10 @@ class OBS {
     init() {
         this._socket.init()
     }
-    private onOpen(evt) {
+    private onOpen(evt: Event) {
         this._socket.send(this.buildRequest("GetAuthRequired", 1, {}))
     }
-    private onMessage(evt) {
+    private onMessage(evt: MessageEvent) {
         const data = JSON.parse(evt.data)
 		const id = parseInt(data["message-id"])
         const updateType = data['update-type'];
@@ -57,7 +57,7 @@ class OBS {
     // TODO: Add support for an array of configs to toggle many things at once
     show(config: IObsSourceConfig, ignoreDuration: boolean = false) {
         if(config.sceneNames != undefined) {
-            const group = Config.obs.sourceGroups.find(group => group.includes(config.key))
+            const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? ''))
             if(group) {
                 for(const k of group) {
                     if(k != config.key) this.hide(Config.obs.configs[k])
@@ -72,7 +72,7 @@ class OBS {
             })
         } else 
         if(config.filterName != undefined) {
-            const group = Config.obs.filterGroups.find(group => group.includes(config.key))
+            const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? ''))
             if(group) {
                 for(const k of group) {
                     if(k != config.key) this.hide(Config.obs.configs[k])
@@ -129,7 +129,7 @@ class OBS {
     }
 
     buildRequest(type: string, id: number, options: object) {
-        let request = {
+        const request: Record<string, string> = {
             "request-type": type,
             "message-id": `${id}`
         }

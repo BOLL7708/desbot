@@ -32,10 +32,9 @@ class ImageLoader {
                 const reader = new FileReader()
                 reader.onloadend = async() => {
                     const base64data = reader.result;
-                    const imageb64 = base64data.toString()
+                    const imageb64 = base64data?.toString() ?? ','
                     const headerIndex = imageb64.indexOf(',')
                     const header = imageb64.substring(0, headerIndex)
-                    console.log(`ImageLoader: base64 header: ${header}`)
                     if(!this.isImage(header)) {
                         reject(new Error('ImageLoader: Not an image'))
                     } else {
@@ -56,6 +55,6 @@ class ImageLoader {
     static isImage(header: string):boolean {
         const validImageTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/bmp']
         const match = header.match(/.*:(.*);.*/)
-        return match.length == 2 && validImageTypes.includes(match[1].toLowerCase())
+        return match?.length == 2 && validImageTypes.includes(match[1].toLowerCase())
     }
 }

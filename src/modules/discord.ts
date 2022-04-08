@@ -10,8 +10,8 @@ class Discord {
                 const now = Date.now()
                 if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
                     const item = value.shift()
-                    const result = await Discord.send(key, item.formData)
-                    if(item.callback) item.callback(result)
+                    const result = await Discord.send(key, item?.formData ?? new FormData())
+                    if(item?.callback) item.callback(result)
                 } else {
                     Utils.log(`Discord: Waiting for rate limit (${rateLimit.remaining}) to reset (${rateLimit.resetTimestamp-now}ms)`, Color.Gray)
                 }
@@ -27,7 +27,10 @@ class Discord {
      * @param url
      * @param formData
      */
-    private static enqueue(url: string, formData: FormData, callback: (success: boolean)=>void = undefined) {
+    private static enqueue(
+        url: string, 
+        formData: FormData, 
+        callback: (success: boolean)=>void = (success)=>{ console.log(`Discord: Enqueue callback not set, success: ${success}`) }) {
         // Check if queue exists, if not, initiate it with the incoming data.
         if (!this._messageQueues.hasOwnProperty(url)) this._messageQueues[url] = [{formData: formData, callback: callback}]
         else this._messageQueues[url].push({formData: formData, callback: callback})
@@ -43,18 +46,19 @@ class Discord {
             method: 'post',
             body: formData
         }
-        const response = await fetch(url, options)
+        const response: Response = await fetch(url, options)
         if(response == null) return new Promise<boolean>(resolve => resolve(false))
         
         const headers: IDiscordResponseHeaders = {}
-        response.headers.forEach((value, key) => {
-            headers[key] = value
-        })
+        for(const key in response.headers) {
+            const header = response.headers.get(key)
+            headers[key] = header
+        }
         const bucket = headers["x-ratelimit-bucket"]
         if(bucket) {
             if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
-            const remaining = parseInt(headers["x-ratelimit-remaining"])
-            const reset = parseInt(headers["x-ratelimit-reset"])
+            const remaining = parseInt(headers.get("x-ratelimit-remaining"))
+            const reset = parseInt(headers.get("x-ratelimit-reset"))
             if(!isNaN(remaining) && !isNaN(reset)) {
                 const resetTimestamp = reset * 1000
                 this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
@@ -89,7 +93,13 @@ class Discord {
      * @param iconUrl 
      * @param message 
      */
-    static enqueueMessage(url: string, displayName: string, iconUrl: string, message: string, callback: (success: boolean)=>void = undefined) {
+    static enqueueMessage(
+        url: string, 
+        displayName: string, 
+        iconUrl: string, 
+        message: string, 
+        callback: (success: boolean)=>void = (success) => { console.log(`Discord: Enqueue Message callback not set, success: ${success}`)}
+    ) {
         this.enqueue(url, this.getFormDataFromPayload({
             username: displayName,
             avatar_url: iconUrl,
@@ -103,7 +113,11 @@ class Discord {
      * @param payload 
      * @returns 
      */
-    static enqueuePayload(url: string, payload: IDiscordWebookPayload, callback: (success: boolean)=>void = undefined) {
+    static enqueuePayload(
+        url: string, 
+        payload: IDiscordWebookPayload, 
+        callback: (success: boolean)=>void = (success) => { console.log(`Discord: Enqueue Payload callback not set, success: ${success}`)}
+    ) {
         this.enqueue(url, this.getFormDataFromPayload(payload), callback)
     }
 
@@ -122,12 +136,12 @@ class Discord {
         url: string, 
         imageBlob: Blob, 
         color: number, 
-        description: string = null, 
-        authorName: string = null, 
-        authorUrl: string = null, 
-        authorIconUrl: string = null, 
-        footerText: string = null,
-        callback: (success: boolean)=>void = undefined) {
+        description?: string,
+        authorName?: string,
+        authorUrl?: string,
+        authorIconUrl?: string,
+        footerText?: string,
+        callback: (success: boolean)=>void = (success) => { console.log(`Discord: Enqueue PayloadEmbed callback not set, success: ${success}`)}) {
         const formData = this.getFormDataFromPayload({
             username: authorName,
             avatar_url: authorIconUrl,
@@ -141,7 +155,7 @@ class Discord {
                     timestamp: Utils.getISOTimestamp(),
                     footer: footerText ? {
                         text: footerText
-                    } : null
+                    } : undefined
                 }
             ]
         })

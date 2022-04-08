@@ -24,17 +24,17 @@ class Settings {
      * @param setting Key for the settings file that will be loaded.
      * @returns 
      */
-    static async loadSettings(setting:string, ignoreCache:boolean = false):Promise<any> {
+    static async loadSettings<T>(setting:string, ignoreCache:boolean = false):Promise<T[]|null> {
         if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
             console.log(`Returning cache for: ${setting}`)
-            return this._settingsStore[setting]
+            return <T[]> this._settingsStore[setting]
         }
         Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
         let url = this.getUrl(setting)      
         let response = await fetch(url, {
             headers: {password: Utils.encode(Config.credentials.PHPPassword)}
         })
-        let result = response.status >= 300 ? null : await response.json()
+        let result: T[]|null = response.status >= 300 ? null : await response.json()
         if(result != null) {
             this._settingsStore[setting] = result
         }
@@ -73,9 +73,9 @@ class Settings {
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
         Utils.log(`Pushing setting: ${setting}`, this.LOG_COLOR)
-        let settings = this._settingsStore[setting]
+        let settings: any[] = this._settingsStore[setting]
         if(settings == null || !Array.isArray(settings)) settings = []
-        let filteredSettings = settings.filter(s => s[field] != value[field])
+        let filteredSettings = settings.filter(s => (<any>s)[field] != (<any> value)[field])
         filteredSettings.push(value)
         this._settingsStore[setting] = filteredSettings
         return this.saveSettings(setting)
@@ -122,12 +122,12 @@ class Settings {
      * @param key The value field should match.
      * @returns The object or null if failed.
      */
-    static async pullSetting(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<any> {
-        let settings = null
+    static async pullSetting<T>(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<T|null> {
+        let settings: any[]|null = null
         if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
             settings = this._settingsStore[setting]
         } else {
-            settings = await this.loadSettings(setting, ignoreCache)
+            settings = await this.loadSettings<T>(setting, ignoreCache)
         }
         if(Array.isArray(settings)) return settings.find(s => s[field] == key)
         else return settings
@@ -138,11 +138,11 @@ class Settings {
      * @param setting 
      * @returns
      */
-    private static getUrl(setting:string) {
+    private static getUrl(setting:string): string {
         return `./settings.php?setting=${setting}`
     }
 
-    public static getFullSettings(setting:string):any[] {
+    public static getFullSettings<T>(setting:string):T[] {
         Utils.log(`Pulling full settings: ${setting}`, this.LOG_COLOR)
         return this._settingsStore[setting]
     }

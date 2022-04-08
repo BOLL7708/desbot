@@ -110,7 +110,7 @@ class ChannelTrophy {
             })
         })
         const sortedTotalSpentPerUserInSingleStream = sortObject(totalSpentPerUserInSingleStream)
-        const sortedTopSpendersLastStream = sortObject(totalSpentPerUserPerStream.pop())
+        const sortedTopSpendersLastStream = sortObject(totalSpentPerUserPerStream.pop() ?? {})
         const totalParticipantsLastStream = sortedTopSpendersLastStream.length
         const sortedTopSpentInStreakLastStream = sortObject(topSpentInStreakLastStream)
         const topSpenderLastStream = sortedTopSpendersLastStream[sortedTopSpendersLastStream.length-1]
@@ -181,11 +181,11 @@ class ChannelTrophy {
         // Get helix stuff
         async function getName(userId: number):Promise<string> {
             const user = await _twitchHelix.getUserById(userId)
-            return user.display_name
+            return user?.display_name ?? ''
         }
         async function getImage(userId: number):Promise<string> {
             const user = await _twitchHelix.getUserById(userId)
-            return user.profile_image_url
+            return user?.profile_image_url ?? ''
         }
 
         // Handle data
@@ -431,7 +431,7 @@ class NumberPatterns {
     }
 
     static testAll( totalCount: number ) {
-        const result = {
+        const result: Record<string, number> = {
             palindromic: 0,
             binary: 0,
             even1000s: 0,

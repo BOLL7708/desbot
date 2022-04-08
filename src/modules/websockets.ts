@@ -20,36 +20,36 @@ class WebSockets {
         this._onError = onError
     }
 
-    private _socket: WebSocket
-    private _reconnectIntervalSeconds: number
-    private _reconnectIntervalSecondsTotal: number
-    private _reconnectIntervalHandle: number
+    private _socket?: WebSocket
+    private _reconnectIntervalSeconds: number = 10
+    private _reconnectIntervalSecondsTotal: number = 10
+    private _reconnectIntervalHandle: number = -1
     private _connected: boolean = false
-    private _serverUrl: string
+    private _serverUrl: string = ''
     private _messageQueue: string[] = []
     private _messageQueueing: boolean
-    _onOpen: IWebsocketsOpenCallback
-    _onClose: IWebsocketsCloseCallback
-    _onMessage: IWebsocketsMessageCallback
-    _onError: IWebsocketsErrorCallback
+    _onOpen: IWebsocketsOpenCallback = () => {}
+    _onClose: IWebsocketsCloseCallback = () => {}
+    _onMessage: IWebsocketsMessageCallback = () => {}
+    _onError: IWebsocketsErrorCallback = () => {}
     
     init() {
         this.startConnectLoop(true)
     }
     send(message:string) {
         if(this._connected) {
-            this._socket.send(message)
+            this._socket?.send(message)
         } else if(this._messageQueueing) {
             this._messageQueue.push(message)
             Utils.log(`WS: ${this._serverUrl}: Not connected, adding to queue...`, this.LOG_COLOR)
         }
     }
     reconnect() {
-        this._socket.close()
+        this._socket?.close()
         this.connect()
     }
     disconnect() {
-        this._socket.close()
+        this._socket?.close()
     }
 
     private startConnectLoop(immediate:boolean = false) {
@@ -64,39 +64,39 @@ class WebSockets {
 
     private connect() {
         this._socket?.close()
-        this._socket = null
+        this._socket = undefined
         this._socket = new WebSocket(this._serverUrl)
 	    this._socket.onopen = onOpen.bind(this)
 	    this._socket.onclose = onClose.bind(this)
 	    this._socket.onmessage = onMessage.bind(this)
 	    this._socket.onerror = onError.bind(this)
-        const that = this;
+        const self = this;
 
         function onOpen(evt: Event) {
-            Utils.log(`WS: ${this._serverUrl}: Connected`, that.LOG_COLOR, true)
-            this._reconnectIntervalSecondsTotal = this._reconnectIntervalSeconds
-            this._connected = true
-            this.stopConnectLoop()
-            this._onOpen(evt)
-            this._messageQueue.forEach(message => {
-                this._socket.send(message)
+            Utils.log(`WS: ${self._serverUrl}: Connected`, self.LOG_COLOR, true)
+            self._reconnectIntervalSecondsTotal = self._reconnectIntervalSeconds
+            self._connected = true
+            self.stopConnectLoop()
+            self._onOpen(evt)
+            self._messageQueue.forEach(message => {
+                self._socket?.send(message)
             });
-            this._messageQueue = []
+            self._messageQueue = []
         }
         function onClose(evt: CloseEvent) {
-            Utils.log(`WS: ${this._serverUrl}: Disconnected`, that.LOG_COLOR, true)
-            this._connected = false
-            this.startConnectLoop()
-            this._onClose(evt)
+            Utils.log(`WS: ${self._serverUrl}: Disconnected`, self.LOG_COLOR, true)
+            self._connected = false
+            self.startConnectLoop()
+            self._onClose(evt)
         }
         function onMessage(evt: MessageEvent) {
-            this._onMessage(evt)
+            self._onMessage(evt)
         }
         function onError(evt: Event) {
-            console.error(`WS: ${this._serverUrl}:${JSON.stringify(evt)}`)
-            this._socket.close()
-            this.startConnectLoop()
-            this._onError(evt)
+            console.error(`WS: ${self._serverUrl}:${JSON.stringify(evt)}`)
+            self._socket?.close()
+            self.startConnectLoop()
+            self._onError(evt)
         }
     }
 }

@@ -11,7 +11,7 @@ class Functions {
     public static setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
-        const audio = states.pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : null           
+        const audio = states.pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : undefined           
         modules.tts.setEmptyMessageSound(audio)
     }
 
@@ -48,12 +48,12 @@ class Functions {
             
             // TTS runs the command due to doing more things than just toggling the flag.
             modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
-            states.pipeAllChat = combinedSettings.pipeAllChat
-            states.pingForChat = combinedSettings.pingForChat
+            states.pipeAllChat = combinedSettings.pipeAllChat ?? false
+            states.pingForChat = combinedSettings.pingForChat ?? false
             this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
-            states.logChatToDiscord = combinedSettings.logChatToDiscord
-            states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards // OBS: Running the command for this will create infinite loop.
-            states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory
+            states.logChatToDiscord = combinedSettings.logChatToDiscord ?? false
+            states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards ?? false // OBS: Running the command for this will create infinite loop.
+            states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory ?? false
         }
 
         /**
@@ -145,7 +145,7 @@ class Functions {
         // Update category on Twitch
         if(appId != undefined && states.updateTwitchGameCategory) {
             const gameData = await SteamStore.getGameMeta(appId)
-            let twitchGameData = await modules.twitchHelix.searchForGame(gameData.name)
+            let twitchGameData = await modules.twitchHelix.searchForGame(gameData?.name ?? '')
             if(twitchGameData == null && typeof gameData.name == 'string') {
                 let nameParts = gameData.name.split(' ')
                 if(nameParts.length >= 2) {
@@ -186,7 +186,7 @@ class Functions {
     */
     public static async loadPlayerSummary() {
         const summary = await SteamWebApi.getPlayerSummary()
-        const id = parseInt(summary?.gameid)
+        const id = parseInt(summary?.gameid ?? '-1')
         // Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
         if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`)
     }
@@ -232,7 +232,7 @@ class Functions {
                                     description: achievementDetails?.description ?? '',
                                     url: SteamStore.getAchievementsURL(states.lastSteamAppId, profileTag),
                                     thumbnail: {
-                                        url: achievementDetails?.icon
+                                        url: achievementDetails?.icon ?? ''
                                     },
                                     timestamp: new Date(achievement.unlocktime*1000).toISOString(),
                                     footer: {
@@ -252,7 +252,7 @@ class Functions {
                                 Config.steam.achievementSettings.twitchChatMessage, 
                                 progressStr, 
                                 achievementDetails?.displayName ?? key, 
-                                achievementDetails.description ?? 'N/A', 
+                                achievementDetails?.description ?? 'N/A', 
                                 globalStr
                             )
                         )

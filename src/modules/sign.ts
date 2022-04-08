@@ -7,7 +7,7 @@ class Sign {
     private _subtitle: HTMLParagraphElement
     private _queue: ISignShowConfig[] = []
     private _queueLoopHandle: number = 0
-    private _isVisible 
+    private _isVisible: boolean
 
     constructor() {
         this._config.direction = this._config.direction.toLowerCase()

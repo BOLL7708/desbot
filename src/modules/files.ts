@@ -15,8 +15,8 @@ class AssetFiles {
      */
     static get(start: string, end: string|string[]): string[] {
         const extensions = Array.isArray(end) ? end : [end]
-        const files = this._filePaths.filter(filePath => {
-            const lcFilePath = filePath.toLowerCase()
+        const files = this._filePaths.filter((filePath) => {
+            const lcFilePath = (<String>filePath).toLowerCase()
             if(lcFilePath.startsWith(start.toLowerCase())) {
                 for(const extension of extensions) {
                     if(lcFilePath.endsWith(extension.toLowerCase())) {

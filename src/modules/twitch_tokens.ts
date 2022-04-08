@@ -1,7 +1,7 @@
 class TwitchTokens {
     async refreshToken() {
         // Load tokens from settings, and if they don't exist use the ones in Secure, which should be added for the first run.
-        let channelTokenData = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName)
+        let channelTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName)
         if(channelTokenData == null) channelTokenData = {
             username: Config.twitch.channelName, 
             access_token: '',
@@ -10,7 +10,7 @@ class TwitchTokens {
         }
         await this.refresh(channelTokenData)
         if(Config.twitch.channelName.toLowerCase() != Config.twitch.chatbotName.toLowerCase()) {
-            let chatbotTokenData = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
+            let chatbotTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
             if(chatbotTokenData == null) chatbotTokenData = {
                 username: Config.twitch.chatbotName,
                 access_token: '',

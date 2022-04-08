@@ -18,8 +18,8 @@ class LogWriter {
             'trace',
             'warn'
         ]
-        const oldConsole = window.console
-        const consoleClone = Object.assign({}, oldConsole)
+        const oldConsole = <{[x:string]:any}> window.console
+        const consoleClone = <{[x:string]:any}> Object.assign({}, oldConsole)
 
         // Override standard calls
         for(const key of types) {
@@ -38,7 +38,7 @@ class LogWriter {
 			table?
 			
 		*/
-        window.console = consoleClone;
+        window.console = <Console> consoleClone;
     }
 
     private static buildAndWriteLog(type: string, ...data:any) {

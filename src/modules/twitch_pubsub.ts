@@ -1,9 +1,9 @@
 class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
-    private _socket: WebSockets
+    private _socket?: WebSockets
     private _config: ITwitchConfig = Config.twitch
-    private _pingIntervalHandle: number
-    private _pingTimestamp: number
+    private _pingIntervalHandle?: number
+    private _pingTimestamp: number = 0
     private _onRewardCallback: ITwitchPubsubRewardCallback = (message) => { console.log('PubSub Reward unhandled') }
     
     setOnRewardCallback(callback: ITwitchPubsubRewardCallback) {
@@ -23,16 +23,16 @@ class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => {
+        Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",
                 data: {
                     topics: [`channel-points-channel-v1.${TwitchHelix._channelUserId}`], // ID should come from Helix user request (huh?)
-                    auth_token: tokenData.access_token
+                    auth_token: tokenData?.access_token
                 }
             }
-            this._socket.send(JSON.stringify(payload))
+            this._socket?.send(JSON.stringify(payload))
             this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
             Utils.log('PubSub connected', this.LOG_COLOR, true, true)
         })
@@ -60,11 +60,11 @@ class TwitchPubsub {
                 break
             case "RECONNECT":
                 // Server is doing maintenance or similar and wants us to reconnect
-                this._socket.reconnect()
+                this._socket?.reconnect()
                 break
             case "PONG":
                 // If a pong response is older than 10 seconds we are recommended to reconnect
-                if(Date.now() - this._pingTimestamp > 10000) this._socket.reconnect()
+                if(Date.now() - this._pingTimestamp > 10000) this._socket?.reconnect()
                 break
             case "RESPONSE":
                 Utils.log(evt.data, this.LOG_COLOR)
@@ -79,7 +79,7 @@ class TwitchPubsub {
         let payload = {
             type: "PING"
         }
-        this._socket.send(JSON.stringify(payload))
+        this._socket?.send(JSON.stringify(payload))
         this._pingTimestamp = Date.now()
     }
 }
