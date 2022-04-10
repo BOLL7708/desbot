@@ -217,14 +217,14 @@ class ImageEditor {
         const emoteSizePx = lineHeightPx // TODO: Allow a scale factor for the actual drawing?
 
         // Generate emote data set
-        const emotes: Record<number, string> = {}
+        const emotes: Map<number, string> = new Map()
         let emoteCount = 0
         for(const emote of messageData.emotes ?? []) {
 			// Using full resolution emojis appears to have murdered memory usage or something?
             const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/` // Does 3.0 resolution exist for all emotes? Looks nice at least.
             for(const pos of emote.positions) {
                 emoteCount++
-                emotes[pos.start] = url
+                emotes.set(pos.start, url)
             }
         }
 
@@ -237,7 +237,7 @@ class ImageEditor {
         }
         let totalLength = 0
         const words: ImageEditorTwitchWord[] = messageData.text.split(' ').map(word => {
-            const emoteUrl = emotes[totalLength] ?? undefined
+            const emoteUrl = emotes.get(totalLength)
             totalLength += word.length + 1
             return <ImageEditorTwitchWord>{
                 text: word,

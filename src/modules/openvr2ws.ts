@@ -12,8 +12,8 @@ class OpenVR2WS {
 
     private _socket: WebSockets
     private _resetLoopHandle: number = 0
-    private _resetMessages: Record<number, IOpenVRWSCommandMessage> = {}
-    private _resetTimers: Record<number, number> = {}
+    private _resetMessages: Map<number, IOpenVRWSCommandMessage> = new Map()
+    private _resetTimers: Map<number, number> = new Map()
     private _isConnected?: boolean
     private _currentAppId?: string // Updated every time an ID is received
     
@@ -126,11 +126,11 @@ class OpenVR2WS {
             const cfgSetting = parseInt(cfg.setting)
             if(cfg.duration != null && (cfg.resetToValue != null || settingArr[2].length > 0)) {
                 message.value4 = (cfg.resetToValue ?? settingArr[2]).toString()
-                this._resetTimers[cfgSetting] = cfg.duration
-                this._resetMessages[cfgSetting] = message
+                this._resetTimers.set(cfgSetting,  cfg.duration)
+                this._resetMessages.set(cfgSetting, message)
             } else {
-                this._resetTimers[cfgSetting] = -1
-                delete this._resetMessages[cfgSetting]
+                this._resetTimers.set(cfgSetting, -1)
+                this._resetMessages.delete(cfgSetting)
             }
         }
     }
@@ -141,12 +141,15 @@ class OpenVR2WS {
     public resetSettings() {
         // Loop over all timers, reduce until 0, then send message
         for(const key in this._resetTimers) {
-            this._resetTimers[key]--
-            if(this._resetTimers[key] == 0) {
-                const message = this._resetMessages[key]
-                if(message != undefined) this.sendMessage(message)
-                delete this._resetTimers[key]
-                delete this._resetMessages[key]
+            const keyInt = parseInt(key)
+            let timer = this._resetTimers.get(keyInt) ?? 0
+            timer--
+            this._resetTimers.set(keyInt, timer)
+            if(timer <= 0) {
+                const message = this._resetMessages.get(keyInt)
+                if(message) this.sendMessage(message)
+                this._resetTimers.delete(keyInt)
+                this._resetMessages.delete(keyInt)
             }
         }
     }

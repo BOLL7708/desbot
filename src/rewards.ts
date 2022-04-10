@@ -14,12 +14,12 @@ class Rewards {
     
 
         // Load reward IDs from settings
-        let storedRewards: ITwitchRewardPair[] = Settings.getFullSettings(Settings.TWITCH_REWARDS)
+        let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
         if(storedRewards == undefined) storedRewards = []
 
         // Create missing rewards if any
         const allRewardKeys = Object.keys(Config.twitch.rewardConfigs)
-        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards.find(reward => reward.key == key))
+        const missingRewardKeys = allRewardKeys.filter(key => !storedRewards?.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
             const setup = Config.twitch.rewardConfigs[key]
             let reward = await modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
@@ -119,7 +119,7 @@ class Rewards {
                 const nonce = Utils.getNonce('TTS')
                 const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
                 modules.tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
-                states.nonceCallbacks[nonce] = ()=>{
+                states.nonceCallbacks.set(nonce, ()=>{
                     if(Config.controller.websocketsUsed.openvr2ws && states.lastSteamAppId != undefined) {
                         // SuperScreenShotterVR
                         modules.sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
@@ -131,7 +131,7 @@ class Rewards {
                             modules.obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }    
-                }
+                })
             }
         })
         // TODO: Change this into an auto-reward with a screenshot callback for SSSVR and OBS?
@@ -197,7 +197,7 @@ class Rewards {
                     // Update label in overlay
                     Settings.pushLabel(
                         Settings.CHANNEL_TROPHY_LABEL, 
-                        Utils.template(Config.controller.channelTrophySettings.label, cost.toString(), user.display_name)
+                        Utils.template(Config.controller.channelTrophySettings.label, cost, user.display_name)
                     )
                     
                     // Update reward
@@ -210,7 +210,7 @@ class Rewards {
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt ?? '', newCost.toString())
+                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt ?? '', newCost)
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)

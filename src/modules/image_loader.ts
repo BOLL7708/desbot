@@ -1,6 +1,6 @@
 class ImageLoader {
     // TODO: Maybe limit cache to 100 images or something? To avoid memory issues.
-    static _imageCache: Record<string, string> = {}
+    static _imageCache: Map<string, string> = new Map()
 
     private static async getBlob(url: string): Promise<Blob> {
         const response = await fetch(`${url}?${Math.random()*100000}`) // This has problems with caching otherwise... hmm.
@@ -17,10 +17,8 @@ class ImageLoader {
      */
     static async getDataUrl(url: string, useCache: boolean=true): Promise<string> {
         const urlb64 = btoa(url)
-        const cache = (useCache && this._imageCache.hasOwnProperty(urlb64)) 
-            ? this._imageCache[urlb64] 
-            : null
-        if(cache != null) {
+        const cache = this._imageCache.get(urlb64)
+        if(cache) {
             console.log('ImageLoader: Returning cached')
             return new Promise<string>((resolve) => { 
                 resolve(cache) 
@@ -38,7 +36,7 @@ class ImageLoader {
                     if(!this.isImage(header)) {
                         reject(new Error('ImageLoader: Not an image'))
                     } else {
-                        ImageLoader._imageCache[urlb64] = imageb64
+                        ImageLoader._imageCache.set(urlb64,  imageb64)
                         resolve(imageb64)
                     }
                 }

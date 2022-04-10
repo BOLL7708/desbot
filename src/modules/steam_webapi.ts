@@ -42,16 +42,16 @@ class SteamWebApi {
         return
     }
 
-    static _gameSchemas: Record<number, ISteamWebApiGameSchema> = {}
+    static _gameSchemas: Map<number, ISteamWebApiGameSchema> = new Map()
     static async getGameSchema(appId: string): Promise<ISteamWebApiGameSchema|undefined> {
         const id = Utils.numberFromAppId(appId)
-        if(this._gameSchemas[id]) return this._gameSchemas[id]
+        if(this._gameSchemas.has(id)) return this._gameSchemas.get(id)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetSchemaForGame/v0002/', id)
             const response: ISteamWebApiGameSchema = await fetch(`./proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
-                this._gameSchemas[id] = response
+                this._gameSchemas.set(id,  response)
                 return response
             } else {
                 console.warn(`SteamWebApi: Failed to get game schema for ${appId}`)
@@ -60,17 +60,17 @@ class SteamWebApi {
         return
     }
 
-    static _globalAchievementStats: Record<number, IStreamWebApiGlobalAchievementData[]> = {}
+    static _globalAchievementStats: Map<number, IStreamWebApiGlobalAchievementData[]> = new Map()
     static async getGlobalAchievementStats(appId: string): Promise<IStreamWebApiGlobalAchievementData[]|undefined> {
         const id = Utils.numberFromAppId(appId)
-        if(this._globalAchievementStats[id]) return this._globalAchievementStats[id]
+        if(this._globalAchievementStats.has(id)) return this._globalAchievementStats.get(id)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/', id)
             const response: IStreamWebApiGlobalAchievementStats = await fetch(`./proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
                 const achievements = response.achievementpercentages?.achievements ?? []
-                this._globalAchievementStats[id] = achievements
+                this._globalAchievementStats.set(id, achievements)
                 return achievements
             } else {
                 console.warn(`SteamWebApi: Failed to get game schema for ${appId}`)

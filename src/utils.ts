@@ -224,7 +224,7 @@ class Utils {
         console.log(`%c${message}`, format)
     }
 
-    static template(text: string|string[], ...values: string[]):string {
+    static template(text: string|string[], ...values: any[]):string {
         if(Array.isArray(text)) text = Utils.randomFromArray(text)
         return text.replace(/\%s/g, function(_) {
             return values.shift() ?? ''
@@ -269,7 +269,7 @@ class Utils {
     }
 
     static numberToDiscordEmote(value: number, addHash: boolean = false): string {
-        let numbers:Record<string, string> = {
+        let numbers: { [x: string]: string } = {
             '0': ':zero:',
             '1': ':one:',
             '2': ':two:',

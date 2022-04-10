@@ -15,8 +15,8 @@ class Settings {
 
     private static LOG_COLOR: string = 'blue'
 
-    private static _settingsStore: Record<string, any> = {}
-    private static _settingsCache: Record<string, any> = {}
+    private static _settingsStore: Map<string, any[]> = new Map()
+    private static _settingsCache: Map<string, any[]> = new Map()
     private static _cacheWriteIntervalHandle: number = -1
 
     /**
@@ -24,19 +24,19 @@ class Settings {
      * @param setting Key for the settings file that will be loaded.
      * @returns 
      */
-    static async loadSettings<T>(setting:string, ignoreCache:boolean = false):Promise<T[]|null> {
-        if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
+    static async loadSettings<T>(setting:string, ignoreCache:boolean = false):Promise<T[]|undefined> {
+        if(!ignoreCache && this._settingsStore.has(setting)) {
             console.log(`Returning cache for: ${setting}`)
-            return <T[]> this._settingsStore[setting]
+            return <T[]> this._settingsStore.get(setting)
         }
         Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
         let url = this.getUrl(setting)      
         let response = await fetch(url, {
             headers: {password: Utils.encode(Config.credentials.PHPPassword)}
         })
-        let result: T[]|null = response.status >= 300 ? null : await response.json()
-        if(result != null) {
-            this._settingsStore[setting] = result
+        let result: T[]|undefined = response.status >= 300 ? null : await response.json()
+        if(result) {
+            this._settingsStore.set(setting,  result)
         }
         return result
     }
@@ -49,8 +49,8 @@ class Settings {
      */
     static async saveSettings(setting:string, settings:any=null, append:boolean=false):Promise<boolean> {
         let url = this.getUrl(setting)
-        if(settings == null) settings = this._settingsStore[setting]
-        if(settings != null) {
+        if(!settings) settings = this._settingsStore.get(setting)
+        if(settings) {
             let payload = JSON.stringify(settings)
             payload.replace(/\|/g, '').replace(/;/g, '')
             if(setting != Settings.LOG_OUTPUT) Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
@@ -73,20 +73,20 @@ class Settings {
      */
     static async pushSetting(setting:string, field:string, value:any):Promise<boolean> {
         Utils.log(`Pushing setting: ${setting}`, this.LOG_COLOR)
-        let settings: any[] = this._settingsStore[setting]
+        let settings: any[] = this._settingsStore.get(setting) ?? []
         if(settings == null || !Array.isArray(settings)) settings = []
         let filteredSettings = settings.filter(s => (<any>s)[field] != (<any> value)[field])
         filteredSettings.push(value)
-        this._settingsStore[setting] = filteredSettings
+        this._settingsStore.set(setting,  filteredSettings)
         return this.saveSettings(setting)
     }
 
     static async pushRow(setting:string, value:any):Promise<boolean> {
         Utils.log(`Pushing row: ${setting}`, this.LOG_COLOR)
-        let settings = this._settingsStore[setting]
+        let settings = this._settingsStore.get(setting)
         if(settings == null || !Array.isArray(settings)) settings = []
         settings.push(value)
-        this._settingsStore[setting] = settings
+        this._settingsStore.set(setting, settings)
         return this.saveSettings(setting)
     }
 
@@ -99,16 +99,20 @@ class Settings {
         if(this._cacheWriteIntervalHandle <= 0) {           
             this._cacheWriteIntervalHandle = setInterval(() => {
                 const cacheClone = Utils.clone(this._settingsCache)
-                this._settingsCache = {}
+                this._settingsCache = new Map()
                 Object.keys(cacheClone).forEach(async cacheSetting => {
-                    await this.appendSetting(cacheSetting, cacheClone[cacheSetting].join('\n'))
+                    await this.appendSetting(cacheSetting, (cacheClone.get(cacheSetting) ?? []).join('\n'))
                 })                
             }, 10000)
         }
 
         // Add setting to cache
-        if(this._settingsCache[setting] == undefined) this._settingsCache[setting] = []
-        this._settingsCache[setting].push(value)
+        if(!this._settingsCache.has(setting)) this._settingsCache.set(setting, [])
+        else {
+            let currentCache = this._settingsCache.get(setting)
+            if(currentCache) currentCache.push(value)
+            this._settingsCache.set(setting, currentCache ?? [])
+        }
     }
 
     static async pushLabel(setting: string, value: string): Promise<boolean> {
@@ -122,10 +126,10 @@ class Settings {
      * @param key The value field should match.
      * @returns The object or null if failed.
      */
-    static async pullSetting<T>(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<T|null> {
-        let settings: any[]|null = null
+    static async pullSetting<T>(setting:string, field:string, key:any, ignoreCache:boolean=false):Promise<T|undefined> {
+        let settings: any[]|undefined
         if(!ignoreCache && this._settingsStore.hasOwnProperty(setting)) {
-            settings = this._settingsStore[setting]
+            settings = this._settingsStore.get(setting)
         } else {
             settings = await this.loadSettings<T>(setting, ignoreCache)
         }
@@ -142,9 +146,9 @@ class Settings {
         return `./settings.php?setting=${setting}`
     }
 
-    public static getFullSettings<T>(setting:string):T[] {
+    public static getFullSettings<T>(setting:string):T[]|undefined {
         Utils.log(`Pulling full settings: ${setting}`, this.LOG_COLOR)
-        return this._settingsStore[setting]
+        return this._settingsStore.get(setting)
     }
 
     public static getPathFromKey(setting: string, key:string):string {

@@ -129,7 +129,7 @@ class OBS {
     }
 
     buildRequest(type: string, id: number, options: object) {
-        const request: Record<string, string> = {
+        const request: { [x: string]: string } = {
             "request-type": type,
             "message-id": `${id}`
         }

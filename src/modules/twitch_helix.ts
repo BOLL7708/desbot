@@ -1,9 +1,9 @@
 class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
-    _userCache: Record<number, ITwitchHelixUsersResponseData> = {}
-    _userNameToId: Record<string, number> = {}
-    _gameCache: Record<number, ITwitchHelixGamesResponseData> = {}
-    _channelUserTokens: ITwitchTokens|null = null
+    _userCache: Map<number, ITwitchHelixUsersResponseData> = new Map()
+    _userNameToId: Map<string, number> = new Map()
+    _gameCache: Map<number, ITwitchHelixGamesResponseData> = new Map()
+    _channelUserTokens?: ITwitchTokens
     static _channelUserId = -1
 
     constructor() {}
@@ -15,14 +15,14 @@ class TwitchHelix {
     }
     
     async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
-        const id = this._userNameToId[login] ?? null;
-        if(id != null && !skipCache && this._userCache[id] != null) return this._userCache[id]
+        const id = this._userNameToId.get(login)
+        if(id && !skipCache && this._userCache.has(id)) return this._userCache.get(id)
         const url = `${this._baseUrl}/users/?login=${login}`
         return this.getUserByUrl(url)
     }
 
     async getUserById(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
-        if(!skipCache && this._userCache[id] != null) return this._userCache[id]
+        if(!skipCache && this._userCache.has(id)) return this._userCache.get(id)
         const url = `${this._baseUrl}/users/?id=${id}`
         return this.getUserByUrl(url)
     }
@@ -37,8 +37,8 @@ class TwitchHelix {
         if(result != undefined) {
             const id = parseInt(result.id)
             if(id != NaN) {
-                this._userCache[id] = result
-                this._userNameToId[result.login] = id
+                this._userCache.set(id, result)
+                this._userNameToId.set(result.login, id)
             }
         }
         return result
@@ -111,7 +111,7 @@ class TwitchHelix {
         return response
     }
 
-    async toggleRewards(kvp: Record<string, boolean>) {
+    async toggleRewards(kvp: { [x: string]: boolean }) {
         for(const key in kvp) {
             const pair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
             if(pair?.id != undefined) {
@@ -138,23 +138,23 @@ class TwitchHelix {
         return response
     }
 
-    async getGameById(id: number, skipCache: boolean = false):Promise<ITwitchHelixGamesResponseData|null> {
-        if(!skipCache && this._gameCache[id] != null) return this._gameCache[id]
+    async getGameById(id: number, skipCache: boolean = false):Promise<ITwitchHelixGamesResponseData|undefined> {
+        if(!skipCache && this._gameCache.has(id)) return this._gameCache.get(id)
         const url = `${this._baseUrl}/games/?id=${id}`
         return this.getGameByUrl(url)
     }
 
-    private async getGameByUrl(url: string):Promise<ITwitchHelixGamesResponseData|null> {
+    private async getGameByUrl(url: string):Promise<ITwitchHelixGamesResponseData|undefined> {
         let headers = {
             Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID
         }
         let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
-        const result: ITwitchHelixGamesResponseData|null = response?.data.pop() ?? null
-        if(result != null) {
+        const result: ITwitchHelixGamesResponseData|undefined = response?.data.pop()
+        if(result) {
             const id = parseInt(result.id)
             if(id != NaN) {
-                this._gameCache[id] = result
+                this._gameCache.set(id,  result)
             }
         }
         return result

@@ -16,7 +16,7 @@ class StatesSingleton {
     public useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards ?? false // Used in func.call(this) so reference not counted, stupid TypeScript.
     public logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord ?? false
     public updateTwitchGameCategory: boolean = Config.controller.defaults.updateTwitchGameCategory ?? false  // Used in func.call(this) so reference not counted, stupid TypeScript.
-    public nonceCallbacks: Record<string, Function> = {}
+    public nonceCallbacks: Map<string, Function> = new Map()
     public scaleIntervalHandle: number = -1
     public steamPlayerSummaryIntervalHandle: number = -1 // Used in func.call(this) so reference not counted, stupid TypeScript.
     public steamAchievementsIntervalHandle: number = -1 // Used in func.call(this) so reference not counted, stupid TypeScript.
