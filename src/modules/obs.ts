@@ -2,7 +2,7 @@ class OBS {
     private _socket: WebSockets
     private _config = Config.obs;
     private _messageCounter: number = 10;
-    private _screenshotRequests: ISSSVRRequestData[] = []
+    private _screenshotRequests: IScreenshotRequestData[] = []
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
@@ -114,7 +114,7 @@ class OBS {
         else this.hide(config)
     }
 
-    takeSourceScreenshot(requestData:ISSSVRRequestData) {
+    takeSourceScreenshot(requestData:IScreenshotRequestData) {
         const date = new Date()
         const time = date.toLocaleString("sv-SE").replace(' ', '_').replace(/\:/g, '').replace(/\-/g, '')
         const ms = date.getMilliseconds()

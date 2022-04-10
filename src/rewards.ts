@@ -127,7 +127,7 @@ class Rewards {
                         // OBS Source Screenshot
                         setTimeout(async ()=>{
                             const userData = await modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                            const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData?.id ?? '-1'), userName: userData?.login ?? '', userInput: data.redemption.user_input }
+                            const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: parseInt(userData?.id ?? '-1'), userName: userData?.login ?? '', userInput: data.redemption.user_input }
                             modules.obs.takeSourceScreenshot(requestData)
                         }, Config.screenshots.delayOnDescription*1000)
                     }    
@@ -146,7 +146,7 @@ class Rewards {
                 } else {
                     // OBS Source Screenshot
                     const userData = await modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                    const requestData: ISSSVRRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData?.id ?? '-1'), userName: userData?.login ?? '', userInput: data.redemption.user_input }
+                    const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_INSTANTSCREENSHOT, userId: parseInt(userData?.id ?? '-1'), userName: userData?.login ?? '', userInput: data.redemption.user_input }
                     modules.obs.takeSourceScreenshot(requestData)
                 }
             }

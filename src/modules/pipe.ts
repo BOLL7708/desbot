@@ -25,13 +25,13 @@ class Pipe {
     async sendBasicObj(
         messageData: ITwitchMessageData,
         userData: ITwitchUserData,
-        helixUser: ITwitchHelixUsersResponseData
+        helixUser?: ITwitchHelixUsersResponseData
     ) {
         this.sendBasic(
             messageData.text,
             userData.displayName,
             userData.color,
-            helixUser.profile_image_url,
+            helixUser?.profile_image_url ?? '',
             messageData
         )
     }
@@ -39,9 +39,9 @@ class Pipe {
     async sendBasic(
         message: string, 
         displayName: string = '',
-        userColor: string|undefined = undefined,
-        profileUrl: string|undefined = undefined, 
-        messageData: ITwitchMessageData|undefined = undefined
+        userColor?: string,
+        profileUrl?: string, 
+        messageData?: ITwitchMessageData
     ) {
         // Skip if supposed to be skipped
         if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)

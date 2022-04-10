@@ -1,7 +1,7 @@
 class SuperScreenShotterVR {
     private _socket: WebSockets
     private _messageCounter: number = 0
-    private _screenshotRequests: ISSSVRRequestData[] = []
+    private _screenshotRequests: IScreenshotRequestData[] = []
     private _messageCallback: ISSSVRCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
     constructor() {
         let config:IScreenshotConfig = Config.screenshots
@@ -37,7 +37,7 @@ class SuperScreenShotterVR {
         }
         this._socket.send(JSON.stringify(message))
     }
-    getScreenshotRequest(nonce: number):ISSSVRRequestData|undefined {
+    getScreenshotRequest(nonce: number):IScreenshotRequestData|undefined {
         return this._screenshotRequests.splice(nonce, 1).pop()
     }
 }

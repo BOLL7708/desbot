@@ -22,7 +22,7 @@ class Functions {
         if(Config.steam.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
 
         // Skip if it's the last app ID again.
-        if(appId != undefined && appId.length > 0) {
+        if(appId && appId.length > 0) {
             if(appId == states.lastSteamAppId) return
             Utils.log(`Steam AppId is new: "${appId}" != "${states.lastSteamAppId}"`, Color.DarkBlue)
             states.lastSteamAppId = appId
@@ -133,10 +133,10 @@ class Functions {
         if(appId != undefined) {
             const gameData = await SteamStore.getGameMeta(appId)
             const price = SteamStore.getPrice(gameData)
-            const name = gameData.name ?? 'N/A'
+            const name = gameData?.name ?? 'N/A'
             modules.sign.enqueueSign({
                 title: 'Current Game',
-                image: gameData.header_image,
+                image: gameData?.header_image,
                 subtitle: `${name}\n${price}`,
                 durationMs: 20000
             })
@@ -146,7 +146,7 @@ class Functions {
         if(appId != undefined && states.updateTwitchGameCategory) {
             const gameData = await SteamStore.getGameMeta(appId)
             let twitchGameData = await modules.twitchHelix.searchForGame(gameData?.name ?? '')
-            if(twitchGameData == null && typeof gameData.name == 'string') {
+            if(twitchGameData == null && typeof gameData?.name == 'string') {
                 let nameParts = gameData.name.split(' ')
                 if(nameParts.length >= 2) {
                     // This is to also match games that are "name VR" on Steam but "name" on Twitch
@@ -165,14 +165,14 @@ class Functions {
                 }
                 const response = await modules.twitchHelix.updateChannelInformation(request)
                 const speech = Config.controller.speechReferences[Keys.KEY_CALLBACK_APPID]
-                Utils.log(`Steam title: ${gameData.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
+                Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
                     modules.tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else {
-                    modules.tts.enqueueSpeakSentence(Utils.template(speech[1], gameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(Utils.template(speech[1], gameData?.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             } else {
-                Utils.log(`Steam title: ${gameData.name} did not match any Twitch Category`, Color.Red)
+                Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)
             }
         }
     }
@@ -195,7 +195,7 @@ class Functions {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
         if(states.lastSteamAppId != undefined && states.lastSteamAppId.length > 0) {
-            const achievements = await SteamWebApi.getAchievements(states.lastSteamAppId)
+            const achievements = await SteamWebApi.getAchievements(states.lastSteamAppId) ?? []
             // Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
             for(const achievement of achievements) {
                 const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, states.lastSteamAppId)
@@ -224,8 +224,8 @@ class Functions {
                         
                         // Discord
                         Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.KEY_CALLBACK_ACHIEVEMENT], {
-                            username: gameMeta.name,
-                            avatar_url: gameMeta.header_image,
+                            username: gameMeta?.name ?? 'N/A',
+                            avatar_url: gameMeta?.header_image ?? '',
                             embeds: [
                                 {
                                     title: achievementDetails?.displayName ?? key,

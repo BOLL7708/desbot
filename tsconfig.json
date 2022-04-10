@@ -5,7 +5,8 @@
         "lib": ["dom", "es2019", "dom.iterable"],
         "outDir": "dist",
         "rootDir": "src",
-        "sourceMap": true
+        "sourceMap": true,
+        "strict": true
     },
     "include": ["./src/**/*"]
 }

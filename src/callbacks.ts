@@ -31,7 +31,7 @@ class Callbacks {
                 modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
-                const user = await modules.twitchHelix.getUserById(parseInt(userData.userId))
+                const user = await modules.twitchHelix.getUserById(parseInt(userData.userId ?? ''))
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -42,7 +42,7 @@ class Callbacks {
             modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
-            const user = await modules.twitchHelix.getUserById(parseInt(userData.userId))
+            const user = await modules.twitchHelix.getUserById(parseInt(userData.userId ?? ''))
             modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
@@ -53,10 +53,10 @@ class Callbacks {
             
             if(states.ttsForAll) { 
                 // TTS is on for everyone
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
+                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, undefined, Utils.getNonce('TTS'), clearRanges)
             } else if(states.ttsEnabledUsers.indexOf(userData.userName) > -1) {
                 // Reward users
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, null, Utils.getNonce('TTS'), clearRanges)
+                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, undefined, Utils.getNonce('TTS'), clearRanges)
             } else if(states.pingForChat && Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] != null) {
                 // Chat sound
                 const soundEffect = Config.audioplayer.configs[Keys.KEY_MIXED_CHAT]
@@ -65,44 +65,43 @@ class Callbacks {
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
-                const user = await modules.twitchHelix.getUserById(parseInt(userData.userId))
+                const user = await modules.twitchHelix.getUserById(parseInt(userData.userId ?? ''))
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
-        modules.twitch.setAllChatCallback((message:ITwitchMessageCmd) => {
+        modules.twitch.setAllChatCallback(async (message:ITwitchMessageCmd) => {
             const rewardId = message?.properties?.["custom-reward-id"]           
             if(rewardId) return // Skip rewards as handled elsewhere
-            const bits = parseInt(message?.properties?.bits)
+            const bits = parseInt(message?.properties?.bits ?? '0')
             
             // Discord
-            modules.twitchHelix.getUserById(parseInt(message?.properties["user-id"])).then(user => {
-                let text = message?.message?.text
-                if(text == null || text.length == 0) return
+            const user = await modules.twitchHelix.getUserById(parseInt(message.properties['user-id'] ?? ''))
+            let text = message?.message?.text
+            if(text == null || text.length == 0) return
 
-                // Format text
-                let logText = Utils.escapeForDiscord(text)
-                if(message?.message?.isAction) logText = `_${logText}_`
-                
-                // Label messages with bits
-                let label = ''
-                if(!isNaN(bits) && bits > 0) {
-                    const unit = bits == 1 ? 'bit' : 'bits'
-                    label = `${Config.discord.prefixCheer}**Cheered ${bits} ${unit}**: `
-                }
-                
-                // TODO: Add more things like sub messages? Need to check that from raw logs.
-                // TODO: Reference Jeppe's twitch logger for the other messages! :D
-                
-                if(states.logChatToDiscord) {
-                    Discord.enqueueMessage(
-                        Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
-                        user?.display_name,
-                        user?.profile_image_url,
-                        `${label}${logText}`
-                    )
-                }
-            })
+            // Format text
+            let logText = Utils.escapeForDiscord(text)
+            if(message?.message?.isAction) logText = `_${logText}_`
+            
+            // Label messages with bits
+            let label = ''
+            if(!isNaN(bits) && bits > 0) {
+                const unit = bits == 1 ? 'bit' : 'bits'
+                label = `${Config.discord.prefixCheer}**Cheered ${bits} ${unit}**: `
+            }
+            
+            // TODO: Add more things like sub messages? Need to check that from raw logs.
+            // TODO: Reference Jeppe's twitch logger for the other messages! :D
+            
+            if(states.logChatToDiscord) {
+                Discord.enqueueMessage(
+                    Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
+                    user?.display_name,
+                    user?.profile_image_url,
+                    `${label}${logText}`
+                )
+            }
         })
 
         /*
@@ -130,8 +129,8 @@ class Callbacks {
                     description
                 )
             }
-            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair.key] || null
-            if(rewardSpecificWebhook != null) {
+            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair?.key ?? '']
+            if(rewardSpecificWebhook) {
                 Discord.enqueueMessage(
                     rewardSpecificWebhook,
                     user?.display_name,
@@ -141,13 +140,13 @@ class Callbacks {
             }
 
             // Pipe to VR (basic)
-            const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair.key) > -1
+            const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair?.key ?? '') > -1
             if(showReward) {
                 modules.pipe.sendBasic(
                     message.redemption.user_input, 
                     user?.display_name, 
-                    TwitchFactory.userColors[message.redemption.user.id] ?? Color.White,
-                    user.profile_image_url
+                    TwitchFactory.userColors.get(parseInt(message.redemption.user.id)) ?? Color.White,
+                    user?.profile_image_url
                 )
             }
         })
@@ -166,7 +165,7 @@ class Callbacks {
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
-            const gameData = await SteamStore.getGameMeta(states.lastSteamAppId)
+            const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
             const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
             if(requestData != null) {
                 const userData = await modules.twitchHelix.getUserById(requestData.userId)
@@ -174,10 +173,10 @@ class Callbacks {
                 
                 // Discord
                 const description = requestData.userInput
-                const authorUrl = `https://twitch.tv/${userData.login ?? ''}`
+                const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
                 const color = Utils.hexToDecColor(
-                    TwitchFactory.userColors[requestData.userId] ?? Config.discord.remoteScreenshotEmbedColor
+                    TwitchFactory.userColors.get(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
@@ -194,7 +193,7 @@ class Callbacks {
             } else {
                 // Discord
                 const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
-                Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, null, null, null, gameTitle)
+                Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
 
                 // Sign
                 modules.sign.enqueueSign({
@@ -207,23 +206,26 @@ class Callbacks {
 
             // Pipe
             if(
-                Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey)
+                Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? '')
                 || (requestData == null && Config.screenshots.callback.pipeEnabledForManual)
             ) {
                 const preset = Config.screenshots.callback.pipeMessagePreset
                 if(preset != undefined) {
                     const configClone: IPipeCustomMessage = Utils.clone(preset.config)
                     configClone.imageData = responseData.image
-                    configClone.customProperties.durationMs = preset.durationMs
-                    if(configClone.customProperties.textAreas.length > 0) {
-                        configClone.customProperties.textAreas[0].text = `${responseData.width}x${responseData.height}`
-                    }
-                    if(requestData != null && configClone.customProperties.textAreas.length > 1) {
-                        const userData = await modules.twitchHelix.getUserById(requestData.userId)
-                        const title = requestData.userInput 
-                            ? `"${requestData.userInput}"\n${userData.display_name}`
-                            : userData.display_name
-                        configClone.customProperties.textAreas[1].text = title
+                    if(configClone.customProperties) {
+                        configClone.customProperties.durationMs = preset.durationMs
+                        const tas = configClone.customProperties.textAreas
+                        if(tas && tas.length > 0) {
+                            tas[0].text = `${responseData.width}x${responseData.height}`
+                        }
+                        if(requestData != null && tas && tas.length > 1) {
+                            const userData = await modules.twitchHelix.getUserById(requestData.userId)
+                            const title = requestData.userInput 
+                                ? `"${requestData.userInput}"\n${userData?.display_name ?? ''}`
+                                : userData?.display_name ?? ''
+                            tas[1].text = title
+                        }
                     }
                     modules.pipe.sendCustom(configClone)
                 }
@@ -231,24 +233,24 @@ class Callbacks {
         })
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData) => {
-            const b64data = img.split(',').pop()
+            const b64data = img.split(',').pop() ?? ''
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.COMMAND_SOURCESCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
 
             if(requestData != null) {
-                const gameData = await SteamStore.getGameMeta(states.lastSteamAppId)
-                const gameTitle = gameData != null ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
+                const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                const gameTitle = gameData ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
                 const userData = await modules.twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                         
                 // Discord
                 const description = requestData.userInput
-                const authorUrl = `https://twitch.tv/${userData.login ?? ''}`
+                const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
                 const color = Utils.hexToDecColor(
-                    TwitchFactory.userColors[requestData.userId] ?? Config.discord.remoteScreenshotEmbedColor
+                    TwitchFactory.userColors.get(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
@@ -290,19 +292,19 @@ class Callbacks {
         */
         modules.audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
-            const callback = states.nonceCallbacks[nonce] || null
-            if(callback != null) {
+            const callback = states.nonceCallbacks.get(nonce)
+            if(callback) {
                 if(status == AudioPlayer.STATUS_OK) callback()
-                delete states.nonceCallbacks[nonce]
+                states.nonceCallbacks.delete(nonce)
             }
         })
 
         modules.tts.setHasSpokenCallback((nonce:string, status:number) => {
             console.log(`TTS: Nonce finished playing -> ${nonce} [${status}]`)
-            const callback = states.nonceCallbacks[nonce] || null
-            if(callback != null) {
+            const callback = states.nonceCallbacks.get(nonce)
+            if(callback) {
                 if(status == AudioPlayer.STATUS_OK) callback()
-                delete states.nonceCallbacks[nonce]
+                states.nonceCallbacks.delete(nonce)
             }
         })
 

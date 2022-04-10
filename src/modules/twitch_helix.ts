@@ -22,6 +22,10 @@ class TwitchHelix {
     }
 
     async getUserById(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
+        if(isNaN(id)) {
+            Utils.log(`TwitchHelix: Invalid user id when trying to load user: ${id}`, Color.Red)
+            return undefined
+        }
         if(!skipCache && this._userCache.has(id)) return this._userCache.get(id)
         const url = `${this._baseUrl}/users/?id=${id}`
         return this.getUserByUrl(url)

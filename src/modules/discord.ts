@@ -95,9 +95,9 @@ class Discord {
      */
     static enqueueMessage(
         url: string, 
-        displayName: string, 
-        iconUrl: string, 
-        message: string, 
+        displayName: string = 'N/A',
+        iconUrl: string = '', 
+        message: string = '', 
         callback: (success: boolean)=>void = (success) => { console.log(`Discord: Enqueue Message callback not set, success: ${success}`)}
     ) {
         this.enqueue(url, this.getFormDataFromPayload({

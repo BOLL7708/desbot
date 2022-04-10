@@ -1,5 +1,5 @@
 class TwitchFactory {
-    static userColors: Map<string, string> = new Map()
+    static userColors: Map<number, string> = new Map()
 
     private static buildMessage(data:string):ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
@@ -108,9 +108,9 @@ class TwitchFactory {
         }
         
         // Cache user color
-        const userId = messageCmd.properties['user-id']
+        const userId = parseInt(messageCmd.properties['user-id'] ?? '')
         if(
-            userId 
+            !isNaN(userId)
             && !this.userColors.has(userId) 
             && messageCmd.properties.color
         ) {
