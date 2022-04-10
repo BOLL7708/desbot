@@ -108,7 +108,7 @@ class TwitchFactory {
         }
         
         // Cache user color
-        const userId = parseInt(messageCmd.properties['user-id'] ?? '')
+        const userId = Utils.toInt(messageCmd.properties['user-id'])
         if(
             !isNaN(userId)
             && !this.userColors.has(userId) 

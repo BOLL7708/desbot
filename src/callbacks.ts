@@ -31,7 +31,7 @@ class Callbacks {
                 modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
-                const user = await modules.twitchHelix.getUserById(parseInt(userData.userId ?? ''))
+                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.userId))
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -42,7 +42,7 @@ class Callbacks {
             modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
-            const user = await modules.twitchHelix.getUserById(parseInt(userData.userId ?? ''))
+            const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.userId))
             modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
@@ -65,7 +65,7 @@ class Callbacks {
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
-                const user = await modules.twitchHelix.getUserById(parseInt(userData.userId ?? ''))
+                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.userId))
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -73,10 +73,10 @@ class Callbacks {
         modules.twitch.setAllChatCallback(async (message:ITwitchMessageCmd) => {
             const rewardId = message?.properties?.["custom-reward-id"]           
             if(rewardId) return // Skip rewards as handled elsewhere
-            const bits = parseInt(message?.properties?.bits ?? '0')
+            const bits = Utils.toInt(message?.properties?.bits, 0)
             
             // Discord
-            const user = await modules.twitchHelix.getUserById(parseInt(message.properties['user-id'] ?? ''))
+            const user = await modules.twitchHelix.getUserById(Utils.toInt(message.properties['user-id']))
             let text = message?.message?.text
             if(text == null || text.length == 0) return
 

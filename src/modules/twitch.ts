@@ -158,7 +158,7 @@ class Twitch{
             }
         }
 
-        const bits = parseInt(messageCmd.properties?.bits ?? '0')
+        const bits = Utils.toInt(messageCmd.properties?.bits, 0)
         const messageData:ITwitchMessageData = {
             text: text,
             bits: bits,

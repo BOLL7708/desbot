@@ -27,7 +27,7 @@ class GoogleTTS {
     }
 
     private checkForFinishedDownloads() {
-        let key = parseInt(Object.keys(this._preloadQueue).shift() ?? '-1') // Get oldest key
+        let key = Utils.toInt(Object.keys(this._preloadQueue).shift(), -1) // Get oldest key
         if(key != undefined && key >= 0) {
             const entry = this._preloadQueue[key] // Get stored entry for key
             if(entry !== GoogleTTS.PRELOAD_EMPTY_KEY) { // If not empty we have had a result

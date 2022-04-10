@@ -11,7 +11,7 @@ class TwitchHelix {
     async init() {
         await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
         const user = await this.getUserByLogin(Config.twitch.channelName, false)
-        TwitchHelix._channelUserId = parseInt(user?.id ?? '-1')
+        TwitchHelix._channelUserId = Utils.toInt(user?.id, -1)
     }
     
     async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {

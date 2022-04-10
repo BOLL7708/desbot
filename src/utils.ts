@@ -337,6 +337,14 @@ class Utils {
      * @returns application ID number or NaN if not a valid app key
      */
     static numberFromAppId(appId: string|undefined): number {
-        return parseInt(appId?.split('.').pop() ?? '')
+        return Utils.toInt(appId?.split('.').pop())
+    }
+
+    /**
+     * Basically a parseInt that also takes undefined
+     * @param intStr
+     */
+    static toInt(intStr: string|undefined, defaultValue: number = NaN): number {
+        return parseInt(intStr ?? '') || defaultValue
     }
 }

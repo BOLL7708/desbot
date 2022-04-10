@@ -186,7 +186,7 @@ class Functions {
     */
     public static async loadPlayerSummary() {
         const summary = await SteamWebApi.getPlayerSummary()
-        const id = parseInt(summary?.gameid ?? '-1')
+        const id = Utils.toInt(summary?.gameid)
         // Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
         if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`)
     }
