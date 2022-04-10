@@ -1,6 +1,6 @@
 class TwitchChat {
     private LOG_COLOR: string = 'purple'
-    private _socket: WebSockets
+    private _socket?: WebSockets
     private _isConnected: boolean = false
     private _userName: string = ''
     init(userName: string) {
@@ -27,13 +27,13 @@ class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        let tokenData: ITwitchTokens = await Settings.pullSetting(Settings.TWITCH_TOKENS, 'username', this._userName)
+        let tokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', this._userName)
         let config: ITwitchConfig = Config.twitch
         Utils.log(`Twitch chat connected: ${this._userName}`, this.LOG_COLOR, true, true)
-        this._socket.send(`PASS oauth:${tokenData.access_token}`)
-        this._socket.send(`NICK ${config.channelName}`)
-        this._socket.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
-        this._socket.send(`JOIN #${config.channelName}`)
+        this._socket?.send(`PASS oauth:${tokenData?.access_token}`)
+        this._socket?.send(`NICK ${config.channelName}`)
+        this._socket?.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
+        this._socket?.send(`JOIN #${config.channelName}`)
         this._isConnected = true
     }
     private onClose(evt: any) {
@@ -41,10 +41,10 @@ class TwitchChat {
         Utils.log(`Twitch chat disconnected: ${this._userName}`, this.LOG_COLOR, true, true)
     }
     private onMessage(evt: any) {
-        let data = evt?.data
-        if(data != null) {
+        let data:string|undefined = evt?.data
+        if(data != undefined) {
             Utils.log(data, this.LOG_COLOR)
-            if(data.indexOf('PING') == 0) return this._socket.send('PONG :tmi.twitch.tv\r\n')
+            if(data.indexOf('PING') == 0) return this._socket?.send('PONG :tmi.twitch.tv\r\n')
             let messageStrings = data.split("\r\n")
             messageStrings.forEach(str => {
                 if(str == null || str.length == 0) return
@@ -60,10 +60,10 @@ class TwitchChat {
         this._chatMessageCallback(TwitchFactory.buildMessageCmd(message));
     }
     sendMessageToChannel(message: string) {
-        this._socket.send(`PRIVMSG #${Config.twitch.channelName} :${message}`)
+        this._socket?.send(`PRIVMSG #${Config.twitch.channelName} :${message}`)
     }
 
     sendMessageToUser(username: string, message: string) {
-        this._socket.send(`PRIVMSG #${Config.twitch.channelName} :/w ${username} ${message}`)
+        this._socket?.send(`PRIVMSG #${Config.twitch.channelName} :/w ${username} ${message}`)
     }
 }

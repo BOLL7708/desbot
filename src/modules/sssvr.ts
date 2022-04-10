@@ -12,11 +12,11 @@ class SuperScreenShotterVR {
     init() {
         this._socket.init();
     }
-    private onMessage(evt) {
+    private onMessage(evt: MessageEvent) {
         let data: ISSSVRResponse = JSON.parse(evt.data)
         this._messageCallback(data)
     }
-    private onError(evt) {
+    private onError(evt: Event) {
         // console.table(evt)
     }
     setScreenshotCallback(callback: ISSSVRCallback) {
@@ -37,7 +37,7 @@ class SuperScreenShotterVR {
         }
         this._socket.send(JSON.stringify(message))
     }
-    getScreenshotRequest(nonce: number):ISSSVRRequestData {
+    getScreenshotRequest(nonce: number):ISSSVRRequestData|undefined {
         return this._screenshotRequests.splice(nonce, 1).pop()
     }
 }

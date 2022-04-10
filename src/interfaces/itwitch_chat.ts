@@ -5,10 +5,10 @@ interface ITwitchMessageCmd {
 }
 interface ITwitchChatMessage {
     data: string
-    username: string
-    channel: string
-    type: string
-    text: string
+    username?: string
+    channel?: string
+    type?: string
+    text?: string
     isAction: boolean
 }
 interface ITwitchChatMessageProperties {

@@ -1,6 +1,6 @@
 class SteamStore {
     static _gameCache: Record<number, ISteamStoreGameData> = {}
-    static async getGameMeta(appId: string):Promise<ISteamStoreGameData> {
+    static async getGameMeta(appId: string):Promise<ISteamStoreGameData|undefined> {
         const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
             if(this._gameCache[id]) return this._gameCache[id]
@@ -14,20 +14,21 @@ class SteamStore {
                     return data
                 }
             }
-        } return null
+        } 
+        return
     }
 
-    static getPrice(data: ISteamStoreGameData): string {
-        if(data == null) return 'Invalid Game'
-        const currencies = {
+    static getPrice(data: ISteamStoreGameData|undefined): string {
+        if(!data) return 'Invalid Game'
+        const currencies: Record<string, string> = {
             "EUR": "€",
             "USD": "$",
             "GBP": "£"
         }
         const isFree: boolean = data.is_free ?? false
-        const price: number = isFree ? 0 : data.price_overview.final ?? -1
-        const currencyStr: string = isFree ? '' : data.price_overview.currency ?? ''
-        const discount: number = isFree ? 0 : data.price_overview.discount_percent ?? 0
+        const price: number = isFree ? 0 : data.price_overview?.final ?? -1
+        const currencyStr: string = isFree ? '' : data.price_overview?.currency ?? ''
+        const discount: number = isFree ? 0 : data.price_overview?.discount_percent ?? 0
         const currency: string = currencies[currencyStr] ?? ''
         const discountStr: string = discount > 0 ? ` (${discount}%)` : ''
         return isFree ? 'Free'

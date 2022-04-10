@@ -2,7 +2,7 @@ class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
-    private _cooldowns: {[key: string]: number} = {}
+    private _cooldowns: Map<string, number> = new Map()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true, initPubsub: boolean = true) {
@@ -77,18 +77,18 @@ class Twitch{
     private onReward(id:string, message:ITwitchRedemptionMessage) {
         this._allRewardsCallback(message)
         let reward = this._rewards.find(reward => id == reward.id)
-        if(reward != null) reward.callback(message)
+        if(reward?.callback) reward.callback(message)
         else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
     }
 
     private onChatMessage(messageCmd: ITwitchMessageCmd) {
         let msg = messageCmd.message
         if(msg == null) return
-        let userName:string = msg.username?.toLowerCase()
-        if(typeof userName !== 'string' || userName.length == 0) return
-        let text:string = msg.text?.trim()
-        if(typeof text !== 'string' || text.length == 0) return
-        const isBroadcaster = messageCmd.properties?.badges?.indexOf('broadcaster/1') > -1
+        let userName:string = msg.username?.toLowerCase() ?? ''
+        if(userName.length == 0) return
+        let text:string = msg.text?.trim() ?? ''
+        if(text.length == 0) return
+        const isBroadcaster = (messageCmd.properties?.badges ?? <string[]>[]).indexOf('broadcaster/1') > -1
         const isModerator = messageCmd.properties?.mod == '1' && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
@@ -96,7 +96,7 @@ class Twitch{
         // Chat proxy
         if(Config.twitch.proxyChatBotName.toLowerCase() == userName) {
             const matches = text.match(Config.twitch.proxyChatFormat)
-            if(matches.length == 4) {
+            if(matches && matches.length == 4) {
                 userName = matches[2].toLowerCase()
                 text = matches[3]
                 Utils.log(`Got proxy message from ${matches[1]}: ${userName} [${text.length}]`, 'purple')
@@ -125,26 +125,26 @@ class Twitch{
         }
 
         // Commands
-        if(text != null && text.indexOf('!') == 0) {
-            let commandStr = text.split(' ').shift().substring(1).toLocaleLowerCase()
+        if(text && text.indexOf('!') == 0) {
+            let commandStr = text.split(' ').shift()?.substring(1).toLocaleLowerCase()
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
-            let textStr = Utils.splitOnFirst(' ', text).pop().trim()
+            let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
-            const allowedRole = command != null && (
-                (command.permissions.streamer && isBroadcaster)
-                || (command.permissions.moderators && isModerator) 
-                || (command.permissions.VIPs && isVIP) 
-                || (command.permissions.subscribers && isSubscriber)
-                || command.permissions.everyone
+            const allowedRole = command && (
+                (command.permissions?.streamer && isBroadcaster)
+                || (command.permissions?.moderators && isModerator) 
+                || (command.permissions?.VIPs && isVIP) 
+                || (command.permissions?.subscribers && isSubscriber)
+                || command.permissions?.everyone
             )
             const allowedByCooldown = command != null && (
                 isBroadcaster 
                 || isModerator 
                 || command.cooldown == undefined 
-                || new Date().getTime() > (this._cooldowns[commandStr] ?? 0)
+                || new Date().getTime() > (this._cooldowns.get(commandStr ?? '') ?? 0)
             )
 
-            if(command != null) {
+            if(command && commandStr) {
                 if(allowedRole && command.callback != undefined) {
                     command.callback(userData, textStr)
                 }
@@ -152,13 +152,13 @@ class Twitch{
                     command.cooldownCallback(userData, textStr)
                 }
                 if(command.cooldown != undefined) {
-                    this._cooldowns[commandStr] = new Date().getTime()+command.cooldown*1000
+                    this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
                 }
                 return
             }
         }
 
-        const bits = parseInt(messageCmd.properties?.bits)
+        const bits = parseInt(messageCmd.properties?.bits ?? '0')
         const messageData:ITwitchMessageData = {
             text: text,
             bits: bits,
@@ -182,6 +182,6 @@ class Twitch{
     runCommand(commandStr: string) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command != undefined) command.callback(undefined, '')
+        if(command?.callback) command.callback()
     }
 }

@@ -115,7 +115,7 @@ class Callbacks {
         // This callback was added as rewards with no text input does not come in through the chat callback
         modules.twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
             const user = await modules.twitchHelix.getUserById(parseInt(message.redemption.user.id))          
-            const rewardPair:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'id', message.redemption.reward.id)
+            const rewardPair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', message.redemption.reward.id)
 
             // Discord
             const amount = message.redemption.reward.redemptions_redeemed_current_stream

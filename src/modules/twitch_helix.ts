@@ -14,26 +14,26 @@ class TwitchHelix {
         TwitchHelix._channelUserId = parseInt(user?.id ?? '-1')
     }
     
-    async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
+    async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
         const id = this._userNameToId[login] ?? null;
         if(id != null && !skipCache && this._userCache[id] != null) return this._userCache[id]
         const url = `${this._baseUrl}/users/?login=${login}`
         return this.getUserByUrl(url)
     }
 
-    async getUserById(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|null> {
+    async getUserById(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
         if(!skipCache && this._userCache[id] != null) return this._userCache[id]
         const url = `${this._baseUrl}/users/?id=${id}`
         return this.getUserByUrl(url)
     }
 
-    private async getUserByUrl(url: string):Promise<ITwitchHelixUsersResponseData|null> {
+    private async getUserByUrl(url: string):Promise<ITwitchHelixUsersResponseData|undefined> {
         const headers = {
             Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
             'Client-Id': Config.credentials.TwitchClientID
         }
         const response: ITwitchHelixUsersResponse = await (await fetch(url, {headers: headers}))?.json()
-        const result: ITwitchHelixUsersResponseData|null = response?.data.pop() ?? null
+        const result: ITwitchHelixUsersResponseData|undefined = response?.data.pop()
         if(result != undefined) {
             const id = parseInt(result.id)
             if(id != NaN) {
@@ -86,7 +86,7 @@ class TwitchHelix {
         return response
     }
 
-    async updateReward(rewardId: string|null, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|null> {
+    async updateReward(rewardId: string|undefined, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|null> {
         if(rewardId == null) {
             console.warn("Tried to update reward but the ID is null")
             return new Promise<null>(resolve => resolve(null))

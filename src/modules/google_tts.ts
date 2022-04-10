@@ -232,9 +232,11 @@ class GoogleTTS {
         })
     }
 
-    enqueueSoundEffect(audio: IAudio) {
-        const serial = ++this._count
-        this._preloadQueue[serial] = audio
+    enqueueSoundEffect(audio: IAudio|undefined) {
+        if(audio) {
+            const serial = ++this._count
+            this._preloadQueue[serial] = audio
+        }
     }
 
     async setVoiceForUser(userName:string, input:string, nonce:string=''):Promise<string> {

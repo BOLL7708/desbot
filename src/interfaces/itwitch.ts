@@ -141,8 +141,8 @@ interface ITwitchConfig {
     channelTrophyUniqueNumbers: IChannelTrophyFunnyNumberTexts
 }
 interface ITwitchReward {
-    id: string
-    callback: ITwitchRedemptionCallback
+    id?: string
+    callback?: ITwitchRedemptionCallback
 }
 
 // Settings
@@ -228,7 +228,7 @@ interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
 }
 interface ITwitchSlashCommandCallback {
-    (userData: ITwitchUserData, input: string): void
+    (userData?: ITwitchUserData, input?: string): void
 }
 interface ITwitchAnnouncementCallback {
     (userData: ITwitchUserData, messageData:ITwitchMessageData, firstWord:string): void
@@ -242,10 +242,10 @@ interface ITwitchRewardRedemptionCallback {
 
 // Callback data
 interface ITwitchUserData {
-    userId: string
+    userId?: string
     userName: string
-    displayName: string
-    color: string
+    displayName?: string
+    color?: string
     isModerator: boolean
     isVIP: boolean
     isSubscriber: boolean

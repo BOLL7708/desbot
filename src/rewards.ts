@@ -23,7 +23,9 @@ class Rewards {
         for(const key of missingRewardKeys) {
             const setup = Config.twitch.rewardConfigs[key]
             let reward = await modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
-            if(reward?.data?.length > 0) await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+            if(reward && reward.data && reward.data.length > 0) {
+                await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+            }
         }
 
         // Reset rewards with multiple steps
@@ -179,7 +181,7 @@ class Rewards {
 
                 // Update reward
                 const rewardId = await Utils.getRewardId(Keys.KEY_CHANNELTROPHY)
-                const rewardData = await modules.twitchHelix.getReward(rewardId)
+                const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
                     
@@ -195,7 +197,7 @@ class Rewards {
                     // Update label in overlay
                     Settings.pushLabel(
                         Settings.CHANNEL_TROPHY_LABEL, 
-                        Utils.template(Config.controller.channelTrophySettings.label, cost, user.display_name)
+                        Utils.template(Config.controller.channelTrophySettings.label, cost.toString(), user.display_name)
                     )
                     
                     // Update reward
@@ -208,7 +210,7 @@ class Rewards {
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt, newCost)
+                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt ?? '', newCost.toString())
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)

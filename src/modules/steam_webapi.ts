@@ -5,7 +5,7 @@
  */
 class SteamWebApi {
     private static _profileTag: string
-    static async getPlayerSummary(): Promise<ISteamWebApiPlayerSummaryData|null> {
+    static async getPlayerSummary(): Promise<ISteamWebApiPlayerSummaryData|undefined> {
         const encodedUrl = this.getEncodedUrl('ISteamUser/GetPlayerSummaries/v0002')
         const response: ISteamWebApiPlayerSummaries = await fetch(`./proxy.php?url=${encodedUrl}`)
             .then(response => response.json())
@@ -13,13 +13,13 @@ class SteamWebApi {
             const player = response.response.players[0] ?? null
             if(player) {
                 // Remove trailing slash and pop off the tag.
-                this._profileTag = player.profileurl.replace(/\/$/, '').split('/').pop()
+                this._profileTag = player.profileurl.replace(/\/$/, '').split('/').pop() ?? ''
             }
             return player
         } else {
             console.warn(`SteamWebApi: Failed to get player summary`)
         }
-        return null
+        return
     }
     static async getProfileTag(): Promise<string> {
         if(!this._profileTag) await this.getPlayerSummary()
@@ -27,7 +27,7 @@ class SteamWebApi {
     }
 
     // TODO: Check to see if we have full response definitions in the online docs and create interfaces.
-    static async getAchievements(appId: string): Promise<ISteamWebApiPlayerAchievementData[]> {
+    static async getAchievements(appId: string): Promise<ISteamWebApiPlayerAchievementData[]|undefined> {
         const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetPlayerAchievements/v0001', id)
@@ -38,11 +38,12 @@ class SteamWebApi {
             } else {
                 console.warn(`SteamWebApi: Failed to get achievements for ${appId}`)
             }
-        } return null
+        }
+        return
     }
 
     static _gameSchemas: Record<number, ISteamWebApiGameSchema> = {}
-    static async getGameSchema(appId: string): Promise<ISteamWebApiGameSchema> {
+    static async getGameSchema(appId: string): Promise<ISteamWebApiGameSchema|undefined> {
         const id = Utils.numberFromAppId(appId)
         if(this._gameSchemas[id]) return this._gameSchemas[id]
         if(!isNaN(id)) {
@@ -55,11 +56,12 @@ class SteamWebApi {
             } else {
                 console.warn(`SteamWebApi: Failed to get game schema for ${appId}`)
             }
-        } return null
+        } 
+        return
     }
 
     static _globalAchievementStats: Record<number, IStreamWebApiGlobalAchievementData[]> = {}
-    static async getGlobalAchievementStats(appId: string): Promise<IStreamWebApiGlobalAchievementData[]> {
+    static async getGlobalAchievementStats(appId: string): Promise<IStreamWebApiGlobalAchievementData[]|undefined> {
         const id = Utils.numberFromAppId(appId)
         if(this._globalAchievementStats[id]) return this._globalAchievementStats[id]
         if(!isNaN(id)) {
@@ -73,7 +75,8 @@ class SteamWebApi {
             } else {
                 console.warn(`SteamWebApi: Failed to get game schema for ${appId}`)
             }
-        } return null
+        } 
+        return
     }
 
     private static getEncodedUrl(interfaceMethodVersion: string, appId?: number): string {

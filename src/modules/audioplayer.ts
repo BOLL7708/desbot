@@ -72,12 +72,14 @@ class AudioPlayer {
         }
     }
 
-    enqueueAudio(audio: IAudio) {
-        console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
-        if(audio.repeat != undefined) {
-            for(let i=0; i<audio.repeat; i++) this._queue.push(audio)
-        } else {
-            this._queue.push(audio)
+    enqueueAudio(audio: IAudio|undefined) {
+        if(audio) {
+            console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
+            if(audio.repeat != undefined) {
+                for(let i=0; i<audio.repeat; i++) this._queue.push(audio)
+            } else {
+                this._queue.push(audio)
+            }
         }
     }
 

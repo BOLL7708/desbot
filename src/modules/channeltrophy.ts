@@ -220,7 +220,7 @@ class ChannelTrophy {
             for(let i=0; i<Math.min(amount, values.length); i++) {
                 const pair = values[values.length-(i+1)]
                 const displayName = await getName(pair[0])
-                const value = pair[1]
+                const value = pair[1].toString()
                 const emote = emotes[i] ?? '🥔';
                 valueArr.push(emote+Utils.template(template, displayName, value))
             }
@@ -276,7 +276,7 @@ class ChannelTrophy {
 		
 		// Detect patterns here, in order of awesomeness or something
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
-			result.speech = Utils.template(uniqueNumbers[n].speech, nameForTTS, n)
+			result.speech = Utils.template(uniqueNumbers[n].speech, nameForTTS, n.toString())
 			result.label = Utils.template(uniqueNumbers[n].label, nameForDiscord)
 		} else if(NumberPatterns.checkIfBinary(n)) { // Power of two / binary
 			result.speech = `${nameForTTS} a power of two ${trophyName}, number ${n}`

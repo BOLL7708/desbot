@@ -1,10 +1,10 @@
 class TwitchFactory {
-    static userColors: Record<number, string> = {}
+    static userColors: Map<string, string> = new Map()
 
     private static buildMessage(data:string):ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
-        const matches:RegExpExecArray = re.exec(data)
-        let matches2:RegExpExecArray = null
+        const matches: RegExpExecArray|null = re.exec(data)
+        let matches2:RegExpExecArray|null = null
         let isAction = false
         if(matches != null) {
             const re2 = /^\u0001ACTION ([^\u0001]+)\u0001$/
@@ -13,25 +13,25 @@ class TwitchFactory {
         }
 
         let messageText = isAction 
-            ? (1 in (matches2  || []) ? matches2[1] : null) // Trimmed message after matching action
-            : (4 in (matches  || []) ? matches[4] : null) // Message
+            ? (matches2 != null && 1 in matches2 ? matches2[1] : undefined) // Trimmed message after matching action
+            : (matches != null && 4 in matches ? matches[4] : undefined) // Message
         
         /**
          * Constructs a TwitchChatMessage object from a raw IRC message.
          * `(x in [])` checks if that index is present in the array.
          */
-        const message:ITwitchChatMessage = {
+        const message: ITwitchChatMessage = {
             data: data,
-            username: (1 in (matches || [])) ? matches[1] : null,
-            type: (2 in (matches || [])) ? matches[2] : null,
-            channel: (3 in (matches || [])) ? matches[3] : null,
+            username: (matches != null && 1 in matches) ? matches[1] : undefined,
+            type: (matches != null && 2 in matches) ? matches[2] : undefined,
+            channel: (matches != null && 3 in matches) ? matches[3] : undefined,
             text: messageText,
             isAction: isAction
         }
         return message
     }
     static isMessageOK(message: ITwitchChatMessage):boolean {
-        return message.username != null && message.type != null && message.text != null
+        return message.username != undefined && message.type != undefined && message.text != undefined
     }
 
     private static buildMessageProperties(data:string):ITwitchChatMessageProperties {
@@ -111,16 +111,16 @@ class TwitchFactory {
         const userId = messageCmd.properties['user-id']
         if(
             userId 
-            && !this.userColors.hasOwnProperty(userId) 
+            && !this.userColors.has(userId) 
             && messageCmd.properties.color
         ) {
-            this.userColors[userId] = messageCmd.properties.color
+            this.userColors.set(userId, messageCmd.properties.color)
         }
 
         // Will truncate the default user tag at the start if it is a response to a thread.
         if(messageCmd.properties['reply-parent-display-name'] != null) {
             const replyParentUserDisplayName = messageCmd.properties['reply-parent-display-name']
-            let text = messageCmd.message.text
+            let text = messageCmd.message.text ?? ''
             messageCmd.message.text = text.startsWith(`@${replyParentUserDisplayName} `)
                 ? text.substring(replyParentUserDisplayName.length+2) 
                 : text

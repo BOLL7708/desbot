@@ -199,7 +199,7 @@ class Functions {
             // Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
             for(const achievement of achievements) {
                 const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, states.lastSteamAppId)
-                const storedAchievement = <ISteamWebApiSettingAchievement> await Settings.pullSetting(setting, 'key', achievement.apiname)
+                const storedAchievement = await Settings.pullSetting<ISteamWebApiSettingAchievement>(setting, 'key', achievement.apiname)
                 // Check if the state has changed
                 if(storedAchievement?.state != achievement.achieved) {
                     // Store achievement

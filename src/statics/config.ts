@@ -28,19 +28,19 @@
  * You can also replace the separator symbols used in these files (-+=) in: `config.php`
  */
 class Config {
-    static credentials: ICredentialsConfig = undefined
-    static controller: IControllerConfig = undefined
-    static google: IGoogleConfig = undefined
-    static steam: ISteamConfig = undefined
-    static obs: IObsConfig = undefined
-    static pipe: IPipeConfig = undefined
-    static screenshots: IScreenshotConfig = undefined
-    static discord: IDiscordConfig = undefined
-    static philipshue: IPhilipsHueConfig = undefined
-    static openvr2ws: IOpenVR2WSConfig = undefined
-    static audioplayer: IAudioPlayerConfig = undefined
-    static sign: ISignConfig = undefined
-    static run: IRunConfig = undefined
-    static twitch: ITwitchConfig = undefined
-    static web: IWebConfig = undefined
+    static credentials: ICredentialsConfig
+    static controller: IControllerConfig
+    static google: IGoogleConfig
+    static steam: ISteamConfig
+    static obs: IObsConfig
+    static pipe: IPipeConfig
+    static screenshots: IScreenshotConfig
+    static discord: IDiscordConfig
+    static philipshue: IPhilipsHueConfig
+    static openvr2ws: IOpenVR2WSConfig
+    static audioplayer: IAudioPlayerConfig
+    static sign: ISignConfig
+    static run: IRunConfig
+    static twitch: ITwitchConfig
+    static web: IWebConfig
 }

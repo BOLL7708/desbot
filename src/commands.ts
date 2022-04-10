@@ -92,7 +92,7 @@ class Commands {
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length > 0 && name != Config.twitch.chatbotName.toLowerCase()) {
                     let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
-                    const blacklist: IBlacklistEntry = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name)
+                    const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', name)
                     const cleanName = await Utils.loadCleanName(name)                       
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
                     if(blacklist == null || blacklist.active == false) {
@@ -111,7 +111,7 @@ class Commands {
                 const parts = Utils.splitOnFirst(' ', input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length == 0) return
-                const blacklist: IBlacklistEntry = await Settings.pullSetting(Settings.TTS_BLACKLIST, 'userName', name)
+                const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', name)
                 const cleanName = await Utils.loadCleanName(name)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_UNMUTE]
                 if(blacklist != null && blacklist.active) {
@@ -369,7 +369,7 @@ class Commands {
                 } else { // Messed up
                     const chat = Config.controller.chatReferences[Keys.COMMAND_DICTIONARY]
                     const word = (words[0] ?? '').toLowerCase()
-                    const currentEntry = <IDictionaryEntry> await Settings.pullSetting(Settings.TTS_DICTIONARY, 'original', word)
+                    const currentEntry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
                     if(currentEntry) {
                         modules.twitch._twitchChatOut.sendMessageToChannel(Utils.template(chat[1], currentEntry.original, currentEntry.substitute))
                     } else {

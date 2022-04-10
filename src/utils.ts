@@ -5,7 +5,7 @@ class Utils {
     }
 
     static async loadCleanName(userName:string):Promise<string> {
-        let cleanNameSetting:IUserName = await Settings.pullSetting(Settings.TTS_USER_NAMES, 'userName', userName)
+        let cleanNameSetting = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userName)
         let cleanName = cleanNameSetting?.shortName
         if(cleanName == null) {
             cleanName = this.cleanName(userName)
@@ -124,7 +124,7 @@ class Utils {
         return base64String;
     }
 
-    static b64toBlob = (b64Data, contentType='image/png', sliceSize=512) => {
+    static b64toBlob = (b64Data: string, contentType='image/png', sliceSize=512) => {
         const byteCharacters = atob(b64Data);
         const byteArrays = [];
     
@@ -144,7 +144,7 @@ class Utils {
         return blob;
     }
 
-    static b64ToDataUrl(b64data, contentType='image/png'):string {
+    static b64ToDataUrl(b64data: string, contentType='image/png'):string {
         return `data:${contentType};base64,${b64data}`
     }
 
@@ -217,14 +217,14 @@ class Utils {
         console.log(`%c${message}`.replace(/</g, '%c').replace(/>/g, '%c'), ...formats)
     }
 
-    static log(message, color:string, bold:boolean=false, big:boolean=false) {
+    static log(message: string, color:string, bold:boolean=false, big:boolean=false) {
         let format = `color: ${color};`
         if(bold) format += 'font-weight: bold;'
         if(big) format += 'font-size: 150%;'
         console.log(`%c${message}`, format)
     }
 
-    static template(text: string|string[], ...values):string {
+    static template(text: string|string[], ...values: string[]):string {
         if(Array.isArray(text)) text = Utils.randomFromArray(text)
         return text.replace(/\%s/g, function(_) {
             return values.shift() ?? ''
@@ -257,9 +257,9 @@ class Utils {
         else return arr
     }
 
-    static async getRewardId(key: string): Promise<string> {
-        const reward:ITwitchRewardPair = await Settings.pullSetting(Settings.TWITCH_REWARDS, 'key', key)
-        return reward?.id ?? null
+    static async getRewardId(key: string): Promise<string|undefined> {
+        const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
+        return reward?.id
     }
 
     static encode(value: string): string {
@@ -336,7 +336,7 @@ class Utils {
      * @param appId 
      * @returns application ID number or NaN if not a valid app key
      */
-    static numberFromAppId(appId: string): number {
-        return parseInt(appId?.split('.').pop())
+    static numberFromAppId(appId: string|undefined): number {
+        return parseInt(appId?.split('.').pop() ?? '')
     }
 }
