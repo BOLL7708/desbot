@@ -26,7 +26,7 @@ class Settings {
      */
     static async loadSettings<T>(setting:string, ignoreCache:boolean = false):Promise<T[]|undefined> {
         if(!ignoreCache && this._settingsStore.has(setting)) {
-            console.log(`Returning cache for: ${setting}`)
+            // console.log(`Returning cache for: ${setting}`)
             return <T[]> this._settingsStore.get(setting)
         }
         Utils.logWithBold(`Loading settings for: <${setting}>`, this.LOG_COLOR)
@@ -49,8 +49,8 @@ class Settings {
      */
     static async saveSettings(setting:string, settings:any=null, append:boolean=false):Promise<boolean> {
         let url = this.getUrl(setting)
-        if(!settings) settings = this._settingsStore.get(setting)
-        if(settings) {
+        if(settings == null) settings = this._settingsStore.get(setting)
+        if(settings != null) { // It can still be empty string so need explicit check
             let payload = JSON.stringify(settings)
             payload.replace(/\|/g, '').replace(/;/g, '')
             if(setting != Settings.LOG_OUTPUT) Utils.log(`Saving settings (${payload.length}b): ${setting}`, this.LOG_COLOR)
