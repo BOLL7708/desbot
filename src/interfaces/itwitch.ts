@@ -96,10 +96,16 @@ interface ITwitchConfig {
     rewardConfigs: { [key: string]: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[] }
     
     /**
-     * Default for turning rewards on or off depending on SteamVR game.
+     * Default for turning rewards on or off depending on Steam game.
      * Applied when no specific profile is found
      */
     rewardConfigProfileDefault: ITwitchRewardProfileConfig
+
+    /**
+     * Default for turning rewards on or off depending on SteamVR game.
+     * Applied when no specific profile is found
+     */
+    rewardConfigProfileDefaultVR: ITwitchRewardProfileConfig
 
     /**
      * Turn rewards on or off if there is no game,

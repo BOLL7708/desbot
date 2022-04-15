@@ -31,8 +31,9 @@ class MainController {
 
         // Steam Web API intervals
         MainController.startSteamAchievementsInterval()
+        MainController.startSteamPlayerSummaryInterval()
         if(!Config.controller.websocketsUsed.openvr2ws) {
-            MainController.startSteamPlayerSummaryInterval()
+            
             if(Config.steam.playerSummaryIntervalMs > 0) {
                 await Functions.loadPlayerSummary()
             }
@@ -72,8 +73,9 @@ class MainController {
     */
 
     public static startSteamPlayerSummaryInterval() {
-        if(Config.steam.playerSummaryIntervalMs) {
+        if(Config.steam.playerSummaryIntervalMs && !ModulesSingleton.getInstance().openvr2ws.isConnected) {
             Utils.log('Starting Steam player summary interval', Color.Green)
+            Functions.loadPlayerSummary() // Get initial state immidately
             const states = StatesSingleton.getInstance()
             states.steamPlayerSummaryIntervalHandle = setInterval(() => {
                 Functions.loadPlayerSummary()

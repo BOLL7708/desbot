@@ -603,6 +603,9 @@ Config.twitch = <ITwitchConfig> {
     rewardConfigProfileDefault: {
         // [KeysTemplate.KEY_YOURREWARD]: true,
     },
+    rewardConfigProfileDefaultVR: {
+        // [KeysTemplate.KEY_YOURREWARD]: true,
+    },
     rewardConfigProfileNoGame: {
         // [KeysTemplate.KEY_YOURREWARD]: true,
     },

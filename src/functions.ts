@@ -15,16 +15,18 @@ class Functions {
         modules.tts.setEmptyMessageSound(audio)
     }
 
-    public static async appIdCallback(appId: string) {
+    public static async appIdCallback(appId: string, isVr: boolean) {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
+        states.lastSteamAppIsVR = isVr
+
         // Skip if we should ignore this app ID.
         if(Config.steam.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
 
         // Skip if it's the last app ID again.
-        if(appId && appId.length > 0) {
+        if(appId.length > 0) {
             if(appId == states.lastSteamAppId) return
-            Utils.log(`Steam AppId is new: "${appId}" != "${states.lastSteamAppId}"`, Color.DarkBlue)
+            Utils.log(`Steam AppId is new: "${appId}" != "${states.lastSteamAppId}", isVr: ${isVr}`, Color.DarkBlue)
             states.lastSteamAppId = appId
             // Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
             await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
@@ -36,7 +38,7 @@ class Functions {
         /**
          * Controller defaults loading
          */
-        if(appId != undefined) {
+        if(appId.length == 0) {
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
             let combinedSettings = Config.controller.defaults
             if(controllerGameDefaults != undefined) {
@@ -59,9 +61,9 @@ class Functions {
         /**
          * General reward toggling
          */
-        const defaultProfile = Config.twitch.rewardConfigProfileDefault
+        const defaultProfile = isVr ? Config.twitch.rewardConfigProfileDefaultVR : Config.twitch.rewardConfigProfileDefault
         const profile = Config.twitch.rewardConfigProfilePerGame[appId]
-        if(appId == undefined) {
+        if(appId.length > 0) {
             Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
             modules.twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
         } else if(profile != undefined) {
@@ -130,7 +132,7 @@ class Functions {
         }
 
         // Show game in sign
-        if(appId != undefined) {
+        if(appId.length > 0) {
             const gameData = await SteamStore.getGameMeta(appId)
             const price = SteamStore.getPrice(gameData)
             const name = gameData?.name ?? 'N/A'
@@ -143,7 +145,7 @@ class Functions {
         }
 
         // Update category on Twitch
-        if(appId != undefined && states.updateTwitchGameCategory) {
+        if(appId.length > 0 && states.updateTwitchGameCategory) {
             const gameData = await SteamStore.getGameMeta(appId)
             let twitchGameData = await modules.twitchHelix.searchForGame(gameData?.name ?? '')
             if(twitchGameData == null && typeof gameData?.name == 'string') {
@@ -187,8 +189,8 @@ class Functions {
     public static async loadPlayerSummary() {
         const summary = await SteamWebApi.getPlayerSummary()
         const id = Utils.toInt(summary?.gameid)
-        // Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
-        if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`)
+        Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
+        if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`, false)
     }
 
     public static async loadAchievements() {

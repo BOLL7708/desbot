@@ -425,7 +425,7 @@ class Commands {
                 states.useGameSpecificRewards = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                Functions.appIdCallback(states.lastSteamAppId ?? '')
+                Functions.appIdCallback(states.lastSteamAppId ?? '', StatesSingleton.getInstance().lastSteamAppIsVR)
             }
         })
         
@@ -435,7 +435,7 @@ class Commands {
                 states.useGameSpecificRewards = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                Functions.appIdCallback('')
+                Functions.appIdCallback('', false)
             }
         })
 
@@ -544,6 +544,17 @@ class Commands {
                     })
                 }
                 modules.tts.enqueueSpeakSentence(Utils.template(speech[2], count-1-oldClipIds.length), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }
+        })
+
+        modules.twitch.registerCommand({
+            trigger: Keys.COMMAND_GAMERESET, 
+            callback: async (userData, input) => {
+                const states = StatesSingleton.getInstance()
+                modules.tts.enqueueSpeakSentence(Config.controller.speechReferences[Keys.COMMAND_GAMERESET], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                Functions.appIdCallback('', false)
+                states.lastSteamAppId = undefined
+                states.lastSteamAppIsVR = false
             }
         })
 

@@ -345,7 +345,7 @@ class Callbacks {
         .##..##..##......##..............######..#####..
         */
         modules.openvr2ws.setAppIdCallback(async (appId) => {
-            Functions.appIdCallback(appId)
+            Functions.appIdCallback(appId, true)
         })
     }
 }

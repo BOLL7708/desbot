@@ -14,8 +14,8 @@ class OpenVR2WS {
     private _resetLoopHandle: number = 0
     private _resetMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
     private _resetTimers: Map<string, number> = new Map()
-    private _isConnected?: boolean
     private _currentAppId?: string // Updated every time an ID is received
+    public isConnected: boolean = false
     
     constructor() {
         const port = Config.openvr2ws.port
@@ -92,14 +92,14 @@ class OpenVR2WS {
     }
 
     private onOpen(evt: any) {
-        if(this._statusCallback && this._isConnected !== true) {
-            this._isConnected = true
+        if(this._statusCallback && this.isConnected !== true) {
+            this.isConnected = true
             this._statusCallback(true)
         }
     }
     private onClose(evt: any) {
-        if(this._statusCallback && this._isConnected !== false) {
-            this._isConnected = false
+        if(this._statusCallback && this.isConnected !== false) {
+            this.isConnected = false
             this._statusCallback(false)
         }
     }
