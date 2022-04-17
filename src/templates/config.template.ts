@@ -618,6 +618,9 @@ Config.twitch = <ITwitchConfig> {
     turnOffRewardForGames: {
         // [GamesTemplate.A_GAME]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
     },
+    turnOnRewardForOverlays: {
+        // [OpenVR2WS.AN_OVERLAY_KEY]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
+    },
     gameSpecificRewards: [
         // [KeysTemplate.KEY_YOURGAMEREWARD, KeysTemplate.KEY_YOUROTHERGAMEREWARD]
     ],

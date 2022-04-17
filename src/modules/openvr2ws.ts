@@ -9,6 +9,7 @@ class OpenVR2WS {
     static get SETTING_HMD_DISPLAY_COLOR_GAIN_G() { return 'steamvr|hmdDisplayColorGainG|1.0' }
     static get SETTING_HMD_DISPLAY_COLOR_GAIN_B() { return 'steamvr|hmdDisplayColorGainB|1.0' }
 
+    static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }
 
     private _socket: WebSockets
     private _resetLoopHandle: number = 0
@@ -48,6 +49,11 @@ class OpenVR2WS {
     setAppIdCallback(callback: IOpenVR2WSAppIdCallback) {
         this._appIdCallback = callback
     }
+
+    private _findOverlayCallback: IOpenVR2WSFindOverlayCallback = (overlayTag, overlayHandle) => {}
+    setFindOverlayCallback(callback: IOpenVR2WSFindOverlayCallback) {
+        this._findOverlayCallback = callback
+    }
     
     private _inputCallback: IOpenVR2WSInputCallback = (key, data) => { 
         // console.warn('OpenVR2WS: Unhandled input message')
@@ -77,13 +83,16 @@ class OpenVR2WS {
                     }
                     break
                 case 'Input':
-                    const inputData:IOpenVR2WSInputData = data.data
+                    const inputData: IOpenVR2WSInputData = data.data
                     this._inputCallback(data.key, inputData)
                     break
                 case 'RemoteSetting':
                     const success = data.data.success
                     if(!success) console.warn(data)
                     break
+                case 'FindOverlay':
+                    const result: IOpenVR2WSFindOverlayData = data.data
+                    this._findOverlayCallback(result.key, result.handle)
                 default:
                     // console.log(data)
                     break
@@ -152,5 +161,12 @@ class OpenVR2WS {
                 this._resetMessages.delete(key)
             }
         }
+    }
+
+    public findOverlay(overlayKey: string) {
+        this.sendMessage({
+            key: 'FindOverlay',
+            value: overlayKey
+        })
     }
 }

@@ -36,6 +36,11 @@ class Functions {
         }
 
         /**
+         * Check if LIV is running, this will toggle rewards in that callback.
+         */
+        modules.openvr2ws.findOverlay(OpenVR2WS.OVERLAY_LIV_MENU_BUTTON)
+
+        /**
          * Controller defaults loading
          */
         if(appId.length == 0) {

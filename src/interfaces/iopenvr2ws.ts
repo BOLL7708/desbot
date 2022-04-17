@@ -48,6 +48,10 @@ interface IOpenVR2WSInputData {
     input: string
     value: boolean
 }
+interface IOpenVR2WSFindOverlayData {
+    key: string
+    handle: number
+}
 interface IOpenVRWSCommandMessage {
     key: string
     value: string
@@ -68,4 +72,7 @@ interface IOpenVR2WSInputCallback {
 }
 interface IOpenVR2WSAppIdCallback {
     (appId: string): void
+}
+interface IOpenVR2WSFindOverlayCallback {
+    (overlayKey: string, overlayHandle: number): void
 }

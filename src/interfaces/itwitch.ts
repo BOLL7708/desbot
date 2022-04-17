@@ -120,14 +120,20 @@ interface ITwitchConfig {
     rewardConfigProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
 
     /**
-     * Turn on awards depending on if a game is running, else off.
+     * Turn on rewards depending on if a game is running, else off.
      */
     turnOnRewardForGames: { [key: string]: string[] }
     
     /**
-     * Turn off awards depending on if a game is running, else on
+     * Turn off rewards depending on if a game is running, else on
      */
     turnOffRewardForGames: { [key: string]: string[] }
+
+    /**
+     * Turn on rewards for specific overlays, can be used to toggle rewards on 
+     * things like LIV running as it has an overlay that is always enabled.
+     */
+    turnOnRewardForOverlays: { [key: string]: string[] }
 
     /**
      * Keys for rewards that are specific for a game, they are dynamically updated depending on the current title.

@@ -337,6 +337,19 @@ class Callbacks {
             }
         })
 
+        modules.openvr2ws.setFindOverlayCallback((overlayKey, overlayHandle) => {
+            const rewardsToToggle = Config.twitch.turnOnRewardForOverlays[overlayKey]
+            Utils.log(`OpenVR2WS: Found overlay ${overlayKey}: ${overlayHandle}, toggling rewards: ${JSON.stringify(rewardsToToggle)}`, Color.Green)
+            if(Array.isArray(rewardsToToggle)) {
+                const rewards: { [x: string]: boolean } = {}
+                const state = overlayHandle != 0
+                rewardsToToggle.map(rewardKey => {
+                    rewards[rewardKey] = state
+                })
+                modules.twitchHelix.toggleRewards(rewards)
+            }
+        })
+
         /*
         ..####...#####...#####...........######..#####..
         .##..##..##..##..##..##............##....##..##.
