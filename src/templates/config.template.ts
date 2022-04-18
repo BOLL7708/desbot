@@ -18,11 +18,11 @@ Config.credentials = <ICredentialsConfig> {
     TwitchChatbotRefreshToken: '',
     PHPPassword: '',
     DiscordWebhooks: {
-        [KeysTemplate.KEY_DISCORD_SSSVR]: 'The webhook URL you want to use for VR screenshots',
         [KeysTemplate.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging Twitch chat',
+        [KeysTemplate.KEY_DISCORD_VRSCREENSHOT]: 'The webhook URL you want to use for VR screenshots',
+        [KeysTemplate.KEY_DISCORD_OBSSCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
         [KeysTemplate.KEY_CHANNELTROPHY]: 'The webhook URL you want to use for the channel trophy',
         [KeysTemplate.KEY_CALLBACK_ACHIEVEMENT]: 'The webhook URL you want to use for the achievement callback',
-        [KeysTemplate.COMMAND_SOURCESCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
         [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: 'The webhook URL you want to use for channel trophy statistics',
         [KeysTemplate.COMMAND_CLIPS]: 'The webhook URL you want to use for Twitch clips'
     },

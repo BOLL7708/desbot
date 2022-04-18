@@ -15,49 +15,76 @@ interface IScreenshotConfig {
     /**
      * Values used when posting things coming in from SSSVR & OBS to Discord and the {@link Sign}.
      */
-    callback: IScreenshotCallbackConfig
+    callback: {
+        /**
+         * Title for the Discord post for manually taken screenshots.
+         */
+        discordManualTitle: string
+        /**
+         * Title for the Discord post for redeemed screenshots with a description.
+         * 
+         * `%s` will be replaced with the description.
+         */
+        discordRewardTitle: string
+        /**
+         * Title for the Discord post for redeemed screenshots without a description.
+         */
+        discordRewardInstantTitle: string
+        
+        /**
+         * Title of the Sign pop-in, goes above the image.
+         */
+        signTitle: string
+        /**
+         * Sub-title of the Sign pop-in for manual shots, goes beneath the image.
+         * 
+         * Redeemed shots will have the subtitle be the redeemers username.
+         */
+        signManualSubtitle: string
+        /**
+         * Amount of time the Sign is visible in milliseconds.
+         */
+        signDurationMs: number
+        /**
+         * Enable manual screenshots to be output to VR through the Pipe.
+         */
+        pipeEnabledForManual: boolean,
+        /**
+         * Keys for screenshot rewards that should be output to VR through the Pipe.
+         */
+        pipeEnabledForRewards: string[]
+        /**
+         * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
+         */
+        pipeMessagePreset: IPipeMessagePreset|undefined,
+    }   
 }
 
-interface IScreenshotCallbackConfig {
+/**
+ * Reference data about a screenshot that is cached from triggering it until it is completed.
+ */
+ interface IScreenshotRequestData {
     /**
-     * Title for the Discord post for manually taken screenshots.
+     * Key for the reward that triggered the screenshot.
      */
-    discordManualTitle: string
+    rewardKey: string
     /**
-     * Title for the Discord post for redeemed screenshots with a description.
-     * 
-     * `%s` will be replaced with the description.
+     * Twitch user ID for the redeemer.
      */
-    discordRewardTitle: string
+    userId: number
     /**
-     * Title for the Discord post for redeemed screenshots without a description.
+     * Twitch username for the redeemer.
      */
-    discordRewardInstantTitle: string
-    
+    userName: string
     /**
-     * Title of the Sign pop-in, goes above the image.
+     * Input from the Twitch reward redemption.
      */
-    signTitle: string
-    /**
-     * Sub-title of the Sign pop-in for manual shots, goes beneath the image.
-     * 
-     * Redeemed shots will have the subtitle be the redeemers username.
-     */
-    signManualSubtitle: string
-    /**
-     * Amount of time the Sign is visible in milliseconds.
-     */
-    signDurationMs: number
-    /**
-     * Enable manual screenshots to be output to VR through the Pipe.
-     */
-    pipeEnabledForManual: boolean,
-    /**
-     * Keys for screenshot rewards that should be output to VR through the Pipe.
-     */
-    pipeEnabledForRewards: string[]
-    /**
-     * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
-     */
-    pipeMessagePreset: IPipeMessagePreset|undefined,
+    userInput: string
+}
+
+interface IScreenshot {
+    obsSource?: string
+    delay?: number
+    description?: string
+
 }

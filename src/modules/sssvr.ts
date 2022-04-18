@@ -1,7 +1,7 @@
 class SuperScreenShotterVR {
     private _socket: WebSockets
     private _messageCounter: number = 0
-    private _screenshotRequests: IScreenshotRequestData[] = []
+    private _screenshotRequests: Map<number, IScreenshotRequestData> = new Map()
     private _messageCallback: ISSSVRCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
     constructor() {
         let config:IScreenshotConfig = Config.screenshots
@@ -13,8 +13,13 @@ class SuperScreenShotterVR {
         this._socket.init();
     }
     private onMessage(evt: MessageEvent) {
-        let data: ISSSVRResponse = JSON.parse(evt.data)
-        this._messageCallback(data)
+        const data: ISSSVRResponse = JSON.parse(evt.data)
+        const id = parseInt(data?.nonce ?? '')    
+        const requestData = this._screenshotRequests.get(id)
+        if(data != undefined) {
+            this._messageCallback(requestData, data)
+            this._screenshotRequests.delete(id)
+        }
     }
     private onError(evt: Event) {
         // console.table(evt)
@@ -22,22 +27,19 @@ class SuperScreenShotterVR {
     setScreenshotCallback(callback: ISSSVRCallback) {
         this._messageCallback = callback
     }
-    sendScreenshotRequest(rewardKey: string, rewardData:ITwitchRedemptionMessage, delaySeconds:number) {
+    sendScreenshotRequest(rewardKey: string, rewardData: ITwitchRedemptionMessage, delaySeconds: number = 0) {
         this._messageCounter++
-        let message:ISSSVRRequest = {
-            nonce: `${this._messageCounter}`,
-            delay: delaySeconds,
-            tag: rewardData.redemption.user.login
-        }
-        this._screenshotRequests[this._messageCounter] = {
+        this._screenshotRequests.set(this._messageCounter, {
             rewardKey: rewardKey,
             userId: parseInt(rewardData?.redemption?.user?.id),
             userName: rewardData.redemption.user.login,
             userInput: rewardData.redemption.user_input
+        })
+        const message:ISSSVRRequest = {
+            nonce: `${this._messageCounter}`,
+            delay: delaySeconds,
+            tag: rewardData.redemption.user.login
         }
         this._socket.send(JSON.stringify(message))
-    }
-    getScreenshotRequest(nonce: number):IScreenshotRequestData|undefined {
-        return this._screenshotRequests.splice(nonce, 1).pop()
     }
 }

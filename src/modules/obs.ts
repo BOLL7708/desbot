@@ -2,7 +2,7 @@ class OBS {
     private _socket: WebSockets
     private _config = Config.obs;
     private _messageCounter: number = 10;
-    private _screenshotRequests: IScreenshotRequestData[] = []
+    private _screenshotRequests: Map<number, IScreenshotRequestData> = new Map()
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
@@ -45,11 +45,16 @@ class OBS {
                         // console.log(evt.data)
                         break
                 }
-                const screenshotRequestData = this._screenshotRequests[id]
-                const img = data.img
-                if(screenshotRequestData != undefined && img != undefined) {
-                    this._sourceScreenshotCallback(img, screenshotRequestData)
+                
+                if(this._screenshotRequests.has(id)) {
+                    const screenshotRequestData = this._screenshotRequests.get(id)
+                    const img = data.img
+                    if(screenshotRequestData != undefined && img != undefined) {
+                        this._sourceScreenshotCallback(img, screenshotRequestData)
+                    }
+                    this._screenshotRequests.delete(id)
                 }
+
                 break
 		}
     }
@@ -114,18 +119,29 @@ class OBS {
         else this.hide(config)
     }
 
-    takeSourceScreenshot(requestData:IScreenshotRequestData) {
+    takeSourceScreenshot(rewardKey: string, rewardData: ITwitchRedemptionMessage, delaySeconds: number = 0) {
+        const requestData: IScreenshotRequestData = { 
+            rewardKey: rewardKey, 
+            userId: Utils.toInt(rewardData.redemption.user.id, -1), 
+            userName: rewardData.redemption.user.login ?? '', 
+            userInput: rewardData.redemption.user_input ?? '',
+        }
+
         const date = new Date()
         const time = date.toLocaleString("sv-SE").replace(' ', '_').replace(/\:/g, '').replace(/\-/g, '')
         const ms = date.getMilliseconds()
         const id = ++this._messageCounter;
         const user = requestData.userName.length > 0 ? `_${requestData.userName}` : ''
-        this._screenshotRequests[id] = requestData
-        this._socket.send(this.buildRequest("TakeSourceScreenshot", id, {
-            "sourceName": this._config.sourceScreenshotConfig.sourceName,
-            "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
-            "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}${user}.${this._config.sourceScreenshotConfig.embedPictureFormat}`
-        }));
+        this._screenshotRequests.set(id, requestData)
+        setTimeout(async ()=>{
+            this._socket.send(
+                this.buildRequest("TakeSourceScreenshot", id, {
+                    "sourceName": this._config.sourceScreenshotConfig.sourceName,
+                    "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
+                    "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}${user}.${this._config.sourceScreenshotConfig.embedPictureFormat}`
+                })
+            )
+        }, delaySeconds * 1000)
     }
 
     buildRequest(type: string, id: number, options: object) {

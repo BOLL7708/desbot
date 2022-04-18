@@ -158,16 +158,14 @@ class Callbacks {
         .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
         */
-        modules.sssvr.setScreenshotCallback(async (responseData) => {
-            const requestData = responseData.nonce 
-                ? modules.sssvr.getScreenshotRequest(parseInt(responseData.nonce))
-                : null
-            const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_SSSVR]
+        modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
+            const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_VRSCREENSHOT]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
             const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
-            if(requestData != null) {
+            
+            if(requestData != null) { // A screenshot from a reward
                 const userData = await modules.twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                 
@@ -190,7 +188,7 @@ class Callbacks {
                     subtitle: authorName,
                     durationMs: Config.screenshots.callback.signDurationMs
                 })
-            } else {
+            } else { // A manually taken screenshot
                 // Discord
                 const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
                 Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
@@ -204,7 +202,7 @@ class Callbacks {
                 })
             }
 
-            // Pipe
+            // Pipe manual screenshots into VR if configured.
             if(
                 Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? '')
                 || (requestData == null && Config.screenshots.callback.pipeEnabledForManual)
@@ -234,7 +232,7 @@ class Callbacks {
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData) => {
             const b64data = img.split(',').pop() ?? ''
-            const discordCfg = Config.credentials.DiscordWebhooks[Keys.COMMAND_SOURCESCREENSHOT]
+            const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_OBSSCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
 
@@ -266,7 +264,7 @@ class Callbacks {
                 })
 
                 // Sound effect
-                const soundConfig = Config.audioplayer.configs[Keys.COMMAND_SOURCESCREENSHOT]
+                const soundConfig = Config.audioplayer.configs[Keys.KEY_DISCORD_OBSSCREENSHOT]
                 if(soundConfig != undefined) modules.audioPlayer.enqueueAudio(soundConfig)
             }
         })
@@ -339,10 +337,10 @@ class Callbacks {
 
         modules.openvr2ws.setFindOverlayCallback((overlayKey, overlayHandle) => {
             const rewardsToToggle = Config.twitch.turnOnRewardForOverlays[overlayKey]
-            Utils.log(`OpenVR2WS: Found overlay ${overlayKey}: ${overlayHandle}, toggling rewards: ${JSON.stringify(rewardsToToggle)}`, Color.Green)
             if(Array.isArray(rewardsToToggle)) {
                 const rewards: { [x: string]: boolean } = {}
                 const state = overlayHandle != 0
+                Utils.log(`OpenVR2WS: Found overlay result -> ${overlayKey}: ${overlayHandle}, toggling rewards: ${JSON.stringify(rewardsToToggle)} to ${state}`, Color.Green)
                 rewardsToToggle.map(rewardKey => {
                     rewards[rewardKey] = state
                 })

@@ -48,7 +48,6 @@ class KeysTemplate {
     static readonly COMMAND_RELOADWIDGET: string = 'reload'
     static readonly COMMAND_GAMEREWARDS_ON: string = 'rewardson'
     static readonly COMMAND_GAMEREWARDS_OFF: string = 'rewardsoff'
-    static readonly COMMAND_SOURCESCREENSHOT: string = 'screenshot'
     static readonly COMMAND_CHANNELTROPHY_STATS: string = 'trophy'
     static readonly COMMAND_CLIPS: string = 'clips'
     static readonly COMMAND_GAME: string = 'game'
@@ -82,8 +81,9 @@ class KeysTemplate {
     */
     
     // Discord
-    static readonly KEY_DISCORD_SSSVR: string = 'DiscordSSSRV'
     static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
+    static readonly KEY_DISCORD_VRSCREENSHOT: string = 'DiscordVRScreenshot'
+    static readonly KEY_DISCORD_OBSSCREENSHOT: string = 'DiscordOBSScreenshot'
 
     // Chat (sound, pipe, text, more?)
     static readonly KEY_MIXED_CHAT: string = 'EverythingChat'

@@ -14,5 +14,5 @@ interface ISSSVRResponse {
 
 // Callbacks
 interface ISSSVRCallback {
-    (screenshotResponse: ISSSVRResponse): void
+    (screenshotRequest: IScreenshotRequestData|undefined, screenshotResponse: ISSSVRResponse): void
 }

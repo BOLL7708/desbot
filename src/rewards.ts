@@ -125,11 +125,7 @@ class Rewards {
                         modules.sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
                         // OBS Source Screenshot
-                        setTimeout(async ()=>{
-                            const userData = await modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                            const requestData: IScreenshotRequestData = { rewardKey: Keys.KEY_SCREENSHOT, userId: Utils.toInt(userData?.id, -1), userName: userData?.login ?? '', userInput: data.redemption.user_input }
-                            modules.obs.takeSourceScreenshot(requestData)
-                        }, Config.screenshots.delayOnDescription*1000)
+                        modules.obs.takeSourceScreenshot(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)                        
                     }    
                 })
             }
@@ -142,17 +138,10 @@ class Rewards {
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 if(Config.controller.websocketsUsed.openvr2ws && states.lastSteamAppId != undefined) {
                     // SuperScreenShotterVR
-                    modules.sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data, 0)
+                    modules.sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data)
                 } else {
                     // OBS Source Screenshot
-                    const userData = await modules.twitchHelix.getUserById(parseInt(data.redemption.user.id))
-                    const requestData: IScreenshotRequestData = { 
-                        rewardKey: Keys.KEY_INSTANTSCREENSHOT, 
-                        userId: Utils.toInt(userData?.id, -1), 
-                        userName: userData?.login ?? '', 
-                        userInput: data.redemption.user_input 
-                    }
-                    modules.obs.takeSourceScreenshot(requestData)
+                    modules.obs.takeSourceScreenshot(Keys.KEY_INSTANTSCREENSHOT, data)
                 }
             }
         })
