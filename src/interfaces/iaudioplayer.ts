@@ -23,7 +23,7 @@ interface IAudio {
     /**
      * Optional: A unique value that is provided to the callback for audio finished playing.
      * 
-     * Not really used for automatic rewards, but for some functionality in the `MainController`.
+     * Will be overwritten for automatic rewards, and is used for some functionality in the fixed rewards.
      */
     nonce?: string
     /**

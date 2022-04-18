@@ -125,7 +125,7 @@ class Rewards {
                         modules.sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
                     } else {
                         // OBS Source Screenshot
-                        modules.obs.takeSourceScreenshot(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)                        
+                        modules.obs.takeSourceScreenshot(Keys.KEY_SCREENSHOT, data, Config.obs.sourceScreenshotConfig.sourceName, Config.screenshots.delayOnDescription)
                     }    
                 })
             }
@@ -141,7 +141,7 @@ class Rewards {
                     modules.sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data)
                 } else {
                     // OBS Source Screenshot
-                    modules.obs.takeSourceScreenshot(Keys.KEY_INSTANTSCREENSHOT, data)
+                    modules.obs.takeSourceScreenshot(Keys.KEY_INSTANTSCREENSHOT, data, Config.obs.sourceScreenshotConfig.sourceName)
                 }
             }
         })
@@ -170,7 +170,7 @@ class Rewards {
                 // Effects
                 const signCallback = AutoRewards.buildSignCallback(Config.sign.configs[Keys.KEY_CHANNELTROPHY])
                 signCallback?.call(this, message)
-                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], undefined, true)
+                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], undefined, '', true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward

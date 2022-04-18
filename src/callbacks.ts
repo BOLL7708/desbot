@@ -230,11 +230,13 @@ class Callbacks {
             }
         })
 
-        modules.obs.registerSourceScreenshotCallback(async (img, requestData) => {
+        modules.obs.registerSourceScreenshotCallback(async (img, requestData, nonce) => {
             const b64data = img.split(',').pop() ?? ''
             const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_OBSSCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
+            const nonceCallback = states.nonceCallbacks.get(nonce)
+            if(nonceCallback) nonceCallback()
 
             if(requestData != null) {
                 const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')

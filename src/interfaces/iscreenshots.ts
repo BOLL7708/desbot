@@ -57,7 +57,16 @@ interface IScreenshotConfig {
          * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
          */
         pipeMessagePreset: IPipeMessagePreset|undefined,
-    }   
+        /**
+         * OBS Capture sound effect
+         */
+        obsSourceCaptureDelayedSound: IAudio
+    },
+    
+    /**
+     * Screenshot configs for automatic rewards.
+     */
+    configs: { [key:string]: IScreenshot }
 }
 
 /**
@@ -85,6 +94,4 @@ interface IScreenshotConfig {
 interface IScreenshot {
     obsSource?: string
     delay?: number
-    description?: string
-
 }

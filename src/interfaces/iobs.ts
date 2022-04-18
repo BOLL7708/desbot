@@ -90,5 +90,5 @@ interface ISceneChangeCallback {
     (sceneName:string): void
 }
 interface ISourceScreenshotCallback {
-    (img:string, data: IScreenshotRequestData): void
+    (img:string, data: IScreenshotRequestData, nonce: string): void
 }

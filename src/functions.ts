@@ -46,7 +46,7 @@ class Functions {
         if(appId.length == 0) {
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
             let combinedSettings = Config.controller.defaults
-            if(controllerGameDefaults != undefined) {
+            if(controllerGameDefaults) {
                 combinedSettings = {...combinedSettings, ...controllerGameDefaults}
                 Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
             } else {
@@ -68,7 +68,7 @@ class Functions {
          */
         const defaultProfile = isVr ? Config.twitch.rewardConfigProfileDefaultVR : Config.twitch.rewardConfigProfileDefault
         const profile = Config.twitch.rewardConfigProfilePerGame[appId]
-        if(appId.length > 0) {
+        if(appId.length == 0) {
             Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
             modules.twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
         } else if(profile != undefined) {
