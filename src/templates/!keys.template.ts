@@ -68,8 +68,6 @@ class KeysTemplate {
     static readonly KEY_TTSSPEAK: string = 'Speak'
     static readonly KEY_TTSSETVOICE: string = 'SetVoice'
     static readonly KEY_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
-    static readonly KEY_SCREENSHOT: string = 'Screenshot'
-    static readonly KEY_INSTANTSCREENSHOT: string = 'InstantScreenshot'
     static readonly KEY_CHANNELTROPHY: string = 'ChannelTrophy'
 
     /*

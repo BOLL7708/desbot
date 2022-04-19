@@ -138,8 +138,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         .#####.....##....##..##..##..##..##...##..######...####..
         */
         [KeysTemplate.KEY_MIXED_CHAT]: '%s said: %s',
-        [KeysTemplate.KEY_SCREENSHOT]: 'Photograph %s',
-        [KeysTemplate.KEY_INSTANTSCREENSHOT]: 'Instant shot!',
         [KeysTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
@@ -280,8 +278,7 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
 Config.pipe = <IPipeConfig> {
     port: 8077,
     showRewardsWithKeys: [
-        KeysTemplate.KEY_TTSSPEAK,
-        KeysTemplate.KEY_SCREENSHOT
+        KeysTemplate.KEY_TTSSPEAK
     ],
     configs: {
         /*
@@ -347,7 +344,7 @@ Config.screenshots = <IScreenshotConfig> {
         signDurationMs: 5000,
         pipeEnabledForManual: false,
         pipeEnabledForRewards: [
-            Keys.KEY_SCREENSHOT
+            KeysTemplate.KEY_TTSSPEAK
         ],
         pipeMessagePreset: undefined,
         obsSourceCaptureDelayedSound: {
@@ -531,8 +528,7 @@ Config.twitch = <ITwitchConfig> {
         KeysTemplate.KEY_CHANNELTROPHY
     ],
     defaultRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
-        KeysTemplate.KEY_SCREENSHOT,
-        KeysTemplate.KEY_INSTANTSCREENSHOT
+        KeysTemplate.KEY_CHANNELTROPHY
     ],
     disableRewards: [],
     autoRewards: [
@@ -569,19 +565,6 @@ Config.twitch = <ITwitchConfig> {
             title: 'TTS Gender Flip',
             cost: 10,
             prompt: "Switch your TTS voice gender",
-            background_color: '#808080'
-        },
-        [KeysTemplate.KEY_SCREENSHOT]: {
-            title: 'Screenshot with description',
-            cost: 15,
-            prompt: 'Description is read before timed shot',
-            background_color: '#808080',
-            is_user_input_required: true
-        },
-        [KeysTemplate.KEY_INSTANTSCREENSHOT]: {
-            title: 'Instant screenshot',
-            cost: 10,
-            prompt: 'Immediately trigger a screenshot.',
             background_color: '#808080'
         },
         [Keys.KEY_CHANNELTROPHY]: {

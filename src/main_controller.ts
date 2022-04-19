@@ -28,6 +28,7 @@ class MainController {
         modules.pipe.setOverlayTitle("Streaming Widget")
 
         Functions.setEmptySoundForTTS()
+        Functions.appIdCallback('', false)
 
         // Steam Web API intervals
         MainController.startSteamAchievementsInterval()

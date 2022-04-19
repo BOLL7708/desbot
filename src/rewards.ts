@@ -106,47 +106,6 @@ class Rewards {
         })
 
         /*
-        ..####....####...#####...######..######..##..##...####...##..##...####...######...####..
-        .##......##..##..##..##..##......##......###.##..##......##..##..##..##....##....##.....
-        ..####...##......#####...####....####....##.###...####...######..##..##....##.....####..
-        .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
-        ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
-        */
-        modules.twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_SCREENSHOT),
-            callback: (data:ITwitchRedemptionMessage) => {
-                let userInput = data?.redemption?.user_input
-                const nonce = Utils.getNonce('TTS')
-                const speech = Config.controller.speechReferences[Keys.KEY_SCREENSHOT]
-                modules.tts.enqueueSpeakSentence(Utils.template(speech, userInput), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
-                states.nonceCallbacks.set(nonce, ()=>{
-                    if(Config.controller.websocketsUsed.openvr2ws && states.lastSteamAppId != undefined) {
-                        // SuperScreenShotterVR
-                        modules.sssvr.sendScreenshotRequest(Keys.KEY_SCREENSHOT, data, Config.screenshots.delayOnDescription)
-                    } else {
-                        // OBS Source Screenshot
-                        modules.obs.takeSourceScreenshot(Keys.KEY_SCREENSHOT, data, Config.obs.sourceScreenshotConfig.sourceName, Config.screenshots.delayOnDescription)
-                    }    
-                })
-            }
-        })
-        // TODO: Change this into an auto-reward with a screenshot callback for SSSVR and OBS?
-        modules.twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_INSTANTSCREENSHOT),
-            callback: async (data:ITwitchRedemptionMessage) => {
-                const speech = Config.controller.speechReferences[Keys.KEY_INSTANTSCREENSHOT]
-                modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                if(Config.controller.websocketsUsed.openvr2ws && states.lastSteamAppId != undefined) {
-                    // SuperScreenShotterVR
-                    modules.sssvr.sendScreenshotRequest(Keys.KEY_INSTANTSCREENSHOT, data)
-                } else {
-                    // OBS Source Screenshot
-                    modules.obs.takeSourceScreenshot(Keys.KEY_INSTANTSCREENSHOT, data, Config.obs.sourceScreenshotConfig.sourceName)
-                }
-            }
-        })
-
-        /*
         .######..#####....####...#####...##..##..##..##.
         ...##....##..##..##..##..##..##..##..##...####..
         ...##....#####...##..##..#####...######....##...
