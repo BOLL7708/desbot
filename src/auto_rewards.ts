@@ -139,7 +139,7 @@ class AutoRewards {
                 ttsString = index != undefined && Array.isArray(speech) && speech.length > index
                     ? speech[index]
                     : Utils.randomFromArray(speech)
-                ttsString = Utils.replaceTagsInString(ttsString, message)
+                ttsString = Utils.replaceTagsForTTS(ttsString, message)
                 if(ttsString.indexOf('%s') > -1) ttsString = Utils.template(ttsString, message?.redemption?.user_input ?? '')
                 onTtsQueue = true
             }
@@ -158,6 +158,7 @@ class AutoRewards {
                 /*
                 * We check if we don't have enough texts to fill the preset 
                 * and fill the empty spots up with the redeemer's display name.
+                * Same with image and the avatar of the redeemer.
                 */            
                 let asyncConfig = Utils.clone(config)
                 if(!Array.isArray(asyncConfig)) asyncConfig = [asyncConfig]
@@ -166,14 +167,26 @@ class AutoRewards {
                     const textAreaCount = cfg.config.customProperties?.textAreas?.length ?? 0
                     if(textAreaCount > 0 && cfg.texts == undefined) cfg.texts = []
                     const textCount = cfg.texts?.length ?? 0
+                    
+                    // If not enough texts for all areas, fill with redeemer's display name.
                     if(textAreaCount > textCount && cfg.texts) {
                         cfg.texts.length = textAreaCount
                         cfg.texts.fill(message.redemption.user.display_name, textCount, textAreaCount)
                     }
+                    
+                    // Replace all empty text values with redeemer's display name.
+                    cfg.texts = cfg.texts?.map((text)=>{ return (text.length == 0) ? message.redemption.user.display_name : text })
+
+                    // Replace tags in texts.
+                    cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsForText(text, message)})
+
+                    // If no image is supplied, use the redeemer user image instead.
                     if(cfg.imageData == null && cfg.imagePath == null) {
                         const user = await modules.twitchHelix.getUserById(parseInt(message?.redemption?.user?.id))
                         cfg.imagePath = user?.profile_image_url
                     }
+
+                    // Show it
                     modules.pipe.showPreset(cfg)
                 }
             }

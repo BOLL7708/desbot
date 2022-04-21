@@ -203,9 +203,7 @@ class Pipe {
         const config = Utils.clone(preset.config)
         if(imageb64) {
             config.imageData = Utils.removeImageHeader(imageb64)
-            if(config.customProperties) {
-
-            
+            if(config.customProperties) {           
                config.customProperties.animationHz = -1
                config.customProperties.durationMs = preset.durationMs;
                if(

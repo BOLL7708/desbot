@@ -343,8 +343,8 @@ Config.screenshots = <IScreenshotConfig> {
         signManualSubtitle: 'Manual shot!',
         signDurationMs: 5000,
         pipeEnabledForManual: false,
-        pipeEnabledForRewards: [
-            KeysTemplate.KEY_TTSSPEAK
+        pipeEnabledForRewards: <string[]> [
+            // KeysTemplate.YOUR_SCREENSHOT_REWARD_KEY
         ],
         pipeMessagePreset: undefined,
         obsSourceCaptureDelayedSound: {

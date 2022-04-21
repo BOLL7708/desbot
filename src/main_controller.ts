@@ -34,7 +34,6 @@ class MainController {
         MainController.startSteamAchievementsInterval()
         MainController.startSteamPlayerSummaryInterval()
         if(!Config.controller.websocketsUsed.openvr2ws) {
-            
             if(Config.steam.playerSummaryIntervalMs > 0) {
                 await Functions.loadPlayerSummary()
             }
