@@ -92,6 +92,14 @@ interface IScreenshotConfig {
 }
 
 interface IScreenshot {
+    /**
+     * Fill this in if you want to capture an OBS screenshot, 
+     * if left out it will default to capture a VR screenshot.
+     */
     obsSource?: string
+    /**
+     * Add a delay to the screenshot. Use this for a reward that will tell you 
+     * want to screenshot, so you have time to frame the shot or strike a pose.
+     */
     delay?: number
 }
