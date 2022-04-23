@@ -235,12 +235,13 @@ class AutoRewards {
             const modules = ModulesSingleton.getInstance()
             const userInput = message?.redemption?.user_input
             if(userInput) {
+                // This is executed after the TTS with the same nonce has finished.
                 states.nonceCallbacks.set(nonce, ()=>{
                     if(config.obsSource) {
                         // OBS Source Screenshot
                         const messageId = modules.obs.takeSourceScreenshot(key, message, config.obsSource, config.delay ?? 0)
                         states.nonceCallbacks.set(messageId, ()=>{
-                            modules.audioPlayer.enqueueAudio(Config.screenshots.callback.obsSourceCaptureDelayedSound)
+                            modules.audioPlayer.enqueueAudio(Config.screenshots.callback.soundEffectForOBSScreenshots)
                         })
                     } else {
                         // SuperScreenShotterVR
@@ -250,6 +251,7 @@ class AutoRewards {
             } else {
                 if(config.obsSource) {
                     // OBS Source Screenshot
+                    modules.audioPlayer.enqueueAudio(Config.screenshots.callback.soundEffectForOBSScreenshots)
                     modules.obs.takeSourceScreenshot(key, message, config.obsSource)
                 } else {
                     // SuperScreenShotterVR

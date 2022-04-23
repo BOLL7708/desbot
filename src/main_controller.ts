@@ -28,12 +28,12 @@ class MainController {
         modules.pipe.setOverlayTitle("Streaming Widget")
 
         Functions.setEmptySoundForTTS()
-        Functions.appIdCallback('', false)
 
         // Steam Web API intervals
         MainController.startSteamAchievementsInterval()
-        MainController.startSteamPlayerSummaryInterval()
+        
         if(!Config.controller.websocketsUsed.openvr2ws) {
+            MainController.startSteamPlayerSummaryInterval()
             if(Config.steam.playerSummaryIntervalMs > 0) {
                 await Functions.loadPlayerSummary()
             }

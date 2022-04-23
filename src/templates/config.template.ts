@@ -347,7 +347,7 @@ Config.screenshots = <IScreenshotConfig> {
             // KeysTemplate.YOUR_SCREENSHOT_REWARD_KEY
         ],
         pipeMessagePreset: undefined,
-        obsSourceCaptureDelayedSound: {
+        soundEffectForOBSScreenshots: {
             // src: '_assets/yoursound.wav',
         }
     },

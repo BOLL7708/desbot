@@ -58,9 +58,10 @@ interface IScreenshotConfig {
          */
         pipeMessagePreset: IPipeMessagePreset|undefined,
         /**
-         * OBS Capture sound effect
+         * As there is not built in audio effect for OBS screenshots an option for that is provided here.
+         * Why this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.
          */
-        obsSourceCaptureDelayedSound: IAudio
+        soundEffectForOBSScreenshots: IAudio
     },
     
     /**
@@ -93,13 +94,18 @@ interface IScreenshotConfig {
 
 interface IScreenshot {
     /**
-     * Fill this in if you want to capture an OBS screenshot, 
+     * Optional: Fill this in if you want to capture an OBS screenshot, 
      * if left out it will default to capture a VR screenshot.
      */
     obsSource?: string
     /**
-     * Add a delay to the screenshot. Use this for a reward that will tell you 
+     * Optional: Add a delay to the screenshot. Use this for a reward that will tell you 
      * want to screenshot, so you have time to frame the shot or strike a pose.
      */
     delay?: number
+    /**
+     * Optional: Add a count of screenshots if you want to trigger a burst.
+     * It will wait for the previous callback before triggering the next shot.
+     */
+    burstCount?: number
 }
