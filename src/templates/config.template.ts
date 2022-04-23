@@ -137,7 +137,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         .##..##....##....##..##..##..##..##...##....##....##..##.
         .#####.....##....##..##..##..##..##...##..######...####..
         */
-        [KeysTemplate.KEY_MIXED_CHAT]: '%s said: %s',
         [KeysTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
@@ -242,16 +241,6 @@ Config.steam = <ISteamConfig> {
 */
 Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-websocket plugin.
     port: 4445,
-    configs: {
-        /*
-        [KeysTemplate.KEY_OBS_EXAMPLE1]: {
-            sceneNames: ['Your Scene Name'],
-            sourceName: 'Your Source Name',
-            filterName: 'Optional Your Filter Name',
-            durationMs: 10000
-        }
-        */
-    },
     sourceGroups: [],
     filterGroups: [],
     filterOnScenes: [''], // WIP
@@ -280,15 +269,6 @@ Config.pipe = <IPipeConfig> {
     showRewardsWithKeys: [
         KeysTemplate.KEY_TTSSPEAK
     ],
-    configs: {
-        /*
-        [KeysTemplate.KEY_YOURREWARD]: {
-            imagePath: '_assets/yourimage.png',
-            durationMs: 3000,
-            config: PipePresets.YOUR_PRESET
-        }
-        */
-    },
     useCustomChatNotification: false,
     customChatMessageConfig: {
         width: 500,
@@ -350,9 +330,6 @@ Config.screenshots = <IScreenshotConfig> {
         soundEffectForOBSScreenshots: {
             // src: '_assets/yoursound.wav',
         }
-    },
-    configs: {
-        // [KeysTemplate.KEY_YOURREWARD]: {}
     }
 }
 
@@ -383,20 +360,7 @@ Config.discord = <IDiscordConfig> {
 */
 Config.philipshue = <IPhilipsHueConfig> { // Control Philips Hue lights
     serverPath: 'http://a-local-IP',
-    lightsIds: [], // IDs of lights to affect with the color rewards
-    lightConfigs: {
-        // [KeysTemplate.KEY_YOURREWARD]: { x: 0.5, y: 0.5 }
-    },
-    plugConfigs: {
-        /*
-        [KeysTemplate.KEY_YOURREWARD]: {
-            id: 1,
-            originalState: false,
-            triggerState: true,
-            duration: 30
-        }
-        */
-    }
+    lightsIds: [] // IDs of lights to affect with the color rewards
 }
 
 /*
@@ -409,17 +373,7 @@ Config.philipshue = <IPhilipsHueConfig> { // Control Philips Hue lights
 ..#######..##........########.##....##....###....##.....##.#########..###..###...######.
 */
 Config.openvr2ws = <IOpenVR2WSConfig> {
-    port: 7708,
-    configs: {
-        /*
-        [KeysTemplate.KEY_YOURREWARD]: {
-            setting: OpenVR2WS.SETTING_WORLD_SCALE,
-            value: 0.5,
-            resetToValue: 1.0,
-            duration: 30
-        }
-        */
-    }
+    port: 7708
 }
 
 /*
@@ -434,15 +388,9 @@ Config.openvr2ws = <IOpenVR2WSConfig> {
 Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
     configs: {
         /*
-        [KeysTemplate.KEY_MIXED_CHAT]: {
+        [KeysTemplate.KEY_ANNOUNCE_SOUND_EFFECT_FOR_AN_EMOTE]: {
             src: '_assets/your_chat_sound.wav',
             volume: 0.5
-        },
-        [KeysTemplate.KEY_YOURREWARD]: {
-            src: '_assets/your_audio.wav',
-            volume: 1.0,
-            nonce: 'your_audio_nonce',
-            repeat: 2
         }
         */
     }
@@ -465,41 +413,7 @@ Config.sign = <ISignConfig> {
     fontFamily: 'sans-serif',
     fontColor: 'white',
     fontSize: '150%',
-    direction: 'left',
-    configs: {
-        // [KeysTemplate.KEY_YOURREWARD]: {durationMs: 5000, title: 'Your Reward'}
-    }
-}
-
-/*
-.########..##.....##.##....##
-.##.....##.##.....##.###...##
-.##.....##.##.....##.####..##
-.########..##.....##.##.##.##
-.##...##...##.....##.##..####
-.##....##..##.....##.##...###
-.##.....##..#######..##....##
-*/
-Config.run = <IRunConfig> {
-    configs: {
-        /*
-        [Keys.KEY_YOURREWARD]: {
-            window: 'Your Game Window Title',
-            commands: [{command: 'AutoIt button {F1} written text'}, {command: 'Other button {F2} other written text'}],
-            postfixEnterStroke: false
-        }
-        */
-    },
-    gameSpecificConfigs: {
-        /*
-        [Games.YOUR_GAME]: {
-            [Keys.KEY_YOURGAMEREWARD]: {
-                window: 'Your Game Window Title',
-                commands: [{command: 'AutoIt button {F1} written text'}, {command: 'Other button {F2} other written text'}]
-            }
-        }
-        */
-    }
+    direction: 'left'
 }
 
 /*
@@ -548,34 +462,49 @@ Config.twitch = <ITwitchConfig> {
         .#####...######..##......##..##...####...######....##...
         */
         [KeysTemplate.KEY_TTSSPEAK]: {
-            title: 'TTS',
-            cost: 10,
-            prompt: 'Read message aloud',
-            background_color: '#808080',
-            is_user_input_required: true
+            reward: {
+                title: 'TTS',
+                cost: 10,
+                prompt: 'Read message aloud',
+                background_color: '#808080',
+                is_user_input_required: true
+            }
         },
         [KeysTemplate.KEY_TTSSETVOICE]: {
-            title: 'Set TTS voice',
-            cost: 10,
-            prompt: 'Change TTS voice',
-            background_color: '#808080',
-            is_user_input_required: true
+            reward: {
+                title: 'Set TTS voice',
+                cost: 10,
+                prompt: 'Change TTS voice',
+                background_color: '#808080',
+                is_user_input_required: true
+            }
         },
         [KeysTemplate.KEY_TTSSWITCHVOICEGENDER]: {
-            title: 'TTS Gender Flip',
-            cost: 10,
-            prompt: "Switch your TTS voice gender",
-            background_color: '#808080'
+            reward: {
+                title: 'TTS Gender Flip',
+                cost: 10,
+                prompt: "Switch your TTS voice gender",
+                background_color: '#808080'
+            }
         },
         [Keys.KEY_CHANNELTROPHY]: {
-            title: '🏆 Held by nobody!',
-            cost: 1,
-            prompt: 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!',
-            background_color: '#000000',
-            is_max_per_stream_enabled: true,
-            max_per_stream: 10000,
-            is_global_cooldown_enabled: true,
-            global_cooldown_seconds: 15
+            reward: {
+                title: '🏆 Held by nobody!',
+                cost: 1,
+                prompt: 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!',
+                background_color: '#000000',
+                is_max_per_stream_enabled: true,
+                max_per_stream: 10000,
+                is_global_cooldown_enabled: true,
+                global_cooldown_seconds: 15
+            },
+            audio: {
+                src: '_assets/YOUR_SOUND_EFFECT.wav'
+            },
+            sign: {
+                durationMs: 10000,
+                title: 'The 🏆 was grabbed!'
+            }
         },
 
         /*
@@ -619,17 +548,4 @@ Config.twitch = <ITwitchConfig> {
     channelTrophyUniqueNumbers: {
         // 1234: { speech: "", label: "" }
     }
-}
-
-/*
-.##......##.########.########.
-.##..##..##.##.......##.....##
-.##..##..##.##.......##.....##
-.##..##..##.######...########.
-.##..##..##.##.......##.....##
-.##..##..##.##.......##.....##
-..###..###..########.########.
-*/
-Config.web = {
-    configs: {}
 }

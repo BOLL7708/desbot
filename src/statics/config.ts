@@ -40,7 +40,6 @@ class Config {
     static openvr2ws: IOpenVR2WSConfig
     static audioplayer: IAudioPlayerConfig
     static sign: ISignConfig
-    static run: IRunConfig
+    static twitchChat: ITwitchChatConfig
     static twitch: ITwitchConfig
-    static web: IWebConfig
 }

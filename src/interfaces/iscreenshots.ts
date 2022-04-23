@@ -62,12 +62,7 @@ interface IScreenshotConfig {
          * Why this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.
          */
         soundEffectForOBSScreenshots: IAudio
-    },
-    
-    /**
-     * Screenshot configs for automatic rewards.
-     */
-    configs: { [key:string]: IScreenshot }
+    }
 }
 
 /**

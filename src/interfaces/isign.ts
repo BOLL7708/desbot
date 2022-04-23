@@ -34,10 +34,6 @@ interface ISignConfig {
      * From which side the Sign appears: `left, right, top, bottom`
      */
     direction: string
-    /**
-     * Configurations referenced by automatic rewards or other functions in the widget.
-     */
-    configs: { [key: string]: ISignShowConfig }
 }
 
 /**

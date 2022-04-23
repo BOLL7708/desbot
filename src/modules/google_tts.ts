@@ -178,7 +178,7 @@ class GoogleTTS {
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
-                const speech = Config.controller.speechReferences[Keys.KEY_MIXED_CHAT] ?? '%s said: %s'
+                const speech = Config.twitchChat.speech ?? '%s said: %s'
                 cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
                     ? cleanText 
                     : Utils.template(speech, cleanName, cleanText)

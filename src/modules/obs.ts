@@ -61,12 +61,12 @@ class OBS {
 
     // TODO: Add support for an array of configs to toggle many things at once
     // TODO: Actually retain and return nonces, array for multiple sources?
-    show(config: IObsSourceConfig, ignoreDuration: boolean = false) {
-        if(config.sceneNames != undefined) {
+    show(config: IObsSourceConfig|undefined, ignoreDuration: boolean = false) {
+        if(config?.sceneNames != undefined) {
             const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? ''))
             if(group) {
                 for(const k of group) {
-                    if(k != config.key) this.hide(Config.obs.configs[k])
+                    if(k != config.key) this.hide(Config.twitch.rewardConfigs[k].obs)
                 }
             }
             config.sceneNames.forEach(sceneName => {
@@ -77,12 +77,12 @@ class OBS {
                 }))
             })
         } else 
-        if(config.filterName != undefined) {
+        if(config?.filterName != undefined) {
             // If this filter is in a group, hide all the other ones, useful for audio filters that should not overlap.
             const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? ''))
             if(group) {
                 for(const k of group) {
-                    if(k != config.key) this.hide(Config.obs.configs[k])
+                    if(k != config.key) this.hide(Config.twitch.rewardConfigs[k].obs)
                 }
             }
             this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
@@ -91,14 +91,14 @@ class OBS {
                 "filterEnabled": true
             })) 
         }
-        if(config.durationMs != undefined && !ignoreDuration) {
+        if(config?.durationMs != undefined && !ignoreDuration) {
             setTimeout(() => {
                 this.hide(config)
             }, config.durationMs)
         }
     }
-    hide(config: IObsSourceConfig) {
-        if(config.sceneNames != undefined) {
+    hide(config: IObsSourceConfig|undefined) {
+        if(config?.sceneNames) {
             config.sceneNames.forEach(sceneName => {
                 this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
                     "scene-name": sceneName,
@@ -107,7 +107,7 @@ class OBS {
                 }));
             });
         } else
-        if (config.filterName != undefined) {
+        if (config?.filterName) {
             this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
                 "sourceName": config.sourceName,
                 "filterName": config.filterName,

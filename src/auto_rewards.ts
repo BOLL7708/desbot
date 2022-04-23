@@ -11,21 +11,22 @@ class AutoRewards {
 
         for(const key of Config.twitch.autoRewards) {
             const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-            const obsCallback = AutoRewards.buildOBSCallback(Config.obs.configs[key], key)
-            const colorCallback = AutoRewards.buildColorCallback(Config.philipshue.lightConfigs[key])
-            const plugCallback = AutoRewards.buildPlugCallback(Config.philipshue.plugConfigs[key])
+            const cfg = Config.twitch.rewardConfigs[key]
+            const obsCallback = AutoRewards.buildOBSCallback(cfg?.obs, key)
+            const colorCallback = AutoRewards.buildColorCallback(cfg?.lights)
+            const plugCallback = AutoRewards.buildPlugCallback(cfg?.plugs)
             const soundCallback = AutoRewards.buildSoundAndSpeechCallback(
-                Config.audioplayer.configs[key], 
-                Config.controller.speechReferences[key], 
+                cfg?.audio, 
+                cfg?.speech,
                 nonceTTS, 
-                Config.controller.speechReferences[key] != undefined
+                !!(cfg?.speech)
             )
-            const pipeCallback = AutoRewards.buildPipeCallback(Config.pipe.configs[key])
-            const openvr2wsSettingCallback = AutoRewards.buildOpenVR2WSSettingCallback(Config.openvr2ws.configs[key])
-            const signCallback = AutoRewards.buildSignCallback(Config.sign.configs[key])
-            const runCallback = AutoRewards.buildRunCallback(Config.run.configs[key])
-            const webCallback = AutoRewards.buildWebCallback(Config.web.configs[key])
-            const screenshotCallback = AutoRewards.buildScreenshotCallback(Config.screenshots.configs[key], key, nonceTTS)
+            const pipeCallback = AutoRewards.buildPipeCallback(cfg?.pipe)
+            const openvr2wsSettingCallback = AutoRewards.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
+            const signCallback = AutoRewards.buildSignCallback(cfg?.sign)
+            const runCallback = AutoRewards.buildRunCallback(cfg?.run)
+            const webCallback = AutoRewards.buildWebCallback(cfg?.web)
+            const screenshotCallback = AutoRewards.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
 
             const reward:ITwitchReward = {
                 id: await Utils.getRewardId(key),
@@ -223,9 +224,9 @@ class AutoRewards {
         }
     }
 
-    private static buildWebCallback(config: IWebRequestConfig|undefined) {
-        if(config) return (message: ITwitchRedemptionMessage) => {
-            fetch(config.url, {mode: 'no-cors'}).then(result => console.log(result))
+    private static buildWebCallback(url: string|undefined) {
+        if(url) return (message: ITwitchRedemptionMessage) => {
+            fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
         }
     }
 

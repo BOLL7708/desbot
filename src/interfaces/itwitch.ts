@@ -93,7 +93,7 @@ interface ITwitchConfig {
      * Default rewards are in there as they control system features, you can set `is_enabled` to `false` 
      * or remove the configs before running it the first time if you don't want that feature.
      */
-    rewardConfigs: { [key: string]: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[] }
+    rewardConfigs: { [key: string]: ITwitchRewardConfig }
     
     /**
      * Default for turning rewards on or off depending on Steam game.
@@ -145,7 +145,7 @@ interface ITwitchConfig {
      * Configuration for rewards that will be updated per game. This literally changes what the reward
      * looks like and what it does, basically resusing the same reward for different games.
      */
-    gameSpecificRewardsPerGame: { [key: string]: { [key: string]: ITwitchHelixRewardUpdate } }
+    gameSpecificRewardsPerGame: { [key: string]: { [key: string]: ITwitchRewardConfig } }
     
     /**
      * Numbers that overrides/complements defined patterns for the Channel Trophy reward.
@@ -268,4 +268,27 @@ interface ITwitchMessageData {
     bits: number
     isAction: boolean
     emotes: ITwitchEmote[]
+}
+
+/**
+ * Main config object for a reward.
+ */
+interface ITwitchRewardConfig {
+    // TODO: Add array support to everything? Random/Shuffle functionality?
+
+    // Twitch Reward Settings
+    reward: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[]
+    
+    // Automatic Reward Settings
+    openVR2WS?: IOpenVR2WSSetting|IOpenVR2WSSetting[]
+    obs?: IObsSourceConfig
+    pipe?: IPipeMessagePreset|IPipeMessagePreset[]
+    screenshots?: IScreenshot
+    lights?: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]
+    plugs?: IPhilipsHuePlugConfig
+    audio?: IAudio
+    speech?: string|string[]
+    sign?: ISignShowConfig
+    run?: IRunCommand
+    web?: string
 }

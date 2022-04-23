@@ -57,9 +57,9 @@ class Callbacks {
             } else if(states.ttsEnabledUsers.indexOf(userData.userName) > -1) {
                 // Reward users
                 modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, undefined, Utils.getNonce('TTS'), clearRanges)
-            } else if(states.pingForChat && Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] != null) {
+            } else if(states.pingForChat && Config.twitchChat.audio) {
                 // Chat sound
-                const soundEffect = Config.audioplayer.configs[Keys.KEY_MIXED_CHAT]
+                const soundEffect = Config.twitchChat.audio
                 if(!Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) modules.tts.enqueueSoundEffect(soundEffect)
             }
 

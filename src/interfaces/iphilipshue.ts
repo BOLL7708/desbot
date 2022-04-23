@@ -10,14 +10,6 @@ interface IPhilipsHueConfig {
      * The light numbers of all the lights you want to control.
      */
     lightsIds: number[]
-    /**
-     * Light settings for automatic rewards to use when redeemed, keyed on `Keys.*`.
-     */
-    lightConfigs: { [key:string]: IPhilipsHueColorConfig|IPhilipsHueColorConfig[] }
-    /**
-     * Plug settings for automatic rewards to use when redeemed, keyed on `Keys.*`.
-     */
-    plugConfigs: { [key:string]: IPhilipsHuePlugConfig }
 }
 
 /**

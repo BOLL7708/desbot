@@ -6,12 +6,6 @@ interface IOpenVR2WSConfig {
      * The port that is set in the OpenVR2WS application.
      */
     port: number
-    /**
-     * The configs that automatic rewards will reference to trigger SteamVR setting changes, keyed on: `Keys.*`
-     * 
-     * Can be a single config or an array to trigger them all at once.
-     */
-    configs: { [key:string]: IOpenVR2WSSetting|IOpenVR2WSSetting[] }
 }
 
 /**

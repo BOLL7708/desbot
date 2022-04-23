@@ -5,21 +5,6 @@
  * 
  * Note: For this to work you should run Apache from autorun and not as a service, because services aren't allowed to touch the desktop.
  */
-interface IRunConfig {
-    /**
-     * Fill this with configs available for standard automatic rewards.
-     */
-    configs: { [key:string]: IRunCommand }
-    
-    /**
-     * Fill this with game specific rewards for that gets reused per game.
-     * 
-     * The concept is that the widget detects the game, and uses `Config.twitch.gameSpecificRewardsPerGame` 
-     * to dynamically update the settings of any used reward listed in `Config.twitch.gameSpecificRewards`
-     * if they have a config, else they are disabled.
-     */
-    gameSpecificConfigs: { [key:string]: { [key:string]: IRunCommand }}
-}
 interface IRunCommand {
     /**
      * The title of the window to send the key press to.

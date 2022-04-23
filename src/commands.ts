@@ -218,7 +218,7 @@ class Commands {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.obs.show(Config.obs.configs[key], true)
+                modules.obs.show(Config.twitch.rewardConfigs[key].obs, true)
             }
         })
 
@@ -228,7 +228,7 @@ class Commands {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.obs.hide(Config.obs.configs[key])
+                modules.obs.hide(Config.twitch.rewardConfigs[key].obs)
             }
         })
 

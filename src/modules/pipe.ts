@@ -62,8 +62,7 @@ class Pipe {
         const imageDataUrl = profileUrl != undefined
             ? await ImageLoader.getDataUrl(profileUrl, true)
             : null
-        const presets = Utils.clone(Config.pipe.configs[Keys.KEY_MIXED_CHAT] ?? null)
-        const preset = Array.isArray(presets) ? Utils.randomFromArray(presets) : presets
+        const preset = Utils.clone(Config.twitchChat.pipe)
         if(
             Config.pipe.useCustomChatNotification
         ) { // Custom notification

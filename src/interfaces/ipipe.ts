@@ -13,11 +13,6 @@ interface IPipeConfig {
     showRewardsWithKeys: string[]
 
     /**
-     * Configs used by automatic rewards, add something here using a `Keys.*` to automatically trigger a notification.
-     */
-    configs: { [key:string]: (IPipeMessagePreset|IPipeMessagePreset[]) }
-
-    /**
      * If on uses a custom notification graphic for text pipes into VR, instead of the default SteamVR notification.
      * 
      * Make sure you have also set the Pipe config for this:

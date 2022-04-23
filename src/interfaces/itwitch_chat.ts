@@ -1,3 +1,9 @@
+interface ITwitchChatConfig {
+    pipe: IPipeMessagePreset
+    audio: IAudio
+    speech: string
+}
+
 // Data (used in Factory)
 interface ITwitchMessageCmd {
     properties: ITwitchChatMessageProperties

@@ -127,9 +127,9 @@ class Rewards {
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
-                const signCallback = AutoRewards.buildSignCallback(Config.sign.configs[Keys.KEY_CHANNELTROPHY])
+                const signCallback = AutoRewards.buildSignCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY].sign)
                 signCallback?.call(this, message)
-                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.audioplayer.configs[Keys.KEY_CHANNELTROPHY], undefined, '', true)
+                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY].audio, undefined, '', true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward

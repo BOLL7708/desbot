@@ -11,7 +11,7 @@ class Functions {
     public static setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
-        const audio = states.pingForChat ? Config.audioplayer.configs[Keys.KEY_MIXED_CHAT] : undefined           
+        const audio = states.pingForChat ? Config.twitchChat.audio : undefined
         modules.tts.setEmptyMessageSound(audio)
     }
 
@@ -124,8 +124,9 @@ class Functions {
         }
 
         // Update reward callbacks
-        const runConfigs = Config.run.gameSpecificConfigs[appId]
         for(const rewardKey in gameSpecificRewards) {
+            console.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`)
+            /*
             const rewardId = await Utils.getRewardId(rewardKey)
             const runConfig = runConfigs[rewardKey]
             if(runConfig != undefined) {
@@ -134,6 +135,7 @@ class Functions {
                     callback: AutoRewards.buildRunCallback(runConfig)
                 })
             } else Utils.logWithBold(`Could not find run config for <${appId}:${rewardKey}>`, 'red')
+            */
         }
 
         // Show game in sign

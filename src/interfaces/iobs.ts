@@ -7,12 +7,6 @@ interface IObsConfig {
      */
     port:number
     /**
-     * Source configs for automatic rewards to reference. 
-     * 
-     * Add a config using a key like `Keys.YOURREWARD` and this will automatically run on redemption.
-     */
-    configs: { [key:string]: IObsSourceConfig }
-    /**
      * When part of a group, turning one source on turns all the others off.
      */
     sourceGroups: string[][]
@@ -55,10 +49,6 @@ interface IObsSourceConfig {
     key?: string
 }
 interface IObsSourceScreenshotConfig {
-    /**
-     * The name of the source to take a screenshot of.
-     */
-    sourceName: string
     /**
      * Image format of the screenshot file.
      */
