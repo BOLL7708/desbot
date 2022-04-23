@@ -218,7 +218,7 @@ class Commands {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.obs.show(Config.twitch.rewardConfigs[key].obs, true)
+                modules.obs.show(Config.twitch.rewardConfigs[key]?.obs, true)
             }
         })
 
@@ -228,7 +228,7 @@ class Commands {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.obs.hide(Config.twitch.rewardConfigs[key].obs)
+                modules.obs.hide(Config.twitch.rewardConfigs[key]?.obs)
             }
         })
 
@@ -396,7 +396,7 @@ class Commands {
                 let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
-                    const configArrOrNot = Config.twitch.rewardConfigs[pair.key]
+                    const configArrOrNot = Config.twitch.rewardConfigs[pair.key]?.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) == -1) {
                         const response = await modules.twitchHelix.updateReward(pair.id, config)

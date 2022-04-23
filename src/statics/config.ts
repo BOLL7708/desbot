@@ -15,10 +15,13 @@
  * - You can override or extract whole sections of the config:
  * ```
  * Config.twitch.rewardConfigs = {
- *    [Keys.KEY_YOURREWARD]: {
- *        title: 'YOUR TITLE',
- *        cost: 100
- *    }}
+ *    reward: {
+ *        [Keys.KEY_YOURREWARD]: {
+ *            title: 'YOUR TITLE',
+ *            cost: 100
+ *        }
+ *    }
+ * }
  * ```
  * - You can override drilled down values in anything already loaded:
  * ```

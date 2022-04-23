@@ -21,7 +21,7 @@ class Rewards {
         const allRewardKeys = Object.keys(Config.twitch.rewardConfigs)
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards?.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
-            const setup = Config.twitch.rewardConfigs[key]
+            const setup = Config.twitch.rewardConfigs[key]?.reward
             let reward = await modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
             if(reward && reward.data && reward.data.length > 0) {
                 await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
@@ -31,7 +31,7 @@ class Rewards {
         // Reset rewards with multiple steps
         for(const key of allRewardKeys) {
             if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
-                const setup = Config.twitch.rewardConfigs[key]
+                const setup = Config.twitch.rewardConfigs[key]?.reward
                 if(Array.isArray(setup)) {
                     const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                     if((current?.count ?? 0) > 0) {
@@ -127,9 +127,9 @@ class Rewards {
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
-                const signCallback = AutoRewards.buildSignCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY].sign)
+                const signCallback = AutoRewards.buildSignCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]?.sign)
                 signCallback?.call(this, message)
-                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY].audio, undefined, '', true)
+                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]?.audio, undefined, '', true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward
@@ -154,7 +154,7 @@ class Rewards {
                     )
                     
                     // Update reward
-                    const configArrOrNot = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]
+                    const configArrOrNot = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]?.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;
