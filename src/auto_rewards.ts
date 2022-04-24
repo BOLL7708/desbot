@@ -7,81 +7,84 @@ class AutoRewards {
         .##..##..##..##....##....##..##..........##..##..##......#######..##..##..##..##..##..##......##.
         .##..##...####.....##.....####...........##..##..######...##.##...##..##..##..##..#####....####..
         */
+        for(const key of Object.keys(Config.twitch.autoRewardConfigs)) {
+            await this.registerAutoReward(key)
+        }
+    }
+
+    public static async registerAutoReward(key: string) {
         const modules = ModulesSingleton.getInstance()
+        const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
+        const cfg = Utils.getRewardConfig(key)
+        const obsCallback = AutoRewards.buildOBSCallback(cfg?.obs, key)
+        const colorCallback = AutoRewards.buildColorCallback(cfg?.lights)
+        const plugCallback = AutoRewards.buildPlugCallback(cfg?.plugs)
+        const soundCallback = AutoRewards.buildSoundAndSpeechCallback(
+            cfg?.audio, 
+            cfg?.speech,
+            nonceTTS, 
+            !!(cfg?.speech)
+        )
+        const pipeCallback = AutoRewards.buildPipeCallback(cfg?.pipe)
+        const openvr2wsSettingCallback = AutoRewards.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
+        const signCallback = AutoRewards.buildSignCallback(cfg?.sign)
+        const runCallback = AutoRewards.buildRunCallback(cfg?.run)
+        const webCallback = AutoRewards.buildWebCallback(cfg?.web)
+        const screenshotCallback = AutoRewards.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
 
-        for(const key of Config.twitch.autoRewards) {
-            const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-            const cfg = Config.twitch.rewardConfigs[key]
-            const obsCallback = AutoRewards.buildOBSCallback(cfg?.obs, key)
-            const colorCallback = AutoRewards.buildColorCallback(cfg?.lights)
-            const plugCallback = AutoRewards.buildPlugCallback(cfg?.plugs)
-            const soundCallback = AutoRewards.buildSoundAndSpeechCallback(
-                cfg?.audio, 
-                cfg?.speech,
-                nonceTTS, 
-                !!(cfg?.speech)
-            )
-            const pipeCallback = AutoRewards.buildPipeCallback(cfg?.pipe)
-            const openvr2wsSettingCallback = AutoRewards.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
-            const signCallback = AutoRewards.buildSignCallback(cfg?.sign)
-            const runCallback = AutoRewards.buildRunCallback(cfg?.run)
-            const webCallback = AutoRewards.buildWebCallback(cfg?.web)
-            const screenshotCallback = AutoRewards.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
+        const reward:ITwitchReward = {
+            id: await Utils.getRewardId(key),
+            callback: async (data:ITwitchRedemptionMessage)=>{
+                // Prep for incremental reward
+                const rewardConfig = Utils.getRewardConfig(key)
+                let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
 
-            const reward:ITwitchReward = {
-                id: await Utils.getRewardId(key),
-                callback: async (data:ITwitchRedemptionMessage)=>{
-                    // Prep for incremental reward
-                    const rewardConfig = Config.twitch.rewardConfigs[key]
-                    let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                    if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
+                // Disable reward after use
+                if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
+                    const id = await Utils.getRewardId(key)
+                    modules.twitchHelix.updateReward(id, {is_enabled: false})
+                }
 
-                    // Disable reward after use
-                    if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
-                        const id = await Utils.getRewardId(key)
-                        modules.twitchHelix.updateReward(id, {is_enabled: false})
-                    }
-
-                    // Main callbacks
-                    if(obsCallback != null) obsCallback(data)
-                    if(colorCallback != null) colorCallback(data)
-                    if(plugCallback != null) plugCallback(data)
-                    if(soundCallback != null) soundCallback(data, counter?.count)
-                    if(pipeCallback != null) pipeCallback(data)
-                    if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
-                    if(signCallback != null) signCallback(data)
-                    if(runCallback != null) runCallback(data)
-                    if(webCallback != null) webCallback(data)
-                    if(screenshotCallback != null) screenshotCallback(data)
-            
-                    // Switch to the next incremental reward if it has more configs available
-                    if(Array.isArray(rewardConfig) && counter != undefined) {                       
-                        counter.count++
-                        const newRewardConfig = rewardConfig[counter.count]
-                        if(newRewardConfig != undefined) {
-                            Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
-                            modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
-                        }
+                // Main callbacks
+                if(obsCallback != null) obsCallback(data)
+                if(colorCallback != null) colorCallback(data)
+                if(plugCallback != null) plugCallback(data)
+                if(soundCallback != null) soundCallback(data, counter?.count)
+                if(pipeCallback != null) pipeCallback(data)
+                if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
+                if(signCallback != null) signCallback(data)
+                if(runCallback != null) runCallback(data)
+                if(webCallback != null) webCallback(data)
+                if(screenshotCallback != null) screenshotCallback(data)
+        
+                // Switch to the next incremental reward if it has more configs available
+                if(Array.isArray(rewardConfig) && counter != undefined) {                       
+                    counter.count++
+                    const newRewardConfig = rewardConfig[counter.count]
+                    if(newRewardConfig != undefined) {
+                        Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
+                        modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
                     }
                 }
             }
-            if(reward.id != null) {
-                Utils.logWithBold(
-                    `Registering Automatic Reward `
-                    +(obsCallback?'🎬':'')
-                    +(colorCallback?'🎨':'')
-                    +(plugCallback?'🔌':'')
-                    +(soundCallback?'🔊':'')
-                    +(pipeCallback?'📺':'')
-                    +(openvr2wsSettingCallback?'🔧':'')
-                    +(runCallback?'🛴':'')
-                    +(webCallback?'🌐':'')
-                    +(screenshotCallback?'📷':'')
-                    +`: ${key}`, 'green')
-                modules.twitch.registerReward(reward)
-            } else {
-                Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
-            }
+        }
+        if(reward.id != null) {
+            Utils.logWithBold(
+                `Registering Automatic Reward `
+                +(obsCallback?'🎬':'')
+                +(colorCallback?'🎨':'')
+                +(plugCallback?'🔌':'')
+                +(soundCallback?'🔊':'')
+                +(pipeCallback?'📺':'')
+                +(openvr2wsSettingCallback?'🔧':'')
+                +(runCallback?'🛴':'')
+                +(webCallback?'🌐':'')
+                +(screenshotCallback?'📷':'')
+                +`: ${key}`, 'green')
+            modules.twitch.registerReward(reward)
+        } else {
+            Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
         }
     }
     
@@ -227,6 +230,7 @@ class AutoRewards {
     private static buildWebCallback(url: string|undefined) {
         if(url) return (message: ITwitchRedemptionMessage) => {
             fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
+            // fetch(`proxy.php?url=${url}`).then(result => console.log(result))
         }
     }
 

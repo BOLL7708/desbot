@@ -56,27 +56,13 @@ interface ITwitchConfig {
      * 
      * Useful to re-enable rewards that were disabled by the user or redeemed automatic rewards that are in: `disableAutoRewardAfterUse`.
      */
-    defaultRewards: string[]
+    alwaysOnRewards: string[]
     /**
      * These rewards will be switched off at widget load.
      * 
      * Useful to disable specific rewards in sub-configs.
      */
-    disableRewards: string[]
-    /**
-     * This is a list of all rewards that automatically trigger other functions in the widget.
-     * 
-     * As a reference, the following functions can be triggered by an automatic rewards:
-     * - Turn OBS things on/off
-     * - Change color of Philips Hue lights
-     * - Turning Philips Hue plugs on/off
-     * - Play back audio effects
-     * - Send overlays into VR
-     * - Change SteamVR settings
-     * - Press keys in a specific desktop window
-     * - Load a web URL in the background
-     */
-    autoRewards: string[]
+    alwaysOffRewards: string[]
 
     /**
      * Rewards listed here will be disabled as soon as they have been used, meaning they will vanish.
@@ -84,17 +70,48 @@ interface ITwitchConfig {
     disableAutoRewardAfterUse: string[]
     
     /**
-     * This is the main list of reward configs, if you add new ones here they will be automatically created
-     * the next time you run the widget. If you want to update an existing reward config, save your changes,
-     * reload the widget and then run `!update`, this will apply the current configs to existing rewards.
+     * Reward configs, if you add new ones they will be automatically created the next
+     * time you run the widget. If you want to update an existing reward config, save your changes, reload
+     * the widget and then run `!update` in chat, this will apply the current configs to existing rewards.
      * 
-     * Rewards should have the minimum of `title` and `cost`, and the title needs to be unique among all custom rewards.
+     * Rewards should have the minimum of `title` and `cost`, and the title needs to be unique among all 
+     * custom rewards on your channel.
      * 
-     * Default rewards are in there as they control system features, you can set `is_enabled` to `false` 
-     * or remove the configs before running it the first time if you don't want that feature.
+     * Default rewards that control system features, you can set `is_enabled` to `false` or
+     * remove the configs before running it the first time if you don't want a specific feature.
      */
-    rewardConfigs: { [key: string]: ITwitchRewardConfig }
+    defaultRewardConfigs: { [key: string]: ITwitchRewardConfig }
     
+    /**
+     * Automatic reward configs can also include all the various functions and properties that are
+     * dynamically assigned.
+     * 
+     * As a reference, the following functions can be triggered by an automatic rewards:
+     * - Toggle OBS sources or filters
+     * - Toggle and change color of Philips Hue lights
+     * - Toggle Philips Hue plugs
+     * - Play back audio effects
+     * - Speak using TTS
+     * - Send overlays into VR
+     * - Change SteamVR settings
+     * - Press keys in a specific desktop window
+     * - Load a web URL in the background
+     * - Take screenshots via SSSVR or OBS
+     */
+    autoRewardConfigs: { [key: string]: ITwitchRewardConfig }
+
+    /**
+     * Automatic rewards that are specific for a game, they are dynamically updated depending on 
+     * the current Steam title. Will be disabled if no config is available.
+     */
+    gameSpecificAutoRewardDefaultConfigs: { [key: string]: ITwitchRewardConfig }
+    
+    /**
+     * Configuration for rewards that will be updated per game. This literally changes what the reward
+     * looks like and what it does, basically resusing the same reward for different games.
+     */
+    gameSpecificAutoRewardConfigsPerGame: { [key: string]: { [key: string]: ITwitchRewardConfig } }
+
     /**
      * Default for turning rewards on or off depending on Steam game.
      * Applied when no specific profile is found
@@ -133,19 +150,7 @@ interface ITwitchConfig {
      * Turn on rewards for specific overlays, can be used to toggle rewards on 
      * things like LIV running as it has an overlay that is always enabled.
      */
-    turnOnRewardForOverlays: { [key: string]: string[] }
-
-    /**
-     * Keys for rewards that are specific for a game, they are dynamically updated depending on the current title.
-     * Will be disabled if no config is available.
-     */
-    gameSpecificRewards: string[]
-
-    /**
-     * Configuration for rewards that will be updated per game. This literally changes what the reward
-     * looks like and what it does, basically resusing the same reward for different games.
-     */
-    gameSpecificRewardsPerGame: { [key: string]: { [key: string]: ITwitchRewardConfig } }
+    turnOnRewardForOverlays: { [key: string]: string[] }  
     
     /**
      * Numbers that overrides/complements defined patterns for the Channel Trophy reward.

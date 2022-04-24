@@ -441,10 +441,10 @@ Config.twitch = <ITwitchConfig> {
     skipUpdatingRewards: [
         KeysTemplate.KEY_CHANNELTROPHY
     ],
-    defaultRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
+    alwaysOnRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
         KeysTemplate.KEY_CHANNELTROPHY
     ],
-    disableRewards: [],
+    alwaysOffRewards: [],
     autoRewards: [
         // KeysTemplate.KEY_YOURREWARD,
     ],
@@ -453,7 +453,7 @@ Config.twitch = <ITwitchConfig> {
         // KeysTemplate.KEY_YOURREWARD
     ], 
 
-    rewardConfigs: {   
+    defaultRewardConfigs: {   
         /*
         .#####...######..######...####...##..##..##......######.
         .##..##..##......##......##..##..##..##..##........##...
@@ -505,17 +505,24 @@ Config.twitch = <ITwitchConfig> {
                 durationMs: 10000,
                 title: 'The 🏆 was grabbed!'
             }
-        },
+        }
+    },
 
-        /*
-        ..####...##..##...####...######...####...##...##.
-        .##..##..##..##..##........##....##..##..###.###.
-        .##......##..##...####.....##....##..##..##.#.##.
-        .##..##..##..##......##....##....##..##..##...##.
-        ..####....####....####.....##.....####...##...##.
-        */
+    /**
+     * Add your own custom rewards here.
+     */
+    autoRewardConfigs: {
+        // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
+    },
 
-        // Add custom reward configs here, if you care to separate them from the default ones.
+    /**
+     * These are game specific rewards, first default setup and then game specific setup.
+     */
+    gameSpecificAutoRewardDefaultConfigs: {
+        // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
+    },
+    gameSpecificAutoRewardConfigsPerGame: {
+        // [GamesTemplate.A_GAME]: {[KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }}
     },
 
     rewardConfigProfileDefault: {
@@ -538,12 +545,6 @@ Config.twitch = <ITwitchConfig> {
     },
     turnOnRewardForOverlays: {
         // [OpenVR2WS.AN_OVERLAY_KEY]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
-    },
-    gameSpecificRewards: [
-        // [KeysTemplate.KEY_YOURGAMEREWARD, KeysTemplate.KEY_YOUROTHERGAMEREWARD]
-    ],
-    gameSpecificRewardsPerGame: {
-        // [GamesTemplate.A_GAME]: {[KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }}
     },
     channelTrophyUniqueNumbers: {
         // 1234: { speech: "", label: "" }

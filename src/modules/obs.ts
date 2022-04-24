@@ -66,7 +66,7 @@ class OBS {
             const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? ''))
             if(group) {
                 for(const k of group) {
-                    if(k != config.key) this.hide(Config.twitch.rewardConfigs[k]?.obs)
+                    if(k != config.key) this.hide(Utils.getRewardConfig(k)?.obs)
                 }
             }
             config.sceneNames.forEach(sceneName => {
@@ -82,7 +82,7 @@ class OBS {
             const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? ''))
             if(group) {
                 for(const k of group) {
-                    if(k != config.key) this.hide(Config.twitch.rewardConfigs[k]?.obs)
+                    if(k != config.key) this.hide(Utils.getRewardConfig(k)?.obs)
                 }
             }
             this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {

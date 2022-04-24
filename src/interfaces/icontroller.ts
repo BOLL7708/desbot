@@ -102,11 +102,8 @@ interface IControllerConfig {
      * 
      * The reward will get the name of the previous redeemer, both in the title and in the prompt.
      * 
-     * Note: The key for the channel trophy, {@link Keys}.CHANNEL_TROPHY, is also used for:
-     * - The reward config in {@link Config.twitch.rewardConfigs}.
-     * - A sound effect in {@link Config.audioplayer.configs}.
-     * - A Sign pop-in in {@link Config.sign.configs}.
-     * 
+     * Note: The key for the channel trophy, {@link Keys}.CHANNEL_TROPHY, is also used for the
+     * reward config in {@link Config.twitch.defaultRewardConfigs} which can include more settings.
      * These can be left out which means they just won't be used.
      */
     channelTrophySettings: {
@@ -125,7 +122,7 @@ interface IControllerConfig {
         /**
          * The reward prompt that is used for the reward after it has been redeemed, this is a templated value.
          * 
-         * The first `%s` is the name of the redeemer, the second `%s` is the existing reward prompt in {@link Config.twitch.rewardConfigs}, the third `%s` is the new reward price.
+         * The first `%s` is the name of the redeemer, the second `%s` is the existing reward prompt in the reward config, the third `%s` is the new reward price.
          */
         rewardPrompt: string
         /**

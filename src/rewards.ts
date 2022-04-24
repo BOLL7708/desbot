@@ -18,20 +18,24 @@ class Rewards {
         if(storedRewards == undefined) storedRewards = []
 
         // Create missing rewards if any
-        const allRewardKeys = Object.keys(Config.twitch.rewardConfigs)
+        const allRewardKeys = Utils.getAllRewardKeys()
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards?.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
-            const setup = Config.twitch.rewardConfigs[key]?.reward
-            let reward = await modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
-            if(reward && reward.data && reward.data.length > 0) {
-                await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+            const setup = Utils.getRewardConfig(key)?.reward
+            if(setup) {
+                let reward = await modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
+                if(reward && reward.data && reward.data.length > 0) {
+                    await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})
+                }
+            } else {
+                console.warn(`Reward ${key} is missing a setup.`)
             }
         }
 
         // Reset rewards with multiple steps
         for(const key of allRewardKeys) {
             if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
-                const setup = Config.twitch.rewardConfigs[key]?.reward
+                const setup = Utils.getRewardConfig(key)?.reward
                 if(Array.isArray(setup)) {
                     const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                     if((current?.count ?? 0) > 0) {
@@ -48,13 +52,13 @@ class Rewards {
         modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !states.ttsForAll})
 
         // Enable default rewards
-        const enableRewards = Config.twitch.defaultRewards.filter(reward => { return !Config.twitch.disableRewards.includes(reward) })
+        const enableRewards = Config.twitch.alwaysOnRewards.filter(reward => { return !Config.twitch.alwaysOffRewards.includes(reward) })
         for(const key of enableRewards) {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true})
         }
         
         // Disable unwanted rewards
-        for(const key of Config.twitch.disableRewards) {
+        for(const key of Config.twitch.alwaysOffRewards) {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
         }
 
@@ -127,9 +131,9 @@ class Rewards {
                 if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
-                const signCallback = AutoRewards.buildSignCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]?.sign)
+                const signCallback = AutoRewards.buildSignCallback(Utils.getRewardConfig(Keys.KEY_CHANNELTROPHY)?.sign)
                 signCallback?.call(this, message)
-                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]?.audio, undefined, '', true)
+                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Utils.getRewardConfig(Keys.KEY_CHANNELTROPHY)?.audio, undefined, '', true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward
@@ -154,7 +158,7 @@ class Rewards {
                     )
                     
                     // Update reward
-                    const configArrOrNot = Config.twitch.rewardConfigs[Keys.KEY_CHANNELTROPHY]?.reward
+                    const configArrOrNot = Utils.getRewardConfig(Keys.KEY_CHANNELTROPHY)?.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;

@@ -40,10 +40,10 @@ class MainController {
         }
 
         // Run init on classes that register things in the modules.
-        Commands.init()
-        Rewards.init()
-        AutoRewards.init()
-        Callbacks.init()
+        await Commands.init()
+        await Rewards.init()
+        await AutoRewards.init()
+        await Callbacks.init()
 
         /*
         .####.##....##.####.########

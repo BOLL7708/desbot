@@ -82,9 +82,9 @@ class Functions {
         /**
          * Game specific reward configuration
          */
-        const allGameRewardKeys = Config.twitch.gameSpecificRewards
-        const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificRewardsPerGame[appId] : undefined
-        const availableRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+        const allGameRewardKeys = Object.keys(Config.twitch.gameSpecificAutoRewardDefaultConfigs)
+        const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificAutoRewardConfigsPerGame[appId] : undefined
+        const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
 
         /**
          * Toggle individual rewards on/off depending on the app ID
@@ -103,8 +103,8 @@ class Functions {
         // Update rewards
 
         // Disable all resuable generic rewards that are not in use.
-        const unavailableRewardKeys = allGameRewardKeys.filter((key) => !availableRewardKeys.includes(key))
-        for(const rewardKey of unavailableRewardKeys) {
+        const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
+        for(const rewardKey of unavailableGameRewardKeys) {
             const rewardId = await Utils.getRewardId(rewardKey)
             Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, 'red')
             modules.twitchHelix.updateReward(rewardId, {

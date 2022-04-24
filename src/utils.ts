@@ -363,4 +363,24 @@ class Utils {
     static toInt(intStr: string|undefined, defaultValue: number = NaN): number {
         return parseInt(intStr ?? '') || defaultValue
     }
+
+    /**
+     * Get all reward keys
+     */
+    static getAllRewardKeys(): string[] {
+        return [
+            ...Object.keys(Config.twitch.defaultRewardConfigs),
+            ...Object.keys(Config.twitch.autoRewardConfigs),
+            ...Object.keys(Config.twitch.gameSpecificAutoRewardDefaultConfigs)
+        ]
+    }
+
+    /**
+     * Get reward config from any pool
+     */
+    static getRewardConfig(key: string): ITwitchRewardConfig|undefined {
+        return Config.twitch.defaultRewardConfigs[key] ??
+            Config.twitch.autoRewardConfigs[key] ??
+            Config.twitch.gameSpecificAutoRewardDefaultConfigs[key]
+    }
 }
