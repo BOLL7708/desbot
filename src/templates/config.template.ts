@@ -207,6 +207,10 @@ Config.google = <IGoogleConfig> {
         replaceLinks: true,
         replaceLinksWith: '"link"',
         removeUnicodeEmojis: true
+    },
+    replaceWordsWithAudio: false,
+    wordToAudioConfig: {
+        // 'word': 'https://yourhost.com/audiofiles/youraudio.wav'
     }
 }
 

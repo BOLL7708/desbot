@@ -47,6 +47,17 @@ interface IGoogleConfig {
      * Configuration for cleaning the text before it is spoken.
      */
     cleanTextConfig: ICleanTextConfig
+
+    /**
+     * This will convert the text to SSML, and replace words set in wordToAudioConfig.
+     * Due to how the TTS system works, these audio files needs to be hosted on a secure public host.
+     */
+    replaceWordsWithAudio: boolean
+
+    /**
+     * Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.
+     */
+    wordToAudioConfig: { [x:string]: IGoogleAudio }
 }
 
 // Data
@@ -55,4 +66,46 @@ interface IGoogleVoice {
     name: string
     ssmlGender: string
     naturalSampleRateHertz: number
+}
+
+/**
+ * A full config for a SSML audio tag.  
+ * See what all the settings do in detail here: https://cloud.google.com/text-to-speech/docs/ssml?authuser=0#attributes_1
+ */
+interface IGoogleAudio {
+    /**
+     * The full URL to the audio file.  
+     * This needs to be .wav (deprecated but works?) .mp3 or .ogg.  
+     * The file needs to be served off a secure host, SSL, https://.
+     */
+    src: string
+    /**
+     * Remove time from the start of the audio file, in milliseconds.
+     */
+    clipBeginMs?: number
+    /**
+     * Where to stop playback in milliseconds, the value is time from the beginning of the audio file.
+     */
+    clipEndMs?: number
+    /**
+     * Playback speed of the audio file.  
+     * Percentage of normal speed, denoted by `%` after the number.  
+     * The range is 50% - 200%.
+     */
+    speedPer?: number
+    /**
+     * Repeat the audio file this many times.  
+     * Ranges between 1 and 10, 0 is invalid and is seen as not set.
+     */
+    repeatCount?: number
+    /**
+     * Limit the possible playback duration.  
+     * Number of second or milliseconds, denoted by `s` or `ms` after the number.
+     */
+    repeatDurMs?: number
+    /**
+     * Adjust the volume in decibels, default is +0db.  
+     * Ranges between -40db to +40db, not sure if it's actually working though.
+     */
+    soundLevelDb?: number
 }
