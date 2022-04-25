@@ -25,6 +25,10 @@ interface IControllerConfig {
          */
         twitchPubsub: boolean
         /**
+         * OBS Studio connection, to toggle sources and filters.
+         */
+        obs: boolean
+        /**
          * OpenVR2WS connection, to change SteamVR settings and get SteamVR running app ID.
          */
         openvr2ws: boolean
@@ -33,13 +37,9 @@ interface IControllerConfig {
          */
         pipe: boolean
         /**
-         * OBS Studio connection, to toggle sources and filters.
-         */
-        obs: boolean
-        /**
          * SuperScreenShotterVR connection, to take and receive SteamVR screenshots.
          */
-        screenshots: boolean
+        sssvr: boolean
     }
     
     /**

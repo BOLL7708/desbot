@@ -58,7 +58,7 @@ class MainController {
         if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
         if(Config.controller.websocketsUsed.obs) modules.obs.init()
-        if(Config.controller.websocketsUsed.screenshots) modules.sssvr.init()
+        if(Config.controller.websocketsUsed.sssvr) modules.sssvr.init()
     }
 
 

@@ -54,10 +54,10 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
     websocketsUsed: {
         twitchChat: true,
         twitchPubsub: true,
-        openvr2ws: true,
-        pipe: true,
         obs: true,
-        screenshots: true
+        openvr2ws: false,
+        pipe: false,
+        sssvr: false
     },
     commandReferences: {
         // [KeysTemplate.YOUR_COMMAND]: KeysTemplate.KEY_YOURREWARD

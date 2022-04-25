@@ -7,15 +7,14 @@ class AutoRewards {
         .##..##..##..##....##....##..##..........##..##..##......#######..##..##..##..##..##..##......##.
         .##..##...####.....##.....####...........##..##..######...##.##...##..##..##..##..#####....####..
         */
-        for(const key of Object.keys(Config.twitch.autoRewardConfigs)) {
-            await this.registerAutoReward(key)
+        for(const entry of Object.entries(Config.twitch.autoRewardConfigs)) {
+            await this.registerAutoReward(entry[0], entry[1])
         }
     }
 
-    public static async registerAutoReward(key: string) {
+    public static async registerAutoReward(key: string, cfg: ITwitchRewardConfig) {
         const modules = ModulesSingleton.getInstance()
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-        const cfg = Utils.getRewardConfig(key)
         const obsCallback = AutoRewards.buildOBSCallback(cfg?.obs, key)
         const colorCallback = AutoRewards.buildColorCallback(cfg?.lights)
         const plugCallback = AutoRewards.buildPlugCallback(cfg?.plugs)

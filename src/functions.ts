@@ -78,13 +78,8 @@ class Functions {
             Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green)
             modules.twitchHelix.toggleRewards(defaultProfile)
         }
-
-        /**
-         * Game specific reward configuration
-         */
-        const allGameRewardKeys = Object.keys(Config.twitch.gameSpecificAutoRewardDefaultConfigs)
-        const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificAutoRewardConfigsPerGame[appId] : undefined
-        const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+       
+        // Update rewards
 
         /**
          * Toggle individual rewards on/off depending on the app ID
@@ -100,43 +95,44 @@ class Functions {
             modules.twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
         }
 
-        // Update rewards
-
-        // Disable all resuable generic rewards that are not in use.
-        const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
+        /**
+         * Game specific reward configuration
+         */
+         const allGameRewardKeys = Object.keys(Config.twitch.gameSpecificAutoRewardDefaultConfigs)
+         const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificAutoRewardConfigsPerGame[appId] : undefined
+         const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+         const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
+        
+         // Disable all resuable generic rewards that are not in use.
         for(const rewardKey of unavailableGameRewardKeys) {
             const rewardId = await Utils.getRewardId(rewardKey)
-            Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, 'red')
+            Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, Color.Red)
             modules.twitchHelix.updateReward(rewardId, {
                 is_enabled: false
             })
         }
-
-        // Update and enable all reusable generic rewards in use.
-        for(const rewardKey in gameSpecificRewards) {
-            const rewardId = await Utils.getRewardId(rewardKey)
-            const rewardConfig = gameSpecificRewards[rewardKey]
-            Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, 'purple')
-            modules.twitchHelix.updateReward(rewardId, {
-                ...rewardConfig,
-                ...{is_enabled: true}
-            })
-        }
-
-        // Update reward callbacks
-        for(const rewardKey in gameSpecificRewards) {
-            console.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`)
-            /*
-            const rewardId = await Utils.getRewardId(rewardKey)
-            const runConfig = runConfigs[rewardKey]
-            if(runConfig != undefined) {
-                modules.twitch.registerReward({
-                    id: rewardId,
-                    callback: AutoRewards.buildRunCallback(runConfig)
+        if(gameSpecificRewards) {
+            // Update and enable all reusable generic rewards in use.
+            for(const entry of Object.entries(gameSpecificRewards)) {
+                const rewardKey = entry[0]
+                const rewardConfig = entry[1]
+                const rewardId = await Utils.getRewardId(rewardKey)
+                Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, Color.Purple)
+                modules.twitchHelix.updateReward(rewardId, {
+                    ...rewardConfig.reward,
+                    ...{is_enabled: true}
                 })
-            } else Utils.logWithBold(`Could not find run config for <${appId}:${rewardKey}>`, 'red')
-            */
+            }
+
+            // Update game specific reward callbacks
+            for(const entry of Object.entries(gameSpecificRewards)) {
+                const rewardKey = entry[0]
+                const rewardConfig = entry[1]
+                Utils.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`, Color.Purple)
+                AutoRewards.registerAutoReward(rewardKey, rewardConfig)               
+            }
         }
+        
 
         // Show game in sign
         if(appId.length > 0) {
