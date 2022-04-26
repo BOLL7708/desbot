@@ -294,6 +294,6 @@ interface ITwitchRewardConfig {
     audio?: IAudio
     speech?: string|string[]
     sign?: ISignShowConfig
-    run?: IRunCommand
+    exec?: IExecConfig
     web?: string
 }

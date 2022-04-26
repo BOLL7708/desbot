@@ -1,4 +1,19 @@
 /**
+ * Execute kepresses and/or a custom URI.
+ */
+interface IExecConfig {
+    /**
+     * Send key presses to a window.
+     */
+    run?: IRunCommand
+    
+    /**
+     * Trigger a custom URI. An array will trigger all of them.
+     */
+    uri?: string|string[]
+}
+
+/**
  * This enables sending key presses to a specific window on your desktop using [AutoIt v3](https://www.autoitscript.com).
  * 
  * User the AutoIt shell extension to compile the `run\run.au3` file into `run\run.exe` by right-clicking `run.au3` and pick `Compile Script`.

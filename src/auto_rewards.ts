@@ -27,7 +27,7 @@ class AutoRewards {
         const pipeCallback = AutoRewards.buildPipeCallback(cfg?.pipe)
         const openvr2wsSettingCallback = AutoRewards.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
         const signCallback = AutoRewards.buildSignCallback(cfg?.sign)
-        const runCallback = AutoRewards.buildRunCallback(cfg?.run)
+        const execCallback = AutoRewards.buildExecCallback(cfg?.exec)
         const webCallback = AutoRewards.buildWebCallback(cfg?.web)
         const screenshotCallback = AutoRewards.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
 
@@ -53,7 +53,7 @@ class AutoRewards {
                 if(pipeCallback != null) pipeCallback(data)
                 if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
                 if(signCallback != null) signCallback(data)
-                if(runCallback != null) runCallback(data)
+                if(execCallback != null) execCallback(data)
                 if(webCallback != null) webCallback(data)
                 if(screenshotCallback != null) screenshotCallback(data)
         
@@ -77,7 +77,7 @@ class AutoRewards {
                 +(soundCallback?'🔊':'')
                 +(pipeCallback?'📺':'')
                 +(openvr2wsSettingCallback?'🔧':'')
-                +(runCallback?'🛴':'')
+                +(execCallback?'🎓':'')
                 +(webCallback?'🌐':'')
                 +(screenshotCallback?'📷':'')
                 +`: ${key}`, 'green')
@@ -217,19 +217,26 @@ class AutoRewards {
         }
     }
 
-    public static buildRunCallback(config: IRunCommand|undefined): ITwitchRedemptionCallback|undefined {
+    public static buildExecCallback(config: IExecConfig|undefined): ITwitchRedemptionCallback|undefined {
         if(config) return (message: ITwitchRedemptionMessage) => {
-            const modules = ModulesSingleton.getInstance()
-            const speech = message?.redemption?.reward?.title
-            if(speech != undefined) modules.tts.enqueueSpeakSentence(`Running: ${speech}`, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-            Run.executeCommand(config)
+            if(config.run) {
+                Exec.runKeyPressesFromPreset(config.run)
+            }
+            if(config.uri) {
+                if(Array.isArray(config.uri)) {
+                    for(const u of config.uri) {
+                        Exec.loadCustomURI(u)
+                    }
+                } else {
+                    Exec.loadCustomURI(config.uri)
+                }
+            }
         }
     }
 
     private static buildWebCallback(url: string|undefined) {
         if(url) return (message: ITwitchRedemptionMessage) => {
             fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
-            // fetch(`proxy.php?url=${url}`).then(result => console.log(result))
         }
     }
 

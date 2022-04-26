@@ -22,4 +22,3 @@ $command = Utils::decode($command);
 $enterPostfix = $enter ? '{ENTER}' : '';
 $run = "\"run.exe\" \"$window\" \"$command$enterPostfix\" 2>&1";
 shell_exec($run);
-

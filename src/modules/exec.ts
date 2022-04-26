@@ -1,12 +1,12 @@
-class Run {
-    static execute(window: string, command: string, postfixEnterStroke: boolean = true) {  
+class Exec {
+    static runKeyPresses(window: string, command: string, postfixEnterStroke: boolean = true) {  
         const windowb64 = Utils.encode(window)
         const commandb64 = Utils.encode(command)
         const passwordB64 = Utils.encode(Config.credentials.PHPPassword)
-        fetch(`run/run.php?window=${windowb64}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`, {headers: {password: passwordB64}})
+        fetch(`exec/run.php?window=${windowb64}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`, {headers: {password: passwordB64}})
     }
 
-    static executeCommand(preset: IRunCommand) {
+    static runKeyPressesFromPreset(preset: IRunCommand) {
         // Store command strings for possible reset
         const commands: string[] = []
         
@@ -20,7 +20,7 @@ class Run {
         }).join(preset.postfixEnterStroke ? '{ENTER}' : '')
 
         // Execute command
-        this.execute(preset.window, commandString, preset.postfixEnterStroke)
+        this.runKeyPresses(preset.window, commandString, preset.postfixEnterStroke)
 
         // Reset if we should
         if(preset.duration !== undefined) {
@@ -32,8 +32,13 @@ class Run {
                     index++
                     return cmd.defaultValue != undefined ? `${command} ${cmd.defaultValue}` : command
                 }).join(preset.postfixEnterStroke ? '{ENTER}' : '')
-                this.execute(preset.window, defaultCommandString, preset.postfixEnterStroke)
+                this.runKeyPresses(preset.window, defaultCommandString, preset.postfixEnterStroke)
             }, preset.duration*1000)
         }
+    }
+
+    static loadCustomURI(uri: string) {
+        const passwordB64 = Utils.encode(Config.credentials.PHPPassword)
+        fetch(`exec/uri.php?uri=${Utils.encode(uri)}`, {headers: {password: passwordB64}})
     }
 }
