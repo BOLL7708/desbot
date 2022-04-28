@@ -96,7 +96,7 @@ class Callbacks {
             
             if(states.logChatToDiscord) {
                 Discord.enqueueMessage(
-                    Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
+                    Config.credentials.DiscordWebhooks[Keys.DISCORD_CHAT],
                     user?.display_name,
                     user?.profile_image_url,
                     `${label}${logText}`
@@ -123,7 +123,7 @@ class Callbacks {
             if(message.redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
             if(states.logChatToDiscord) {
                 Discord.enqueueMessage(
-                    Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_CHAT],
+                    Config.credentials.DiscordWebhooks[Keys.DISCORD_CHAT],
                     user?.display_name,
                     user?.profile_image_url,
                     description
@@ -159,7 +159,7 @@ class Callbacks {
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
         */
         modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
-            const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_VRSCREENSHOT]
+            const discordCfg = Config.credentials.DiscordWebhooks[Keys.DISCORD_VRSCREENSHOT]
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
@@ -232,7 +232,7 @@ class Callbacks {
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData, nonce) => {
             const b64data = img.split(',').pop() ?? ''
-            const discordCfg = Config.credentials.DiscordWebhooks[Keys.KEY_DISCORD_OBSSCREENSHOT]
+            const discordCfg = Config.credentials.DiscordWebhooks[Keys.DISCORD_OBSSCREENSHOT]
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
             const nonceCallback = states.nonceCallbacks.get(nonce)
@@ -266,7 +266,7 @@ class Callbacks {
                 })
 
                 // Sound effect
-                const soundConfig = Config.audioplayer.configs[Keys.KEY_DISCORD_OBSSCREENSHOT]
+                const soundConfig = Config.audioplayer.configs[Keys.DISCORD_OBSSCREENSHOT]
                 if(soundConfig != undefined) modules.audioPlayer.enqueueAudio(soundConfig)
             }
         })

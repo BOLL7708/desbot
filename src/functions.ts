@@ -169,7 +169,7 @@ class Functions {
                     game_id: twitchGameData.id
                 }
                 const response = await modules.twitchHelix.updateChannelInformation(request)
-                const speech = Config.controller.speechReferences[Keys.KEY_CALLBACK_APPID]
+                const speech = Config.controller.speechReferences[Keys.CALLBACK_APPID]
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
                     modules.tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -228,7 +228,7 @@ class Functions {
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
-                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.KEY_CALLBACK_ACHIEVEMENT], {
+                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.CALLBACK_ACHIEVEMENT], {
                             username: gameMeta?.name ?? 'N/A',
                             avatar_url: gameMeta?.header_image ?? '',
                             embeds: [

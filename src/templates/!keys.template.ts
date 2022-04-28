@@ -65,10 +65,10 @@ class KeysTemplate {
     .##..##..##......#######..##..##..##..##..##..##......##.
     .##..##..######...##.##...##..##..##..##..#####....####..
     */
-    static readonly KEY_TTSSPEAK: string = 'Speak'
-    static readonly KEY_TTSSETVOICE: string = 'SetVoice'
-    static readonly KEY_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
-    static readonly KEY_CHANNELTROPHY: string = 'ChannelTrophy'
+    static readonly REWARD_TTSSPEAK: string = 'Speak'
+    static readonly REWARD_TTSSETVOICE: string = 'SetVoice'
+    static readonly REWARD_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
+    static readonly REWARD_CHANNELTROPHY: string = 'ChannelTrophy'
 
     /*
     ..####...######..##..##..######..#####..
@@ -79,16 +79,16 @@ class KeysTemplate {
     */
     
     // Discord
-    static readonly KEY_DISCORD_CHAT: string = 'DiscordChat'
-    static readonly KEY_DISCORD_VRSCREENSHOT: string = 'DiscordVRScreenshot'
-    static readonly KEY_DISCORD_OBSSCREENSHOT: string = 'DiscordOBSScreenshot'
+    static readonly DISCORD_CHAT: string = 'DiscordChat'
+    static readonly DISCORD_VRSCREENSHOT: string = 'DiscordVRScreenshot'
+    static readonly DISCORD_OBSSCREENSHOT: string = 'DiscordOBSScreenshot'
 
     // Chat (sound, pipe, text, more?)
-    static readonly KEY_MIXED_CHAT: string = 'EverythingChat'
+    static readonly CHAT: string = 'EverythingChat'
 
     // Callback keys
-    static readonly KEY_CALLBACK_APPID: string = 'CallbackAppID'
-    static readonly KEY_CALLBACK_ACHIEVEMENT: string = 'CallbackAchievement'
+    static readonly CALLBACK_APPID: string = 'CallbackAppID'
+    static readonly CALLBACK_ACHIEVEMENT: string = 'CallbackAchievement'
 
     /*
     ..######..##.....##..######..########..#######..##.....##

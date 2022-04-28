@@ -18,11 +18,11 @@ Config.credentials = <ICredentialsConfig> {
     TwitchChatbotRefreshToken: '',
     PHPPassword: '',
     DiscordWebhooks: {
-        [KeysTemplate.KEY_DISCORD_CHAT]: 'The webhook URL you want to use for logging Twitch chat',
-        [KeysTemplate.KEY_DISCORD_VRSCREENSHOT]: 'The webhook URL you want to use for VR screenshots',
-        [KeysTemplate.KEY_DISCORD_OBSSCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
-        [KeysTemplate.KEY_CHANNELTROPHY]: 'The webhook URL you want to use for the channel trophy',
-        [KeysTemplate.KEY_CALLBACK_ACHIEVEMENT]: 'The webhook URL you want to use for the achievement callback',
+        [KeysTemplate.DISCORD_CHAT]: 'The webhook URL you want to use for logging Twitch chat',
+        [KeysTemplate.DISCORD_VRSCREENSHOT]: 'The webhook URL you want to use for VR screenshots',
+        [KeysTemplate.DISCORD_OBSSCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
+        [KeysTemplate.REWARD_CHANNELTROPHY]: 'The webhook URL you want to use for the channel trophy',
+        [KeysTemplate.CALLBACK_ACHIEVEMENT]: 'The webhook URL you want to use for the achievement callback',
         [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: 'The webhook URL you want to use for channel trophy statistics',
         [KeysTemplate.COMMAND_CLIPS]: 'The webhook URL you want to use for Twitch clips'
     },
@@ -125,7 +125,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             '%s is now said as %s', 
             '%s messed up a dictionary entry'
         ],
-        [KeysTemplate.KEY_CALLBACK_APPID]: [
+        [KeysTemplate.CALLBACK_APPID]: [
             'Twitch game updated: %s',
             'Twitch game not matched: %s'
         ],
@@ -271,7 +271,7 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
 Config.pipe = <IPipeConfig> {
     port: 8077,
     showRewardsWithKeys: [
-        KeysTemplate.KEY_TTSSPEAK
+        KeysTemplate.REWARD_TTSSPEAK
     ],
     useCustomChatNotification: false,
     customChatMessageConfig: {
@@ -443,10 +443,10 @@ Config.twitch = <ITwitchConfig> {
     ],
 
     skipUpdatingRewards: [
-        KeysTemplate.KEY_CHANNELTROPHY
+        KeysTemplate.REWARD_CHANNELTROPHY
     ],
     alwaysOnRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
-        KeysTemplate.KEY_CHANNELTROPHY
+        KeysTemplate.REWARD_CHANNELTROPHY
     ],
     alwaysOffRewards: [],
     autoRewards: [
@@ -465,7 +465,7 @@ Config.twitch = <ITwitchConfig> {
         .##..##..##......##......##..##..##..##..##........##...
         .#####...######..##......##..##...####...######....##...
         */
-        [KeysTemplate.KEY_TTSSPEAK]: {
+        [KeysTemplate.REWARD_TTSSPEAK]: {
             reward: {
                 title: 'TTS',
                 cost: 10,
@@ -474,7 +474,7 @@ Config.twitch = <ITwitchConfig> {
                 is_user_input_required: true
             }
         },
-        [KeysTemplate.KEY_TTSSETVOICE]: {
+        [KeysTemplate.REWARD_TTSSETVOICE]: {
             reward: {
                 title: 'Set TTS voice',
                 cost: 10,
@@ -483,7 +483,7 @@ Config.twitch = <ITwitchConfig> {
                 is_user_input_required: true
             }
         },
-        [KeysTemplate.KEY_TTSSWITCHVOICEGENDER]: {
+        [KeysTemplate.REWARD_TTSSWITCHVOICEGENDER]: {
             reward: {
                 title: 'TTS Gender Flip',
                 cost: 10,
@@ -491,7 +491,7 @@ Config.twitch = <ITwitchConfig> {
                 background_color: '#808080'
             }
         },
-        [Keys.KEY_CHANNELTROPHY]: {
+        [Keys.REWARD_CHANNELTROPHY]: {
             reward: {
                 title: '🏆 Held by nobody!',
                 cost: 1,

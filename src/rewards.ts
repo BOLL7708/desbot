@@ -49,7 +49,7 @@ class Rewards {
         }
 
         // Toggle TTS rewards
-        modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: !states.ttsForAll})
+        modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: !states.ttsForAll})
 
         // Enable default rewards
         const enableRewards = Config.twitch.alwaysOnRewards.filter(reward => { return !Config.twitch.alwaysOffRewards.includes(reward) })
@@ -70,7 +70,7 @@ class Rewards {
         ...##......##.....####..
         */
         modules.twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_TTSSPEAK),
+            id: await Utils.getRewardId(Keys.REWARD_TTSSPEAK),
             callback: (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
                 const inputText = data?.redemption?.user_input
@@ -85,7 +85,7 @@ class Rewards {
             }
         })
         modules.twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_TTSSETVOICE),
+            id: await Utils.getRewardId(Keys.REWARD_TTSSETVOICE),
             callback: async (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
                 const displayName = data?.redemption?.user?.display_name
@@ -96,7 +96,7 @@ class Rewards {
             }
         })
         modules.twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_TTSSWITCHVOICEGENDER),
+            id: await Utils.getRewardId(Keys.REWARD_TTSSWITCHVOICEGENDER),
             callback: (data:ITwitchRedemptionMessage) => {
                 const userName = data?.redemption?.user?.login
                 Utils.log(`TTS Gender Set Reward: ${userName}`, Color.DarkOrange)
@@ -117,7 +117,7 @@ class Rewards {
         ...##....##..##...####...##......##..##....##...
         */
         modules.twitch.registerReward({
-            id: await Utils.getRewardId(Keys.KEY_CHANNELTROPHY),
+            id: await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY),
             callback: async (message:ITwitchRedemptionMessage) => {
                 // Save stat
                 const row: IChannelTrophyStat = {
@@ -128,16 +128,16 @@ class Rewards {
                 Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
 
                 const user = await modules.twitchHelix.getUserById(parseInt(message.redemption.user.id))
-                if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
+                if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
-                const signCallback = AutoRewards.buildSignCallback(Utils.getRewardConfig(Keys.KEY_CHANNELTROPHY)?.sign)
+                const signCallback = AutoRewards.buildSignCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.sign)
                 signCallback?.call(this, message)
-                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Utils.getRewardConfig(Keys.KEY_CHANNELTROPHY)?.audio, undefined, '', true)
+                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.audio, undefined, '', true)
                 soundCallback?.call(this, message) // TODO: Should find a new sound for this.
 
                 // Update reward
-                const rewardId = await Utils.getRewardId(Keys.KEY_CHANNELTROPHY)
+                const rewardId = await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY)
                 const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
@@ -158,7 +158,7 @@ class Rewards {
                     )
                     
                     // Update reward
-                    const configArrOrNot = Utils.getRewardConfig(Keys.KEY_CHANNELTROPHY)?.reward
+                    const configArrOrNot = Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;
@@ -171,7 +171,7 @@ class Rewards {
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)
-                } else Utils.log(`Could not retrieve Reward Data for reward: ${Keys.KEY_CHANNELTROPHY}`, Color.Red)
+                } else Utils.log(`Could not retrieve Reward Data for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
             }
         })
     }

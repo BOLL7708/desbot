@@ -26,7 +26,7 @@ class Commands {
                 const onText:string = !states.ttsForAll ? speech[0] : speech[1]
                 states.ttsForAll = true
                 modules.tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: false})
+                modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: false})
             }
         })
 
@@ -37,7 +37,7 @@ class Commands {
                 const offText = states.ttsForAll ? speech[0] : speech[1]
                 states.ttsForAll = false
                 modules.tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.KEY_TTSSPEAK), {is_enabled: true})
+                modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: true})
             }
         })
 
