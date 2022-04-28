@@ -56,6 +56,8 @@ interface IGoogleConfig {
 
     /**
      * Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.
+     * 
+     * The key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"
      */
     wordToAudioConfig: { [x:string]: IGoogleAudio }
 }
@@ -77,8 +79,10 @@ interface IGoogleAudio {
      * The full URL to the audio file.  
      * This needs to be .wav (deprecated but works?) .mp3 or .ogg.  
      * The file needs to be served off a secure host, SSL, https://.
+     * 
+     * An array will be randomized from, but all the same words in a sentece will get the same audio.
      */
-    src: string
+    src: string|string[]
     /**
      * Remove time from the start of the audio file, in milliseconds.
      */

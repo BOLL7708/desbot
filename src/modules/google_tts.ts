@@ -194,7 +194,7 @@ class GoogleTTS {
             for(const entry of Object.entries(Config.google.wordToAudioConfig)) {
                 const word = entry[0]
                 const cfg = entry[1]
-                const src = cfg.src
+                const src = Utils.randomFromArray(cfg.src)
 
                 let audioTag = `<audio src="${src}"`
                 if(cfg.soundLevelDb != undefined) audioTag += ` soundLevel="${cfg.soundLevelDb}db"`
