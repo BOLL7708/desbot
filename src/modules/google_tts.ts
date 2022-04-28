@@ -14,13 +14,12 @@ class GoogleTTS {
     private _lastSpeaker: string = ''
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`GoogleTTS: Played callback not set, ${nonce}->${status}`) }
     private _emptyMessageSound: IAudio|undefined
-    private _dictionary: Record<string, string> = {}
-
     private _count = 0
     private _preloadQueue: Record<number, IAudio|string|null> = {} // Can be a string because we keep track on if it is in progress that way.
     private _preloadQueueLoopHandle: number = 0
     private _dequeueCount = 0
     private _dequeueMaxTries = 10
+    private _dictionary = new Dictionary()
 
     constructor() {
         this._preloadQueueLoopHandle = setInterval(this.checkForFinishedDownloads.bind(this), 250)
@@ -72,45 +71,8 @@ class GoogleTTS {
     }
 
     setDictionary(dictionary: IDictionaryEntry[]) {
-        if(dictionary != null) {
-            dictionary.forEach(pair => {
-                if(pair.original && pair.substitute) this._dictionary[pair.original] = pair.substitute
-            })
-        }
+        if(dictionary != null) this._dictionary.set(dictionary)
     }
-
-    private applyDictionary(text: string):string {
-        // Attach spaces to some characters as they could be missing and we want to match surrounding words
-        let adjustedText = text.replace(/[\-_:;\.,()\[\]~|]/g, function(a, b) { return `${a} ` })
-
-        // Split into words and filter out empty strings in case we had double spaces due to the above.
-        const words = adjustedText.split(' ').filter(str => {return str.length > 0}) 
-        words.forEach((word, i) => {
-            // Ignore these symbols at the start and end of a word
-            let wordKey = word.toLowerCase()
-            let startSymbol = ''
-            let endSymbol = ''
-
-            // Matches using unicode character categories for letters and marks
-            const match = wordKey.match(/([^\p{L}\p{M}]*)([\p{L}\p{M}]+)([^\p{L}\p{M}]*)/u)
-            if(match != null) {
-                startSymbol = match[1]
-                wordKey = match[2]
-                endSymbol = match[3]
-            }
-            
-            // Actual replacement
-            if(this._dictionary.hasOwnProperty(wordKey)) {
-                let replaceWith = this._dictionary[wordKey]
-                if(replaceWith.indexOf(',') > -1) { // Randomize if we find a list of words
-                    replaceWith = Utils.randomFromArray(replaceWith.split(','))
-                }
-                words[i] = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
-            }
-        })
-        return words.join(' ')
-    }
-
     /**
      * Will enqueue 
      * @param input The text to be spoken
@@ -173,7 +135,7 @@ class GoogleTTS {
             && Config.google.skipDictionaryForAnnouncements
         ) skipDictionary = true
 
-        if(!skipDictionary) cleanText = this.applyDictionary(cleanText)
+        if(!skipDictionary) cleanText = this._dictionary.apply(cleanText)
 
         // Replace words with audio references.
         if(Config.google.replaceWordsWithAudio) {               
