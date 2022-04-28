@@ -37,7 +37,7 @@ class AutoRewards {
                 // Prep for incremental reward
                 const rewardConfig = Utils.getRewardConfig(key)
                 let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
+                if(Array.isArray(rewardConfig?.reward) && counter == null) counter = {key: key, count: 0}
 
                 // Disable reward after use
                 if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
@@ -58,9 +58,9 @@ class AutoRewards {
                 if(screenshotCallback != null) screenshotCallback(data)
         
                 // Switch to the next incremental reward if it has more configs available
-                if(Array.isArray(rewardConfig) && counter != undefined) {                       
+                if(Array.isArray(rewardConfig?.reward) && counter != undefined) {                       
                     counter.count++
-                    const newRewardConfig = rewardConfig[counter.count]
+                    const newRewardConfig = rewardConfig?.reward[counter.count]
                     if(newRewardConfig != undefined) {
                         Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
                         modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
