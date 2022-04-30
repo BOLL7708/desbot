@@ -25,6 +25,11 @@ class Dictionary {
         }
     }
     
+    /**
+     * Set the dicitionary to use.  
+     * This is public for when new words are added at runtime.
+     * @param dictionary
+     */
     public set(dictionary: IDictionaryEntry[]) {
         if(dictionary != null) {
             dictionary.forEach(pair => {
@@ -33,6 +38,11 @@ class Dictionary {
         }
     }
 
+    /**
+     * Modify a string by replacing words in it with a match from the dictionary.
+     * @param text
+     * @returns The modified text.
+     */
     public apply(text: string): string {
         const injectAudio = Config.google.dictionaryConfig.replaceWordsWithAudio
 
@@ -40,7 +50,8 @@ class Dictionary {
         let adjustedText = text.replace(
             /(\s*)([^\p{L}\p{M}\s]+)([\p{L}\p{M}]){1}/gu, 
             function(full, whiteSpace, symbols, letter) {
-                if(whiteSpace.length > 0) return whiteSpace + symbols + letter
+                if(whiteSpace.length > 0) return full // It's already separated from the prior word
+                else if(symbols == "'") return full // It's likely an English abbreviated word combination
                 else if(symbols.lastIndexOf('<') == (symbols.length -1)) return ` ${symbols}${letter}`
                 else return `${symbols} ${letter}`
             }

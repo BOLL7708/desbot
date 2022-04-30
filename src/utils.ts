@@ -98,6 +98,7 @@ class Utils {
             text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, config.replaceLinksWith ?? 'link')
         }
 
+        // TODO: This might remove more symbols than emojis, not sure if that is something to fix.
         if(config.removeUnicodeEmojis) {
             // Emojis: https://stackoverflow.com/a/63464318/2076423
             text = text.replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') 
