@@ -193,7 +193,6 @@ Config.google = <IGoogleConfig> {
     randomizeVoiceLanguageFilter: 'en-',
     defaultVoice: '',
     speakingRateOverride: undefined,
-    skipDictionaryForAnnouncements: true,
     skipSaid: false,
     cleanTextConfig: {
         removeBitEmotes: false,
@@ -208,9 +207,12 @@ Config.google = <IGoogleConfig> {
         replaceLinksWith: '"link"',
         removeUnicodeEmojis: true
     },
-    replaceWordsWithAudio: false,
-    wordToAudioConfig: {
-        // 'word': 'https://yourhost.com/audiofiles/youraudio.wav'
+    dictionaryConfig: {
+        skipForAnnouncements: true,
+        replaceWordsWithAudio: true,
+        wordToAudioConfig: {
+            // 'word': 'https://yourhost.com/audiofiles/youraudio.wav'
+        }
     }
 }
 

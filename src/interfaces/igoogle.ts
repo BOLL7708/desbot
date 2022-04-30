@@ -34,11 +34,6 @@ interface IGoogleConfig {
     speakingRateOverride: number|undefined
     
     /**
-     * Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.
-     */
-    skipDictionaryForAnnouncements: boolean,
-
-    /**
      * Will skip the 'user' and 'said' text in "[user] said [text]" so it's only the clean text.
      */
     skipSaid: boolean
@@ -48,18 +43,25 @@ interface IGoogleConfig {
      */
     cleanTextConfig: ICleanTextConfig
 
-    /**
-     * This will convert the text to SSML, and replace words set in wordToAudioConfig.
-     * Due to how the TTS system works, these audio files needs to be hosted on a secure public host.
-     */
-    replaceWordsWithAudio: boolean
+    dictionaryConfig: {
+        /**
+        * Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.
+        */
+        skipForAnnouncements: boolean,
 
-    /**
-     * Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.
-     * 
-     * The key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"
-     */
-    wordToAudioConfig: { [x:string]: IGoogleAudio }
+        /**
+         * This will convert the text to SSML, and replace words set in wordToAudioConfig.
+         * Due to how the TTS system works, these audio files needs to be hosted on a secure public host.
+         */
+        replaceWordsWithAudio: boolean
+
+        /**
+         * Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.
+         * 
+         * The key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"
+         */
+        wordToAudioConfig: { [x:string]: IGoogleAudio }
+    }
 }
 
 // Data

@@ -14,7 +14,7 @@ class Dictionary {
 
     constructor() {
         // Build audio dictionary from Config
-        for(const entry of Object.entries(Config.google.wordToAudioConfig)) {
+        for(const entry of Object.entries(Config.google.dictionaryConfig.wordToAudioConfig)) {
             const word = entry[0]
             const config = entry[1]
             this._audioConfigs.push(config)
@@ -34,10 +34,17 @@ class Dictionary {
     }
 
     public apply(text: string): string {
-        const injectAudio = Config.google.replaceWordsWithAudio
+        const injectAudio = Config.google.dictionaryConfig.replaceWordsWithAudio
 
         // Add spaces after groups of symbols before word character, to make sure words are split up on space.
-        let adjustedText = text.replace(/([^\p{L}\p{M}\s]+)([\p{L}\p{M}]){1}/gu, '$1 $2')
+        let adjustedText = text.replace(
+            /(\s*)([^\p{L}\p{M}\s]+)([\p{L}\p{M}]){1}/gu, 
+            function(full, whiteSpace, symbols, letter) {
+                if(whiteSpace.length > 0) return whiteSpace + symbols + letter
+                else if(symbols.lastIndexOf('<') == (symbols.length -1)) return ` ${symbols}${letter}`
+                else return `${symbols} ${letter}`
+            }
+        )
 
         // Split into words and filter out empty strings in case we had double spaces due to the above.
         const words = adjustedText.split(' ').filter(str => {return str.length > 0}) 
@@ -56,27 +63,29 @@ class Dictionary {
             }
             
             // Word replacement by audio
-            let audioWasInjected = false
+            let done = false
             if(injectAudio && this._audioDictionary.has(wordKey)) {
                 const audioConfigIndex = this._audioDictionary.get(wordKey)
                 if(audioConfigIndex !== undefined) {
                     const audioConfig = this._audioConfigs[audioConfigIndex]
                     const replaceWith = this.buildSSMLAudioTag(wordKey, audioConfig)
                     words[i] = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word    
-                    audioWasInjected = true
+                    done = true
                 }
             }
 
-            // Or word replacement with other word(s)
-            if(!audioWasInjected && this._dictionary.has(wordKey)) {
+            // Word replacement with other word(s)
+            if(!done && this._dictionary.has(wordKey)) {
+                Utils.log("${i} DOING WORD REPLACEMENT FOR " + word, Color.DarkOrange)
                 let replaceWith = this._dictionary.get(wordKey)
                 if(replaceWith && replaceWith.indexOf(',') > -1) { // Randomize if we find a list of words
                     replaceWith = Utils.randomFromArray(replaceWith.split(','))
                 }
-                if(injectAudio && replaceWith !== undefined) {
+                replaceWith = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
+                if(injectAudio) {
                     replaceWith = this.escapeSymbolsForSSML(replaceWith)
                 }
-                words[i] = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
+                words[i] = replaceWith
             }
         })
         return words.join(' ')

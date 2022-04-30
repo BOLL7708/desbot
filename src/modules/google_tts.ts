@@ -132,7 +132,7 @@ class GoogleTTS {
 
         if( // If announcement the dictionary can be skipped.
             type == GoogleTTS.TYPE_ANNOUNCEMENT 
-            && Config.google.skipDictionaryForAnnouncements
+            && Config.google.dictionaryConfig.skipForAnnouncements
         ) skipDictionary = true
 
         if(!skipDictionary) cleanText = this._dictionary.apply(cleanText)
@@ -156,7 +156,7 @@ class GoogleTTS {
         this._lastSpeaker = sentence.userName
 
         // Surround in speak tags to make the SSML parse if we have used audio tags.
-        if(Config.google.replaceWordsWithAudio) {
+        if(Config.google.dictionaryConfig.replaceWordsWithAudio) {
             cleanText = `<speak>${cleanText}</speak>`
         }
 
