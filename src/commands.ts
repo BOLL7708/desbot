@@ -585,5 +585,15 @@ class Commands {
                 }
             }
         })
+
+        modules.twitch.registerCommand(
+            {
+                trigger: Keys.COMMAND_AUDIOURL,
+                callback: async (userData, input) => {
+                    const modules = ModulesSingleton.getInstance()
+                    if(input) modules.audioPlayer.enqueueAudio({src: input})
+                }
+            }
+        )
     }
 }
