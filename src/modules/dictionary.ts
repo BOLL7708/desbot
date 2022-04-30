@@ -1,5 +1,29 @@
 class Dictionary {
+    private static SSMLEscapeSymbols: { [x:string]: string } = {
+        "\"": "&quot;",
+        "'": "&apos;",
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;"
+    }
+    private static SSMLRegex = new RegExp(Object.keys(Dictionary.SSMLEscapeSymbols).join('|'), 'gi')
+
     private _dictionary: Map<string, string> = new Map()
+    private _audioDictionary: Map<string, number> = new Map()
+    private _audioConfigs: IGoogleAudio[] = []
+
+    constructor() {
+        // Build audio dictionary from Config
+        for(const entry of Object.entries(Config.google.wordToAudioConfig)) {
+            const word = entry[0]
+            const config = entry[1]
+            this._audioConfigs.push(config)
+            const configIndex = this._audioConfigs.length - 1
+            for(const w of word.split('|')) {
+                this._audioDictionary.set(w.toLowerCase().trim(), configIndex)
+            }
+        }
+    }
     
     public set(dictionary: IDictionaryEntry[]) {
         if(dictionary != null) {
@@ -10,8 +34,10 @@ class Dictionary {
     }
 
     public apply(text: string): string {
-        // Attach spaces to some characters as they could be missing and we want to match surrounding words
-        let adjustedText = text.replace(/[\-_:;\.,()\[\]~|]/g, function(a, b) { return `${a} ` })
+        const injectAudio = Config.google.replaceWordsWithAudio
+
+        // Add spaces after groups of symbols before word character, to make sure words are split up on space.
+        let adjustedText = text.replace(/([^\p{L}\p{M}\s]+)([\p{L}\p{M}]){1}/gu, '$1 $2')
 
         // Split into words and filter out empty strings in case we had double spaces due to the above.
         const words = adjustedText.split(' ').filter(str => {return str.length > 0}) 
@@ -29,15 +55,60 @@ class Dictionary {
                 endSymbol = match[3]
             }
             
-            // Actual replacement
-            if(this._dictionary.has(wordKey)) {
+            // Word replacement by audio
+            let audioWasInjected = false
+            if(injectAudio && this._audioDictionary.has(wordKey)) {
+                const audioConfigIndex = this._audioDictionary.get(wordKey)
+                if(audioConfigIndex !== undefined) {
+                    const audioConfig = this._audioConfigs[audioConfigIndex]
+                    const replaceWith = this.buildSSMLAudioTag(wordKey, audioConfig)
+                    words[i] = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word    
+                    audioWasInjected = true
+                }
+            }
+
+            // Or word replacement with other word(s)
+            if(!audioWasInjected && this._dictionary.has(wordKey)) {
                 let replaceWith = this._dictionary.get(wordKey)
                 if(replaceWith && replaceWith.indexOf(',') > -1) { // Randomize if we find a list of words
                     replaceWith = Utils.randomFromArray(replaceWith.split(','))
+                }
+                if(injectAudio && replaceWith !== undefined) {
+                    replaceWith = this.escapeSymbolsForSSML(replaceWith)
                 }
                 words[i] = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
             }
         })
         return words.join(' ')
+    }
+
+    /**
+     * Return a SSML Audio tag for a word and config.
+     * @param word 
+     * @param config 
+     * @returns 
+     */
+    private buildSSMLAudioTag(word: string, config: IGoogleAudio): string {
+        const src = Utils.randomFromArray(config.src)
+        let audioTag = `<audio src="${src}"`
+        if(config.soundLevelDb != undefined) audioTag += ` soundLevel="${config.soundLevelDb}db"`
+        if(config.clipBeginMs != undefined) audioTag += ` clipBegin="${config.clipBeginMs}ms"`
+        if(config.clipEndMs != undefined) audioTag += ` clipEnd="${config.clipEndMs}ms"`
+        if(config.repeatCount != undefined) audioTag += ` repeatCount="${config.repeatCount}"`
+        if(config.repeatDurMs != undefined) audioTag += ` repeatDur="${config.repeatDurMs}ms"`
+        if(config.speedPer != undefined) audioTag += ` speed="${config.speedPer}%"`
+        audioTag += `>${word}</audio>`
+        return audioTag
+    }
+    
+    /**
+     * Escape symbols for SSML.  
+     * We do this as what we send to Google is now always SSML, to support the text to audio replacement.
+     * @link https://cloud.google.com/text-to-speech/docs/ssml
+     * @param text 
+     * @returns 
+     */
+    private escapeSymbolsForSSML(text: string): string {
+        return text.replace(Dictionary.SSMLRegex, function(matched) { return Dictionary.SSMLEscapeSymbols[matched] })
     }
 }

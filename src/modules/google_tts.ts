@@ -137,41 +137,6 @@ class GoogleTTS {
 
         if(!skipDictionary) cleanText = this._dictionary.apply(cleanText)
 
-        // Replace words with audio references.
-        if(Config.google.replaceWordsWithAudio) {               
-            /*
-            * Escape symbols for SSML: https://cloud.google.com/text-to-speech/docs/ssml
-            * We do this as what we send to Google is now always SSML, to support the text to audio replacement.
-            */
-            const escapeSymbols: { [x:string]: string } = {
-                "\"": "&quot;",
-                "'": "&apos;",
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;"
-            }
-            const rx2 = new RegExp(Object.keys(escapeSymbols).join('|'), 'gi')
-            cleanText = cleanText.replace(rx2, function(matched) { return escapeSymbols[matched] })
-
-            for(const entry of Object.entries(Config.google.wordToAudioConfig)) {
-                const word = entry[0]
-                const cfg = entry[1]
-                const src = Utils.randomFromArray(cfg.src)
-
-                let audioTag = `<audio src="${src}"`
-                if(cfg.soundLevelDb != undefined) audioTag += ` soundLevel="${cfg.soundLevelDb}db"`
-                if(cfg.clipBeginMs != undefined) audioTag += ` clipBegin="${cfg.clipBeginMs}ms"`
-                if(cfg.clipEndMs != undefined) audioTag += ` clipEnd="${cfg.clipEndMs}ms"`
-                if(cfg.repeatCount != undefined) audioTag += ` repeatCount="${cfg.repeatCount}"`
-                if(cfg.repeatDurMs != undefined) audioTag += ` repeatDur="${cfg.repeatDurMs}ms"`
-                if(cfg.speedPer != undefined) audioTag += ` speed="${cfg.speedPer}%"`
-                audioTag += `>${word}</audio>`
-                
-                const rx = new RegExp(word, 'gi')
-                cleanText = cleanText.replace(rx, audioTag)
-            }
-        }
-
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
