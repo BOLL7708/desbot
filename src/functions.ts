@@ -43,7 +43,7 @@ class Functions {
         /**
          * Controller defaults loading
          */
-        if(appId.length == 0) {
+        if(appId.length != 0) {
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
             let combinedSettings = Config.controller.defaults
             if(controllerGameDefaults) {

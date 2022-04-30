@@ -55,6 +55,7 @@ class Dictionary {
             let endSymbol = ''
 
             // Matches using unicode character categories for letters and marks
+            // https://unicode.org/reports/tr18/#General_Category_Property
             const match = wordKey.match(/([^\p{L}\p{M}]*)([\p{L}\p{M}]+)([^\p{L}\p{M}]*)/u)
             if(match != null) {
                 startSymbol = match[1]
