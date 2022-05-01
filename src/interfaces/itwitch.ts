@@ -47,6 +47,11 @@ interface ITwitchConfig {
     ignoreModerators: string[]
 
     /**
+     * Configs for commands that can trigger actions.
+     */
+    commandConfigs: { [key: string]: ITwitchActionCommand }
+
+    /**
      * A list of rewards that will only be created, not updated using `!update`.
      * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
      */
@@ -78,10 +83,10 @@ interface ITwitchConfig {
     defaultRewardConfigs: { [key: string]: ITwitchActionReward }
     
     /**
-     * Automatic reward configs can also include all the various functions and properties that are
+     * Reward configs can also include all the various functions and properties that are
      * dynamically assigned.
      * 
-     * As a reference, the following functions can be triggered by an automatic rewards:
+     * As a reference, the following functions can be triggered by a reward:
      * - Toggle OBS sources or filters
      * - Toggle and change color of Philips Hue lights
      * - Toggle Philips Hue plugs
@@ -96,7 +101,7 @@ interface ITwitchConfig {
     rewardConfigs: { [key: string]: ITwitchActionReward }
 
     /**
-     * Automatic rewards that are specific for a game, they are dynamically updated depending on 
+     * Rewards that are specific for a game, they are dynamically updated depending on 
      * the current Steam title. Will be disabled if no config is available.
      */
     gameRewardDefaultConfigs: { [key: string]: ITwitchActionReward }
@@ -172,6 +177,19 @@ interface ITwitchRewardCounter {
 interface ITwitchActionCommandConfig {
     /**
      * The command that is matched from the chat.
+     * 
+     * Note: This is overwritten by the key value at registration.
+     */
+    trigger?: string
+    /**
+     * Permission for who can execute this command.
+     */
+    permissions: ICommandPermissions
+}
+
+interface ITwitchCommandConfig {
+    /**
+     * The command that is matched from the chat.
      */
     trigger: string
     /**
@@ -180,9 +198,6 @@ interface ITwitchActionCommandConfig {
      * Note: Filled in at registration, loaded from config.
      */
     permissions?: ICommandPermissions
-}
-
-interface ITwitchCommandConfig extends ITwitchActionCommandConfig {   
     /**
      * Optional: The callback the command executes.
      */

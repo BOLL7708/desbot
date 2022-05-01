@@ -30,9 +30,9 @@ class Twitch{
     registerCommand(command: ITwitchCommandConfig) {
 		if(command.trigger.length != 0) {
             // Use Default permission if none were provided.
-            const permissions = Config.controller.commandPermissionsOverrides[command.trigger]
-            if(permissions == undefined) command.permissions = {}
-            command.permissions = { ...Config.controller.commandPermissionsDefault, ...permissions, ...command.permissions }
+            const originalPermissions = command.permissions ?? {}
+            const overridePermissions = Config.controller.commandPermissionsOverrides[command.trigger] ?? {}
+            command.permissions = { ...Config.controller.commandPermissionsDefault, ...originalPermissions, ...overridePermissions }
            
             // Store the command
             this._commands.push(command)

@@ -444,6 +444,18 @@ Config.twitch = <ITwitchConfig> {
     ignoreModerators: [
         'RestreamBot'
     ],
+    commandConfigs: {
+        /*
+        [Keys.COMMAND_YOURCUSTOMCOMMAND]: {
+            command: {
+                permissions: {moderators: false}
+            },
+            audio: {
+                src: '_assets/some_audio_file.wav'
+            }}
+        }
+        */
+    },
 
     skipUpdatingRewards: [
         KeysTemplate.REWARD_CHANNELTROPHY
@@ -509,7 +521,7 @@ Config.twitch = <ITwitchConfig> {
     },
 
     /**
-     * Add your own custom rewards here.
+     * Add your own custom rewards to trigger actions here.
      */
     rewardConfigs: {
         // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }

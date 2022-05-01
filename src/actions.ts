@@ -1,9 +1,13 @@
 class Actions {
     public static async init() {
+        Utils.log('=== Registering Rewards for Actions ===', Color.DarkGreen)
         for(const entry of Object.entries(Config.twitch.rewardConfigs)) {
             await this.registerReward(entry[0], entry[1])
         }
-        // TODO: Add registration of commands
+        Utils.log('=== Registering Commands for Actions ===', Color.DarkGreen)
+        for(const entry of Object.entries(Config.twitch.commandConfigs)) {
+            await this.registerCommand(entry[0], entry[1])
+        }
     }
 
     public static userDataFromRedemptionMessage(message: ITwitchRedemptionMessage): ITwitchActionUser {
@@ -69,8 +73,9 @@ class Actions {
 
     public static async registerCommand(key: string, cfg: ITwitchActionCommand) {
         const modules = ModulesSingleton.getInstance()
+        cfg.command.trigger = key
         const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
-        modules.twitch.registerCommand({...cfg.command, callback: actionCallback})
+        modules.twitch.registerCommand(<ITwitchCommandConfig>{...cfg.command, callback: actionCallback})
     }
     
     /*
@@ -115,7 +120,7 @@ class Actions {
             +(execCallback?'🎓':'')
             +(webCallback?'🌐':'')
             +(screenshotCallback?'📷':'')
-            +`: ${key}`, 'green')
+            +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
         return async (user: ITwitchActionUser, index?: number) => {
