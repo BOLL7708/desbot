@@ -21,7 +21,7 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_ON,
-            callback: async (userData, input) => {
+            callback: async (user) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_ON]
                 const onText:string = !states.ttsForAll ? speech[0] : speech[1]
                 states.ttsForAll = true
@@ -32,7 +32,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_OFF,
-            callback: async (userData, input) => {
+            callback: async (user) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_OFF]
                 const offText = states.ttsForAll ? speech[0] : speech[1]
                 states.ttsForAll = false
@@ -43,45 +43,45 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_SILENCE,
-            callback: (userData, input) => {
+            callback: (user) => {
                 modules.tts.stopSpeaking()
             }
         })
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_DIE,
-            callback: (userData, input) => {
+            callback: (user) => {
                 modules.tts.stopSpeaking(true)
             }
         })
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_SAY,
-            callback: (userData, input) => {
-                modules.tts.enqueueSpeakSentence(input ?? '', Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            callback: (user) => {
+                modules.tts.enqueueSpeakSentence(user.input, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             }
         })
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_NICK,
-            callback: (userData, input) => {
-                const parts = Utils.splitOnFirst(' ', input ?? '')
+            callback: (user) => {
+                const parts = Utils.splitOnFirst(' ', user.input)
                 let userToRename: string = ''
                 let newName: string = ''
                 // Rename someone else
                 if(
-                    (userData?.isBroadcaster || userData?.isModerator) 
+                    (user?.isBroadcaster || user?.isModerator) 
                     && parts[0].indexOf('@') > -1 
                     && parts.length >= 1
                 ) { 
                     userToRename = Utils.cleanUserName(parts[0])
                     newName = parts[1].toLowerCase()
                 } else { // Rename yourself
-                    userToRename = userData?.userName ?? ''
-                    newName = input?.toLowerCase() ?? ''
+                    userToRename = user.name ?? ''
+                    newName = user.input.toLowerCase()
                 }
                 if(userToRename.length > 0 && newName.length > 0) {
-                    const setting = <IUserName> {userName: userToRename, shortName: newName, editor: userData?.userName ?? '', datetime: Utils.getISOTimestamp()}
+                    const setting = <IUserName> {userName: userToRename, shortName: newName, editor: user.login, datetime: Utils.getISOTimestamp()}
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
                     modules.tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -91,8 +91,8 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_MUTE,
-            callback: async (userData, input) => {
-                const parts = Utils.splitOnFirst(' ', input ?? '')
+            callback: async (user) => {
+                const parts = Utils.splitOnFirst(' ', user.input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length > 0 && name != Config.twitch.chatbotName.toLowerCase()) {
                     let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
@@ -111,8 +111,8 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_UNMUTE,
-            callback: async (userData, input) => {
-                const parts = Utils.splitOnFirst(' ', input ?? '')
+            callback: async (user) => {
+                const parts = Utils.splitOnFirst(' ', user.input)
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length == 0) return
                 const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', name)
@@ -137,14 +137,14 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT,
-            callback: (userData, input) => {
-                modules.pipe.sendBasic(input ?? '')
+            callback: (user) => {
+                modules.pipe.sendBasic(user.input)
             }
         })
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_ON,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.pipeAllChat = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -153,7 +153,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHAT_OFF,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.pipeAllChat = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -162,7 +162,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_PING_ON,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.pingForChat = true
                 Functions.setEmptySoundForTTS()
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_ON]
@@ -172,7 +172,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_PING_OFF,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.pingForChat = false
                 Functions.setEmptySoundForTTS()
                 const speech = Config.controller.speechReferences[Keys.COMMAND_PING_OFF]
@@ -189,7 +189,7 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_ON,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.logChatToDiscord = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -198,7 +198,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_LOG_OFF,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.logChatToDiscord = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -214,7 +214,7 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CAMERA_ON,
-            callback: (userData, input) => {
+            callback: (user) => {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -224,7 +224,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CAMERA_OFF,
-            callback: (userData, input) => {
+            callback: (user) => {
                 const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -241,8 +241,8 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_SCALE,
-            callback: (userData, input) => {
-                const parts = input?.split(' ') ?? []
+            callback: (user) => {
+                const parts = user.input.split(' ')
                 const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                 if(parts.length == 3) {
                     const fromScale = parseInt(parts[0])
@@ -284,8 +284,8 @@ class Commands {
                         )
                     }
                 } else {
-                    const scale = Utils.toInt(input)
-                    if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(input ?? '') > -1) { // Terminate interval
+                    const scale = Utils.toInt(user.input)
+                    if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(user.input) > -1) { // Terminate interval
                         const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                         clearInterval(states.scaleIntervalHandle)
                         Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
@@ -311,8 +311,8 @@ class Commands {
         */
         modules.twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
             trigger: Keys.COMMAND_BRIGHTNESS,
-            callback: (userData, input) => {
-                const brightness = Utils.toInt(input, 130)
+            callback: (user) => {
+                const brightness = Utils.toInt(user.input, 130)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_BRIGHTNESS]
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
                 modules.tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -325,9 +325,9 @@ class Commands {
 
         modules.twitch.registerCommand({ // TODO: WIP - Should only work with what the headset supports
             trigger: Keys.COMMAND_REFRESHRATE,
-            callback: (userData, input) => {
+            callback: (user) => {
                 const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
-                const possibleRefreshRate = Utils.toInt(input, 120)
+                const possibleRefreshRate = Utils.toInt(user.input, 120)
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
                 const speech = Config.controller.speechReferences[Keys.COMMAND_REFRESHRATE]
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
@@ -341,8 +341,8 @@ class Commands {
 
         modules.twitch.registerCommand({ // Currently not actually effective due to how the VR View does not listen to config changes
             trigger: Keys.COMMAND_VRVIEWEYE,
-            callback: (userData, input) => {
-                const eyeMode = Utils.toInt(input, 4)
+            callback: (user) => {
+                const eyeMode = Utils.toInt(user.input, 4)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_VRVIEWEYE]
                 const value = Math.max(0, Math.min(5, eyeMode))
                 modules.tts.enqueueSpeakSentence(Utils.template(speech, value), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -362,11 +362,11 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_DICTIONARY,
-            callback: async (userData, input) => {
-                const words = Utils.splitOnFirst(' ', input ?? '')
+            callback: async (user) => {
+                const words = Utils.splitOnFirst(' ', user.input)
                 if(words.length == 2 && words[1].trim().length > 0) {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
-                    const setting = <IDictionaryEntry> {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), editor: userData?.userName ?? '', datetime: Utils.getISOTimestamp()}
+                    const setting = <IDictionaryEntry> {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), editor: user.login, datetime: Utils.getISOTimestamp()}
                     Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
                     modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                     modules.tts.enqueueSpeakSentence(Utils.template(speech, words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
@@ -392,7 +392,7 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_UPDATEREWARDS,
-            callback: async (userData, input) => {
+            callback: async (user) => {
                 let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
@@ -421,7 +421,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMEREWARDS_ON,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.useGameSpecificRewards = true
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -431,7 +431,7 @@ class Commands {
         
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMEREWARDS_OFF,
-            callback: (userData, input) => {
+            callback: (user) => {
                 states.useGameSpecificRewards = false
                 const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
                 modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
@@ -448,18 +448,18 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_RELOADWIDGET,
-            callback: (userData, input) => {
+            callback: (user) => {
                 window.location.reload();
             }
         })
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CHANNELTROPHY_STATS,
-            callback: async (userData, input) => {
+            callback: async (user) => {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_CHANNELTROPHY_STATS]
                 const numberOfStreams = await ChannelTrophy.getNumberOfStreams()
-                const streamNumber = Utils.toInt(input)
-                if(input == "all") {
+                const streamNumber = Utils.toInt(user.input)
+                if(user.input == "all") {
                     modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     for(let i=0; i<numberOfStreams; i++) {
                         const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(modules.twitchHelix, i)
@@ -494,7 +494,7 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_CLIPS,
-            callback: async (userData, input) => {
+            callback: async (user) => {
                 const pageCount = 20
                 let lastCount = pageCount
                 const oldClips = await Settings.getFullSettings<ITwitchClip>(Settings.TWITCH_CLIPS)
@@ -549,12 +549,25 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAMERESET, 
-            callback: async (userData, input) => {
+            callback: async (user) => {
                 const states = StatesSingleton.getInstance()
                 modules.tts.enqueueSpeakSentence(Config.controller.speechReferences[Keys.COMMAND_GAMERESET], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 Functions.appIdCallback('', false)
                 states.lastSteamAppId = undefined
                 states.lastSteamAppIsVR = false
+            }
+        })
+
+        modules.twitch.registerCommand({
+            trigger: Keys.COMMAND_TODO,
+            callback: async (user) => {
+                const userData = await modules.twitchHelix.getUserById(Utils.toInt(user.id))
+                Discord.enqueueMessage(
+                    Config.credentials.DiscordWebhooks[Keys.COMMAND_TODO],
+                    user.name,
+                    userData?.profile_image_url,
+                    `👉 ${user.input}`
+                )
             }
         })
 
@@ -568,7 +581,7 @@ class Commands {
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_GAME,
             cooldown: 3*60,
-            cooldownCallback: async (userData, input) => {
+            cooldownCallback: async (user) => {
                 if(states.lastSteamAppId != undefined) {
                     const gameData = await SteamStore.getGameMeta(states.lastSteamAppId)
                     const price = SteamStore.getPrice(gameData)
@@ -589,9 +602,9 @@ class Commands {
         modules.twitch.registerCommand(
             {
                 trigger: Keys.COMMAND_AUDIOURL,
-                callback: async (userData, input) => {
+                callback: async (user) => {
                     const modules = ModulesSingleton.getInstance()
-                    if(input) modules.audioPlayer.enqueueAudio({src: input})
+                    if(user.input) modules.audioPlayer.enqueueAudio({src: user.input})
                 }
             }
         )

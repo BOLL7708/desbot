@@ -77,7 +77,7 @@ class Twitch{
     private onReward(id:string, message:ITwitchRedemptionMessage) {
         this._allRewardsCallback(message)
         let reward = this._rewards.find(reward => id == reward.id)
-        if(reward?.callback) reward.callback(message)
+        if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(message))
         else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
     }
 
@@ -104,11 +104,12 @@ class Twitch{
         }
 
         // User data for most callbacks
-        const userData:ITwitchUserData = {
-            userId: messageCmd.properties["user-id"],
-            userName: userName,
-            displayName: messageCmd.properties?.["display-name"],
-            color: messageCmd.properties?.color,
+        const user: ITwitchActionUser = {
+            id: messageCmd.properties["user-id"] ?? '',
+            login: userName,
+            name: messageCmd.properties?.["display-name"] ?? '',
+            input: '',
+            color: messageCmd.properties?.color ?? '',
             isModerator: isModerator,
             isVIP: isVIP,
             isSubscriber: isSubscriber,
@@ -145,11 +146,12 @@ class Twitch{
             )
 
             if(command && commandStr) {
+                user.input = textStr
                 if(allowedRole && command.callback != undefined) {
-                    command.callback(userData, textStr)
+                    command.callback(user)
                 }
                 if(allowedRole && allowedByCooldown && command.cooldownCallback != undefined) {
-                    command.cooldownCallback(userData, textStr)
+                    command.cooldownCallback(user)
                 }
                 if(command.cooldown != undefined) {
                     this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
@@ -169,19 +171,19 @@ class Twitch{
         const announcement = this._announcements.find(a => a.userNames.includes(userName))
         if(announcement) { // Announcement bots
             const firstWord = text.split(' ')[0]
-            if(text.length >= 1 && announcement.triggers.indexOf(firstWord) != -1) return announcement.callback(userData, messageData, firstWord)
+            if(text.length >= 1 && announcement.triggers.indexOf(firstWord) != -1) return announcement.callback(user, messageData, firstWord)
         } 
         else if(!isNaN(bits) && bits > 0) { // Cheers
-            return this._chatCheerCallback(userData, messageData)
+            return this._chatCheerCallback(user, messageData)
         } 
         else { // Normal users
-            return this._chatCallback(userData, messageData)
+            return this._chatCallback(user, messageData)
         }
     }
 
-    runCommand(commandStr: string) {
+    async runCommand(commandStr: string) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.callback) command.callback()
+        if(command?.callback) command.callback(await Actions.getEmptyUserDataForCommands())
     }
 }

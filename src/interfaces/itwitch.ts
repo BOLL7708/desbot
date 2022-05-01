@@ -154,7 +154,7 @@ interface ITwitchConfig {
 }
 interface ITwitchReward {
     id?: string
-    callback?: ITwitchRedemptionCallback
+    callback?: ITwitchActionCallback
 }
 
 // Settings
@@ -231,38 +231,28 @@ interface ITwitchRewardProfileConfig {
 }
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
-    (userName: ITwitchUserData, messageData:ITwitchMessageData): void
+    (user: ITwitchActionUser, messageData: ITwitchMessageData): void
 }
-interface ITwitchRedemptionCallback {
-    (message: ITwitchRedemptionMessage, index?: number): void
+interface ITwitchActionCallback {
+    (user: ITwitchActionUser, index?: number, redemptionMessage?: ITwitchRedemptionMessage): void
 }
 interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
 }
 interface ITwitchSlashCommandCallback {
-    (userData?: ITwitchUserData, input?: string): void
+    (user: ITwitchActionUser): void
 }
 interface ITwitchAnnouncementCallback {
-    (userData: ITwitchUserData, messageData:ITwitchMessageData, firstWord:string): void
+    (user: ITwitchActionUser, messageData: ITwitchMessageData, firstWord: string): void
 }
 interface ITwitchChatCheerCallback {
-    (userData: ITwitchUserData, messageData:ITwitchMessageData): void
+    (user: ITwitchActionUser, messageData: ITwitchMessageData): void
 }
 interface ITwitchRewardRedemptionCallback {
     (message: ITwitchRedemptionMessage): void
 }
 
 // Callback data
-interface ITwitchUserData {
-    userId?: string
-    userName: string
-    displayName?: string
-    color?: string
-    isModerator: boolean
-    isVIP: boolean
-    isSubscriber: boolean
-    isBroadcaster: boolean
-}
 interface ITwitchMessageData {
     text: string
     bits: number
@@ -291,4 +281,19 @@ interface ITwitchRewardConfig {
     sign?: ISignShowConfig
     exec?: IExecConfig
     web?: string
+}
+
+/**
+ * Combined Reward and Command result object for shared actions.
+ */
+interface ITwitchActionUser {
+    id: string
+    login: string
+    name: string
+    input: string
+    color: string
+    isBroadcaster: boolean
+    isModerator: boolean
+    isVIP: boolean
+    isSubscriber: boolean
 }

@@ -74,14 +74,12 @@ class Rewards {
         */
         modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSPEAK),
-            callback: (data:ITwitchRedemptionMessage) => {
-                const userName = data?.redemption?.user?.login
-                const inputText = data?.redemption?.user_input
-                if(userName != null && inputText != null) {
+            callback: (user: ITwitchActionUser) => {
+                if(user.login.length > 0 && user.input.length > 0) {
                     Utils.log("TTS Message Reward", Color.DarkOrange)
                     modules.tts.enqueueSpeakSentence(
-                        inputText,
-                        userName,
+                        user.input,
+                        user.login,
                         GoogleTTS.TYPE_SAID
                     )
                 }
@@ -89,25 +87,21 @@ class Rewards {
         })
         modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSETVOICE),
-            callback: async (data:ITwitchRedemptionMessage) => {
-                const userName = data?.redemption?.user?.login
-                const displayName = data?.redemption?.user?.display_name
-                const userInput = data?.redemption?.user_input
-                Utils.log(`TTS Voice Set Reward: ${userName} -> ${userInput}`, Color.DarkOrange)
-                const voiceName = await modules.tts.setVoiceForUser(userName, userInput)
-                modules.twitch._twitchChatOut.sendMessageToChannel(`@${displayName} voice: ${voiceName}`)
+            callback: async (user: ITwitchActionUser) => {
+                Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
+                const voiceName = await modules.tts.setVoiceForUser(user.login, user.input)
+                modules.twitch._twitchChatOut.sendMessageToChannel(`@${user.name} voice: ${voiceName}`)
             }
         })
         modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSWITCHVOICEGENDER),
-            callback: (data:ITwitchRedemptionMessage) => {
-                const userName = data?.redemption?.user?.login
-                Utils.log(`TTS Gender Set Reward: ${userName}`, Color.DarkOrange)
-                Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userName).then(voice => {
+            callback: (user: ITwitchActionUser) => {
+                Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
+                Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', user.login).then(voice => {
                     const voiceSetting = voice
                     let gender:string = ''
                     if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
-                    modules.tts.setVoiceForUser(userName, `reset ${gender}`)
+                    modules.tts.setVoiceForUser(user.login, `reset ${gender}`)
                 })
             }
         })
@@ -121,23 +115,23 @@ class Rewards {
         */
         modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY),
-            callback: async (message:ITwitchRedemptionMessage) => {
+            callback: async (user: ITwitchActionUser, index: number|undefined, message: ITwitchRedemptionMessage|undefined) => {
                 // Save stat
                 const row: IChannelTrophyStat = {
-                    userId: message.redemption.user.id,
-                    index: message.redemption.reward.redemptions_redeemed_current_stream,
-                    cost: message.redemption.reward.cost.toString()
+                    userId: user.id,
+                    index: message?.redemption.reward.redemptions_redeemed_current_stream,
+                    cost: message?.redemption.reward.cost.toString() ?? '0'
                 }
                 Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
 
-                const user = await modules.twitchHelix.getUserById(parseInt(message.redemption.user.id))
-                if(user == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+                const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+                if(userData == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
-                const signCallback = AutoRewards.buildSignCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.sign)
-                signCallback?.call(this, message)
-                const soundCallback = AutoRewards.buildSoundAndSpeechCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.audio, undefined, '', true)
-                soundCallback?.call(this, message) // TODO: Should find a new sound for this.
+                const signCallback = Actions.buildSignCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.sign)
+                signCallback?.call(this, user)
+                const soundCallback = Actions.buildSoundAndSpeechCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.audio, undefined, '', true)
+                soundCallback?.call(this, user) // TODO: Should find a new sound for this.
 
                 // Update reward
                 const rewardId = await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY)
@@ -157,7 +151,7 @@ class Rewards {
                     // Update label in overlay
                     Settings.pushLabel(
                         Settings.CHANNEL_TROPHY_LABEL, 
-                        Utils.template(Config.controller.channelTrophySettings.label, cost, user.display_name)
+                        Utils.template(Config.controller.channelTrophySettings.label, cost, user.name)
                     )
                     
                     // Update reward
@@ -166,11 +160,11 @@ class Rewards {
                     if(config != undefined) {
                         const newCost = cost+1;
                         const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
-                            title: Utils.template(Config.controller.channelTrophySettings.rewardTitle, user.display_name),
+                            title: Utils.template(Config.controller.channelTrophySettings.rewardTitle, user.name),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.display_name, config.prompt ?? '', newCost)
+                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.name, config.prompt ?? '', newCost)
                         })
                         if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
                     } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)

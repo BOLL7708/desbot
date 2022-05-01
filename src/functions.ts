@@ -129,7 +129,7 @@ class Functions {
                 const rewardKey = entry[0]
                 const rewardConfig = entry[1]
                 Utils.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`, Color.Purple)
-                AutoRewards.registerAutoReward(rewardKey, rewardConfig)               
+                Actions.registerAutoReward(rewardKey, rewardConfig)               
             }
         }
         

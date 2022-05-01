@@ -28,10 +28,10 @@ class Callbacks {
                 if(Config.audioplayer.configs.hasOwnProperty(firstWord)) {
                     modules.tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
                 }
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(messageData.text, userData.name, GoogleTTS.TYPE_ANNOUNCEMENT)
 
                 // Pipe to VR (basic)
-                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.userId))
+                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -39,10 +39,10 @@ class Callbacks {
         modules.twitch.setChatCheerCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
-            modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
+            modules.tts.enqueueSpeakSentence(messageData.text, userData.name, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
-            const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.userId))
+            const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
             modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
@@ -53,10 +53,10 @@ class Callbacks {
             
             if(states.ttsForAll) { 
                 // TTS is on for everyone
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, undefined, Utils.getNonce('TTS'), clearRanges)
-            } else if(states.ttsEnabledUsers.indexOf(userData.userName) > -1) {
+                modules.tts.enqueueSpeakSentence(messageData.text, userData.name, type, undefined, Utils.getNonce('TTS'), clearRanges)
+            } else if(states.ttsEnabledUsers.indexOf(userData.name) > -1) {
                 // Reward users
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.userName, type, undefined, Utils.getNonce('TTS'), clearRanges)
+                modules.tts.enqueueSpeakSentence(messageData.text, userData.name, type, undefined, Utils.getNonce('TTS'), clearRanges)
             } else if(states.pingForChat && Config.twitchChat.audio) {
                 // Chat sound
                 const soundEffect = Config.twitchChat.audio
@@ -65,7 +65,7 @@ class Callbacks {
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
-                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.userId))
+                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })

@@ -240,9 +240,9 @@ class Utils {
      * @param message 
      * @returns
      */
-    static replaceTagsForTTS(text: string, message?: ITwitchRedemptionMessage) {
-        const login = message?.redemption?.user?.login
-        const input = message?.redemption?.user_input
+    static replaceTagsForTTS(text: string, userData?: ITwitchActionUser) {
+        const login = userData?.login
+        const input = userData?.input
         if(login) text = text.replace(/%name/g, ` @${login} `)
         if(input) text = text.replace(/%input/g, ` ${input} `)
         return text
@@ -256,9 +256,9 @@ class Utils {
      * @param message 
      * @returns 
      */
-    static replaceTagsForText(text: string, message?: ITwitchRedemptionMessage) {
-        const displayName = message?.redemption?.user?.display_name
-        const input = message?.redemption?.user_input
+    static replaceTagsForText(text: string, userData?: ITwitchActionUser) {
+        const displayName = userData?.name
+        const input = userData?.input
         if(displayName) text = text.replace(/%name/g, displayName)
         if(input) text = text.replace(/%input/g, input.trim())
         return text

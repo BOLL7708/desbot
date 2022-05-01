@@ -129,12 +129,12 @@ class OBS {
      * @param delaySeconds Amount of time to delay the capture
      * @returns The message ID that is referenced in the result callback
      */
-    takeSourceScreenshot(rewardKey: string, rewardData: ITwitchRedemptionMessage, sourceName: string, delaySeconds: number = 0): string {
+    takeSourceScreenshot(rewardKey: string, userData: ITwitchActionUser, sourceName: string, delaySeconds: number = 0): string {
         const requestData: IScreenshotRequestData = { 
             rewardKey: rewardKey, 
-            userId: Utils.toInt(rewardData.redemption.user.id, -1), 
-            userName: rewardData.redemption.user.login ?? '', 
-            userInput: rewardData.redemption.user_input ?? '',
+            userId: Utils.toInt(userData.id, -1), 
+            userName: userData.login, 
+            userInput: userData.input,
         }
 
         const date = new Date()

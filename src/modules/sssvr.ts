@@ -27,18 +27,18 @@ class SuperScreenShotterVR {
     setScreenshotCallback(callback: ISSSVRCallback) {
         this._messageCallback = callback
     }
-    sendScreenshotRequest(rewardKey: string, rewardData: ITwitchRedemptionMessage, delaySeconds: number = 0) {
+    sendScreenshotRequest(rewardKey: string, userData: ITwitchActionUser, delaySeconds: number = 0) {
         this._messageCounter++
         this._screenshotRequests.set(this._messageCounter, {
             rewardKey: rewardKey,
-            userId: parseInt(rewardData?.redemption?.user?.id),
-            userName: rewardData.redemption.user.login,
-            userInput: rewardData.redemption.user_input
+            userId: parseInt(userData.id),
+            userName: userData.login,
+            userInput: userData.input
         })
         const message:ISSSVRRequest = {
             nonce: `${this._messageCounter}`,
             delay: delaySeconds,
-            tag: rewardData.redemption.user.login
+            tag: userData.login
         }
         this._socket.send(JSON.stringify(message))
     }

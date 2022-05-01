@@ -24,12 +24,12 @@ class Pipe {
 
     async sendBasicObj(
         messageData: ITwitchMessageData,
-        userData: ITwitchUserData,
+        userData: ITwitchActionUser,
         helixUser?: ITwitchHelixUsersResponseData
     ) {
         this.sendBasic(
             messageData.text,
-            userData.displayName,
+            userData.name,
             userData.color,
             helixUser?.profile_image_url ?? '',
             messageData
