@@ -3,6 +3,13 @@ class MainController {
         if(Config.controller.saveConsoleOutputToSettings) LogWriter.init()
         const modules = ModulesSingleton.getInstance()
 
+        // Check configs
+        const cfgPropCount = Object.keys(Config).length
+        const cfgPropTotal = 14
+        if(cfgPropCount < cfgPropTotal) {
+            Utils.log(`Warning: Config is incomplete, only ${cfgPropCount}/${cfgPropTotal} set!`, Color.Red, true, true)
+        }
+
         // Make sure settings are pre-cached
         await Settings.loadSettings(Settings.TTS_BLACKLIST)
         await Settings.loadSettings(Settings.TTS_USER_NAMES)
