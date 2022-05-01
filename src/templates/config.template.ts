@@ -452,9 +452,6 @@ Config.twitch = <ITwitchConfig> {
         KeysTemplate.REWARD_CHANNELTROPHY
     ],
     alwaysOffRewards: [],
-    autoRewards: [
-        // KeysTemplate.KEY_YOURREWARD,
-    ],
 
     defaultRewardConfigs: {   
         /*
@@ -514,17 +511,17 @@ Config.twitch = <ITwitchConfig> {
     /**
      * Add your own custom rewards here.
      */
-    autoRewardConfigs: {
+    rewardConfigs: {
         // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
     },
 
     /**
      * These are game specific rewards, first default setup and then game specific setup.
      */
-    gameSpecificAutoRewardDefaultConfigs: {
+    gameSpecificRewardDefaultConfigs: {
         // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
     },
-    gameSpecificAutoRewardConfigsPerGame: {
+    gameSpecificRewardConfigsPerGame: {
         // [GamesTemplate.A_GAME]: {[KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }}
     },
 

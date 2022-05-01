@@ -371,8 +371,8 @@ class Utils {
     static getAllRewardKeys(): string[] {
         return [
             ...Object.keys(Config.twitch.defaultRewardConfigs),
-            ...Object.keys(Config.twitch.autoRewardConfigs),
-            ...Object.keys(Config.twitch.gameSpecificAutoRewardDefaultConfigs)
+            ...Object.keys(Config.twitch.rewardConfigs),
+            ...Object.keys(Config.twitch.gameSpecificRewardDefaultConfigs)
         ]
     }
 
@@ -381,7 +381,8 @@ class Utils {
      */
     static getRewardConfig(key: string): ITwitchRewardConfig|undefined {
         return Config.twitch.defaultRewardConfigs[key] ??
-            Config.twitch.autoRewardConfigs[key] ??
-            Config.twitch.gameSpecificAutoRewardDefaultConfigs[key]
+            Config.twitch.rewardConfigs[key] ??
+            Config.twitch.gameSpecificRewardDefaultConfigs[key]
+    }
     }
 }

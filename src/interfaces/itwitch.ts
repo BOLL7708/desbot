@@ -54,7 +54,7 @@ interface ITwitchConfig {
     /**
      * These rewards will always be switched on at widget load, unless they are also listed in `disableRewards`.
      * 
-     * Useful to re-enable rewards that were disabled by the user or redeemed automatic rewards that are in: `disableAutoRewardAfterUse`.
+     * Useful to enable specific rewards in sub-configs.
      */
     alwaysOnRewards: string[]
     /**
@@ -93,19 +93,19 @@ interface ITwitchConfig {
      * - Load a web URL in the background
      * - Take screenshots via SSSVR or OBS
      */
-    autoRewardConfigs: { [key: string]: ITwitchRewardConfig }
+    rewardConfigs: { [key: string]: ITwitchRewardConfig }
 
     /**
      * Automatic rewards that are specific for a game, they are dynamically updated depending on 
      * the current Steam title. Will be disabled if no config is available.
      */
-    gameSpecificAutoRewardDefaultConfigs: { [key: string]: ITwitchRewardConfig }
+    gameSpecificRewardDefaultConfigs: { [key: string]: ITwitchRewardConfig }
     
     /**
      * Configuration for rewards that will be updated per game. This literally changes what the reward
      * looks like and what it does, basically resusing the same reward for different games.
      */
-    gameSpecificAutoRewardConfigsPerGame: { [key: string]: { [key: string]: ITwitchRewardConfig } }
+    gameSpecificRewardConfigsPerGame: { [key: string]: { [key: string]: ITwitchRewardConfig } }
 
     /**
      * Default for turning rewards on or off depending on Steam game.

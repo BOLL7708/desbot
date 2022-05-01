@@ -98,8 +98,8 @@ class Functions {
         /**
          * Game specific reward configuration
          */
-         const allGameRewardKeys = Object.keys(Config.twitch.gameSpecificAutoRewardDefaultConfigs)
-         const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificAutoRewardConfigsPerGame[appId] : undefined
+         const allGameRewardKeys = Object.keys(Config.twitch.gameSpecificRewardDefaultConfigs)
+         const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificRewardConfigsPerGame[appId] : undefined
          const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
          const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
         
@@ -129,7 +129,7 @@ class Functions {
                 const rewardKey = entry[0]
                 const rewardConfig = entry[1]
                 Utils.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`, Color.Purple)
-                Actions.registerAutoReward(rewardKey, rewardConfig)               
+                Actions.registerReward(rewardKey, rewardConfig)               
             }
         }
         

@@ -1,16 +1,9 @@
 class Actions {
     public static async init() {
-        /*
-        ..####...##..##..######...####...........#####...######..##...##...####...#####...#####....####..
-        .##..##..##..##....##....##..##..........##..##..##......##...##..##..##..##..##..##..##..##.....
-        .######..##..##....##....##..##..######..#####...####....##.#.##..######..#####...##..##...####..
-        .##..##..##..##....##....##..##..........##..##..##......#######..##..##..##..##..##..##......##.
-        .##..##...####.....##.....####...........##..##..######...##.##...##..##..##..##..#####....####..
-        */
-        for(const entry of Object.entries(Config.twitch.autoRewardConfigs)) {
-            await this.registerAutoReward(entry[0], entry[1])
+        for(const entry of Object.entries(Config.twitch.rewardConfigs)) {
+            await this.registerReward(entry[0], entry[1])
         }
-        // TODO: Add registration of auto commands
+        // TODO: Add registration of commands
     }
 
     public static userDataFromRedemptionMessage(message: ITwitchRedemptionMessage): ITwitchActionUser {
@@ -42,7 +35,7 @@ class Actions {
         }
     }
 
-    public static async registerAutoReward(key: string, cfg: ITwitchRewardConfig) {
+    public static async registerReward(key: string, cfg: ITwitchRewardConfig) {
         const modules = ModulesSingleton.getInstance()
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
         const obsCallback = Actions.buildOBSCallback(cfg?.obs, key)
