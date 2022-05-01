@@ -76,7 +76,8 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_BRIGHTNESS]: {moderators: false},
         [KeysTemplate.COMMAND_REFRESHRATE]: {moderators: false},
         [KeysTemplate.COMMAND_VRVIEWEYE]: {moderators: false},
-        [KeysTemplate.COMMAND_GAME]: {everyone: true}
+        [KeysTemplate.COMMAND_GAME]: {everyone: true},
+        [KeysTemplate.COMMAND_AUDIOURL]: {moderators: false}
     },
     speechReferences: {
         /*
@@ -454,10 +455,6 @@ Config.twitch = <ITwitchConfig> {
     autoRewards: [
         // KeysTemplate.KEY_YOURREWARD,
     ],
-
-    disableAutoRewardAfterUse: [ 
-        // KeysTemplate.KEY_YOURREWARD
-    ], 
 
     defaultRewardConfigs: {   
         /*

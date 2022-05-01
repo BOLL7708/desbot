@@ -37,6 +37,9 @@ class Rewards {
             if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
                 const setup = Utils.getRewardConfig(key)?.reward
                 if(Array.isArray(setup)) {
+                    // We check if the reward counteris at zero because then we should not update as it enables 
+                    // the reward while it could have been disabled by profiles.
+                    // To update settings for the base reward, we update it as any normal reward, using !update.
                     const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                     if((current?.count ?? 0) > 0) {
                         Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)

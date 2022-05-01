@@ -63,11 +63,6 @@ interface ITwitchConfig {
      * Useful to disable specific rewards in sub-configs.
      */
     alwaysOffRewards: string[]
-
-    /**
-     * Rewards listed here will be disabled as soon as they have been used, meaning they will vanish.
-     */
-    disableAutoRewardAfterUse: string[]
     
     /**
      * Reward configs, if you add new ones they will be automatically created the next

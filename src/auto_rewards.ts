@@ -39,12 +39,6 @@ class AutoRewards {
                 let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                 if(Array.isArray(rewardConfig?.reward) && counter == null) counter = {key: key, count: 0}
 
-                // Disable reward after use
-                if(Config.twitch.disableAutoRewardAfterUse.indexOf(key) > -1) {
-                    const id = await Utils.getRewardId(key)
-                    modules.twitchHelix.updateReward(id, {is_enabled: false})
-                }
-
                 // Main callbacks
                 if(obsCallback != null) obsCallback(data)
                 if(colorCallback != null) colorCallback(data)
