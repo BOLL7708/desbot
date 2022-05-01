@@ -379,7 +379,7 @@ class Utils {
     /**
      * Get reward config from any pool
      */
-    static getRewardConfig(key: string): ITwitchRewardConfig|undefined {
+    static getRewardConfig(key: string): ITwitchActionReward|undefined {
         return Config.twitch.defaultRewardConfigs[key] ??
             Config.twitch.rewardConfigs[key] ??
             Config.twitch.gameRewardDefaultConfigs[key]

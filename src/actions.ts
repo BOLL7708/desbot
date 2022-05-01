@@ -35,9 +35,58 @@ class Actions {
         }
     }
 
-    public static async registerReward(key: string, cfg: ITwitchRewardConfig) {
+    public static async registerReward(key: string, cfg: ITwitchActionReward) {
         const modules = ModulesSingleton.getInstance()
+        const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
+        const reward:ITwitchReward = {
+            id: await Utils.getRewardId(key),
+            callback: async (user) => {
+                // Prep for incremental reward
+                const rewardConfig = Utils.getRewardConfig(key)
+                let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                if(Array.isArray(rewardConfig?.reward) && counter == null) counter = {key: key, count: 0}
+                
+                // Trigger actions
+                actionCallback(user, counter?.count)
+
+                // Switch to the next incremental reward if it has more configs available
+                if(Array.isArray(rewardConfig?.reward) && counter != undefined) {                       
+                    counter.count++
+                    const newRewardConfig = rewardConfig?.reward[counter.count]
+                    if(newRewardConfig != undefined) {
+                        await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
+                        modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
+                    }
+                }
+            }
+        }
+        if(reward.id != null) {
+            modules.twitch.registerReward(reward)
+        } else {
+            Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
+        }
+    }
+
+    public static async registerCommand(key: string, cfg: ITwitchActionCommand) {
+        const modules = ModulesSingleton.getInstance()
+        const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
+        modules.twitch.registerCommand({...cfg.command, callback: actionCallback})
+    }
+    
+    /*
+    .########..##.....##.####.##.......########..########.########...######.
+    .##.....##.##.....##..##..##.......##.....##.##.......##.....##.##....##
+    .##.....##.##.....##..##..##.......##.....##.##.......##.....##.##......
+    .########..##.....##..##..##.......##.....##.######...########...######.
+    .##.....##.##.....##..##..##.......##.....##.##.......##...##.........##
+    .##.....##.##.....##..##..##.......##.....##.##.......##....##..##....##
+    .########...#######..####.########.########..########.##.....##..######.
+    */
+
+    private static buildActionCallback(key: string, cfg: ITwitchAction)   {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
+        
+        // Build callbacks
         const obsCallback = Actions.buildOBSCallback(cfg?.obs, key)
         const colorCallback = Actions.buildColorCallback(cfg?.lights)
         const plugCallback = Actions.buildPlugCallback(cfg?.plugs)
@@ -54,68 +103,38 @@ class Actions {
         const webCallback = Actions.buildWebCallback(cfg?.web)
         const screenshotCallback = Actions.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
 
-        const reward:ITwitchReward = {
-            id: await Utils.getRewardId(key),
-            callback: async (data:ITwitchActionUser)=>{
-                // Prep for incremental reward
-                const rewardConfig = Utils.getRewardConfig(key)
-                let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                if(Array.isArray(rewardConfig?.reward) && counter == null) counter = {key: key, count: 0}
+        // Log result
+        Utils.logWithBold(
+            `Built Action Callback: `
+            +(obsCallback?'🎬':'')
+            +(colorCallback?'🎨':'')
+            +(plugCallback?'🔌':'')
+            +(soundCallback?'🔊':'')
+            +(pipeCallback?'📺':'')
+            +(openvr2wsSettingCallback?'🔧':'')
+            +(execCallback?'🎓':'')
+            +(webCallback?'🌐':'')
+            +(screenshotCallback?'📷':'')
+            +`: ${key}`, 'green')
 
-                // Main callbacks
-                if(obsCallback != null) obsCallback(data)
-                if(colorCallback != null) colorCallback(data)
-                if(plugCallback != null) plugCallback(data)
-                if(soundCallback != null) soundCallback(data, counter?.count)
-                if(pipeCallback != null) pipeCallback(data)
-                if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(data)
-                if(signCallback != null) signCallback(data)
-                if(execCallback != null) execCallback(data)
-                if(webCallback != null) webCallback(data)
-                if(screenshotCallback != null) screenshotCallback(data)
-        
-                // Switch to the next incremental reward if it has more configs available
-                if(Array.isArray(rewardConfig?.reward) && counter != undefined) {                       
-                    counter.count++
-                    const newRewardConfig = rewardConfig?.reward[counter.count]
-                    if(newRewardConfig != undefined) {
-                        Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
-                        modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
-                    }
-                }
-            }
-        }
-        if(reward.id != null) {
-            Utils.logWithBold(
-                `Registering Automatic Reward `
-                +(obsCallback?'🎬':'')
-                +(colorCallback?'🎨':'')
-                +(plugCallback?'🔌':'')
-                +(soundCallback?'🔊':'')
-                +(pipeCallback?'📺':'')
-                +(openvr2wsSettingCallback?'🔧':'')
-                +(execCallback?'🎓':'')
-                +(webCallback?'🌐':'')
-                +(screenshotCallback?'📷':'')
-                +`: ${key}`, 'green')
-            modules.twitch.registerReward(reward)
-        } else {
-            Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
+        // Return callback that triggers all the actions
+        return async (user: ITwitchActionUser, index?: number) => {
+            // Main callbacks
+            if(obsCallback != null) obsCallback(user)
+            if(colorCallback != null) colorCallback(user)
+            if(plugCallback != null) plugCallback(user)
+            if(soundCallback != null) soundCallback(user, index)
+            if(pipeCallback != null) pipeCallback(user)
+            if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(user)
+            if(signCallback != null) signCallback(user)
+            if(execCallback != null) execCallback(user)
+            if(webCallback != null) webCallback(user)
+            if(screenshotCallback != null) screenshotCallback(user)
         }
     }
-    
-    /*
-    .########..##.....##.####.##.......########..########.########...######.
-    .##.....##.##.....##..##..##.......##.....##.##.......##.....##.##....##
-    .##.....##.##.....##..##..##.......##.....##.##.......##.....##.##......
-    .########..##.....##..##..##.......##.....##.######...########...######.
-    .##.....##.##.....##..##..##.......##.....##.##.......##...##.........##
-    .##.....##.##.....##..##..##.......##.....##.##.......##....##..##....##
-    .########...#######..####.########.########..########.##.....##..######.
-    */
 
     public static buildOBSCallback(config: IObsSourceConfig|undefined, key: string): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
             config.key = key
             console.log("OBS Reward triggered")
@@ -124,10 +143,10 @@ class Actions {
     }
 
     public static buildColorCallback(config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
             const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
-            const userName = userData.login
+            const userName = user.login
             modules.tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
             const lights:number[] = Config.philipshue.lightsIds
             lights.forEach(light => {
@@ -137,7 +156,7 @@ class Actions {
     }
 
     public static buildPlugCallback(config: IPhilipsHuePlugConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.hue.runPlugConfig(config)
         }
@@ -151,15 +170,15 @@ class Actions {
      * @returns 
      */
     public static buildSoundAndSpeechCallback(config: IAudio|undefined, speech:string|string[]|undefined, nonce: string, onTtsQueue:boolean = false):ITwitchActionCallback|undefined {
-        if(config || speech) return (userData: ITwitchActionUser, index?: number) => {
+        if(config || speech) return (user: ITwitchActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             let ttsString: string|undefined
             if(Array.isArray(speech) || typeof speech == 'string') {
                 ttsString = index != undefined && Array.isArray(speech) && speech.length > index
                     ? speech[index]
                     : Utils.randomFromArray(speech)
-                ttsString = Utils.replaceTagsForTTS(ttsString, userData)
-                if(ttsString.indexOf('%s') > -1) ttsString = Utils.template(ttsString, userData.input)
+                ttsString = Utils.replaceTagsForTTS(ttsString, user)
+                if(ttsString.indexOf('%s') > -1) ttsString = Utils.template(ttsString, user.input)
                 onTtsQueue = true
             }
             
@@ -173,7 +192,7 @@ class Actions {
 
     public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): ITwitchActionCallback|undefined {
         if(config) {
-            return async (userData: ITwitchActionUser) => {
+            return async (user: ITwitchActionUser) => {
                 /*
                 * We check if we don't have enough texts to fill the preset 
                 * and fill the empty spots up with the redeemer's display name.
@@ -190,19 +209,19 @@ class Actions {
                     // If not enough texts for all areas, fill with redeemer's display name.
                     if(textAreaCount > textCount && cfg.texts) {
                         cfg.texts.length = textAreaCount
-                        cfg.texts.fill(userData.name, textCount, textAreaCount)
+                        cfg.texts.fill(user.name, textCount, textAreaCount)
                     }
                     
                     // Replace all empty text values with redeemer's display name.
-                    cfg.texts = cfg.texts?.map((text)=>{ return (text.length == 0) ? userData.name : text })
+                    cfg.texts = cfg.texts?.map((text)=>{ return (text.length == 0) ? user.name : text })
 
                     // Replace tags in texts.
-                    cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsForText(text, userData)})
+                    cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsForText(text, user)})
 
                     // If no image is supplied, use the redeemer user image instead.
                     if(cfg.imageData == null && cfg.imagePath == null) {
-                        const user = await modules.twitchHelix.getUserById(parseInt(userData.id))
-                        cfg.imagePath = user?.profile_image_url
+                        const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+                        cfg.imagePath = userData?.profile_image_url
                     }
 
                     // Show it
@@ -213,16 +232,16 @@ class Actions {
     }
 
     public static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.openvr2ws.setSetting(config)
         }
     }
 
     public static buildSignCallback(config: ISignShowConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
-            modules.twitchHelix.getUserById(parseInt(userData.id)).then(user => {
+            modules.twitchHelix.getUserById(parseInt(user.id)).then(user => {
                 const modules = ModulesSingleton.getInstance()
                 const clonedConfig = Utils.clone(config)
                 if(clonedConfig.title == undefined) clonedConfig.title = user?.display_name
@@ -234,7 +253,7 @@ class Actions {
     }
 
     public static buildExecCallback(config: IExecConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             if(config.run) {
                 Exec.runKeyPressesFromPreset(config.run)
             }
@@ -251,38 +270,38 @@ class Actions {
     }
 
     private static buildWebCallback(url: string|undefined): ITwitchActionCallback|undefined {
-        if(url) return (userData: ITwitchActionUser) => {
+        if(url) return (user: ITwitchActionUser) => {
             fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
         }
     }
 
     private static buildScreenshotCallback(config: IScreenshot|undefined, key: string, nonce: string): ITwitchActionCallback|undefined {
-        if(config) return (userData: ITwitchActionUser) => {
+        if(config) return (user: ITwitchActionUser) => {
             const states = StatesSingleton.getInstance()
             const modules = ModulesSingleton.getInstance()
-            const userInput = userData.input
+            const userInput = user.input
             if(userInput) {
                 // This is executed after the TTS with the same nonce has finished.
                 states.nonceCallbacks.set(nonce, ()=>{
                     if(config.obsSource) {
                         // OBS Source Screenshot
-                        const messageId = modules.obs.takeSourceScreenshot(key, userData, config.obsSource, config.delay ?? 0)
+                        const messageId = modules.obs.takeSourceScreenshot(key, user, config.obsSource, config.delay ?? 0)
                         states.nonceCallbacks.set(messageId, ()=>{
                             modules.audioPlayer.enqueueAudio(Config.screenshots.callback.soundEffectForOBSScreenshots)
                         })
                     } else {
                         // SuperScreenShotterVR
-                        modules.sssvr.sendScreenshotRequest(key, userData, config.delay ?? 0)
+                        modules.sssvr.sendScreenshotRequest(key, user, config.delay ?? 0)
                     }    
                 })
             } else {
                 if(config.obsSource) {
                     // OBS Source Screenshot
                     modules.audioPlayer.enqueueAudio(Config.screenshots.callback.soundEffectForOBSScreenshots)
-                    modules.obs.takeSourceScreenshot(key, userData, config.obsSource)
+                    modules.obs.takeSourceScreenshot(key, user, config.obsSource)
                 } else {
                     // SuperScreenShotterVR
-                    modules.sssvr.sendScreenshotRequest(key, userData)
+                    modules.sssvr.sendScreenshotRequest(key, user)
                 }
             }
         }

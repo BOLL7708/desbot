@@ -26,26 +26,26 @@ class Twitch{
         this._rewards.push(twitchReward)
     }
 
-    private _commands: ITwitchSlashCommand[] = []
-    registerCommand(twitchSlashCommand: ITwitchSlashCommand) {
-		if(twitchSlashCommand.trigger.length != 0) {
+    private _commands: ITwitchCommandConfig[] = []
+    registerCommand(command: ITwitchCommandConfig) {
+		if(command.trigger.length != 0) {
             // Use Default permission if none were provided.
-            const permissions = Config.controller.commandPermissionsOverrides[twitchSlashCommand.trigger]
-            if(permissions == undefined) twitchSlashCommand.permissions = {}
-            twitchSlashCommand.permissions = { ...Config.controller.commandPermissionsDefault, ...permissions, ...twitchSlashCommand.permissions }
+            const permissions = Config.controller.commandPermissionsOverrides[command.trigger]
+            if(permissions == undefined) command.permissions = {}
+            command.permissions = { ...Config.controller.commandPermissionsDefault, ...permissions, ...command.permissions }
            
             // Store the command
-            this._commands.push(twitchSlashCommand)
+            this._commands.push(command)
             const who: string[] = []
-            if(twitchSlashCommand.permissions.everyone) who.push('everyone')
-            if(twitchSlashCommand.permissions.subscribers) who.push('subs')
-            if(twitchSlashCommand.permissions.VIPs) who.push('VIPs')
-            if(twitchSlashCommand.permissions.moderators) who.push('mods')
-            if(twitchSlashCommand.permissions.streamer) who.push('streamer')
-            const message = `Registering Slash Command: <${twitchSlashCommand.trigger}> for ${who.join(' + ')}`
+            if(command.permissions.everyone) who.push('everyone')
+            if(command.permissions.subscribers) who.push('subs')
+            if(command.permissions.VIPs) who.push('VIPs')
+            if(command.permissions.moderators) who.push('mods')
+            if(command.permissions.streamer) who.push('streamer')
+            const message = `Registering command: <${command.trigger}> for ${who.join(' + ')}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
-            Utils.logWithBold('Skipped registering a slash command!', this.LOG_COLOR_COMMAND)
+            Utils.logWithBold('Skipped registering a command!', this.LOG_COLOR_COMMAND)
         }
     }
 

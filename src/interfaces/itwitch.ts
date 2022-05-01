@@ -75,7 +75,7 @@ interface ITwitchConfig {
      * Default rewards that control system features, you can set `is_enabled` to `false` or
      * remove the configs before running it the first time if you don't want a specific feature.
      */
-    defaultRewardConfigs: { [key: string]: ITwitchRewardConfig }
+    defaultRewardConfigs: { [key: string]: ITwitchActionReward }
     
     /**
      * Automatic reward configs can also include all the various functions and properties that are
@@ -93,19 +93,19 @@ interface ITwitchConfig {
      * - Load a web URL in the background
      * - Take screenshots via SSSVR or OBS
      */
-    rewardConfigs: { [key: string]: ITwitchRewardConfig }
+    rewardConfigs: { [key: string]: ITwitchActionReward }
 
     /**
      * Automatic rewards that are specific for a game, they are dynamically updated depending on 
      * the current Steam title. Will be disabled if no config is available.
      */
-    gameRewardDefaultConfigs: { [key: string]: ITwitchRewardConfig }
+    gameRewardDefaultConfigs: { [key: string]: ITwitchActionReward }
     
     /**
      * Configuration for rewards that will be updated per game. This literally changes what the reward
      * looks like and what it does, basically resusing the same reward for different games.
      */
-    gameRewardConfigs: { [key: string]: { [key: string]: ITwitchRewardConfig } }
+    gameRewardConfigs: { [key: string]: { [key: string]: ITwitchActionReward } }
 
     /**
      * Default for turning rewards on or off depending on Steam game.
@@ -169,7 +169,7 @@ interface ITwitchRewardCounter {
     count: number
 }
 
-interface ITwitchSlashCommand {
+interface ITwitchActionCommandConfig {
     /**
      * The command that is matched from the chat.
      */
@@ -180,10 +180,13 @@ interface ITwitchSlashCommand {
      * Note: Filled in at registration, loaded from config.
      */
     permissions?: ICommandPermissions
+}
+
+interface ITwitchCommandConfig extends ITwitchActionCommandConfig {   
     /**
      * Optional: The callback the command executes.
      */
-    callback?: ITwitchSlashCommandCallback
+    callback?: ITwitchCommandCallback
     /**
      * Optional: The number of seconds before the `cooldownCallback` can be run again.
      */
@@ -193,8 +196,9 @@ interface ITwitchSlashCommand {
      * 
      * Note: The broadcaster and moderators are exempt from cooldowns.
      */
-    cooldownCallback?: ITwitchSlashCommandCallback
+    cooldownCallback?: ITwitchCommandCallback
 }
+
 /**
  * Permission regarding who can trigger this command in the chat.
  */
@@ -239,7 +243,7 @@ interface ITwitchActionCallback {
 interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
 }
-interface ITwitchSlashCommandCallback {
+interface ITwitchCommandCallback {
     (user: ITwitchActionUser): void
 }
 interface ITwitchAnnouncementCallback {
@@ -261,15 +265,24 @@ interface ITwitchMessageData {
 }
 
 /**
- * Main config object for a reward.
+ * Reward specific action config.
  */
-interface ITwitchRewardConfig {
-    // TODO: Add array support to everything? Random/Shuffle functionality?
-
-    // Twitch Reward Settings
+interface ITwitchActionReward extends ITwitchAction {
     reward: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[]
-    
-    // Automatic Reward Settings
+}
+
+/**
+ * Command specific action config.
+ */
+interface ITwitchActionCommand extends ITwitchAction {
+    command: ITwitchActionCommandConfig
+}
+
+/**
+ * All the different actions that can be triggered.
+ */
+interface ITwitchAction {
+    // TODO: Add array support to everything? Random/Shuffle functionality?
     openVR2WS?: IOpenVR2WSSetting|IOpenVR2WSSetting[]
     obs?: IObsSourceConfig
     pipe?: IPipeMessagePreset|IPipeMessagePreset[]
