@@ -518,23 +518,23 @@ Config.twitch = <ITwitchConfig> {
     /**
      * These are game specific rewards, first default setup and then game specific setup.
      */
-    gameSpecificRewardDefaultConfigs: {
+    gameRewardDefaultConfigs: {
         // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
     },
-    gameSpecificRewardConfigsPerGame: {
+    gameRewardConfigs: {
         // [GamesTemplate.A_GAME]: {[KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }}
     },
 
-    rewardConfigProfileDefault: {
+    rewardProfileDefault: {
         // [KeysTemplate.KEY_YOURREWARD]: true,
     },
-    rewardConfigProfileDefaultVR: {
+    rewardProfileDefaultVR: {
         // [KeysTemplate.KEY_YOURREWARD]: true,
     },
-    rewardConfigProfileNoGame: {
+    rewardProfileNoGame: {
         // [KeysTemplate.KEY_YOURREWARD]: true,
     },
-    rewardConfigProfilePerGame: {
+    rewardProfilePerGame: {
         // [GamesTemplate.A_GAME]: { [KeysTemplate.KEY_YOURREWARD]: true, [KeysTemplate.KEY_YOUROTHERREWARD]: false }
     },
     turnOnRewardForGames: {

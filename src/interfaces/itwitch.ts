@@ -99,37 +99,37 @@ interface ITwitchConfig {
      * Automatic rewards that are specific for a game, they are dynamically updated depending on 
      * the current Steam title. Will be disabled if no config is available.
      */
-    gameSpecificRewardDefaultConfigs: { [key: string]: ITwitchRewardConfig }
+    gameRewardDefaultConfigs: { [key: string]: ITwitchRewardConfig }
     
     /**
      * Configuration for rewards that will be updated per game. This literally changes what the reward
      * looks like and what it does, basically resusing the same reward for different games.
      */
-    gameSpecificRewardConfigsPerGame: { [key: string]: { [key: string]: ITwitchRewardConfig } }
+    gameRewardConfigs: { [key: string]: { [key: string]: ITwitchRewardConfig } }
 
     /**
      * Default for turning rewards on or off depending on Steam game.
      * Applied when no specific profile is found
      */
-    rewardConfigProfileDefault: ITwitchRewardProfileConfig
+    rewardProfileDefault: ITwitchRewardProfileConfig
 
     /**
      * Default for turning rewards on or off depending on SteamVR game.
      * Applied when no specific profile is found
      */
-    rewardConfigProfileDefaultVR: ITwitchRewardProfileConfig
+    rewardProfileDefaultVR: ITwitchRewardProfileConfig
 
     /**
      * Turn rewards on or off if there is no game,
      * will be applied on top of the default profile, the configs are merged.
      */
-    rewardConfigProfileNoGame: { [key: string]: boolean }
+    rewardProfileNoGame: { [key: string]: boolean }
 
     /**
      * Turn rewards on or off depending on which SteamVR game is detected,
      * will be applied on top of the default profile, the configs are merged.
      */
-    rewardConfigProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
+    rewardProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
 
     /**
      * Turn on rewards depending on if a game is running, else off.

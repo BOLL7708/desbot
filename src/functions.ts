@@ -66,11 +66,11 @@ class Functions {
         /**
          * General reward toggling
          */
-        const defaultProfile = isVr ? Config.twitch.rewardConfigProfileDefaultVR : Config.twitch.rewardConfigProfileDefault
-        const profile = Config.twitch.rewardConfigProfilePerGame[appId]
+        const defaultProfile = isVr ? Config.twitch.rewardProfileDefaultVR : Config.twitch.rewardProfileDefault
+        const profile = Config.twitch.rewardProfilePerGame[appId]
         if(appId.length == 0) {
             Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
-            modules.twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardConfigProfileNoGame})
+            modules.twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardProfileNoGame})
         } else if(profile != undefined) {
             Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
             modules.twitchHelix.toggleRewards({...defaultProfile, ...profile})
@@ -98,8 +98,8 @@ class Functions {
         /**
          * Game specific reward configuration
          */
-         const allGameRewardKeys = Object.keys(Config.twitch.gameSpecificRewardDefaultConfigs)
-         const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameSpecificRewardConfigsPerGame[appId] : undefined
+         const allGameRewardKeys = Object.keys(Config.twitch.gameRewardDefaultConfigs)
+         const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameRewardConfigs[appId] : undefined
          const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
          const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
         
