@@ -384,5 +384,4 @@ class Utils {
             Config.twitch.rewardConfigs[key] ??
             Config.twitch.gameRewardDefaultConfigs[key]
     }
-    }
 }
