@@ -77,7 +77,7 @@ class Twitch{
     private onReward(id:string, message:ITwitchRedemptionMessage) {
         this._allRewardsCallback(message)
         let reward = this._rewards.find(reward => id == reward.id)
-        if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(message))
+        if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(message), undefined, message)
         else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
     }
 

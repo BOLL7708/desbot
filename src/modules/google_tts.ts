@@ -95,6 +95,7 @@ class GoogleTTS {
     ) {
         const serial = ++this._count
         this._preloadQueue[serial] = null
+        userName = userName.toLowerCase()
 
         const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
