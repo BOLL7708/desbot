@@ -252,7 +252,6 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
     filterGroups: [],
     filterOnScenes: [''], // WIP
     sourceScreenshotConfig: {
-        sourceName: 'Your Source Name',
         embedPictureFormat: 'png',
         saveToFilePath: 'C:\\A file path\\on your\\disk\\',
 		discordDescription: 'OBS Screenshot',

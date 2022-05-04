@@ -330,6 +330,7 @@ class Callbacks {
                 console.log('OpenVR2WS: Connected')
                 // We are playing VR so we're scrapping the WebApi timer.
                 clearInterval(states.steamPlayerSummaryIntervalHandle)
+                states.steamPlayerSummaryIntervalHandle = -1
             } else {
                 console.log('OpenVR2WS: Disconnected')
                 // We do not get the app ID from OpenVR2WS so we use the Steam Web API instead.

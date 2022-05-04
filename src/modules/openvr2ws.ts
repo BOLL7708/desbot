@@ -115,6 +115,7 @@ class OpenVR2WS {
 
     private onError(evt: any) {
         console.error(evt)
+        this._statusCallback(false)
     }
 
     public async setSetting(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]) {

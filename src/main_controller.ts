@@ -82,10 +82,14 @@ class MainController {
     */
 
     public static startSteamPlayerSummaryInterval() {
-        if(Config.steam.playerSummaryIntervalMs && !ModulesSingleton.getInstance().openvr2ws.isConnected) {
+        const states = StatesSingleton.getInstance()
+        if(
+            Config.steam.playerSummaryIntervalMs 
+            && states.steamPlayerSummaryIntervalHandle == -1 
+            && !ModulesSingleton.getInstance().openvr2ws.isConnected
+        ) {
             Utils.log('Starting Steam player summary interval', Color.Green)
             Functions.loadPlayerSummary() // Get initial state immidately
-            const states = StatesSingleton.getInstance()
             states.steamPlayerSummaryIntervalHandle = setInterval(() => {
                 Functions.loadPlayerSummary()
             }, Config.steam.playerSummaryIntervalMs)
