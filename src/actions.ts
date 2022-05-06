@@ -182,8 +182,7 @@ class Actions {
                 ttsString = index != undefined && Array.isArray(speech) && speech.length > index
                     ? speech[index]
                     : Utils.randomFromArray(speech)
-                ttsString = Utils.replaceTagsForTTS(ttsString, user)
-                if(ttsString.indexOf('%s') > -1) ttsString = Utils.template(ttsString, user.input)
+                ttsString = Utils.replaceTagsInText(ttsString, user)
                 onTtsQueue = true
             }
             
@@ -217,11 +216,8 @@ class Actions {
                         cfg.texts.fill(user.name, textCount, textAreaCount)
                     }
                     
-                    // Replace all empty text values with redeemer's display name.
-                    cfg.texts = cfg.texts?.map((text)=>{ return (text.length == 0) ? user.name : text })
-
                     // Replace tags in texts.
-                    cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsForText(text, user)})
+                    cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsInText(text, user)})
 
                     // If no image is supplied, use the redeemer user image instead.
                     if(cfg.imageData == null && cfg.imagePath == null) {
@@ -246,12 +242,12 @@ class Actions {
     public static buildSignCallback(config: ISignShowConfig|undefined): ITwitchActionCallback|undefined {
         if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
-            modules.twitchHelix.getUserById(parseInt(user.id)).then(user => {
+            modules.twitchHelix.getUserById(parseInt(user.id)).then(userData => {
                 const modules = ModulesSingleton.getInstance()
                 const clonedConfig = Utils.clone(config)
-                if(clonedConfig.title == undefined) clonedConfig.title = user?.display_name
-                if(clonedConfig.subtitle == undefined) clonedConfig.subtitle = user?.display_name
-                if(clonedConfig.image == undefined) clonedConfig.image = user?.profile_image_url
+                clonedConfig.title = Utils.replaceTagsInText(clonedConfig.title ?? '', user)
+                if(clonedConfig.image == undefined) clonedConfig.image = userData?.profile_image_url
+                clonedConfig.subtitle = Utils.replaceTagsInText(clonedConfig.subtitle ?? '', user)
                 modules.sign.enqueueSign(clonedConfig)
             })
         }
@@ -265,10 +261,10 @@ class Actions {
             if(config.uri) {
                 if(Array.isArray(config.uri)) {
                     for(const u of config.uri) {
-                        Exec.loadCustomURI(u)
+                        Exec.loadCustomURI(Utils.replaceTagsInText(u, user))
                     }
                 } else {
-                    Exec.loadCustomURI(config.uri)
+                    Exec.loadCustomURI(Utils.replaceTagsInText(config.uri, user))
                 }
             }
         }

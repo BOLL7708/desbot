@@ -233,34 +233,43 @@ class Utils {
     }
 
     /**
-     * Replaces certain tags in a string with values meant for TTS.
-     * - Replaces %name ends with the redeemers username as a tag.
-     * - Replaces %input with the redeemers input, if provided.
-     * @param text 
-     * @param message 
-     * @returns
-     */
-    static replaceTagsForTTS(text: string, userData?: ITwitchActionUser) {
-        const login = userData?.login
-        const input = userData?.input
-        if(login) text = text.replace(/%name/g, ` @${login} `)
-        if(input) text = text.replace(/%input/g, ` ${input} `)
-        return text
-    }
-
-    /**
      * Replaces certain tags in a string with values meant for visible text.
-     * - Replaces %name ends with the redeemers display name with case intact.
-     * - Replaces %input with the redeemers input, if provided.
+     * - Replaces %name with the redeemers display name with case intact.
+     * - Replaces %nameTag with the redeemers username as a tag.
+     * - Replaces %input with the redeemers input.
+     * - Replaces %inputNumber with the redeemers input parsed to number or NaN.
+     * - Replaces %inputWord with the redeemers input truncated to the first word.
      * @param text 
      * @param message 
      * @returns 
      */
-    static replaceTagsForText(text: string, userData?: ITwitchActionUser) {
-        const displayName = userData?.name
-        const input = userData?.input
-        if(displayName) text = text.replace(/%name/g, displayName)
-        if(input) text = text.replace(/%input/g, input.trim())
+    static replaceTagsInText(text: string, userData?: ITwitchActionUser) {
+        const tags = this.getDefaultTags(userData)
+        return this.replaceTags(text, tags)
+    }
+
+    private static getDefaultTags(userData?: ITwitchActionUser): {[key: string]: string} {
+        const result = {
+            name: `${userData?.name}`,
+            nameTag: `@${userData?.login}`,
+            input: '',
+            inputNumber: '',
+            inputWord: ''
+        }
+        if(userData?.input) {
+            const input = userData.input
+            result.input = input
+            result.inputNumber = parseFloat(input).toString()
+            result.inputWord = input.split(' ').pop() ?? ''
+        }
+        return result
+    }
+
+    private static replaceTags(text: string, replace: { [key: string]: string }) {
+        for(const key of Object.keys(replace)) {
+            const rx = new RegExp(`%${key}([^a-zA-Z]|$)+`, 'g') // Match the key word and any non-character afterwards
+            text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text
+        }
         return text
     }
 

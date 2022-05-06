@@ -122,10 +122,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'There are %s old clips, %s new clips.',
             'Finished posting %s new clips.'
         ],
-        [KeysTemplate.COMMAND_DICTIONARY]: [
-            '%s is now said as %s', 
-            '%s messed up a dictionary entry'
-        ],
+        [KeysTemplate.COMMAND_DICTIONARY]: '%s is now said as %s',
         [KeysTemplate.CALLBACK_APPID]: [
             'Twitch game updated: %s',
             'Twitch game not matched: %s'
@@ -535,7 +532,8 @@ Config.twitch = <ITwitchConfig> {
             },
             sign: {
                 durationMs: 10000,
-                title: 'The 🏆 was grabbed!'
+                title: 'The 🏆 was grabbed!',
+                subtitle: '%name'
             }
         }
     },

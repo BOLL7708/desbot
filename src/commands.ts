@@ -369,7 +369,15 @@ class Commands {
                     const setting = <IDictionaryEntry> {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), editor: user.login, datetime: Utils.getISOTimestamp()}
                     Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
                     modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
-                    modules.tts.enqueueSpeakSentence(Utils.template(speech, words[0], words[1]), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, '', null, [], true)
+                    modules.tts.enqueueSpeakSentence(
+                        Utils.template(speech, words[0], words[1]),
+                        Config.twitch.chatbotName,
+                        GoogleTTS.TYPE_ANNOUNCEMENT,
+                        '',
+                        null,
+                        [],
+                        true
+                    )
                 } else { // Messed up
                     const chat = Config.controller.chatReferences[Keys.COMMAND_DICTIONARY]
                     const word = (words[0] ?? '').toLowerCase()

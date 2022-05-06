@@ -41,9 +41,9 @@ interface ISignConfig {
  */
 interface ISignShowConfig {
     /**
-     * Optional: The title above the image, if not used will display the username if available.
+     * The title above the image, takes tags.
      */
-    title?: string
+    title: string
     /**
      * Optional: The image to display in the Sign pop-in, as web URL, local URL or data URL.
      * 
@@ -51,9 +51,9 @@ interface ISignShowConfig {
      */
     image?: string
     /**
-     * Optional: The subtitle beneath the image, if not used will display the username if available.
+     * The subtitle beneath the image, takes tags.
      */
-    subtitle?: string
+    subtitle: string
     /**
      * The duration for the Sign to be visible for, in milliseconds.
      */
