@@ -28,7 +28,12 @@ class TwitchPubsub {
                 type: "LISTEN",
                 nonce: "7708",
                 data: {
-                    topics: [`channel-points-channel-v1.${TwitchHelix._channelUserId}`], // ID should come from Helix user request (huh?)
+                    topics: [
+                        `channel-points-channel-v1.${TwitchHelix._channelUserId}`,
+                        `channel-subscribe-events-v1.${TwitchHelix._channelUserId}`,
+                        `channel-bits-events-v2.${TwitchHelix._channelUserId}`,
+                        
+                    ],
                     auth_token: tokenData?.access_token
                 }
             }

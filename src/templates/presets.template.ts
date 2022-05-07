@@ -51,56 +51,92 @@ class GamePresetsTemplate {
  * through the application itself, click the `Example` link in OpenVRNotificationPipe.
  */ 
 class PipePresetsTemplate {
+    static PIPE_CHAT: IPipeCustomMessage = {
+        customProperties: {
+            enabled: true,
+            ignoreAnchorPitch: true,
+            ignoreAnchorRoll: false,
+            overlayChannel: 10,
+            widthM: 0.47,
+            zDistanceM: 0.73,
+            pitchDeg: -34.5,
+            follow: {
+                enabled: true,
+                triggerAngle: 65,
+                durationMs: 250,
+                tweenType: 5,
+            },
+            transitions: [{
+                scalePer: 0.5,
+                yDistanceM: -0.25,
+                durationMs: 250,
+                tweenType: 7
+            },{
+                durationMs: 125,
+                tweenType: 6
+            }]
+        }
+    }
     /*
     static PIPE_DEFAULT: IPipeCustomMessage = {
-        custom: true,
-        properties: {
-            headset: false,
-            horizontal: true,
-            level: false,
-            channel: 0,
-            width: 1,
-            distance: 1,
-            pitch: 0, 
-            yaw: 0,
-            offsetx: 0,
-            offsety: 0
-        },
-        transitions: [
-            {
-                scale: 1,
-                opacity: 0,
-                vertical: 0,
-                distance: 0,
-                horizontal: 0,
-                spin: 0,
-                tween: 0,
-                duration: 100
-            },
-            {
-                scale: 1,
-                opacity: 0,
-                vertical: 0,
-                distance: 0,
-                horizontal: 0,
-                spin: 0,
-                tween: 0,
-                duration: 100
-            }
-        ],
-        textAreas: [
-            {
-                posx: 0,
-                posy: 0,
-                width: 0,
-                height: 0,
-                size: 0,
-                font: '',
-                color: 'white',
-                gravity: 0,
-                alignment: 0
-            }
-        ]
+        customProperties: {
+            enabled: true,
+            nonce: '',
+            anchorType: 1,
+            attachToAnchor: true,
+            overlayChannel: 0,
+            opacityPer: 1,
+            animationHz: 0,
+            durationMs: 5000,
+            widthM: 1,
+            zDistanceM: 1,
+            yDistanceM: 0,
+            xDistanceM: 0,
+            yawDeg: 0,
+            pitchDeg: 0,
+            rollDeg: 0,
+            follow: {},
+            animations: [],
+            transitions: [
+                {
+                    scalePer: 1,
+                    opacityPer: 0,
+                    zDistanceM: 0,
+                    yDistanceM: 0,
+                    xDistanceM: 0,
+                    yawDeg: 0,
+                    pitchDeg: 0,
+                    rollDeg: 0,
+                    durationMs: 250,
+                    tweenType: 5            
+                },
+                {
+                    scalePer: 1,
+                    opacityPer: 0,
+                    zDistanceM: 0,
+                    yDistanceM: 0,
+                    xDistanceM: 0,
+                    yawDeg: 0,
+                    pitchDeg: 0,
+                    rollDeg: 0,
+                    durationMs: 250,
+                    tweenType: 5            
+                }        
+            ],
+            textAreas: [
+                {
+                    xPositionPx: 0,
+                    yPositionPx: 0,
+                    widthPx: 1024,
+                    heightPx: 1024,
+                    fontSizePt: 56,
+                    fontFamily: 'Arial Black',
+                    fontColor: '#ffffff',
+                    horizontalAlignment: 1,
+                    verticalAlignment: 1            
+                }        
+            ]    
+        }
     }
     */
 }

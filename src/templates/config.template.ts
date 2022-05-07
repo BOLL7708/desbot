@@ -431,7 +431,7 @@ Config.sign = <ISignConfig> {
 Config.twitchChat = <ITwitchChatConfig> {
     pipe: {
         durationMs: 5000,
-        config: PipePresets.PIPE_CHAT
+        config: PipePresetsTemplate.PIPE_CHAT
     },
     audio: {
         src: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
