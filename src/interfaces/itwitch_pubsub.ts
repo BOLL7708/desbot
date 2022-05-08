@@ -71,5 +71,5 @@ interface ITwitchUser {
 
 // Callback
 interface ITwitchPubsubRewardCallback {
-    (id:string, message: ITwitchRedemptionMessage): void
+    (id:string, message: ITwitchPubsubRewardMessage): void
 }
