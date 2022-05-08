@@ -393,4 +393,13 @@ class Utils {
             Config.twitch.rewardConfigs[key] ??
             Config.twitch.gameRewardDefaultConfigs[key]
     }
+
+    static removeLastPart(splitOn: string, text: string|undefined): string {
+        if(text) {
+            const arr = text.split(splitOn)
+            arr.pop()
+            return arr.join(splitOn)
+        }
+        return ''
+    }
 }

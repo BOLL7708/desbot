@@ -74,7 +74,7 @@ class Twitch{
         this._allRewardsCallback = callback
     }
     
-    private onReward(id:string, message:ITwitchRedemptionMessage) {
+    private onReward(id:string, message:ITwitchPubsubRewardMessage) {
         this._allRewardsCallback(message)
         let reward = this._rewards.find(reward => id == reward.id)
         if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(message), undefined, message)

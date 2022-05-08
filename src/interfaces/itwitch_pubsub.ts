@@ -1,8 +1,36 @@
-// Config
-interface ITwitchRedemptionMessage {
-    timestamp: string
-    redemption: ITwitchRedemption
+// Data
+
+/**
+ * Main message received from PubSub
+ */
+interface ITwitchPubsubMessage {
+    /**
+     * Type of message, most common type we check is just: "MESSAGE"
+     */
+    type: string
+    /**
+     * Data payload, the actually useful part.
+     */
+    data: {
+        /**
+         * The message payload encoded as JSON (again yes!)
+         */
+        message: string
+        /**
+         * The topic from the API.
+         */
+        topic: string
+    }
 }
+interface ITwitchPubsubRewardMessage {
+    type: string
+    data: {
+        timestamp: string
+        redemption: ITwitchRedemption
+    }
+}
+
+// Redemption
 interface ITwitchRedemption {
     channel_id: string
     id: string

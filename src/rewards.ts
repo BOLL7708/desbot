@@ -115,12 +115,12 @@ class Rewards {
         */
         modules.twitch.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY),
-            callback: async (user: ITwitchActionUser, index: number|undefined, message: ITwitchRedemptionMessage|undefined) => {
+            callback: async (user: ITwitchActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
                 // Save stat
                 const row: IChannelTrophyStat = {
                     userId: user.id,
-                    index: message?.redemption.reward.redemptions_redeemed_current_stream,
-                    cost: message?.redemption.reward.cost.toString() ?? '0'
+                    index: message?.data?.redemption.reward.redemptions_redeemed_current_stream,
+                    cost: message?.data?.redemption.reward.cost.toString() ?? '0'
                 }
                 Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
 

@@ -112,15 +112,18 @@ class Callbacks {
         .##..##..######...##.##...##..##..##..##..#####....####..
         */
         // This callback was added as rewards with no text input does not come in through the chat callback
-        modules.twitch.setAllRewardsCallback(async (message:ITwitchRedemptionMessage) => {
-            const user = await modules.twitchHelix.getUserById(parseInt(message.redemption.user.id))          
-            const rewardPair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', message.redemption.reward.id)
+        modules.twitch.setAllRewardsCallback(async (message: ITwitchPubsubRewardMessage) => {
+            const redemption = message?.data?.redemption
+            if(!redemption) return console.warn('Reward redemption empty', message)
+
+            const user = await modules.twitchHelix.getUserById(parseInt(redemption.user.id))          
+            const rewardPair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.reward.id)
 
             // Discord
-            const amount = message.redemption.reward.redemptions_redeemed_current_stream
+            const amount = redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
-            let description = `${Config.discord.prefixReward}**${message.redemption.reward.title}${amountStr}** (${message.redemption.reward.cost})`
-            if(message.redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(message.redemption.user_input))}`
+            let description = `${Config.discord.prefixReward}**${redemption.reward.title}${amountStr}** (${redemption.reward.cost})`
+            if(redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(redemption.user_input))}`
             if(states.logChatToDiscord) {
                 Discord.enqueueMessage(
                     Config.credentials.DiscordWebhooks[Keys.DISCORD_CHAT],
@@ -143,9 +146,9 @@ class Callbacks {
             const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair?.key ?? '') > -1
             if(showReward) {
                 modules.pipe.sendBasic(
-                    message.redemption.user_input, 
+                    redemption.user_input, 
                     user?.display_name, 
-                    TwitchFactory.userColors.get(parseInt(message.redemption.user.id)) ?? Color.White,
+                    TwitchFactory.userColors.get(parseInt(redemption.user.id)) ?? Color.White,
                     user?.profile_image_url
                 )
             }

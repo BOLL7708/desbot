@@ -253,7 +253,7 @@ interface ITwitchChatCallback { // In Twitch
     (user: ITwitchActionUser, messageData: ITwitchMessageData): void
 }
 interface ITwitchActionCallback {
-    (user: ITwitchActionUser, index?: number, redemptionMessage?: ITwitchRedemptionMessage): void
+    (user: ITwitchActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage): void
 }
 interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
@@ -268,7 +268,7 @@ interface ITwitchChatCheerCallback {
     (user: ITwitchActionUser, messageData: ITwitchMessageData): void
 }
 interface ITwitchRewardRedemptionCallback {
-    (message: ITwitchRedemptionMessage): void
+    (message: ITwitchPubsubRewardMessage): void
 }
 
 // Callback data

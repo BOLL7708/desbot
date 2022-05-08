@@ -49,18 +49,31 @@ class TwitchPubsub {
     }
 
     private onMessage(evt:any) {
-        let data = JSON.parse(evt.data)
-        switch(data.type) {
+        const msg: ITwitchPubsubMessage = JSON.parse(evt.data)
+        const topic = Utils.removeLastPart('-', msg?.data?.topic)
+        switch(msg.type) {
             case "MESSAGE":
-                let payload = JSON.parse(unescape(data?.data?.message))
-                if (payload?.type == "reward-redeemed") {
-                    let id = payload?.data?.redemption?.reward?.id ?? null
-                    Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
-                    if(id !== null) this._onRewardCallback(id, payload?.data)
-                    else console.log(payload)
-                } else {
-                    // TODO: Handle things like subs, gifts and raids, possibly? Check for that debug tool Jeppe linked at one point.
-                    Utils.log(`Unhandled PubSub message: ${payload?.type}`, Color.Purple)
+                switch(topic) {
+                    case 'channel-points-channel': 
+                        let rewardMessage: ITwitchPubsubRewardMessage = JSON.parse(decodeURI(msg?.data?.message))
+                        switch(rewardMessage.type) {
+                            case 'reward-redeemed': 
+                                const id = rewardMessage?.data?.redemption?.reward?.id ?? null
+                                if(id !== null) this._onRewardCallback(id, rewardMessage)
+                                Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
+                                break
+                            default:
+                                Utils.log(`Unknown PubSub message type: ${rewardMessage.type}`, this.LOG_COLOR)
+                                console.log(rewardMessage)
+                                break
+                        }
+                        break
+                    case 'channel-subscribe-events': 
+                        console.log(msg)
+                        break
+                    case 'channel-bits-events': 
+                        console.log(msg)
+                        break
                 }
                 break
             case "RECONNECT":
@@ -75,7 +88,7 @@ class TwitchPubsub {
                 Utils.log(evt.data, this.LOG_COLOR)
                 break;
             default:
-                Utils.log(`Unhandled message: ${data.type}`, this.LOG_COLOR)
+                Utils.log(`Unhandled message: ${msg.type}`, this.LOG_COLOR)
                 break;
         }
     }

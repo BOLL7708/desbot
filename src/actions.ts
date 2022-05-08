@@ -10,12 +10,12 @@ class Actions {
         }
     }
 
-    public static userDataFromRedemptionMessage(message: ITwitchRedemptionMessage): ITwitchActionUser {
+    public static userDataFromRedemptionMessage(message: ITwitchPubsubRewardMessage): ITwitchActionUser {
         return {
-            id: message?.redemption?.user?.id ?? '',
-            login: message?.redemption?.user?.login ?? '',
-            name: message?.redemption?.user?.display_name ?? '',
-            input: message?.redemption?.user_input ?? '',
+            id: message?.data?.redemption?.user?.id ?? '',
+            login: message?.data?.redemption?.user?.login ?? '',
+            name: message?.data?.redemption?.user?.display_name ?? '',
+            input: message?.data?.redemption?.user_input ?? '',
             color: '',
             isBroadcaster: false,
             isModerator: false,
