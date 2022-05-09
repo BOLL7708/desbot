@@ -516,7 +516,7 @@ Config.twitch = <ITwitchConfig> {
                 background_color: '#808080'
             }
         },
-        [Keys.REWARD_CHANNELTROPHY]: {
+        [KeysTemplate.REWARD_CHANNELTROPHY]: {
             reward: {
                 title: '🏆 Held by nobody!',
                 cost: 1,

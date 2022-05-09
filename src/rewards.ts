@@ -122,10 +122,11 @@ class Rewards {
                     index: message?.data?.redemption.reward.redemptions_redeemed_current_stream,
                     cost: message?.data?.redemption.reward.cost.toString() ?? '0'
                 }
-                Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
+                const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
+				if(!settingsUpdated) return Utils.log(`ChannelTrophy: Could not write settings reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
 
                 const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                if(userData == undefined) return Utils.log(`Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+                if(userData == undefined) return Utils.log(`ChannelTrophy: Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
                 const signCallback = Actions.buildSignCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.sign)
@@ -149,10 +150,11 @@ class Rewards {
                         )
                     }
                     // Update label in overlay
-                    Settings.pushLabel(
+                    const labelUpdated = await Settings.pushLabel(
                         Settings.CHANNEL_TROPHY_LABEL, 
                         Utils.template(Config.controller.channelTrophySettings.label, cost, user.name)
                     )
+					if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
                     
                     // Update reward
                     const configArrOrNot = Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.reward
@@ -166,9 +168,9 @@ class Rewards {
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
                             prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.name, config.prompt ?? '', newCost)
                         })
-                        if(updatedReward == undefined) Utils.log(`Channel Trophy redeemed, but could not be updated.`, Color.Red)
-                    } else Utils.log(`Channel Trophy redeemed, but no config found.`, Color.Red)
-                } else Utils.log(`Could not retrieve Reward Data for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+                        if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+                    } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+                } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
             }
         })
     }

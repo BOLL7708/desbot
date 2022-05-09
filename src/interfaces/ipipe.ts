@@ -17,9 +17,8 @@ interface IPipeConfig {
      * 
      * Make sure you have also set the Pipe config for this:
      * ```
-     * Config.pipe.configs: { 
-     *     [Keys.KEY_MIXED_CHAT]: {
-     *         imagePath: '', durationMs: '', config: PipePresets.YOUR_PRESET
+     * Config.twitchChat.pipe: { 
+     *         durationMs: 5000, config: PipePresets.YOUR_PRESET
      *     }
      * }
      * ```

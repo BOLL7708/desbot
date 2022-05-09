@@ -1,6 +1,15 @@
 interface ITwitchChatConfig {
+    /**
+     * Pipe preset used for displaying custom chat messages in VR.
+     */
     pipe: IPipeMessagePreset
+    /**
+     * Audio config for empty messages that would not be piped.
+     */
     audio: IAudio
+    /**
+     * String used for TTS, first `%s` is the name of the user, second `%s` is the message.
+     */
     speech: string
 }
 

@@ -1,13 +1,20 @@
 class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
     private _socket?: WebSockets
-    private _config: ITwitchConfig = Config.twitch
     private _pingIntervalHandle?: number
     private _pingTimestamp: number = 0
     private _onRewardCallback: ITwitchPubsubRewardCallback = (message) => { console.log('PubSub Reward unhandled') }
+    private _onSubscriptionCallback: ITwitchPubsubSubscriptionCallback = (message) => { console.log('PubSub Subscription unhandled') }
+    private _onCheerCallback: ITwitchPubsubCheerCallback = (message) => { console.log('PubSub Cheer unhandled') }
     
     setOnRewardCallback(callback: ITwitchPubsubRewardCallback) {
         this._onRewardCallback = callback
+    }
+    setOnSubscriptionCallback(callback: ITwitchPubsubSubscriptionCallback) {
+        this._onSubscriptionCallback = callback
+    }
+    setOnCheerCallback(callback: ITwitchPubsubCheerCallback) {
+        this._onCheerCallback = callback
     }
 
     init() {
@@ -69,10 +76,16 @@ class TwitchPubsub {
                         }
                         break
                     case 'channel-subscribe-events': 
+                        let subscriptionMessage: ITwitchPubsubSubscriptionMessage = JSON.parse(decodeURI(msg?.data?.message))
                         console.log(msg)
+                        console.log(subscriptionMessage)
+                        this._onSubscriptionCallback(subscriptionMessage)
                         break
                     case 'channel-bits-events': 
+                    let cheerMessage: ITwitchPubsubCheerMessage = JSON.parse(decodeURI(msg?.data?.message))
                         console.log(msg)
+                        console.log(cheerMessage)
+                        this._onCheerCallback(cheerMessage)
                         break
                 }
                 break
