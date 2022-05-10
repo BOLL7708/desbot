@@ -117,7 +117,7 @@ interface ITwitchPubsubCheerMessage {
 
 // Callback
 interface ITwitchPubsubRewardCallback {
-    (id:string, message: ITwitchPubsubRewardMessage): void
+    (id: string, message: ITwitchPubsubRewardMessage): void
 }
 interface ITwitchPubsubSubscriptionCallback {
     (message: ITwitchPubsubSubscriptionMessage): void

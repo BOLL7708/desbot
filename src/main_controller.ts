@@ -33,6 +33,7 @@ class MainController {
         */
         await modules.twitchTokens.refreshToken()
         await modules.twitchHelix.init()
+        if(Config.controller.websocketsUsed.twitchPubsub) await modules.twitchPubsub.init()
 
         modules.pipe.setOverlayTitle("Streaming Widget")
 
@@ -63,7 +64,7 @@ class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        modules.twitch.init(Config.controller.websocketsUsed.twitchChat, Config.controller.websocketsUsed.twitchPubsub)
+        modules.twitch.init(Config.controller.websocketsUsed.twitchChat)
         if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
         if(Config.controller.websocketsUsed.obs) modules.obs.init()

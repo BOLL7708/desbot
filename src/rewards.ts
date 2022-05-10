@@ -72,7 +72,7 @@ class Rewards {
         ...##......##........##.
         ...##......##.....####..
         */
-        modules.twitch.registerReward({
+        modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSPEAK),
             callback: (user: ITwitchActionUser) => {
                 if(user.login.length > 0 && user.input.length > 0) {
@@ -85,7 +85,7 @@ class Rewards {
                 }
             }
         })
-        modules.twitch.registerReward({
+        modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSETVOICE),
             callback: async (user: ITwitchActionUser) => {
                 Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
@@ -93,7 +93,7 @@ class Rewards {
                 modules.twitch._twitchChatOut.sendMessageToChannel(`@${user.name} voice: ${voiceName}`)
             }
         })
-        modules.twitch.registerReward({
+        modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSWITCHVOICEGENDER),
             callback: (user: ITwitchActionUser) => {
                 Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
@@ -113,7 +113,7 @@ class Rewards {
         ...##....##..##..##..##..##......##..##....##...
         ...##....##..##...####...##......##..##....##...
         */
-        modules.twitch.registerReward({
+        modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY),
             callback: async (user: ITwitchActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
                 // Save stat

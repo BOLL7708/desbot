@@ -65,7 +65,7 @@ class Actions {
             }
         }
         if(reward.id != null) {
-            modules.twitch.registerReward(reward)
+            modules.twitchPubsub.registerReward(reward)
         } else {
             Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
         }

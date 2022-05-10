@@ -112,7 +112,7 @@ class Callbacks {
         .##..##..######...##.##...##..##..##..##..#####....####..
         */
         // This callback was added as rewards with no text input does not come in through the chat callback
-        modules.twitch.setAllRewardsCallback(async (message: ITwitchPubsubRewardMessage) => {
+        modules.twitchPubsub.setOnRewardCallback(async (id: string, message: ITwitchPubsubRewardMessage) => {
             const redemption = message?.data?.redemption
             if(!redemption) return console.warn('Reward redemption empty', message)
 

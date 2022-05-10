@@ -7,6 +7,13 @@ class TwitchPubsub {
     private _onSubscriptionCallback: ITwitchPubsubSubscriptionCallback = (message) => { console.log('PubSub Subscription unhandled') }
     private _onCheerCallback: ITwitchPubsubCheerCallback = (message) => { console.log('PubSub Cheer unhandled') }
     
+    private _rewards: ITwitchReward[] = []
+    registerReward(twitchReward: ITwitchReward) {
+        const existingRewardIndex = this._rewards.findIndex((reward) => reward.id == twitchReward.id )
+        if(existingRewardIndex > -1) this._rewards.splice(existingRewardIndex, 1)
+        this._rewards.push(twitchReward)
+    }
+
     setOnRewardCallback(callback: ITwitchPubsubRewardCallback) {
         this._onRewardCallback = callback
     }
@@ -66,8 +73,11 @@ class TwitchPubsub {
                         switch(rewardMessage.type) {
                             case 'reward-redeemed': 
                                 const id = rewardMessage?.data?.redemption?.reward?.id ?? null
-                                if(id !== null) this._onRewardCallback(id, rewardMessage)
                                 Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
+                                if(id !== null) this._onRewardCallback(id, rewardMessage)
+                                let reward = this._rewards.find(reward => id == reward.id)
+                                if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
+                                else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
                                 break
                             default:
                                 Utils.log(`Unknown PubSub message type: ${rewardMessage.type}`, this.LOG_COLOR)

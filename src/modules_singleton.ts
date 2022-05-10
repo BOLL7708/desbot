@@ -12,6 +12,7 @@ class ModulesSingleton {
     public twitch: Twitch = new Twitch()
     public twitchHelix: TwitchHelix = new TwitchHelix()
     public twitchTokens: TwitchTokens = new TwitchTokens()
+    public twitchPubsub: TwitchPubsub = new TwitchPubsub()
     public tts: GoogleTTS = new GoogleTTS()
     public pipe: Pipe = new Pipe()
     public obs: OBS = new OBS()

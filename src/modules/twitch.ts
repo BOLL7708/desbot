@@ -1,29 +1,17 @@
 class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
-    private _twitchPubsub: TwitchPubsub = new TwitchPubsub()
     private _cooldowns: Map<string, number> = new Map()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
-    async init(initChat: boolean = true, initPubsub: boolean = true) {
+    async init(initChat: boolean = true) {
         if(initChat) {
             this._twitchChatIn.init(Config.twitch.channelName)
             this._twitchChatOut.init(Config.twitch.chatbotName)
         }
-        if(initPubsub) this._twitchPubsub.init()
         this._twitchChatIn.registerChatMessageCallback((message) => {
             this.onChatMessage(message)
         })
-        this._twitchPubsub.setOnRewardCallback((id, message) => {
-            this.onReward(id, message)
-        })
-    }
-
-    private _rewards: ITwitchReward[] = []
-    registerReward(twitchReward: ITwitchReward) {
-        const existingRewardIndex = this._rewards.findIndex((reward) => reward.id == twitchReward.id )
-        if(existingRewardIndex > -1) this._rewards.splice(existingRewardIndex, 1)
-        this._rewards.push(twitchReward)
     }
 
     private _commands: ITwitchCommandConfig[] = []
@@ -67,18 +55,6 @@ class Twitch{
     private _allChatCallback: ITwitchChatMessageCallback = () => { console.warn('Twitch: Unhandled chat message (all)') }
     setAllChatCallback(callback: ITwitchChatMessageCallback) {
         this._allChatCallback = callback
-    }
-
-    private _allRewardsCallback: ITwitchRewardRedemptionCallback = () => { console.warn('Twitch: Unhandled reward redemption (all)') }
-    setAllRewardsCallback(callback: ITwitchRewardRedemptionCallback) {
-        this._allRewardsCallback = callback
-    }
-    
-    private onReward(id:string, message:ITwitchPubsubRewardMessage) {
-        this._allRewardsCallback(message)
-        let reward = this._rewards.find(reward => id == reward.id)
-        if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(message), undefined, message)
-        else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
     }
 
     private onChatMessage(messageCmd: ITwitchMessageCmd) {
