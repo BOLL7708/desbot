@@ -39,7 +39,7 @@ class Actions {
         }
     }
 
-    public static async registerReward(key: string, cfg: ITwitchActionReward) {
+    public static async registerReward(key: string, cfg: ITwitchActionReward|ITwitchActionGameReward) {
         const modules = ModulesSingleton.getInstance()
         const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
         const reward:ITwitchReward = {

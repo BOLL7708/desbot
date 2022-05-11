@@ -110,7 +110,7 @@ interface ITwitchConfig {
      * Configuration for rewards that will be updated per game. This literally changes what the reward
      * looks like and what it does, basically resusing the same reward for different games.
      */
-    gameRewardConfigs: { [key: string]: { [key: string]: ITwitchActionReward } }
+    gameRewardConfigs: { [key: string]: { [key: string]: ITwitchActionGameReward } }
 
     /**
      * Default for turning rewards on or off depending on Steam game.
@@ -284,6 +284,9 @@ interface ITwitchMessageData {
  */
 interface ITwitchActionReward extends ITwitchAction {
     reward: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[]
+}
+interface ITwitchActionGameReward extends ITwitchAction {
+    reward?: ITwitchHelixRewardUpdate|ITwitchHelixRewardUpdate[]
 }
 
 /**

@@ -70,7 +70,7 @@ class ImageEditor {
         const img: HTMLImageElement|null = await Utils.makeImage(imageData)
         if(img == null) return false
 
-        const maxBorderWidth = outlines.reduce((a,b)=>a.width>b.width?a:b).width ?? 0;
+        const maxBorderWidth = outlines.length == 0 ? 0 : outlines.reduce((a,b)=>a.width>b.width?a:b).width ?? 0;
         this._ctx?.save()
         const x = rect.x + maxBorderWidth
         const y = rect.y + maxBorderWidth
