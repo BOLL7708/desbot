@@ -209,7 +209,7 @@ Config.google = <IGoogleConfig> {
         skipForAnnouncements: true,
         replaceWordsWithAudio: true,
         wordToAudioConfig: {
-            // 'word': 'https://yourhost.com/audiofiles/youraudio.wav'
+            // 'word|otherword|morewords': { src: 'https://yourhost.com/audiofiles/youraudio.wav' }
         }
     }
 }
@@ -317,7 +317,6 @@ Config.pipe = <IPipeConfig> {
 */
 Config.screenshots = <IScreenshotConfig> {
     SSSVRPort: 8807,
-    delayOnDescription: 5,
     callback: {
         discordManualTitle: 'Manual Screenshot',
         discordRewardTitle: 'Photograph: %s', // Template value is the reward description

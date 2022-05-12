@@ -6,12 +6,7 @@ interface IScreenshotConfig {
      * Port set in SuperScreenShotterVR.
      */
     SSSVRPort: number
-    
-    /**
-     * The delay between finishing reading the screenshot request description and triggering the screenshot.
-     */
-    delayOnDescription: number
-    
+      
     /**
      * Values used when posting things coming in from SSSVR & OBS to Discord and the {@link Sign}.
      */

@@ -63,6 +63,7 @@ class Pipe {
             ? await ImageLoader.getDataUrl(profileUrl, true)
             : null
         const preset = Utils.clone(Config.twitchChat.pipe)
+        if(!preset) return Utils.log("Pipe: No preset found for chat messages", Color.Red)
         if(
             Config.pipe.useCustomChatNotification
         ) { // Custom notification

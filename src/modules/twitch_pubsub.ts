@@ -77,7 +77,7 @@ class TwitchPubsub {
                                 if(id !== null) this._onRewardCallback(id, rewardMessage)
                                 let reward = this._rewards.find(reward => id == reward.id)
                                 if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
-                                else console.warn(`Reward not found: ${id}, the key might not be in Config.twitch.autorewards!`)
+                                else console.warn(`Reward not found: ${id}, the reward might be in the wrong group!`)
                                 break
                             default:
                                 Utils.log(`Unknown PubSub message type: ${rewardMessage.type}`, this.LOG_COLOR)
