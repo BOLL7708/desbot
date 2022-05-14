@@ -283,9 +283,15 @@ interface ITwitchMessageData {
  * Reward specific action config.
  */
 interface ITwitchActionReward extends ITwitchAction {
+    /**
+     * The reward settings, providing an array makes it into an incrementing reward.
+     */
     reward: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[]
 }
 interface ITwitchActionGameReward extends ITwitchAction {
+    /**
+     * This is optional as updating the reward is not mandatory for game rewards.
+     */
     reward?: ITwitchHelixRewardUpdate|ITwitchHelixRewardUpdate[]
 }
 
@@ -293,6 +299,9 @@ interface ITwitchActionGameReward extends ITwitchAction {
  * Command specific action config.
  */
 interface ITwitchActionCommand extends ITwitchAction {
+    /**
+     * Optional: Add this to provide custom permissions.
+     */
     command?: ITwitchActionCommandConfig
 }
 
@@ -301,18 +310,57 @@ interface ITwitchActionCommand extends ITwitchAction {
  */
 interface ITwitchAction {
     // TODO: Add array support to everything? Random/Shuffle functionality?
+    /**
+     * Optional: Used to change SteamVR settings.
+     */
     openVR2WS?: IOpenVR2WSSetting|IOpenVR2WSSetting[]
+    /**
+     * Optional: Used to toggle OBS sources or filters.
+     */
     obs?: IObsSourceConfig
+    /**
+     * Optional: Trigger one or multiple pipe overlays.
+     */
     pipe?: IPipeMessagePreset|IPipeMessagePreset[]
+    /**
+     * Optional: Trigger OBS or VR screenshots.
+     */
     screenshots?: IScreenshot
+    /**
+     * Optional: Trigger Philips Hue lights changes.
+     */
     lights?: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]
+    /**
+     * Optional: Trigger Philips Hue plug changes.
+     */
     plugs?: IPhilipsHuePlugConfig
+    /**
+     * Optional: Trigger audio clips.
+     */
     audio?: IAudio
+    /**
+     * Optional: Trigger the TTS to read a message, can be randomized when submitting an array.
+     */
     speech?: string|string[]
+    /**
+     * Optional: Show a pop-in message in the browser source for the widget.
+     */
     sign?: ISignShowConfig
+    /**
+     * Optional: Execute a key command in a specific window or trigger a custom URI.
+     */
     exec?: IExecConfig
+    /**
+     * Optional: Load a page in the background.
+     */
     web?: string
+    /**
+     * Optional: Send a message to a Discord channel.
+     */
     discord?: string,
+    /**
+     * Optional: Play back the user-provided audio URL.
+     */
     audioUrl?: boolean
 }
 
