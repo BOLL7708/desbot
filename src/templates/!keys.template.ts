@@ -52,8 +52,6 @@ class KeysTemplate {
     static readonly COMMAND_CLIPS: string = 'clips'
     static readonly COMMAND_GAME: string = 'game'
     static readonly COMMAND_GAMERESET: string = 'nogame'
-    static readonly COMMAND_AUDIOURL: string = 'audiourl' 
-    static readonly COMMAND_TODO: string = 'todo'
     
     // Dangerous WIP SteamVR settings commands
     static readonly COMMAND_REFRESHRATE: string = 'hz'

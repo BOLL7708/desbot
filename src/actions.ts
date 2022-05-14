@@ -73,7 +73,13 @@ class Actions {
 
     public static async registerCommand(key: string, cfg: ITwitchActionCommand) {
         const modules = ModulesSingleton.getInstance()
-        cfg.command.trigger = key
+        let command = cfg?.command
+        if(!cfg.command) {
+            cfg.command = {
+                trigger: key,
+                permissions: {}
+            }
+        } else if(command) command.trigger = key
         const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
         modules.twitch.registerCommand(<ITwitchCommandConfig>{...cfg.command, callback: actionCallback})
     }
@@ -107,6 +113,8 @@ class Actions {
         const execCallback = Actions.buildExecCallback(cfg?.exec)
         const webCallback = Actions.buildWebCallback(cfg?.web)
         const screenshotCallback = Actions.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
+        const discordMessageCallback = Actions.buildDiscordMessageCallback(cfg?.discord, key)
+        const audioUrlCallback = Actions.buildAudioUrlCallback(cfg?.audioUrl)
 
         // Log result
         Utils.logWithBold(
@@ -120,6 +128,8 @@ class Actions {
             +(execCallback?'🎓':'')
             +(webCallback?'🌐':'')
             +(screenshotCallback?'📷':'')
+            +(discordMessageCallback?'💬':'')
+            +(audioUrlCallback?'🎵':'')
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
@@ -135,6 +145,8 @@ class Actions {
             if(execCallback != null) execCallback(user)
             if(webCallback != null) webCallback(user)
             if(screenshotCallback != null) screenshotCallback(user)
+            if(discordMessageCallback != null) discordMessageCallback(user)
+            if(audioUrlCallback != null) audioUrlCallback(user)
         }
     }
 
@@ -195,39 +207,37 @@ class Actions {
     }
 
     public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): ITwitchActionCallback|undefined {
-        if(config) {
-            return async (user: ITwitchActionUser) => {
-                /*
-                * We check if we don't have enough texts to fill the preset 
-                * and fill the empty spots up with the redeemer's display name.
-                * Same with image and the avatar of the redeemer.
-                */            
-                let asyncConfig = Utils.clone(config)
-                if(!Array.isArray(asyncConfig)) asyncConfig = [asyncConfig]
-                const modules = ModulesSingleton.getInstance()
-                for(const cfg of asyncConfig) {
-                    const textAreaCount = cfg.config.customProperties?.textAreas?.length ?? 0
-                    if(textAreaCount > 0 && cfg.texts == undefined) cfg.texts = []
-                    const textCount = cfg.texts?.length ?? 0
-                    
-                    // If not enough texts for all areas, fill with redeemer's display name.
-                    if(textAreaCount > textCount && cfg.texts) {
-                        cfg.texts.length = textAreaCount
-                        cfg.texts.fill(user.name, textCount, textAreaCount)
-                    }
-                    
-                    // Replace tags in texts.
-                    cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsInText(text, user)})
-
-                    // If no image is supplied, use the redeemer user image instead.
-                    if(cfg.imageData == null && cfg.imagePath == null) {
-                        const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                        cfg.imagePath = userData?.profile_image_url
-                    }
-
-                    // Show it
-                    modules.pipe.showPreset(cfg)
+        if(config) return async (user: ITwitchActionUser) => {
+            /*
+            * We check if we don't have enough texts to fill the preset 
+            * and fill the empty spots up with the redeemer's display name.
+            * Same with image and the avatar of the redeemer.
+            */            
+            let asyncConfig = Utils.clone(config)
+            if(!Array.isArray(asyncConfig)) asyncConfig = [asyncConfig]
+            const modules = ModulesSingleton.getInstance()
+            for(const cfg of asyncConfig) {
+                const textAreaCount = cfg.config.customProperties?.textAreas?.length ?? 0
+                if(textAreaCount > 0 && cfg.texts == undefined) cfg.texts = []
+                const textCount = cfg.texts?.length ?? 0
+                
+                // If not enough texts for all areas, fill with redeemer's display name.
+                if(textAreaCount > textCount && cfg.texts) {
+                    cfg.texts.length = textAreaCount
+                    cfg.texts.fill(user.name, textCount, textAreaCount)
                 }
+                
+                // Replace tags in texts.
+                cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsInText(text, user)})
+
+                // If no image is supplied, use the redeemer user image instead.
+                if(cfg.imageData == null && cfg.imagePath == null) {
+                    const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+                    cfg.imagePath = userData?.profile_image_url
+                }
+
+                // Show it
+                modules.pipe.showPreset(cfg)
             }
         }
     }
@@ -305,6 +315,26 @@ class Actions {
                     modules.sssvr.sendScreenshotRequest(key, user)
                 }
             }
+        }
+    }
+
+    private static buildDiscordMessageCallback(message: string|undefined, key: string): ITwitchActionCallback|undefined {
+        if(message && message.length > 0) return async (user: ITwitchActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+            Discord.enqueueMessage(
+                Config.credentials.DiscordWebhooks[key], 
+                user.name, 
+                userData?.profile_image_url,
+                Utils.replaceTagsInText(message, user)
+            )
+        }
+    }
+
+    private static buildAudioUrlCallback(useThis: boolean|undefined): ITwitchActionCallback|undefined {
+        if(useThis) return (user: ITwitchActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            if(user.input) modules.audioPlayer.enqueueAudio({src: user.input})
         }
     }
 }    

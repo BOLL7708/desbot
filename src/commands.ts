@@ -566,19 +566,6 @@ class Commands {
             }
         })
 
-        modules.twitch.registerCommand({
-            trigger: Keys.COMMAND_TODO,
-            callback: async (user) => {
-                const userData = await modules.twitchHelix.getUserById(Utils.toInt(user.id))
-                Discord.enqueueMessage(
-                    Config.credentials.DiscordWebhooks[Keys.COMMAND_TODO],
-                    user.name,
-                    userData?.profile_image_url,
-                    `👉 ${user.input}`
-                )
-            }
-        })
-
         /*
         .#####...##..##..#####...##......######...####..
         .##..##..##..##..##..##..##........##....##..##.
@@ -606,15 +593,5 @@ class Commands {
                 }
             }
         })
-
-        modules.twitch.registerCommand(
-            {
-                trigger: Keys.COMMAND_AUDIOURL,
-                callback: async (user) => {
-                    const modules = ModulesSingleton.getInstance()
-                    if(user.input) modules.audioPlayer.enqueueAudio({src: user.input})
-                }
-            }
-        )
     }
 }

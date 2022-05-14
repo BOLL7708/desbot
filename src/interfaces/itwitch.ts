@@ -178,13 +178,13 @@ interface ITwitchActionCommandConfig {
     /**
      * The command that is matched from the chat.
      * 
-     * Note: This is overwritten by the key value at registration.
+     * Note: This is overwritten by the key value at registration as it needs to be in the config later on.
      */
     trigger?: string
     /**
      * Permission for who can execute this command.
      */
-    permissions: ICommandPermissions
+    permissions?: ICommandPermissions
 }
 
 interface ITwitchCommandConfig {
@@ -293,7 +293,7 @@ interface ITwitchActionGameReward extends ITwitchAction {
  * Command specific action config.
  */
 interface ITwitchActionCommand extends ITwitchAction {
-    command: ITwitchActionCommandConfig
+    command?: ITwitchActionCommandConfig
 }
 
 /**
@@ -312,6 +312,8 @@ interface ITwitchAction {
     sign?: ISignShowConfig
     exec?: IExecConfig
     web?: string
+    discord?: string,
+    audioUrl?: boolean
 }
 
 /**
