@@ -64,27 +64,46 @@ class Commands {
 
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_NICK,
-            callback: (user) => {
+            callback: async (user) => {
                 const parts = Utils.splitOnFirst(' ', user.input)
                 let userToRename: string = ''
                 let newName: string = ''
-                // Rename someone else
-                if(
-                    (user?.isBroadcaster || user?.isModerator) 
-                    && parts[0].indexOf('@') > -1 
-                    && parts.length >= 1
-                ) { 
+                
+                const canRenameOthers = user?.isBroadcaster || user?.isModerator
+                const hasUserTag = parts[0].indexOf('@') > -1 
+                const hasUserTagAndInput = hasUserTag && parts.length >= 1
+                               
+                if(canRenameOthers && hasUserTagAndInput)  { 
+                    // Rename someone else
                     userToRename = Utils.cleanUserName(parts[0])
                     newName = parts[1].toLowerCase()
-                } else { // Rename yourself
-                    userToRename = user.name ?? ''
+                } else {
+                    // Rename ourselves
+                    userToRename = user.login ?? ''
                     newName = user.input.toLowerCase()
                 }
+
+                // Cancel if the user does not actually exist on Twitch
+                const userExists = await modules.twitchHelix.getUserByLogin(userToRename)
+                if(!userExists) return Utils.log(`User "${userToRename}" does not exist.`, Color.Red)
+
                 if(userToRename.length > 0 && newName.length > 0) {
+                    // We do the rename
                     const setting = <IUserName> {userName: userToRename, shortName: newName, editor: user.login, datetime: Utils.getISOTimestamp()}
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
                     modules.tts.enqueueSpeakSentence(Utils.template(speech, userToRename, newName), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                } else if(userToRename.length > 0) { 
+                    // We return current name in chat
+                    const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userToRename)
+                    const message = Config.controller.chatReferences[Keys.COMMAND_TTS_NICK]
+                    ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(
+                        Utils.template(
+                            message, 
+                            hasUserTag ? parts[0] : userToRename, 
+                            currentName?.shortName
+                        )
+                    )
                 }
             }
         })
