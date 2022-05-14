@@ -206,33 +206,6 @@ class Commands {
         })
 
         /*
-        ..####....####...##...##.
-        .##..##..##..##..###.###.
-        .##......######..##.#.##.
-        .##..##..##..##..##...##.
-        ..####...##..##..##...##.
-        */
-        modules.twitch.registerCommand({
-            trigger: Keys.COMMAND_CAMERA_ON,
-            callback: (user) => {
-                const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_ON]
-                const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_ON]
-                modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.obs.show(Utils.getRewardConfig(key)?.obs, true)
-            }
-        })
-
-        modules.twitch.registerCommand({
-            trigger: Keys.COMMAND_CAMERA_OFF,
-            callback: (user) => {
-                const key = Config.controller.commandReferences[Keys.COMMAND_CAMERA_OFF]
-                const speech = Config.controller.speechReferences[Keys.COMMAND_CAMERA_OFF]
-                modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-                modules.obs.hide(Utils.getRewardConfig(key)?.obs)
-            }
-        })
-
-        /*
         ..####....####....####...##......######.
         .##......##..##..##..##..##......##.....
         ..####...##......######..##......####...

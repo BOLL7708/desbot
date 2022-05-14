@@ -154,8 +154,9 @@ class Actions {
         if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
             config.key = key
+            const state = config.state ?? true
             console.log("OBS Reward triggered")
-            modules.obs.show(config)
+            modules.obs.toggle(config, state)
         } 
     }
 

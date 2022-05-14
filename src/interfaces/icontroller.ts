@@ -43,11 +43,6 @@ interface IControllerConfig {
     }
     
     /**
-     * A reference so a command can trigger things that would be in an automatic reward.
-     */
-    commandReferences: { [key: string]: string }
-    
-    /**
      * The default permissions for all commands, see overrides below.
      */
     commandPermissionsDefault: ICommandPermissions
@@ -70,11 +65,6 @@ interface IControllerConfig {
      * References to texts written in chat by the bot.
      */
     chatReferences: { [key: string]: string|string[] }
-
-    /**
-     * References between static and automatic rewards.
-     */
-    rewardReferences: { [key: string]: string }
 
     /**
      * As Twitch category can be automatically matched, this is the one used when there is no match.

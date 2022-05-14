@@ -59,9 +59,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         pipe: false,
         sssvr: false
     },
-    commandReferences: {
-        // [KeysTemplate.YOUR_COMMAND]: KeysTemplate.KEY_YOURREWARD
-    },
     commandPermissionsDefault: {
         streamer: true,
         moderators: true,
@@ -141,8 +138,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_PING_OFF]: 'Chat ping disabled',
         [KeysTemplate.COMMAND_LOG_ON]: 'Logging enabled',
         [KeysTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
-        [KeysTemplate.COMMAND_CAMERA_ON]: 'Camera enabled',
-        [KeysTemplate.COMMAND_CAMERA_OFF]: 'Camera disabled',
         [KeysTemplate.COMMAND_BRIGHTNESS]: 'Headset brightness set to %s%',
         [KeysTemplate.COMMAND_REFRESHRATE]: 'Headset refresh rate set to %s hertz',
         [KeysTemplate.COMMAND_VRVIEWEYE]: 'Output eye mode changed to %s',
@@ -154,9 +149,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'There is no entry for "%s" in the dictionary.',
             '"%s" is set to "%s" in the dictionary.'
         ]
-    },
-    rewardReferences: {
-        // [KeysTemplate.KEY_AREWARD]: KeysTemplate.KEY_YOURREWARD
     },
     defaultTwitchGameCategory: 'Games + Demos',
     resetIncrementingRewardsOnLoad: [

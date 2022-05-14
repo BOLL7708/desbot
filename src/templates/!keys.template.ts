@@ -40,8 +40,6 @@ class KeysTemplate {
     static readonly COMMAND_PING_OFF: string = 'pingoff'
     static readonly COMMAND_LOG_ON: string = 'logon'
     static readonly COMMAND_LOG_OFF: string = 'logoff'
-    static readonly COMMAND_CAMERA_ON: string = 'camon'
-    static readonly COMMAND_CAMERA_OFF: string = 'camoff'
     static readonly COMMAND_SCALE: string = 'scale'
     static readonly COMMAND_DICTIONARY: string = 'word'
     static readonly COMMAND_UPDATEREWARDS: string = 'update'

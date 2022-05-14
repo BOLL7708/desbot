@@ -44,6 +44,10 @@ interface IObsSourceConfig {
      */
     durationMs?: number
     /**
+     * Optional: Define a specific state, true is on/visible and the default.
+     */
+    state?: boolean
+    /**
      * Optional: Set in code to reference the key that triggered it for group toggling.
      */
     key?: string
