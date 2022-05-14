@@ -355,7 +355,7 @@ interface ITwitchAction {
      */
     web?: string
     /**
-     * Optional: Send a message to a Discord channel.
+     * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.webhooks} for the same key.
      */
     discord?: string,
     /**
