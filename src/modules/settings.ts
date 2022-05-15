@@ -12,11 +12,12 @@ class Settings {
     static WORLD_SCALE_LABEL: string = 'world_scale_label.txt'
     static LOG_OUTPUT: string = 'log_output.html'
     static STEAM_ACHIEVEMENTS: string = 'steam_achievements/'
+    static QUOTES: string = 'stream_quotes'
 
     private static LOG_COLOR: string = 'blue'
 
-    private static _settingsStore: Map<string, any[]> = new Map()
-    private static _settingsCache: Map<string, any[]> = new Map()
+    private static _settingsStore: Map<string, any[]> = new Map() // Used for storing settings in memory before saving to disk
+    private static _settingsCache: Map<string, any[]> = new Map() // Used to periodic writing of settings that accumulate
     private static _cacheWriteIntervalHandle: number = -1
 
     /**
@@ -91,6 +92,7 @@ class Settings {
     }
 
     static async appendSetting(setting: string, value: any): Promise<boolean> {
+        this._settingsStore.get(setting)?.push(value)
         return this.saveSettings(setting, value, true)
     }
 

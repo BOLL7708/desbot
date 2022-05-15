@@ -199,6 +199,57 @@ class Commands {
             }
         })
 
+        modules.twitch.registerCommand({
+            trigger: Keys.COMMAND_QUOTE,
+            callback: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const parts = Utils.splitOnFirst(' ', user.input)
+                const login = Utils.cleanUserName(parts[0] ?? '')
+                const quote = parts[1] ?? ''
+                if(login.length > 0 && quote.length > 0) {
+                    const userData = await modules.twitchHelix.getUserByLogin(login)              
+                    // Save quote to settings
+                    if(userData) {
+                        await Settings.appendSetting(
+                            Settings.QUOTES,
+                            <IStreamQuote> { 
+                                submitter: user.login, 
+                                author: userData.login, 
+                                quote: quote, 
+                                datetime: Utils.getISOTimestamp()
+                            }
+                        )
+                        const speech = Config.controller.speechReferences[Keys.COMMAND_QUOTE]
+                        modules.tts.enqueueSpeakSentence(
+                            Utils.template(
+                                speech, 
+                                userData.login
+                            ), 
+                            Config.twitch.chatbotName, 
+                            GoogleTTS.TYPE_ANNOUNCEMENT
+                        )
+                    } else Utils.log(`Could not find user ${login}`, Color.Red)
+                } else {
+                    // Grab quote and write it in chat.
+                    const quotes = Settings.getFullSettings<IStreamQuote>(Settings.QUOTES)
+                    const quote = Utils.randomFromArray(quotes)
+                    if(quote) {
+                        const date = new Date(quote.datetime)
+                        const userData = await modules.twitchHelix.getUserByLogin(quote.author)
+                        const speech = Config.controller.chatReferences[Keys.COMMAND_QUOTE]
+                        modules.twitch._twitchChatOut.sendMessageToChannel(
+                            Utils.template(
+                                speech, 
+                                date.toDateString() ?? 'N/A', 
+                                userData?.display_name ?? '', 
+                                quote.quote
+                            )
+                        )
+                    }
+                }
+            }
+        })
+
         /*
         .##.......####....####..
         .##......##..##..##.....

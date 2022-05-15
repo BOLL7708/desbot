@@ -21,6 +21,7 @@ class MainController {
         )
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
+        await Settings.loadSettings(Settings.QUOTES)
 
         /*
         .####.##....##.####.########

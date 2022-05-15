@@ -29,3 +29,9 @@ interface IChannelTrophyStat {
 interface ITwitchClip {
     id: string
 }
+interface IStreamQuote {
+    submitter: string
+    author: string
+    quote: string
+    datetime: string
+}

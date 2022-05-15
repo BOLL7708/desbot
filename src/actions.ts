@@ -207,6 +207,13 @@ class Actions {
         }
     }
 
+    private static buildAudioUrlCallback(useThis: boolean|undefined): ITwitchActionCallback|undefined {
+        if(useThis) return (user: ITwitchActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            if(user.input) modules.audioPlayer.enqueueAudio({src: user.input})
+        }
+    }
+
     public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): ITwitchActionCallback|undefined {
         if(config) return async (user: ITwitchActionUser) => {
             /*
@@ -324,18 +331,11 @@ class Actions {
             const modules = ModulesSingleton.getInstance()
             const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
             Discord.enqueueMessage(
-                Config.credentials.DiscordWebhooks[key], 
-                user.name, 
+                Config.credentials.DiscordWebhooks[key],
+                user.name,
                 userData?.profile_image_url,
                 Utils.replaceTagsInText(message, user)
             )
-        }
-    }
-
-    private static buildAudioUrlCallback(useThis: boolean|undefined): ITwitchActionCallback|undefined {
-        if(useThis) return (user: ITwitchActionUser) => {
-            const modules = ModulesSingleton.getInstance()
-            if(user.input) modules.audioPlayer.enqueueAudio({src: user.input})
         }
     }
 }    

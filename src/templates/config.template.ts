@@ -123,14 +123,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Twitch game updated: %s',
             'Twitch game not matched: %s'
         ],
-
-        /*
-        .#####...##..##..##..##...####...##...##..######...####..
-        .##..##...####...###.##..##..##..###.###....##....##..##.
-        .##..##....##....##.###..######..##.#.##....##....##.....
-        .##..##....##....##..##..##..##..##...##....##....##..##.
-        .#####.....##....##..##..##..##..##...##..######...####..
-        */
+        [KeysTemplate.COMMAND_QUOTE]: 'Quote added for @%s',
         [KeysTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
@@ -148,7 +141,9 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_DICTIONARY]: [
             'There is no entry for "%s" in the dictionary.',
             '"%s" is set to "%s" in the dictionary.'
-        ]
+        ],
+        [KeysTemplate.COMMAND_TTS_NICK]: '%s is called: "%s"',
+        [KeysTemplate.COMMAND_QUOTE]: 'On %s, @%s said: "%s"'
     },
     defaultTwitchGameCategory: 'Games + Demos',
     resetIncrementingRewardsOnLoad: [
