@@ -80,12 +80,12 @@ class Commands {
                 } else {
                     // Rename ourselves
                     userToRename = user.login ?? ''
-                    newName = user.input.toLowerCase()
+                    newName = hasUserTagAndInput ? parts[1] : user.input.toLowerCase()
                 }
 
                 // Cancel if the user does not actually exist on Twitch
-                const userExists = await modules.twitchHelix.getUserByLogin(userToRename)
-                if(!userExists) return Utils.log(`User "${userToRename}" does not exist.`, Color.Red)
+                const userData = await modules.twitchHelix.getUserByLogin(userToRename)
+                if(!userData) return Utils.log(`TTS Nick: User "${userToRename}" does not exist.`, Color.Red)
 
                 if(userToRename.length > 0 && newName.length > 0) {
                     // We do the rename
@@ -100,7 +100,7 @@ class Commands {
                     ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(
                         Utils.template(
                             message, 
-                            hasUserTag ? parts[0] : userToRename, 
+                            hasUserTag ? parts[0] : `@${userData.display_name}`, 
                             currentName?.shortName
                         )
                     )
