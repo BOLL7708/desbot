@@ -57,7 +57,7 @@ interface IControllerConfig {
      * These are texts spoken by the TTS for various commands and other events.
      * - The fixed section contains arrays that _needs_ a specific number of items in each.
      * - The dynamic section contains single strings that can be replaced with arrays for random selection or for incrementing rewards.
-     * - %s is a templated value, those gets replaced by parameters like names and numbers.
+     * - %[label] is a templated value, those gets replaced by parameters that match their names.
      */
     speechReferences: { [key: string]: string|string[] }
 

@@ -18,7 +18,7 @@ interface IScreenshotConfig {
         /**
          * Title for the Discord post for redeemed screenshots with a description.
          * 
-         * `%s` will be replaced with the description.
+         * `%text` will be replaced with the description.
          */
         discordRewardTitle: string
         /**

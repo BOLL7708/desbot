@@ -172,9 +172,9 @@ class Functions {
                 const speech = Config.controller.speechReferences[Keys.CALLBACK_APPID]
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
-                    modules.tts.enqueueSpeakSentence(Utils.template(speech[0], twitchGameData.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else {
-                    modules.tts.enqueueSpeakSentence(Utils.template(speech[1], gameData?.name), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             } else {
                 Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)
@@ -241,11 +241,13 @@ class Functions {
                                     },
                                     timestamp: new Date(achievement.unlocktime*1000).toISOString(),
                                     footer: {
-                                        text: Utils.template(
-                                                Config.steam.achievementSettings.discordFooter, 
-                                                progressStr, 
-                                                globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
-                                            )
+                                        text: Utils.replaceTags(
+                                            Config.steam.achievementSettings.discordFooter, 
+                                            {
+                                                progress: progressStr, 
+                                                rate: globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                                            }
+                                        )
                                     }
                                 }
                             ]
@@ -253,12 +255,14 @@ class Functions {
 
                         // Twitch chat
                         modules.twitch._twitchChatOut.sendMessageToChannel(
-                            Utils.template(
+                            Utils.replaceTags(
                                 Config.steam.achievementSettings.twitchChatMessage, 
-                                progressStr, 
-                                achievementDetails?.displayName ?? key, 
-                                achievementDetails?.description ?? 'N/A', 
-                                globalStr
+                                {
+                                    progress: progressStr, 
+                                    name: achievementDetails?.displayName ?? key, 
+                                    text: achievementDetails?.description ?? 'N/A', 
+                                    rate: globalStr
+                                }
                             )
                         )
                     }

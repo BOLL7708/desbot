@@ -90,18 +90,18 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_TTS_OFF]: [
             'Global TTS terminated', 
             'Global TTS already off'
-        ],        
+        ],
         [KeysTemplate.COMMAND_TTS_MUTE]: [
-            '%s has lost their voice',
-            '%s is already muted'
+            '%name has lost their voice',
+            '%name is already muted'
         ],
         [KeysTemplate.COMMAND_TTS_UNMUTE]: [
-            '%s has regained their voice', 
-            '%s is not muted'
+            '%name has regained their voice', 
+            '%name is not muted'
         ],
         [KeysTemplate.COMMAND_SCALE]: [
-            'World scale set to %s%',
-            'World scale will change from %s to %s% over %s minutes',
+            'World scale set to %value%',
+            'World scale will change from %from to %to% over %mins minutes',
             'World scale sequence finished',
             'World scale sequence not set',
             'World scale sequence terminated'
@@ -115,35 +115,36 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         ],
         [KeysTemplate.COMMAND_CLIPS]: [
             'Starting Twitch clip import.',
-            'There are %s old clips, %s new clips.',
-            'Finished posting %s new clips.'
+            'There are %count1 old clips, %count2 new clips.',
+            'Finished posting %count new clips.'
         ],
-        [KeysTemplate.COMMAND_DICTIONARY]: '%s is now said as %s',
         [KeysTemplate.CALLBACK_APPID]: [
-            'Twitch game updated: %s',
-            'Twitch game not matched: %s'
+            'Twitch game updated: %game',
+            'Twitch game not matched: %game'
         ],
-        [KeysTemplate.COMMAND_QUOTE]: 'Quote added for @%s',
-        [KeysTemplate.COMMAND_TTS_NICK]: '%s is now called %s',
+        [KeysTemplate.COMMAND_QUOTE]: 'Quote by @%name added',
+        [KeysTemplate.COMMAND_TTS_NICK]: '%name is now called %nick',
+        [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
+        [KeysTemplate.COMMAND_DICTIONARY]: '%word1 is now said as %word2',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
         [KeysTemplate.COMMAND_PING_ON]: 'Chat ping enabled',
         [KeysTemplate.COMMAND_PING_OFF]: 'Chat ping disabled',
         [KeysTemplate.COMMAND_LOG_ON]: 'Logging enabled',
         [KeysTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
-        [KeysTemplate.COMMAND_BRIGHTNESS]: 'Headset brightness set to %s%',
-        [KeysTemplate.COMMAND_REFRESHRATE]: 'Headset refresh rate set to %s hertz',
-        [KeysTemplate.COMMAND_VRVIEWEYE]: 'Output eye mode changed to %s',
+        [KeysTemplate.COMMAND_BRIGHTNESS]: 'Headset brightness set to %value%',
+        [KeysTemplate.COMMAND_REFRESHRATE]: 'Headset refresh rate set to %value hertz',
+        [KeysTemplate.COMMAND_VRVIEWEYE]: 'Output eye mode changed to %value',
         [KeysTemplate.COMMAND_GAMEREWARDS_ON]: 'Game specific rewards enabled',
         [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',
     },
     chatReferences: {
         [KeysTemplate.COMMAND_DICTIONARY]: [
-            'There is no entry for "%s" in the dictionary.',
-            '"%s" is set to "%s" in the dictionary.'
+            'There is no entry for "%word" in the dictionary.',
+            '"%word" is set to "%value" in the dictionary.'
         ],
-        [KeysTemplate.COMMAND_TTS_NICK]: '%s is called: "%s"',
-        [KeysTemplate.COMMAND_QUOTE]: 'On %s, @%s said: "%s"'
+        [KeysTemplate.COMMAND_TTS_NICK]: '%name is called: "%nick"',
+        [KeysTemplate.COMMAND_QUOTE]: 'On %date, @%name said: "%text"'
     },
     defaultTwitchGameCategory: 'Games + Demos',
     resetIncrementingRewardsOnLoad: [
@@ -215,8 +216,8 @@ Config.steam = <ISteamConfig> {
     ignoreAchievementsOlderThanHours: 24,
     ignoredAppIds: [],
     achievementSettings: {
-        discordFooter: 'Progress: %s, global rate: %s',
-        twitchChatMessage: '🔓 Achievement %s unlocked: %s (%s) 🌍 %s'
+        discordFooter: 'Progress: %progress, global rate: %rate',
+        twitchChatMessage: '🔓 Achievement %progress unlocked: %name (%text, 🌍 %rate)'
     }
 }
 
@@ -305,7 +306,7 @@ Config.screenshots = <IScreenshotConfig> {
     SSSVRPort: 8807,
     callback: {
         discordManualTitle: 'Manual Screenshot',
-        discordRewardTitle: 'Photograph: %s', // Template value is the reward description
+        discordRewardTitle: 'Photograph: %text',
         discordRewardInstantTitle: 'Instant shot! 📸',
         signTitle: 'Screenshot',
         signManualSubtitle: 'Manual shot!',
@@ -422,7 +423,7 @@ Config.twitchChat = <ITwitchChatConfig> {
         src: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
         volume: 0.5
     },
-    speech: '%s said: %s'
+    speech: '%name said: %text'
 }
 
 /*
@@ -448,7 +449,7 @@ Config.twitch = <ITwitchConfig> {
     ],
     commandConfigs: {
         /*
-        [Keys.COMMAND_YOURCUSTOMCOMMAND]: {
+        [KeysTemplate.COMMAND_YOURCUSTOMCOMMAND]: {
             command: {
                 permissions: {moderators: false}
             },

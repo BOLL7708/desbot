@@ -8,7 +8,7 @@ interface ITwitchChatConfig {
      */
     audio?: IAudio
     /**
-     * String used for TTS, first `%s` is the name of the user, second `%s` is the message.
+     * String used for TTS, `%name` is the name of the user, `%text` is the message.
      */
     speech: string
 }

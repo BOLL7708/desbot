@@ -180,7 +180,7 @@ class Callbacks {
                     TwitchFactory.userColors.get(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
-                    ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
+                    ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
                     : Config.screenshots.callback.discordRewardInstantTitle
                 Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
@@ -256,7 +256,7 @@ class Callbacks {
                     TwitchFactory.userColors.get(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
-                    ? Utils.template(Config.screenshots.callback.discordRewardTitle, description) 
+                    ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description}) 
                     : Config.obs.sourceScreenshotConfig.discordDescription
                 Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
