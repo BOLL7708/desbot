@@ -92,6 +92,7 @@ class Settings {
     }
 
     static async appendSetting(setting: string, value: any): Promise<boolean> {
+        if(!this._settingsStore.has(setting)) this._settingsStore.set(setting, [])
         this._settingsStore.get(setting)?.push(value)
         return this.saveSettings(setting, value, true)
     }
