@@ -361,7 +361,7 @@ interface ITwitchAction {
     /**
      * Optional: Play back the user-provided audio URL.
      */
-    audioUrl?: boolean
+    audioUrl?: IAudioBase
 }
 
 /**

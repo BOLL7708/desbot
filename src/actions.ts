@@ -207,10 +207,10 @@ class Actions {
         }
     }
 
-    private static buildAudioUrlCallback(useThis: boolean|undefined): ITwitchActionCallback|undefined {
-        if(useThis) return (user: ITwitchActionUser) => {
+    private static buildAudioUrlCallback(config: IAudioBase|undefined): ITwitchActionCallback|undefined {
+        if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
-            if(user.input) modules.audioPlayer.enqueueAudio({src: user.input})
+            if(user.input) modules.audioPlayer.enqueueAudio({...config, ...{src: user.input}})
         }
     }
 
