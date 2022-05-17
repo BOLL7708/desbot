@@ -144,7 +144,7 @@ class Rewards {
                     const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
                     if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
                         modules.tts.enqueueSpeakSentence(
-                            Utils.template(funnyNumberConfig.speech, user.login), 
+                            Utils.replaceTags(funnyNumberConfig.speech, {name: user.login}), 
                             Config.twitch.chatbotName, 
                             GoogleTTS.TYPE_ANNOUNCEMENT
                         )
@@ -152,7 +152,7 @@ class Rewards {
                     // Update label in overlay
                     const labelUpdated = await Settings.pushLabel(
                         Settings.CHANNEL_TROPHY_LABEL, 
-                        Utils.template(Config.controller.channelTrophySettings.label, cost, user.name)
+                        Utils.replaceTags(Config.controller.channelTrophySettings.label, {number: cost.toString(), name: user.name})
                     )
 					if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
                     
@@ -162,11 +162,11 @@ class Rewards {
                     if(config != undefined) {
                         const newCost = cost+1;
                         const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
-                            title: Utils.template(Config.controller.channelTrophySettings.rewardTitle, user.name),
+                            title: Utils.replaceTags(Config.controller.channelTrophySettings.rewardTitle, {name: user.name}),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: Utils.template(Config.controller.channelTrophySettings.rewardPrompt, user.name, config.prompt ?? '', newCost)
+                            prompt: Utils.replaceTags(Config.controller.channelTrophySettings.rewardPrompt, {name: user.name, prompt: config.prompt ?? '', number: newCost.toString()})
                         })
                         if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
                     } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)

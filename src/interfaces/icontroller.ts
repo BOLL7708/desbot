@@ -98,21 +98,21 @@ interface IControllerConfig {
      */
     channelTrophySettings: {
         /**
-         * The label that is written to disk, this is a templated value.
+         * The label that is written to disk.
          * 
-         * The first `%s` becomes the trophy number, the second `%s` is the name of the redeemer.
+         * The tag `%number` is the trophy number, and `%name` is the name of the redeemer.
          */
         label: string
         /**
-         * The reward title that is used for the reward after it has been redeemed, this is a templated value.
+         * The reward title that is used for the reward after it has been redeemed.
          * 
-         * The `%s` is the name of the redeemer.
+         * The tag `%name` is the name of the redeemer.
          */
         rewardTitle: string
         /**
-         * The reward prompt that is used for the reward after it has been redeemed, this is a templated value.
+         * The reward prompt that is used for the reward after it has been redeemed.
          * 
-         * The first `%s` is the name of the redeemer, the second `%s` is the existing reward prompt in the reward config, the third `%s` is the new reward price.
+         * The tag `%name` is the name of the redeemer, `%prompt` is the existing reward prompt in the reward config, `%number` is the new reward price.
          */
         rewardPrompt: string
         /**
@@ -126,9 +126,9 @@ interface IControllerConfig {
          */
         ttsOn: boolean
         /**
-         * This is the name string used when mentioning it, it's a templated value.
+         * This is the name string used when mentioning it using TTS.
          * 
-         * The `%s` is the name of the redeemer, prefix an `@` to trigger name replacement.
+         * The tag `%name` is the name of the redeemer, prefix an `@` to trigger name replacement.
          */
         ttsName: string
         /**

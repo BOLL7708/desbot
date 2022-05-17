@@ -118,7 +118,7 @@ class ChannelTrophy {
         const funnyNumberItems: string[] = [`⭐ First: ${await getName(firstRedemptionLastStream[0])} (**${firstRedemptionLastStream[1]}**)`]
         for(const config of funnyNumbers) {
             const name = await getName(config.userId)
-            const label = Utils.template(config.label, name)
+            const label = Utils.replaceTags(config.label, {name: name})
             funnyNumberItems.push(label)
         }
 		funnyNumberItems.push(`🏁 Last: ${await getName(lastRedemptionLastStream[0])} (**${lastRedemptionLastStream[1]}**)`)
@@ -129,8 +129,8 @@ class ChannelTrophy {
             title: '**Stream Statistics**',
             thumbnail: {url: await getImage(topSpenderLastStream[0])},
             fields: [
-                await buildFieldWithList("Top Spenders", true, " %s: **%s**", sortedTopSpendersLastStream, 5),
-                await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopSpentInStreakLastStream, 5),
+                await buildFieldWithList("Top Spenders", true, " %name: **%number**", sortedTopSpendersLastStream, 5),
+                await buildFieldWithList("Top Spending Streaks", true, " %name: **%number**", sortedTopSpentInStreakLastStream, 5),
 				...buildFieldsOutOfList("Notable Redemptions", funnyNumberItems),
                 {
                     name: "Event Totals",
@@ -150,9 +150,9 @@ class ChannelTrophy {
             title: '**Total Spending**',
             thumbnail: {url: await getImage(sortedTotalSpent[sortedTotalSpent.length-1][0])},
             fields: [
-                await buildFieldWithList("Top Spenders", false, " %s: **%s**", sortedTotalSpent, 5),
-                await buildFieldWithList("Top Spent in Single Stream", true, " %s: **%s**", sortedTotalSpentPerUserInSingleStream, 5),
-                await buildFieldWithList("Top Spending Streaks", true, " %s: **%s**", sortedTopStreaks, 5)
+                await buildFieldWithList("Top Spenders", false, " %name: **%number**", sortedTotalSpent, 5),
+                await buildFieldWithList("Top Spent in Single Stream", true, " %name: **%number**", sortedTotalSpentPerUserInSingleStream, 5),
+                await buildFieldWithList("Top Spending Streaks", true, " %name: **%number**", sortedTopStreaks, 5)
             ]
         })
 
@@ -161,8 +161,8 @@ class ChannelTrophy {
         embeds.push({
             title: '**Redemptions**',
             fields: [
-                await buildFieldWithList("Top First Redemptions", true, " %s: **%s**", sortedTotalFirstRedemptions, 5),
-                await buildFieldWithList("Top Last Redemptions", true, " %s: **%s**", sortedTotalLastRedemptions, 5)
+                await buildFieldWithList("Top First Redemptions", true, " %name: **%number**", sortedTotalFirstRedemptions, 5),
+                await buildFieldWithList("Top Last Redemptions", true, " %name: **%number**", sortedTotalLastRedemptions, 5)
             ]
         })
 
@@ -222,7 +222,7 @@ class ChannelTrophy {
                 const displayName = await getName(pair[0])
                 const value = pair[1].toString()
                 const emote = emotes[i] ?? '🥔';
-                valueArr.push(emote+Utils.template(template, displayName, value))
+                valueArr.push(emote+Utils.replaceTags(template, {name: displayName, number: value}))
             }
             const field: IDiscordEmbedField = {
                 name: name,
@@ -265,7 +265,7 @@ class ChannelTrophy {
         }
         // if(n < 10) return null
 
-        const nameForDiscord = `%s (**${n}**)`
+        const nameForDiscord = `%name (**${n}**)`
         const nameForTTS = Config.controller.channelTrophySettings.ttsName
         const nStr = n.toString()
         const trophyName = Config.controller.channelTrophySettings.ttsTrophy
@@ -276,8 +276,8 @@ class ChannelTrophy {
 		
 		// Detect patterns here, in order of awesomeness or something
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
-			result.speech = Utils.template(uniqueNumbers[n].speech, nameForTTS, n.toString())
-			result.label = Utils.template(uniqueNumbers[n].label, nameForDiscord)
+			result.speech = Utils.replaceTags(uniqueNumbers[n].speech, {start: nameForTTS, number: n.toString()})
+			result.label = Utils.replaceTags(uniqueNumbers[n].label, {entry: nameForDiscord})
 		} else if(NumberPatterns.checkIfBinary(n)) { // Power of two / binary
 			result.speech = `${nameForTTS} a power of two ${trophyName}, number ${n}`
             result.label = `🎣 Power of two: ${nameForDiscord}`
@@ -479,11 +479,11 @@ class NumberPatterns {
 interface IChannelTrophyFunnyNumberTexts {
     [key:number]: {
         /**
-         * The first %s will be akin to "Grabbed by [name]" and the second %s the number of the trophy.
+         * The tag `%start` is based on {@link Config.controller.channelTrophySettings.ttsName} and `%number` is the number of the trophy.
          */
         speech: string
         /**
-         * The %s is "[name] (number)"
+         * The tag `%entry` is "[name] (number)"
          */
         label: string
     }

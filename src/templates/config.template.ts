@@ -153,12 +153,12 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
     saveConsoleOutputToSettings: false,
     secretChatSymbols: ['!'],
     channelTrophySettings: {
-        label: '🏆 Channel Trophy #%s\n%s',
-        rewardTitle: '🏆 Held by %s!',
-        rewardPrompt: 'Currently held by %s! %s Now costs %s points!',
+        label: '🏆 Channel Trophy #%number\n%name',
+        rewardTitle: '🏆 Held by %name!',
+        rewardPrompt: 'Currently held by %name! %prompt Now costs %number points!',
         rewardCooldownMultiplier: 30,
         ttsOn: true,
-        ttsName: '@%s grabbed',
+        ttsName: '@%name grabbed',
         ttsTrophy: 'trophy'
     }
 }

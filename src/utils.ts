@@ -225,13 +225,6 @@ class Utils {
         console.log(`%c${message}`, format)
     }
 
-    static template(text: string|string[], ...values: any[]):string {
-        if(Array.isArray(text)) text = Utils.randomFromArray(text)
-        return text.replace(/\%s/g, function(_) {
-            return values.shift() ?? ''
-        })
-    }
-
     /**
      * Replaces certain tags in a string with values meant for visible text.
      * - Replaces %name with the redeemers display name with case intact.
@@ -268,7 +261,7 @@ class Utils {
     static replaceTags(text: string|string[], replace: { [key: string]: string }) {
         if(Array.isArray(text)) text = Utils.randomFromArray(text)
         for(const key of Object.keys(replace)) {
-            const rx = new RegExp(`%${key}([^a-zA-Z0-9]|$)+`, 'g') // Match the key word and any non-character afterwards
+            const rx = new RegExp(`\%${key}([^a-zA-Z0-9]|$)`, 'g') // Match the key word and any non-character afterwards
             text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text
         }
         return text
