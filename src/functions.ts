@@ -16,34 +16,30 @@ class Functions {
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {
-        const modules = ModulesSingleton.getInstance()
-        const states = StatesSingleton.getInstance()
-        states.lastSteamAppIsVR = isVr
-
         // Skip if we should ignore this app ID.
         if(Config.steam.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
+		
+		// Init
+		const modules = ModulesSingleton.getInstance()
+		const states = StatesSingleton.getInstance()
+		states.lastSteamAppIsVR = isVr
 
         // Skip if it's the last app ID again.
         if(appId.length > 0) {
             if(appId == states.lastSteamAppId) return
             Utils.log(`Steam AppId is new: "${appId}" != "${states.lastSteamAppId}", isVr: ${isVr}`, Color.DarkBlue)
             states.lastSteamAppId = appId
-            // Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
+            
+			// Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
             await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
             await SteamWebApi.getGameSchema(appId)
             await SteamWebApi.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
-        }
+	
+			/**
+			 * Controller defaults loading, various settings including TTS etc.
+			 */
 
-        /**
-         * Check if LIV is running, this will toggle rewards in that callback.
-         */
-        modules.openvr2ws.findOverlay(OpenVR2WS.OVERLAY_LIV_MENU_BUTTON)
-
-        /**
-         * Controller defaults loading
-         */
-        if(appId.length != 0) {
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
             let combinedSettings = Config.controller.defaults
             if(controllerGameDefaults) {
@@ -57,11 +53,24 @@ class Functions {
             modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
             states.pipeAllChat = combinedSettings.pipeAllChat ?? false
             states.pingForChat = combinedSettings.pingForChat ?? false
-            this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the fla directly.
+            this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the flag directly.
             states.logChatToDiscord = combinedSettings.logChatToDiscord ?? false
             states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards ?? false // OBS: Running the command for this will create infinite loop.
             states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory ?? false
         }
+
+		/*
+		.#####...######..##...##...####...#####...#####...........######...####....####....####...##......######..##..##...####..
+		.##..##..##......##...##..##..##..##..##..##..##............##....##..##..##......##......##........##....###.##..##.....
+		.#####...####....##.#.##..######..#####...##..##............##....##..##..##.###..##.###..##........##....##.###..##.###.
+		.##..##..##......#######..##..##..##..##..##..##............##....##..##..##..##..##..##..##........##....##..##..##..##.
+		.##..##..######...##.##...##..##..##..##..#####.............##.....####....####....####...######..######..##..##...####..
+		*/
+		
+		/**
+         * Check if LIV is running, this will toggle rewards in that callback.
+         */
+        modules.openvr2ws.findOverlay(OpenVR2WS.OVERLAY_LIV_MENU_BUTTON) // TODO: Should this be hard-coded?
 
         /**
          * General reward toggling
@@ -69,13 +78,18 @@ class Functions {
         const defaultProfile = isVr ? Config.twitch.rewardProfileDefaultVR : Config.twitch.rewardProfileDefault
         const profile = Config.twitch.rewardProfilePerGame[appId]
         if(appId.length == 0) {
-            Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green)
-            modules.twitchHelix.toggleRewards({...defaultProfile, ...Config.twitch.rewardProfileNoGame})
+            Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green, true, true)
+			const profileToUse = {...defaultProfile, ...Config.twitch.rewardProfileNoGame}
+			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [no game](${Object.keys(Config.twitch.rewardProfileNoGame).length}) and applying [merged](${Object.keys(profileToUse).length}, turning on: ${Utils.countBoolProps(profileToUse)}x, rest off`, Color.Gray)
+            modules.twitchHelix.toggleRewards(profileToUse)
         } else if(profile != undefined) {
-            Utils.log(`Applying game reward profile for: ${appId}`, Color.Green)
-            modules.twitchHelix.toggleRewards({...defaultProfile, ...profile})
+            Utils.log(`Applying game reward profile for: ${appId}`, Color.Green, true, true)
+			const profileToUse = {...defaultProfile, ...profile}
+			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [game](${Object.keys(profile).length} and applying [merged](${Object.keys(profileToUse).length}), turning on: ${Utils.countBoolProps(profileToUse)}x, rest off`, Color.Gray)
+            modules.twitchHelix.toggleRewards(profileToUse)
         } else {
-            Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green)
+            Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green, true, true)
+			Utils.log(`--> applying [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}), turning on: ${Utils.countBoolProps(defaultProfile)}x, rest off`, Color.Gray)
             modules.twitchHelix.toggleRewards(defaultProfile)
         }
        
@@ -106,7 +120,7 @@ class Functions {
          // Disable all resuable generic rewards that are not in use.
         for(const rewardKey of unavailableGameRewardKeys) {
             const rewardId = await Utils.getRewardId(rewardKey)
-            Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, Color.Red)
+            Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, Color.DarkRed)
             modules.twitchHelix.updateReward(rewardId, {
                 is_enabled: false
             })
@@ -133,6 +147,13 @@ class Functions {
             }
         }
         
+		/*
+		.##...##..######...####....####..
+		.###.###....##....##......##..##.
+		.##.#.##....##.....####...##.....
+		.##...##....##........##..##..##.
+		.##...##..######...####....####..
+		*/
 
         // Show game in sign
         if(appId.length > 0) {

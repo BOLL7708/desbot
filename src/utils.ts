@@ -396,4 +396,8 @@ class Utils {
         }
         return ''
     }
+    
+    static countBoolProps(obj: { [key: string]: boolean }): number {
+        return Object.keys(obj).filter(key => obj[key]).length
+    }
 }
