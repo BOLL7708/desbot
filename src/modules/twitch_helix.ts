@@ -117,10 +117,8 @@ class TwitchHelix {
 
     async toggleRewards(kvp: { [x: string]: boolean }) {
         for(const key in kvp) {
-            const pair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
-            if(pair?.id != undefined) {
-                this.updateReward(pair.id, {is_enabled: kvp[key]})
-            }
+            const id = await Utils.getRewardId(key)
+            if(id) this.updateReward(id, {is_enabled: kvp[key]})
         }
     }
 

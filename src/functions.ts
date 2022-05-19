@@ -76,21 +76,21 @@ class Functions {
          * General reward toggling
          */
         const defaultProfile = isVr ? Config.twitch.rewardProfileDefaultVR : Config.twitch.rewardProfileDefault
-        const profile = Config.twitch.rewardProfilePerGame[appId]
+        const gameProfile = Config.twitch.rewardProfilePerGame[appId]
+        let profileToUse: {[key: string]: boolean} = {}
         if(appId.length == 0) {
             Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green, true, true)
-			const profileToUse = {...defaultProfile, ...Config.twitch.rewardProfileNoGame}
-			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [no game](${Object.keys(Config.twitch.rewardProfileNoGame).length}) and applying [merged](${Object.keys(profileToUse).length}, turning on: ${Utils.countBoolProps(profileToUse)}x, rest off`, Color.Gray)
-            modules.twitchHelix.toggleRewards(profileToUse)
-        } else if(profile != undefined) {
+            profileToUse = {...defaultProfile, ...Config.twitch.rewardProfileNoGame}
+			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [no game](${Object.keys(Config.twitch.rewardProfileNoGame).length}) to [merged](${Object.keys(profileToUse).length})`, Color.Gray)
+        } else if(gameProfile != undefined) {
             Utils.log(`Applying game reward profile for: ${appId}`, Color.Green, true, true)
-			const profileToUse = {...defaultProfile, ...profile}
-			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [game](${Object.keys(profile).length} and applying [merged](${Object.keys(profileToUse).length}), turning on: ${Utils.countBoolProps(profileToUse)}x, rest off`, Color.Gray)
-            modules.twitchHelix.toggleRewards(profileToUse)
+			profileToUse = {...defaultProfile, ...gameProfile}
+			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [game](${Object.keys(gameProfile).length}) to [merged](${Object.keys(profileToUse).length})`, Color.Gray)
+            
         } else {
             Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green, true, true)
-			Utils.log(`--> applying [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}), turning on: ${Utils.countBoolProps(defaultProfile)}x, rest off`, Color.Gray)
-            modules.twitchHelix.toggleRewards(defaultProfile)
+			Utils.log(`--> using [default${isVr?' vr':''}](${Object.keys(defaultProfile).length})`, Color.Gray)
+            profileToUse = defaultProfile
         }
        
         // Update rewards
@@ -100,13 +100,13 @@ class Functions {
          */
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
             const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
-            Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
-            modules.twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) != -1})
+            Utils.log(`--> will turn on '${rewardKey}' depending on game.`, Color.Gray)
+            profileToUse[rewardKey] = games.includes(appId)
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
             const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
-            Utils.log(`Toggling reward <${rewardKey}> depending on game.`, Color.Green)
-            modules.twitchHelix.toggleRewards({[rewardKey]: games.indexOf(appId) == -1})
+            Utils.log(`--> will turn off reward '${rewardKey}' depending on game.`, Color.Gray)
+            profileToUse[rewardKey] = !games.includes(appId)
         }
 
         /**
@@ -119,17 +119,15 @@ class Functions {
         
          // Disable all resuable generic rewards that are not in use.
         for(const rewardKey of unavailableGameRewardKeys) {
-            const rewardId = await Utils.getRewardId(rewardKey)
-            Utils.log(`Disabling reward: <${rewardKey}:${rewardId}>`, Color.DarkRed)
-            modules.twitchHelix.updateReward(rewardId, {
-                is_enabled: false
-            })
+            profileToUse[rewardKey] = false
         }
+
         if(gameSpecificRewards) {
             // Update and enable all reusable generic rewards in use.
             for(const entry of Object.entries(gameSpecificRewards)) {
                 const rewardKey = entry[0]
                 const rewardConfig = entry[1]
+                delete profileToUse[rewardKey] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
                 const rewardId = await Utils.getRewardId(rewardKey)
                 Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, Color.Purple)
                 modules.twitchHelix.updateReward(rewardId, {
@@ -146,6 +144,10 @@ class Functions {
                 Actions.registerReward(rewardKey, rewardConfig)               
             }
         }
+        
+        Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
+        console.log(profileToUse)
+        modules.twitchHelix.toggleRewards(profileToUse)
         
 		/*
 		.##...##..######...####....####..
