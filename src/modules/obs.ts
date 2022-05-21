@@ -61,58 +61,64 @@ class OBS {
 
     // TODO: Add support for an array of configs to toggle many things at once
     // TODO: Actually retain and return nonces, array for multiple sources?
-    show(config: IObsSourceConfig|undefined, ignoreDuration: boolean = false) {
-        if(config?.sceneNames != undefined) {
-            const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? ''))
-            if(group) {
-                for(const k of group) {
-                    if(k != config.key) this.hide(Utils.getRewardConfig(k)?.obs)
+    show(config: IObsSourceConfig|IObsSourceConfig[]|undefined, ignoreDuration: boolean = false) {
+        const configArr = Array.isArray(config) ? config : [config]
+        for(const cfg of configArr) {
+            if(cfg?.sceneNames != undefined) {
+                const group = Config.obs.sourceGroups.find(group => group.includes(cfg.key ?? ''))
+                if(group) {
+                    for(const k of group) {
+                        if(k != cfg.key) this.hide(Utils.getRewardConfig(k)?.obs)
+                    }
                 }
-            }
-            config.sceneNames.forEach(sceneName => {
-                this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
-                    "scene-name": sceneName,
-                    "item": config.sourceName,
-                    "visible": true
-                }))
-            })
-        } else 
-        if(config?.filterName != undefined) {
-            // If this filter is in a group, hide all the other ones, useful for audio filters that should not overlap.
-            const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? ''))
-            if(group) {
-                for(const k of group) {
-                    if(k != config.key) this.hide(Utils.getRewardConfig(k)?.obs)
+                cfg.sceneNames.forEach(sceneName => {
+                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
+                        "scene-name": sceneName,
+                        "item": cfg.sourceName,
+                        "visible": true
+                    }))
+                })
+            } else 
+            if(cfg?.filterName != undefined) {
+                // If this filter is in a group, hide all the other ones, useful for audio filters that should not overlap.
+                const group = Config.obs.filterGroups.find(group => group.includes(cfg.key ?? ''))
+                if(group) {
+                    for(const k of group) {
+                        if(k != cfg.key) this.hide(Utils.getRewardConfig(k)?.obs)
+                    }
                 }
+                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
+                    "sourceName": cfg.sourceName,
+                    "filterName": cfg.filterName,
+                    "filterEnabled": true
+                })) 
             }
-            this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
-                "sourceName": config.sourceName,
-                "filterName": config.filterName,
-                "filterEnabled": true
-            })) 
-        }
-        if(config?.durationMs != undefined && !ignoreDuration) {
-            setTimeout(() => {
-                this.hide(config)
-            }, config.durationMs)
+            if(cfg?.durationMs != undefined && !ignoreDuration) {
+                setTimeout(() => {
+                    this.hide(config)
+                }, cfg.durationMs)
+            }
         }
     }
-    hide(config: IObsSourceConfig|undefined) {
-        if(config?.sceneNames) {
-            config.sceneNames.forEach(sceneName => {
-                this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
-                    "scene-name": sceneName,
-                    "item": config.sourceName,
-                    "visible": false
-                }));
-            });
-        } else
-        if (config?.filterName) {
-            this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
-                "sourceName": config.sourceName,
-                "filterName": config.filterName,
-                "filterEnabled": false
-            }));            
+    hide(config: IObsSourceConfig|IObsSourceConfig[]|undefined) {
+        const configArr = Array.isArray(config) ? config : [config]
+        for(const cfg of configArr) {
+            if(cfg?.sceneNames) {
+                cfg.sceneNames.forEach(sceneName => {
+                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
+                        "scene-name": sceneName,
+                        "item": cfg.sourceName,
+                        "visible": false
+                    }));
+                });
+            } else
+            if (cfg?.filterName) {
+                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
+                    "sourceName": cfg.sourceName,
+                    "filterName": cfg.filterName,
+                    "filterEnabled": false
+                }));            
+            }
         }
     }
 

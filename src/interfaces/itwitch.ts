@@ -317,7 +317,7 @@ interface ITwitchAction {
     /**
      * Optional: Used to toggle OBS sources or filters.
      */
-    obs?: IObsSourceConfig
+    obs?: IObsSourceConfig|IObsSourceConfig[]
     /**
      * Optional: Trigger one or multiple pipe overlays.
      */
@@ -339,7 +339,9 @@ interface ITwitchAction {
      */
     audio?: IAudio
     /**
-     * Optional: Trigger the TTS to read a message, can be randomized when submitting an array.
+     * Optional: Trigger the TTS to read a message.
+     * 
+     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
     speech?: string|string[]
     /**

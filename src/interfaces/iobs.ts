@@ -81,8 +81,8 @@ interface IObsSourceScreenshotConfig {
 
 // Callbacks
 interface ISceneChangeCallback {
-    (sceneName:string): void
+    (sceneName: string): void
 }
 interface ISourceScreenshotCallback {
-    (img:string, data: IScreenshotRequestData, nonce: string): void
+    (img: string, data: IScreenshotRequestData, nonce: string): void
 }

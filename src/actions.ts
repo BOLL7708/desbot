@@ -137,7 +137,7 @@ class Actions {
         // Return callback that triggers all the actions
         return async (user: ITwitchActionUser, index?: number) => {
             // Main callbacks
-            if(obsCallback != null) obsCallback(user)
+            if(obsCallback != null) obsCallback(user, index)
             if(colorCallback != null) colorCallback(user)
             if(plugCallback != null) plugCallback(user)
             if(soundCallback != null) soundCallback(user, index)
@@ -153,13 +153,14 @@ class Actions {
         }
     }
 
-    public static buildOBSCallback(config: IObsSourceConfig|undefined, key: string): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+    public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string, index?: number): ITwitchActionCallback|undefined {
+        const singleConfig = Utils.randomOrSpecificFromArray(config, index)
+        if(singleConfig) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
-            config.key = key
-            const state = config.state ?? true
+            singleConfig.key = key
+            const state = singleConfig.state ?? true
             console.log("OBS Reward triggered")
-            modules.obs.toggle(config, state)
+            modules.obs.toggle(singleConfig, state)
         } 
     }
 

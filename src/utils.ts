@@ -269,12 +269,24 @@ class Utils {
 
     /**
      * Will return a random string from an array of strings
-     * @param arr Array of strings, if not an array, will just return the string
+     * @param value Array of strings, if not an array, will just return the string
      * @returns The random string
      */
-    static randomFromArray<Type>(arr: Type[]|Type): Type {
-        if(Array.isArray(arr)) return arr[Math.floor(Math.random()*arr.length)]
-        else return arr
+    static randomFromArray<Type>(value: Type[]|Type): Type {
+        if(Array.isArray(value)) return value[Math.floor(Math.random()*value.length)]
+        else return value
+    }
+
+    static randomOrSpecificFromArray<Type>(value: Type[]|Type, index: number|undefined): Type|undefined {
+        if(!Array.isArray(value) && value != undefined) value = <Type[]> [value]
+        
+        let result: Type|undefined = undefined
+        if(Array.isArray(value)) {
+            result = index != undefined && Array.isArray(value) && value.length > index
+                ? value[index]
+                : Utils.randomFromArray(value)
+        }
+        return result
     }
 
     static async getRewardId(key: string): Promise<string|undefined> {
