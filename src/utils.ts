@@ -277,6 +277,12 @@ class Utils {
         else return value
     }
 
+    /**
+     * Will return a random value or a specific value if index is supplied.
+     * @param value 
+     * @param index 
+     * @returns 
+     */
     static randomOrSpecificFromArray<Type>(value: Type[]|Type, index: number|undefined): Type|undefined {    
         let result: Type|undefined = undefined
         if(Array.isArray(value)) {

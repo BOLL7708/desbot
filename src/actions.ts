@@ -198,13 +198,10 @@ class Actions {
             const modules = ModulesSingleton.getInstance()
             let ttsString: string|undefined
             if(Array.isArray(speech) || typeof speech == 'string') {
-                ttsString = index != undefined && Array.isArray(speech) && speech.length > index
-                    ? speech[index]
-                    : Utils.randomFromArray(speech)
+                ttsString = <string> Utils.randomOrSpecificFromArray(speech, index)
                 ttsString = Utils.replaceTagsInText(ttsString, user)
                 onTtsQueue = true
             }
-            
             if(config) { // If we have an audio config, play it. Attach 
                 if(onTtsQueue) modules.tts.enqueueSoundEffect(config)
                 else modules.audioPlayer.enqueueAudio(config)
