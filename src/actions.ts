@@ -115,6 +115,7 @@ class Actions {
         const screenshotCallback = Actions.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
         const discordMessageCallback = Actions.buildDiscordMessageCallback(cfg?.discord, key)
         const audioUrlCallback = Actions.buildAudioUrlCallback(cfg?.audioUrl)
+        const twitchChatCallback = Actions.buildTwitchChatCallback(cfg?.chat)
 
         // Log result
         Utils.logWithBold(
@@ -130,6 +131,7 @@ class Actions {
             +(screenshotCallback?'📷':'')
             +(discordMessageCallback?'💬':'')
             +(audioUrlCallback?'🎵':'')
+            +(twitchChatCallback?'👄':'')
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
@@ -147,6 +149,7 @@ class Actions {
             if(screenshotCallback != null) screenshotCallback(user)
             if(discordMessageCallback != null) discordMessageCallback(user)
             if(audioUrlCallback != null) audioUrlCallback(user)
+            if(twitchChatCallback != null) twitchChatCallback(user)
         }
     }
 
@@ -326,7 +329,7 @@ class Actions {
         }
     }
 
-    private static buildDiscordMessageCallback(message: string|undefined, key: string): ITwitchActionCallback|undefined {
+    private static buildDiscordMessageCallback(message: string|string[]|undefined, key: string): ITwitchActionCallback|undefined {
         if(message && message.length > 0) return async (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
             const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
@@ -334,7 +337,16 @@ class Actions {
                 Config.credentials.DiscordWebhooks[key],
                 user.name,
                 userData?.profile_image_url,
-                Utils.replaceTagsInText(message, user)
+                Utils.replaceTagsInText(Utils.randomFromArray(message), user)
+            )
+        }
+    }
+
+    private static buildTwitchChatCallback(message: string|string[]|undefined): ITwitchActionCallback|undefined {
+        if(message && message.length > 0) return (user: ITwitchActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            modules.twitch._twitchChatOut.sendMessageToChannel(
+                Utils.replaceTagsInText(Utils.randomFromArray(message), user)
             )
         }
     }

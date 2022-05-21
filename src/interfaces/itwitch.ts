@@ -356,12 +356,21 @@ interface ITwitchAction {
     web?: string
     /**
      * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.webhooks} for the same key.
+     * 
+     * Note: Supplying an array of strings will pick a random one.
      */
-    discord?: string,
+    discord?: string|string[],
     /**
      * Optional: Play back the user-provided audio URL.
      */
     audioUrl?: IAudioBase
+
+    /**
+     * Optional: Send a message to the Twitch chat.
+     * 
+     * Note: Supplying an array of strings will pick a random one.
+     */
+    chat?: string|string[]
 }
 
 /**
