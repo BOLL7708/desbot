@@ -81,7 +81,12 @@ class Actions {
             }
         } else if(command) command.trigger = key
         const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
-        modules.twitch.registerCommand(<ITwitchCommandConfig>{...cfg.command, callback: actionCallback})
+        const useThisCommand = <ITwitchCommandConfig> (
+            command?.cooldown == undefined 
+            ? {...cfg.command, callback: actionCallback}
+            : {...cfg.command, cooldownCallback: actionCallback}
+        )
+        modules.twitch.registerCommand(useThisCommand)
     }
     
     /*

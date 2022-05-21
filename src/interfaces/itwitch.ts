@@ -185,6 +185,10 @@ interface ITwitchActionCommandConfig {
      * Permission for who can execute this command.
      */
     permissions?: ICommandPermissions
+    /**
+     * Optional: The number of seconds before this can be used again, by anyone.
+     */
+    cooldown?: number
 }
 
 interface ITwitchCommandConfig {

@@ -116,7 +116,6 @@ class Twitch{
             )
             const allowedByCooldown = command != null && (
                 isBroadcaster 
-                || isModerator 
                 || command.cooldown == undefined 
                 || new Date().getTime() > (this._cooldowns.get(commandStr ?? '') ?? 0)
             )
@@ -129,7 +128,7 @@ class Twitch{
                 if(allowedRole && allowedByCooldown && command.cooldownCallback != undefined) {
                     command.cooldownCallback(user)
                 }
-                if(command.cooldown != undefined) {
+                if(command.cooldown != undefined && allowedByCooldown) {
                     this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
                 }
                 return
