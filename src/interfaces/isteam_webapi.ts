@@ -8,7 +8,7 @@
 
 interface ISteamWebApiSettingAchievement {
     key: string
-    state: number
+    state: string // A number but is parsed out to string
 }
 
 /*

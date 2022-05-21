@@ -231,22 +231,34 @@ class Functions {
         if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`, false)
     }
 
+    private static _isLoadingAchievements = false
     public static async loadAchievements() {
+        if(this._isLoadingAchievements) return Utils.log('Steam achievements already loading', Color.Red)
+        this._isLoadingAchievements = true
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
         if(states.lastSteamAppId != undefined && states.lastSteamAppId.length > 0) {
+            // Local
+            const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, states.lastSteamAppId)
+            const storedAchievements = Settings.getFullSettings<ISteamWebApiSettingAchievement>(setting) ?? []
+            const doneAchievements = storedAchievements.length > 0 ? storedAchievements.map(a=>parseInt(a.state)).reduce((a,b)=>a+b) : 0
+
+            // Remote
             const achievements = await SteamWebApi.getAchievements(states.lastSteamAppId) ?? []
-            // Utils.log(`Achievements loaded: ${achievements.length}`, Color.Gray)            
+
+            Utils.log(`Number of achievements from Steam: ${achievements.length}, completed stored achievements: ${doneAchievements}`, Color.Gray)
+            let countNew = 0
             for(const achievement of achievements) {
-                const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, states.lastSteamAppId)
+                // Check if the state has changed since last stored
                 const storedAchievement = await Settings.pullSetting<ISteamWebApiSettingAchievement>(setting, 'key', achievement.apiname)
-                // Check if the state has changed
-                if(storedAchievement?.state != achievement.achieved) {
+                if(storedAchievement?.state != achievement.achieved.toString()) {
+                    if(achievement.achieved) countNew++
+
                     // Store achievement
                     await Settings.pushSetting(setting, 'key',
                     <ISteamWebApiSettingAchievement>{
                         key: achievement.apiname, 
-                        state: achievement.achieved
+                        state: achievement.achieved.toString()
                     })
                     // Announce achievement
                     if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
@@ -257,9 +269,8 @@ class Functions {
                         const gameSchema = await SteamWebApi.getGameSchema(states.lastSteamAppId)
                         const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(states.lastSteamAppId))?.find(s => s.name == key)
                         const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
-                        const doneAchievements = achievements.map(a=>a.achieved).reduce((a,b)=>a+b)
                         const totalAchievements = achievements.length
-                        const progressStr = `${doneAchievements}/${totalAchievements}`
+                        const progressStr = `${doneAchievements+countNew}/${totalAchievements}`
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
@@ -303,6 +314,9 @@ class Functions {
                     }
                 }
             }
+            this._isLoadingAchievements = false
+        } else {
+            this._isLoadingAchievements = false
         }
     }
 }
