@@ -277,14 +277,19 @@ class Utils {
         else return value
     }
 
-    static randomOrSpecificFromArray<Type>(value: Type[]|Type, index: number|undefined): Type|undefined {
-        if(!Array.isArray(value) && value != undefined) value = <Type[]> [value]
-        
+    static randomOrSpecificFromArray<Type>(value: Type[]|Type, index: number|undefined): Type|undefined {    
         let result: Type|undefined = undefined
         if(Array.isArray(value)) {
+            // Limit index to size of array
+            if(Number.isInteger(index) && (index ?? 0) >= value.length) index = value.length - 1
+            
+            // Pick out the index if supplied, else randomize
             result = index != undefined && Array.isArray(value) && value.length > index
                 ? value[index]
                 : Utils.randomFromArray(value)
+        } else {
+            // Return value directly if not an array
+            result = value
         }
         return result
     }
