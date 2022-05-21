@@ -153,8 +153,8 @@ class Actions {
         }
     }
 
-    public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string, index?: number): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+    public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string): ITwitchActionCallback|undefined {
+        if(config) return (user: ITwitchActionUser, index?: number) => {
             const singleConfig = Utils.randomOrSpecificFromArray(config, index)
             if(singleConfig) {
                 const modules = ModulesSingleton.getInstance()
@@ -163,7 +163,7 @@ class Actions {
                 console.log("OBS Reward triggered")
                 modules.obs.toggle(singleConfig, state)
             }
-        } 
+        }
     }
 
     public static buildColorCallback(config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): ITwitchActionCallback|undefined {
