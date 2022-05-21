@@ -359,7 +359,7 @@ interface ITwitchAction {
     /**
      * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.webhooks} for the same key.
      * 
-     * Note: Supplying an array of strings will pick a random one.
+     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
     discord?: string|string[],
     /**
@@ -370,7 +370,7 @@ interface ITwitchAction {
     /**
      * Optional: Send a message to the Twitch chat.
      * 
-     * Note: Supplying an array of strings will pick a random one.
+     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
     chat?: string|string[]
 }

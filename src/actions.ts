@@ -147,9 +147,9 @@ class Actions {
             if(execCallback != null) execCallback(user)
             if(webCallback != null) webCallback(user)
             if(screenshotCallback != null) screenshotCallback(user)
-            if(discordMessageCallback != null) discordMessageCallback(user)
+            if(discordMessageCallback != null) discordMessageCallback(user, index)
             if(audioUrlCallback != null) audioUrlCallback(user)
-            if(twitchChatCallback != null) twitchChatCallback(user)
+            if(twitchChatCallback != null) twitchChatCallback(user, index)
         }
     }
 
@@ -330,23 +330,23 @@ class Actions {
     }
 
     private static buildDiscordMessageCallback(message: string|string[]|undefined, key: string): ITwitchActionCallback|undefined {
-        if(message && message.length > 0) return async (user: ITwitchActionUser) => {
+        if(message && message.length > 0) return async (user: ITwitchActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
             Discord.enqueueMessage(
                 Config.credentials.DiscordWebhooks[key],
                 user.name,
                 userData?.profile_image_url,
-                Utils.replaceTagsInText(Utils.randomFromArray(message), user)
+                Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
             )
         }
     }
 
     private static buildTwitchChatCallback(message: string|string[]|undefined): ITwitchActionCallback|undefined {
-        if(message && message.length > 0) return (user: ITwitchActionUser) => {
+        if(message && message.length > 0) return (user: ITwitchActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToChannel(
-                Utils.replaceTagsInText(Utils.randomFromArray(message), user)
+                Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
             )
         }
     }

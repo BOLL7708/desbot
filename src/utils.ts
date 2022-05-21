@@ -283,8 +283,8 @@ class Utils {
      * @param index 
      * @returns 
      */
-    static randomOrSpecificFromArray<Type>(value: Type[]|Type, index: number|undefined): Type|undefined {    
-        let result: Type|undefined = undefined
+    static randomOrSpecificFromArray<Type>(value: Type[]|Type, index: number|undefined): Type {    
+        let result: Type
         if(Array.isArray(value)) {
             // Limit index to size of array
             if(Number.isInteger(index) && (index ?? 0) >= value.length) index = value.length - 1
