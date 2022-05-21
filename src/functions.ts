@@ -24,6 +24,14 @@ class Functions {
 		const states = StatesSingleton.getInstance()
 		states.lastSteamAppIsVR = isVr
 
+        /*
+        ..####....####...##..##..######..#####....####...##......##......######..#####...........######...####....####....####...##......######..##..##...####..
+        .##..##..##..##..###.##....##....##..##..##..##..##......##......##......##..##............##....##..##..##......##......##........##....###.##..##.....
+        .##......##..##..##.###....##....#####...##..##..##......##......####....#####.............##....##..##..##.###..##.###..##........##....##.###..##.###.
+        .##..##..##..##..##..##....##....##..##..##..##..##......##......##......##..##............##....##..##..##..##..##..##..##........##....##..##..##..##.
+        ..####....####...##..##....##....##..##...####...######..######..######..##..##............##.....####....####....####...######..######..##..##...####..
+        */
+
         // Skip if it's the last app ID again.
         if(appId.length > 0) {
             if(appId == states.lastSteamAppId) return
@@ -46,6 +54,7 @@ class Functions {
                 combinedSettings = {...combinedSettings, ...controllerGameDefaults}
                 Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
             } else {
+                // No merging here as there is no merging to do but we still log it to the console.
                 Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
             }
             
@@ -100,7 +109,7 @@ class Functions {
          */
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
             const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
-            Utils.log(`--> will turn on '${rewardKey}' depending on game.`, Color.Gray)
+            Utils.log(`--> will turn on reward '${rewardKey}' depending on game.`, Color.Gray)
             profileToUse[rewardKey] = games.includes(appId)
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
@@ -127,21 +136,24 @@ class Functions {
             for(const entry of Object.entries(gameSpecificRewards)) {
                 const rewardKey = entry[0]
                 const rewardConfig = entry[1]
+                const defaultRewardConfig = Config.twitch.gameRewardDefaultConfigs[rewardKey] ?? {}
                 delete profileToUse[rewardKey] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
                 const rewardId = await Utils.getRewardId(rewardKey)
                 Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, Color.Purple)
+                
+                // Update game rewards on Twitch
                 modules.twitchHelix.updateReward(rewardId, {
+                    ...defaultRewardConfig.reward,
                     ...rewardConfig.reward,
                     ...{is_enabled: true}
                 })
-            }
 
-            // Update game specific reward callbacks
-            for(const entry of Object.entries(gameSpecificRewards)) {
-                const rewardKey = entry[0]
-                const rewardConfig = entry[1]
+                // Update game reward actions
                 Utils.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`, Color.Purple)
-                Actions.registerReward(rewardKey, rewardConfig)               
+                Actions.registerReward(rewardKey, { 
+                    ...defaultRewardConfig, 
+                    ...rewardConfig 
+                })
             }
         }
         
