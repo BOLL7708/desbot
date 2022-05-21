@@ -154,13 +154,15 @@ class Actions {
     }
 
     public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string, index?: number): ITwitchActionCallback|undefined {
-        const singleConfig = Utils.randomOrSpecificFromArray(config, index)
-        if(singleConfig) return (user: ITwitchActionUser) => {
-            const modules = ModulesSingleton.getInstance()
-            singleConfig.key = key
-            const state = singleConfig.state ?? true
-            console.log("OBS Reward triggered")
-            modules.obs.toggle(singleConfig, state)
+        if(config) return (user: ITwitchActionUser) => {
+            const singleConfig = Utils.randomOrSpecificFromArray(config, index)
+            if(singleConfig) {
+                const modules = ModulesSingleton.getInstance()
+                singleConfig.key = key
+                const state = singleConfig.state ?? true
+                console.log("OBS Reward triggered")
+                modules.obs.toggle(singleConfig, state)
+            }
         } 
     }
 
