@@ -189,6 +189,10 @@ interface ITwitchActionCommandConfig {
      * Optional: The number of seconds before this can be used again, by anyone.
      */
     cooldown?: number
+    /**
+     * Optional: Require this command to include a user tag to actually get triggered.
+     */
+    requireUserTag?: boolean
 }
 
 interface ITwitchCommandConfig {

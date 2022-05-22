@@ -227,23 +227,49 @@ class Utils {
 
     /**
      * Replaces certain tags in a string with values meant for visible text.
-     * - Replaces %name with the redeemers display name with case intact.
-     * - Replaces %nameTag with the redeemers username as a tag.
-     * - Replaces %input with the redeemers input.
-     * - Replaces %inputNumber with the redeemers input parsed to number or NaN.
-     * - Replaces %inputWord with the redeemers input truncated to the first word.
+     * - Replaces %name with the redeemer's display name with case intact.
+     * - Replaces %tag or %nameTag with the redeemer's username as a user tag.
+     * - Replaces %input with the redeemer's input.
+     * - Replaces %inputNumber with the redeemer's input parsed to number or NaN.
+     * - Replaces %inputWord with the redeemer's input truncated to the first word.
+     * 
+     * If a user tag (@login) is present in the input text, values for that channel 
+     * will be availale as:
+     * - Replaces %targetName with the target's display name with case intact.
+     * - Replaces %targetTag with the target's username as a tag.
+     * - Replaces %targetGame with the target's last played game on Twitch.
+     * - Replaces %targetTitle with the target's last stream title from Twitch.
+     * - Replaces %targetLink with the link to the target's Twitch channel.
      * @param text 
      * @param message 
      * @returns 
      */
-    static replaceTagsInText(text: string, userData?: ITwitchActionUser) {
+    static async replaceTagsInText(text: string, userData?: ITwitchActionUser) {
+        // Default tags from incoming user data
         const tags = this.getDefaultTags(userData)
+
+        // Target tags from incoming user tag
+        const userTag = this.getFirstUserTagInText(userData?.input ?? '')
+        const modules = ModulesSingleton.getInstance()
+        if(userTag) {
+            const channelData = await modules.twitchHelix.getChannelByName(userTag)
+            if(channelData) {
+                tags['targetName'] = channelData.broadcaster_name
+                tags['targetTag'] = `@${channelData.broadcaster_login}`
+                tags['targetGame'] = channelData.game_name
+                tags['targetTitle'] = channelData.title
+                tags['targetLink'] = `https://twitch.tv/${channelData.broadcaster_login}`
+            }
+        }
+
+        // Apply tags and return
         return this.replaceTags(text, tags)
     }
 
     private static getDefaultTags(userData?: ITwitchActionUser): {[key: string]: string} {
         const result = {
             name: `${userData?.name}`,
+            tag: `@${userData?.login}`,
             nameTag: `@${userData?.login}`,
             input: '',
             inputNumber: '',
@@ -265,6 +291,11 @@ class Utils {
             text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text
         }
         return text
+    }
+
+    static getFirstUserTagInText(text: string): string|undefined {
+        const match = text.match(/@(\w+)/)
+        return match?.[1] ?? undefined
     }
 
     /**

@@ -136,7 +136,7 @@ class Actions {
             +(screenshotCallback?'📷':'')
             +(discordMessageCallback?'💬':'')
             +(audioUrlCallback?'🎵':'')
-            +(twitchChatCallback?'👄':'')
+            +(twitchChatCallback?'📄':'')
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
@@ -199,12 +199,12 @@ class Actions {
      * @returns 
      */
     public static buildSoundAndSpeechCallback(config: IAudio|undefined, speech:string|string[]|undefined, nonce: string, onTtsQueue:boolean = false):ITwitchActionCallback|undefined {
-        if(config || speech) return (user: ITwitchActionUser, index?: number) => {
+        if(config || speech) return async (user: ITwitchActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             let ttsString: string|undefined
             if(Array.isArray(speech) || typeof speech == 'string') {
                 ttsString = <string> Utils.randomOrSpecificFromArray(speech, index)
-                ttsString = Utils.replaceTagsInText(ttsString, user)
+                ttsString = await Utils.replaceTagsInText(ttsString, user)
                 onTtsQueue = true
             }
             if(config) { // If we have an audio config, play it. Attach 
@@ -244,7 +244,9 @@ class Actions {
                 }
                 
                 // Replace tags in texts.
-                cfg.texts = cfg.texts?.map((text)=>{ return Utils.replaceTagsInText(text, user)})
+                if(cfg.texts) for(const t in cfg.texts) {
+                    cfg.texts[t] = await Utils.replaceTagsInText(cfg.texts[t], user)
+                }
 
                 // If no image is supplied, use the redeemer user image instead.
                 if(cfg.imageData == null && cfg.imagePath == null) {
@@ -268,29 +270,29 @@ class Actions {
     public static buildSignCallback(config: ISignShowConfig|undefined): ITwitchActionCallback|undefined {
         if(config) return (user: ITwitchActionUser) => {
             const modules = ModulesSingleton.getInstance()
-            modules.twitchHelix.getUserById(parseInt(user.id)).then(userData => {
+            modules.twitchHelix.getUserById(parseInt(user.id)).then(async userData => {
                 const modules = ModulesSingleton.getInstance()
                 const clonedConfig = Utils.clone(config)
-                clonedConfig.title = Utils.replaceTagsInText(clonedConfig.title ?? '', user)
+                clonedConfig.title = await Utils.replaceTagsInText(clonedConfig.title ?? '', user)
                 if(clonedConfig.image == undefined) clonedConfig.image = userData?.profile_image_url
-                clonedConfig.subtitle = Utils.replaceTagsInText(clonedConfig.subtitle ?? '', user)
+                clonedConfig.subtitle = await Utils.replaceTagsInText(clonedConfig.subtitle ?? '', user)
                 modules.sign.enqueueSign(clonedConfig)
             })
         }
     }
 
     public static buildExecCallback(config: IExecConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return async (user: ITwitchActionUser) => {
             if(config.run) {
                 Exec.runKeyPressesFromPreset(config.run)
             }
             if(config.uri) {
                 if(Array.isArray(config.uri)) {
                     for(const u of config.uri) {
-                        Exec.loadCustomURI(Utils.replaceTagsInText(u, user))
+                        Exec.loadCustomURI(await Utils.replaceTagsInText(u, user))
                     }
                 } else {
-                    Exec.loadCustomURI(Utils.replaceTagsInText(config.uri, user))
+                    Exec.loadCustomURI(await Utils.replaceTagsInText(config.uri, user))
                 }
             }
         }
@@ -342,16 +344,16 @@ class Actions {
                 Config.credentials.DiscordWebhooks[key],
                 user.name,
                 userData?.profile_image_url,
-                Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
+                await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
             )
         }
     }
 
     private static buildTwitchChatCallback(message: string|string[]|undefined): ITwitchActionCallback|undefined {
-        if(message && message.length > 0) return (user: ITwitchActionUser, index?: number) => {
+        if(message && message.length > 0) return async (user: ITwitchActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToChannel(
-                Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
+                await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
             )
         }
     }
