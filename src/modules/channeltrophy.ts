@@ -118,7 +118,10 @@ class ChannelTrophy {
         const funnyNumberItems: string[] = [`⭐ First: ${await getName(firstRedemptionLastStream[0])} (**${firstRedemptionLastStream[1]}**)`]
         for(const config of funnyNumbers) {
             const name = await getName(config.userId)
-            const label = Utils.replaceTags(config.label, {name: name})
+            const label = Utils.replaceTags(
+                config.label, 
+                { userName: name }
+            )
             funnyNumberItems.push(label)
         }
 		funnyNumberItems.push(`🏁 Last: ${await getName(lastRedemptionLastStream[0])} (**${lastRedemptionLastStream[1]}**)`)
@@ -129,8 +132,8 @@ class ChannelTrophy {
             title: '**Stream Statistics**',
             thumbnail: {url: await getImage(topSpenderLastStream[0])},
             fields: [
-                await buildFieldWithList("Top Spenders", true, " %name: **%number**", sortedTopSpendersLastStream, 5),
-                await buildFieldWithList("Top Spending Streaks", true, " %name: **%number**", sortedTopSpentInStreakLastStream, 5),
+                await buildFieldWithList("Top Spenders", true, " %userName: **%number**", sortedTopSpendersLastStream, 5),
+                await buildFieldWithList("Top Spending Streaks", true, " %userName: **%number**", sortedTopSpentInStreakLastStream, 5),
 				...buildFieldsOutOfList("Notable Redemptions", funnyNumberItems),
                 {
                     name: "Event Totals",
@@ -150,9 +153,9 @@ class ChannelTrophy {
             title: '**Total Spending**',
             thumbnail: {url: await getImage(sortedTotalSpent[sortedTotalSpent.length-1][0])},
             fields: [
-                await buildFieldWithList("Top Spenders", false, " %name: **%number**", sortedTotalSpent, 5),
-                await buildFieldWithList("Top Spent in Single Stream", true, " %name: **%number**", sortedTotalSpentPerUserInSingleStream, 5),
-                await buildFieldWithList("Top Spending Streaks", true, " %name: **%number**", sortedTopStreaks, 5)
+                await buildFieldWithList("Top Spenders", false, " %userName: **%number**", sortedTotalSpent, 5),
+                await buildFieldWithList("Top Spent in Single Stream", true, " %userName: **%number**", sortedTotalSpentPerUserInSingleStream, 5),
+                await buildFieldWithList("Top Spending Streaks", true, " %userName: **%number**", sortedTopStreaks, 5)
             ]
         })
 
@@ -161,8 +164,8 @@ class ChannelTrophy {
         embeds.push({
             title: '**Redemptions**',
             fields: [
-                await buildFieldWithList("Top First Redemptions", true, " %name: **%number**", sortedTotalFirstRedemptions, 5),
-                await buildFieldWithList("Top Last Redemptions", true, " %name: **%number**", sortedTotalLastRedemptions, 5)
+                await buildFieldWithList("Top First Redemptions", true, " %userName: **%number**", sortedTotalFirstRedemptions, 5),
+                await buildFieldWithList("Top Last Redemptions", true, " %userName: **%number**", sortedTotalLastRedemptions, 5)
             ]
         })
 
@@ -222,7 +225,12 @@ class ChannelTrophy {
                 const displayName = await getName(pair[0])
                 const value = pair[1].toString()
                 const emote = emotes[i] ?? '🥔';
-                valueArr.push(emote+Utils.replaceTags(template, {name: displayName, number: value}))
+                valueArr.push(
+                    emote+Utils.replaceTags(
+                        template, 
+                        { userName: displayName, number: value }
+                    )
+                )
             }
             const field: IDiscordEmbedField = {
                 name: name,
@@ -265,7 +273,7 @@ class ChannelTrophy {
         }
         // if(n < 10) return null
 
-        const nameForDiscord = `%name (**${n}**)`
+        const nameForDiscord = `%userName (**${n}**)`
         const nameForTTS = Config.controller.channelTrophySettings.ttsName
         const nStr = n.toString()
         const trophyName = Config.controller.channelTrophySettings.ttsTrophy

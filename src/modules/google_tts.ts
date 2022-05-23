@@ -141,10 +141,10 @@ class GoogleTTS {
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
             case GoogleTTS.TYPE_SAID:
-                const speech = Config.twitchChat.speech ?? '%name said: %text'
+                const speech = Config.twitchChat.speech ?? '%userName said: %userInput'
                 cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
                     ? cleanText 
-                    : Utils.replaceTags(speech, {name: cleanName, text: cleanText})
+                    : Utils.replaceTags(speech, {userName: cleanName, userInput: cleanText})
                 break
             case GoogleTTS.TYPE_ACTION: 
                 cleanText = `${cleanName} ${cleanText}`

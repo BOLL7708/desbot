@@ -92,15 +92,15 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Global TTS already off'
         ],
         [KeysTemplate.COMMAND_TTS_MUTE]: [
-            '%name has lost their voice',
-            '%name is already muted'
+            '%targetName has lost their voice',
+            '%targetName is already muted'
         ],
         [KeysTemplate.COMMAND_TTS_UNMUTE]: [
-            '%name has regained their voice', 
-            '%name is not muted'
+            '%targetName has regained their voice', 
+            '%targetName is not muted'
         ],
         [KeysTemplate.COMMAND_SCALE]: [
-            'World scale set to %value%',
+            'World scale set to %userNumber%',
             'World scale will change from %from to %to% over %mins minutes',
             'World scale sequence finished',
             'World scale sequence not set',
@@ -122,8 +122,8 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Twitch game updated: %game',
             'Twitch game not matched: %game'
         ],
-        [KeysTemplate.COMMAND_QUOTE]: 'Quote by @%name added',
-        [KeysTemplate.COMMAND_TTS_NICK]: '%name is now called %nick',
+        [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
+        [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is now called %targetNick',
         [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
         [KeysTemplate.COMMAND_DICTIONARY]: '%word1 is now said as %word2',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
@@ -143,8 +143,8 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'There is no entry for "%word" in the dictionary.',
             '"%word" is set to "%value" in the dictionary.'
         ],
-        [KeysTemplate.COMMAND_TTS_NICK]: '%name is called: "%nick"',
-        [KeysTemplate.COMMAND_QUOTE]: 'On %date, @%name said: "%text"'
+        [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is called: "%targetNick"',
+        [KeysTemplate.COMMAND_QUOTE]: 'On %date, %targetTag said: "%text"'
     },
     defaultTwitchGameCategory: 'Games + Demos',
     resetIncrementingRewardsOnLoad: [
@@ -153,12 +153,12 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
     saveConsoleOutputToSettings: false,
     secretChatSymbols: ['!'],
     channelTrophySettings: {
-        label: '🏆 Channel Trophy #%number\n%name',
-        rewardTitle: '🏆 Held by %name!',
-        rewardPrompt: 'Currently held by %name! %prompt Now costs %number points!',
+        label: '🏆 Channel Trophy #%number\n%userName',
+        rewardTitle: '🏆 Held by %userName!',
+        rewardPrompt: 'Currently held by %userName! %prompt Now costs %number points!',
         rewardCooldownMultiplier: 30,
         ttsOn: true,
-        ttsName: '@%name grabbed',
+        ttsName: '@%userName grabbed',
         ttsTrophy: 'trophy'
     }
 }
@@ -423,7 +423,7 @@ Config.twitchChat = <ITwitchChatConfig> {
         src: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
         volume: 0.5
     },
-    speech: '%name said: %text'
+    speech: '%userName said: %userInput'
 }
 
 /*
@@ -519,7 +519,7 @@ Config.twitch = <ITwitchConfig> {
             sign: {
                 durationMs: 10000,
                 title: 'The 🏆 was grabbed!',
-                subtitle: '%name'
+                subtitle: '%userName'
             }
         }
     },

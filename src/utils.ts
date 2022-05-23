@@ -227,11 +227,11 @@ class Utils {
 
     /**
      * Replaces certain tags in a string with values meant for visible text.
-     * - Replaces %name with the redeemer's display name with case intact.
-     * - Replaces %tag or %nameTag with the redeemer's username as a user tag.
-     * - Replaces %input with the redeemer's input.
-     * - Replaces %inputNumber with the redeemer's input parsed to number or NaN.
-     * - Replaces %inputWord with the redeemer's input truncated to the first word.
+     * - Replaces %userName with the redeemer's display name with case intact.
+     * - Replaces %userTag with the redeemer's username as a user tag.
+     * - Replaces %userInput with the redeemer's input.
+     * - Replaces %userNumber with the redeemer's input parsed to number or NaN.
+     * - Replaces %userWord with the redeemer's input truncated to the first word.
      * 
      * If a user tag (@login) is present in the input text, values for that channel 
      * will be availale as:
@@ -244,42 +244,51 @@ class Utils {
      * @param message 
      * @returns 
      */
-    static async replaceTagsInText(text: string, userData?: ITwitchActionUser) {
+    static async replaceTagsInText(text: string, userData?: ITwitchActionUser, extraTags: { [key:string]: string } = {}) {
         // Default tags from incoming user data
-        const tags = this.getDefaultTags(userData)
+        const tags = await this.getDefaultTags(userData)
 
         // Target tags from incoming user tag
         const userTag = this.getFirstUserTagInText(userData?.input ?? '')
         const modules = ModulesSingleton.getInstance()
+        const targetTags: { [key: string]: string } = {
+            targetName: '',
+            targetTag: '',
+            targetNick: '',
+            targetGame: '',
+            targetTitle: '',
+            targetLink: ''
+        }
         if(userTag) {
             const channelData = await modules.twitchHelix.getChannelByName(userTag)
             if(channelData) {
-                tags['targetName'] = channelData.broadcaster_name
-                tags['targetTag'] = `@${channelData.broadcaster_login}`
-                tags['targetGame'] = channelData.game_name
-                tags['targetTitle'] = channelData.title
-                tags['targetLink'] = `https://twitch.tv/${channelData.broadcaster_login}`
+                targetTags.targetName = channelData.broadcaster_name
+                targetTags.targetTag = `@${channelData.broadcaster_login}`
+                targetTags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
+                targetTags.targetGame = channelData.game_name
+                targetTags.targetTitle = channelData.title
+                targetTags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
             }
         }
 
         // Apply tags and return
-        return this.replaceTags(text, tags)
+        return this.replaceTags(text, {...tags, ...targetTags, ...extraTags})
     }
 
-    private static getDefaultTags(userData?: ITwitchActionUser): {[key: string]: string} {
+    private static async getDefaultTags(userData?: ITwitchActionUser): Promise<{ [key: string]: string }> {
         const result = {
-            name: `${userData?.name}`,
-            tag: `@${userData?.login}`,
-            nameTag: `@${userData?.login}`,
-            input: '',
-            inputNumber: '',
-            inputWord: ''
+            userName: `${userData?.name}`,
+            userTag: `@${userData?.login}`,
+            userNick: await this.loadCleanName(userData?.login ?? ''),
+            userInput: '',
+            userNumber: '',
+            userWord: ''
         }
         if(userData?.input) {
             const input = userData.input
-            result.input = input
-            result.inputNumber = parseFloat(input).toString()
-            result.inputWord = input.split(' ').pop() ?? ''
+            result.userInput = input
+            result.userNumber = parseFloat(input).toString()
+            result.userWord = input.split(' ').pop() ?? ''
         }
         return result
     }

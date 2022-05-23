@@ -144,7 +144,10 @@ class Rewards {
                     const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
                     if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
                         modules.tts.enqueueSpeakSentence(
-                            Utils.replaceTags(funnyNumberConfig.speech, {name: user.login}), 
+                            await Utils.replaceTagsInText(
+                                funnyNumberConfig.speech, 
+                                user
+                            ), 
                             Config.twitch.chatbotName, 
                             GoogleTTS.TYPE_ANNOUNCEMENT
                         )
@@ -152,7 +155,11 @@ class Rewards {
                     // Update label in overlay
                     const labelUpdated = await Settings.pushLabel(
                         Settings.CHANNEL_TROPHY_LABEL, 
-                        Utils.replaceTags(Config.controller.channelTrophySettings.label, {number: cost.toString(), name: user.name})
+                        await Utils.replaceTagsInText(
+                            Config.controller.channelTrophySettings.label, 
+                            user,
+                            { number: cost.toString(), userName: user.name }
+                        )
                     )
 					if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
                     
@@ -162,11 +169,21 @@ class Rewards {
                     if(config != undefined) {
                         const newCost = cost+1;
                         const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
-                            title: Utils.replaceTags(Config.controller.channelTrophySettings.rewardTitle, {name: user.name}),
+                            title: await Utils.replaceTagsInText(
+                                Config.controller.channelTrophySettings.rewardTitle, 
+                                user
+                            ),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: Utils.replaceTags(Config.controller.channelTrophySettings.rewardPrompt, {name: user.name, prompt: config.prompt ?? '', number: newCost.toString()})
+                            prompt: await Utils.replaceTagsInText(
+                                Config.controller.channelTrophySettings.rewardPrompt,
+                                user,
+                                 { 
+                                     prompt: config.prompt ?? '', 
+                                     number: newCost.toString() 
+                                }
+                            )
                         })
                         if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
                     } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)

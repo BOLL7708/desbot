@@ -93,11 +93,12 @@ class Commands {
                     Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
                     modules.tts.enqueueSpeakSentence(
-                        Utils.replaceTags(
-                            speech, 
-                            {
-                                name: userToRename, 
-                                nick: newName
+                        await Utils.replaceTagsInText(
+                            <string> speech, 
+                            user,
+                            { // We override the target values because it can also be the user
+                                targetName: userToRename, 
+                                targetNick: newName
                             }
                         ), 
                         Config.twitch.chatbotName, 
@@ -108,11 +109,12 @@ class Commands {
                     const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userToRename)
                     const message = Config.controller.chatReferences[Keys.COMMAND_TTS_NICK]
                     ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(
-                        Utils.replaceTags(
-                            message, 
+                        await Utils.replaceTagsInText(
+                            <string> message, 
+                            user,
                             {
-                                name: hasUserTag ? parts[0] : `@${userData.display_name}`, 
-                                nick: currentName?.shortName ?? 'N/A'
+                                targetName: hasUserTag ? parts[0] : `@${userData.display_name}`, 
+                                targetNick: currentName?.shortName ?? 'N/A'
                             }
                         )
                     )
@@ -132,9 +134,9 @@ class Commands {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
                     if(blacklist == null || blacklist.active == false) {
                         Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
-                        modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {name: cleanName}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     } else {
-                        modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {name: cleanName}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                        modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                     }                    
                 }
             }
@@ -147,14 +149,13 @@ class Commands {
                 const name = Utils.cleanUserName(parts[0] ?? '')
                 if(name.length == 0) return
                 const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', name)
-                const cleanName = await Utils.loadCleanName(name)
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_UNMUTE]
                 if(blacklist != null && blacklist.active) {
                     const reason = Utils.cleanSetting(parts[1] ?? '')
                     Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {name: cleanName}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 } else {
-                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {name: cleanName}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
                 }
             }
         })
@@ -233,9 +234,9 @@ class Commands {
                         )
                         const speech = Config.controller.speechReferences[Keys.COMMAND_QUOTE]
                         modules.tts.enqueueSpeakSentence(
-                            Utils.replaceTags(
-                                speech, 
-                                {name: userData.login}
+                            await Utils.replaceTagsInText(
+                                <string> speech, 
+                                user
                             ), 
                             Config.twitch.chatbotName, 
                             GoogleTTS.TYPE_ANNOUNCEMENT
@@ -250,11 +251,12 @@ class Commands {
                         const userData = await modules.twitchHelix.getUserByLogin(quote.author)
                         const speech = Config.controller.chatReferences[Keys.COMMAND_QUOTE]
                         modules.twitch._twitchChatOut.sendMessageToChannel(
-                            Utils.replaceTags(
-                                speech, 
-                                {
+                            await Utils.replaceTagsInText(
+                                <string> speech, 
+                                user,
+                                { // We need to add targetTag as there is no user tag in the input.
                                     date: date.toDateString() ?? 'N/A', 
-                                    name: userData?.display_name ?? '', 
+                                    targetTag: '@'+(userData?.display_name ?? ''), 
                                     text: quote.quote
                                 }
                             )
@@ -298,7 +300,7 @@ class Commands {
         */
         modules.twitch.registerCommand({
             trigger: Keys.COMMAND_SCALE,
-            callback: (user) => {
+            callback: async (user) => {
                 const parts = user.input.split(' ')
                 const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                 if(parts.length == 3) {
@@ -314,8 +316,9 @@ class Commands {
                         // TODO: Disable all scale rewards
                         // Launch interval
                         modules.tts.enqueueSpeakSentence(
-                            Utils.replaceTags(
+                            await Utils.replaceTagsInText(
                                 speech[1], 
+                                user,
                                 {
                                     from: fromScale.toString(), 
                                     to: toScale.toString(), 
@@ -361,9 +364,11 @@ class Commands {
                     } else { // Manual setting
                         const value = Math.max(10, Math.min(1000, scale || 100))
                         modules.tts.enqueueSpeakSentence(
-                            Utils.replaceTags(
-                                speech[0], {
-                                    value: value.toString()
+                            await Utils.replaceTagsInText(
+                                speech[0], 
+                                user, 
+                                { // Overriding the number tag as the scale is clamped.
+                                    userNumber: value.toString()
                                 }
                             ), 
                             Config.twitch.chatbotName, 
@@ -446,8 +451,9 @@ class Commands {
                     Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
                     modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                     modules.tts.enqueueSpeakSentence(
-                        Utils.replaceTags(
-                            speech, 
+                        await Utils.replaceTagsInText(
+                            <string> speech, 
+                            user,
                             {
                                 word1: words[0], 
                                 word2: words[1]
@@ -465,9 +471,9 @@ class Commands {
                     const word = (words[0] ?? '').toLowerCase()
                     const currentEntry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
                     if(currentEntry) {
-                        modules.twitch._twitchChatOut.sendMessageToChannel(Utils.replaceTags(chat[1], {word: currentEntry.original, value: currentEntry.substitute}))
+                        modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[1], user,  {word: currentEntry.original, value: currentEntry.substitute}))
                     } else {
-                        modules.twitch._twitchChatOut.sendMessageToChannel(Utils.replaceTags(chat[0], {word: word}))
+                        modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[0],  user,  {word: word}))
                     }
                 }
             }
@@ -612,9 +618,13 @@ class Commands {
                     return Date.parse(a.created_at) - Date.parse(b.created_at)
                 })
                 modules.tts.enqueueSpeakSentence(
-                    Utils.replaceTags(
+                    await Utils.replaceTagsInText(
                         speech[1], 
-                        {count1: oldClipIds.length.toString(), count2: newClips.length.toString()}
+                        user,
+                        {
+                            count1: oldClipIds.length.toString(), 
+                            count2: newClips.length.toString()
+                        }
                     ), 
                     Config.twitch.chatbotName, 
                     GoogleTTS.TYPE_ANNOUNCEMENT
@@ -641,8 +651,9 @@ class Commands {
                     })
                 }
                 modules.tts.enqueueSpeakSentence(
-                    Utils.replaceTags(
+                    await Utils.replaceTagsInText(
                         speech[2], 
+                        user,
                         {count: (count-1-oldClipIds.length).toString()}
                     ), 
                     Config.twitch.chatbotName, 
