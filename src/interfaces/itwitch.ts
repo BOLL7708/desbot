@@ -362,6 +362,8 @@ interface ITwitchAction {
     exec?: IExecConfig
     /**
      * Optional: Load a page in the background.
+     * 
+     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
     web?: string
     /**
@@ -381,6 +383,11 @@ interface ITwitchAction {
      * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
     chat?: string|string[]
+
+    /**
+     * Optional: Writes a label to settings.
+     */
+    label?: string
 }
 
 /**
