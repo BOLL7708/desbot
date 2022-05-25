@@ -103,24 +103,25 @@ class Actions {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
         
         // Build callbacks
-        const obsCallback = Actions.buildOBSCallback(cfg?.obs, key)
-        const colorCallback = Actions.buildColorCallback(cfg?.lights)
-        const plugCallback = Actions.buildPlugCallback(cfg?.plugs)
-        const soundCallback = Actions.buildSoundAndSpeechCallback(
+        const obsCallback = this.buildOBSCallback(cfg?.obs, key)
+        const colorCallback = this.buildColorCallback(cfg?.lights)
+        const plugCallback = this.buildPlugCallback(cfg?.plugs)
+        const soundCallback = this.buildSoundAndSpeechCallback(
             cfg?.audio, 
             cfg?.speech,
             nonceTTS, 
             !!(cfg?.speech)
         )
-        const pipeCallback = Actions.buildPipeCallback(cfg?.pipe)
-        const openvr2wsSettingCallback = Actions.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
-        const signCallback = Actions.buildSignCallback(cfg?.sign)
-        const execCallback = Actions.buildExecCallback(cfg?.exec)
-        const webCallback = Actions.buildWebCallback(cfg?.web)
-        const screenshotCallback = Actions.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
-        const discordMessageCallback = Actions.buildDiscordMessageCallback(cfg?.discord, key)
-        const audioUrlCallback = Actions.buildAudioUrlCallback(cfg?.audioUrl)
-        const twitchChatCallback = Actions.buildTwitchChatCallback(cfg?.chat)
+        const pipeCallback = this.buildPipeCallback(cfg?.pipe)
+        const openvr2wsSettingCallback = this.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
+        const signCallback = this.buildSignCallback(cfg?.sign)
+        const execCallback = this.buildExecCallback(cfg?.exec)
+        const webCallback = this.buildWebCallback(cfg?.web)
+        const screenshotCallback = this.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
+        const discordMessageCallback = this.buildDiscordMessageCallback(cfg?.discord, key)
+        const audioUrlCallback = this.buildAudioUrlCallback(cfg?.audioUrl)
+        const twitchChatCallback = this.buildTwitchChatCallback(cfg?.chat)
+        const labelCallback = this.buildLabelCallback(cfg?.label)
 
         // Log result
         Utils.logWithBold(
@@ -137,6 +138,7 @@ class Actions {
             +(discordMessageCallback?'💬':'')
             +(audioUrlCallback?'🎵':'')
             +(twitchChatCallback?'📄':'')
+            +(labelCallback?'🏷':'')
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
@@ -155,6 +157,7 @@ class Actions {
             if(discordMessageCallback != null) discordMessageCallback(user, index)
             if(audioUrlCallback != null) audioUrlCallback(user)
             if(twitchChatCallback != null) twitchChatCallback(user, index)
+            if(labelCallback != null) labelCallback(user)
         }
     }
 
@@ -355,6 +358,13 @@ class Actions {
             modules.twitch._twitchChatOut.sendMessageToChannel(
                 await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
             )
+        }
+    }
+
+    private static buildLabelCallback(labelSettingKey: string|undefined): ITwitchActionCallback|undefined {
+        if(labelSettingKey) return (user: ITwitchActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            Settings.pushLabel(labelSettingKey, user.input)
         }
     }
 }    
