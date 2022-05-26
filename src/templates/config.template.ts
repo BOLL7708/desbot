@@ -458,6 +458,17 @@ Config.twitch = <ITwitchConfig> {
             }}
         }
         */
+        [KeysTemplate.COMMAND_SAY]: { // Announces something with the TTS
+            speech: '%userInput'
+        },
+        [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
+            speech: 'Label set to "%userInput"',
+            label: "your_label_in_settings.txt"
+        },
+        [KeysTemplate.COMMAND_TODO]: { // Puts a post in Discord using the Discord webhook with the same key
+            speech: 'To do list appended with: %userInput',
+            discord: '👉 %userInput'
+        },
     },
 
     skipUpdatingRewards: [

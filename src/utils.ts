@@ -24,7 +24,7 @@ class Utils {
         namePart = namePart.replace(/[0-9]{2,}/g, '') 
         
         // Replace single digits with letters
-        let numToChar:any = {
+        let numToChar:{[key: number]: string} = {
             0: 'o',
             1: 'i',
             3: 'e',
@@ -35,7 +35,7 @@ class Utils {
         }
         var re = new RegExp(Object.keys(numToChar).join("|"),"gi");
         let result = namePart.replace(re, function(matched){
-            return numToChar[matched];
+            return numToChar[parseInt(matched)];
         });
 
         // If name ended up empty, return the original name

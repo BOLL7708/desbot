@@ -29,7 +29,6 @@ class KeysTemplate {
     static readonly COMMAND_TTS_OFF: string = 'ttsoff'
     static readonly COMMAND_TTS_SILENCE: string = 'silence'
     static readonly COMMAND_TTS_DIE: string = 'ttsdie'
-    static readonly COMMAND_TTS_SAY: string = 'say'
     static readonly COMMAND_TTS_NICK: string = 'nick'
     static readonly COMMAND_TTS_MUTE: string = 'mute'
     static readonly COMMAND_TTS_UNMUTE: string = 'unmute'   
@@ -56,6 +55,11 @@ class KeysTemplate {
     static readonly COMMAND_REFRESHRATE: string = 'hz'
     static readonly COMMAND_BRIGHTNESS: string = 'lux'
     static readonly COMMAND_VRVIEWEYE: string = 'eye'
+
+    // Template example commands
+    static readonly COMMAND_SAY: string = 'say'
+    static readonly COMMAND_LABEL: string = 'label'
+    static readonly COMMAND_TODO: string = 'todo'
    
     /*
     .#####...######..##...##...####...#####...#####....####..

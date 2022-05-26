@@ -56,13 +56,6 @@ class Commands {
         })
 
         modules.twitch.registerCommand({
-            trigger: Keys.COMMAND_TTS_SAY,
-            callback: (user) => {
-                modules.tts.enqueueSpeakSentence(user.input, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-            }
-        })
-
-        modules.twitch.registerCommand({
             trigger: Keys.COMMAND_TTS_NICK,
             callback: async (user) => {
                 const parts = Utils.splitOnFirst(' ', user.input)
