@@ -57,15 +57,13 @@ interface ITwitchConfig {
      */
     skipUpdatingRewards: string[]
     /**
-     * These rewards will always be switched on at widget load, unless they are also listed in `disableRewards`.
+     * These rewards will be switched on at widget load as well as on game change.
      * 
-     * Useful to enable specific rewards in sub-configs.
+     * The only override is if they are also listed in {@link ITwitch.alwaysOffRewards}.
      */
     alwaysOnRewards: string[]
     /**
-     * These rewards will be switched off at widget load.
-     * 
-     * Useful to disable specific rewards in sub-configs.
+     * These rewards will always be switched off at widget load as well as on game change.
      */
     alwaysOffRewards: string[]
     

@@ -139,7 +139,7 @@ class Functions {
                 const defaultRewardConfig = Config.twitch.gameRewardDefaultConfigs[rewardKey] ?? {}
                 delete profileToUse[rewardKey] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
                 const rewardId = await Utils.getRewardId(rewardKey)
-                Utils.logWithBold(`Updating reward: <${rewardKey}:${rewardId}>`, Color.Purple)
+                Utils.logWithBold(`Updating Game Reward: <${rewardKey}:${rewardId}>`, Color.Purple)
                 
                 // Update game rewards on Twitch
                 modules.twitchHelix.updateReward(rewardId, {
@@ -149,7 +149,6 @@ class Functions {
                 })
 
                 // Update game reward actions
-                Utils.log(`AppId: ${appId} re-register auto-reward, TODO! ${rewardKey}`, Color.Purple)
                 Actions.registerReward(rewardKey, { 
                     ...defaultRewardConfig, 
                     ...rewardConfig 
@@ -157,6 +156,14 @@ class Functions {
             }
         }
         
+        // Apply always on/off filters
+        for(const rewardKey of Config.twitch.alwaysOnRewards) {
+            profileToUse[rewardKey] = true
+        }
+        for(const rewardKey of Config.twitch.alwaysOffRewards) {
+            profileToUse[rewardKey] = false
+        }
+
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
         modules.twitchHelix.toggleRewards(profileToUse)
