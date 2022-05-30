@@ -80,7 +80,7 @@ class Twitch{
         }
 
         // User data for most callbacks
-        const user: ITwitchActionUser = {
+        const user: IActionUser = {
             id: messageCmd.properties["user-id"] ?? '',
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? '',

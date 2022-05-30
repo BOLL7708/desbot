@@ -121,8 +121,8 @@ class Functions {
         /**
          * Game specific reward configuration
          */
-         const allGameRewardKeys = Object.keys(Config.twitch.gameRewardDefaultConfigs)
-         const gameSpecificRewards = states.useGameSpecificRewards ? Config.twitch.gameRewardConfigs[appId] : undefined
+         const allGameRewardKeys = Utils.getAllEventKeysForGames(true)
+         const gameSpecificRewards = states.useGameSpecificRewards ? Utils.getEventsForGame(appId) : undefined
          const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
          const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
         
@@ -135,24 +135,21 @@ class Functions {
             // Update and enable all reusable generic rewards in use.
             for(const entry of Object.entries(gameSpecificRewards)) {
                 const rewardKey = entry[0]
-                const rewardConfig = entry[1]
-                const defaultRewardConfig = Config.twitch.gameRewardDefaultConfigs[rewardKey] ?? {}
+                const rewardConfig = entry[1]?.triggers.reward
+                const defaultRewardConfig = Config.events[rewardKey]?.triggers.reward ?? {}
                 delete profileToUse[rewardKey] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
                 const rewardId = await Utils.getRewardId(rewardKey)
                 Utils.logWithBold(`Updating Game Reward: <${rewardKey}:${rewardId}>`, Color.Purple)
                 
                 // Update game rewards on Twitch
                 modules.twitchHelix.updateReward(rewardId, {
-                    ...defaultRewardConfig.reward,
-                    ...rewardConfig.reward,
+                    ...defaultRewardConfig,
+                    ...rewardConfig,
                     ...{is_enabled: true}
                 })
 
                 // Update game reward actions
-                Actions.registerReward(rewardKey, { 
-                    ...defaultRewardConfig, 
-                    ...rewardConfig 
-                })
+                Actions.registerReward(rewardKey, entry[1])
             }
         }
         

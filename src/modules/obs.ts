@@ -68,7 +68,7 @@ class OBS {
                 const group = Config.obs.sourceGroups.find(group => group.includes(cfg.key ?? ''))
                 if(group) {
                     for(const k of group) {
-                        if(k != cfg.key) this.hide(Utils.getRewardConfig(k)?.obs)
+                        if(k != cfg.key) this.hide(Utils.getEventConfig(k)?.actions.obs)
                     }
                 }
                 cfg.sceneNames.forEach(sceneName => {
@@ -84,7 +84,7 @@ class OBS {
                 const group = Config.obs.filterGroups.find(group => group.includes(cfg.key ?? ''))
                 if(group) {
                     for(const k of group) {
-                        if(k != cfg.key) this.hide(Utils.getRewardConfig(k)?.obs)
+                        if(k != cfg.key) this.hide(Utils.getEventConfig(k)?.actions.obs)
                     }
                 }
                 this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
@@ -135,7 +135,7 @@ class OBS {
      * @param delaySeconds Amount of time to delay the capture
      * @returns The message ID that is referenced in the result callback
      */
-    takeSourceScreenshot(rewardKey: string, userData: ITwitchActionUser, sourceName: string, delaySeconds: number = 0): string {
+    takeSourceScreenshot(rewardKey: string, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
         const requestData: IScreenshotRequestData = { 
             rewardKey: rewardKey, 
             userId: Utils.toInt(userData.id, -1), 

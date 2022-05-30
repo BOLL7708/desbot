@@ -47,11 +47,6 @@ interface ITwitchConfig {
     ignoreModerators: string[]
 
     /**
-     * Configs for commands that can trigger actions.
-     */
-    commandConfigs: { [key: string]: ITwitchActionCommand }
-
-    /**
      * A list of rewards that will only be created, not updated using `!update`.
      * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
      */
@@ -67,49 +62,6 @@ interface ITwitchConfig {
      */
     alwaysOffRewards: string[]
     
-    /**
-     * Reward configs, if you add new ones they will be automatically created the next
-     * time you run the widget. If you want to update an existing reward config, save your changes, reload
-     * the widget and then run `!update` in chat, this will apply the current configs to existing rewards.
-     * 
-     * Rewards should have the minimum of `title` and `cost`, and the title needs to be unique among all 
-     * custom rewards on your channel.
-     * 
-     * Default rewards that control system features, you can set `is_enabled` to `false` or
-     * remove the configs before running it the first time if you don't want a specific feature.
-     */
-    defaultRewardConfigs: { [key: string]: ITwitchActionReward }
-    
-    /**
-     * Reward configs can also include all the various functions and properties that are
-     * dynamically assigned.
-     * 
-     * As a reference, the following functions can be triggered by a reward:
-     * - Toggle OBS sources or filters
-     * - Toggle and change color of Philips Hue lights
-     * - Toggle Philips Hue plugs
-     * - Play back audio effects
-     * - Speak using TTS
-     * - Send overlays into VR
-     * - Change SteamVR settings
-     * - Press keys in a specific desktop window
-     * - Load a web URL in the background
-     * - Take screenshots via SSSVR or OBS
-     */
-    rewardConfigs: { [key: string]: ITwitchActionReward }
-
-    /**
-     * Rewards that are specific for a game, they are dynamically updated depending on 
-     * the current Steam title. Will be disabled if no config is available.
-     */
-    gameRewardDefaultConfigs: { [key: string]: ITwitchActionReward }
-    
-    /**
-     * Configuration for rewards that will be updated per game. This literally changes what the reward
-     * looks like and what it does, basically resusing the same reward for different games.
-     */
-    gameRewardConfigs: { [key: string]: { [key: string]: ITwitchActionGameReward } }
-
     /**
      * Default for turning rewards on or off depending on Steam game.
      * Applied when no specific profile is found
@@ -256,22 +208,22 @@ interface ITwitchRewardProfileConfig {
 }
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
-    (user: ITwitchActionUser, messageData: ITwitchMessageData): void
+    (user: IActionUser, messageData: ITwitchMessageData): void
 }
 interface ITwitchActionCallback {
-    (user: ITwitchActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage): void
+    (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage): void
 }
 interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
 }
 interface ITwitchCommandCallback {
-    (user: ITwitchActionUser): void
+    (user: IActionUser): void
 }
 interface ITwitchAnnouncementCallback {
-    (user: ITwitchActionUser, messageData: ITwitchMessageData, firstWord: string): void
+    (user: IActionUser, messageData: ITwitchMessageData, firstWord: string): void
 }
 interface ITwitchChatCheerCallback {
-    (user: ITwitchActionUser, messageData: ITwitchMessageData): void
+    (user: IActionUser, messageData: ITwitchMessageData): void
 }
 interface ITwitchRewardRedemptionCallback {
     (message: ITwitchPubsubRewardMessage): void
@@ -283,122 +235,4 @@ interface ITwitchMessageData {
     bits: number
     isAction: boolean
     emotes: ITwitchEmote[]
-}
-
-/**
- * Reward specific action config.
- */
-interface ITwitchActionReward extends ITwitchAction {
-    /**
-     * The reward settings, providing an array makes it into an incrementing reward.
-     */
-    reward: ITwitchHelixRewardConfig|ITwitchHelixRewardConfig[]
-}
-interface ITwitchActionGameReward extends ITwitchAction {
-    /**
-     * This is optional as updating the reward is not mandatory for game rewards.
-     */
-    reward?: ITwitchHelixRewardUpdate|ITwitchHelixRewardUpdate[]
-}
-
-/**
- * Command specific action config.
- */
-interface ITwitchActionCommand extends ITwitchAction {
-    /**
-     * Optional: Add this to provide custom permissions.
-     */
-    command?: ITwitchActionCommandConfig
-}
-
-/**
- * All the different actions that can be triggered.
- */
-interface ITwitchAction {
-    // TODO: Add array support to everything? Random/Shuffle functionality?
-    /**
-     * Optional: Used to change SteamVR settings.
-     */
-    openVR2WS?: IOpenVR2WSSetting|IOpenVR2WSSetting[]
-    /**
-     * Optional: Used to toggle OBS sources or filters.
-     */
-    obs?: IObsSourceConfig|IObsSourceConfig[]
-    /**
-     * Optional: Trigger one or multiple pipe overlays.
-     */
-    pipe?: IPipeMessagePreset|IPipeMessagePreset[]
-    /**
-     * Optional: Trigger OBS or VR screenshots.
-     */
-    screenshots?: IScreenshot
-    /**
-     * Optional: Trigger Philips Hue lights changes.
-     */
-    lights?: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]
-    /**
-     * Optional: Trigger Philips Hue plug changes.
-     */
-    plugs?: IPhilipsHuePlugConfig
-    /**
-     * Optional: Trigger audio clips.
-     */
-    audio?: IAudio
-    /**
-     * Optional: Trigger the TTS to read a message.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
-     */
-    speech?: string|string[]
-    /**
-     * Optional: Show a pop-in message in the browser source for the widget.
-     */
-    sign?: ISignShowConfig
-    /**
-     * Optional: Execute a key command in a specific window or trigger a custom URI.
-     */
-    exec?: IExecConfig
-    /**
-     * Optional: Load a page in the background.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
-     */
-    web?: string
-    /**
-     * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.webhooks} for the same key.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
-     */
-    discord?: string|string[],
-    /**
-     * Optional: Play back the user-provided audio URL.
-     */
-    audioUrl?: IAudioBase
-
-    /**
-     * Optional: Send a message to the Twitch chat.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
-     */
-    chat?: string|string[]
-
-    /**
-     * Optional: Writes a label to settings.
-     */
-    label?: string
-}
-
-/**
- * Combined Reward and Command result object for shared actions.
- */
-interface ITwitchActionUser {
-    id: string
-    login: string
-    name: string
-    input: string
-    color: string
-    isBroadcaster: boolean
-    isModerator: boolean
-    isVIP: boolean
-    isSubscriber: boolean
 }

@@ -1,16 +1,13 @@
 class Actions {
     public static async init() {
-        Utils.log('=== Registering Rewards for Actions ===', Color.DarkGreen)
-        for(const entry of Object.entries(Config.twitch.rewardConfigs)) {
-            await this.registerReward(entry[0], entry[1])
-        }
-        Utils.log('=== Registering Commands for Actions ===', Color.DarkGreen)
-        for(const entry of Object.entries(Config.twitch.commandConfigs)) {
-            await this.registerCommand(entry[0], entry[1])
+        Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
+        for(const event of Object.entries(Config.events)) {
+            if(event[1].triggers.reward) await this.registerReward(event[0], event[1])
+            if(event[1].triggers.command) await this.registerCommand(event[0], event[1])
         }
     }
 
-    public static userDataFromRedemptionMessage(message: ITwitchPubsubRewardMessage): ITwitchActionUser {
+    public static userDataFromRedemptionMessage(message: ITwitchPubsubRewardMessage): IActionUser {
         return {
             id: message?.data?.redemption?.user?.id ?? '',
             login: message?.data?.redemption?.user?.login ?? '',
@@ -23,7 +20,7 @@ class Actions {
             isSubscriber: false
         }
     }
-    public static async getEmptyUserDataForCommands(): Promise<ITwitchActionUser> {
+    public static async getEmptyUserDataForCommands(): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(Config.twitch.channelName)
         return {
@@ -39,24 +36,24 @@ class Actions {
         }
     }
 
-    public static async registerReward(key: string, cfg: ITwitchActionReward|ITwitchActionGameReward) {
+    public static async registerReward(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
+        const actionCallback = this.buildActionCallback(key, event)
         const reward:ITwitchReward = {
             id: await Utils.getRewardId(key),
             callback: async (user) => {
-                // Prep for incremental reward
-                const rewardConfig = Utils.getRewardConfig(key)
+                // Prep for incremental reward // TODO: Move this out to above the registration?
+                const rewardConfig = Utils.getEventConfig(key)?.triggers.reward
                 let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                if(Array.isArray(rewardConfig?.reward) && counter == null) counter = {key: key, count: 0}
+                if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
                 
                 // Trigger actions
                 actionCallback(user, counter?.count)
 
                 // Switch to the next incremental reward if it has more configs available
-                if(Array.isArray(rewardConfig?.reward) && counter != undefined) {                       
+                if(Array.isArray(rewardConfig) && counter != undefined) {                       
                     counter.count++
-                    const newRewardConfig = rewardConfig?.reward[counter.count]
+                    const newRewardConfig = rewardConfig[counter.count]
                     if(newRewardConfig != undefined) {
                         await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
                         modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
@@ -71,20 +68,20 @@ class Actions {
         }
     }
 
-    public static async registerCommand(key: string, cfg: ITwitchActionCommand) {
+    public static async registerCommand(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        let command = cfg?.command
-        if(!cfg.command) {
-            cfg.command = {
+        let command = event?.triggers.command
+        if(!event.triggers.command) {
+            event.triggers.command = {
                 trigger: key,
                 permissions: {}
             }
         } else if(command) command.trigger = key
-        const actionCallback = this.buildActionCallback(key, <ITwitchAction>cfg)
+        const actionCallback = this.buildActionCallback(key, event)
         const useThisCommand = <ITwitchCommandConfig> (
             command?.cooldown == undefined 
-            ? {...cfg.command, callback: actionCallback}
-            : {...cfg.command, cooldownCallback: actionCallback}
+            ? {...event.triggers.command, callback: actionCallback}
+            : {...event.triggers.command, cooldownCallback: actionCallback}
         )
         modules.twitch.registerCommand(useThisCommand)
     }
@@ -99,29 +96,30 @@ class Actions {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
-    private static buildActionCallback(key: string, cfg: ITwitchAction)   {
+    private static buildActionCallback(key: string, event: IEvent)   {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-        
+        const actions = event.actions
+
         // Build callbacks
-        const obsCallback = this.buildOBSCallback(cfg?.obs, key)
-        const colorCallback = this.buildColorCallback(cfg?.lights)
-        const plugCallback = this.buildPlugCallback(cfg?.plugs)
+        const obsCallback = this.buildOBSCallback(actions?.obs, key)
+        const colorCallback = this.buildColorCallback(actions?.lights)
+        const plugCallback = this.buildPlugCallback(actions?.plugs)
         const soundCallback = this.buildSoundAndSpeechCallback(
-            cfg?.audio, 
-            cfg?.speech,
+            actions?.audio, 
+            actions?.speech,
             nonceTTS, 
-            !!(cfg?.speech)
+            !!(actions?.speech)
         )
-        const pipeCallback = this.buildPipeCallback(cfg?.pipe)
-        const openvr2wsSettingCallback = this.buildOpenVR2WSSettingCallback(cfg?.openVR2WS)
-        const signCallback = this.buildSignCallback(cfg?.sign)
-        const execCallback = this.buildExecCallback(cfg?.exec)
-        const webCallback = this.buildWebCallback(cfg?.web)
-        const screenshotCallback = this.buildScreenshotCallback(cfg?.screenshots, key, nonceTTS)
-        const discordMessageCallback = this.buildDiscordMessageCallback(cfg?.discord, key)
-        const audioUrlCallback = this.buildAudioUrlCallback(cfg?.audioUrl)
-        const twitchChatCallback = this.buildTwitchChatCallback(cfg?.chat)
-        const labelCallback = this.buildLabelCallback(cfg?.label)
+        const pipeCallback = this.buildPipeCallback(actions?.pipe)
+        const openvr2wsSettingCallback = this.buildOpenVR2WSSettingCallback(actions?.openVR2WS)
+        const signCallback = this.buildSignCallback(actions?.sign)
+        const execCallback = this.buildExecCallback(actions?.exec)
+        const webCallback = this.buildWebCallback(actions?.web)
+        const screenshotCallback = this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS)
+        const discordMessageCallback = this.buildDiscordMessageCallback(actions?.discord, key)
+        const audioUrlCallback = this.buildAudioUrlCallback(actions?.audioUrl)
+        const twitchChatCallback = this.buildTwitchChatCallback(actions?.chat)
+        const labelCallback = this.buildLabelCallback(actions?.label)
 
         // Log result
         Utils.logWithBold(
@@ -142,7 +140,7 @@ class Actions {
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
-        return async (user: ITwitchActionUser, index?: number) => {
+        return async (user: IActionUser, index?: number) => {
             // Main callbacks
             if(obsCallback != null) obsCallback(user, index)
             if(colorCallback != null) colorCallback(user)
@@ -162,7 +160,7 @@ class Actions {
     }
 
     public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser, index?: number) => {
+        if(config) return (user: IActionUser, index?: number) => {
             const singleConfig = Utils.randomOrSpecificFromArray(config, index)
             if(singleConfig) {
                 const modules = ModulesSingleton.getInstance()
@@ -175,7 +173,7 @@ class Actions {
     }
 
     public static buildColorCallback(config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
             const userName = user.login
@@ -188,7 +186,7 @@ class Actions {
     }
 
     public static buildPlugCallback(config: IPhilipsHuePlugConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.hue.runPlugConfig(config)
         }
@@ -202,7 +200,7 @@ class Actions {
      * @returns 
      */
     public static buildSoundAndSpeechCallback(config: IAudio|undefined, speech:string|string[]|undefined, nonce: string, onTtsQueue:boolean = false):ITwitchActionCallback|undefined {
-        if(config || speech) return async (user: ITwitchActionUser, index?: number) => {
+        if(config || speech) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             let ttsString: string|undefined
             if(Array.isArray(speech) || typeof speech == 'string') {
@@ -219,14 +217,14 @@ class Actions {
     }
 
     private static buildAudioUrlCallback(config: IAudioBase|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             if(user.input) modules.audioPlayer.enqueueAudio({...config, ...{src: user.input}})
         }
     }
 
     public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): ITwitchActionCallback|undefined {
-        if(config) return async (user: ITwitchActionUser) => {
+        if(config) return async (user: IActionUser) => {
             /*
             * We check if we don't have enough texts to fill the preset 
             * and fill the empty spots up with the redeemer's display name.
@@ -264,14 +262,14 @@ class Actions {
     }
 
     public static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.openvr2ws.setSetting(config)
         }
     }
 
     public static buildSignCallback(config: ISignShowConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitchHelix.getUserById(parseInt(user.id)).then(async userData => {
                 const modules = ModulesSingleton.getInstance()
@@ -285,7 +283,7 @@ class Actions {
     }
 
     public static buildExecCallback(config: IExecConfig|undefined): ITwitchActionCallback|undefined {
-        if(config) return async (user: ITwitchActionUser) => {
+        if(config) return async (user: IActionUser) => {
             if(config.run) {
                 Exec.runKeyPressesFromPreset(config.run)
             }
@@ -302,13 +300,13 @@ class Actions {
     }
 
     private static buildWebCallback(url: string|undefined): ITwitchActionCallback|undefined {
-        if(url) return (user: ITwitchActionUser) => {
+        if(url) return (user: IActionUser) => {
             fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
         }
     }
 
     private static buildScreenshotCallback(config: IScreenshot|undefined, key: string, nonce: string): ITwitchActionCallback|undefined {
-        if(config) return (user: ITwitchActionUser) => {
+        if(config) return (user: IActionUser) => {
             const states = StatesSingleton.getInstance()
             const modules = ModulesSingleton.getInstance()
             const userInput = user.input
@@ -340,7 +338,7 @@ class Actions {
     }
 
     private static buildDiscordMessageCallback(message: string|string[]|undefined, key: string): ITwitchActionCallback|undefined {
-        if(message && message.length > 0) return async (user: ITwitchActionUser, index?: number) => {
+        if(message && message.length > 0) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
             Discord.enqueueMessage(
@@ -353,7 +351,7 @@ class Actions {
     }
 
     private static buildTwitchChatCallback(message: string|string[]|undefined): ITwitchActionCallback|undefined {
-        if(message && message.length > 0) return async (user: ITwitchActionUser, index?: number) => {
+        if(message && message.length > 0) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToChannel(
                 await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
@@ -362,7 +360,7 @@ class Actions {
     }
 
     private static buildLabelCallback(labelSettingKey: string|undefined): ITwitchActionCallback|undefined {
-        if(labelSettingKey) return (user: ITwitchActionUser) => {
+        if(labelSettingKey) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             Settings.pushLabel(labelSettingKey, user.input)
         }

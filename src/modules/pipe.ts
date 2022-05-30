@@ -24,7 +24,7 @@ class Pipe {
 
     async sendBasicObj(
         messageData: ITwitchMessageData,
-        userData: ITwitchActionUser,
+        userData: IActionUser,
         helixUser?: ITwitchHelixUsersResponseData
     ) {
         this.sendBasic(

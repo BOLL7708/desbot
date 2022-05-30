@@ -244,7 +244,7 @@ class Utils {
      * @param message 
      * @returns 
      */
-    static async replaceTagsInText(text: string, userData?: ITwitchActionUser, extraTags: { [key:string]: string } = {}) {
+    static async replaceTagsInText(text: string, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
         // Default tags from incoming user data
         const tags = await this.getDefaultTags(userData)
 
@@ -275,7 +275,7 @@ class Utils {
         return this.replaceTags(text, {...tags, ...targetTags, ...extraTags})
     }
 
-    private static async getDefaultTags(userData?: ITwitchActionUser): Promise<{ [key: string]: string }> {
+    private static async getDefaultTags(userData?: IActionUser): Promise<{ [key: string]: string }> {
         const result = {
             userName: `${userData?.name}`,
             userTag: `@${userData?.login}`,
@@ -432,23 +432,44 @@ class Utils {
     }
 
     /**
-     * Get all reward keys
+     * Get all event keys
+     * @param onlyRewards
+     * @returns
      */
-    static getAllRewardKeys(): string[] {
-        return [
-            ...Object.keys(Config.twitch.defaultRewardConfigs),
-            ...Object.keys(Config.twitch.rewardConfigs),
-            ...Object.keys(Config.twitch.gameRewardDefaultConfigs)
-        ]
+    static getAllEventKeys(onlyRewards: boolean): string[] {
+        // TODO: Return all keys that are for events with reward configs?
+        if(onlyRewards) {
+            const rewardEvents = Object.entries(Config.events).filter(e => e[1].triggers.reward !== undefined)
+            return rewardEvents.map(e => e[0])
+        }
+        return Object.keys(Config.events)
     }
 
     /**
-     * Get reward config from any pool
+     * Lists the event keys that are for events that are used for the events that are modified on a per game basis.
+     * @param onlyRewards
+     * @returns 
      */
-    static getRewardConfig(key: string): ITwitchActionReward|undefined {
-        return Config.twitch.defaultRewardConfigs[key] ??
-            Config.twitch.rewardConfigs[key] ??
-            Config.twitch.gameRewardDefaultConfigs[key]
+    static getAllEventKeysForGames(onlyRewards: boolean): string[] {
+        const allEventKeysForGames = Object.entries(Config.eventsForGames).map(e => e[1]).flatMap(e => Object.keys(e))
+        const uniqueKeys = allEventKeysForGames.filter((value, index, array) => array.indexOf(value) === index)
+        if(onlyRewards) {
+			const rewardEvents = Object.entries(Config.events).filter(e => e[1].triggers.reward !== undefined)
+            const rewardEventKeys = rewardEvents.map(e => e[0])
+			return rewardEventKeys.filter((key => uniqueKeys.indexOf(key) > -1))
+        }
+        return uniqueKeys
+    }
+
+    /**
+     * Get event config from any pool
+     */
+    static getEventConfig(key: string): IEvent|undefined {
+        return Config.events[key]
+    }
+
+    static getEventsForGame(key: string): { [key: string]: IEvent }|undefined {
+        return Config.eventsForGames[key]
     }
 
     static removeLastPart(splitOn: string, text: string|undefined): string {

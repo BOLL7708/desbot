@@ -485,7 +485,7 @@ class Commands {
                 let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
-                    const configArrOrNot = Utils.getRewardConfig(pair.key)?.reward
+                    const configArrOrNot = Utils.getEventConfig(pair.key)?.triggers.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) == -1) {
                         const response = await modules.twitchHelix.updateReward(pair.id, config)

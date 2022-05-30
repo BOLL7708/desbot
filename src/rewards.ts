@@ -18,10 +18,10 @@ class Rewards {
         if(storedRewards == undefined) storedRewards = []
 
         // Create missing rewards if any
-        const allRewardKeys = Utils.getAllRewardKeys()
+        const allRewardKeys = Utils.getAllEventKeys(true)
         const missingRewardKeys = allRewardKeys.filter(key => !storedRewards?.find(reward => reward.key == key))
         for(const key of missingRewardKeys) {
-            const setup = Utils.getRewardConfig(key)?.reward
+            const setup = <ITwitchHelixRewardConfig> Utils.getEventConfig(key)?.triggers.reward
             if(setup) {
                 let reward = await modules.twitchHelix.createReward(Array.isArray(setup) ? setup[0] : setup)
                 if(reward && reward.data && reward.data.length > 0) {
@@ -35,7 +35,7 @@ class Rewards {
         // Reset rewards with multiple steps
         for(const key of allRewardKeys) {
             if(Config.controller.resetIncrementingRewardsOnLoad.includes(key)) {
-                const setup = Utils.getRewardConfig(key)?.reward
+                const setup = Utils.getEventConfig(key)?.triggers.reward
                 if(Array.isArray(setup)) {
                     // We check if the reward counteris at zero because then we should not update as it enables 
                     // the reward while it could have been disabled by profiles.
@@ -74,7 +74,7 @@ class Rewards {
         */
         modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSPEAK),
-            callback: (user: ITwitchActionUser) => {
+            callback: (user: IActionUser) => {
                 if(user.login.length > 0 && user.input.length > 0) {
                     Utils.log("TTS Message Reward", Color.DarkOrange)
                     modules.tts.enqueueSpeakSentence(
@@ -87,7 +87,7 @@ class Rewards {
         })
         modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSETVOICE),
-            callback: async (user: ITwitchActionUser) => {
+            callback: async (user: IActionUser) => {
                 Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
                 const voiceName = await modules.tts.setVoiceForUser(user.login, user.input)
                 modules.twitch._twitchChatOut.sendMessageToChannel(`@${user.name} voice: ${voiceName}`)
@@ -95,7 +95,7 @@ class Rewards {
         })
         modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_TTSSWITCHVOICEGENDER),
-            callback: (user: ITwitchActionUser) => {
+            callback: (user: IActionUser) => {
                 Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
                 Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', user.login).then(voice => {
                     const voiceSetting = voice
@@ -115,7 +115,7 @@ class Rewards {
         */
         modules.twitchPubsub.registerReward({
             id: await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY),
-            callback: async (user: ITwitchActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
+            callback: async (user: IActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
                 // Save stat
                 const row: IChannelTrophyStat = {
                     userId: user.id,
@@ -129,9 +129,9 @@ class Rewards {
                 if(userData == undefined) return Utils.log(`ChannelTrophy: Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
                 
                 // Effects
-                const signCallback = Actions.buildSignCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.sign)
+                const signCallback = Actions.buildSignCallback(Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.actions.sign)
                 signCallback?.call(this, user)
-                const soundCallback = Actions.buildSoundAndSpeechCallback(Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.audio, undefined, '', true)
+                const soundCallback = Actions.buildSoundAndSpeechCallback(Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.actions.audio, undefined, '', true)
                 soundCallback?.call(this, user) // TODO: Should find a new sound for this.
 
                 // Update reward
@@ -164,7 +164,7 @@ class Rewards {
 					if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
                     
                     // Update reward
-                    const configArrOrNot = Utils.getRewardConfig(Keys.REWARD_CHANNELTROPHY)?.reward
+                    const configArrOrNot = Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.triggers.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;
