@@ -41,14 +41,14 @@ class Actions {
         const actionCallback = this.buildActionCallback(key, event)
         const reward:ITwitchReward = {
             id: await Utils.getRewardId(key),
-            callback: async (user) => {
+            callback: async (user, index, msg) => {
                 // Prep for incremental reward // TODO: Move this out to above the registration?
                 const rewardConfig = Utils.getEventConfig(key)?.triggers.reward
                 let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                 if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
                 
                 // Trigger actions
-                actionCallback(user, counter?.count)
+                actionCallback(user, counter?.count, msg)
 
                 // Switch to the next incremental reward if it has more configs available
                 if(Array.isArray(rewardConfig) && counter != undefined) {                       
@@ -96,11 +96,12 @@ class Actions {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
-    private static buildActionCallback(key: string, event: IEvent)   {
+    private static buildActionCallback(key: string, event: IEvent): ITwitchActionCallback {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
         const actions = event.actions
 
         // Build callbacks
+        const rewardCallback = Rewards.callbacks[key]
         const obsCallback = this.buildOBSCallback(actions?.obs, key)
         const colorCallback = this.buildColorCallback(actions?.lights)
         const plugCallback = this.buildPlugCallback(actions?.plugs)
@@ -124,6 +125,7 @@ class Actions {
         // Log result
         Utils.logWithBold(
             `Built Action Callback: `
+            +(rewardCallback?'💩':'')
             +(obsCallback?'🎬':'')
             +(colorCallback?'🎨':'')
             +(plugCallback?'🔌':'')
@@ -140,22 +142,22 @@ class Actions {
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
-        return async (user: IActionUser, index?: number) => {
-            // Main callbacks
-            if(obsCallback != null) obsCallback(user, index)
-            if(colorCallback != null) colorCallback(user)
-            if(plugCallback != null) plugCallback(user)
-            if(soundCallback != null) soundCallback(user, index)
-            if(pipeCallback != null) pipeCallback(user)
-            if(openvr2wsSettingCallback != null) openvr2wsSettingCallback(user)
-            if(signCallback != null) signCallback(user)
-            if(execCallback != null) execCallback(user)
-            if(webCallback != null) webCallback(user)
-            if(screenshotCallback != null) screenshotCallback(user)
-            if(discordMessageCallback != null) discordMessageCallback(user, index)
-            if(audioUrlCallback != null) audioUrlCallback(user)
-            if(twitchChatCallback != null) twitchChatCallback(user, index)
-            if(labelCallback != null) labelCallback(user)
+        return async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
+            if(rewardCallback) rewardCallback(user, index, msg)
+            if(obsCallback) obsCallback(user, index)
+            if(colorCallback) colorCallback(user)
+            if(plugCallback) plugCallback(user)
+            if(soundCallback) soundCallback(user, index)
+            if(pipeCallback) pipeCallback(user)
+            if(openvr2wsSettingCallback) openvr2wsSettingCallback(user)
+            if(signCallback) signCallback(user)
+            if(execCallback) execCallback(user)
+            if(webCallback) webCallback(user)
+            if(screenshotCallback) screenshotCallback(user)
+            if(discordMessageCallback) discordMessageCallback(user, index)
+            if(audioUrlCallback) audioUrlCallback(user)
+            if(twitchChatCallback) twitchChatCallback(user, index)
+            if(labelCallback) labelCallback(user)
         }
     }
 

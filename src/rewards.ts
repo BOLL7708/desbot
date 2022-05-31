@@ -64,7 +64,8 @@ class Rewards {
         for(const key of Config.twitch.alwaysOffRewards) {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
         }
-
+    }
+    public static callbacks: { [key: string]: ITwitchActionCallback|undefined } = {
         /*
         .######..######...####..
         ...##......##....##.....
@@ -72,40 +73,34 @@ class Rewards {
         ...##......##........##.
         ...##......##.....####..
         */
-        modules.twitchPubsub.registerReward({
-            id: await Utils.getRewardId(Keys.REWARD_TTSSPEAK),
-            callback: (user: IActionUser) => {
-                if(user.login.length > 0 && user.input.length > 0) {
-                    Utils.log("TTS Message Reward", Color.DarkOrange)
-                    modules.tts.enqueueSpeakSentence(
-                        user.input,
-                        user.login,
-                        GoogleTTS.TYPE_SAID
-                    )
-                }
+        [Keys.REWARD_TTSSPEAK]: (user: IActionUser) => {
+            if(user.login.length > 0 && user.input.length > 0) {
+                Utils.log("TTS Message Reward", Color.DarkOrange)
+                ModulesSingleton.getInstance().tts.enqueueSpeakSentence(
+                    user.input,
+                    user.login,
+                    GoogleTTS.TYPE_SAID
+                )
             }
-        })
-        modules.twitchPubsub.registerReward({
-            id: await Utils.getRewardId(Keys.REWARD_TTSSETVOICE),
-            callback: async (user: IActionUser) => {
-                Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
-                const voiceName = await modules.tts.setVoiceForUser(user.login, user.input)
-                modules.twitch._twitchChatOut.sendMessageToChannel(`@${user.name} voice: ${voiceName}`)
-            }
-        })
-        modules.twitchPubsub.registerReward({
-            id: await Utils.getRewardId(Keys.REWARD_TTSSWITCHVOICEGENDER),
-            callback: (user: IActionUser) => {
-                Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
-                Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', user.login).then(voice => {
-                    const voiceSetting = voice
-                    let gender:string = ''
-                    if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
-                    modules.tts.setVoiceForUser(user.login, `reset ${gender}`)
-                })
-            }
-        })
-
+        },
+        [Keys.REWARD_TTSSETVOICE]: async (user: IActionUser) => {
+            Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
+            const modules = ModulesSingleton.getInstance()
+            await modules.tts.setVoiceForUser(user.login, user.input)
+            const voiceData = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES,'userName', user.login)
+            const voiceName = voiceData?.voiceName ?? ''
+            const voiceText = voiceName.length == 0 ? `${voiceData?.languageCode.toUpperCase()} ${voiceData?.gender.toUpperCase()}` : `${voiceName.toUpperCase()} ${voiceData?.gender.toUpperCase()}`
+            modules.twitch._twitchChatOut.sendMessageToChannel(`@${user.name} got their voice set to: ${voiceText}`)
+        },
+        [Keys.REWARD_TTSSWITCHVOICEGENDER]: (user: IActionUser) => {
+            Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
+            Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', user.login).then(voice => {
+                const voiceSetting = voice
+                let gender:string = ''
+                if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
+                ModulesSingleton.getInstance().tts.setVoiceForUser(user.login, `reset ${gender}`)
+            })
+        },
         /*
         .######..#####....####...#####...##..##..##..##.
         ...##....##..##..##..##..##..##..##..##...####..
@@ -113,82 +108,75 @@ class Rewards {
         ...##....##..##..##..##..##......##..##....##...
         ...##....##..##...####...##......##..##....##...
         */
-        modules.twitchPubsub.registerReward({
-            id: await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY),
-            callback: async (user: IActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
-                // Save stat
-                const row: IChannelTrophyStat = {
-                    userId: user.id,
-                    index: message?.data?.redemption.reward.redemptions_redeemed_current_stream,
-                    cost: message?.data?.redemption.reward.cost.toString() ?? '0'
-                }
-                const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
-				if(!settingsUpdated) return Utils.log(`ChannelTrophy: Could not write settings reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
-
-                const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                if(userData == undefined) return Utils.log(`ChannelTrophy: Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
-                
-                // Effects
-                const signCallback = Actions.buildSignCallback(Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.actions.sign)
-                signCallback?.call(this, user)
-                const soundCallback = Actions.buildSoundAndSpeechCallback(Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.actions.audio, undefined, '', true)
-                soundCallback?.call(this, user) // TODO: Should find a new sound for this.
-
-                // Update reward
-                const rewardId = await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY)
-                const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
-                if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
-                    const cost = rewardData.data[0].cost
-                    
-                    // Do TTS
-                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
-                    if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
-                        modules.tts.enqueueSpeakSentence(
-                            await Utils.replaceTagsInText(
-                                funnyNumberConfig.speech, 
-                                user
-                            ), 
-                            Config.twitch.chatbotName, 
-                            GoogleTTS.TYPE_ANNOUNCEMENT
-                        )
-                    }
-                    // Update label in overlay
-                    const labelUpdated = await Settings.pushLabel(
-                        Settings.CHANNEL_TROPHY_LABEL, 
-                        await Utils.replaceTagsInText(
-                            Config.controller.channelTrophySettings.label, 
-                            user,
-                            { number: cost.toString(), userName: user.name }
-                        )
-                    )
-					if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
-                    
-                    // Update reward
-                    const configArrOrNot = Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.triggers.reward
-                    const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
-                    if(config != undefined) {
-                        const newCost = cost+1;
-                        const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
-                            title: await Utils.replaceTagsInText(
-                                Config.controller.channelTrophySettings.rewardTitle, 
-                                user
-                            ),
-                            cost: newCost,
-                            is_global_cooldown_enabled: true,
-                            global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: await Utils.replaceTagsInText(
-                                Config.controller.channelTrophySettings.rewardPrompt,
-                                user,
-                                 { 
-                                     prompt: config.prompt ?? '', 
-                                     number: newCost.toString() 
-                                }
-                            )
-                        })
-                        if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
-                    } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
-                } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+        [Keys.REWARD_CHANNELTROPHY]: async (user: IActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
+            const modules = ModulesSingleton.getInstance()
+            
+            // Save stat
+            const row: IChannelTrophyStat = {
+                userId: user.id,
+                index: message?.data?.redemption.reward.redemptions_redeemed_current_stream,
+                cost: message?.data?.redemption.reward.cost.toString() ?? '0'
             }
-        })
+            const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
+            if(!settingsUpdated) return Utils.log(`ChannelTrophy: Could not write settings reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+
+            const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+            if(userData == undefined) return Utils.log(`ChannelTrophy: Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+
+            // Update reward
+            const rewardId = await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY)
+            const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
+            if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
+                const cost = rewardData.data[0].cost
+                
+                // Do TTS
+                const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
+                if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
+                    modules.tts.enqueueSpeakSentence(
+                        await Utils.replaceTagsInText(
+                            funnyNumberConfig.speech, 
+                            user
+                        ), 
+                        Config.twitch.chatbotName, 
+                        GoogleTTS.TYPE_ANNOUNCEMENT
+                    )
+                }
+                // Update label in overlay
+                const labelUpdated = await Settings.pushLabel(
+                    Settings.CHANNEL_TROPHY_LABEL, 
+                    await Utils.replaceTagsInText(
+                        Config.controller.channelTrophySettings.label, 
+                        user,
+                        { number: cost.toString(), userName: user.name }
+                    )
+                )
+                if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
+                
+                // Update reward
+                const configArrOrNot = Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.triggers.reward
+                const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
+                if(config != undefined) {
+                    const newCost = cost+1;
+                    const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
+                        title: await Utils.replaceTagsInText(
+                            Config.controller.channelTrophySettings.rewardTitle, 
+                            user
+                        ),
+                        cost: newCost,
+                        is_global_cooldown_enabled: true,
+                        global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
+                        prompt: await Utils.replaceTagsInText(
+                            Config.controller.channelTrophySettings.rewardPrompt,
+                            user,
+                            { 
+                                prompt: config.prompt ?? '', 
+                                number: newCost.toString() 
+                            }
+                        )
+                    })
+                    if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+                } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+            } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+        }
     }
 }

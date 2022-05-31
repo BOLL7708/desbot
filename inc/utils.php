@@ -27,15 +27,25 @@ class Utils {
                 }
             }
         }
+
+        // Setup
+        $root = './dist/';
+
+        // Include data first
+        $dataPath = '_data';
+        $dir = new DirectoryIterator($root.$dataPath);
+        foreach ($dir as $file) {
+            includeFile($root, $file, $dataPath);
+        }
     
         // Scan root for files and subfolders except configs and templates
-        $root = './dist/';
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {
             $name = $file->getFilename();
             if (
                 $file->isDir() 
                 && strpos($name, '_configs') === false
+                && strpos($name, '_data') === false
                 && strpos($name, 'templates') === false
                 && !$file->isDot()
                 && substr($name,0,1) != '.'

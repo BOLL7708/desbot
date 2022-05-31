@@ -9,6 +9,7 @@ class TwitchPubsub {
     
     private _rewards: ITwitchReward[] = []
     registerReward(twitchReward: ITwitchReward) {
+        Utils.log(`Registering reward: ${twitchReward.id}`, this.LOG_COLOR)
         const existingRewardIndex = this._rewards.findIndex((reward) => reward.id == twitchReward.id )
         if(existingRewardIndex > -1) this._rewards.splice(existingRewardIndex, 1)
         this._rewards.push(twitchReward)
