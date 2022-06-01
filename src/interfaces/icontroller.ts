@@ -48,12 +48,6 @@ interface IControllerConfig {
     commandPermissionsDefault: ICommandPermissions
     
     /**
-     * This is where you can have deviating permissions per command so you steer access individually,
-     * see defaults above.
-     */
-    commandPermissionsOverrides: { [key: string]: ICommandPermissions }
-
-    /**
      * These are texts spoken by the TTS for various commands and other events.
      * - The fixed section contains arrays that _needs_ a specific number of items in each.
      * - The dynamic section contains single strings that can be replaced with arrays for random selection or for incrementing rewards.

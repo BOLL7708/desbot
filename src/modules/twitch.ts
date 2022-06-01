@@ -19,17 +19,16 @@ class Twitch{
 		if(command.trigger.length != 0) {
             // Use Default permission if none were provided.
             const originalPermissions = command.permissions ?? {}
-            const overridePermissions = Config.controller.commandPermissionsOverrides[command.trigger] ?? {}
-            command.permissions = { ...Config.controller.commandPermissionsDefault, ...originalPermissions, ...overridePermissions }
+            command.permissions = { ...Config.controller.commandPermissionsDefault, ...originalPermissions }
            
             // Store the command
             this._commands.push(command)
             const who: string[] = []
-            if(command.permissions.everyone) who.push('everyone')
-            if(command.permissions.subscribers) who.push('subs')
-            if(command.permissions.VIPs) who.push('VIPs')
-            if(command.permissions.moderators) who.push('mods')
-            if(command.permissions.streamer) who.push('streamer')
+            if(command.permissions?.everyone) who.push('everyone')
+            if(command.permissions?.subscribers) who.push('subs')
+            if(command.permissions?.VIPs) who.push('VIPs')
+            if(command.permissions?.moderators) who.push('mods')
+            if(command.permissions?.streamer) who.push('streamer')
             const message = `Registering command: <${command.trigger}> for ${who.join(' + ')}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {

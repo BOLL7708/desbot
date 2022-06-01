@@ -51,7 +51,6 @@ class MainController {
         }
 
         // Run init on classes that register things in the modules.
-        await Commands.init()
         await Rewards.init()
         await Actions.init()
         await Callbacks.init()

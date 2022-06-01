@@ -101,6 +101,7 @@ class Actions {
         const actions = event.actions
 
         // Build callbacks
+        const commandCallback = Commands.callbacks[key]
         const rewardCallback = Rewards.callbacks[key]
         const obsCallback = this.buildOBSCallback(actions?.obs, key)
         const colorCallback = this.buildColorCallback(actions?.lights)
@@ -125,7 +126,8 @@ class Actions {
         // Log result
         Utils.logWithBold(
             `Built Action Callback: `
-            +(rewardCallback?'💩':'')
+            +(commandCallback?'📣':'')
+            +(rewardCallback?'🏆':'')
             +(obsCallback?'🎬':'')
             +(colorCallback?'🎨':'')
             +(plugCallback?'🔌':'')
@@ -143,6 +145,7 @@ class Actions {
 
         // Return callback that triggers all the actions
         return async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
+            if(commandCallback) commandCallback(user, index)
             if(rewardCallback) rewardCallback(user, index, msg)
             if(obsCallback) obsCallback(user, index)
             if(colorCallback) colorCallback(user)

@@ -27,7 +27,7 @@ interface IEvent {
          */
         reward?: ITwitchHelixRewardConfig|ITwitchHelixRewardUpdate[]
     }
-    actions: {
+    actions?: {
         // TODO: Add array support to everything? Random/Shuffle functionality?
         
         /**
