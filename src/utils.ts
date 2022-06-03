@@ -340,6 +340,10 @@ class Utils {
         return result
     }
 
+    static ensureArray<Type>(value: Type[]|Type): Type[] {
+        return Array.isArray(value) ? value : [value]
+    }
+
     static async getRewardId(key: string): Promise<string|undefined> {
         const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
         return reward?.id

@@ -72,11 +72,13 @@ class OBS {
                     }
                 }
                 cfg.sceneNames.forEach(sceneName => {
-                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
-                        "scene-name": sceneName,
-                        "item": cfg.sourceName,
-                        "visible": true
-                    }))
+                    for(const src of Utils.ensureArray(cfg.sourceName)) {
+                        this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
+                            "scene-name": sceneName,
+                            "item": src,
+                            "visible": true
+                        }))
+                    }
                 })
             } else 
             if(cfg?.filterName != undefined) {
@@ -87,11 +89,13 @@ class OBS {
                         if(k != cfg.key) this.hide(Utils.getEventConfig(k)?.actions?.obs)
                     }
                 }
-                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
-                    "sourceName": cfg.sourceName,
-                    "filterName": cfg.filterName,
-                    "filterEnabled": true
-                })) 
+                for(const src of Utils.ensureArray(cfg.sourceName)) {
+                    this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
+                        "sourceName": src,
+                        "filterName": cfg.filterName,
+                        "filterEnabled": true
+                    })) 
+                }
             }
             if(cfg?.durationMs != undefined && !ignoreDuration) {
                 setTimeout(() => {
@@ -105,19 +109,23 @@ class OBS {
         for(const cfg of configArr) {
             if(cfg?.sceneNames) {
                 cfg.sceneNames.forEach(sceneName => {
-                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
-                        "scene-name": sceneName,
-                        "item": cfg.sourceName,
-                        "visible": false
-                    }));
-                });
+                    for(const src of Utils.ensureArray(cfg.sourceName)) {
+                        this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
+                            "scene-name": sceneName,
+                            "item": src,
+                            "visible": false
+                        }))
+                    }
+                })
             } else
             if (cfg?.filterName) {
-                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
-                    "sourceName": cfg.sourceName,
-                    "filterName": cfg.filterName,
-                    "filterEnabled": false
-                }));            
+                for(const src of Utils.ensureArray(cfg.sourceName)) {
+                    this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
+                        "sourceName": src,
+                        "filterName": cfg.filterName,
+                        "filterEnabled": false
+                    }))
+                }
             }
         }
     }

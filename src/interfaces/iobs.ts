@@ -30,7 +30,7 @@ interface IObsSourceConfig {
     /**
      * The name of the source to affect.
      */
-    sourceName: string
+    sourceName: string|string[]
     /**
      * Optional: If we are showing/hiding the source, we need to know which scene(s) it is in.
      */
