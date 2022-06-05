@@ -447,29 +447,6 @@ Config.twitch = <ITwitchConfig> {
     ignoreModerators: [
         'RestreamBot'
     ],
-    commandConfigs: {
-        /*
-        [KeysTemplate.COMMAND_YOURCUSTOMCOMMAND]: {
-            command: {
-                permissions: {moderators: false}
-            },
-            audio: {
-                src: '_assets/some_audio_file.wav'
-            }}
-        }
-        */
-        [KeysTemplate.COMMAND_SAY]: { // Announces something with the TTS
-            speech: '%userInput'
-        },
-        [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
-            speech: 'Label set to "%userInput"',
-            label: "your_label_in_settings.txt"
-        },
-        [KeysTemplate.COMMAND_TODO]: { // Puts a post in Discord using the Discord webhook with the same key
-            speech: 'To do list appended with: %userInput',
-            discord: '👉 %userInput'
-        },
-    },
 
     skipUpdatingRewards: [
         KeysTemplate.REWARD_CHANNELTROPHY
@@ -478,79 +455,6 @@ Config.twitch = <ITwitchConfig> {
         KeysTemplate.REWARD_CHANNELTROPHY
     ],
     alwaysOffRewards: [],
-
-    defaultRewardConfigs: {   
-        /*
-        .#####...######..######...####...##..##..##......######.
-        .##..##..##......##......##..##..##..##..##........##...
-        .##..##..####....####....######..##..##..##........##...
-        .##..##..##......##......##..##..##..##..##........##...
-        .#####...######..##......##..##...####...######....##...
-        */
-        [KeysTemplate.REWARD_TTSSPEAK]: {
-            reward: {
-                title: 'TTS',
-                cost: 10,
-                prompt: 'Read message aloud',
-                background_color: '#808080',
-                is_user_input_required: true
-            }
-        },
-        [KeysTemplate.REWARD_TTSSETVOICE]: {
-            reward: {
-                title: 'Set TTS voice',
-                cost: 10,
-                prompt: 'Change TTS voice',
-                background_color: '#808080',
-                is_user_input_required: true
-            }
-        },
-        [KeysTemplate.REWARD_TTSSWITCHVOICEGENDER]: {
-            reward: {
-                title: 'TTS Gender Flip',
-                cost: 10,
-                prompt: "Switch your TTS voice gender",
-                background_color: '#808080'
-            }
-        },
-        [KeysTemplate.REWARD_CHANNELTROPHY]: {
-            reward: {
-                title: '🏆 Held by nobody!',
-                cost: 1,
-                prompt: 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!',
-                background_color: '#000000',
-                is_max_per_stream_enabled: true,
-                max_per_stream: 10000,
-                is_global_cooldown_enabled: true,
-                global_cooldown_seconds: 15
-            },
-            audio: {
-                src: '_assets/YOUR_SOUND_EFFECT.wav'
-            },
-            sign: {
-                durationMs: 10000,
-                title: 'The 🏆 was grabbed!',
-                subtitle: '%userName'
-            }
-        }
-    },
-
-    /**
-     * Add your own custom rewards to trigger actions here.
-     */
-    rewardConfigs: {
-        // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
-    },
-
-    /**
-     * These are game specific rewards, first default setup and then game specific setup.
-     */
-    gameRewardDefaultConfigs: {
-        // [KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }
-    },
-    gameRewardConfigs: {
-        // [GamesTemplate.A_GAME]: {[KeysTemplate.KEY_YOURGAMEREWARD]: { title: "Update title", cost: "Update cost" }}
-    },
 
     rewardProfileDefault: {
         // [KeysTemplate.KEY_YOURREWARD]: true,

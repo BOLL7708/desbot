@@ -15,27 +15,27 @@ Config.events = {...Config.events,
     ...##......##........##.
     ...##......##.....####..
     */
-    [Keys.COMMAND_TTS_ON]: {
+    [KeysTemplate.COMMAND_TTS_ON]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_TTS_OFF]: {
+    [KeysTemplate.COMMAND_TTS_OFF]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_TTS_SILENCE]: {
+    [KeysTemplate.COMMAND_TTS_SILENCE]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_TTS_DIE]: {
+    [KeysTemplate.COMMAND_TTS_DIE]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_TTS_NICK]: {
+    [KeysTemplate.COMMAND_TTS_NICK]: {
         triggers: {
             command: {
                 permissions: {
@@ -45,12 +45,12 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_TTS_MUTE]: {
+    [KeysTemplate.COMMAND_TTS_MUTE]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_TTS_UNMUTE]: {
+    [KeysTemplate.COMMAND_TTS_UNMUTE]: {
         triggers: {
             command: {}
         }
@@ -63,7 +63,7 @@ Config.events = {...Config.events,
     .##..##..##..##..##..##....##...
     ..####...##..##..##..##....##...
     */
-    [Keys.COMMAND_CHAT]: {
+    [KeysTemplate.COMMAND_CHAT]: {
         triggers: {
             command: {
                 permissions: {
@@ -72,27 +72,27 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_CHAT_ON]: {
+    [KeysTemplate.COMMAND_CHAT_ON]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_CHAT_OFF]: {
+    [KeysTemplate.COMMAND_CHAT_OFF]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_PING_ON]: {
+    [KeysTemplate.COMMAND_PING_ON]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_PING_OFF]: {
+    [KeysTemplate.COMMAND_PING_OFF]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_QUOTE]: {
+    [KeysTemplate.COMMAND_QUOTE]: {
         triggers: {
             command: {}
         }
@@ -105,7 +105,7 @@ Config.events = {...Config.events,
     .##......##..##..##..##.
     .######...####....####..
     */
-    [Keys.COMMAND_LOG_ON]: {
+    [KeysTemplate.COMMAND_LOG_ON]: {
         triggers: {
             command: {
                 permissions: {
@@ -114,7 +114,7 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_LOG_OFF]: {
+    [KeysTemplate.COMMAND_LOG_OFF]: {
         triggers: {
             command: {
                 permissions: {
@@ -131,7 +131,7 @@ Config.events = {...Config.events,
     .....##..##..##..##..##..##......##.....
     ..####....####...##..##..######..######.
     */
-    [Keys.COMMAND_SCALE]: {
+    [KeysTemplate.COMMAND_SCALE]: {
         triggers: {
             command: {}
         }
@@ -144,7 +144,7 @@ Config.events = {...Config.events,
     .....##....##....##......##..##..##...##...####...##..##.
     ..####.....##....######..##..##..##...##....##....##..##.
     */
-    [Keys.COMMAND_BRIGHTNESS]: {
+    [KeysTemplate.COMMAND_BRIGHTNESS]: {
         triggers: {
             command: {
                 permissions: {
@@ -153,7 +153,7 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_REFRESHRATE]: {
+    [KeysTemplate.COMMAND_REFRESHRATE]: {
         triggers: {
             command: {
                 permissions: {
@@ -162,7 +162,7 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_VRVIEWEYE]: {
+    [KeysTemplate.COMMAND_VRVIEWEYE]: {
         triggers: {
             command: {
                 permissions: {
@@ -179,7 +179,7 @@ Config.events = {...Config.events,
     .##..##....##....##..##....##......##....##..##..##..##..##..##..##..##....##...
     .#####...######...####.....##....######...####...##..##..##..##..##..##....##...
     */
-    [Keys.COMMAND_DICTIONARY]: {
+    [KeysTemplate.COMMAND_DICTIONARY]: {
         triggers: {
             command: {}
         }
@@ -192,7 +192,7 @@ Config.events = {...Config.events,
     .##..##..##......#######..##..##..##..##..##..##......##.
     .##..##..######...##.##...##..##..##..##..#####....####..
     */
-    [Keys.COMMAND_UPDATEREWARDS]: {
+    [KeysTemplate.COMMAND_UPDATEREWARDS]: {
         triggers: {
             command: {
                 permissions: {
@@ -201,12 +201,12 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_GAMEREWARDS_ON]: {
+    [KeysTemplate.COMMAND_GAMEREWARDS_ON]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_GAMEREWARDS_OFF]: {
+    [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: {
         triggers: {
             command: {}
         }
@@ -219,7 +219,7 @@ Config.events = {...Config.events,
     .....##....##........##....##....##......##...##.
     ..####.....##.....####.....##....######..##...##.
     */    
-    [Keys.COMMAND_RELOADWIDGET]: {
+    [KeysTemplate.COMMAND_RELOADWIDGET]: {
         triggers: {
             command: {
                 permissions: {
@@ -228,7 +228,7 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_CHANNELTROPHY_STATS]: {
+    [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: {
         triggers: {
             command: {
                 permissions: {
@@ -237,7 +237,7 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_CLIPS]: {
+    [KeysTemplate.COMMAND_CLIPS]: {
         triggers: {
             command: {
                 permissions: {
@@ -246,7 +246,7 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_GAMERESET]: {
+    [KeysTemplate.COMMAND_GAMERESET]: {
         triggers: {
             command: {
                 permissions: {
@@ -263,7 +263,7 @@ Config.events = {...Config.events,
     .##......##..##..##..##..##........##....##..##.
     .##.......####...#####...######..######...####..
     */
-    [Keys.COMMAND_GAME]: {
+    [KeysTemplate.COMMAND_GAME]: {
         triggers: {
             command: {
                 permissions: {
@@ -271,6 +271,40 @@ Config.events = {...Config.events,
                 },
                 cooldown: 3*60
             }
+        }
+    },
+
+    /*
+    .######..##..##...####...##...##..#####...##......######...####..
+    .##.......####...##..##..###.###..##..##..##......##......##.....
+    .####......##....######..##.#.##..#####...##......####.....####..
+    .##.......####...##..##..##...##..##......##......##..........##.
+    .######..##..##..##..##..##...##..##......######..######...####..
+    */
+    [KeysTemplate.COMMAND_SAY]: { // Announces something with the TTS
+        triggers: {
+            command: {}
+        },
+        actions: {
+            speech: '%userInput'
+        }
+    },
+    [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
+        triggers: {
+            command: {}
+        },
+        actions: {
+            speech: 'Label set to "%userInput"',
+            label: "your_label_in_settings.txt"
+        }
+    },
+    [KeysTemplate.COMMAND_TODO]: { // Puts a post in Discord using the Discord webhook with the same key
+        triggers: {
+            command: {}
+        },
+        actions: {
+            speech: 'To do list appended with: %userInput',
+            discord: '👉 %userInput'
         }
     }
 }
