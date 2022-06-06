@@ -122,11 +122,12 @@ class Actions {
         const audioUrlCallback = this.buildAudioUrlCallback(actions?.audioUrl)
         const twitchChatCallback = this.buildTwitchChatCallback(actions?.chat)
         const labelCallback = this.buildLabelCallback(actions?.label)
+        const commandsCallback = this.buildCommandsCallback(actions?.commands)
 
         // Log result
         Utils.logWithBold(
             `Built Action Callback: `
-            +(commandCallback?'📣':'')
+            +(commandCallback?'☝':'')
             +(rewardCallback?'🏆':'')
             +(obsCallback?'🎬':'')
             +(colorCallback?'🎨':'')
@@ -141,6 +142,7 @@ class Actions {
             +(audioUrlCallback?'🎵':'')
             +(twitchChatCallback?'📄':'')
             +(labelCallback?'🏷':'')
+            +(commandsCallback?'🖐':'')
             +`: ${key}`, Color.Green)
 
         // Return callback that triggers all the actions
@@ -161,6 +163,7 @@ class Actions {
             if(audioUrlCallback) audioUrlCallback(user)
             if(twitchChatCallback) twitchChatCallback(user, index)
             if(labelCallback) labelCallback(user)
+            if(commandsCallback) commandsCallback(user)
         }
     }
 
@@ -368,6 +371,15 @@ class Actions {
         if(labelSettingKey) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             Settings.pushLabel(labelSettingKey, user.input)
+        }
+    }
+
+    private static buildCommandsCallback(commands: string|string[]|undefined): ITwitchActionCallback|undefined {
+        if(commands) return (user: IActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            for(const command of Utils.ensureArray(commands)) {
+                modules.twitch.runCommand(command, user)
+            }
         }
     }
 }    

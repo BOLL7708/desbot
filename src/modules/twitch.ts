@@ -155,9 +155,9 @@ class Twitch{
         }
     }
 
-    async runCommand(commandStr: string) {
+    async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.callback) command.callback(await Actions.getEmptyUserDataForCommands())
+        if(command?.callback) command.callback(userData ?? await Actions.getEmptyUserDataForCommands())
     }
 }

@@ -60,6 +60,7 @@ class KeysTemplate {
     static readonly COMMAND_SAY: string = 'say'
     static readonly COMMAND_LABEL: string = 'label'
     static readonly COMMAND_TODO: string = 'todo'
+    static readonly COMMAND_END_STREAM: string = 'endstream'
    
     /*
     .#####...######..##...##...####...#####...#####....####..

@@ -122,5 +122,10 @@ interface IEvent {
          * Optional: Writes a label to settings.
          */
         label?: string
+
+        /**
+         * Optional: Trigger other commands, propagating input.
+         */
+        commands?: string|string[]
     }
 }

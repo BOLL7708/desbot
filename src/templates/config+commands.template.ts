@@ -306,5 +306,21 @@ Config.events = {...Config.events,
             speech: 'To do list appended with: %userInput',
             discord: '👉 %userInput'
         }
+    },
+    [KeysTemplate.COMMAND_END_STREAM]: {
+        triggers: {
+            command: {
+                permissions: {
+                    moderators: false
+                }
+            }
+        },
+        actions: {
+            speech: 'Running stream end tasks',
+            commands: [
+                Keys.COMMAND_CHANNELTROPHY_STATS,
+                Keys.COMMAND_CLIPS
+            ]
+        }
     }
 }

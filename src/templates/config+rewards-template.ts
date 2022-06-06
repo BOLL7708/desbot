@@ -43,7 +43,7 @@ Config.events = {...Config.events,
     [KeysTemplate.REWARD_TTSSWITCHVOICEGENDER]: {
         triggers: {
             reward: {
-                title: 'TTS Gender Flip',
+                title: '👫 TTS Gender Flip',
                 cost: 10,
                 prompt: "Switch your TTS voice gender",
                 background_color: '#808080'
