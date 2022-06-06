@@ -147,9 +147,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_QUOTE]: 'On %date, %targetTag said: "%text"'
     },
     defaultTwitchGameCategory: 'Games + Demos',
-    resetIncrementingRewardsOnLoad: [
-        // KeysTemplate.KEY_YOURREWARD
-    ],
     saveConsoleOutputToSettings: false,
     secretChatSymbols: ['!'],
     channelTrophySettings: {
@@ -448,9 +445,6 @@ Config.twitch = <ITwitchConfig> {
         'RestreamBot'
     ],
 
-    skipUpdatingRewards: [
-        KeysTemplate.REWARD_CHANNELTROPHY
-    ],
     alwaysOnRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
         KeysTemplate.REWARD_CHANNELTROPHY
     ],

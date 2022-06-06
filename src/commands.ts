@@ -441,16 +441,17 @@ class Commands {
             let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
             if(storedRewards == undefined) storedRewards = []
             for(const pair of storedRewards) {
-                const configArrOrNot = Utils.getEventConfig(pair.key)?.triggers.reward
-                const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
-                if(config != undefined && Config.twitch.skipUpdatingRewards.indexOf(pair.key) == -1) {
+                const eventConfig = Utils.getEventConfig(pair.key)
+                const rewardSetup = eventConfig?.triggers?.reward
+                const config = Array.isArray(rewardSetup) ? rewardSetup[0] : rewardSetup
+                if(config != undefined && eventConfig?.options?.ignoreUpdateRewardsCommand !== true) {
                     const response = await modules.twitchHelix.updateReward(pair.id, config)
                     if(response != null && response.data != null) {
                         const success = response?.data[0]?.id == pair.id
                         Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
                         
                         // If update was successful, also reset incremental setting as the reward should have been reset.
-                        if(Array.isArray(configArrOrNot)) {
+                        if(Array.isArray(rewardSetup)) {
                             const reset: ITwitchRewardCounter = {key: pair.key, count: 0}
                             Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
                         }

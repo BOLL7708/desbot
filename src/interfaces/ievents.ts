@@ -12,7 +12,17 @@ interface IEventsForGamesConfig {
  */
 interface IEvent {
     options?: {
-        ignoreUpdateCommand?: boolean
+        /**
+         * For reward with an array of configs, this will reset them to 0 when the widget reloads.
+         */
+        resetIncrementingRewardOnLoad?: boolean
+
+        /**
+         * A list of rewards that will only be created, not updated using `!update`.
+         * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
+         */
+        ignoreUpdateRewardsCommand?: boolean
+
     }
     triggers: {
         /**

@@ -66,11 +66,6 @@ interface IControllerConfig {
     defaultTwitchGameCategory: string
 
     /**
-     * For reward with an array of configs, this will reset them to 0 when the widget reloads.
-     */
-    resetIncrementingRewardsOnLoad: string[]
-
-    /**
      * Console output will also be written to a file in the _settings folder.
      * It buffers the output and writes it every 10 seconds.
      */

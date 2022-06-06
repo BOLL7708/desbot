@@ -47,11 +47,6 @@ interface ITwitchConfig {
     ignoreModerators: string[]
 
     /**
-     * A list of rewards that will only be created, not updated using `!update`.
-     * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
-     */
-    skipUpdatingRewards: string[]
-    /**
      * These rewards will be switched on at widget load as well as on game change.
      * 
      * The only override is if they are also listed in {@link ITwitch.alwaysOffRewards}.
