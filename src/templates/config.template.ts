@@ -122,6 +122,11 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Twitch game updated: %game',
             'Twitch game not matched: %game'
         ],
+        [KeysTemplate.COMMAND_CLEAR_REDEMPTIONS]: [
+            'Initiating clearing of reward redemptions queue',
+            'Completed clearing the reward redemptions queue, set %count out of %total to fulfilled',
+            'There were no reward redemptions in the queue to clear'
+        ],
         [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
         [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is now called %targetNick',
         [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',

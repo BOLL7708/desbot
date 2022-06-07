@@ -218,6 +218,16 @@ Config.events = {...Config.events,
             }
         }
     },
+    [Keys.COMMAND_CLEAR_REDEMPTIONS]: {
+        triggers: {
+            command: {
+                permissions: {
+                    moderators: false
+                },
+                cooldown: 60
+            }
+        }
+    },
 
     /*
     ..####...##..##...####...######..######..##...##.
@@ -325,8 +335,9 @@ Config.events = {...Config.events,
         actions: {
             speech: 'Running stream end tasks',
             commands: [
-                Keys.COMMAND_CHANNELTROPHY_STATS,
-                Keys.COMMAND_CLIPS
+                KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
+                KeysTemplate.COMMAND_CLIPS,
+                KeysTemplate.COMMAND_CLEAR_REDEMPTIONS
             ]
         }
     }

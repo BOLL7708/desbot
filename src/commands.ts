@@ -507,6 +507,26 @@ class Commands {
                 } else modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[2], {targetTag: userTag}))
             } else modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[2], {targetTag: userTag}))
         },
+        [Keys.COMMAND_CLEAR_REDEMPTIONS]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const redemptions = Settings.getFullSettings<ITwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
+            const speech = Config.controller.speechReferences[Keys.COMMAND_CLEAR_REDEMPTIONS]
+            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            const unfulfilledRedemptions = redemptions?.filter(
+                redemption => redemption.status == 'UNFULFILLED'
+            )
+            if(unfulfilledRedemptions && unfulfilledRedemptions.length > 0) {
+                let clearCount = 0
+                for(const redemption of unfulfilledRedemptions) {
+                    redemption.status = 'FULFILLED'
+                    const result = await modules.twitchHelix.updateRedemption(redemption)
+                    if(result) clearCount++
+                }
+                await Settings.saveSettings(Settings.TWITCH_REWARD_REDEMPTIONS, []) // Clear entire list
+                await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS) // Load again to replace in-memory list
+                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {total: unfulfilledRedemptions.length.toString(), count: clearCount.toString()}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            } else modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+        },
 
         /*
         ..####...##..##...####...######..######..##...##.
