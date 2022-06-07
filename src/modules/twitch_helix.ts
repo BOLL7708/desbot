@@ -18,7 +18,7 @@ class TwitchHelix {
     private getAuthHeaders(): Headers {
         const headers = new Headers()
         headers.append('Authorization', `Bearer ${this._channelUserTokens?.access_token}`)
-        headers.append('Client-Id', Config.credentials.TwitchClientID)
+        headers.append('client-id', Config.credentials.TwitchClientID)
         return headers
     }
     
@@ -190,6 +190,21 @@ class TwitchHelix {
         }
         const response = await fetch(url, request)
         const success = response != null && response.status == 204
+        return success
+    }
+
+    async updateRedemption(redemption: ITwitchRedemption):Promise<boolean> {
+        // https://dev.twitch.tv/docs/api/reference#update-redemption-status
+        const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${TwitchHelix._channelUserId}&reward_id=${redemption.rewardId}&id=${redemption.redemptionId}`
+        const headers = this.getAuthHeaders()
+        headers.append('Content-Type', 'application/json')
+        const request = {
+            method: 'PATCH',
+            headers: headers, 
+            body: JSON.stringify({status: redemption.status})
+        }
+        const response = await fetch(url, request)
+        const success = response != null && response.status == 200
         return success
     }
 }

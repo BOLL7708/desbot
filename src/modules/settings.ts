@@ -6,6 +6,7 @@ class Settings {
     static TWITCH_TOKENS: string = 'twitch_tokens'
     static TWITCH_REWARDS: string = 'twitch_rewards'
     static TWITCH_REWARD_COUNTERS: string = 'twitch_reward_counters'
+    static TWITCH_REWARD_REDEMPTIONS: string = 'twitch_reward_redemptions'
     static TWITCH_CLIPS: string = 'twitch_clips'
     static CHANNEL_TROPHY_LABEL: string = 'channel_trophy_label.txt'
     static CHANNEL_TROPHY_STATS: string = 'channel_trophy_stats'
@@ -82,6 +83,12 @@ class Settings {
         return this.saveSettings(setting)
     }
 
+    /**
+     * Push a row to the settings and save it to disk without replacing a previous row.
+     * @param setting The setting we should try to modify.
+     * @param value  The value we write as a new row.
+     * @returns The success as a boolean.
+     */
     static async pushRow(setting:string, value:any):Promise<boolean> {
         Utils.log(`Pushing row: ${setting}`, this.LOG_COLOR)
         let settings = this._settingsStore.get(setting)

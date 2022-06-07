@@ -16,6 +16,7 @@ class MainController {
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
         await Settings.loadSettings(Settings.TWITCH_TOKENS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
+        await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS)
         await Settings.loadSettings<IDictionaryEntry>(
             Settings.TTS_DICTIONARY).then(dictionary => modules.tts.setDictionary(dictionary ?? [])
         )

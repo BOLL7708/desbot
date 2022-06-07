@@ -35,3 +35,11 @@ interface IStreamQuote {
     quote: string
     datetime: string
 }
+interface ITwitchRedemption {
+    userId: string,
+    rewardId: string,
+    redemptionId: string,
+    time: string,
+    status: TTwitchRedemptionStatus,
+    cost: string
+}

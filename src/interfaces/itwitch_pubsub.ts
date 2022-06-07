@@ -55,7 +55,7 @@ interface ITwitchPubsubRewardMessage {
                 title: string
                 update_for_indicator_at: string
             }
-            status: string
+            status: TTwitchRedemptionStatus
             user: {
                 display_name:string
                 id: string
@@ -65,6 +65,10 @@ interface ITwitchPubsubRewardMessage {
         }
     }
 }
+type TTwitchRedemptionStatus =
+| 'FULFILLED'
+| 'UNFULFILLED'
+| 'CANCELED'
 
 // Subscription
 // https://dev.twitch.tv/docs/pubsub#receiving-messages

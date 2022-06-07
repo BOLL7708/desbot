@@ -480,6 +480,33 @@ class Commands {
             modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             Functions.appIdCallback('', false)
         },
+        [Keys.COMMAND_REFUND_REDEMPTION]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const redemptions = Settings.getFullSettings<ITwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
+            const userName = Utils.getFirstUserTagInText(user.input)
+            if(!userName) return
+            const userTag = `@${userName}`
+            const userData = await modules.twitchHelix.getUserByLogin(userName)
+            const userRedemptions = redemptions?.filter(
+                redemption => (redemption.userId == userData?.id) && (redemption.status == 'UNFULFILLED')
+            )
+            const message = Config.controller.chatReferences[Keys.COMMAND_REFUND_REDEMPTION]
+            if(userRedemptions && userRedemptions.length > 0) {
+                const lastRedemption = userRedemptions.reduce(
+                    (prev, current) => (Date.parse(prev.time) > Date.parse(current.time)) ? prev : current
+                )
+                if(lastRedemption) {
+                    lastRedemption.status = 'CANCELED'
+                    const result = await modules.twitchHelix.updateRedemption(lastRedemption)
+                    if(result) {
+                        Settings.pushSetting(Settings.TWITCH_REWARD_REDEMPTIONS, 'redemptionId', lastRedemption)
+                        modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost}))
+                    } else {
+                        modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[1], {targetTag: userTag}))
+                    }
+                } else modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[2], {targetTag: userTag}))
+            } else modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[2], {targetTag: userTag}))
+        },
 
         /*
         ..####...##..##...####...######..######..##...##.

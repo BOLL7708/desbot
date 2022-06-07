@@ -50,6 +50,7 @@ class KeysTemplate {
     static readonly COMMAND_GAME: string = 'game'
     static readonly COMMAND_GAMERESET: string = 'nogame'
     static readonly COMMAND_QUOTE: string = 'quote'
+    static readonly COMMAND_REFUND_REDEMPTION: string = 'refund'
     
     // Dangerous WIP SteamVR settings commands
     static readonly COMMAND_REFRESHRATE: string = 'hz'

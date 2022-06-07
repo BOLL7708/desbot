@@ -74,6 +74,18 @@ class TwitchPubsub {
                         switch(rewardMessage.type) {
                             case 'reward-redeemed': 
                                 const id = rewardMessage?.data?.redemption?.reward?.id ?? null
+                                const redemption = rewardMessage?.data?.redemption
+                                if(redemption && redemption.status == 'UNFULFILLED') {
+                                    const redemptionStatus: ITwitchRedemption = {
+                                        userId: redemption.user?.id,
+                                        rewardId: redemption.reward?.id,
+                                        redemptionId: redemption.id,
+                                        time: redemption?.redeemed_at,
+                                        status: redemption.status,
+                                        cost: redemption.reward?.cost?.toString()
+                                    }
+                                    Settings.pushRow(Settings.TWITCH_REWARD_REDEMPTIONS, redemptionStatus)
+                                }
                                 Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                                 if(id !== null) this._onRewardCallback(id, rewardMessage)
                                 let reward = this._rewards.find(reward => id == reward.id)

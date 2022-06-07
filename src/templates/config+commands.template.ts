@@ -211,6 +211,13 @@ Config.events = {...Config.events,
             command: {}
         }
     },
+    [KeysTemplate.COMMAND_REFUND_REDEMPTION]: {
+        triggers: {
+            command: {
+                cooldown: 30
+            }
+        }
+    },
 
     /*
     ..####...##..##...####...######..######..##...##.

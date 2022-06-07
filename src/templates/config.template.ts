@@ -144,7 +144,12 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             '"%word" is set to "%value" in the dictionary.'
         ],
         [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is called: "%targetNick"',
-        [KeysTemplate.COMMAND_QUOTE]: 'On %date, %targetTag said: "%text"'
+        [KeysTemplate.COMMAND_QUOTE]: 'On %date, %targetTag said: "%text"',
+        [KeysTemplate.COMMAND_REFUND_REDEMPTION]: [
+            '%targetTag was refunded: %cost points',
+            'Failed to refund %targetTag anything.',
+            '%targetTag has nothing to refund!'
+        ]
     },
     defaultTwitchGameCategory: 'Games + Demos',
     saveConsoleOutputToSettings: false,
