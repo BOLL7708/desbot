@@ -135,8 +135,10 @@ class Functions {
             // Update and enable all reusable generic rewards in use.
             for(const entry of Object.entries(gameSpecificRewards)) {
                 const rewardKey = entry[0]
-                const rewardConfig = entry[1]?.triggers.reward
-                const defaultRewardConfig = Config.events[rewardKey]?.triggers.reward ?? {}
+                const event = entry[1] ?? {triggers: {}}
+                const defaultEvent = Config.events[rewardKey] ?? {triggers: {}}
+                const rewardConfig = event.triggers.reward ?? {}
+                const defaultRewardConfig = defaultEvent.triggers.reward ?? {}
                 delete profileToUse[rewardKey] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
                 const rewardId = await Utils.getRewardId(rewardKey)
                 Utils.logWithBold(`Updating Game Reward: <${rewardKey}:${rewardId}>`, Color.Purple)
@@ -147,9 +149,15 @@ class Functions {
                     ...rewardConfig,
                     ...{is_enabled: true}
                 })
-
+                const eventWithActions = event
+                if(event.actions && defaultEvent.actions) {
+                    eventWithActions.actions = {
+                        ...defaultEvent.actions, 
+                        ...event.actions
+                    }
+                }
                 // Update game reward actions
-                Actions.registerReward(rewardKey, entry[1])
+                Actions.registerReward(rewardKey, eventWithActions)
             }
         }
         

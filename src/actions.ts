@@ -47,7 +47,7 @@ class Actions {
                 let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                 if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
                 
-                // Trigger actions
+                // Trigger actions, main thing that happens for all rewards
                 actionCallback(user, counter?.count, msg)
 
                 // Switch to the next incremental reward if it has more configs available
