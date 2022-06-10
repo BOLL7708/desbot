@@ -60,7 +60,7 @@ Config.events = {...Config.events,
     */
     [KeysTemplate.REWARD_CHANNELTROPHY]: {
         options: {
-            ignoreUpdateRewardsCommand: true
+            rewardIgnoreUpdateCommand: true
         },
         triggers: {
             reward: {

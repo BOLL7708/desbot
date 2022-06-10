@@ -159,5 +159,6 @@ class Twitch{
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
         if(command?.callback) command.callback(userData ?? await Actions.getEmptyUserDataForCommands())
+        else if(command?.cooldownCallback) command?.cooldownCallback(userData ?? await Actions.getEmptyUserDataForCommands())
     }
 }

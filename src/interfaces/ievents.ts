@@ -8,20 +8,33 @@ interface IEventsForGamesConfig {
 }
 
 /**
+ * Various types of special reward behavior.
+ */
+type TRewardType =
+    | 'standard'
+    | 'incrementing'
+/**
  * The event that contains triggers and actions.
  */
 interface IEvent {
     options?: {
         /**
-         * For reward with an array of configs, this will reset them to 0 when the widget reloads.
+         * Set this to add special behavior to this reward.
+         * - standard: is the same as leaving this out, no special behavior.
+         * - incrementing: will increment the reward config every time it is redeemed.
          */
-        resetIncrementingRewardOnLoad?: boolean
+        rewardType?: TRewardType
 
         /**
          * A list of rewards that will only be created, not updated using `!update`.
          * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
          */
-        ignoreUpdateRewardsCommand?: boolean
+        rewardIgnoreUpdateCommand?: boolean
+
+        /**
+         * Will reset incrementing rewards when the widget loads, resetting them to 0.
+         */
+        rewardResetIncrementOnLoad?: boolean
 
     }
     triggers: {
@@ -126,6 +139,6 @@ interface IEvent {
         /**
          * Optional: Trigger other commands, propagating input.
          */
-        commands?: string|string[]
+        commands?: ICommandConfig
     }
 }

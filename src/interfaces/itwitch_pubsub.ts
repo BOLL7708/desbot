@@ -104,18 +104,23 @@ interface ITwitchPubsubSubscriptionMessage {
 
 // Cheer
 interface ITwitchPubsubCheerMessage {
-    badge_entitlement?: null|object // ?
-    bits_used: number
-    channel_id: string
-    chat_message: string
-    context: string
-    is_anonymous: boolean
+    data: {
+        badge_entitlement?: null|object // ?
+        bits_used: number
+        channel_id: string
+        chat_message: string
+        context: string
+        is_anonymous: boolean
+        message_id: string
+        message_type: string
+        time: string
+        total_bits_used: number
+        user_id?: string
+        user_name?: string
+        version: string
+    },
     message_id: string
     message_type: string
-    time: string
-    total_bits_used: number
-    user_id?: string
-    user_name?: string
     version: string
 }
 

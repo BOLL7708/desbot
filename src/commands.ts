@@ -444,7 +444,7 @@ class Commands {
                 const eventConfig = Utils.getEventConfig(pair.key)
                 const rewardSetup = eventConfig?.triggers?.reward
                 const config = Array.isArray(rewardSetup) ? rewardSetup[0] : rewardSetup
-                if(config != undefined && eventConfig?.options?.ignoreUpdateRewardsCommand !== true) {
+                if(config != undefined && eventConfig?.options?.rewardIgnoreUpdateCommand !== true) {
                     const response = await modules.twitchHelix.updateReward(pair.id, config)
                     if(response != null && response.data != null) {
                         const success = response?.data[0]?.id == pair.id

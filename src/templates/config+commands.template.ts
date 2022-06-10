@@ -334,11 +334,14 @@ Config.events = {...Config.events,
         },
         actions: {
             speech: 'Running stream end tasks',
-            commands: [
-                KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
-                KeysTemplate.COMMAND_CLIPS,
-                KeysTemplate.COMMAND_CLEAR_REDEMPTIONS
-            ]
+            commands: { 
+                commands: [
+                    KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
+                    KeysTemplate.COMMAND_CLIPS,
+                    KeysTemplate.COMMAND_CLEAR_REDEMPTIONS
+                ],
+                interval: 30
+            }
         }
     }
 }

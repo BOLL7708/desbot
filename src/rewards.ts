@@ -35,7 +35,10 @@ class Rewards {
         // Reset rewards with multiple steps
         for(const key of allRewardKeys) {
             const eventConfig = Utils.getEventConfig(key)
-            if(eventConfig?.options?.resetIncrementingRewardOnLoad === true) {
+            if(
+                eventConfig?.options?.rewardType == 'incrementing' 
+                && eventConfig?.options?.rewardResetIncrementOnLoad === true
+            ) {
                 const rewardSetup = eventConfig?.triggers?.reward
                 if(Array.isArray(rewardSetup)) {
                     // We check if the reward counter is at zero because then we should not update as it enables 

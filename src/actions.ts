@@ -374,11 +374,18 @@ class Actions {
         }
     }
 
-    private static buildCommandsCallback(commands: string|string[]|undefined): ITwitchActionCallback|undefined {
-        if(commands) return (user: IActionUser) => {
+    private static buildCommandsCallback(config: ICommandConfig|undefined): ITwitchActionCallback|undefined {
+        if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
-            for(const command of Utils.ensureArray(commands)) {
-                modules.twitch.runCommand(command, user)
+            const interval = config.interval ?? 0
+            let delay = 0
+            const commands = Utils.ensureArray(config.commands)
+            for(const command of commands) {
+                console.log(`Executing command: ${command} in ${delay} seconds...`)
+                setTimeout(()=>{
+                    modules.twitch.runCommand(command, user)
+                }, delay*1000)
+                delay += interval
             }
         }
     }
