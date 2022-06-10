@@ -154,6 +154,15 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             '%targetTag was refunded: %cost points',
             'Failed to refund %targetTag anything.',
             '%targetTag has nothing to refund!'
+        ],
+        [KeysTemplate.COMMAND_RAID]: [
+            'Initiating raid on %targetTag, currently playing: %targetGame',
+            'Stream title "%targetTitle", link to avoid preroll: %targetLink',
+            'I could not find channel: "%userInput"'
+        ],
+        [Keys.COMMAND_UNRAID]: [
+            'Raid cancelled.',
+            'Could not cancel raid.'
         ]
     },
     defaultTwitchGameCategory: 'Games + Demos',

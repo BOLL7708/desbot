@@ -1,7 +1,7 @@
 class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
-        let [first, ...rest] = str.split(needle)
-        return [first, rest.join(needle)]
+        const [first, ...rest] = str.split(needle)
+        return rest ? [first, rest.join(needle)] : [first]
     }
 
     static async loadCleanName(userName:string):Promise<string> {
@@ -249,7 +249,10 @@ class Utils {
         const tags = await this.getDefaultTags(userData)
 
         // Target tags from incoming user tag
-        const userTag = this.getFirstUserTagInText(userData?.input ?? '')
+        const userTag = 
+            this.getFirstUserTagInText(userData?.input ?? '') 
+            ?? Utils.splitOnFirst( ' ', userData?.input ?? '')[0] 
+            ?? ''
         const modules = ModulesSingleton.getInstance()
         const targetTags: { [key: string]: string } = {
             targetName: '',
@@ -263,7 +266,7 @@ class Utils {
             const channelData = await modules.twitchHelix.getChannelByName(userTag)
             if(channelData) {
                 targetTags.targetName = channelData.broadcaster_name
-                targetTags.targetTag = `@${channelData.broadcaster_login}`
+                targetTags.targetTag = `@${channelData.broadcaster_name}`
                 targetTags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
                 targetTags.targetGame = channelData.game_name
                 targetTags.targetTitle = channelData.title

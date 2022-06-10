@@ -658,6 +658,36 @@ class Commands {
             states.lastSteamAppIsVR = false
         },
 
+        [Keys.COMMAND_RAID]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const channel = 
+                Utils.getFirstUserTagInText(user.input) 
+                ?? Utils.splitOnFirst(' ', user.input)[0] 
+                ?? ''
+            Utils.log(`CommandRaid: ${user.input} -> ${channel}`, Color.Blue, true, true)
+            const channelData = await modules.twitchHelix.getChannelByName(channel)
+            const chat = Config.controller.chatReferences[Keys.COMMAND_RAID]
+            if(channelData) {
+                modules.twitchHelix.raidChannel(channelData.broadcaster_id)
+                if(chat) {
+                    modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[0], user))
+                    modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[1], user))
+                }
+            } else {
+                if(chat) modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[2], user))
+            }
+        },
+
+        [Keys.COMMAND_UNRAID]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const result = await modules.twitchHelix.cancelRaid()
+            const chat = Config.controller.chatReferences[Keys.COMMAND_UNRAID]
+            if(chat) {
+                if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chat[0])
+                else modules.twitch._twitchChatOut.sendMessageToChannel(chat[1])
+            }
+        },
+
         /*
         .#####...##..##..#####...##......######...####..
         .##..##..##..##..##..##..##........##....##..##.

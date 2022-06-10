@@ -52,7 +52,7 @@ class TwitchHelix {
         return result
     }
 
-    async getChannelByName(channel: string, skipCache: boolean = false):Promise<any|undefined> {
+    async getChannelByName(channel: string, skipCache: boolean = false):Promise<ITwitchHelixChannelResponseData|undefined> {
         const user = await this.getUserByLogin(channel, skipCache)
         return this.getChannelById(parseInt(user?.id ?? '0'), skipCache)
     }
@@ -205,6 +205,31 @@ class TwitchHelix {
         }
         const response = await fetch(url, request)
         const success = response != null && response.status == 200
+        return success
+    }
+
+    async raidChannel(channelId: string): Promise<boolean> {
+        // https://dev.twitch.tv/docs/api/reference#start-a-raid
+        const url = `https://api.twitch.tv/helix/raids?from_broadcaster_id=${TwitchHelix._channelUserId}&to_broadcaster_id=${channelId}`
+        const headers = this.getAuthHeaders()
+        const request = {
+            method: 'POST',
+            headers: headers
+        }
+        const response = await fetch(url, request)
+        const success = response != null && response.status == 200
+        return success
+    }
+
+    async cancelRaid(): Promise<boolean> {
+        const url = `https://api.twitch.tv/helix/raids?broadcaster_id=${TwitchHelix._channelUserId}`
+        const headers = this.getAuthHeaders()
+        const request = {
+            method: 'DELETE',
+            headers: headers
+        }
+        const response = await fetch(url, request)
+        const success = response != null && response.status == 204
         return success
     }
 }

@@ -272,6 +272,16 @@ Config.events = {...Config.events,
             }
         }
     },
+    [Keys.COMMAND_RAID]: {
+        triggers: {
+            command: {}
+        }
+    },
+    [Keys.COMMAND_UNRAID]: {
+        triggers: {
+            command: {}
+        }
+    },
 
     /*
     .#####...##..##..#####...##......######...####..
