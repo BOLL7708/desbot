@@ -127,6 +127,10 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Completed clearing the reward redemptions queue, set %count out of %total to fulfilled',
             'There were no reward redemptions in the queue to clear'
         ],
+        [KeysTemplate.COMMAND_RESET_INCREWARD]: [
+            'Initiating reset of incremental rewards',
+            'Finished resetting %reset out of %total incremental rewards, skipping %skipped'
+        ],
         [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
         [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is now called %targetNick',
         [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
@@ -160,7 +164,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Stream title "%targetTitle", link to avoid preroll: %targetLink',
             'I could not find channel: "%userInput"'
         ],
-        [Keys.COMMAND_UNRAID]: [
+        [KeysTemplate.COMMAND_UNRAID]: [
             'Raid cancelled.',
             'Could not cancel raid.'
         ]

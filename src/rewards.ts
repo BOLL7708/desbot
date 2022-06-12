@@ -32,29 +32,6 @@ class Rewards {
             }
         }
 
-        // Reset rewards with multiple steps
-        for(const key of allRewardKeys) {
-            const eventConfig = Utils.getEventConfig(key)
-            if(
-                eventConfig?.options?.rewardType == 'incrementing' 
-                && eventConfig?.options?.rewardResetIncrementOnLoad === true
-            ) {
-                const rewardSetup = eventConfig?.triggers?.reward
-                if(Array.isArray(rewardSetup)) {
-                    // We check if the reward counter is at zero because then we should not update as it enables 
-                    // the reward while it could have been disabled by profiles.
-                    // To update settings for the base reward, we update it as any normal reward, using !update.
-                    const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                    if((current?.count ?? 0) > 0) {
-                        Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                        const reset: ITwitchRewardCounter = {key: key, count: 0}
-                        await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
-                        await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
-                    }
-                }
-            }
-        }
-
         // Toggle TTS rewards
         modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: !states.ttsForAll})
 

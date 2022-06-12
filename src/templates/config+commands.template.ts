@@ -218,13 +218,23 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_CLEAR_REDEMPTIONS]: {
+    [KeysTemplate.COMMAND_CLEAR_REDEMPTIONS]: {
         triggers: {
             command: {
                 permissions: {
                     moderators: false
                 },
                 cooldown: 60
+            }
+        }
+    },
+    [KeysTemplate.COMMAND_RESET_INCREWARD]: {
+        triggers: {
+            command: {
+                permissions: {
+                    moderators: false
+                },
+                cooldown: 20
             }
         }
     },
@@ -272,12 +282,12 @@ Config.events = {...Config.events,
             }
         }
     },
-    [Keys.COMMAND_RAID]: {
+    [KeysTemplate.COMMAND_RAID]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_UNRAID]: {
+    [KeysTemplate.COMMAND_UNRAID]: {
         triggers: {
             command: {}
         }
@@ -348,9 +358,11 @@ Config.events = {...Config.events,
                 commands: [
                     KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
                     KeysTemplate.COMMAND_CLIPS,
-                    KeysTemplate.COMMAND_CLEAR_REDEMPTIONS
+                    KeysTemplate.COMMAND_CLEAR_REDEMPTIONS,
+                    KeysTemplate.COMMAND_RESET_INCREWARD,
+                    KeysTemplate.COMMAND_RESET_ACCREWARD
                 ],
-                interval: 30
+                interval: 20
             }
         }
     }

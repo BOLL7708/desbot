@@ -10,9 +10,12 @@ interface IEventsForGamesConfig {
 /**
  * Various types of special reward behavior.
  */
-type TRewardType =
-    | 'standard'
-    | 'incrementing'
+enum ERewardType { 
+    Standard = 'standard',
+    Incrementing = 'incrementing',
+    Accumulating = 'accumulating'
+}
+
 /**
  * The event that contains triggers and actions.
  */
@@ -23,7 +26,7 @@ interface IEvent {
          * - standard: is the same as leaving this out, no special behavior.
          * - incrementing: will increment the reward config every time it is redeemed.
          */
-        rewardType?: TRewardType
+        rewardType?: ERewardType
 
         /**
          * A list of rewards that will only be created, not updated using `!update`.
@@ -34,7 +37,7 @@ interface IEvent {
         /**
          * Will reset incrementing rewards when the widget loads, resetting them to 0.
          */
-        rewardResetIncrementOnLoad?: boolean
+        rewardResetIncrementOnCommand?: boolean
 
     }
     triggers: {

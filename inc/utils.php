@@ -18,7 +18,6 @@ class Utils {
             if(
                 $ext == 'js' 
                 && strpos($directory, 'templates') === false
-                && strpos($directory, 'interfaces') === false
             ) {
                 if(is_string($directory) && file_exists($root.$directory.'/'.$name)) {
                     echo '<script src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";

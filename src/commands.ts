@@ -527,6 +527,46 @@ class Commands {
                 modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {total: unfulfilledRedemptions.length.toString(), count: clearCount.toString()}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
             } else modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
         },
+        [Keys.COMMAND_RESET_INCREWARD]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_INCREWARD]
+            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            // Reset rewards with multiple steps
+            const allRewardKeys = Utils.getAllEventKeys(true)
+            let totalCount = 0
+            let totalResetCount = 0
+            let totalSkippedCount = 0
+            for(const key of allRewardKeys) {
+                const eventConfig = Utils.getEventConfig(key)
+                if(
+                    eventConfig?.options?.rewardType == ERewardType.Incrementing
+                    && eventConfig?.options?.rewardResetIncrementOnCommand === true
+                ) {
+                    totalCount++
+                    const rewardSetup = eventConfig?.triggers?.reward
+                    if(Array.isArray(rewardSetup)) {
+                        // We check if the reward counter is at zero because then we should not update as it enables 
+                        // the reward while it could have been disabled by profiles.
+                        // To update settings for the base reward, we update it as any normal reward, using !update.
+                        const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                        if((current?.count ?? 0) > 0) {
+                            Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
+                            const reset: ITwitchRewardCounter = {key: key, count: 0}
+                            await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
+                            await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
+                            totalResetCount++
+                        } else {
+                            totalSkippedCount++
+                        }
+                    }
+                }
+            }
+            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {
+                total: totalCount.toString(), 
+                reset: totalResetCount.toString(), 
+                skipped: totalSkippedCount.toString()
+            }), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+        },
 
         /*
         ..####...##..##...####...######..######..##...##.

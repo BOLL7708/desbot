@@ -54,6 +54,7 @@ class KeysTemplate {
     static readonly COMMAND_CLEAR_REDEMPTIONS: string = 'clearqueue'
     static readonly COMMAND_RAID: string = 'raid'
     static readonly COMMAND_UNRAID: string = 'unraid'
+    static readonly COMMAND_RESET_INCREWARD: string = 'resetincrew'
     
     // Dangerous WIP SteamVR settings commands
     static readonly COMMAND_REFRESHRATE: string = 'hz'
