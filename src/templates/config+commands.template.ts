@@ -238,6 +238,16 @@ Config.events = {...Config.events,
             }
         }
     },
+    [KeysTemplate.COMMAND_RESET_ACCREWARD]: {
+        triggers: {
+            command: {
+                permissions: {
+                    moderators: false
+                },
+                cooldown: 20
+            }
+        }
+    },
 
     /*
     ..####...##..##...####...######..######..##...##.
