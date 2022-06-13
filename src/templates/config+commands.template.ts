@@ -359,8 +359,7 @@ Config.events = {...Config.events,
                     KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
                     KeysTemplate.COMMAND_CLIPS,
                     KeysTemplate.COMMAND_CLEAR_REDEMPTIONS,
-                    KeysTemplate.COMMAND_RESET_INCREWARD,
-                    KeysTemplate.COMMAND_RESET_ACCREWARD
+                    KeysTemplate.COMMAND_RESET_INCREWARD
                 ],
                 interval: 20
             }
