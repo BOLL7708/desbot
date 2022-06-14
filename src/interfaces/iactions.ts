@@ -17,7 +17,7 @@ interface ICommandConfig {
     /**
      * The command or commands to trigger, you can reference things in {@link Keys} here.
      */
-    commands: string|string[]
+    entries: string|string[]
     /**
      * Optional: Set the commands to be triggered at an interval to space things out in time.
      */

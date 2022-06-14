@@ -93,7 +93,8 @@ Download the [Twitch Authenticator][twitchauth], and use these scopes when confi
   "channel:read:redemptions",
   "channel:read:subscriptions",
   "channel:manage:redemptions",
-  "channel:manage:broadcast"
+  "channel:manage:broadcast",
+  "channel:manage:raids"
 ]
 ```
 Get the refresh token from the return, and if you want a separate bot to write in chat, do this twice, once for the channel owner and once for the chat bot. Insert the tokens in the credentials part of the config that resides here: `src/_configs/config.ts`

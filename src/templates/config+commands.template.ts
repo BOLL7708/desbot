@@ -323,7 +323,9 @@ Config.events = {...Config.events,
             command: {}
         },
         actions: {
-            speech: '%userInput'
+            speech: {
+                entries: '%userInput'
+            }
         }
     },
     [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
@@ -331,7 +333,9 @@ Config.events = {...Config.events,
             command: {}
         },
         actions: {
-            speech: 'Label set to "%userInput"',
+            speech: {
+                entries: 'Label set to "%userInput"'
+            },
             label: "your_label_in_settings.txt"
         }
     },
@@ -340,7 +344,9 @@ Config.events = {...Config.events,
             command: {}
         },
         actions: {
-            speech: 'To do list appended with: %userInput',
+            speech: {
+                entries: 'To do list appended with: %userInput'
+            },
             discord: '👉 %userInput'
         }
     },
@@ -353,9 +359,11 @@ Config.events = {...Config.events,
             }
         },
         actions: {
-            speech: 'Running stream end tasks',
+            speech: {
+                entries: 'Running stream end tasks'
+            },
             commands: { 
-                commands: [
+                entries: [
                     KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
                     KeysTemplate.COMMAND_CLIPS,
                     KeysTemplate.COMMAND_CLEAR_REDEMPTIONS,

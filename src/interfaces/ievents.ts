@@ -96,7 +96,7 @@ interface IEvent {
          * 
          * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
          */
-        speech?: string|string[]
+        speech?: ISpeechConfig
         
         /**
          * Optional: Show a pop-in message in the browser source for the widget.

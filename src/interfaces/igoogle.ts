@@ -115,3 +115,8 @@ interface IGoogleAudio {
      */
     soundLevelDb?: number
 }
+
+interface ISpeechConfig {
+    entries: string|string[]
+    voiceOfUser?: string
+}

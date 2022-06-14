@@ -207,12 +207,12 @@ class Actions {
      * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
      * @returns 
      */
-    public static buildSoundAndSpeechCallback(config: IAudio|undefined, speech:string|string[]|undefined, nonce: string, onTtsQueue:boolean = false):ITwitchActionCallback|undefined {
-        if(config || speech) return async (user: IActionUser, index?: number) => {
+    public static buildSoundAndSpeechCallback(config: IAudio|undefined, speechConfig:ISpeechConfig|undefined, nonce: string, onTtsQueue:boolean = false):ITwitchActionCallback|undefined {
+        if(config || speechConfig) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             let ttsString: string|undefined
-            if(Array.isArray(speech) || typeof speech == 'string') {
-                ttsString = <string> Utils.randomOrSpecificFromArray(speech, index)
+            if(speechConfig && (Array.isArray(speechConfig.entries) || typeof speechConfig.entries == 'string')) {
+                ttsString = <string> Utils.randomOrSpecificFromArray(speechConfig.entries, index)
                 ttsString = await Utils.replaceTagsInText(ttsString, user)
                 onTtsQueue = true
             }
@@ -220,7 +220,7 @@ class Actions {
                 if(onTtsQueue) modules.tts.enqueueSoundEffect(config)
                 else modules.audioPlayer.enqueueAudio(config)
             }
-            if(ttsString) modules.tts.enqueueSpeakSentence(ttsString, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+            if(ttsString && speechConfig) modules.tts.enqueueSpeakSentence(ttsString, speechConfig.voiceOfUser ?? Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
         }
     }
 
@@ -379,11 +379,13 @@ class Actions {
             const modules = ModulesSingleton.getInstance()
             const interval = config.interval ?? 0
             let delay = 0
-            const commands = Utils.ensureArray(config.commands)
+            const commands = Utils.ensureArray(config.entries)
             for(const command of commands) {
                 console.log(`Executing command: ${command} in ${delay} seconds...`)
+                let inputText = user.input
+                if(command.includes(' ')) inputText = Utils.splitOnFirst(' ', inputText)[0]
                 setTimeout(()=>{
-                    modules.twitch.runCommand(command, user)
+                    modules.twitch.runCommand(command, {...user, input: inputText})
                 }, delay*1000)
                 delay += interval
             }
