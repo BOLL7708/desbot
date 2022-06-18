@@ -55,6 +55,19 @@ Config.events = {...Config.events,
             command: {}
         }
     },
+    [KeysTemplate.COMMAND_TTS_VOICES]: {
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
+                },
+                cooldown: 60 * 5
+            }
+        },
+        actions: {
+            chat: 'Preview Google TTS voices here, pick a Wavenet (mandatory) voice and use the name with the "Set Your Voice" reward: https://cloud.google.com/text-to-speech/docs/voices'
+        }
+    },
 
     /*
     ..####...##..##...####...######.

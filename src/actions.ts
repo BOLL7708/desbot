@@ -70,20 +70,24 @@ class Actions {
 
     public static async registerCommand(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        let command = event?.triggers.command
-        if(!event.triggers.command) {
-            event.triggers.command = {
-                trigger: key,
-                permissions: {}
-            }
-        } else if(command) command.trigger = key
-        const actionCallback = this.buildActionCallback(key, event)
-        const useThisCommand = <ITwitchCommandConfig> (
-            command?.cooldown == undefined 
-            ? {...event.triggers.command, callback: actionCallback}
-            : {...event.triggers.command, cooldownCallback: actionCallback}
-        )
-        modules.twitch.registerCommand(useThisCommand)
+        const triggers = key.split('|')
+        for(const trigger of triggers) {
+            let command = event?.triggers.command
+            if(!event.triggers.command) {
+                event.triggers.command = {
+                    trigger: trigger,
+                    permissions: {}
+                }
+            } else if(command) command.trigger = trigger
+
+            const actionCallback = this.buildActionCallback(trigger, event)
+            const useThisCommand = <ITwitchCommandConfig> (
+                command?.cooldown == undefined 
+                ? {...event.triggers.command, callback: actionCallback}
+                : {...event.triggers.command, cooldownCallback: actionCallback}
+            )
+            modules.twitch.registerCommand(useThisCommand)
+        }
     }
     
     /*
