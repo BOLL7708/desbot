@@ -233,6 +233,15 @@ class Utils {
      * - Replaces %userNumber with the redeemer's input parsed to number or NaN.
      * - Replaces %userWord with the redeemer's input truncated to the first word.
      * 
+     * If a Steam game is played, these tags can be used:
+     * - Replaces %gameId with the current game's ID.
+     * - Replaces %gamePrice with the current game's price.
+     * - Replaces %gameLink with the current game's Store URL.
+     * - Replaces %gameName with the current game's name.
+     * - Replaces %gameInfo with the current game's short description.
+     * - Replaces %gameDeveloper with the current game's developer(s).
+     * - Replaces %gamePublisher with the current game's publisher(s).
+     * 
      * If a user tag (@login) is present in the input text, values for that channel 
      * will be availale as:
      * - Replaces %targetName with the target's display name with case intact.
@@ -240,13 +249,24 @@ class Utils {
      * - Replaces %targetGame with the target's last played game on Twitch.
      * - Replaces %targetTitle with the target's last stream title from Twitch.
      * - Replaces %targetLink with the link to the target's Twitch channel.
-     * @param text 
-     * @param message 
-     * @returns 
+     * @param text
+     * @param message
+     * @returns
      */
     static async replaceTagsInText(text: string, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
         // Default tags from incoming user data
         const tags = await this.getDefaultTags(userData)
+        const states = StatesSingleton.getInstance()
+        if(states.lastSteamAppId) {
+            const steamGameData = await SteamStore.getGameMeta(states.lastSteamAppId)
+            tags.gameId = states.lastSteamAppId
+            tags.gamePrice = SteamStore.getPrice(steamGameData)
+            tags.gameLink = SteamStore.getStoreURL(states.lastSteamAppId)
+            tags.gameName = steamGameData?.name ?? ''
+            tags.gameInfo = steamGameData?.short_description ?? ''
+            tags.gameDeveloper = steamGameData?.developers?.join(', ') ?? ''
+            tags.gamePublisher = steamGameData?.publishers?.join(', ') ?? ''
+        }
 
         // Target tags from incoming user tag
         const userTag = 

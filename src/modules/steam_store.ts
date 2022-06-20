@@ -21,9 +21,10 @@ class SteamStore {
     static getPrice(data: ISteamStoreGameData|undefined): string {
         if(!data) return 'Invalid Game'
         const currencies: { [x: string]: string } = {
-            "EUR": "€",
-            "USD": "$",
-            "GBP": "£"
+            'EUR': '€',
+            'USD': '$',
+            'GBP': '£',
+            'KRW': '₩'
         }
         const isFree: boolean = data.is_free ?? false
         const price: number = isFree ? 0 : data.price_overview?.final ?? -1

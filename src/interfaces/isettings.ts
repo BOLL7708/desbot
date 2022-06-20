@@ -34,6 +34,7 @@ interface IStreamQuote {
     author: string
     quote: string
     datetime: string
+    game: string
 }
 interface ITwitchRedemption {
     userId: string,

@@ -175,11 +175,13 @@ class Commands {
               
         [Keys.COMMAND_QUOTE]: async (user) => {
             const modules = ModulesSingleton.getInstance()
+            const states = StatesSingleton.getInstance()
             const parts = Utils.splitOnFirst(' ', user.input)
             const login = Utils.cleanUserName(parts[0] ?? '')
             const quote = parts[1] ?? ''
             if(login.length > 0 && quote.length > 0) {
-                const userData = await modules.twitchHelix.getUserByLogin(login)              
+                const userData = await modules.twitchHelix.getUserByLogin(login)
+                const gameData = await SteamStore.getGameMeta(states.lastSteamAppId?.toString() ?? '')
                 // Save quote to settings
                 if(userData) {
                     await Settings.appendSetting(
@@ -188,7 +190,8 @@ class Commands {
                             submitter: user.login, 
                             author: userData.login, 
                             quote: quote, 
-                            datetime: Utils.getISOTimestamp()
+                            datetime: Utils.getISOTimestamp(),
+                            game: gameData?.name ?? ''
                         }
                     )
                     const speech = Config.controller.speechReferences[Keys.COMMAND_QUOTE]
@@ -216,7 +219,8 @@ class Commands {
                             { // We need to add targetTag as there is no user tag in the input.
                                 date: date.toDateString() ?? 'N/A', 
                                 targetTag: '@'+(userData?.display_name ?? ''), 
-                                text: quote.quote
+                                text: quote.quote,
+                                gameName: quote.game ?? 'N/A'
                             }
                         )
                     )
