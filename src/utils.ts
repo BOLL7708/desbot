@@ -65,7 +65,7 @@ class Utils {
 		// Replace more than one period with ellipsis, or else TTS will say "dot" from ".." if reduce repeated characters is on.
         text = text.replace(/([\.]{2,})/g, '…')
 
-        // Reduce XXXXXX to XX
+        // Reduce XXX...XXX to XX
         if(config.reduceRepeatedCharacters) {
             const repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
             if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
@@ -336,7 +336,10 @@ class Utils {
      * @returns The random string
      */
     static randomFromArray<Type>(value: Type[]|Type): Type {
-        if(Array.isArray(value)) return value[Math.floor(Math.random()*value.length)]
+        if(Array.isArray(value)) {
+            if(value.length == 1) return value[0]
+            else return value[Math.floor(Math.random()*value.length)]
+        }
         else return value
     }
 
@@ -510,5 +513,15 @@ class Utils {
     
     static countBoolProps(obj: { [key: string]: boolean }): number {
         return Object.keys(obj).filter(key => obj[key]).length
+    }
+
+    static splitOnAny(text: string|undefined, needles: string): string[] {
+        if(!text) return []
+        for(const needle of needles) {
+            if(text.includes(needle)) {
+                return text.split(needle)
+            }
+        }
+        return [text]
     }
 }

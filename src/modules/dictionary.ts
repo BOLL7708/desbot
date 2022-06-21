@@ -88,9 +88,10 @@ class Dictionary {
 
             // Word replacement with other word(s)
             if(!done && this._dictionary.has(wordKey)) {
-                let replaceWith = this._dictionary.get(wordKey)
-                if(replaceWith && replaceWith.indexOf(',') > -1) { // Randomize if we find a list of words
-                    replaceWith = Utils.randomFromArray(replaceWith.split(','))
+                const replaceWithArr = Utils.splitOnAny(this._dictionary.get(wordKey), '|,')
+                let replaceWith = ''
+                if(replaceWithArr.length > 0) { // Randomize if we find a list of words
+                    replaceWith = Utils.randomFromArray(replaceWithArr)
                 }
                 replaceWith = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
                 if(injectAudio) {
