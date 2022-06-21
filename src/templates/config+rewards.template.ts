@@ -19,7 +19,7 @@ Config.events = {...Config.events,
     [KeysTemplate.REWARD_TTSSPEAK]: {
         triggers: {
             reward: {
-                title: '💬 Speak Once',
+                title: 'Speak Once',
                 cost: 5,
                 prompt: 'Your message is read aloud.',
                 background_color: '#AAAAAA',
@@ -31,7 +31,7 @@ Config.events = {...Config.events,
     [KeysTemplate.REWARD_TTSSETVOICE]: {
         triggers: {
             reward: {
-                title: '👄 Set Your Voice',
+                title: 'Set Your Voice',
                 cost: 5,
                 prompt: 'Change your speaking voice, see the About section for options.',
                 background_color: '#AAAAAA',
@@ -43,7 +43,7 @@ Config.events = {...Config.events,
     [KeysTemplate.REWARD_TTSSWITCHVOICEGENDER]: {
         triggers: {
             reward: {
-                title: '👫 TTS Gender Flip',
+                title: 'TTS Gender Flip',
                 cost: 10,
                 prompt: "Switch your TTS voice gender",
                 background_color: '#808080'
@@ -64,9 +64,9 @@ Config.events = {...Config.events,
         },
         triggers: {
             reward: {
-                title: '🏆 Held by nobody!',
+                title: 'Held by nobody!',
                 cost: 1,
-                prompt: 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!',
+                prompt: 'Become the Channel Trophy holder! You hold the trophy until someone else pays the ever increasing (+1) price!',
                 background_color: '#000000',
                 is_max_per_stream_enabled: true,
                 max_per_stream: 10000,
@@ -76,12 +76,12 @@ Config.events = {...Config.events,
         },
         actions: {
             audio: {
-                src: '_assets/Lyd_SFX_535_Cup_10.wav',
+                src: '_assets/random_audio.wav',
                 volume: 0.75
             },
             sign: {
                 durationMs: 10000, 
-                title: 'The 🏆 was grabbed!',
+                title: 'The trophy was grabbed!',
                 subtitle: '%userName',
             }
         }

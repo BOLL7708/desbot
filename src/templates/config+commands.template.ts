@@ -360,7 +360,7 @@ Config.events = {...Config.events,
             speech: {
                 entries: 'To do list appended with: %userInput'
             },
-            discord: '👉 %userInput'
+            discord: '-> %userInput'
         }
     },
     [KeysTemplate.COMMAND_END_STREAM]: {

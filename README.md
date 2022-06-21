@@ -51,13 +51,11 @@ Now any time you launch `Code` in this folder it should automatically run the `T
 
 # Widget Setup
 The widget comes with a prepped config, based on what I run myself on my stream. It has a bunch of predefined keys for various rewards you can use or not. These are the steps you need to perform to set it up:
-1. Make sure you have PowerShell version 6 or higher installed.
-    1. you can find the latest version [here][powershell], you probably want to download the `#-win-x64.msi` variant which you find near the bottom of the page. 
-    2. Launch this specific PowerShell version from the start menu, or you might still get the old one.
-2. Go to the root folder of the widget.
-    1. Execute `cd 'X:\ThePathToYour\streaming_widget'` with the actual path filled in.
-    2. Execute `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` to temporarily allow execution of downloaded scripts, it will only work in the shell you run it in and reset when closed.
-    3. Execute `.\_first_run.ps1`, it should create needed folders with associated files.
+1. Go to the root folder of the widget.
+    1. Open `PowerShell`
+    2. Execute `cd 'X:\ThePathToYour\streaming_widget'` with the actual path filled in.
+    3. Execute `Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass` to temporarily allow execution of downloaded scripts, it will only work in the shell you run it in and reset when closed.
+    4. Execute `.\_first_run.ps1`, it should create needed folders with associated files.
 
 2. Fill in values in the files listed below, some are API keys and IDs you will need to acquire, see details about that in the next sections.
     1. `_configs/config.php`

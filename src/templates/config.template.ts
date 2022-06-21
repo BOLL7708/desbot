@@ -173,8 +173,8 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
     saveConsoleOutputToSettings: false,
     secretChatSymbols: ['!'],
     channelTrophySettings: {
-        label: '🏆 Channel Trophy #%number\n%userName',
-        rewardTitle: '🏆 Held by %userName!',
+        label: 'Channel Trophy #%number\n%userName',
+        rewardTitle: 'Held by %userName!',
         rewardPrompt: 'Currently held by %userName! %prompt Now costs %number points!',
         rewardCooldownMultiplier: 30,
         ttsOn: true,
@@ -237,7 +237,7 @@ Config.steam = <ISteamConfig> {
     ignoredAppIds: [],
     achievementSettings: {
         discordFooter: 'Progress: %progress, global rate: %rate',
-        twitchChatMessage: '🔓 Achievement %progress unlocked: %name (%text, 🌍 %rate)'
+        twitchChatMessage: 'Achievement %progress unlocked: %name (%text, %rate)'
     }
 }
 
@@ -327,7 +327,7 @@ Config.screenshots = <IScreenshotConfig> {
     callback: {
         discordManualTitle: 'Manual Screenshot',
         discordRewardTitle: 'Photograph: %text',
-        discordRewardInstantTitle: 'Instant shot! 📸',
+        discordRewardInstantTitle: 'Instant shot!',
         signTitle: 'Screenshot',
         signManualSubtitle: 'Manual shot!',
         signDurationMs: 5000,
@@ -354,8 +354,8 @@ Config.screenshots = <IScreenshotConfig> {
 Config.discord = <IDiscordConfig> {
     remoteScreenshotEmbedColor: '#000000',
     manualScreenshotEmbedColor: '#FFFFFF',
-    prefixCheer: '🙌 ',
-    prefixReward: '🏆 '
+    prefixCheer: '*Cheer*: ',
+    prefixReward: '*Reward*: '
 }
 
 /*
@@ -459,7 +459,7 @@ Config.twitch = <ITwitchConfig> {
     channelName: 'ChannelName',
     chatbotName: 'ChatbotName',
     announcerNames: ['AnnouncerName'],
-    announcerTriggers: ['❗'],
+    announcerTriggers: ['§'],
 
     proxyChatBotName: 'RestreamBot',
     proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/,

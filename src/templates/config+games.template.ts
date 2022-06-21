@@ -4,7 +4,7 @@ Config.eventsForGames = {
         [KeysTemplate.YOUR_REWARD]: {
             triggers: {
                 reward: {
-                    title: '💰 Reward',
+                    title: 'Reward',
                     cost: 5
                 }
             },

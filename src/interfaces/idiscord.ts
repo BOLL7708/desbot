@@ -19,14 +19,14 @@ interface IDiscordConfig {
     /**
      * Prefix added to cheer messages in the log.
      * 
-     * Note: This prefix should include a trailing space if you want air between the prefix and the message.
+     * Note: This prefix should include a trailing space if you want it to be separated from the message.
      */
     prefixCheer: string
     
     /**
      * Prefix added to reward messages in the log.
      * 
-     * Note: This prefix should include a trailing space if you want air between the prefix and the message.
+     * Note: This prefix should include a trailing space if you want it to be separated from the message.
      */
     prefixReward: string
 }
