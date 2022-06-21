@@ -495,6 +495,11 @@ Config.twitch = <ITwitchConfig> {
         // [OpenVR2WS.AN_OVERLAY_KEY]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
     },
     channelTrophyUniqueNumbers: {
-        // 1234: { speech: "", label: "" }
+        /* 
+        1234: { 
+            speech: "%start is the best trophy! Number %number is so cool!", 
+            label: "Trippy Channel Trophy: %entry" 
+        }
+        */
     }
 }

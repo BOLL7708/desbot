@@ -70,8 +70,12 @@ class Rewards {
             await modules.tts.setVoiceForUser(user.login, user.input)
             const voiceData = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES,'userName', user.login)
             const voiceName = voiceData?.voiceName ?? ''
-            const voiceText = voiceName.length == 0 ? `${voiceData?.languageCode.toUpperCase()} ${voiceData?.gender.toUpperCase()}` : `${voiceName.toUpperCase()} ${voiceData?.gender.toUpperCase()}`
-            modules.twitch._twitchChatOut.sendMessageToChannel(`@${user.name} got their voice set to: ${voiceText}`)
+            const voiceText = voiceName.length == 0 
+                ? `${voiceData?.languageCode.toUpperCase()} ${voiceData?.gender.toUpperCase()}` 
+                : `${voiceName.toUpperCase()}`
+            modules.twitch._twitchChatOut.sendMessageToChannel(
+                `@${user.name} got their voice set to: ${voiceText}`
+            )
         },
         [Keys.REWARD_TTSSWITCHVOICEGENDER]: (user: IActionUser) => {
             Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
