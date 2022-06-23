@@ -730,32 +730,6 @@ class Commands {
                 if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chat[0])
                 else modules.twitch._twitchChatOut.sendMessageToChannel(chat[1])
             }
-        },
-
-        /*
-        .#####...##..##..#####...##......######...####..
-        .##..##..##..##..##..##..##........##....##..##.
-        .#####...##..##..#####...##........##....##.....
-        .##......##..##..##..##..##........##....##..##.
-        .##.......####...#####...######..######...####..
-        */
-        [Keys.COMMAND_GAME]: async (user) => {
-            const modules = ModulesSingleton.getInstance()
-            const states = StatesSingleton.getInstance()
-            if(states.lastSteamAppId != undefined) {
-                const gameData = await SteamStore.getGameMeta(states.lastSteamAppId)
-                const price = SteamStore.getPrice(gameData)
-                const releaseDate = gameData?.release_date?.date ?? 'N/A'
-                const name = gameData?.name ?? 'N/A'
-                const link = gameData?.steam_appid != undefined ? SteamStore.getStoreURL(gameData.steam_appid) : 'N/A'
-                modules.twitch._twitchChatOut.sendMessageToChannel(`Game: ${name} - Released: ${releaseDate} - Price: ${price} - Link: ${link}`)
-                modules.sign.enqueueSign({
-                    title: 'Current Game',
-                    image: gameData?.header_image,
-                    subtitle: `${name}\n${price}`,
-                    durationMs: 10000
-                })
-            }
         }
     }
 }

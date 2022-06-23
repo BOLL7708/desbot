@@ -23,3 +23,29 @@ interface ICommandConfig {
      */
     interval?: number
 }
+
+interface ITextTags {
+    userName: string
+    userTag: string
+    userNick: string
+    userInput: string
+    userNumber: string
+    userWord: string
+
+    gameId: string
+    gamePrice: string
+    gameLink: string
+    gameName: string
+    gameInfo: string
+    gameDeveloper: string
+    gamePublisher: string
+    gameBanner: string
+    gameRelease: string
+
+    targetName: string
+    targetTag: string
+    targetNick: string
+    targetGame: string
+    targetTitle: string
+    targetLink: string
+}

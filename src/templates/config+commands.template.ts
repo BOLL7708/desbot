@@ -321,6 +321,15 @@ Config.events = {...Config.events,
                 },
                 cooldown: 3*60
             }
+        },
+        actions: {
+            sign: {
+                title: 'Current Game',
+                image: '%gameBanner',
+                subtitle: '%gameName\n%gamePrice',
+                durationMs: 10000
+            },
+            chat: 'Game: %gameName - Released: %gameRelease - Price: %gamePrice - Link: %gameLink'
         }
     },
 

@@ -241,6 +241,8 @@ class Utils {
      * - Replaces %gameInfo with the current game's short description.
      * - Replaces %gameDeveloper with the current game's developer(s).
      * - Replaces %gamePublisher with the current game's publisher(s).
+     * - Replaces %gameBanner with the url to the current game's header image.
+     * - Replaces %gameRelease with the release date of the current game.
      * 
      * If a user tag (@login) is present in the input text, values for that channel 
      * will be availale as:
@@ -258,14 +260,16 @@ class Utils {
         const tags = await this.getDefaultTags(userData)
         const states = StatesSingleton.getInstance()
         if(states.lastSteamAppId) {
-            const steamGameData = await SteamStore.getGameMeta(states.lastSteamAppId)
-            tags.gameId = states.lastSteamAppId
-            tags.gamePrice = SteamStore.getPrice(steamGameData)
+            const steamGameMeta = await SteamStore.getGameMeta(states.lastSteamAppId)
+            tags.gameId = states.lastSteamAppId ?? 'N/A'
+            tags.gamePrice = SteamStore.getPrice(steamGameMeta)
             tags.gameLink = SteamStore.getStoreURL(states.lastSteamAppId)
-            tags.gameName = steamGameData?.name ?? ''
-            tags.gameInfo = steamGameData?.short_description ?? ''
-            tags.gameDeveloper = steamGameData?.developers?.join(', ') ?? ''
-            tags.gamePublisher = steamGameData?.publishers?.join(', ') ?? ''
+            tags.gameName = steamGameMeta?.name ?? 'N/A'
+            tags.gameInfo = steamGameMeta?.short_description ?? 'N/A'
+            tags.gameDeveloper = steamGameMeta?.developers?.join(', ') ?? 'N/A'
+            tags.gamePublisher = steamGameMeta?.publishers?.join(', ') ?? 'N/A'
+            tags.gameBanner = steamGameMeta?.header_image ?? ''
+            tags.gameRelease = steamGameMeta?.release_date?.date ?? 'N/A'
         }
 
         // Target tags from incoming user tag
@@ -274,38 +278,47 @@ class Utils {
             ?? Utils.splitOnFirst( ' ', userData?.input ?? '')[0] 
             ?? ''
         const modules = ModulesSingleton.getInstance()
-        const targetTags: { [key: string]: string } = {
-            targetName: '',
-            targetTag: '',
-            targetNick: '',
-            targetGame: '',
-            targetTitle: '',
-            targetLink: ''
-        }
         if(userTag) {
             const channelData = await modules.twitchHelix.getChannelByName(userTag)
             if(channelData) {
-                targetTags.targetName = channelData.broadcaster_name
-                targetTags.targetTag = `@${channelData.broadcaster_name}`
-                targetTags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
-                targetTags.targetGame = channelData.game_name
-                targetTags.targetTitle = channelData.title
-                targetTags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
+                tags.targetName = channelData.broadcaster_name
+                tags.targetTag = `@${channelData.broadcaster_name}`
+                tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
+                tags.targetGame = channelData.game_name
+                tags.targetTitle = channelData.title
+                tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
             }
         }
 
         // Apply tags and return
-        return this.replaceTags(text, {...tags, ...targetTags, ...extraTags})
+        return this.replaceTags(text, {...tags, ...extraTags})
     }
 
-    private static async getDefaultTags(userData?: IActionUser): Promise<{ [key: string]: string }> {
+    private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const result = {
             userName: `${userData?.name}`,
             userTag: `@${userData?.login}`,
             userNick: await this.loadCleanName(userData?.login ?? ''),
             userInput: '',
             userNumber: '',
-            userWord: ''
+            userWord: '',
+
+            gameId: '',
+            gamePrice: '',
+            gameLink: '',
+            gameName: '',
+            gameInfo: '',
+            gameDeveloper: '',
+            gamePublisher: '',
+            gameBanner: '',
+            gameRelease: '',
+
+            targetName: '',
+            targetTag: '',
+            targetNick: '',
+            targetGame: '',
+            targetTitle: '',
+            targetLink: ''
         }
         if(userData?.input) {
             const input = userData.input
