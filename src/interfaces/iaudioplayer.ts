@@ -33,6 +33,10 @@ interface IAudioBase {
      * Optional: Repeat the playback of this audio this many times.
      */
     repeat?: number
+    /**
+     * Optional: Channel to play on, it's a separate instance of the audio player, defaults to 0.
+     */
+    channel?: number
 }
 
 // Callbacks

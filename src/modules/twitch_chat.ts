@@ -3,8 +3,10 @@ class TwitchChat {
     private _socket?: WebSockets
     private _isConnected: boolean = false
     private _userName: string = ''
-    init(userName: string) {
+    private _channel: string = ''
+    init(userName: string, channel?: string) {
         this._userName = userName
+        this._channel = channel ?? Config.twitch.channelName
         this._socket = new WebSockets(
             'wss://irc-ws.chat.twitch.tv:443',
             15,
@@ -28,12 +30,11 @@ class TwitchChat {
 
     private async onOpen(evt: any) {
         let tokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', this._userName)
-        let config: ITwitchConfig = Config.twitch
-        Utils.log(`Twitch chat connected: ${this._userName}`, this.LOG_COLOR, true, true)
+        Utils.log(`Twitch chat connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
         this._socket?.send(`PASS oauth:${tokenData?.access_token}`)
-        this._socket?.send(`NICK ${config.channelName}`)
+        this._socket?.send(`NICK ${this._userName}`)
         this._socket?.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
-        this._socket?.send(`JOIN #${config.channelName}`)
+        this._socket?.send(`JOIN #${this._channel}`)
         this._isConnected = true
     }
     private onClose(evt: any) {
@@ -60,10 +61,10 @@ class TwitchChat {
         this._chatMessageCallback(TwitchFactory.buildMessageCmd(message));
     }
     sendMessageToChannel(message: string) {
-        this._socket?.send(`PRIVMSG #${Config.twitch.channelName} :${message}`)
+        this._socket?.send(`PRIVMSG #${this._channel} :${message}`)
     }
 
     sendMessageToUser(username: string, message: string) {
-        this._socket?.send(`PRIVMSG #${Config.twitch.channelName} :/w ${username} ${message}`)
+        this._socket?.send(`PRIVMSG #${this._channel} :/w ${username} ${message}`)
     }
 }

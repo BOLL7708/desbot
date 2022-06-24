@@ -2,7 +2,35 @@ class AudioPlayer {
     static get STATUS_OK() { return 0 }
     static get STATUS_ERROR() { return 1 }
     static get STATUS_ABORTED() { return 2 }
+    private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`AudioPlayer: Played callback not set, ${nonce}->${status}`) } // Actually used but does not reference back through .call()
+    public setPlayedCallback(callback: IAudioPlayedCallback) {
+        this._callback = callback
+    }
+    private _pool: Map<number, AudioPlayerInstance> = new Map()
 
+    enqueueAudio(audio: IAudio|undefined) {
+        if(audio) {
+            const channel = audio.channel ?? 0
+            if(!this._pool.has(channel)) {
+                const player = new AudioPlayerInstance()
+                this._pool.set(channel, player)
+                player.setPlayedCallback(this.playedCallback)
+            }
+            this._pool.get(channel)?.enqueueAudio(audio)
+        }
+    }
+
+    stop(channel: number, andClearQueue: boolean = false) {
+        const player = this._pool.get(channel)
+        player?.stop(andClearQueue)
+    }
+
+    private playedCallback(nonce: string, status: number) {
+        this._callback(nonce, status)
+    }
+}
+
+class AudioPlayerInstance {
     private _audio?: HTMLAudioElement
     private _queueLoopHandle: number = 0
     private _queue: IAudio[] = []
@@ -37,7 +65,7 @@ class AudioPlayer {
             this._audio?.play()
         })
 
-        function doCallback(self: AudioPlayer, status: number) {
+        function doCallback(self: AudioPlayerInstance, status: number) {
             if(self._callback != null && self._currentNonce != null) self._callback(self._currentNonce, status)
             // console.log(`AudioPlayer: Finished playing audio: ${this._currentNonce}, status: ${status}`)
             self._currentNonce = undefined

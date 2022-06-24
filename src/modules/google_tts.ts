@@ -6,7 +6,7 @@ class GoogleTTS {
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
     // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
-    private _audio: AudioPlayer = new AudioPlayer()
+    private _audio: AudioPlayerInstance = new AudioPlayerInstance()
     private _voices: IGoogleVoice[] = [] // Cache
     private _randomVoices: IGoogleVoice[] = [] // Cache for randomizing starter voice
     private _languages: string[] = [] // Cache
