@@ -232,6 +232,8 @@ class Utils {
      * - Replaces %userInput with the redeemer's input.
      * - Replaces %userNumber with the redeemer's input parsed to number or NaN.
      * - Replaces %userWord with the redeemer's input truncated to the first word.
+     * - Replaces %userBits with the cheerer's bit amount.
+     * - Replaces %userBitsTotal with the cheerer's historial total bits cheered.
      * 
      * If a Steam game is played, these tags can be used:
      * - Replaces %gameId with the current game's ID.
@@ -302,6 +304,8 @@ class Utils {
             userInput: '',
             userNumber: '',
             userWord: '',
+            userBits: userData?.bits?.toString() ?? '0',
+            userBitsTotal: userData?.bitsTotal?.toString() ?? 'N/A',
 
             gameId: '',
             gamePrice: '',

@@ -7,12 +7,19 @@ class TwitchPubsub {
     private _onSubscriptionCallback: ITwitchPubsubSubscriptionCallback = (message) => { console.log('PubSub Subscription unhandled') }
     private _onCheerCallback: ITwitchPubsubCheerCallback = (message) => { console.log('PubSub Cheer unhandled') }
     
-    private _rewards: ITwitchReward[] = []
+    private _rewards: Map<string, ITwitchReward> = new Map()
     registerReward(twitchReward: ITwitchReward) {
-        Utils.log(`Registering reward: ${twitchReward.id}`, this.LOG_COLOR)
-        const existingRewardIndex = this._rewards.findIndex((reward) => reward.id == twitchReward.id )
-        if(existingRewardIndex > -1) this._rewards.splice(existingRewardIndex, 1)
-        this._rewards.push(twitchReward)
+        if(twitchReward.id) {
+            Utils.log(`Registering reward: ${twitchReward.id}`, this.LOG_COLOR)
+            this._rewards.set(twitchReward.id ?? '', twitchReward)
+        } else {
+            Utils.log(`Failed registering reward as ID was: ${twitchReward.id}`, Color.DarkRed)
+        }
+    }
+    private _cheers: Map<number, ITwitchCheer> = new Map()
+    registerCheer(twitchCheer: ITwitchCheer) {
+        Utils.log(`Registering cheer: ${this._cheers}`, this.LOG_COLOR)
+        this._cheers.set(twitchCheer.bits, twitchCheer)
     }
 
     setOnRewardCallback(callback: ITwitchPubsubRewardCallback) {
@@ -63,7 +70,7 @@ class TwitchPubsub {
         Utils.log('PubSub disconnected', this.LOG_COLOR, true, true)
     }
 
-    private onMessage(evt:any) {
+    private async onMessage(evt:any) {
         const msg: ITwitchPubsubMessage = JSON.parse(evt.data)
         const topic = Utils.removeLastPart('-', msg?.data?.topic)
         switch(msg.type) {
@@ -88,9 +95,12 @@ class TwitchPubsub {
                                 }
                                 Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                                 if(id !== null) this._onRewardCallback(id, rewardMessage)
-                                let reward = this._rewards.find(reward => id == reward.id)
+                                
+                                // Event
+                                const reward = this._rewards.get(id)
                                 if(reward?.callback) reward.callback(Actions.userDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
                                 else console.warn(`Reward not found: ${id}, the reward might be in the wrong group!`)
+                                
                                 break
                             default:
                                 Utils.log(`Unknown PubSub message type: ${rewardMessage.type}`, this.LOG_COLOR)
@@ -109,6 +119,12 @@ class TwitchPubsub {
                         console.log(msg)
                         console.log(cheerMessage)
                         this._onCheerCallback(cheerMessage)
+
+                        // Event
+                        const cheer = this._cheers.get(cheerMessage.data?.bits_used)
+                        if(cheer?.callback) cheer.callback(await Actions.userDataFromCheerMessage(cheerMessage), undefined, undefined)
+                        else console.warn(`Cheer not found: ${cheerMessage.data?.bits_used}, the cheer might just not exist!`)
+
                         break
                 }
                 break

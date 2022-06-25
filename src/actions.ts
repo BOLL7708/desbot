@@ -1,13 +1,14 @@
 class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-        for(const event of Object.entries(Config.events)) {
-            if(event[1].triggers.reward) await this.registerReward(event[0], event[1])
-            if(event[1].triggers.command) await this.registerCommand(event[0], event[1])
+        for(const [key, event] of Object.entries(Config.events)) {
+            if(event.triggers.reward) await this.registerReward(key, event)
+            if(event.triggers.command) await this.registerCommand(key, event)
+            if(event.triggers.cheer) await this.registerCheer(key, event)
         }
     }
 
-    public static userDataFromRedemptionMessage(message: ITwitchPubsubRewardMessage): IActionUser {
+    public static userDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): IActionUser {
         return {
             id: message?.data?.redemption?.user?.id ?? '',
             login: message?.data?.redemption?.user?.login ?? '',
@@ -17,9 +18,32 @@ class Actions {
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
-            isSubscriber: false
+            isSubscriber: false,
+            bits: 0,
+            bitsTotal: 0
         }
     }
+    public static async userDataFromCheerMessage(message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
+        const modules = ModulesSingleton.getInstance()
+        const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_id ?? '')
+        return {
+            id: user?.id ?? '',
+            login: user?.login ?? '',
+            name: user?.display_name ?? '',
+            input: message?.data?.chat_message ?? '',
+            color: '',
+            isBroadcaster: false,
+            isModerator: false,
+            isVIP: false,
+            isSubscriber: false,
+            bits: message?.data?.bits_used ?? 0,
+            bitsTotal: message?.data?.total_bits_used ?? 0
+        }
+    }
+    /**
+     * Used for programmatic command execution not done by a user.
+     * @returns 
+     */
     public static async getEmptyUserDataForCommands(): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(Config.twitch.channelName)
@@ -32,14 +56,16 @@ class Actions {
             isBroadcaster: true,
             isModerator: false,
             isVIP: false,
-            isSubscriber: false
+            isSubscriber: false,
+            bits: 0,
+            bitsTotal: 0
         }
     }
 
     public static async registerReward(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         const actionCallback = this.buildActionCallback(key, event)
-        const reward:ITwitchReward = {
+        const reward: ITwitchReward = {
             id: await Utils.getRewardId(key),
             callback: async (user, index, msg) => {
                 // Prep for incremental reward // TODO: Move this out to above the registration?
@@ -87,6 +113,22 @@ class Actions {
                 : {...event.triggers.command, cooldownCallback: actionCallback}
             )
             modules.twitch.registerCommand(useThisCommand)
+        }
+    }
+
+    public static async registerCheer(key: string, event: IEvent) {
+        const modules = ModulesSingleton.getInstance()
+        const actionCallback = this.buildActionCallback(key, event)
+        const cheer: ITwitchCheer = {
+            bits: event.triggers.cheer ?? 0,
+            callback: async (user, index, msg) => {
+                actionCallback(user, index, msg)
+            }
+        }
+        if(cheer.bits > 0) {
+            modules.twitchPubsub.registerCheer(cheer)
+        } else {
+            Utils.logWithBold(`Cannot register cheer event for: <${key}>, it might be missing a cheer config.`, 'red')
         }
     }
     
@@ -288,6 +330,7 @@ class Actions {
                 const clonedConfig = Utils.clone(config)
                 clonedConfig.title = await Utils.replaceTagsInText(clonedConfig.title ?? '', user)
                 if(clonedConfig.image == undefined) clonedConfig.image = userData?.profile_image_url
+                clonedConfig.image = await Utils.replaceTagsInText(clonedConfig.image ?? '', user)
                 clonedConfig.subtitle = await Utils.replaceTagsInText(clonedConfig.subtitle ?? '', user)
                 modules.sign.enqueueSign(clonedConfig)
             })

@@ -88,7 +88,9 @@ class Twitch{
             isModerator: isModerator,
             isVIP: isVIP,
             isSubscriber: isSubscriber,
-            isBroadcaster: isBroadcaster
+            isBroadcaster: isBroadcaster,
+            bits: parseInt(messageCmd?.properties?.bits ?? '0'),
+            bitsTotal: -1
         }
 
         // For logging

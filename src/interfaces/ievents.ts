@@ -52,6 +52,11 @@ interface IEvent {
          * If set to an array, it can act in multiple ways. // TODO: Define ways.
          */
         reward?: ITwitchHelixRewardConfig|ITwitchHelixRewardUpdate[]
+
+        /**
+         * If a viewer cheers this specific bits value it will trigger this event.
+         */
+        cheer?: number
     }
     actions?: {
         // TODO: Add array support to everything? Random/Shuffle functionality?

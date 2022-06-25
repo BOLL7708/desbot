@@ -10,7 +10,9 @@ interface IActionUser {
     isBroadcaster: boolean
     isModerator: boolean
     isVIP: boolean
-    isSubscriber: boolean
+    isSubscriber: boolean,
+    bits: number,
+    bitsTotal: number
 }
 
 interface ICommandConfig {
@@ -31,6 +33,8 @@ interface ITextTags {
     userInput: string
     userNumber: string
     userWord: string
+    userBits: string
+    userBitsTotal: string
 
     gameId: string
     gamePrice: string

@@ -106,6 +106,10 @@ interface ITwitchReward {
     id?: string
     callback?: ITwitchActionCallback
 }
+interface ITwitchCheer {
+    bits: number
+    callback?: ITwitchActionCallback
+}
 
 // Settings
 interface ITwitchTokens {

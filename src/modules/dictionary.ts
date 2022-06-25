@@ -88,7 +88,7 @@ class Dictionary {
 
             // Word replacement with other word(s)
             if(!done && this._dictionary.has(wordKey)) {
-                const replaceWithArr = Utils.splitOnAny(this._dictionary.get(wordKey), '|,')
+                const replaceWithArr = Utils.splitOnAny(this._dictionary.get(wordKey), ',;')
                 let replaceWith = ''
                 if(replaceWithArr.length > 0) { // Randomize if we find a list of words
                     replaceWith = Utils.randomFromArray(replaceWithArr)

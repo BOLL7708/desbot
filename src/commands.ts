@@ -398,10 +398,17 @@ class Commands {
         */
         [Keys.COMMAND_DICTIONARY]: async (user) => {
             const modules = ModulesSingleton.getInstance()
-            const words = Utils.splitOnFirst(' ', user.input)
-            if(words.length == 2 && words[1].trim().length > 0) {
+            let [word, substitute] = Utils.splitOnFirst(' ', user.input)
+            word = word.trim().toLocaleLowerCase()
+            substitute = substitute.trim().replace(/\|/g, ',').toLowerCase()
+            if(word.length && substitute.length > 0) {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
-                const setting = <IDictionaryEntry> {original: words[0].toLowerCase(), substitute: words[1].toLowerCase(), editor: user.login, datetime: Utils.getISOTimestamp()}
+                const setting = <IDictionaryEntry> {
+                    original: word, 
+                    substitute: substitute, 
+                    editor: user.login, 
+                    datetime: Utils.getISOTimestamp()
+                }
                 Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
                 modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                 modules.tts.enqueueSpeakSentence(
@@ -409,8 +416,8 @@ class Commands {
                         <string> speech, 
                         user,
                         {
-                            word1: words[0], 
-                            word2: words[1]
+                            word: word, 
+                            substitute: substitute
                         }
                     ),
                     Config.twitch.chatbotName,
@@ -422,7 +429,6 @@ class Commands {
                 )
             } else { // Messed up
                 const chat = Config.controller.chatReferences[Keys.COMMAND_DICTIONARY]
-                const word = (words[0] ?? '').toLowerCase()
                 const currentEntry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
                 if(currentEntry) {
                     modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[1], user,  {word: currentEntry.original, value: currentEntry.substitute}))
