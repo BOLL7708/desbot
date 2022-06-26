@@ -176,9 +176,8 @@ class Commands {
         [Keys.COMMAND_QUOTE]: async (user) => {
             const modules = ModulesSingleton.getInstance()
             const states = StatesSingleton.getInstance()
-            const parts = Utils.splitOnFirst(' ', user.input)
-            const login = Utils.cleanUserName(parts[0] ?? '')
-            const quote = parts[1] ?? ''
+            let [login, quote] = Utils.splitOnFirst(' ', user.input)
+            login = Utils.cleanUserName(login ?? '')
             if(login.length > 0 && quote.length > 0) {
                 const userData = await modules.twitchHelix.getUserByLogin(login)
                 const gameData = await SteamStore.getGameMeta(states.lastSteamAppId?.toString() ?? '')
@@ -710,11 +709,12 @@ class Commands {
 
         [Keys.COMMAND_RAID]: async (user) => {
             const modules = ModulesSingleton.getInstance()
-            const channel = 
+            let channel = 
                 Utils.getFirstUserTagInText(user.input) 
-                ?? Utils.splitOnFirst(' ', user.input)[0] 
+                ?? user.input.split(' ').shift()
                 ?? ''
-            Utils.log(`CommandRaid: ${user.input} -> ${channel}`, Color.Blue, true, true)
+            if(channel.includes('https://')) channel = channel.split('/').pop() ?? ''
+            Utils.log(`Command Raid: ${user.input} -> ${channel}`, Color.Blue, true, true)
             const channelData = await modules.twitchHelix.getChannelByName(channel)
             const chat = Config.controller.chatReferences[Keys.COMMAND_RAID]
             if(channelData) {

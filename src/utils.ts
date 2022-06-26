@@ -275,10 +275,12 @@ class Utils {
         }
 
         // Target tags from incoming user tag
-        const userTag = 
+        let userTag = 
             this.getFirstUserTagInText(userData?.input ?? '') 
-            ?? Utils.splitOnFirst( ' ', userData?.input ?? '')[0] 
+            ?? userData?.input?.split(' ')?.shift()
             ?? ''
+        if(userTag.includes('https://')) userTag = userTag.split('/').pop() ?? ''
+        
         const modules = ModulesSingleton.getInstance()
         if(userTag) {
             const channelData = await modules.twitchHelix.getChannelByName(userTag)

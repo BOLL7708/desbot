@@ -63,7 +63,7 @@ The widget comes with a prepped config, based on what I run myself on my stream.
     3. `src/_data/!keys.ts`
 
 ## Google Cloud Platform Text-to-Speech (WIP docs)
-1. Register for Google Cloud Platform, needs a billing accound.
+1. Register for Google Cloud Platform, needs a billing account.
 2. Enable the Cloud Text to Speech API
 3. IAM & Admin: Add a Service Account
 4. APIs & Services: Create an API key for the Cloud Text to Speech API

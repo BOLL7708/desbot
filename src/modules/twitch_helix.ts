@@ -39,10 +39,12 @@ class TwitchHelix {
         return this.getUserByUrl(url)
     }
 
-    private async getUserByUrl(url: string):Promise<ITwitchHelixUsersResponseData|undefined> {
-        const response: ITwitchHelixUsersResponse = await (await fetch(url, {headers: this.getAuthHeaders()}))?.json()
+    private async getUserByUrl(url: string): Promise<ITwitchHelixUsersResponseData|undefined> {
+        const response: ITwitchHelixUsersResponse = await (
+            await fetch(url, {headers: this.getAuthHeaders()})
+        )?.json()
         const result: ITwitchHelixUsersResponseData|undefined = response?.data.pop()
-        if(result != undefined) {
+        if(result) {
             const id = parseInt(result.id)
             if(id != NaN) {
                 this._userCache.set(id, result)
