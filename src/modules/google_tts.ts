@@ -218,24 +218,42 @@ class GoogleTTS {
         if(loadedVoice != null) voice = loadedVoice
         
         const inputArr = input.split(' ')
-        let error = ''
+        let changed = false
         inputArr.forEach(setting => {
             setting = setting.toLowerCase()
+            
 
             // Match gender
-            if(setting == 'female' || setting == 'male') {
+            if((setting == 'female' || setting == 'male') && setting != voice.gender.toLowerCase()) {
                 voice.voiceName = '' // Gender is not respected if we have a name
                 voice.gender = setting
+                changed = true
+                Utils.log(`GoogleTTS: Matched gender: ${setting}`, Color.BlueViolet)
                 return
             }
                        
             // Match country code
-            if(setting.indexOf('-') > 0 && setting.split('-').length == 2) {
+            if((setting.includes('-') && setting.split('-').length == 2) || setting.length <= 3) {
                 if(this._languages.find(lang => lang.toLowerCase() == setting)) {
-                    voice.voiceName = '' // Language is not respected if we have a name
-                    voice.languageCode = setting
-                    return 
-                } else error = 'messed up a language code'
+                    if(voice.languageCode.toLowerCase() != setting) {
+                        voice.voiceName = '' // Language is not respected if we have a name
+                        voice.languageCode = setting
+                        changed = true
+                        Utils.log(`GoogleTTS: Matched full language code: ${setting}`, Color.BlueViolet)
+                        return
+                    }
+                } else {
+                    const validCode = 
+                        this._languages.find(lang => lang.toLowerCase().startsWith(setting))
+                        ?? this._languages.find(lang => lang.toLowerCase().endsWith(setting))
+                    if(validCode && validCode.toLowerCase() != voice.languageCode.toLowerCase()) {
+                        voice.voiceName = '' // Language is not respected if we have a name
+                        voice.languageCode = validCode
+                        changed = true
+                        Utils.log(`GoogleTTS: Matched partial language code: ${setting}`, Color.BlueViolet)
+                        return
+                    }
+                }
             }
             
             // Match incoming full voice name
@@ -243,31 +261,36 @@ class GoogleTTS {
             const matches = setting.match(re)
             if(matches != null) {
                 if(this._voices.find(v => v.name.toLowerCase() == matches[0])) {
-                    voice.voiceName = matches[0]
-                    voice.languageCode = `${matches[1]}-${matches[2]}`
-                    return
-                } else {
-                    console.warn(`Voice not found: ${matches[0]}`)
-                    error = 'messed up a voice name'
+                    if(voice.voiceName.toLowerCase() != matches[0]) {
+                        voice.voiceName = matches[0]
+                        voice.languageCode = `${matches[1]}-${matches[2]}`
+                        changed = true
+                        Utils.log(`GoogleTTS: Matched voice name: ${setting}`, Color.BlueViolet)
+                        return
+                    }
                 }
             }
 
             // Match reset
             if(setting == 'reset' || setting == 'x') {
                 voice = defaultVoice
+                changed = true
+                Utils.log(`GoogleTTS: Matched reset: ${setting}`, Color.BlueViolet)
                 return 
             }
 
             // Randomize among ALL voices
             if(setting == 'random' || setting == 'rand' || setting == '?') {
+                Utils.log(`GoogleTTS: Matched random: ${setting}`, Color.BlueViolet)
                 const randomVoice = this._voices[Math.floor(Math.random()*this._voices.length)]
                 voice = this.buildVoice(userName, randomVoice)
+                changed = true
                 return
             }
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
-        console.log(`GoogleTTS: Voice saved: ${success}`)
-        this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, TTSType.Action, nonce)
+        Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
+        this.enqueueSpeakSentence(changed ? 'now sounds like this' : 'still sounds like this', userName, TTSType.Action, nonce)
         return voice.voiceName
     }
 
