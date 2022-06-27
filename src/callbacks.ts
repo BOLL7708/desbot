@@ -28,7 +28,7 @@ class Callbacks {
                 if(Config.audioplayer.configs.hasOwnProperty(firstWord)) {
                     modules.tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
                 }
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.login, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(messageData.text, userData.login, TTSType.Announcement)
 
                 // Pipe to VR (basic)
                 const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
@@ -39,7 +39,7 @@ class Callbacks {
         modules.twitch.setChatCheerCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
-            modules.tts.enqueueSpeakSentence(messageData.text, userData.login, GoogleTTS.TYPE_CHEER, Utils.getNonce('TTS'), messageData.bits, clearRanges)
+            modules.tts.enqueueSpeakSentence(messageData.text, userData.login, TTSType.Cheer, Utils.getNonce('TTS'), messageData.bits, clearRanges)
 
             // Pipe to VR (basic)
             const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
@@ -48,8 +48,8 @@ class Callbacks {
 
         modules.twitch.setChatCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
-            let type = GoogleTTS.TYPE_SAID
-            if(messageData.isAction) type = GoogleTTS.TYPE_ACTION
+            let type = TTSType.Said
+            if(messageData.isAction) type = TTSType.Action
             
             if(states.ttsForAll) { 
                 // TTS is on for everyone

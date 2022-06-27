@@ -26,6 +26,13 @@ Config.events = {...Config.events,
                 is_user_input_required: true,
                 should_redemptions_skip_request_queue: true
             }
+        },
+        actions: {
+            speech: {
+                voiceOfUser: '%userLogin',
+                entries: '%userInput',
+                type: TTSType.Said
+            }
         }
     },
     [KeysTemplate.REWARD_TTSSETVOICE]: {

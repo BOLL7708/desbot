@@ -300,6 +300,7 @@ class Utils {
 
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const result = {
+            userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
             userTag: `@${userData?.login}`,
             userNick: await this.loadCleanName(userData?.login ?? ''),

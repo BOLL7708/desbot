@@ -119,4 +119,5 @@ interface IGoogleAudio {
 interface ISpeechConfig {
     entries: string|string[]
     voiceOfUser?: string
+    type?: TTSType
 }

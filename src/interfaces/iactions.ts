@@ -27,6 +27,7 @@ interface ICommandConfig {
 }
 
 interface ITextTags {
+    userLogin: string
     userName: string
     userTag: string
     userNick: string
@@ -52,4 +53,8 @@ interface ITextTags {
     targetGame: string
     targetTitle: string
     targetLink: string
+}
+
+interface ITTSConfig {
+
 }

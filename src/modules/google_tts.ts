@@ -1,8 +1,11 @@
+enum TTSType {
+    Said, // [name] said: [text]
+    Action, // [name] [text]
+    Announcement, // [text]
+    Cheer // [name] cheered: [text]
+}
+
 class GoogleTTS {
-    static get TYPE_SAID() { return 0 } // [name] said: [text]
-    static get TYPE_ACTION() { return 1 } // [name] [text]
-    static get TYPE_ANNOUNCEMENT() { return 2 } // [text]
-    static get TYPE_CHEER() { return 3 } // [name] cheered: [text]
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
     // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
@@ -87,7 +90,7 @@ class GoogleTTS {
     async enqueueSpeakSentence(
         input: string|string[], 
         userName: string, 
-        type: number=0, 
+        type: TTSType = TTSType.Said, 
         nonce: string='', 
         meta: any=null, 
         clearRanges: ITwitchEmotePosition[]=[],
@@ -119,7 +122,7 @@ class GoogleTTS {
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
         const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
-        cleanTextConfig.removeBitEmotes = sentence.type == GoogleTTS.TYPE_CHEER
+        cleanTextConfig.removeBitEmotes = sentence.type == TTSType.Cheer
         let cleanText = await Utils.cleanText(
             text, 
             cleanTextConfig,
@@ -132,7 +135,7 @@ class GoogleTTS {
         }
 
         if( // If announcement the dictionary can be skipped.
-            type == GoogleTTS.TYPE_ANNOUNCEMENT 
+            type == TTSType.Announcement 
             && Config.google.dictionaryConfig.skipForAnnouncements
         ) skipDictionary = true
 
@@ -140,16 +143,16 @@ class GoogleTTS {
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
-            case GoogleTTS.TYPE_SAID:
+            case TTSType.Said:
                 const speech = Config.twitchChat.speech ?? '%userName said: %userInput'
                 cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
                     ? cleanText 
                     : Utils.replaceTags(speech, {userName: cleanName, userInput: cleanText})
                 break
-            case GoogleTTS.TYPE_ACTION: 
+            case TTSType.Action: 
                 cleanText = `${cleanName} ${cleanText}`
                 break
-            case GoogleTTS.TYPE_CHEER:
+            case TTSType.Cheer:
                 let bitText = sentence.meta > 1 ? 'bits' : 'bit'
                 cleanText = `${cleanName} cheered ${sentence.meta} ${bitText}: ${cleanText}`
                 break
@@ -264,7 +267,7 @@ class GoogleTTS {
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         console.log(`GoogleTTS: Voice saved: ${success}`)
-        this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, GoogleTTS.TYPE_ACTION, nonce)
+        this.enqueueSpeakSentence(error.length > 0 ? error : 'now sounds like this', userName, TTSType.Action, nonce)
         return voice.voiceName
     }
 

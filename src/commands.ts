@@ -22,7 +22,7 @@ class Commands {
             const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_ON]
             const onText:string = !states.ttsForAll ? speech[0] : speech[1]
             states.ttsForAll = true
-            modules.tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(onText, Config.twitch.chatbotName, TTSType.Announcement)
             modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: false})
         },
         [Keys.COMMAND_TTS_OFF]: async (user) => {
@@ -31,7 +31,7 @@ class Commands {
             const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_OFF]
             const offText = states.ttsForAll ? speech[0] : speech[1]
             states.ttsForAll = false
-            modules.tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(offText, Config.twitch.chatbotName, TTSType.Announcement)
             modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: true})
         },
         [Keys.COMMAND_TTS_SILENCE]: (user) => {
@@ -80,7 +80,7 @@ class Commands {
                         }
                     ), 
                     Config.twitch.chatbotName, 
-                    GoogleTTS.TYPE_ANNOUNCEMENT
+                    TTSType.Announcement
                 )
             } else if(userToRename.length > 0) { 
                 // We return current name in chat
@@ -109,9 +109,9 @@ class Commands {
                 const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
                 if(blacklist == null || blacklist.active == false) {
                     Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user), Config.twitch.chatbotName, TTSType.Announcement)
                 } else {
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user), Config.twitch.chatbotName, TTSType.Announcement)
                 }                    
             }
         },
@@ -125,9 +125,9 @@ class Commands {
             if(blacklist != null && blacklist.active) {
                 const reason = Utils.cleanSetting(parts[1] ?? '')
                 Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user), Config.twitch.chatbotName, TTSType.Announcement)
             } else {
-                modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user), Config.twitch.chatbotName, TTSType.Announcement)
             }
         },
 
@@ -147,14 +147,14 @@ class Commands {
             const states = StatesSingleton.getInstance()
             states.pipeAllChat = true
             const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_ON]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
         },       
         [Keys.COMMAND_CHAT_OFF]: (user) => {
             const modules = ModulesSingleton.getInstance()
             const states = StatesSingleton.getInstance()
             states.pipeAllChat = false
             const speech = Config.controller.speechReferences[Keys.COMMAND_CHAT_OFF]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
         },
         [Keys.COMMAND_PING_ON]: (user) => {
             const modules = ModulesSingleton.getInstance()
@@ -162,7 +162,7 @@ class Commands {
             states.pingForChat = true
             Functions.setEmptySoundForTTS()
             const speech = Config.controller.speechReferences[Keys.COMMAND_PING_ON]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
         },
         [Keys.COMMAND_PING_OFF]: (user) => {
             const modules = ModulesSingleton.getInstance()
@@ -170,7 +170,7 @@ class Commands {
             states.pingForChat = false
             Functions.setEmptySoundForTTS()
             const speech = Config.controller.speechReferences[Keys.COMMAND_PING_OFF]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
         },
               
         [Keys.COMMAND_QUOTE]: async (user) => {
@@ -200,7 +200,7 @@ class Commands {
                             user
                         ), 
                         Config.twitch.chatbotName, 
-                        GoogleTTS.TYPE_ANNOUNCEMENT
+                        TTSType.Announcement
                     )
                 } else Utils.log(`Could not find user ${login}`, Color.Red)
             } else {
@@ -239,14 +239,14 @@ class Commands {
             const states = StatesSingleton.getInstance()
             states.logChatToDiscord = true
             const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_ON]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
         },
         [Keys.COMMAND_LOG_OFF]: (user) => {
             const modules = ModulesSingleton.getInstance()
             const states = StatesSingleton.getInstance()
             states.logChatToDiscord = false
             const speech = Config.controller.speechReferences[Keys.COMMAND_LOG_OFF]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
         },
 
         /*
@@ -269,7 +269,7 @@ class Commands {
                 const steps = forMinutes*60*1000/intervalMs
                 if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
                     // Fail to start interval
-                    modules.tts.enqueueSpeakSentence(speech[3], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(speech[3], Config.twitch.chatbotName, TTSType.Announcement)
                 } else { 
                     // TODO: Disable all scale rewards
                     // Launch interval
@@ -284,7 +284,7 @@ class Commands {
                             }
                         ), 
                         Config.twitch.chatbotName, 
-                        GoogleTTS.TYPE_ANNOUNCEMENT
+                        TTSType.Announcement
                     )
                     let currentScale = fromScale
                     let currentStep = 0
@@ -300,7 +300,7 @@ class Commands {
                             Settings.pushLabel(Settings.WORLD_SCALE_LABEL, `🌍 ${Math.round(currentScale*100)/100}%`)
                             currentScale *= multiple
                             if(currentStep == steps) {
-                                modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                                modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, TTSType.Announcement)
                                 clearInterval(states.scaleIntervalHandle)
                                 setTimeout(()=>{
                                     Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
@@ -318,7 +318,7 @@ class Commands {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                     clearInterval(states.scaleIntervalHandle)
                     Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
-                    modules.tts.enqueueSpeakSentence(speech[4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(speech[4], Config.twitch.chatbotName, TTSType.Announcement)
                 } else { // Manual setting
                     const value = Math.max(10, Math.min(1000, scale || 100))
                     modules.tts.enqueueSpeakSentence(
@@ -330,7 +330,7 @@ class Commands {
                             }
                         ), 
                         Config.twitch.chatbotName, 
-                        GoogleTTS.TYPE_ANNOUNCEMENT
+                        TTSType.Announcement
                     )
                     modules.openvr2ws.setSetting({
                         setting: OpenVR2WS.SETTING_WORLD_SCALE,
@@ -353,7 +353,7 @@ class Commands {
             const brightness = Utils.toInt(user.input, 130)
             const speech = Config.controller.speechReferences[Keys.COMMAND_BRIGHTNESS]
             const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
-            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()}), Config.twitch.chatbotName, TTSType.Announcement)
             modules.openvr2ws.setSetting({
                 setting: OpenVR2WS.SETTING_ANALOG_GAIN,
                 value: value/100.0
@@ -368,7 +368,7 @@ class Commands {
             const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
             const speech = Config.controller.speechReferences[Keys.COMMAND_REFRESHRATE]
             const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
-            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()}), Config.twitch.chatbotName, TTSType.Announcement)
             modules.openvr2ws.setSetting({
                 setting: OpenVR2WS.SETTING_PREFERRED_REFRESH_RATE,
                 value: value
@@ -381,7 +381,7 @@ class Commands {
             const eyeMode = Utils.toInt(user.input, 4)
             const speech = Config.controller.speechReferences[Keys.COMMAND_VRVIEWEYE]
             const value = Math.max(0, Math.min(5, eyeMode))
-            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()}), Config.twitch.chatbotName, TTSType.Announcement)
             modules.openvr2ws.setSetting({
                 setting: OpenVR2WS.SETTING_MIRROR_VIEW_EYE,
                 value: value
@@ -420,7 +420,7 @@ class Commands {
                         }
                     ),
                     Config.twitch.chatbotName,
-                    GoogleTTS.TYPE_ANNOUNCEMENT,
+                    TTSType.Announcement,
                     '',
                     null,
                     [],
@@ -478,7 +478,7 @@ class Commands {
             const states = StatesSingleton.getInstance()
             states.useGameSpecificRewards = true
             const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_ON]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
             Functions.appIdCallback(states.lastSteamAppId ?? '', StatesSingleton.getInstance().lastSteamAppIsVR)
         },
         [Keys.COMMAND_GAMEREWARDS_OFF]: (user) => {
@@ -486,7 +486,7 @@ class Commands {
             const states = StatesSingleton.getInstance()
             states.useGameSpecificRewards = false
             const speech = Config.controller.speechReferences[Keys.COMMAND_GAMEREWARDS_OFF]
-            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech, Config.twitch.chatbotName, TTSType.Announcement)
             Functions.appIdCallback('', false)
         },
         [Keys.COMMAND_REFUND_REDEMPTION]: async (user) => {
@@ -520,7 +520,7 @@ class Commands {
             const modules = ModulesSingleton.getInstance()
             const redemptions = Settings.getFullSettings<ITwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
             const speech = Config.controller.speechReferences[Keys.COMMAND_CLEAR_REDEMPTIONS]
-            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, TTSType.Announcement)
             const unfulfilledRedemptions = redemptions?.filter(
                 redemption => redemption.status == 'UNFULFILLED'
             )
@@ -533,13 +533,13 @@ class Commands {
                 }
                 await Settings.saveSettings(Settings.TWITCH_REWARD_REDEMPTIONS, []) // Clear entire list
                 await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS) // Load again to replace in-memory list
-                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {total: unfulfilledRedemptions.length.toString(), count: clearCount.toString()}), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
-            } else modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {total: unfulfilledRedemptions.length.toString(), count: clearCount.toString()}), Config.twitch.chatbotName, TTSType.Announcement)
+            } else modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, TTSType.Announcement)
         },
         [Keys.COMMAND_RESET_INCREWARD]: async (user) => {
             const modules = ModulesSingleton.getInstance()
             const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_INCREWARD]
-            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, TTSType.Announcement)
             // Reset rewards with multiple steps
             const allRewardKeys = Utils.getAllEventKeys(true)
             let totalCount = 0
@@ -574,7 +574,7 @@ class Commands {
                 total: totalCount.toString(), 
                 reset: totalResetCount.toString(), 
                 skipped: totalSkippedCount.toString()
-            }), Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            }), Config.twitch.chatbotName, TTSType.Announcement)
         },
 
         /*
@@ -595,7 +595,7 @@ class Commands {
             const numberOfStreams = await ChannelTrophy.getNumberOfStreams()
             const streamNumber = Utils.toInt(user.input)
             if(user.input == "all") {
-                modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, TTSType.Announcement)
                 for(let i=0; i<numberOfStreams; i++) {
                     const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(modules.twitchHelix, i)
                     Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
@@ -603,25 +603,25 @@ class Commands {
                         embeds: embeds
                     })
                 }
-                modules.tts.enqueueSpeakSentence(speech[1], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(speech[1], Config.twitch.chatbotName, TTSType.Announcement)
             } else if (!isNaN(streamNumber)) {
-                modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, TTSType.Announcement)
                 const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(modules.twitchHelix, streamNumber-1)
                 Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                     content: Utils.numberToDiscordEmote(streamNumber, true),
                     embeds: embeds
                 }, (success) => {
-                    modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, TTSType.Announcement)
                 })
                 
             } else {
-                modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, TTSType.Announcement)
                 const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(modules.twitchHelix)
                 Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.COMMAND_CHANNELTROPHY_STATS], {
                     content: Utils.numberToDiscordEmote(numberOfStreams, true),
                     embeds: embeds
                 }, (success) => {
-                    modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+                    modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4], Config.twitch.chatbotName, TTSType.Announcement)
                 })
             }
         },
@@ -632,7 +632,7 @@ class Commands {
             let lastCount = pageCount
             const oldClips = await Settings.getFullSettings<ITwitchClip>(Settings.TWITCH_CLIPS)
             const speech = Config.controller.speechReferences[Keys.COMMAND_CLIPS]
-            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(speech[0], Config.twitch.chatbotName, TTSType.Announcement)
 
             // Get all clips
             const allClips: ITwitchHelixClipResponseData[] = []
@@ -664,7 +664,7 @@ class Commands {
                     }
                 ), 
                 Config.twitch.chatbotName, 
-                GoogleTTS.TYPE_ANNOUNCEMENT
+                TTSType.Announcement
             )
 
             // Post to Discord
@@ -694,14 +694,14 @@ class Commands {
                     {count: (count-1-oldClipIds.length).toString()}
                 ), 
                 Config.twitch.chatbotName, 
-                GoogleTTS.TYPE_ANNOUNCEMENT
+                TTSType.Announcement
             )
         },
         
         [Keys.COMMAND_GAMERESET]: async (user) => {
             const modules = ModulesSingleton.getInstance()
             const states = StatesSingleton.getInstance()
-            modules.tts.enqueueSpeakSentence(Config.controller.speechReferences[Keys.COMMAND_GAMERESET], Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT)
+            modules.tts.enqueueSpeakSentence(Config.controller.speechReferences[Keys.COMMAND_GAMERESET], Config.twitch.chatbotName, TTSType.Announcement)
             Functions.appIdCallback('', false)
             states.lastSteamAppId = undefined
             states.lastSteamAppIsVR = false

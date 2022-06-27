@@ -54,16 +54,6 @@ class Rewards {
         ...##......##........##.
         ...##......##.....####..
         */
-        [Keys.REWARD_TTSSPEAK]: (user: IActionUser) => {
-            if(user.login.length > 0 && user.input.length > 0) {
-                Utils.log("TTS Message Reward", Color.DarkOrange)
-                ModulesSingleton.getInstance().tts.enqueueSpeakSentence(
-                    user.input,
-                    user.login,
-                    GoogleTTS.TYPE_SAID
-                )
-            }
-        },
         [Keys.REWARD_TTSSETVOICE]: async (user: IActionUser) => {
             Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
             const modules = ModulesSingleton.getInstance()
@@ -123,7 +113,7 @@ class Rewards {
                             user
                         ), 
                         Config.twitch.chatbotName, 
-                        GoogleTTS.TYPE_ANNOUNCEMENT
+                        TTSType.Announcement
                     )
                 }
                 // Update label in overlay

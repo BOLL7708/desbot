@@ -231,7 +231,7 @@ class Actions {
             const modules = ModulesSingleton.getInstance()
             const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
             const userName = user.login
-            modules.tts.enqueueSpeakSentence('changed the color', userName, GoogleTTS.TYPE_ACTION)
+            modules.tts.enqueueSpeakSentence('changed the color', userName, TTSType.Action)
             const lights:number[] = Config.philipshue.lightsIds
             lights.forEach(light => {
                 modules.hue.setLightState(light, cfg.x, cfg.y)
@@ -266,7 +266,12 @@ class Actions {
                 if(onTtsQueue) modules.tts.enqueueSoundEffect(config)
                 else modules.audioPlayer.enqueueAudio(config)
             }
-            if(ttsString && speechConfig) modules.tts.enqueueSpeakSentence(ttsString, speechConfig.voiceOfUser ?? Config.twitch.chatbotName, GoogleTTS.TYPE_ANNOUNCEMENT, nonce)
+            if(ttsString && speechConfig) modules.tts.enqueueSpeakSentence(
+                ttsString, 
+                await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user), 
+                speechConfig.type ?? TTSType.Announcement, 
+                nonce
+            )
         }
     }
 
