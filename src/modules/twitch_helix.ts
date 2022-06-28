@@ -43,7 +43,7 @@ class TwitchHelix {
         const response: ITwitchHelixUsersResponse = await (
             await fetch(url, {headers: this.getAuthHeaders()})
         )?.json()
-        const result: ITwitchHelixUsersResponseData|undefined = response?.data.pop()
+        const result: ITwitchHelixUsersResponseData|undefined = response?.data?.pop()
         if(result) {
             const id = parseInt(result.id)
             if(id != NaN) {
