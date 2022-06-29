@@ -258,39 +258,51 @@ class Utils {
      * @returns
      */
     static async replaceTagsInText(text: string, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
+        const modules = ModulesSingleton.getInstance()
+        const states = StatesSingleton.getInstance()
+
         // Default tags from incoming user data
         const tags = await this.getDefaultTags(userData)
-        const states = StatesSingleton.getInstance()
-        if(states.lastSteamAppId) {
-            const steamGameMeta = await SteamStore.getGameMeta(states.lastSteamAppId)
-            tags.gameId = states.lastSteamAppId ?? 'N/A'
-            tags.gamePrice = SteamStore.getPrice(steamGameMeta)
-            tags.gameLink = SteamStore.getStoreURL(states.lastSteamAppId)
-            tags.gameName = steamGameMeta?.name ?? 'N/A'
-            tags.gameInfo = steamGameMeta?.short_description ?? 'N/A'
-            tags.gameDeveloper = steamGameMeta?.developers?.join(', ') ?? 'N/A'
-            tags.gamePublisher = steamGameMeta?.publishers?.join(', ') ?? 'N/A'
-            tags.gameBanner = steamGameMeta?.header_image ?? ''
-            tags.gameRelease = steamGameMeta?.release_date?.date ?? 'N/A'
+
+        // Game tags
+        if(text.includes('%game')) {
+            if(states.lastSteamAppId) {
+                const steamGameMeta = await SteamStore.getGameMeta(states.lastSteamAppId)
+                tags.gameId = states.lastSteamAppId ?? 'N/A'
+                tags.gameLink = SteamStore.getStoreURL(states.lastSteamAppId)
+                if(steamGameMeta) {
+                    tags.gamePrice = SteamStore.getPrice(steamGameMeta)
+                    tags.gameName = steamGameMeta.name ?? 'N/A'
+                    tags.gameInfo = steamGameMeta.short_description ?? 'N/A'
+                    tags.gameDeveloper = steamGameMeta.developers?.join(', ') ?? 'N/A'
+                    tags.gamePublisher = steamGameMeta.publishers?.join(', ') ?? 'N/A'
+                    tags.gameBanner = steamGameMeta.header_image ?? ''
+                    tags.gameRelease = steamGameMeta.release_date?.date ?? 'N/A'
+                }
+            }
         }
 
-        // Target tags from incoming user tag
-        let userTag = 
-            this.getFirstUserTagInText(userData?.input ?? '') 
-            ?? userData?.input?.split(' ')?.shift()
-            ?? ''
-        if(userTag.includes('https://')) userTag = userTag.split('/').pop() ?? ''
-        
-        const modules = ModulesSingleton.getInstance()
-        if(userTag) {
-            const channelData = await modules.twitchHelix.getChannelByName(userTag)
-            if(channelData) {
-                tags.targetName = channelData.broadcaster_name
-                tags.targetTag = `@${channelData.broadcaster_name}`
-                tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
-                tags.targetGame = channelData.game_name
-                tags.targetTitle = channelData.title
-                tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
+        // Target tags
+        if(text.includes('%target')) {
+            let userTag = 
+                this.getFirstUserTagInText(userData?.input ?? '') // @-tag
+                ?? userData?.input?.split(' ')?.shift() // Just first word
+                ?? ''
+            
+            // Was it a full link? If so use last word after /
+            if(userTag.includes('https://')) userTag = userTag.split('/').pop() ?? ''
+            
+            // If we have a tag, get the user data, if they exist
+            if(userTag) {
+                const channelData = await modules.twitchHelix.getChannelByName(userTag)
+                if(channelData) {
+                    tags.targetName = channelData.broadcaster_name
+                    tags.targetTag = `@${channelData.broadcaster_name}`
+                    tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
+                    tags.targetGame = channelData.game_name
+                    tags.targetTitle = channelData.title
+                    tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
+                }
             }
         }
 
