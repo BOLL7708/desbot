@@ -57,6 +57,11 @@ interface IEvent {
          * If a viewer cheers this specific bits value it will trigger this event.
          */
         cheer?: number
+
+        /**
+         * Have something happen automatically on a timer.
+         */
+        timer?: ITimerConfig
     }
     actions?: {
         // TODO: Add array support to everything? Random/Shuffle functionality?
@@ -149,4 +154,21 @@ interface IEvent {
          */
         commands?: ICommandConfig
     }
+}
+
+interface ITimerConfig {
+    /**
+     * The time in seconds between each trigger.
+     */
+    interval?: number
+
+    /**
+     * The amount of times to trigger the event.
+     */
+    times?: number
+
+    /**
+     * Delay in seconds before first run.
+     */
+    delay?: number
 }

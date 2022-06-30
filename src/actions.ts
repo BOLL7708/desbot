@@ -5,6 +5,7 @@ class Actions {
             if(event.triggers.reward) await this.registerReward(key, event)
             if(event.triggers.command) await this.registerCommand(key, event)
             if(event.triggers.cheer) await this.registerCheer(key, event)
+            if(event.triggers.timer) await this.registerTimer(key, event)
         }
     }
 
@@ -130,6 +131,26 @@ class Actions {
         } else {
             Utils.logWithBold(`Cannot register cheer event for: <${key}>, it might be missing a cheer config.`, 'red')
         }
+    }
+
+    public static async registerTimer(key: string, event: IEvent) {
+        const actionCallback = this.buildActionCallback(key, event)
+        const user = await this.getEmptyUserDataForCommands()
+        const config = event.triggers.timer
+        let handle: number = -1
+        let count = 0
+        const times = config?.times ?? 0
+        const interval = config?.interval ?? 10
+        const delay = Math.max(0, (config?.delay ?? 10) - interval)
+        setTimeout(()=>{
+            handle = setInterval(()=>{
+                actionCallback(user)
+                count++
+                if(times > 0) {
+                    if(count >= times) clearInterval(handle)
+                }
+            }, interval*1000)
+        }, delay*1000)
     }
     
     /*
