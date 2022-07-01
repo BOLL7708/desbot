@@ -226,33 +226,7 @@ class Utils {
     }
 
     /**
-     * Replaces certain tags in a string with values meant for visible text.
-     * - Replaces %userName with the redeemer's display name with case intact.
-     * - Replaces %userTag with the redeemer's username as a user tag.
-     * - Replaces %userInput with the redeemer's input.
-     * - Replaces %userNumber with the redeemer's input parsed to number or NaN.
-     * - Replaces %userWord with the redeemer's input truncated to the first word.
-     * - Replaces %userBits with the cheerer's bit amount.
-     * - Replaces %userBitsTotal with the cheerer's historial total bits cheered.
-     * 
-     * If a Steam game is played, these tags can be used:
-     * - Replaces %gameId with the current game's ID.
-     * - Replaces %gamePrice with the current game's price.
-     * - Replaces %gameLink with the current game's Store URL.
-     * - Replaces %gameName with the current game's name.
-     * - Replaces %gameInfo with the current game's short description.
-     * - Replaces %gameDeveloper with the current game's developer(s).
-     * - Replaces %gamePublisher with the current game's publisher(s).
-     * - Replaces %gameBanner with the url to the current game's header image.
-     * - Replaces %gameRelease with the release date of the current game.
-     * 
-     * If a user tag (@login) is present in the input text, values for that channel 
-     * will be availale as:
-     * - Replaces %targetName with the target's display name with case intact.
-     * - Replaces %targetTag with the target's username as a tag.
-     * - Replaces %targetGame with the target's last played game on Twitch.
-     * - Replaces %targetTitle with the target's last stream title from Twitch.
-     * - Replaces %targetLink with the link to the target's Twitch channel.
+     * Replaces certain tags in strings used in events.
      * @param text
      * @param message
      * @returns
@@ -296,6 +270,7 @@ class Utils {
             if(userTag) {
                 const channelData = await modules.twitchHelix.getChannelByName(userTag)
                 if(channelData) {
+                    tags.targetLogin = channelData.broadcaster_login
                     tags.targetName = channelData.broadcaster_name
                     tags.targetTag = `@${channelData.broadcaster_name}`
                     tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
@@ -314,7 +289,7 @@ class Utils {
         const result = {
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
-            userTag: `@${userData?.login}`,
+            userTag: `@${userData?.name}`,
             userNick: await this.loadCleanName(userData?.login ?? ''),
             userInput: '',
             userNumber: '',
@@ -332,6 +307,7 @@ class Utils {
             gameBanner: '',
             gameRelease: '',
 
+            targetLogin: '',
             targetName: '',
             targetTag: '',
             targetNick: '',

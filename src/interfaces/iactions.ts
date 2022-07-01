@@ -47,6 +47,7 @@ interface ITextTags {
     gameBanner: string
     gameRelease: string
 
+    targetLogin: string
     targetName: string
     targetTag: string
     targetNick: string
