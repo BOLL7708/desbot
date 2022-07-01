@@ -186,7 +186,6 @@ class Actions {
         const webCallback = this.buildWebCallback(actions?.web)
         const screenshotCallback = this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS)
         const discordMessageCallback = this.buildDiscordMessageCallback(actions?.discord, key)
-        const audioUrlCallback = this.buildAudioUrlCallback(actions?.audioUrl)
         const twitchChatCallback = this.buildTwitchChatCallback(actions?.chat)
         const labelCallback = this.buildLabelCallback(actions?.label)
         const commandsCallback = this.buildCommandsCallback(actions?.commands)
@@ -206,7 +205,6 @@ class Actions {
             +(webCallback?'🌐':'')
             +(screenshotCallback?'📷':'')
             +(discordMessageCallback?'💬':'')
-            +(audioUrlCallback?'🎵':'')
             +(twitchChatCallback?'📄':'')
             +(labelCallback?'🏷':'')
             +(commandsCallback?'🖐':'')
@@ -227,7 +225,6 @@ class Actions {
             if(webCallback) webCallback(user)
             if(screenshotCallback) screenshotCallback(user)
             if(discordMessageCallback) discordMessageCallback(user, index)
-            if(audioUrlCallback) audioUrlCallback(user)
             if(twitchChatCallback) twitchChatCallback(user, index)
             if(labelCallback) labelCallback(user)
             if(commandsCallback) commandsCallback(user)
@@ -284,8 +281,14 @@ class Actions {
                 onTtsQueue = true
             }
             if(config) { // If we have an audio config, play it. Attach 
-                if(onTtsQueue) modules.tts.enqueueSoundEffect(config)
-                else modules.audioPlayer.enqueueAudio(config)
+                const configClone = Utils.clone(config)
+                const srcArr = Utils.ensureArray( configClone.src)
+                for(let i in srcArr) {
+                    srcArr[i] = await Utils.replaceTagsInText(srcArr[i], user) // To support audio URLs in input
+                }
+                configClone.src = srcArr
+                if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
+                else modules.audioPlayer.enqueueAudio(configClone)
             }
             if(ttsString && speechConfig) modules.tts.enqueueSpeakSentence(
                 ttsString, 
@@ -293,13 +296,6 @@ class Actions {
                 speechConfig.type ?? TTSType.Announcement, 
                 nonce
             )
-        }
-    }
-
-    private static buildAudioUrlCallback(config: IAudioBase|undefined): ITwitchActionCallback|undefined {
-        if(config) return (user: IActionUser) => {
-            const modules = ModulesSingleton.getInstance()
-            if(user.input) modules.audioPlayer.enqueueAudio({...config, ...{src: user.input}})
         }
     }
 
