@@ -436,10 +436,9 @@ class Actions {
         }
     }
 
-    private static buildLabelCallback(labelSettingKey: string|undefined): ITwitchActionCallback|undefined {
-        if(labelSettingKey) return (user: IActionUser) => {
-            const modules = ModulesSingleton.getInstance()
-            Settings.pushLabel(labelSettingKey, user.input)
+    private static buildLabelCallback(config: ILabelConfig|undefined): ITwitchActionCallback|undefined {
+        if(config) return async (user: IActionUser) => {
+            Settings.pushLabel(config.fileName, await Utils.replaceTagsInText(config.text, user))
         }
     }
 

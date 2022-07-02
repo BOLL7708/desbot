@@ -258,17 +258,17 @@ class Utils {
 
         // Target tags
         if(text.includes('%target')) {
-            let userTag = 
+            let userLogin = 
                 this.getFirstUserTagInText(userData?.input ?? '') // @-tag
                 ?? userData?.input?.split(' ')?.shift() // Just first word
                 ?? ''
             
             // Was it a full link? If so use last word after /
-            if(userTag.includes('https://')) userTag = userTag.split('/').pop() ?? ''
+            if(userLogin.includes('https://')) userLogin = userLogin.split('/').pop() ?? ''
             
-            // If we have a tag, get the user data, if they exist
-            if(userTag) {
-                const channelData = await modules.twitchHelix.getChannelByName(userTag)
+            // If we have a possible login, get the user data, if they exist
+            if(userLogin) {
+                const channelData = await modules.twitchHelix.getChannelByName(userLogin)
                 if(channelData) {
                     tags.targetLogin = channelData.broadcaster_login
                     tags.targetName = channelData.broadcaster_name
@@ -313,7 +313,9 @@ class Utils {
             targetNick: '',
             targetGame: '',
             targetTitle: '',
-            targetLink: ''
+            targetLink: '',
+
+            utilRandom: ''
         }
         if(userData?.input) {
             const input = userData.input
@@ -328,7 +330,11 @@ class Utils {
         if(Array.isArray(text)) text = Utils.randomFromArray(text)
         for(const key of Object.keys(replace)) {
             const rx = new RegExp(`\%${key}([^a-zA-Z0-9]|$)`, 'g') // Match the key word and any non-character afterwards
-            text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text
+            if(key === 'utilRandom') {
+                text = text.replace(rx, (_, c2)=>{ return Math.random().toString()+c2 }) // c2 is whatever we matched in the group that was not text
+            } else {
+                text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text
+            }
         }
         return text
     }

@@ -358,7 +358,10 @@ Config.events = {...Config.events,
             speech: {
                 entries: 'Label set to "%userInput"'
             },
-            label: "your_label_in_settings.txt"
+            label: {
+                fileName: 'your_label_in_settings.txt',
+                text: '%userInput'
+            }
         }
     },
     [KeysTemplate.COMMAND_TODO]: { // Puts a post in Discord using the Discord webhook with the same key

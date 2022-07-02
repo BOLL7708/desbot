@@ -35,7 +35,7 @@ interface IEvent {
         rewardIgnoreUpdateCommand?: boolean
 
         /**
-         * Will reset incrementing rewards when the widget loads, resetting them to 0.
+         * Will reset an incrementing reward when the reset command is run, resetting the index to 0.
          */
         rewardResetIncrementOnCommand?: boolean
 
@@ -147,7 +147,7 @@ interface IEvent {
         /**
          * Optional: Writes a label to settings.
          */
-        label?: string
+        label?: ILabelConfig
 
         /**
          * Optional: Trigger other commands, propagating input.

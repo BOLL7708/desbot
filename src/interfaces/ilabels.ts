@@ -1,4 +1,4 @@
-interface ILabel {
-    key: string
-    [props: string]: any;
+interface ILabelConfig {
+    fileName: string
+    text: string
 }

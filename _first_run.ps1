@@ -2,17 +2,6 @@ Write-Output '==============================='
 Write-Output ' Initializing Streaming Widget '
 Write-Output '==============================='
 
-# Check powershell version
-$majorVersion = $PSVersionTable.PSVersion.Major # (Get-Host).Version
-if($majorVersion -le 6) {
-    Write-Warning 'This script requires PowerShell 6 or greater to run.'
-    $confirmation = Read-Host "Do you want to open the webpage where you can download the latest version? (y/n) "
-    if ($confirmation -eq 'y') {
-        Start-Process 'https://github.com/PowerShell/PowerShell/releases/latest'
-    }
-    exit 1
-}
-
 # Reset the current directory to the location of the script
 [System.Environment]::CurrentDirectory = (Get-Location).Path 
 
@@ -56,7 +45,7 @@ Write-Output '', 'Copy files from templates into the their proper locations'
 Copy-FileIfMissing -Path 'templates\config.template.php' -Destination '_configs\config.php'
 Copy-FileIfMissing -Path 'src\templates\config.template.ts' -Destination 'src\_configs\config.ts'
 Copy-FileIfMissing -Path 'src\templates\config+commands.template.ts' -Destination 'src\_configs\config+commands.ts'
-Copy-FileIfMissing -Path 'src\templates\config+rewards.template.ts' -Destination 'src\_configs\config+reward.ts'
+Copy-FileIfMissing -Path 'src\templates\config+rewards.template.ts' -Destination 'src\_configs\config+rewards.ts'
 Copy-FileIfMissing -Path 'src\templates\config+games.template.ts' -Destination 'src\_configs\config+games.ts'
 Copy-FileIfMissing -Path 'src\templates\!keys.template.ts' -Destination 'src\_data\!keys.ts'
 Copy-FileIfMissing -Path 'src\templates\games.template.ts' -Destination 'src\_data\games.ts'

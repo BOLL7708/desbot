@@ -54,6 +54,8 @@ interface ITextTags {
     targetGame: string
     targetTitle: string
     targetLink: string
+
+    utilRandom: string
 }
 
 interface ITTSConfig {
