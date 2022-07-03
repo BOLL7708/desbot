@@ -438,7 +438,11 @@ class Actions {
 
     private static buildLabelCallback(config: ILabelConfig|undefined): ITwitchActionCallback|undefined {
         if(config) return async (user: IActionUser) => {
-            Settings.pushLabel(config.fileName, await Utils.replaceTagsInText(config.text, user))
+            if(config.append) {
+                Settings.appendSetting(config.fileName, await Utils.replaceTagsInText(config.text, user))
+            } else {
+                Settings.pushLabel(config.fileName, await Utils.replaceTagsInText(config.text, user))
+            }
         }
     }
 

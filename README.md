@@ -1,6 +1,7 @@
 # Streaming Widget
 
 ## Links
+
 * Check out the [user wiki](wiki) to see how to set this up.
 * Check out the [dev wiki](dev) if you want to contribute to the project.
 * Please post [issues](issues) if you bump into any kind of problem.
@@ -14,6 +15,7 @@ The project has gone from a very bespoke solution, to a highly flexible one, so 
 
 ## What can it do?
 It's honestly so capable now it's almost ridiculous to write it all down, this is an attempt at a high level summary.
+
 1. Create, manage and listen for Twitch rewards, toggle them on/off depending on a range of conditions, update their settings.
 2. Listen to commands from Twitch chat, write to Twitch chat and send whispers.
 3. Post messages and embeds in Discord channels via webhooks.
@@ -28,6 +30,7 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 12. Update the Twitch category from the currently running Steam game.
 
 ## Who are using it?
+
 * [BOLL][twitch] - The original author of this project!
 * [c0ld vengeance][c0ldtwitch]
 * [Dr Oculus VR][doctwitch]
