@@ -20,21 +20,19 @@ class Sign {
         this._div.style.color = this._config.fontColor
         this._div.style.fontSize = this._config.fontSize
         this._div.style.textAlign = 'center'
-        this._div.style.padding = '0 5%'
+        this._div.style.padding = '0 5px'
         this._div.style.boxSizing = 'border-box'
         
         this._title = document.createElement('p')
         this._title.style.fontWeight = 'bold'
-        const imageContainer = document.createElement('p')
         this._img = new Image()
         this._img.style.width = '100%'
         this._img.style.borderRadius = '5%'
         this._img.style.boxShadow = '0 3px 3px 3px #0003'
         this._subtitle = document.createElement('p')
         
-        imageContainer.appendChild(this._img)
         this._div.appendChild(this._title)
-        this._div.appendChild(imageContainer)
+        this._div.appendChild(this._img)
         this._div.appendChild(this._subtitle)
 
         document.body.appendChild(this._div)
