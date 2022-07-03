@@ -89,7 +89,7 @@ interface IScreenshot {
      */
     obsSource?: string
     /**
-     * Optional: Add a delay to the screenshot. Use this for a reward that will tell you 
+     * Optional: Add a delay ïn seconds to the screenshot. Use this for a reward that will tell you 
      * want to screenshot, so you have time to frame the shot or strike a pose.
      */
     delay?: number

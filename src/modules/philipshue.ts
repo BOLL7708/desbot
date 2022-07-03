@@ -2,7 +2,7 @@ class PhilipsHue {
     private _config = Config.philipshue
     private _baseUrl = `${this._config.serverPath}/api/${Config.credentials.PhilipsHueUsername}`
     constructor() {
-        this.loadLights()
+        if(this._baseUrl.length > 0) this.loadLights()
     }
     private loadLights() { // Not used for anything except checking states
         const url = `${this._baseUrl}/lights`

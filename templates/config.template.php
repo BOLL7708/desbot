@@ -1,7 +1,7 @@
 <?php 
 /**
  * Fill in a password in the empty password property below.
- * Fill in the same password in Config.controller.phpPassword in _configs/config.ts
+ * Fill in the same password in Config.credentials.PHPPassword in _configs/config.ts
  */
 
 return (object) [

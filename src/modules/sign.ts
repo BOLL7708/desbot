@@ -25,16 +25,14 @@ class Sign {
         
         this._title = document.createElement('p')
         this._title.style.fontWeight = 'bold'
-        const imageContainer = document.createElement('p')
         this._img = new Image()
         this._img.style.width = '100%'
-        this._img.style.borderRadius = '5%'
+        this._img.style.borderRadius = '5px'
         this._img.style.boxShadow = '0 3px 3px 3px #0003'
         this._subtitle = document.createElement('p')
         
-        imageContainer.appendChild(this._img)
         this._div.appendChild(this._title)
-        this._div.appendChild(imageContainer)
+        this._div.appendChild(this._img)
         this._div.appendChild(this._subtitle)
 
         document.body.appendChild(this._div)
