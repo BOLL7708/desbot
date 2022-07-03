@@ -9,16 +9,16 @@ class ModulesSingleton {
         return this._instance;
     }
 
-    public twitch: Twitch = new Twitch()
-    public twitchHelix: TwitchHelix = new TwitchHelix()
-    public twitchTokens: TwitchTokens = new TwitchTokens()
-    public twitchPubsub: TwitchPubsub = new TwitchPubsub()
-    public tts: GoogleTTS = new GoogleTTS()
-    public pipe: Pipe = new Pipe()
-    public obs: OBS = new OBS()
-    public sssvr: SuperScreenShotterVR = new SuperScreenShotterVR()
-    public hue: PhilipsHue = new PhilipsHue()
-    public openvr2ws: OpenVR2WS = new OpenVR2WS()
-    public audioPlayer: AudioPlayer = new AudioPlayer()
-    public sign: Sign = new Sign()
+    public twitch = new Twitch()
+    public twitchHelix = new TwitchHelix()
+    public twitchTokens = new TwitchTokens()
+    public twitchPubsub = new TwitchPubsub()
+    public tts = new GoogleTTS()
+    public pipe = new Pipe()
+    public obs = new OBS()
+    public sssvr = new SuperScreenShotterVR()
+    public hue = new PhilipsHue()
+    public openvr2ws = new OpenVR2WS()
+    public audioPlayer = new AudioPlayer()
+    public sign = new Sign()
 }

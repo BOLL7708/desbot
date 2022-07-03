@@ -375,7 +375,7 @@ Config.events = {...Config.events,
             discord: '-> %userInput'
         }
     },
-    [KeysTemplate.COMMAND_END_STREAM]: {
+    [KeysTemplate.COMMAND_END_STREAM]: { // Runs multiple commands suitable for when ending a stream
         triggers: {
             command: {
                 permissions: {
@@ -397,5 +397,41 @@ Config.events = {...Config.events,
                 interval: 20
             }
         }
-    }
+    },
+    [KeysTemplate.COMMAND_SHOUTOUT]: { // Used to promote another user
+        triggers: {
+            command: {
+                cooldown: 30,
+                requireUserTag: true
+            }
+        },
+        actions: {
+            chat: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)'
+        }
+    },
+    [KeysTemplate.COMMAND_LURK]: { // Used to announce that a user is lurking
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
+                }
+            }
+        },
+        actions: {
+            chat: 'Just to let you know, %userTag will be lurking! %userInput'
+        }
+    },
+    [KeysTemplate.COMMAND_WIKI]: { // A link to the user wiki for the widget
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
+                },
+                cooldown: 60 * 5
+            }
+        },
+        actions: {
+            chat: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki'
+        }
+    },
 }

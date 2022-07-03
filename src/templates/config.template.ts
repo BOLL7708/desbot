@@ -134,7 +134,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
         [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is now called %targetNick',
         [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
-        [KeysTemplate.COMMAND_DICTIONARY]: '%word1 is now said as %word2',
+        [KeysTemplate.COMMAND_DICTIONARY]: '%word is now said as %substitute',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
         [KeysTemplate.COMMAND_PING_ON]: 'Chat ping enabled',

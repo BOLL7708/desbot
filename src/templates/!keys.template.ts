@@ -25,48 +25,51 @@ class KeysTemplate {
     .##..##..##..##..##...##..##...##..##..##..##..##..##..##......##.
     ..####....####...##...##..##...##..##..##..##..##..#####....####..
     */
-    static readonly COMMAND_TTS_ON: string = 'ttson'
-    static readonly COMMAND_TTS_OFF: string = 'ttsoff'
-    static readonly COMMAND_TTS_SILENCE: string = 'silence'
-    static readonly COMMAND_TTS_DIE: string = 'ttsdie'
-    static readonly COMMAND_TTS_NICK: string = 'nick'
-    static readonly COMMAND_TTS_MUTE: string = 'mute'
-    static readonly COMMAND_TTS_UNMUTE: string = 'unmute'
-    static readonly COMMAND_TTS_VOICES: string = 'tts|voices'
-    static readonly COMMAND_CHAT: string = 'chat'
-    static readonly COMMAND_CHAT_ON: string = 'chaton'
-    static readonly COMMAND_CHAT_OFF: string = 'chatoff'
-    static readonly COMMAND_PING_ON: string = 'pingon'
-    static readonly COMMAND_PING_OFF: string = 'pingoff'
-    static readonly COMMAND_LOG_ON: string = 'logon'
-    static readonly COMMAND_LOG_OFF: string = 'logoff'
-    static readonly COMMAND_SCALE: string = 'scale'
-    static readonly COMMAND_DICTIONARY: string = 'word'
-    static readonly COMMAND_UPDATEREWARDS: string = 'update'
-    static readonly COMMAND_RELOADWIDGET: string = 'reload'
-    static readonly COMMAND_GAMEREWARDS_ON: string = 'rewardson'
-    static readonly COMMAND_GAMEREWARDS_OFF: string = 'rewardsoff'
-    static readonly COMMAND_CHANNELTROPHY_STATS: string = 'trophy'
-    static readonly COMMAND_CLIPS: string = 'clips'
-    static readonly COMMAND_GAME: string = 'game'
-    static readonly COMMAND_GAMERESET: string = 'nogame'
-    static readonly COMMAND_QUOTE: string = 'quote'
-    static readonly COMMAND_REFUND_REDEMPTION: string = 'refund'
-    static readonly COMMAND_CLEAR_REDEMPTIONS: string = 'clearqueue'
-    static readonly COMMAND_RAID: string = 'raid'
-    static readonly COMMAND_UNRAID: string = 'unraid'
-    static readonly COMMAND_RESET_INCREWARD: string = 'resetincrew'
+    static readonly COMMAND_TTS_ON = 'ttson'
+    static readonly COMMAND_TTS_OFF = 'ttsoff'
+    static readonly COMMAND_TTS_SILENCE = 'silence'
+    static readonly COMMAND_TTS_DIE = 'ttsdie'
+    static readonly COMMAND_TTS_NICK = 'nick'
+    static readonly COMMAND_TTS_MUTE = 'mute'
+    static readonly COMMAND_TTS_UNMUTE = 'unmute'
+    static readonly COMMAND_TTS_VOICES = 'tts|voices'
+    static readonly COMMAND_CHAT = 'chat'
+    static readonly COMMAND_CHAT_ON = 'chaton'
+    static readonly COMMAND_CHAT_OFF = 'chatoff'
+    static readonly COMMAND_PING_ON = 'pingon'
+    static readonly COMMAND_PING_OFF = 'pingoff'
+    static readonly COMMAND_LOG_ON = 'logon'
+    static readonly COMMAND_LOG_OFF = 'logoff'
+    static readonly COMMAND_SCALE = 'scale'
+    static readonly COMMAND_DICTIONARY = 'word'
+    static readonly COMMAND_UPDATEREWARDS = 'update'
+    static readonly COMMAND_RELOADWIDGET = 'reload'
+    static readonly COMMAND_GAMEREWARDS_ON = 'rewardson'
+    static readonly COMMAND_GAMEREWARDS_OFF = 'rewardsoff'
+    static readonly COMMAND_CHANNELTROPHY_STATS = 'trophy'
+    static readonly COMMAND_CLIPS = 'clips'
+    static readonly COMMAND_GAME = 'game'
+    static readonly COMMAND_GAMERESET = 'nogame'
+    static readonly COMMAND_QUOTE = 'quote'
+    static readonly COMMAND_REFUND_REDEMPTION = 'refund'
+    static readonly COMMAND_CLEAR_REDEMPTIONS = 'clearqueue'
+    static readonly COMMAND_RAID = 'raid'
+    static readonly COMMAND_UNRAID = 'unraid'
+    static readonly COMMAND_RESET_INCREWARD = 'resetincrew'
     
     // Dangerous WIP SteamVR settings commands
-    static readonly COMMAND_REFRESHRATE: string = 'hz'
-    static readonly COMMAND_BRIGHTNESS: string = 'lux'
-    static readonly COMMAND_VRVIEWEYE: string = 'eye'
+    static readonly COMMAND_REFRESHRATE = 'hz'
+    static readonly COMMAND_BRIGHTNESS = 'lux'
+    static readonly COMMAND_VRVIEWEYE = 'eye'
 
     // Template example commands
-    static readonly COMMAND_SAY: string = 'say'
-    static readonly COMMAND_LABEL: string = 'label'
-    static readonly COMMAND_TODO: string = 'todo'
-    static readonly COMMAND_END_STREAM: string = 'endstream'
+    static readonly COMMAND_SAY = 'say'
+    static readonly COMMAND_LABEL = 'label'
+    static readonly COMMAND_TODO = 'todo'
+    static readonly COMMAND_END_STREAM = 'endstream'
+    static readonly COMMAND_SHOUTOUT = 'so'
+    static readonly COMMAND_LURK = 'lurk'
+    static readonly COMMAND_WIKI = 'wiki'
    
     /*
     .#####...######..##...##...####...#####...#####....####..
@@ -75,10 +78,10 @@ class KeysTemplate {
     .##..##..##......#######..##..##..##..##..##..##......##.
     .##..##..######...##.##...##..##..##..##..#####....####..
     */
-    static readonly REWARD_TTSSPEAK: string = 'Speak'
-    static readonly REWARD_TTSSETVOICE: string = 'SetVoice'
-    static readonly REWARD_TTSSWITCHVOICEGENDER: string = 'SwitchVoiceGender'
-    static readonly REWARD_CHANNELTROPHY: string = 'ChannelTrophy'
+    static readonly REWARD_TTSSPEAK = 'Speak'
+    static readonly REWARD_TTSSETVOICE = 'SetVoice'
+    static readonly REWARD_TTSSWITCHVOICEGENDER = 'SwitchVoiceGender'
+    static readonly REWARD_CHANNELTROPHY = 'ChannelTrophy'
 
     /*
     ..####...######..##..##..######..#####..
@@ -89,16 +92,16 @@ class KeysTemplate {
     */
     
     // Discord
-    static readonly DISCORD_CHAT: string = 'DiscordChat'
-    static readonly DISCORD_VRSCREENSHOT: string = 'DiscordVRScreenshot'
-    static readonly DISCORD_OBSSCREENSHOT: string = 'DiscordOBSScreenshot'
+    static readonly DISCORD_CHAT = 'DiscordChat'
+    static readonly DISCORD_VRSCREENSHOT = 'DiscordVRScreenshot'
+    static readonly DISCORD_OBSSCREENSHOT = 'DiscordOBSScreenshot'
 
     // Chat (sound, pipe, text, more?)
-    static readonly CHAT: string = 'EverythingChat'
+    static readonly CHAT = 'EverythingChat'
 
     // Callback keys
-    static readonly CALLBACK_APPID: string = 'CallbackAppID'
-    static readonly CALLBACK_ACHIEVEMENT: string = 'CallbackAchievement'
+    static readonly CALLBACK_APPID = 'CallbackAppID'
+    static readonly CALLBACK_ACHIEVEMENT = 'CallbackAchievement'
 
     /*
     ..######..##.....##..######..########..#######..##.....##
@@ -116,5 +119,5 @@ class KeysTemplate {
      * Mimic what you see above in the Rewards section.
      */
     
-    // static readonly KEY_YOURREWARD: string = 'YourRewardUniqueIdentifier'
+    // static readonly KEY_YOURREWARD = 'YourRewardUniqueIdentifier'
 }
