@@ -187,6 +187,7 @@ class Actions {
         const screenshotCallback = this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS)
         const discordMessageCallback = this.buildDiscordMessageCallback(actions?.discord, key)
         const twitchChatCallback = this.buildTwitchChatCallback(actions?.chat)
+        const twitchWhisperCallback = this.buildTwitchWhisperCallback(actions?.whisper)
         const labelCallback = this.buildLabelCallback(actions?.label)
         const commandsCallback = this.buildCommandsCallback(actions?.commands)
 
@@ -206,6 +207,7 @@ class Actions {
             +(screenshotCallback?'📷':'')
             +(discordMessageCallback?'💬':'')
             +(twitchChatCallback?'📄':'')
+            +(twitchWhisperCallback?'💭':'')
             +(labelCallback?'🏷':'')
             +(commandsCallback?'🖐':'')
             +`: ${key}`, Color.Green)
@@ -226,6 +228,7 @@ class Actions {
             if(screenshotCallback) screenshotCallback(user)
             if(discordMessageCallback) discordMessageCallback(user, index)
             if(twitchChatCallback) twitchChatCallback(user, index)
+            if(twitchWhisperCallback) twitchWhisperCallback(user, index)
             if(labelCallback) labelCallback(user)
             if(commandsCallback) commandsCallback(user)
         }
@@ -432,6 +435,22 @@ class Actions {
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToChannel(
                 await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
+            )
+        }
+    }
+
+    private static buildTwitchWhisperCallback(config: IWhisperConfig|undefined): ITwitchActionCallback|undefined {
+        if(config) return async (user: IActionUser, index?: number) => {
+            const modules = ModulesSingleton.getInstance()
+            modules.twitch._twitchChatOut.sendMessageToUser(
+                await Utils.replaceTagsInText(config.user, user),
+                await Utils.replaceTagsInText(
+                    Utils.randomOrSpecificFromArray(
+                        Utils.ensureArray(config.entries), 
+                        index
+                    ), 
+                    user
+                )
             )
         }
     }

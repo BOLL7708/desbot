@@ -143,6 +143,11 @@ interface IEvent {
          * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
          */
         chat?: string|string[]
+        
+        /**
+         * Optional: Send a whisper message to a Twitch user.
+         */
+        whisper?: IWhisperConfig
     
         /**
          * Optional: Writes a label to settings.

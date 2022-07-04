@@ -61,3 +61,8 @@ interface ITextTags {
 interface ITTSConfig {
 
 }
+
+interface IWhisperConfig {
+    entries: string|string[]
+    user: string
+}
