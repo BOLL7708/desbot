@@ -124,6 +124,11 @@ interface IControllerConfig {
          * If your trophy is not really a trophy, give it a name here and that is what will be spoken on special numbers.
          */
         ttsTrophy: string
+
+        /**
+         * Numbers that overrides/complements defined patterns for the Channel Trophy reward.
+         */
+        uniqueNumbers: IChannelTrophyFunnyNumberTexts
     }
 }
 

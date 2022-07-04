@@ -1,7 +1,6 @@
 class MainController {   
     public static async init() {
         if(Config.controller.saveConsoleOutputToSettings) LogWriter.init()
-        const modules = ModulesSingleton.getInstance()
 
         // Check configs
         const cfgPropCount = Object.keys(Config).length
@@ -17,12 +16,15 @@ class MainController {
         await Settings.loadSettings(Settings.TWITCH_TOKENS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS)
-        await Settings.loadSettings<IDictionaryEntry>(
-            Settings.TTS_DICTIONARY).then(dictionary => modules.tts.setDictionary(dictionary ?? [])
-        )
+        await Settings.loadSettings(Settings.TTS_DICTIONARY)
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
         await Settings.loadSettings(Settings.QUOTES)
+
+        const modules = ModulesSingleton.getInstance()
+
+        const dictionarySettings = Settings.getFullSettings<IDictionaryEntry>(Settings.TTS_DICTIONARY)
+        modules.tts.setDictionary(dictionarySettings ?? [])
 
         /*
         .####.##....##.####.########

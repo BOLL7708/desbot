@@ -96,11 +96,6 @@ interface ITwitchConfig {
      * things like LIV running as it has an overlay that is always enabled.
      */
     turnOnRewardForOverlays: { [key: string]: string[] }  
-    
-    /**
-     * Numbers that overrides/complements defined patterns for the Channel Trophy reward.
-     */
-    channelTrophyUniqueNumbers: IChannelTrophyFunnyNumberTexts
 }
 interface ITwitchReward {
     id?: string

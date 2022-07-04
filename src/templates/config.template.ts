@@ -179,7 +179,15 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         rewardCooldownMultiplier: 30,
         ttsOn: true,
         ttsName: '@%userName grabbed',
-        ttsTrophy: 'trophy'
+        ttsTrophy: 'trophy',
+        uniqueNumbers: {
+            /* 
+            1234: { 
+                speech: "%start the best trophy! Number %number is so cool!", 
+                label: "Trippy Channel Trophy: %entry" 
+            }
+            */
+        }
     }
 }
 
@@ -493,13 +501,5 @@ Config.twitch = <ITwitchConfig> {
     },
     turnOnRewardForOverlays: {
         // [OpenVR2WS.AN_OVERLAY_KEY]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
-    },
-    channelTrophyUniqueNumbers: {
-        /* 
-        1234: { 
-            speech: "%start is the best trophy! Number %number is so cool!", 
-            label: "Trippy Channel Trophy: %entry" 
-        }
-        */
     }
 }

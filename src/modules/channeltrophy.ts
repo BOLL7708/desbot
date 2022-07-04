@@ -280,7 +280,7 @@ class ChannelTrophy {
         
         
 		// Not sure if this actually works, but let's hope so.
-		const uniqueNumbers = Config.twitch.channelTrophyUniqueNumbers
+		const uniqueNumbers = Config.controller.channelTrophySettings.uniqueNumbers
 		
 		// Detect patterns here, in order of awesomeness or something
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
