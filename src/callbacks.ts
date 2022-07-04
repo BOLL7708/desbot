@@ -154,6 +154,29 @@ class Callbacks {
             }
         })
 
+        modules.twitchPubsub.setOnCheerCallback((message) => {
+            // Announce cheer
+            const bits = message.data.bits_used ?? 0
+            const levels = Utils.clone(Config.twitch.announceCheers)
+            let selectedLevel = levels.shift()
+            for(const level of levels) {
+                if(bits >= level.bits) selectedLevel = level
+            }
+            if(selectedLevel) {
+                modules.twitch._twitchChatOut.sendMessageToChannel(
+                    Utils.replaceTags(
+                        selectedLevel.message, 
+                        {
+                            userName: message.data.user_name ?? '',
+                            userTag: `@${message.data.user_name}`, 
+                            userBits: (message.data.bits_used ?? 0).toString()
+                        }
+                    )
+                )
+            }
+        })
+
+
         /*
         ..####....####...#####...######..######..##..##...####...##..##...####...######...####..
         .##......##..##..##..##..##......##......###.##..##......##..##..##..##....##....##.....

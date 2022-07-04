@@ -28,6 +28,10 @@ interface ITwitchConfig {
      * These could be referenced in `Keys.*` and also used to trigger sound effects, as with automatic rewards.
      */
     announcerTriggers: string[]
+    /**
+     * Cheer levels to announce in chat.
+     */
+    announceCheers: IAnnounceCheerConfig[],
 
     /**
      * When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.
@@ -229,4 +233,8 @@ interface ITwitchMessageData {
     bits: number
     isAction: boolean
     emotes: ITwitchEmote[]
+}
+interface IAnnounceCheerConfig {
+    bits: number
+    message: string
 }

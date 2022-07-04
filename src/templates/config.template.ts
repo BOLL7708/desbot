@@ -468,6 +468,10 @@ Config.twitch = <ITwitchConfig> {
     chatbotName: 'ChatbotName',
     announcerNames: ['AnnouncerName'],
     announcerTriggers: ['§'],
+    announceCheers: [
+        {bits: 1, message: '%userTag cheered %userBits bits! (will be the default message)'},
+        {bits: 100, message: 'Wow %userTag cheered %userBits bits! (for 100 or more)'}
+    ],
 
     proxyChatBotName: 'RestreamBot',
     proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/,
