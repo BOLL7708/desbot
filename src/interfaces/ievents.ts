@@ -39,6 +39,10 @@ interface IEvent {
          */
         rewardResetIncrementOnCommand?: boolean
 
+        /**
+         * Will avoid refunding the redemption when the clear redemptions command is used.
+         */
+        rewardIgnoreClearRedemptionsCommand?: boolean
     }
     triggers: {
         /**

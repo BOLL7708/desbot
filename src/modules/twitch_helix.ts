@@ -197,6 +197,14 @@ class TwitchHelix {
 
     async updateRedemption(redemption: ITwitchRedemption):Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#update-redemption-status
+        const rewardPair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.rewardId)
+        if(rewardPair) {
+            const eventConfig = Utils.getEventConfig(rewardPair.key)
+            if(eventConfig && eventConfig.options?.rewardIgnoreClearRedemptionsCommand === true) {
+                Utils.log(`Skipping updating redemption for: ${rewardPair.key}`, Color.BlueViolet)
+                return false
+            }
+        }
         const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${TwitchHelix._channelUserId}&reward_id=${redemption.rewardId}&id=${redemption.redemptionId}`
         const headers = this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')

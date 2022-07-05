@@ -526,12 +526,15 @@ class Commands {
             )
             if(unfulfilledRedemptions && unfulfilledRedemptions.length > 0) {
                 let clearCount = 0
+                const leftoverRedemptions: ITwitchRedemption[] = []
                 for(const redemption of unfulfilledRedemptions) {
-                    redemption.status = 'FULFILLED'
-                    const result = await modules.twitchHelix.updateRedemption(redemption)
+                    const redemptionClone = Utils.clone(redemption)
+                    redemptionClone.status = 'FULFILLED'
+                    const result = await modules.twitchHelix.updateRedemption(redemptionClone)
                     if(result) clearCount++
+                    else leftoverRedemptions.push(redemption)
                 }
-                await Settings.saveSettings(Settings.TWITCH_REWARD_REDEMPTIONS, []) // Clear entire list
+                await Settings.saveSettings(Settings.TWITCH_REWARD_REDEMPTIONS, leftoverRedemptions) // Replace list with the redemptions that were not fulfilled.
                 await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS) // Load again to replace in-memory list
                 modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {total: unfulfilledRedemptions.length.toString(), count: clearCount.toString()}), Config.twitch.chatbotName, TTSType.Announcement)
             } else modules.tts.enqueueSpeakSentence(speech[2], Config.twitch.chatbotName, TTSType.Announcement)
