@@ -2,9 +2,9 @@
 
 ## Links
 
-* Check out the [user wiki](wiki) to see how to set this up.
-* Check out the [dev wiki](dev) if you want to contribute to the project.
-* Please post [issues](issues) if you bump into any kind of problem.
+* Check out the [user wiki][wiki] to see how to set this up.
+* Check out the [dev wiki][dev] if you want to contribute to the project.
+* Please post [issues][issues] if you bump into any kind of problem.
 
 ## What is it?
 This is a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
