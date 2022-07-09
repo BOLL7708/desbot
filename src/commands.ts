@@ -739,6 +739,25 @@ class Commands {
                 if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chat[0])
                 else modules.twitch._twitchChatOut.sendMessageToChannel(chat[1])
             }
-        }
+        },
+
+        [Keys.COMMAND_REMOTE_ON]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const states = StatesSingleton.getInstance()
+            const speech = Utils.ensureValue(Config.controller.speechReferences[Keys.COMMAND_REMOTE_ON]) ?? ''
+            states.runRemoteCommands = true
+            modules.tts.enqueueSpeakSentence(
+                await Utils.replaceTagsInText(
+                    speech, 
+                    user
+                )
+            )
+        },
+        [Keys.COMMAND_REMOTE_OFF]: async (user) => {
+            const modules = ModulesSingleton.getInstance()
+            const states = StatesSingleton.getInstance()
+            const speech = Config.controller.speechReferences[Keys.COMMAND_REMOTE_ON]
+            states.runRemoteCommands = false
+        },
     }
 }

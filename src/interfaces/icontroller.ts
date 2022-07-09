@@ -166,4 +166,9 @@ interface IControllerDefaults {
      * This will attempt to match the game title from Steam with one on Twitch and set the Twich game category on game change.
      */
     updateTwitchGameCategory?: boolean
+
+    /**
+     * This will allow for remote command execution through the remote command channel if provided.
+     */
+    runRemoteCommands?: boolean
 }

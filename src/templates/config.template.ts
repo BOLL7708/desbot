@@ -466,6 +466,10 @@ Config.twitchChat = <ITwitchChatConfig> {
 Config.twitch = <ITwitchConfig> {
     channelName: 'ChannelName',
     chatbotName: 'ChatbotName',
+    commandPrefix: '!',
+    remoteCommandPrefix: '!',
+    remoteCommandChannel: '',       
+    remoteCommandAllowedUsers: ['AllowedUser1', 'AllowedUser2'],
     announcerNames: ['AnnouncerName'],
     announcerTriggers: ['§'],
     announceCheers: [

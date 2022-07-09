@@ -4,6 +4,7 @@ class Actions {
         for(const [key, event] of Object.entries(Config.events)) {
             if(event.triggers.reward) await this.registerReward(key, event)
             if(event.triggers.command) await this.registerCommand(key, event)
+            if(event.triggers.remoteCommand) await this.registerRemoteCommand(key, event)
             if(event.triggers.cheer) await this.registerCheer(key, event)
             if(event.triggers.timer) await this.registerTimer(key, event)
         }

@@ -49,6 +49,11 @@ interface IEvent {
          * Set this to trigger from a chat command.
          */
         command?: ITwitchActionCommandConfig
+
+        /**
+         * Set this to trigger from a remote chat command.
+         */
+        remoteCommand?: ITwitchActionRemoteCommandConfig
         
         /**
          * Set this to trigger this form a channel reward.

@@ -56,6 +56,8 @@ class KeysTemplate {
     static readonly COMMAND_RAID = 'raid'
     static readonly COMMAND_UNRAID = 'unraid'
     static readonly COMMAND_RESET_INCREWARD = 'resetincrew'
+    static readonly COMMAND_REMOTE_ON = 'remoteon'
+    static readonly COMMAND_REMOTE_OFF = 'remoteoff'
     
     // Dangerous WIP SteamVR settings commands
     static readonly COMMAND_REFRESHRATE = 'hz'

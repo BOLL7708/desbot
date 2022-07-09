@@ -1,16 +1,26 @@
 class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
+    public _twitchChatRemote: TwitchChat = new TwitchChat()
+    private _remoteCommandsStatus: boolean = false
     private _cooldowns: Map<string, number> = new Map()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true) {
         if(initChat) {
+            // In/out for chat in the main channel
             this._twitchChatIn.init(Config.twitch.channelName)
             this._twitchChatOut.init(Config.twitch.chatbotName)
-        }
+
+            // Remote command channel
+            const remoteChannel = Config.twitch.remoteCommandChannel
+            if(remoteChannel.length > 0) this._twitchChatRemote.init(Config.twitch.chatbotName, Config.twitch.remoteCommandChannel)
+        }        
         this._twitchChatIn.registerChatMessageCallback((message) => {
             this.onChatMessage(message)
+        })
+        this._twitchChatRemote.registerChatMessageCallback((message) => {
+            this.onRemoteChatMessage(message)
         })
     }
 
@@ -23,6 +33,8 @@ class Twitch{
            
             // Store the command
             this._commands.push(command)
+
+            // Log the command
             const who: string[] = []
             if(command.permissions?.everyone) who.push('everyone')
             if(command.permissions?.subscribers) who.push('subs')
@@ -30,6 +42,21 @@ class Twitch{
             if(command.permissions?.moderators) who.push('mods')
             if(command.permissions?.streamer) who.push('streamer')
             const message = `Registering command: <${command.trigger}> for ${who.join(' + ')}`
+            Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
+        } else {
+            Utils.logWithBold('Skipped registering a command!', this.LOG_COLOR_COMMAND)
+        }
+    }
+
+    private _remoteCommands: ITwitchCommandConfig[] = []
+    registerRemoteCommand(command: ITwitchCommandConfig) {
+        if(command.trigger.length != 0) {
+            // Store the command
+            this._remoteCommands.push(command)
+
+            // Log the command
+            const who = command.allowedUsers?.join(' & ') ?? 'nobody'
+            const message = `Registering remote command: <${command.trigger}> for ${who}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
             Utils.logWithBold('Skipped registering a command!', this.LOG_COLOR_COMMAND)
@@ -103,11 +130,12 @@ class Twitch{
         }
 
         // Commands
-        if(text && text.indexOf('!') == 0) {
+        if(text && text.indexOf(Config.twitch.commandPrefix) == 0) {
             let commandStr = text.split(' ').shift()?.substring(1).toLocaleLowerCase()
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
+            // Command
             const allowedRole = command && (
                 (command.permissions?.streamer && isBroadcaster)
                 || (command.permissions?.moderators && isModerator) 
@@ -155,6 +183,10 @@ class Twitch{
         else { // Normal users
             return this._chatCallback(user, messageData)
         }
+    }
+
+    private onRemoteChatMessage(messageCmd: ITwitchMessageCmd) {
+        console.log("You got a remote command!")
     }
 
     async runCommand(commandStr: string, userData?: IActionUser) {

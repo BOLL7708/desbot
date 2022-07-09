@@ -17,6 +17,22 @@ interface ITwitchConfig {
      */
     chatbotName: string
     /**
+     * Prefix for triggering chat commands.
+     */
+    commandPrefix: string
+    /**
+     * Prefix for triggering remote chat commands.
+     */
+    remoteCommandPrefix: string
+    /**
+     * Set this to a Twitch channel name if you want to allow remote commands from a different channel.
+     */
+    remoteCommandChannel: string
+        /**
+     * Optional: Only allow this command for these specific users.
+     */
+    remoteCommandAllowedUsers: string[]
+    /**
      * If you are using any bots that writes in chat, you can allow them to announce things using the TTS, provide their names here.
      * 
      * It will only announce things that are using the triggers in `anouncerTriggers`.
@@ -28,6 +44,10 @@ interface ITwitchConfig {
      * These could be referenced in `Keys.*` and also used to trigger sound effects, as with automatic rewards.
      */
     announcerTriggers: string[]
+    /**
+     * Subscription types to announce in chat.
+     */
+    announceSubs: IAnnounceSubConfig[],
     /**
      * Cheer levels to announce in chat.
      */
@@ -143,6 +163,19 @@ interface ITwitchActionCommandConfig {
     requireUserTag?: boolean
 }
 
+interface ITwitchActionRemoteCommandConfig {
+    /**
+     * The command that is matched from the chat.
+     * 
+     * Note: This is overwritten by the key value at registration as it needs to be in the config later on.
+     */
+    trigger?: string
+    /**
+     * Optional: The number of seconds before this can be used again, by anyone.
+     */
+    cooldown?: number
+}
+
 interface ITwitchCommandConfig {
     /**
      * The command that is matched from the chat.
@@ -168,6 +201,10 @@ interface ITwitchCommandConfig {
      * Note: The broadcaster and moderators are exempt from cooldowns.
      */
     cooldownCallback?: ITwitchCommandCallback
+    /**
+     * Optional: Only allow this command for these specific users.
+     */
+    allowedUsers?: string[]
 }
 
 /**

@@ -22,4 +22,5 @@ class StatesSingleton {
     public steamAchievementsIntervalHandle: number = -1
     public lastSteamAppId: string|undefined 
     public lastSteamAppIsVR: boolean = false
+    public runRemoteCommands: boolean = Config.controller.defaults.runRemoteCommands ?? false
 }

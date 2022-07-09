@@ -305,6 +305,16 @@ Config.events = {...Config.events,
             command: {}
         }
     },
+    [Keys.COMMAND_REMOTE_ON]: {
+        triggers: {
+            command: {}
+        }
+    },
+    [Keys.COMMAND_REMOTE_OFF]: {
+        triggers: {
+            command: {}
+        }
+    },
 
     /*
     .#####...##..##..#####...##......######...####..
