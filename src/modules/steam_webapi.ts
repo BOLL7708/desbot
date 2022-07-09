@@ -4,8 +4,12 @@
  * The current rate limit is 100k calls/24h, as mentioned her: https://steamcommunity.com/dev/apiterms
  */
 class SteamWebApi {
-    private static _profileTag: string
+    private static _profileTag: string = ''
     static async getPlayerSummary(): Promise<ISteamWebApiPlayerSummaryData|undefined> {
+        if(Config.credentials.SteamWebAPIKey.length == 0) {
+            Utils.log(`SteamWebApi: Cannot fetch player summary as API key is not set.`, Color.Red)
+            return undefined
+        }
         const encodedUrl = this.getEncodedUrl('ISteamUser/GetPlayerSummaries/v0002')
         const response: ISteamWebApiPlayerSummaries = await fetch(`./proxy.php?url=${encodedUrl}`)
             .then(response => response.json())
@@ -28,6 +32,10 @@ class SteamWebApi {
 
     // TODO: Check to see if we have full response definitions in the online docs and create interfaces.
     static async getAchievements(appId: string): Promise<ISteamWebApiPlayerAchievementData[]|undefined> {
+        if(Config.credentials.SteamWebAPIKey.length == 0) {
+            Utils.log(`SteamWebApi: Cannot fetch achievements as API key is not set.`, Color.Red)
+            return undefined
+        }
         const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetPlayerAchievements/v0001', id)
@@ -44,6 +52,10 @@ class SteamWebApi {
 
     static _gameSchemas: Map<number, ISteamWebApiGameSchema> = new Map()
     static async getGameSchema(appId: string): Promise<ISteamWebApiGameSchema|undefined> {
+        if(Config.credentials.SteamWebAPIKey.length == 0) {
+            Utils.log(`SteamWebApi: Cannot fetch game schema as API key is not set.`, Color.Red)
+            return undefined
+        }
         const id = Utils.numberFromAppId(appId)
         if(this._gameSchemas.has(id)) return this._gameSchemas.get(id)
         if(!isNaN(id)) {
@@ -62,6 +74,10 @@ class SteamWebApi {
 
     static _globalAchievementStats: Map<number, IStreamWebApiGlobalAchievementData[]> = new Map()
     static async getGlobalAchievementStats(appId: string): Promise<IStreamWebApiGlobalAchievementData[]|undefined> {
+        if(Config.credentials.SteamWebAPIKey.length == 0) {
+            Utils.log(`SteamWebApi: Cannot fetch global achievements stats as API key is not set.`, Color.Red)
+            return undefined
+        }
         const id = Utils.numberFromAppId(appId)
         if(this._globalAchievementStats.has(id)) return this._globalAchievementStats.get(id)
         if(!isNaN(id)) {

@@ -239,8 +239,8 @@ Config.google = <IGoogleConfig> {
 ..######.....##....########.##.....##.##.....##
 */
 Config.steam = <ISteamConfig> {
-    playerSummaryIntervalMs: 0,
-    achievementsIntervalMs: 0,
+    playerSummaryIntervalMs: 60000,
+    achievementsIntervalMs: 60000,
     ignoreAchievementsOlderThanHours: 24,
     ignoredAppIds: [],
     achievementSettings: {
