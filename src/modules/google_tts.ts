@@ -88,11 +88,11 @@ class GoogleTTS {
      * @returns
      */
     async enqueueSpeakSentence(
-        input: string|string[], 
-        userName: string, 
-        type: TTSType = TTSType.Said, 
-        nonce: string='', 
-        meta: any=null, 
+        input: string|string[],
+        userName: string = Config.twitch.chatbotName,
+        type: TTSType = TTSType.Announcement,
+        nonce: string = '',
+        meta: any = null,
         clearRanges: ITwitchEmotePosition[]=[],
         skipDictionary: boolean = false
     ) {
@@ -290,7 +290,14 @@ class GoogleTTS {
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
-        this.enqueueSpeakSentence(changed ? 'now sounds like this' : 'still sounds like this', userName, TTSType.Action, nonce)
+        this.enqueueSpeakSentence(
+            changed
+                ? 'now sounds like this'
+                : 'still sounds like this',
+            userName,
+            TTSType.Action,
+            nonce
+        )
         return voice.voiceName
     }
 

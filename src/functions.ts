@@ -219,9 +219,9 @@ class Functions {
                 const speech = Config.controller.speechReferences[Keys.CALLBACK_APPID]
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
-                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}), Config.twitch.chatbotName, TTSType.Announcement)
+                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}))
                 } else {
-                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}), Config.twitch.chatbotName, TTSType.Announcement)
+                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}))
                 }
             } else {
                 Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)

@@ -111,9 +111,7 @@ class Rewards {
                         await Utils.replaceTagsInText(
                             funnyNumberConfig.speech, 
                             user
-                        ), 
-                        Config.twitch.chatbotName, 
-                        TTSType.Announcement
+                        )
                     )
                 }
                 // Update label in overlay

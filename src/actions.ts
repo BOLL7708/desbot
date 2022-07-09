@@ -308,7 +308,7 @@ class Actions {
                 else modules.audioPlayer.enqueueAudio(configClone)
             }
             if(ttsString && speechConfig) modules.tts.enqueueSpeakSentence(
-                ttsString, 
+                ttsString,
                 await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user), 
                 speechConfig.type ?? TTSType.Announcement, 
                 nonce
