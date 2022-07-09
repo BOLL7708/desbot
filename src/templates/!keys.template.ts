@@ -69,6 +69,7 @@ class KeysTemplate {
     static readonly COMMAND_END_STREAM = 'endstream'
     static readonly COMMAND_SHOUTOUT = 'so'
     static readonly COMMAND_LURK = 'lurk'
+    static readonly COMMAND_WIDGET = 'widget'
     static readonly COMMAND_WIKI = 'wiki'
    
     /*

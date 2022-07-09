@@ -421,6 +421,19 @@ Config.events = {...Config.events,
             chat: 'Just to let you know, %userTag will be lurking! %userInput'
         }
     },
+    [KeysTemplate.COMMAND_WIDGET]: {
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
+                },
+                cooldown: 60 * 5
+            }
+        },
+        actions: {
+            chat: 'Streaming Widget Repository -> https://github.com/BOLL7708/streaming_widget'
+        }
+    },
     [KeysTemplate.COMMAND_WIKI]: { // A link to the user wiki for the widget
         triggers: {
             command: {

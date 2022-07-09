@@ -343,7 +343,7 @@ Config.screenshots = <IScreenshotConfig> {
         pipeEnabledForRewards: <string[]> [
             // KeysTemplate.YOUR_SCREENSHOT_REWARD_KEY
         ],
-        pipeMessagePreset: undefined,
+        pipeMessagePreset: PipePresetsTemplate.PIPE_SCREENSHOT,
         soundEffectForOBSScreenshots: {
             // src: '_assets/yoursound.wav',
         }

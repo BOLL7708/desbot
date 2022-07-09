@@ -101,7 +101,8 @@ class Utils {
         // TODO: This might remove more symbols than emojis, not sure if that is something to fix.
         if(config.removeUnicodeEmojis) {
             // Emojis: https://stackoverflow.com/a/63464318/2076423
-            text = text.replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '') 
+            // text = text.replace(/[\p{Emoji_Presentation}]/gu, '')
+            text = text.replace(/[^\p{Letter}\p{Number}\p{Punctuation}\p{Separator}\p{Symbol}]/gu, '')
         }
 
         return text
@@ -109,15 +110,15 @@ class Utils {
             .trim()
     }
 
-    static cleanUserName(userName:string) {
+    static cleanUserName(userName: string) {
         return userName.trim().replace('@', '').toLowerCase()
     }
 
-    static cleanSetting(setting:string) {
+    static cleanSetting(setting: string) {
         return setting.trim().replace('|', ' ').replace(';', ' ')
     }
 
-    static async sha256(message:string) {
+    static async sha256(message: string) {
         const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
         const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
         const byteArray = Array.from(new Uint8Array(hashBuffer)); // convert ArrayBuffer to Array

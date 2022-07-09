@@ -48,7 +48,7 @@ class Dictionary {
 
         // Add spaces after groups of symbols before word character, to make sure words are split up on space.
         let adjustedText = text.replace(
-            /(\s*)([^\p{L}\p{M}\s]+)([\p{L}\p{M}]){1}/gu, 
+            /(\s*)([^\p{Letter}\p{Mark}\s]+)([\p{Letter}\p{Mark}]){1}/gu, 
             function(full, whiteSpace, symbols, letter) {
                 if(whiteSpace.length > 0) return full // It's already separated from the prior word
                 else if(symbols == "'") return full // It's likely an English abbreviated word combination
@@ -67,7 +67,8 @@ class Dictionary {
 
             // Matches using unicode character categories for letters and marks
             // https://unicode.org/reports/tr18/#General_Category_Property
-            const match = wordKey.match(/([^\p{L}\p{M}]*)([\p{L}\p{M}]+)([^\p{L}\p{M}]*)/u)
+            // https://www.regular-expressions.info/unicode.html
+            const match = wordKey.match(/([^\p{Letter}\p{Mark}]*)([\p{Letter}\p{Mark}]+)([^\p{Letter}\p{Mark}]*)/u)
             if(match != null) {
                 startSymbol = match[1]
                 wordKey = match[2]
