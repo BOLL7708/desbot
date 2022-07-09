@@ -154,7 +154,23 @@ class Callbacks {
             }
         })
 
+        modules.twitchPubsub.setOnSubscriptionCallback( (message) => {
+            // Save user sub
+            const subSetting: ITwitchSubSetting = {
+                userName: message.user_name ?? '', 
+                totalMonths: message.cumulative_months?.toString() ?? '', 
+                streakMonths: message.streak_months?.toString() ?? ''
+            }
+            Settings.pushSetting(Settings.TWITCH_USER_SUBS, 'userName', subSetting)
         modules.twitchPubsub.setOnCheerCallback((message) => {
+            // Save user cheer
+            const cheerSetting: ITwitchCheerSetting = {
+                userName: message.data.user_name ?? '', 
+                totalBits: message.data.total_bits_used.toString(), 
+                lastBits: message.data.bits_used.toString()
+            }
+            Settings.pushSetting(Settings.TWITCH_USER_CHEERS, 'userName', cheerSetting)             
+
             // Announce cheer
             const bits = message.data.bits_used ?? 0
             const levels = Utils.clone(Config.twitch.announceCheers)

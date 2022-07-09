@@ -286,6 +286,14 @@ class Utils {
     }
 
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
+        const subs = await Settings.pullSetting<ITwitchSubSetting>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
+        const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)        
+        const userBits = (userData?.bits ?? 0) > 0 
+            ? userData?.bits?.toString() ?? '0'
+            : cheers?.lastBits ?? '0'
+        const userBitsTotal = (userData?.bitsTotal ?? 0) > 0
+            ? userData?.bitsTotal?.toString() ?? '0'
+            : cheers?.totalBits ?? '0'
         const result = {
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
@@ -294,8 +302,10 @@ class Utils {
             userInput: '',
             userNumber: '',
             userWord: '',
-            userBits: userData?.bits?.toString() ?? '0',
-            userBitsTotal: userData?.bitsTotal?.toString() ?? 'N/A',
+            userBits: userBits,
+            userBitsTotal: userBitsTotal,
+            userSubsTotal: subs?.totalMonths ?? '0',
+            userSubsStreak: subs?.streakMonths ?? '0',
 
             gameId: '',
             gamePrice: '',

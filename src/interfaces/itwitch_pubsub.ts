@@ -134,3 +134,15 @@ interface ITwitchPubsubSubscriptionCallback {
 interface ITwitchPubsubCheerCallback {
     (message: ITwitchPubsubCheerMessage): void
 }
+
+// Settings
+interface ITwitchSubSetting {
+    userName: string
+    totalMonths: string
+    streakMonths: string
+}
+interface ITwitchCheerSetting {
+    userName: string
+    totalBits: string
+    lastBits: string
+}

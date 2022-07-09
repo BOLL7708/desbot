@@ -36,6 +36,8 @@ interface ITextTags {
     userWord: string
     userBits: string
     userBitsTotal: string
+    userSubsTotal: string
+    userSubsStreak: string
 
     gameId: string
     gamePrice: string
