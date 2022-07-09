@@ -111,8 +111,8 @@ class Actions {
             const actionCallback = this.buildActionCallback(trigger, event)
             const useThisCommand = <ITwitchCommandConfig> (
                 command?.cooldown == undefined 
-                ? {...event.triggers.command, callback: actionCallback}
-                : {...event.triggers.command, cooldownCallback: actionCallback}
+                    ? {...event.triggers.command, callback: actionCallback}
+                    : {...event.triggers.command, cooldownCallback: actionCallback}
             )
             modules.twitch.registerCommand(useThisCommand)
         }
@@ -168,8 +168,8 @@ class Actions {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
         const timeline = Utils.getTimelineFromActions(event.actions)
         const callbacks: { [ms: number]: ITwitchActionCallback } = {}
-        for(const [key, actions] of Object.entries(timeline)) {
-            const ms = parseInt(key)
+        for(const [msStr, actions] of Object.entries(timeline)) {
+            const ms = parseInt(msStr)
 
             // Build callbacks
             const commandCallback = Commands.callbacks[key]
@@ -198,23 +198,25 @@ class Actions {
             // Log result
             Utils.logWithBold(
                 `Built Action Callback: `
-                +(commandCallback?'☝':'')
-                +(rewardCallback?'🏆':'')
-                +(obsCallback?'🎬':'')
-                +(colorCallback?'🎨':'')
-                +(plugCallback?'🔌':'')
-                +(soundCallback?'🔊':'')
-                +(pipeCallback?'📺':'')
-                +(openvr2wsSettingCallback?'🔧':'')
-                +(execCallback?'🎓':'')
-                +(webCallback?'🌐':'')
-                +(screenshotCallback?'📷':'')
-                +(discordMessageCallback?'💬':'')
-                +(twitchChatCallback?'📄':'')
-                +(twitchWhisperCallback?'💭':'')
-                +(labelCallback?'🏷':'')
-                +(commandsCallback?'🖐':'')
-                +`: ${key}`, Color.Green)
+                    +(commandCallback?'☝':'')
+                    +(rewardCallback?'🏆':'')
+                    +(obsCallback?'🎬':'')
+                    +(colorCallback?'🎨':'')
+                    +(plugCallback?'🔌':'')
+                    +(soundCallback?'🔊':'')
+                    +(pipeCallback?'📺':'')
+                    +(openvr2wsSettingCallback?'🔧':'')
+                    +(execCallback?'🎓':'')
+                    +(webCallback?'🌐':'')
+                    +(screenshotCallback?'📷':'')
+                    +(discordMessageCallback?'💬':'')
+                    +(twitchChatCallback?'📄':'')
+                    +(twitchWhisperCallback?'💭':'')
+                    +(labelCallback?'🏷':'')
+                    +(commandsCallback?'🖐':'')
+                    +`: ${key}`, 
+                Color.Green
+            )
             
 
             // Return callback that triggers all the actions

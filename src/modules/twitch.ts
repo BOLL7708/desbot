@@ -2,7 +2,6 @@ class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     public _twitchChatRemote: TwitchChat = new TwitchChat()
-    private _remoteCommandsStatus: boolean = false
     private _cooldowns: Map<string, number> = new Map()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
@@ -49,14 +48,14 @@ class Twitch{
     }
 
     private _remoteCommands: ITwitchCommandConfig[] = []
-    registerRemoteCommand(command: ITwitchCommandConfig) {
-        if(command.trigger.length != 0) {
+    registerRemoteCommand(remoteCommand: ITwitchCommandConfig) {
+        if(remoteCommand.trigger.length != 0) {
             // Store the command
-            this._remoteCommands.push(command)
+            this._remoteCommands.push(remoteCommand)
 
             // Log the command
-            const who = command.allowedUsers?.join(' & ') ?? 'nobody'
-            const message = `Registering remote command: <${command.trigger}> for ${who}`
+            const who = remoteCommand.allowedUsers?.join(' & ') ?? 'nobody'
+            const message = `Registering remote command: <${remoteCommand.trigger}> for ${who}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
             Utils.logWithBold('Skipped registering a command!', this.LOG_COLOR_COMMAND)

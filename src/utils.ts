@@ -565,6 +565,6 @@ class Utils {
             ? <IActionsTimeline> {0: actions}
             : actions 
                 ? <IActionsTimeline> actions
-                : {}
+                : {0: {}}
     }
 }
