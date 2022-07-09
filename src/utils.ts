@@ -548,4 +548,18 @@ class Utils {
         }
         return [text]
     }
+
+    static hasNumberKeys(obj: object): boolean {
+        const keys = Object.keys(obj)
+        const numberedKeys = keys.filter((key) => !isNaN(parseInt(key)))
+        return keys.length == numberedKeys.length
+    }
+
+    static getTimelineFromActions(actions: IActions|IActionsTimeline|undefined): IActionsTimeline {
+        return actions && !Utils.hasNumberKeys(actions)
+            ? <IActionsTimeline> {0: actions}
+            : actions 
+                ? <IActionsTimeline> actions
+                : {}
+    }
 }

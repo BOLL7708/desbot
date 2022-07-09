@@ -165,72 +165,85 @@ class Actions {
 
     private static buildActionCallback(key: string, event: IEvent): ITwitchActionCallback {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-        const actions = event.actions
+        const timeline = Utils.getTimelineFromActions(event.actions)
+        const callbacks: { [ms: number]: ITwitchActionCallback } = {}
+        for(const [key, actions] of Object.entries(timeline)) {
+            const ms = parseInt(key)
 
-        // Build callbacks
-        const commandCallback = Commands.callbacks[key]
-        const rewardCallback = Rewards.callbacks[key]
-        const obsCallback = this.buildOBSCallback(actions?.obs, key)
-        const colorCallback = this.buildColorCallback(actions?.lights)
-        const plugCallback = this.buildPlugCallback(actions?.plugs)
-        const soundCallback = this.buildSoundAndSpeechCallback(
-            actions?.audio, 
-            actions?.speech,
-            nonceTTS, 
-            !!(actions?.speech)
-        )
-        const pipeCallback = this.buildPipeCallback(actions?.pipe)
-        const openvr2wsSettingCallback = this.buildOpenVR2WSSettingCallback(actions?.openVR2WS)
-        const signCallback = this.buildSignCallback(actions?.sign)
-        const execCallback = this.buildExecCallback(actions?.exec)
-        const webCallback = this.buildWebCallback(actions?.web)
-        const screenshotCallback = this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS)
-        const discordMessageCallback = this.buildDiscordMessageCallback(actions?.discord, key)
-        const twitchChatCallback = this.buildTwitchChatCallback(actions?.chat)
-        const twitchWhisperCallback = this.buildTwitchWhisperCallback(actions?.whisper)
-        const labelCallback = this.buildLabelCallback(actions?.label)
-        const commandsCallback = this.buildCommandsCallback(actions?.commands)
+            // Build callbacks
+            const commandCallback = Commands.callbacks[key]
+            const rewardCallback = Rewards.callbacks[key]
+            const obsCallback = this.buildOBSCallback(actions?.obs, key)
+            const colorCallback = this.buildColorCallback(actions?.lights)
+            const plugCallback = this.buildPlugCallback(actions?.plugs)
+            const soundCallback = this.buildSoundAndSpeechCallback(
+                actions?.audio, 
+                actions?.speech,
+                nonceTTS, 
+                !!(actions?.speech)
+            )
+            const pipeCallback = this.buildPipeCallback(actions?.pipe)
+            const openvr2wsSettingCallback = this.buildOpenVR2WSSettingCallback(actions?.openVR2WS)
+            const signCallback = this.buildSignCallback(actions?.sign)
+            const execCallback = this.buildExecCallback(actions?.exec)
+            const webCallback = this.buildWebCallback(actions?.web)
+            const screenshotCallback = this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS)
+            const discordMessageCallback = this.buildDiscordMessageCallback(actions?.discord, key)
+            const twitchChatCallback = this.buildTwitchChatCallback(actions?.chat)
+            const twitchWhisperCallback = this.buildTwitchWhisperCallback(actions?.whisper)
+            const labelCallback = this.buildLabelCallback(actions?.label)
+            const commandsCallback = this.buildCommandsCallback(actions?.commands)
 
-        // Log result
-        Utils.logWithBold(
-            `Built Action Callback: `
-            +(commandCallback?'☝':'')
-            +(rewardCallback?'🏆':'')
-            +(obsCallback?'🎬':'')
-            +(colorCallback?'🎨':'')
-            +(plugCallback?'🔌':'')
-            +(soundCallback?'🔊':'')
-            +(pipeCallback?'📺':'')
-            +(openvr2wsSettingCallback?'🔧':'')
-            +(execCallback?'🎓':'')
-            +(webCallback?'🌐':'')
-            +(screenshotCallback?'📷':'')
-            +(discordMessageCallback?'💬':'')
-            +(twitchChatCallback?'📄':'')
-            +(twitchWhisperCallback?'💭':'')
-            +(labelCallback?'🏷':'')
-            +(commandsCallback?'🖐':'')
-            +`: ${key}`, Color.Green)
+            // Log result
+            Utils.logWithBold(
+                `Built Action Callback: `
+                +(commandCallback?'☝':'')
+                +(rewardCallback?'🏆':'')
+                +(obsCallback?'🎬':'')
+                +(colorCallback?'🎨':'')
+                +(plugCallback?'🔌':'')
+                +(soundCallback?'🔊':'')
+                +(pipeCallback?'📺':'')
+                +(openvr2wsSettingCallback?'🔧':'')
+                +(execCallback?'🎓':'')
+                +(webCallback?'🌐':'')
+                +(screenshotCallback?'📷':'')
+                +(discordMessageCallback?'💬':'')
+                +(twitchChatCallback?'📄':'')
+                +(twitchWhisperCallback?'💭':'')
+                +(labelCallback?'🏷':'')
+                +(commandsCallback?'🖐':'')
+                +`: ${key}`, Color.Green)
+            
 
-        // Return callback that triggers all the actions
+            // Return callback that triggers all the actions
+            callbacks[ms] = async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
+                if(commandCallback) commandCallback(user, index)
+                if(rewardCallback) rewardCallback(user, index, msg)
+                if(obsCallback) obsCallback(user, index)
+                if(colorCallback) colorCallback(user)
+                if(plugCallback) plugCallback(user)
+                if(soundCallback) soundCallback(user, index)
+                if(pipeCallback) pipeCallback(user)
+                if(openvr2wsSettingCallback) openvr2wsSettingCallback(user)
+                if(signCallback) signCallback(user)
+                if(execCallback) execCallback(user)
+                if(webCallback) webCallback(user)
+                if(screenshotCallback) screenshotCallback(user)
+                if(discordMessageCallback) discordMessageCallback(user, index)
+                if(twitchChatCallback) twitchChatCallback(user, index)
+                if(twitchWhisperCallback) twitchWhisperCallback(user, index)
+                if(labelCallback) labelCallback(user)
+                if(commandsCallback) commandsCallback(user)
+            }
+        }
         return async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
-            if(commandCallback) commandCallback(user, index)
-            if(rewardCallback) rewardCallback(user, index, msg)
-            if(obsCallback) obsCallback(user, index)
-            if(colorCallback) colorCallback(user)
-            if(plugCallback) plugCallback(user)
-            if(soundCallback) soundCallback(user, index)
-            if(pipeCallback) pipeCallback(user)
-            if(openvr2wsSettingCallback) openvr2wsSettingCallback(user)
-            if(signCallback) signCallback(user)
-            if(execCallback) execCallback(user)
-            if(webCallback) webCallback(user)
-            if(screenshotCallback) screenshotCallback(user)
-            if(discordMessageCallback) discordMessageCallback(user, index)
-            if(twitchChatCallback) twitchChatCallback(user, index)
-            if(twitchWhisperCallback) twitchWhisperCallback(user, index)
-            if(labelCallback) labelCallback(user)
-            if(commandsCallback) commandsCallback(user)
+            for(const [key, callback] of Object.entries(callbacks)) {
+                const ms = parseInt(key)
+                setTimeout(()=>{
+                    callback(user, index, msg)
+                }, ms)
+            }
         }
     }
 
