@@ -202,6 +202,7 @@ class Actions {
             const twitchWhisperCallback = this.buildTwitchWhisperCallback(actions?.whisper)
             const labelCallback = this.buildLabelCallback(actions?.label)
             const commandsCallback = this.buildCommandsCallback(actions?.commands)
+            const remoteCommandCallback = this.buildRemoteCommandCallback(actions?.remoteCommand)
 
             // Log result
             Utils.logWithBold(
@@ -222,6 +223,7 @@ class Actions {
                     +(twitchWhisperCallback?'💭':'')
                     +(labelCallback?'🏷':'')
                     +(commandsCallback?'🖐':'')
+                    +(remoteCommandCallback?'🤝':'')
                     +`: ${key}`, 
                 Color.Green
             )
@@ -246,6 +248,7 @@ class Actions {
                 if(twitchWhisperCallback) twitchWhisperCallback(user, index)
                 if(labelCallback) labelCallback(user)
                 if(commandsCallback) commandsCallback(user)
+                if(remoteCommandCallback) remoteCommandCallback(user)
             }
         }
         return async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
@@ -504,6 +507,13 @@ class Actions {
                 }, delay*1000)
                 delay += interval
             }
+        }
+    }
+
+    private static buildRemoteCommandCallback(commandStr: string|undefined) {
+        if(commandStr && commandStr.length > 0) return (user: IActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            modules.twitch.sendRemoteCommand(commandStr)
         }
     }
 }    

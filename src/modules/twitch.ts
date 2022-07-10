@@ -236,4 +236,8 @@ class Twitch{
         if(command?.callback) command.callback(userData ?? await Actions.getEmptyUserDataForCommands())
         else if(command?.cooldownCallback) command?.cooldownCallback(userData ?? await Actions.getEmptyUserDataForCommands())
     }
+
+    async sendRemoteCommand(commandStr: string) {
+        this._twitchChatRemote.sendMessageToChannel(commandStr)
+    }
 }

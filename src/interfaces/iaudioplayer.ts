@@ -9,15 +9,13 @@ interface IAudioPlayerConfig {
 }
 
 // Data
-interface IAudio extends IAudioBase {
+interface IAudio {
     /**
      * The web URL, local URL or data URL of the audio file to play.
      * 
      * If an array of URLs is provided, a random URL out of those will be used.
      */
     src: string | string[]
-}
-interface IAudioBase {
 
     /**
      * Optional: The volume of the audio, the valid range is 0.0 to 1.0.

@@ -69,11 +69,6 @@ interface IActions {
     discord?: string|string[],
 
     /**
-     * Optional: Play back the user-provided audio URL.
-     */
-    audioUrl?: IAudioBase
-
-    /**
      * Optional: Send a message to the Twitch chat.
      * 
      * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
@@ -94,6 +89,11 @@ interface IActions {
      * Optional: Trigger other commands, propagating input.
      */
     commands?: ICommandConfig
+
+    /**
+     * Optional: Send remote command to set remote command channel.
+     */
+    remoteCommand?: string
 }
 
 /**
