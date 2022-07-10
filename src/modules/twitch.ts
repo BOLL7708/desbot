@@ -2,7 +2,6 @@ class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     public _twitchChatRemote: TwitchChat = new TwitchChat()
-    private _cooldowns: Map<string, number> = new Map()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true) {
@@ -23,6 +22,7 @@ class Twitch{
         })
     }
 
+    private _cooldowns: Map<string, number> = new Map()
     private _commands: ITwitchCommandConfig[] = []
     registerCommand(command: ITwitchCommandConfig) {
 		if(command.trigger.length != 0) {
@@ -47,6 +47,7 @@ class Twitch{
         }
     }
 
+    private _remoteCooldowns: Map<string, number> = new Map()
     private _remoteCommands: ITwitchCommandConfig[] = []
     registerRemoteCommand(remoteCommand: ITwitchCommandConfig) {
         if(remoteCommand.trigger.length != 0) {
@@ -54,7 +55,7 @@ class Twitch{
             this._remoteCommands.push(remoteCommand)
 
             // Log the command
-            const who = remoteCommand.allowedUsers?.join(' & ') ?? 'nobody'
+            const who = remoteCommand.allowedUsers?.join(', ') ?? 'nobody'
             const message = `Registering remote command: <${remoteCommand.trigger}> for ${who}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
@@ -83,8 +84,8 @@ class Twitch{
     }
 
     private onChatMessage(messageCmd: ITwitchMessageCmd) {
-        let msg = messageCmd.message
-        if(msg == null) return
+        const msg = messageCmd.message
+        if(!msg) return
         let userName:string = msg.username?.toLowerCase() ?? ''
         if(userName.length == 0) return
         let text:string = msg.text?.trim() ?? ''
@@ -108,7 +109,7 @@ class Twitch{
         const user: IActionUser = {
             id: messageCmd.properties["user-id"] ?? '',
             login: userName,
-            name: messageCmd.properties?.["display-name"] ?? '',
+            name: messageCmd.properties?.["display-name"] ?? userName,
             input: '',
             color: messageCmd.properties?.color ?? '',
             isModerator: isModerator,
@@ -130,7 +131,7 @@ class Twitch{
 
         // Commands
         if(text && text.indexOf(Config.twitch.commandPrefix) == 0) {
-            let commandStr = text.split(' ').shift()?.substring(1).toLocaleLowerCase()
+            let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
@@ -142,21 +143,22 @@ class Twitch{
                 || (command.permissions?.subscribers && isSubscriber)
                 || command.permissions?.everyone
             )
-            const allowedByCooldown = command != null && (
+            const allowedByCooldown = command && (
                 isBroadcaster 
                 || command.cooldown == undefined 
                 || new Date().getTime() > (this._cooldowns.get(commandStr ?? '') ?? 0)
             )
 
+            // Execute
             if(command && commandStr) {
                 user.input = textStr
-                if(allowedRole && command.callback != undefined) {
+                if(allowedRole && command.callback) {
                     command.callback(user)
                 }
-                if(allowedRole && allowedByCooldown && command.cooldownCallback != undefined) {
+                if(allowedRole && allowedByCooldown && command.cooldownCallback) {
                     command.cooldownCallback(user)
                 }
-                if(command.cooldown != undefined && allowedByCooldown) {
+                if(command.cooldown !== undefined && allowedByCooldown) {
                     this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
                 }
                 return
@@ -184,8 +186,48 @@ class Twitch{
         }
     }
 
-    private onRemoteChatMessage(messageCmd: ITwitchMessageCmd) {
-        console.log("You got a remote command!")
+    private async onRemoteChatMessage(messageCmd: ITwitchMessageCmd) {
+        if(!StatesSingleton.getInstance().runRemoteCommands) return
+        const msg = messageCmd.message
+        if(!msg) return
+        let userName:string = msg.username?.toLowerCase() ?? ''
+        if(userName.length == 0) return
+        let text:string = msg.text?.trim() ?? ''
+        if(text.length == 0) return
+
+        const user = await Actions.getEmptyUserDataForCommands()
+        user.login = userName
+        user.name = messageCmd.properties?.["display-name"] ?? userName,
+        user.id = messageCmd.properties["user-id"] ?? ''
+
+        // Commands
+        if(text && text.indexOf(Config.twitch.remoteCommandPrefix) == 0) {
+            let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()
+            let command = this._remoteCommands.find(cmd => commandStr == cmd.trigger.toLowerCase())
+            let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
+
+            // Command
+            const allowedUser = command && (command.allowedUsers ?? []).find((allowedUserName) => allowedUserName.toLowerCase() == userName)
+            const allowedByCooldown = command && (
+                command.cooldown == undefined 
+                || new Date().getTime() > (this._remoteCooldowns.get(commandStr ?? '') ?? 0)
+            )
+
+            // Execute
+            if(command && commandStr) {
+                user.input = textStr
+                if(allowedUser && command.callback) {
+                    command.callback(user)
+                }
+                if(allowedUser && allowedByCooldown && command.cooldownCallback) {
+                    command.cooldownCallback(user)
+                }
+                if(command.cooldown !== undefined && allowedByCooldown) {
+                    this._remoteCooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
+                }
+                return
+            }
+        }
     }
 
     async runCommand(commandStr: string, userData?: IActionUser) {

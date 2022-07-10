@@ -46,7 +46,8 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         pingForChat: true,
         logChatToDiscord: true,
         useGameSpecificRewards: true,
-        updateTwitchGameCategory: true
+        updateTwitchGameCategory: true,
+        runRemoteCommands: false
     },
     gameDefaults: {
         // [Games.YOUR_GAME]: { pipeAllChat: false }

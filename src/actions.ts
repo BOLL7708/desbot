@@ -101,20 +101,28 @@ class Actions {
         const triggers = key.split('|')
         for(const trigger of triggers) {
             let command = event?.triggers.command
-            if(!event.triggers.command) {
-                event.triggers.command = {
-                    trigger: trigger,
-                    permissions: {}
-                }
-            } else if(command) command.trigger = trigger
-
             const actionCallback = this.buildActionCallback(trigger, event)
             const useThisCommand = <ITwitchCommandConfig> (
                 command?.cooldown == undefined 
-                    ? {...event.triggers.command, callback: actionCallback}
-                    : {...event.triggers.command, cooldownCallback: actionCallback}
+                    ? {...event.triggers.command, trigger: trigger, callback: actionCallback}
+                    : {...event.triggers.command, trigger: trigger, cooldownCallback: actionCallback}
             )
             modules.twitch.registerCommand(useThisCommand)
+        }
+    }
+
+    public static async registerRemoteCommand(key: string, event: IEvent) {
+        const modules = ModulesSingleton.getInstance()        
+        const triggers = key.split('|')
+        for(const trigger of triggers) {
+            let command = event?.triggers.command
+            const actionCallback = this.buildActionCallback(trigger, event)
+            const useThisCommand = <ITwitchCommandConfig> (
+                command?.cooldown == undefined 
+                    ? {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, callback: actionCallback}
+                    : {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, cooldownCallback: actionCallback}
+            )
+            modules.twitch.registerRemoteCommand(useThisCommand)
         }
     }
 

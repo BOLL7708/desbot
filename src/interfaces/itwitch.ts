@@ -29,7 +29,7 @@ interface ITwitchConfig {
      */
     remoteCommandChannel: string
         /**
-     * Optional: Only allow this command for these specific users.
+     * Optional: Only allow remote command for these specific users.
      */
     remoteCommandAllowedUsers: string[]
     /**
@@ -142,59 +142,44 @@ interface ITwitchRewardCounter {
     count: number
 }
 
-interface ITwitchActionCommandConfig {
-    /**
-     * The command that is matched from the chat.
-     * 
-     * Note: This is overwritten by the key value at registration as it needs to be in the config later on.
-     */
-    trigger?: string
-    /**
-     * Permission for who can execute this command.
-     */
-    permissions?: ICommandPermissions
+/**
+ * The most basic command, used for remote execution.
+ * 
+ * Note: The actual command trigger is filled in at registration from the key used for the event.
+ */
+interface ITwitchActionRemoteCommandConfig {
     /**
      * Optional: The number of seconds before this can be used again, by anyone.
      */
     cooldown?: number
+}
+/**
+ * A standard chat command.
+ * 
+ * Note: The actual command trigger is filled in at registration from the key used for the event.
+ */
+interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandConfig {
+    /**
+     * Permission for who can execute this command.
+     */
+    permissions?: ICommandPermissions
     /**
      * Optional: Require this command to include a user tag to actually get triggered.
      */
     requireUserTag?: boolean
 }
-
-interface ITwitchActionRemoteCommandConfig {
-    /**
-     * The command that is matched from the chat.
-     * 
-     * Note: This is overwritten by the key value at registration as it needs to be in the config later on.
-     */
-    trigger?: string
-    /**
-     * Optional: The number of seconds before this can be used again, by anyone.
-     */
-    cooldown?: number
-}
-
-interface ITwitchCommandConfig {
+/**
+ * All these properties are added before registering the command with the Twitch class.
+ */
+interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
     /**
      * The command that is matched from the chat.
      */
     trigger: string
     /**
-     * Permission for who can execute this command.
-     * 
-     * Note: Filled in at registration, loaded from config.
-     */
-    permissions?: ICommandPermissions
-    /**
      * Optional: The callback the command executes.
      */
     callback?: ITwitchCommandCallback
-    /**
-     * Optional: The number of seconds before the `cooldownCallback` can be run again.
-     */
-    cooldown?: number
     /**
      * Optional: A callback that can only be run once in every `cooldown` seconds.
      * 
