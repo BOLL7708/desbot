@@ -94,6 +94,11 @@ interface IActions {
      * Optional: Send remote command to set remote command channel.
      */
     remoteCommand?: string
+
+    /**
+     * Optional: Change Twitch reward status, indexed on the key for the reward, set to the enabled state.
+     */
+    rewardStates?: IRewardStatesConfig
 }
 
 /**
@@ -165,4 +170,8 @@ interface ITTSConfig {
 interface IWhisperConfig {
     entries: string|string[]
     user: string
+}
+
+interface IRewardStatesConfig {
+    [key: string]: boolean
 }

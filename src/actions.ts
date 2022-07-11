@@ -203,10 +203,11 @@ class Actions {
             const labelCallback = this.buildLabelCallback(actions?.label)
             const commandsCallback = this.buildCommandsCallback(actions?.commands)
             const remoteCommandCallback = this.buildRemoteCommandCallback(actions?.remoteCommand)
+            const rewardStatesCallback = this.buildRewardStatesCallback(actions?.rewardStates)
 
             // Log result
             Utils.logWithBold(
-                `Built Action Callback: `
+                ` Built Action Callback: `
                     +(commandCallback?'☝':'')
                     +(rewardCallback?'🏆':'')
                     +(obsCallback?'🎬':'')
@@ -224,6 +225,7 @@ class Actions {
                     +(labelCallback?'🏷':'')
                     +(commandsCallback?'🖐':'')
                     +(remoteCommandCallback?'🤝':'')
+                    +(rewardStatesCallback?'⏯':'')
                     +`: ${key}`, 
                 Color.Green
             )
@@ -249,6 +251,7 @@ class Actions {
                 if(labelCallback) labelCallback(user)
                 if(commandsCallback) commandsCallback(user)
                 if(remoteCommandCallback) remoteCommandCallback(user)
+                if(rewardStatesCallback) rewardStatesCallback(user)
             }
         }
         return async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
@@ -510,10 +513,32 @@ class Actions {
         }
     }
 
-    private static buildRemoteCommandCallback(commandStr: string|undefined) {
+    private static buildRemoteCommandCallback(commandStr: string|undefined): ITwitchActionCallback|undefined {
         if(commandStr && commandStr.length > 0) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch.sendRemoteCommand(commandStr)
+        }
+    }
+
+    private static buildRewardStatesCallback(config: IRewardStatesConfig|undefined): ITwitchActionCallback|undefined {
+        if(config) return async (user: IActionUser) => {
+            const modules = ModulesSingleton.getInstance()
+            
+            // Change the overrides to make this persistent this session.
+            for(const [key, state] of Object.entries(config)) {
+                const on = Config.twitch.alwaysOnRewards
+                const off = Config.twitch.alwaysOffRewards
+                if(state) {
+                    if(!on.includes(key)) on.push(key)
+                    if(off.includes(key)) delete off[off.indexOf(key)]
+                } else {
+                    if(!off.includes(key)) off.push(key)
+                    if(on.includes(key)) delete on[on.indexOf(key)]
+                }
+            }
+            
+            // Toggle the reward(s) on Twitch
+            await modules.twitchHelix.toggleRewards(config)
         }
     }
 }    

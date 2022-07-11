@@ -128,10 +128,10 @@ class TwitchHelix {
         return response
     }
 
-    async toggleRewards(kvp: { [x: string]: boolean }) {
-        for(const key in kvp) {
+    async toggleRewards(kvp: { [key: string]: boolean }) {
+        for(const [key, state] of Object.entries(kvp)) {
             const id = await Utils.getRewardId(key)
-            if(id) this.updateReward(id, {is_enabled: kvp[key]})
+            if(id) this.updateReward(id, {is_enabled: state})
         }
     }
 
