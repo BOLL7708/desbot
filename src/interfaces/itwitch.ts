@@ -28,8 +28,8 @@ interface ITwitchConfig {
      * Set this to a Twitch channel name if you want to allow remote commands from a different channel.
      */
     remoteCommandChannel: string
-        /**
-     * Optional: Only allow remote command for these specific users.
+    /**
+     * Only allow remote command for these specific users.
      */
     remoteCommandAllowedUsers: string[]
     /**

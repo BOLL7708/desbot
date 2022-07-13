@@ -10,23 +10,6 @@
  * It is also possible to create optional sub-configs that override things in anything prior:
  * - Load file at the very end: `_configs/config=YOURSUBCONFIG.ts`
  * - You can have multiple of these, and you decide which file to load by appending the widget URL with `?config=YOURSUBCONFIG`
- * 
- * Examples of partial config content:
- * - You can override or extract whole sections of the config:
- * ```
- * Config.twitch.rewardConfigs = {
- *    reward: {
- *        [Keys.KEY_YOURREWARD]: {
- *            title: 'YOUR TITLE',
- *            cost: 100
- *        }
- *    }
- * }
- * ```
- * - You can override drilled down values in anything already loaded:
- * ```
- * Config.controller.commandPermissionsOverrides[Keys.COMMAND_LOG_OFF].moderators = true;
- * ```
  *
  * You can also replace the separator symbols used in these files (-+=) in: `config.php`
  */
