@@ -45,10 +45,6 @@ interface ITwitchConfig {
      */
     announcerTriggers: string[]
     /**
-     * Subscription types to announce in chat.
-     */
-    announceSubs: IAnnounceSubConfig[],
-    /**
      * Cheer levels to announce in chat.
      */
     announceCheers: IAnnounceCheerConfig[],
