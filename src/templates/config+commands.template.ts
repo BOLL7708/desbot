@@ -305,12 +305,12 @@ Config.events = {...Config.events,
             command: {}
         }
     },
-    [Keys.COMMAND_REMOTE_ON]: {
+    [KeysTemplate.COMMAND_REMOTE_ON]: {
         triggers: {
             command: {}
         }
     },
-    [Keys.COMMAND_REMOTE_OFF]: {
+    [KeysTemplate.COMMAND_REMOTE_OFF]: {
         triggers: {
             command: {}
         }
@@ -456,5 +456,5 @@ Config.events = {...Config.events,
         actions: {
             chat: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki'
         }
-    },
+    }
 }
