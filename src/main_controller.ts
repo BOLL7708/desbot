@@ -20,6 +20,7 @@ class MainController {
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_COUNTERS)
         await Settings.loadSettings(Settings.QUOTES)
+        await Settings.loadSettings(Settings.IKEA_TRADFRI)
 
         const modules = ModulesSingleton.getInstance()
 

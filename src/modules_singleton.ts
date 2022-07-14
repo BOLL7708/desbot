@@ -18,6 +18,7 @@ class ModulesSingleton {
     public obs = new OBS()
     public sssvr = new SuperScreenShotterVR()
     public hue = new PhilipsHue()
+    public ikeaTradfri = new IkeaTradfri()
     public openvr2ws = new OpenVR2WS()
     public audioPlayer = new AudioPlayer()
     public sign = new Sign()

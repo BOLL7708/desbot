@@ -42,6 +42,7 @@ class Config {
     static screenshots: IScreenshotConfig
     static discord: IDiscordConfig
     static philipshue: IPhilipsHueConfig
+    static ikeatradfri: IIkeaTradfriConfig
     static openvr2ws: IOpenVR2WSConfig
     static audioplayer: IAudioPlayerConfig
     static sign: ISignConfig

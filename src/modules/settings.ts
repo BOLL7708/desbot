@@ -14,6 +14,7 @@ class Settings {
     static LOG_OUTPUT: string = 'log_output.html'
     static STEAM_ACHIEVEMENTS: string = 'steam_achievements/'
     static QUOTES: string = 'stream_quotes'
+    static IKEA_TRADFRI: string = 'ikea_tradfri'
 
     private static LOG_COLOR: string = 'blue'
 
