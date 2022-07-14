@@ -71,6 +71,11 @@ interface IEvent {
          * Have something happen automatically on a timer.
          */
         timer?: ITimerConfig
+
+        /**
+         * Have something triggered by a webhook
+         */
+        webhook?: IWebhookActionConfig
     }
     actions?: IActions|IActionsTimeline
 }

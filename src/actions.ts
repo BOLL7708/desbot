@@ -7,6 +7,7 @@ class Actions {
             if(event.triggers.remoteCommand) await this.registerRemoteCommand(key, event)
             if(event.triggers.cheer) await this.registerCheer(key, event)
             if(event.triggers.timer) await this.registerTimer(key, event)
+            if(event.triggers.webhook) await this.registerWebhook(key, event)
         }
     }
 
@@ -124,6 +125,13 @@ class Actions {
             )
             modules.twitch.registerRemoteCommand(useThisCommand)
         }
+    }
+
+    public static async registerWebhook(key: string, event: IEvent) {
+        const modules = ModulesSingleton.getInstance()
+        const actionCallback = this.buildActionCallback(key, event)
+
+        modules.webhook.registerWebhookTrigger({...event.triggers.webhook, callback: actionCallback})
     }
 
     public static async registerCheer(key: string, event: IEvent) {

@@ -21,4 +21,5 @@ class ModulesSingleton {
     public openvr2ws = new OpenVR2WS()
     public audioPlayer = new AudioPlayer()
     public sign = new Sign()
+    public webhook = new Webhook()
 }

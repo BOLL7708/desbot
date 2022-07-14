@@ -112,5 +112,28 @@ class Utils {
         }
 
         return listFolderFiles('_assets', []);
-    } 
+    }
+
+    static function enqueueWebhook(string $name) {
+        $path = '_settings/webhookqueue.txt';
+
+        file_put_contents($path, $name . PHP_EOL, FILE_APPEND);
+    }
+
+    static function getWebhookQueue(bool $clear = true) {
+        $path = '_settings/webhookqueue.txt';
+
+        $raw = file_get_contents($path);
+        if ($clear) self::clearWebhookQueue();
+
+        $arr = array_filter(explode(PHP_EOL, $raw));
+
+        return $arr;
+    }
+
+    static function clearWebhookQueue() {
+        $path = '_settings/webhookqueue.txt';
+
+        file_put_contents($path, '');
+    }
 }

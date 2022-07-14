@@ -68,6 +68,7 @@ class MainController {
         .####.##....##.####....##...
         */
         modules.twitch.init(Config.controller.websocketsUsed.twitchChat)
+        modules.webhook.init()
         if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
         if(Config.controller.websocketsUsed.obs) modules.obs.init()
