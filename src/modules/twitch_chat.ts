@@ -6,7 +6,7 @@ class TwitchChat {
     private _channel: string = ''
     init(userName: string, channel?: string) {
         this._userName = userName
-        this._channel = channel ?? Config.twitch.channelName
+        this._channel = (channel ?? Config.twitch.channelName ?? '').toLowerCase()
         this._socket = new WebSockets(
             'wss://irc-ws.chat.twitch.tv:443',
             15,
@@ -29,9 +29,9 @@ class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        let tokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', this._userName)
+        let tokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', this._userName)
         Utils.log(`Twitch chat connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
-        this._socket?.send(`PASS oauth:${tokenData?.access_token}`)
+        this._socket?.send(`PASS oauth:${tokenData?.accessToken}`)
         this._socket?.send(`NICK ${this._userName}`)
         this._socket?.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
         this._socket?.send(`JOIN #${this._channel}`)

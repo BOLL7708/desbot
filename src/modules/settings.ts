@@ -12,7 +12,7 @@ class Settings {
     static TWITCH_REWARDS: string = 'twitch_rewards'
     static TWITCH_REWARD_COUNTERS: string = 'twitch_reward_counters'
     static TWITCH_REWARD_REDEMPTIONS: string = 'twitch_reward_redemptions'
-    static TWITCH_TOKENS: string = 'twitch_tokens'
+    static TWITCH_CREDENTIALS: string = 'twitch_credentials'
     static TWITCH_USER_CHEERS: string = 'twitch_user_cheers'
     static TWITCH_USER_SUBS: string = 'twitch_user_subs'
     static WORLD_SCALE_LABEL: string = 'world_scale_label.txt'

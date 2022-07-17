@@ -45,7 +45,7 @@ class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => {
+        Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",
@@ -56,7 +56,7 @@ class TwitchPubsub {
                         `channel-bits-events-v2.${TwitchHelix._channelUserId}`,
                         
                     ],
-                    auth_token: tokenData?.access_token
+                    auth_token: tokenData?.accessToken
                 }
             }
             this._socket?.send(JSON.stringify(payload))

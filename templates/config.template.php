@@ -1,15 +1,25 @@
 <?php 
-/**
- * Fill in a password in the empty password property below.
- * Fill in the same password in Config.credentials.PHPPassword in _configs/config.ts
- */
-
 return (object) [
-    // Used to authenticate for file writes using settings.php
+    /**
+     * The Client ID for your registered application on Twitch.
+     */
+    'twitchClientId' => '',
+    
+    /**
+     * The Client Secret for your registered application on Twitch.
+     */
+    'twitchClientSecret' => '',
+    
+    /**
+     * Password for system operations that PHP performs, like writing to disk.
+     * Note: Also fill in the same password in `Config.credentials.PHPPassword`, by default in `_configs/config.ts`.
+     */
     'password'=>'',
 
-    // Symbols to match config files when loading JavaScript configs.
+    /**
+     * Symbols for organizing the embedding of JavaScript configs.
+     */
     'preConfigSymbol'=>'-',
     'postConfigSymbol'=>'+',
-    'overrideConfigSymbol'=>'=',
+    'overrideConfigSymbol'=>'='
 ];

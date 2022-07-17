@@ -13,7 +13,7 @@ class MainController {
         await Settings.loadSettings(Settings.TTS_BLACKLIST)
         await Settings.loadSettings(Settings.TTS_USER_NAMES)
         await Settings.loadSettings(Settings.TTS_USER_VOICES)
-        await Settings.loadSettings(Settings.TWITCH_TOKENS)
+        await Settings.loadSettings(Settings.TWITCH_CREDENTIALS)
         await Settings.loadSettings(Settings.TWITCH_REWARDS)
         await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS)
         await Settings.loadSettings(Settings.TTS_DICTIONARY)

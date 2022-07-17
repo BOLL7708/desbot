@@ -10,15 +10,15 @@ class TwitchHelix {
     constructor() {}
 
     async init() {
-        await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
+        await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
         const user = await this.getUserByLogin(Config.twitch.channelName, false)
         TwitchHelix._channelUserId = Utils.toInt(user?.id, -1)
     }
 
     private getAuthHeaders(): Headers {
         const headers = new Headers()
-        headers.append('Authorization', `Bearer ${this._channelUserTokens?.access_token}`)
-        headers.append('client-id', Config.credentials.TwitchClientID)
+        headers.append('Authorization', `Bearer ${this._channelUserTokens?.accessToken}`)
+        headers.append('client-id', this._channelUserTokens?.clientId ?? '')
         return headers
     }
     
@@ -172,8 +172,8 @@ class TwitchHelix {
         // https://dev.twitch.tv/docs/api/reference#search-categories
         const url = `https://api.twitch.tv/helix/search/categories?query=${gameTitle}&first=1`
         let headers = {
-            Authorization: `Bearer ${this._channelUserTokens?.access_token}`,
-            'Client-Id': Config.credentials.TwitchClientID
+            Authorization: `Bearer ${this._channelUserTokens?.accessToken}`,
+            'Client-Id': this._channelUserTokens?.clientId ?? ''
         }
         let response: ITwitchHelixGamesResponse = await (await fetch(url, {headers: headers}))?.json()
         const result: ITwitchHelixGamesResponseData|null = response?.data.pop() ?? null

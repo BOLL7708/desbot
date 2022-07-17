@@ -1,5 +1,5 @@
 <?php
-include_once('../inc/utils.php');
+include_once('../inc/utils.inc.php');
 
 $uri = $_REQUEST['uri'] ?? null;
 $password = getallheaders()['password'] ?? null;

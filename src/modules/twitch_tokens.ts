@@ -1,24 +1,14 @@
 class TwitchTokens {
     async refreshToken() {
         // Load tokens from settings, and if they don't exist use the ones in Secure, which should be added for the first run.
-        let channelTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.channelName)
-        if(channelTokenData == null) channelTokenData = {
-            username: Config.twitch.channelName, 
-            access_token: '',
-            refresh_token: Config.credentials.TwitchChannelRefreshToken,
-            updated: ''
-        }
-        await this.refresh(channelTokenData)
+        let channelTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
+        if(channelTokenData) await this.refresh(channelTokenData)
+        else Utils.log(`TwitchTokens: No tokens for channel: ${Config.twitch.channelName} in _settings, load login.php to set them.`, Color.Purple)
         if(Config.twitch.channelName.toLowerCase() != Config.twitch.chatbotName.toLowerCase()) {
-            let chatbotTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_TOKENS, 'username', Config.twitch.chatbotName)
-            if(chatbotTokenData == null) chatbotTokenData = {
-                username: Config.twitch.chatbotName,
-                access_token: '',
-                refresh_token: Config.credentials.TwitchChatbotRefreshToken ?? '',
-                updated: ''
-            }
-            await this.refresh(chatbotTokenData)
-        }
+            let chatbotTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
+            if(chatbotTokenData) await this.refresh(chatbotTokenData)
+            else Utils.log(`TwitchTokens: No tokens for chat bot: ${Config.twitch.channelName} in _settings, load login.php to set them.`, Color.Purple)
+        } 
     }
 
     private async refresh(data: ITwitchTokens) {
@@ -26,25 +16,27 @@ class TwitchTokens {
             method: 'post',
             body: new URLSearchParams({
                 'grant_type': 'refresh_token',
-                'refresh_token': data.refresh_token,
-                'client_id': Config.credentials.TwitchClientID,
-                'client_secret': Config.credentials.TwitchClientSecret
+                'refresh_token': data.refreshToken,
+                'client_id': data.clientId,
+                'client_secret': data.clientSecret
             })
         }).then((response) => response.json()
         ).then(async json => {
             if (!json.error && !(json.status >= 300)) {
-                let tokenData = {
-                    username: data.username,
-                    access_token: json.access_token,
-                    refresh_token: json.refresh_token,
-                    updated: new Date().toLocaleString("sv")
+                let tokenData: ITwitchTokens = {
+                    userName: data.userName,
+                    accessToken: json.access_token,
+                    refreshToken: json.refresh_token,
+                    updated: new Date().toLocaleString("sv"),
+                    clientId: data.clientId,
+                    clientSecret: data.clientSecret
                 }
-                await Settings.pushSetting(Settings.TWITCH_TOKENS, 'username', tokenData).then(success => {
-                    if(success) console.log(`Successfully refreshed tokens for ${data.username} and wrote them to disk`);
-                    else console.error(`Failed to save tokens for ${data.username} to disk`);
+                await Settings.pushSetting(Settings.TWITCH_CREDENTIALS, 'userName', tokenData).then(success => {
+                    if(success) console.log(`Successfully refreshed tokens for ${data.userName} and wrote them to disk`);
+                    else console.error(`Failed to save tokens for ${data.userName} to disk`);
                 })
             } else {
-                console.error(`Failed to refresh tokens for ${data.username}: ${json.status} -> ${json.error}`);
+                console.error(`Failed to refresh tokens for ${data.userName}: ${json.status} -> ${json.error}`);
             }
         })
     }

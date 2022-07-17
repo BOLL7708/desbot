@@ -1,4 +1,4 @@
-<?php include_once('inc/utils.php'); ?>
+<?php include_once('inc/utils.inc.php'); ?>
 <html>
     <head>
         <title>Streaming Widget</title>

@@ -31,30 +31,6 @@ interface ICredentialsConfig {
     PhilipsHueUsername: string
 
     /**
-     * The Client ID for your registered application on Twitch.
-     */
-    TwitchClientID: string
-
-    /**
-     * The Client Secret for your registered application on Twitch.
-     */
-    TwitchClientSecret: string
-
-    /**
-     * The refresh token for your channel user. 
-     * This is used to retrieve new tokens that is stored in _settings.
-     * The channel tokens are used for most reward related things.
-     */
-    TwitchChannelRefreshToken: string
-
-    /**
-     * The refresh token for your chatbot user, if not supplied will use channel token.
-     * This is used to retrieve new tokens that is stored in _settings.
-     * The chatbot tokens are used for connecting to chat and writing in it.
-     */
-    TwitchChatbotRefreshToken?: string
-
-    /**
      * The password set in the config.php file to allow for writing things to disk.
      */
     PHPPassword: string

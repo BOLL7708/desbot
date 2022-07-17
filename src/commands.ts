@@ -195,7 +195,8 @@ class Commands {
                     modules.tts.enqueueSpeakSentence(
                         await Utils.replaceTagsInText(
                             <string> speech, 
-                            user
+                            user,
+                            {quote: quote}
                         )
                     )
                 } else Utils.log(`Could not find user ${login}`, Color.Red)

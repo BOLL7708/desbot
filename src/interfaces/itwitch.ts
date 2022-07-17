@@ -128,10 +128,12 @@ interface ITwitchCheer {
 
 // Settings
 interface ITwitchTokens {
-    username: string
-    access_token: string
-    refresh_token: string
+    userName: string
+    accessToken: string
+    refreshToken: string
     updated: string
+    clientId: string
+    clientSecret: string
 }
 interface ITwitchRewardCounter {
     key: string

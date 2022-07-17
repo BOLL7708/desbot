@@ -88,7 +88,7 @@ class Utils {
         if($configOverride != null) includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
     }
     
-    static function decode($b64url) {
+    static function decode(string $b64url) {
         $len = strlen($b64url);
         $pad = $len+4-($len%4);
         $b64 = str_pad(str_replace(['-', '_'], ['+', '/'], $b64url), $pad, '=');
@@ -112,5 +112,53 @@ class Utils {
         }
 
         return listFolderFiles('_assets', []);
-    } 
+    }
+
+    /**
+     * Do POST request with form data.
+     */
+    static function postForm(string $url, array $postVars = array()) {
+        $postStr = http_build_query($postVars);
+        return Utils::post($url, $postStr, 'application/x-www-form-urlencoded');
+    }
+    /**
+     * Do POST request with JSON data.
+     */
+    static function postJSON(string $url, array $postVars = array()) {
+        $postStr = json_encode($postVars);
+        return Utils::post($url, $postStr, 'application/json');
+    }
+    /**
+     * Do POST request.
+     */
+    static function post(string $url, $postStr = '', string $contentType = ''){
+        $options = array(
+            'http' =>
+                array(
+                    'method'  => 'POST',
+                    'header'  => "Content-type: $contentType",
+                    'content' => $postStr
+                )
+        );
+        $streamContext = stream_context_create($options);
+        $result = null;
+        try {
+            $result = file_get_contents($url, false, $streamContext);
+        } catch(Exception $e){
+            error_log($e);
+        }
+        return $result;
+    }
+
+    static function get(string $url, array $headers = array()) {
+        $options = array(
+            'http' =>
+                array(
+                    'method' => 'GET',
+                    'header' => implode("\r\n", $headers)
+                )
+        );
+        $context = stream_context_create($options);
+        return file_get_contents($url, false, $context);
+    }
 }
