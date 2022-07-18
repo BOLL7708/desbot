@@ -13,6 +13,8 @@ $pageUrl = 'http'
     .$_SERVER['REQUEST_URI'];
 $pageUrlArr = explode('?', $pageUrl);
 $redirectUri = array_shift($pageUrlArr);
+$missing = $_REQUEST['missing'] ?? '';
+$missingName = $_REQUEST['missingName'] ?? '';
 
 $scopes = [
     "bits:read",
@@ -32,7 +34,7 @@ $scope = $_REQUEST['scope'] ?? '';
 $state = $_REQUEST['state'] ?? '';
 $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
 ?>
-
+<!DOCTYPE html>
 <html>
     <head>
         <title>
@@ -53,8 +55,9 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                 border-radius: 1.5rem;
                 box-shadow: 0 8px 8px 0 #0004;
             }
-            h1 {
-                margin-bottom: 0.5rem;
+            hr {
+                margin: 1.5rem 0;
+                border: 1px solid black;
             }
             div {
                 padding: 0.25rem;
@@ -113,29 +116,27 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
     <body>
         <div class="container">
             <h1 class="center">Streaming Widget Login</h1>
-
+            <hr/>
             <?php 
             /**
              * Check if we have a response, if not, show the initial form.
              */
-            if(!$gotAuthResponse) { ?>
+            if(!$gotAuthResponse) { 
+                if(!empty($missing) && !empty($missingName)) {
+                    ?>
+                    <h2>Why are you seeing this?</h2>
+                    <p>The Streaming Widget needs Twitch tokens to connect to Twitch Chat and various Twitch APIs.</p>
+                    <p>We did not find any tokens for the <strong><?=ucfirst($missing)?></strong>, please follow the instructions below and sign in with <strong><?=$missingName?></strong>!</p>
+                    <?php
+                }
+            ?>
             <h2>Preparation</h2>
             <ol>
-                <li>
-                    Go to the <a href="https://dev.twitch.tv/console/apps/" target="_blank">Twitch Console</a> and create or reuse an old application.
-                </li>
-                <li>
-                    On the page you are on, save the <span class="code">Client ID</span> and <span class="code">Client Secret</span>, and then put those into the appropriate fields in <span class="code">./config/config.php</span>.
-                </li>
-                <li>
-                    <a href="<?=basename(__FILE__)?>">Reload</a> this page, and <span class="code">Client ID</span> below should now be filled in.
-                </li>
-                <li>
-                    On this page, copy the <span class="code">Redirect URI</span> value below, then go back to your application on the <span class="code">Twitch Console</span> page and add it to <span class="code">OAuth Redirect URLs</span>, make sure to save.
-                </li>
-                <li>
-                    Now everything should be set to request tokens, press the <span class="code">Launch Authentication</span> button at the bottom of the form.
-                </li>
+                <li>Go to the <a href="https://dev.twitch.tv/console/apps/" target="_blank">Twitch Console</a> and create or reuse an old application.</li>
+                <li>On the page you are on, save the <span class="code">Client ID</span> and <span class="code">Client Secret</span>, and then put those into the appropriate fields in <span class="code">./config/config.php</span>.</li>
+                <li><a href="<?=basename(__FILE__)?>">Reload</a> this page, and <span class="code">Client ID</span> below should now be filled in.</li>
+                <li>On this page, copy the <span class="code">Redirect URI</span> value below, then go back to your application on the <span class="code">Twitch Console</span> page and add it to <span class="code">OAuth Redirect URLs</span>, make sure to save.</li>
+                <li>Now everything should be set to request tokens, press the <span class="code">Launch Authentication</span> button at the bottom of the form.</li>
             </ol>
             <h2>Form</h2>
             <form method="GET" action="https://id.twitch.tv/oauth2/authorize">
@@ -150,19 +151,10 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                     <label for="redirect_uri">Redirect URI:</label>
                     <input type="text" name="redirect_uri" size=48 value="<?=$redirectUri?>"/>
                 </div>
-                
-                <div>
-                    <label for="force_verify">Force login screen to show:</label>
-                    <select name="force_verify">
-                        <option value="false" selected>Do not force verification</option>
-                        <option value="true">Force verification</option>
-                    </select>
-                </div>
 
+                <input type="hidden" name="force_verify" value="true"/>
                 <input type="hidden" name="response_type" value="code"/>
-                
                 <input type="hidden" name="scope" value="<?=implode(" ", $scopes)?>"/>
-
                 <input type="hidden" name="state" value="<?=rand(0, 1000000)?>"/>
 
                 <div class="center">
@@ -189,8 +181,8 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                     ]));
                     $userInfo = $userInfoArr->data[0] ?? (object) [];
                     if($userInfo) {
-                        $settingsFile = Settings::getFilePath('twitch_tokens', '', 'csv');
-                        $settings = Settings::readSettings($settingsFile);
+                        $settingsFile = Settings::getFilePath('twitch_credentials', '', 'csv');
+                        $settings = Settings::readSettings($settingsFile) ?? [];
                         $done = false;
                         foreach($settings as $key => $value) {
                             if($value['userName'] == $userInfo->login) {
@@ -219,6 +211,7 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                             <div class="center">
                                 <div class="profileImg" style="background-image: url(<?=$userInfo->profile_image_url?>);"></div>
                                 <p>Tokens successfully saved for <?=$userInfo->display_name?>!</p>
+                                <p>Go back to the <a href="index.php">Streaming Widget</a>.</p>
                             </div>
                             <?php
                         } else {
@@ -236,7 +229,7 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                     }
                 } else { ?>
                     <div>
-                        <p>Could not fetch data from authentication, please <a href="<?=basename(__FILE__)?>">try again</a>.</p>
+                        <p>Could not get authentication data, please <a href="<?=basename(__FILE__)?>">try again</a>.</p>
                     </div>
                     <?php 
                 }

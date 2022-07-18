@@ -26,6 +26,18 @@ class MainController {
         const dictionarySettings = Settings.getFullSettings<IDictionaryEntry>(Settings.TTS_DICTIONARY)
         modules.tts.setDictionary(dictionarySettings ?? [])
 
+        
+        const channelTokens = await Settings.pullSetting(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
+        const chatbotTokens = await Settings.pullSetting(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
+        if(!channelTokens) {
+            document.location.href = 'login.php?missing=channel&missingName='+Config.twitch.channelName
+            return
+        }
+        if(!chatbotTokens) {
+            document.location.href = 'login.php?missing=chatbot&missingName='+Config.twitch.chatbotName
+            return
+        }
+
         /*
         .####.##....##.####.########
         ..##..###...##..##.....##...

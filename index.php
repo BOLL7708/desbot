@@ -1,4 +1,5 @@
 <?php include_once('inc/utils.inc.php'); ?>
+<!DOCTYPE html>
 <html>
     <head>
         <title>Streaming Widget</title>
