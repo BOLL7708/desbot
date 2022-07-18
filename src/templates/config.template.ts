@@ -12,10 +12,6 @@ Config.credentials = <ICredentialsConfig> {
     OpenVR2WSPassword: '',
     GoogleTTSApiKey: '',
     PhilipsHueUsername: '',
-    TwitchClientID: '',
-    TwitchClientSecret: '',
-    TwitchChannelRefreshToken: '',
-    TwitchChatbotRefreshToken: '',
     PHPPassword: '',
     DiscordWebhooks: {
         [KeysTemplate.DISCORD_CHAT]: 'The webhook URL you want to use for logging Twitch chat',
