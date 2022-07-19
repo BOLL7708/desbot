@@ -63,6 +63,12 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                 padding: 0.25rem;
                 line-height: 125%;
             }
+            a {
+                font-weight: bold;
+            }
+            li {
+                padding: 0.25rem;
+            }
             .center {
                 margin-left: auto;
                 margin-right: auto;
@@ -124,23 +130,26 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
             if(!$gotAuthResponse) { 
                 if(!empty($missing) && !empty($missingName)) {
                     ?>
-                    <h2>Why are you seeing this?</h2>
-                    <p>The Streaming Widget needs Twitch tokens to connect to Twitch Chat and various Twitch APIs.</p>
-                    <p>We did not find any tokens for the <strong><?=ucfirst($missing)?></strong>, please follow the instructions below and sign in with <strong><?=$missingName?></strong>!</p>
+                    <h2>What is this?</h2>
+                    <p>The Streaming Widget needs tokens to connect to Twitch stuff, one or more are missing, this page will help you get them, might appear multiple times.</p>
+                    <p>Right now we want tokens for the <strong><?=$missing?></strong>, please follow the instructions below and then sign in with:</p>
+                    <h1 class="center"><?=strtoupper($missingName)?></strong></h1>
+                    <hr/>
                     <?php
                 }
             ?>
-            <h2>Preparation</h2>
+            <h2>One-Time Preparation</h2>
             <ol>
                 <li>Go to the <a href="https://dev.twitch.tv/console/apps/" target="_blank">Twitch Console</a> and create or reuse an old application.</li>
-                <li>On the page you are on, save the <span class="code">Client ID</span> and <span class="code">Client Secret</span>, and then put those into the appropriate fields in <span class="code">./_configs/config.php</span>.</li>
-                <li><a href="<?=basename(__FILE__)?>">Reload</a> this page, and <span class="code">Client ID</span> below should now be filled in.</li>
+                <li>On that page, save the <span class="code">Client ID</span> and <span class="code">Client Secret</span>, and then put those into the appropriate fields in <span class="code">./_configs/config.php</span>.</li>
+                <li><a href="<?=$pageUrl?>">Reload</a> this page, and the <span class="code">Twitch Client ID</span> below should now be filled in.</li>
                 <li>On this page, copy the <span class="code">Redirect URI</span> value below, then go back to your application on the <span class="code">Twitch Console</span> page and add it to <span class="code">OAuth Redirect URLs</span>, make sure to save.</li>
                 <li>Now everything should be set to request tokens, press the <span class="code">Launch Authentication</span> button at the bottom of the form.</li>
             </ol>
-            <h2>Form</h2>
+            <hr/>
+            <h2>Twitch Authentication</h2>
             <form method="GET" action="https://id.twitch.tv/oauth2/authorize">
-                <p>The form allows you to retrieve a token for the Streaming Widget.</p>
+                <p>If both fields below are filled in, and you followed the steps above, this form should allow you to retrieve Twitch tokens.</p>
                 
                 <div>
                     <label for="client_id">Twitch Client ID:</label>
@@ -158,7 +167,7 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                 <input type="hidden" name="state" value="<?=rand(0, 1000000)?>"/>
 
                 <div class="center">
-                    <input type="submit" value="Launch Authentication"/>
+                    <input type="submit" value="Launch Twitch Authentication"/>
                 </div>
             </form>
             <?php } else { 
