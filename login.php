@@ -133,7 +133,7 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
             <h2>Preparation</h2>
             <ol>
                 <li>Go to the <a href="https://dev.twitch.tv/console/apps/" target="_blank">Twitch Console</a> and create or reuse an old application.</li>
-                <li>On the page you are on, save the <span class="code">Client ID</span> and <span class="code">Client Secret</span>, and then put those into the appropriate fields in <span class="code">./config/config.php</span>.</li>
+                <li>On the page you are on, save the <span class="code">Client ID</span> and <span class="code">Client Secret</span>, and then put those into the appropriate fields in <span class="code">./_configs/config.php</span>.</li>
                 <li><a href="<?=basename(__FILE__)?>">Reload</a> this page, and <span class="code">Client ID</span> below should now be filled in.</li>
                 <li>On this page, copy the <span class="code">Redirect URI</span> value below, then go back to your application on the <span class="code">Twitch Console</span> page and add it to <span class="code">OAuth Redirect URLs</span>, make sure to save.</li>
                 <li>Now everything should be set to request tokens, press the <span class="code">Launch Authentication</span> button at the bottom of the form.</li>
