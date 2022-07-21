@@ -308,28 +308,29 @@ class Commands {
                     )
                 }
             } else {
-                const scale = Utils.toInt(user.input)
-                if(isNaN(scale) && ['reset', 'kill', 'off', 'done', 'end'].indexOf(user.input) > -1) { // Terminate interval
+                let scale = Utils.toInt(user.input)
+                if(isNaN(scale)) scale = 100
+                if(states.scaleIntervalHandle > -1) {
                     const speech = Config.controller.speechReferences[Keys.COMMAND_SCALE]
                     clearInterval(states.scaleIntervalHandle)
+                    states.scaleIntervalHandle = -1
                     Settings.pushLabel(Settings.WORLD_SCALE_LABEL, "")
                     modules.tts.enqueueSpeakSentence(speech[4])
-                } else { // Manual setting
-                    const value = Math.max(10, Math.min(1000, scale || 100))
-                    modules.tts.enqueueSpeakSentence(
-                        await Utils.replaceTagsInText(
-                            speech[0], 
-                            user, 
-                            { // Overriding the number tag as the scale is clamped.
-                                userNumber: value.toString()
-                            }
-                        )
-                    )
-                    modules.openvr2ws.setSetting({
-                        setting: OpenVR2WS.SETTING_WORLD_SCALE,
-                        value: value/100.0
-                    })    
                 }
+                const value = Math.max(10, Math.min(1000, scale || 100))
+                modules.tts.enqueueSpeakSentence(
+                    await Utils.replaceTagsInText(
+                        speech[0], 
+                        user, 
+                        { // Overriding the number tag as the scale is clamped.
+                            userNumber: value.toString()
+                        }
+                    )
+                )
+                modules.openvr2ws.setSetting({
+                    setting: OpenVR2WS.SETTING_WORLD_SCALE,
+                    value: value/100.0
+                })    
             }
         },
 
