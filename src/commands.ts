@@ -15,7 +15,7 @@ class Commands {
     ...##......##........##.
     ...##......##.....####..
     */
-    public static callbacks: { [key: string]: ITwitchActionCallback|undefined } = {
+    public static callbacks: { [key: string]: IActionCallback|undefined } = {
         [Keys.COMMAND_TTS_ON]: async (user) => {
             const modules = ModulesSingleton.getInstance()
             const states = StatesSingleton.getInstance()

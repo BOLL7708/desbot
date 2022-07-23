@@ -1,3 +1,7 @@
+interface IActionCallback {
+    (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage): void
+}
+
 interface IActionsTimeline { [ms: number]: IActions }
 interface IActions {
     // TODO: Add array support to everything? Random/Shuffle functionality?

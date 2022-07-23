@@ -119,11 +119,11 @@ interface ITwitchConfig {
 }
 interface ITwitchReward {
     id?: string
-    callback?: ITwitchActionCallback
+    callback?: IActionCallback
 }
 interface ITwitchCheer {
     bits: number
-    callback?: ITwitchActionCallback
+    callback?: IActionCallback
 }
 
 // Settings
@@ -227,9 +227,6 @@ interface ITwitchRewardProfileConfig {
 // Callbacks
 interface ITwitchChatCallback { // In Twitch
     (user: IActionUser, messageData: ITwitchMessageData): void
-}
-interface ITwitchActionCallback {
-    (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage): void
 }
 interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void

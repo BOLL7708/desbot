@@ -172,10 +172,10 @@ class Actions {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
-    private static buildActionCallback(key: string, event: IEvent): ITwitchActionCallback {
+    private static buildActionCallback(key: string, event: IEvent): IActionCallback {
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
         const timeline = Utils.getTimelineFromActions(event.actions)
-        const callbacks: { [ms: number]: ITwitchActionCallback } = {}
+        const callbacks: { [ms: number]: IActionCallback } = {}
         for(const [msStr, actions] of Object.entries(timeline)) {
             const ms = parseInt(msStr)
 
@@ -264,7 +264,7 @@ class Actions {
         }
     }
 
-    public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string): ITwitchActionCallback|undefined {
+    public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string): IActionCallback|undefined {
         if(config) return (user: IActionUser, index?: number) => {
             const singleConfig = Utils.randomOrSpecificFromArray(config, index)
             if(singleConfig) {
@@ -277,7 +277,7 @@ class Actions {
         }
     }
 
-    public static buildColorCallback(config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): ITwitchActionCallback|undefined {
+    public static buildColorCallback(config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): IActionCallback|undefined {
         if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
@@ -290,7 +290,7 @@ class Actions {
         }
     }
 
-    public static buildPlugCallback(config: IPhilipsHuePlugConfig|undefined): ITwitchActionCallback|undefined {
+    public static buildPlugCallback(config: IPhilipsHuePlugConfig|undefined): IActionCallback|undefined {
         if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.hue.runPlugConfig(config)
@@ -304,7 +304,7 @@ class Actions {
      * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
      * @returns 
      */
-    public static buildSoundAndSpeechCallback(config: IAudio|undefined, speechConfig:ISpeechConfig|undefined, nonce: string, onTtsQueue:boolean = false):ITwitchActionCallback|undefined {
+    public static buildSoundAndSpeechCallback(config: IAudio|undefined, speechConfig:ISpeechConfig|undefined, nonce: string, onTtsQueue:boolean = false):IActionCallback|undefined {
         if(config || speechConfig) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             let ttsString: string|undefined
@@ -332,7 +332,7 @@ class Actions {
         }
     }
 
-    public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): ITwitchActionCallback|undefined {
+    public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): IActionCallback|undefined {
         if(config) return async (user: IActionUser) => {
             /*
             * We check if we don't have enough texts to fill the preset 
@@ -370,14 +370,14 @@ class Actions {
         }
     }
 
-    public static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): ITwitchActionCallback|undefined {
+    public static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): IActionCallback|undefined {
         if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.openvr2ws.setSetting(config)
         }
     }
 
-    public static buildSignCallback(config: ISignShowConfig|undefined): ITwitchActionCallback|undefined {
+    public static buildSignCallback(config: ISignShowConfig|undefined): IActionCallback|undefined {
         if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitchHelix.getUserById(parseInt(user.id)).then(async userData => {
@@ -392,7 +392,7 @@ class Actions {
         }
     }
 
-    public static buildExecCallback(config: IExecConfig|undefined): ITwitchActionCallback|undefined {
+    public static buildExecCallback(config: IExecConfig|undefined): IActionCallback|undefined {
         if(config) return async (user: IActionUser) => {
             if(config.run) {
                 Exec.runKeyPressesFromPreset(config.run)
@@ -409,13 +409,13 @@ class Actions {
         }
     }
 
-    private static buildWebCallback(url: string|undefined): ITwitchActionCallback|undefined {
+    private static buildWebCallback(url: string|undefined): IActionCallback|undefined {
         if(url) return (user: IActionUser) => {
             fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
         }
     }
 
-    private static buildScreenshotCallback(config: IScreenshot|undefined, key: string, nonce: string): ITwitchActionCallback|undefined {
+    private static buildScreenshotCallback(config: IScreenshot|undefined, key: string, nonce: string): IActionCallback|undefined {
         if(config) return (user: IActionUser) => {
             const states = StatesSingleton.getInstance()
             const modules = ModulesSingleton.getInstance()
@@ -447,7 +447,7 @@ class Actions {
         }
     }
 
-    private static buildDiscordMessageCallback(message: string|string[]|undefined, key: string): ITwitchActionCallback|undefined {
+    private static buildDiscordMessageCallback(message: string|string[]|undefined, key: string): IActionCallback|undefined {
         if(message && message.length > 0) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
@@ -460,7 +460,7 @@ class Actions {
         }
     }
 
-    private static buildTwitchChatCallback(message: string|string[]|undefined): ITwitchActionCallback|undefined {
+    private static buildTwitchChatCallback(message: string|string[]|undefined): IActionCallback|undefined {
         if(message && message.length > 0) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToChannel(
@@ -469,7 +469,7 @@ class Actions {
         }
     }
 
-    private static buildTwitchWhisperCallback(config: IWhisperConfig|undefined): ITwitchActionCallback|undefined {
+    private static buildTwitchWhisperCallback(config: IWhisperConfig|undefined): IActionCallback|undefined {
         if(config) return async (user: IActionUser, index?: number) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToUser(
@@ -485,7 +485,7 @@ class Actions {
         }
     }
 
-    private static buildLabelCallback(config: ILabelConfig|undefined): ITwitchActionCallback|undefined {
+    private static buildLabelCallback(config: ILabelConfig|undefined): IActionCallback|undefined {
         if(config) return async (user: IActionUser) => {
             if(config.append) {
                 Settings.appendSetting(config.fileName, await Utils.replaceTagsInText(config.text, user))
@@ -495,7 +495,7 @@ class Actions {
         }
     }
 
-    private static buildCommandsCallback(config: ICommandConfig|undefined): ITwitchActionCallback|undefined {
+    private static buildCommandsCallback(config: ICommandConfig|undefined): IActionCallback|undefined {
         if(config) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             const interval = config.interval ?? 0
@@ -513,14 +513,14 @@ class Actions {
         }
     }
 
-    private static buildRemoteCommandCallback(commandStr: string|undefined): ITwitchActionCallback|undefined {
+    private static buildRemoteCommandCallback(commandStr: string|undefined): IActionCallback|undefined {
         if(commandStr && commandStr.length > 0) return (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             modules.twitch.sendRemoteCommand(commandStr)
         }
     }
 
-    private static buildRewardStatesCallback(config: IRewardStatesConfig|undefined): ITwitchActionCallback|undefined {
+    private static buildRewardStatesCallback(config: IRewardStatesConfig|undefined): IActionCallback|undefined {
         if(config) return async (user: IActionUser) => {
             const modules = ModulesSingleton.getInstance()
             

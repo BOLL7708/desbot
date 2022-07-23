@@ -46,7 +46,7 @@ class Rewards {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
         }
     }
-    public static callbacks: { [key: string]: ITwitchActionCallback|undefined } = {
+    public static callbacks: { [key: string]: IActionCallback|undefined } = {
         /*
         .######..######...####..
         ...##......##....##.....
