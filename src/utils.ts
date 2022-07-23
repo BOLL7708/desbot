@@ -392,6 +392,19 @@ class Utils {
         return result
     }
 
+    /**
+     * Returns an array with the values to act upon, modified by the `__type` extension property of the array.
+     * @param value An array, single value or undefined, will always return an array with 0 or more elements.
+     * @param index Use to retrieve a specific value, will use 0 if missing, uses last value if too large.
+     * @returns 
+     */
+    static getItems<Type>(value: Type[]|Type|undefined, index?: number): Type[] {
+        if(value == undefined) return []
+        return Array.isArray(value) 
+            ? value.getAsType(index) 
+            : [value].getAsType(index)
+    }
+
     static ensureArray<Type>(value: Type[]|Type): Type[] {
         return Array.isArray(value) ? value : [value]
     }

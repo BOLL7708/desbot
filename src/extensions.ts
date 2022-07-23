@@ -1,40 +1,103 @@
 /**
- * Array Type, an extension done to know if an array of configs/values is supposed to be used in a specific way.
+ * Array extensions, we add a type and various accessors for various output.
  */
 enum EArrayType {
-    Specific,
+    All,
     Random,
-    All
+    AllRandom,
+    Specific
 }
 interface Array<T> {
     __type: EArrayType
     useSpecific(): Array<T>
     useRandom(): Array<T>
+    useAllRandom(): Array<T>
     useAll(): Array<T>
-    isSpecific(): boolean
-    isRandom(): boolean
-    isAll(): boolean
+
+    shuffle(): Array<T>
+    getRandom(): T|undefined
+    getSpecific(index?: number): T|undefined
+    getAsType(index?: number): Array<T>
 }
 
-Array.prototype.useSpecific = function(): Array<any> {
-    this.__type = EArrayType.Specific
+Array.prototype.useAll = function(): Array<any> {
+    this.__type = EArrayType.All
     return this
 }
 Array.prototype.useRandom = function(): Array<any> {
     this.__type = EArrayType.Random
     return this
 }
-Array.prototype.useAll = function(): Array<any> {
-    this.__type = EArrayType.All
+Array.prototype.useAllRandom = function(): Array<any> {
+    this.__type = EArrayType.AllRandom
+    return this
+}
+Array.prototype.useSpecific = function(): Array<any> {
+    this.__type = EArrayType.Specific
     return this
 }
 
-Array.prototype.isSpecific = function(): boolean {
-    return this.__type == EArrayType.Random
+/**
+ * Will use the `__type` property to determine how to return the array.
+ * Returns an array with the values to act upon, modified by the `__type` extension property of the array.
+ * @param value An array, single value or undefined, will always return an array with 0 or more elements.
+ * @param index Use to retrieve a specific value, will use 0 if missing, uses last value if too large.
+ * @returns 
+ */
+Array.prototype.getAsType = function<T>(index?: number): T[] {
+    if(this.length <= 1) return this
+    switch(this.__type) {
+        case EArrayType.All: return this
+        case EArrayType.Random: {
+            const random = this.getRandom()
+            return random !== undefined ? [random] : []
+        }
+        case EArrayType.AllRandom: {
+            return this.shuffle()
+        }
+        case EArrayType.Specific: {
+            const specific = this.getSpecific(index)
+            return specific !== undefined ? [specific] : []
+        }
+        default: return this
+    }
 }
-Array.prototype.isSpecific = function(): boolean {
-    return this.__type == EArrayType.Random
+
+/**
+ * Shuffles the array in place.
+ * @link https://bost.ocks.org/mike/shuffle/
+ * @returns Shuffled array
+ */
+Array.prototype.shuffle = function(): Array<any> {
+    let max = this.length, transfer, index;
+    while (max) { // Loop over the whole array
+      index = Math.floor(Math.random() * max--); // Randomize index from front of array, max reduces by 1 each time
+      transfer = this[max]; // Cache current value
+      this[max] = this[index]; // Copy random value over current value
+      this[index] = transfer; // Replace old random value with cache of current value
+    }
+    return this
 }
-Array.prototype.isSpecific = function(): boolean {
-    return this.__type == EArrayType.Random
+
+/**
+ * Will return a random value from the array
+ * @returns Value or undefined if none could be retrieved.
+ */
+Array.prototype.getRandom = function<T>(): T|undefined {
+    if(this.length == 0) return undefined
+    if(this.length == 1) return this[0]
+    return this[Math.floor(Math.random()*this.length)]
+}
+
+/**
+ * Will return the value for a specific index in an array
+ * @param arr Array to get values from
+ * @param index Will use 0 if not supplied, will max out at array length if too high 
+ * @returns Value or undefined if none could be retrieved.
+ */
+Array.prototype.getSpecific = function<T>(index: number = 0): T|undefined {
+    if(this.length == 0) return undefined
+    if(index >= this.length) return this[this.length - 1]
+    if(index < 0) return this[0]
+    else return this[index]
 }
