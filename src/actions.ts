@@ -189,6 +189,7 @@ class Actions {
             const stack: IActionCallback[] = []
 
             // Build callbacks
+            stack.pushIfExists(actions?.custom)
             stack.pushIfExists(Commands.callbacks[key])
             stack.pushIfExists(Rewards.callbacks[key])
             stack.pushIfExists(this.buildOBSCallback(actions?.obs, key))
