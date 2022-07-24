@@ -187,7 +187,7 @@ class Pipe {
         this._socket.send(JSON.stringify(message))
     }
 
-    async showPreset(preset: IPipeMessagePreset) {
+    async showPreset(preset: IPipeAction) {
         // If path exists, load image, in all cases output base64 image data
         let imageb64: string|undefined
         if(preset.imagePath != undefined) {

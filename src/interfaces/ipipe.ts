@@ -50,32 +50,6 @@ interface IPipeConfig {
      */
      cleanTextConfig: ICleanTextConfig
 }
-interface IPipeMessagePreset {
-    /**
-     * Optional: An absolute path to an image or an array of image for random selection.
-     * If this is skipped, `imageData` needs to be set instead.
-     */
-    imagePath?: string|string[]
-    /**
-     * Optional: Image data (b64) for the image to be displayed.
-     * If this is skipped, `imagePath` needs to be set instead.
-     */
-    imageData?: string
-    /**
-     * The duration for this notification to be displayed in milliseconds.
-     */
-    durationMs: number
-    /**
-     * Config for the custom notification, which can be generated with the Editor that comes with OpenVRNotificationPipe. 
-     * You can copy the config as JS and paste it in a preset for easy referencing in the config.
-     */
-    config: IPipeCustomMessage
-    /**
-     * If your custom notification includes text areas, this is where you add the texts that are to be used for it.
-     * When left empty or when using an empty string, the redeemers name will be used instead.
-     */
-    texts?: string[]
-}
 
 interface IPipeCustomMessageConfig {
     width: number

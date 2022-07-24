@@ -247,7 +247,7 @@ class Actions {
         }
     }
 
-    public static buildOBSCallback(config: IObsSourceConfig|IObsSourceConfig[]|undefined, key: string): IActionCallback|undefined {
+    public static buildOBSCallback(config: IObsAction|IObsAction[]|undefined, key: string): IActionCallback|undefined {
         if(config) return {
             tag: '🎬',
             description: 'Callback that triggers an OBS action',
@@ -264,7 +264,7 @@ class Actions {
         }
     }
 
-    public static buildColorCallback(config: IPhilipsHueColorConfig|IPhilipsHueColorConfig[]|undefined): IActionCallback|undefined {
+    public static buildColorCallback(config: IPhilipsHueColorAction|IPhilipsHueColorAction[]|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎨',
             description: 'Callback that triggers a Philips Hue color action',
@@ -281,7 +281,7 @@ class Actions {
         }
     }
 
-    public static buildPlugCallback(config: IPhilipsHuePlugConfig|undefined): IActionCallback|undefined {
+    public static buildPlugCallback(config: IPhilipsHuePlugAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🔌',
             description: 'Callback that triggers a Philips Hue plug action',
@@ -299,7 +299,7 @@ class Actions {
      * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
      * @returns 
      */
-    public static buildSoundAndSpeechCallback(config: IAudio|undefined, speechConfig:ISpeechConfig|undefined, nonce: string, onTtsQueue:boolean = false):IActionCallback|undefined {
+    public static buildSoundAndSpeechCallback(config: IAudioAction|undefined, speechConfig:ISpeechAction|undefined, nonce: string, onTtsQueue:boolean = false):IActionCallback|undefined {
         if(config || speechConfig) return {
             tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',
@@ -331,7 +331,7 @@ class Actions {
         }
     }
 
-    public static buildPipeCallback(config: IPipeMessagePreset|IPipeMessagePreset[]|undefined): IActionCallback|undefined {
+    public static buildPipeCallback(config: IPipeAction|IPipeAction[]|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '📺',
             description: 'Callback that triggers an OpenVRNotificationPipe action',
@@ -384,7 +384,7 @@ class Actions {
         }
     }
 
-    public static buildSignCallback(config: ISignShowConfig|undefined): IActionCallback|undefined {
+    public static buildSignCallback(config: ISignAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🚦',
             description: 'Callback that triggers a Sign action',
@@ -403,7 +403,7 @@ class Actions {
         }
     }
 
-    public static buildExecCallback(config: IExecConfig|undefined): IActionCallback|undefined {
+    public static buildExecCallback(config: IExecAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎓',
             description: 'Callback that triggers an Exec action',
@@ -434,7 +434,7 @@ class Actions {
         }
     }
 
-    private static buildScreenshotCallback(config: IScreenshot|undefined, key: string, nonce: string): IActionCallback|undefined {
+    private static buildScreenshotCallback(config: IScreenshotAction|undefined, key: string, nonce: string): IActionCallback|undefined {
         if(config) return {
             tag: '📸',
             description: 'Callback that triggers a Screenshot action',
@@ -499,7 +499,7 @@ class Actions {
             }
         }
     }
-    private static buildTwitchWhisperCallback(config: IWhisperConfig|undefined): IActionCallback|undefined {
+    private static buildTwitchWhisperCallback(config: IWhisperAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '💭',
             description: 'Callback that triggers a Twitch whisper action',
@@ -519,7 +519,7 @@ class Actions {
         }
     }
 
-    private static buildLabelCallback(config: ILabelConfig|undefined): IActionCallback|undefined {
+    private static buildLabelCallback(config: ILabelAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🏷',
             description: 'Callback that triggers a Label action',
@@ -533,7 +533,7 @@ class Actions {
         }
     }
 
-    private static buildCommandsCallback(config: ICommandConfig|undefined): IActionCallback|undefined {
+    private static buildCommandsCallback(config: ICommandAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🖐',
             description: 'Callback that triggers a Commands action',
@@ -566,7 +566,7 @@ class Actions {
         }
     }
 
-    private static buildRewardStatesCallback(config: IRewardStatesConfig|undefined): IActionCallback|undefined {
+    private static buildRewardStatesCallback(config: IRewardStatesAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '⏯',
             description: 'Callback that triggers a Reward States action',

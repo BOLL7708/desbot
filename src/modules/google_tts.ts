@@ -16,9 +16,9 @@ class GoogleTTS {
     private _lastEnqueued: number = 0
     private _lastSpeaker: string = ''
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`GoogleTTS: Played callback not set, ${nonce}->${status}`) }
-    private _emptyMessageSound: IAudio|undefined
+    private _emptyMessageSound: IAudioAction|undefined
     private _count = 0
-    private _preloadQueue: Record<number, IAudio|string|null> = {} // Can be a string because we keep track on if it is in progress that way.
+    private _preloadQueue: Record<number, IAudioAction|string|null> = {} // Can be a string because we keep track on if it is in progress that way.
     private _preloadQueueLoopHandle: number = 0
     private _dequeueCount = 0
     private _dequeueMaxTries = 10
@@ -60,7 +60,7 @@ class GoogleTTS {
         this._audio.setPlayedCallback(callback)
     }
 
-    setEmptyMessageSound(audio:IAudio|undefined) {
+    setEmptyMessageSound(audio:IAudioAction|undefined) {
         this._emptyMessageSound = audio
     }
 
@@ -203,7 +203,7 @@ class GoogleTTS {
         })
     }
 
-    enqueueSoundEffect(audio: IAudio|undefined) {
+    enqueueSoundEffect(audio: IAudioAction|undefined) {
         if(audio) {
             const serial = ++this._count
             this._preloadQueue[serial] = audio

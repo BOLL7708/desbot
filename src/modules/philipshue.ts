@@ -30,7 +30,7 @@ class PhilipsHue {
         })
     }
 
-    runPlugConfig(config: IPhilipsHuePlugConfig) {
+    runPlugConfig(config: IPhilipsHuePlugAction) {
         this.setPlugState(config.id, config.triggerState)
         if(config.duration != undefined) {
             setTimeout(() => {

@@ -61,7 +61,7 @@ class OBS {
 
     // TODO: Add support for an array of configs to toggle many things at once
     // TODO: Actually retain and return nonces, array for multiple sources?
-    show(config: IObsSourceConfig|IObsSourceConfig[]|undefined, ignoreDuration: boolean = false) {
+    show(config: IObsAction|IObsAction[]|undefined, ignoreDuration: boolean = false) {
         const configArr = Array.isArray(config) ? config : [config]
         for(const cfg of configArr) {
             if(cfg?.sceneNames != undefined) {
@@ -114,7 +114,7 @@ class OBS {
             }
         }
     }
-    hide(config: IObsSourceConfig|IObsSourceConfig[]|undefined) {
+    hide(config: IObsAction|IObsAction[]|undefined) {
         const configArr = Array.isArray(config) ? config : [config]
         for(const cfg of configArr) {
             if(cfg?.sceneNames) {
@@ -140,7 +140,7 @@ class OBS {
         }
     }
 
-    toggle(config: IObsSourceConfig, visible: boolean) {
+    toggle(config: IObsAction, visible: boolean) {
         if(visible) this.show(config) 
         else this.hide(config)
     }

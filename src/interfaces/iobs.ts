@@ -26,32 +26,6 @@ interface IObsConfig {
      */
     sourceScreenshotConfig: IObsSourceScreenshotConfig
 }
-interface IObsSourceConfig {
-    /**
-     * The name of the source to affect.
-     */
-    sourceName: string|string[]
-    /**
-     * Optional: If we are showing/hiding the source, we need to know which scene(s) it is in.
-     */
-    sceneNames?: string[]
-    /**
-     * Optional: Instead of toggling the source, we will toggle a filter on the source, which also means we don't have to provide the scene name(s).
-     */
-    filterName?: string
-    /**
-     * Optional: The source/filter will be switch state again after this amount of milliseconds, or provided.
-     */
-    durationMs?: number
-    /**
-     * Optional: Define a specific state, true is on/visible and the default.
-     */
-    state?: boolean
-    /**
-     * Optional: Set in code to reference the key that triggered it for group toggling.
-     */
-    key?: string
-}
 interface IObsSourceScreenshotConfig {
     /**
      * Image format of the screenshot file.

@@ -35,27 +35,3 @@ interface ISignConfig {
      */
     direction: string
 }
-
-/**
- * Configuration for a single Sign pop-in.
- */
-interface ISignShowConfig {
-    /**
-     * The title above the image, takes tags.
-     */
-    title: string
-    /**
-     * Optional: The image to display in the Sign pop-in, as web URL, local URL or data URL.
-     * 
-     * If not provided, the avatar image will be used instead, if available.
-     */
-    image?: string
-    /**
-     * The subtitle beneath the image, takes tags.
-     */
-    subtitle: string
-    /**
-     * The duration for the Sign to be visible for, in milliseconds.
-     */
-    durationMs: number
-}

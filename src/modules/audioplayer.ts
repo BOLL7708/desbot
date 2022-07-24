@@ -8,7 +8,7 @@ class AudioPlayer {
     }
     private _pool: Map<number, AudioPlayerInstance> = new Map()
 
-    enqueueAudio(audio: IAudio|undefined) {
+    enqueueAudio(audio: IAudioAction|undefined) {
         if(audio) {
             const channel = audio.channel ?? 0
             if(!this._pool.has(channel)) {
@@ -33,7 +33,7 @@ class AudioPlayer {
 class AudioPlayerInstance {
     private _audio?: HTMLAudioElement
     private _queueLoopHandle: number = 0
-    private _queue: IAudio[] = []
+    private _queue: IAudioAction[] = []
     private _isPlaying: boolean = false
     private _currentNonce?: string // Actually used but does not reference back through .call()
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`AudioPlayer: Played callback not set, ${nonce}->${status}`) } // Actually used but does not reference back through .call()
@@ -100,7 +100,7 @@ class AudioPlayerInstance {
         }
     }
 
-    enqueueAudio(audio: IAudio|undefined) {
+    enqueueAudio(audio: IAudioAction|undefined) {
         if(audio) {
             console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
             if(audio.repeat != undefined) {

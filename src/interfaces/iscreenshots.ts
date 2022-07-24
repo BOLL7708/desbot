@@ -51,12 +51,12 @@ interface IScreenshotConfig {
         /**
          * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
          */
-        pipeMessagePreset: IPipeMessagePreset|undefined,
+        pipeMessagePreset: IPipeAction|undefined,
         /**
          * As there is not built in audio effect for OBS screenshots an option for that is provided here.
          * Why this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.
          */
-        soundEffectForOBSScreenshots: IAudio
+        soundEffectForOBSScreenshots: IAudioAction
     }
 }
 
@@ -80,22 +80,4 @@ interface IScreenshotConfig {
      * Input from the Twitch reward redemption.
      */
     userInput: string
-}
-
-interface IScreenshot {
-    /**
-     * Optional: Fill this in if you want to capture an OBS screenshot, 
-     * if left out it will default to capture a VR screenshot.
-     */
-    obsSource?: string
-    /**
-     * Optional: Add a delay ïn seconds to the screenshot. Use this for a reward that will tell you 
-     * want to screenshot, so you have time to frame the shot or strike a pose.
-     */
-    delay?: number
-    /**
-     * Optional: Add a count of screenshots if you want to trigger a burst.
-     * It will wait for the previous callback before triggering the next shot.
-     */
-    burstCount?: number
 }

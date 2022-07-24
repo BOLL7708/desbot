@@ -4,7 +4,7 @@ class Sign {
     private _img: HTMLImageElement
     private _title: HTMLParagraphElement
     private _subtitle: HTMLParagraphElement
-    private _queue: ISignShowConfig[] = []
+    private _queue: ISignAction[] = []
     private _queueLoopHandle: number = 0
     private _isVisible: boolean = false
 
@@ -56,7 +56,7 @@ class Sign {
         this._queueLoopHandle = setInterval(this.tryShowNext.bind(this), 500)
     }
 
-    enqueueSign(config: ISignShowConfig) {
+    enqueueSign(config: ISignAction) {
         if(!config.title && !config.image && !config.subtitle) {
             Utils.log(
                 `Could not enqueue sign, config incomplete: ${JSON.stringify(config)}`, 
@@ -72,7 +72,7 @@ class Sign {
         this.show(config)
     }
 
-    private show(config: ISignShowConfig) {
+    private show(config: ISignAction) {
         this._isVisible = true
         this._img.onload = ()=>{ // Wait for image to load
             this._title.innerText = config.title ?? ''

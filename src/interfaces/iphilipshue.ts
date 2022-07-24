@@ -12,39 +12,6 @@ interface IPhilipsHueConfig {
     lightsIds: number[]
 }
 
-/**
- * Color config using the XY color space.
- * 
- * This can be retrieved from Philips Hue API after setting the color of the lights manually.
- * TODO: Add a function to get this through a chat command?
- */
-interface IPhilipsHueColorConfig {
-    x: number
-    y: number
-}
-
-/**
- * Configuration for a Philips Hue plug.
- */
-interface IPhilipsHuePlugConfig {
-    /**
-     * Id from the Philips Hue bridge
-     */
-    id: number
-    /**
-     * What it is reset to
-     */
-    originalState: boolean
-    /**
-     * What it is set to when triggered
-     */
-    triggerState: boolean
-    /**
-     * Optional: Will switch back to original state if supplied
-     */
-    duration?: number
-}
-
 // Response
 interface IPhilipsHueLightState {
     on: boolean
