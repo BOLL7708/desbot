@@ -153,10 +153,10 @@ class Twitch{
             if(command && commandStr) {
                 user.input = textStr
                 if(allowedRole && command.callback) {
-                    command.callback(user)
+                    command.callback.call(user)
                 }
                 if(allowedRole && allowedByCooldown && command.cooldownCallback) {
-                    command.cooldownCallback(user)
+                    command.cooldownCallback.call(user)
                 }
                 if(command.cooldown !== undefined && allowedByCooldown) {
                     this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
@@ -217,10 +217,10 @@ class Twitch{
             if(command && commandStr) {
                 user.input = textStr
                 if(allowedUser && command.callback) {
-                    command.callback(user)
+                    command.callback.call(user)
                 }
                 if(allowedUser && allowedByCooldown && command.cooldownCallback) {
-                    command.cooldownCallback(user)
+                    command.cooldownCallback.call(user)
                 }
                 if(command.cooldown !== undefined && allowedByCooldown) {
                     this._remoteCooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
@@ -233,8 +233,8 @@ class Twitch{
     async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.callback) command.callback(userData ?? await Actions.getEmptyUserDataForCommands())
-        else if(command?.cooldownCallback) command?.cooldownCallback(userData ?? await Actions.getEmptyUserDataForCommands())
+        if(command?.callback) command.callback.call(userData ?? await Actions.getEmptyUserDataForCommands())
+        else if(command?.cooldownCallback) command?.cooldownCallback.call(userData ?? await Actions.getEmptyUserDataForCommands())
     }
 
     async sendRemoteCommand(commandStr: string) {

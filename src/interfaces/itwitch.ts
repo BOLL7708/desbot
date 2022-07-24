@@ -177,13 +177,13 @@ interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
     /**
      * Optional: The callback the command executes.
      */
-    callback?: ITwitchCommandCallback
+    callback?: IActionCallback
     /**
      * Optional: A callback that can only be run once in every `cooldown` seconds.
      * 
      * Note: The broadcaster and moderators are exempt from cooldowns.
      */
-    cooldownCallback?: ITwitchCommandCallback
+    cooldownCallback?: IActionCallback
     /**
      * Optional: Only allow this command for these specific users.
      */

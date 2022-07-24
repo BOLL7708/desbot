@@ -1,5 +1,7 @@
 interface IActionCallback {
-    (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage): void
+    tag: string
+    description: string
+    call: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => void
 }
 
 interface IActionsTimeline { [ms: number]: IActions }

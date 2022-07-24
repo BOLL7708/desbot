@@ -18,6 +18,8 @@ interface Array<T> {
     getRandom(): T|undefined
     getSpecific(index?: number): T|undefined
     getAsType(index?: number): Array<T>
+
+    pushIfExists<T>(item: T): number
 }
 
 Array.prototype.useAll = function(): Array<any> {
@@ -100,4 +102,17 @@ Array.prototype.getSpecific = function<T>(index: number = 0): T|undefined {
     if(index >= this.length) return this[this.length - 1]
     if(index < 0) return this[0]
     else return this[index]
+}
+
+/**
+ * Will push an item to the array if is not undefined.
+ * @param item Item to push to the array.
+ * @returns The new length of the array or -1 if unable to push.
+ */
+Array.prototype.pushIfExists = function<T>(item: T|undefined): number {
+    if(item !== undefined) {
+        this.push(item)
+        return this.length
+    }
+    return -1
 }
