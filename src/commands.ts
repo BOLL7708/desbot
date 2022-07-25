@@ -653,8 +653,8 @@ class Commands {
                 for(const key of allRewardKeys) {
                     const eventConfig = Utils.getEventConfig(key)
                     if(
-                        eventConfig?.options?.rewardType == ERewardType.Incrementing
-                        && eventConfig?.options?.rewardResetIncrementOnCommand === true
+                        eventConfig?.options?.behavior == EBehavior.Incrementing
+                        && eventConfig?.options?.resetIncrementOnCommand === true
                     ) {
                         totalCount++
                         const rewardSetup = eventConfig?.triggers?.reward

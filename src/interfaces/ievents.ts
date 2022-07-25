@@ -10,10 +10,12 @@ interface IEventsForGamesConfig {
 /**
  * Various types of special reward behavior.
  */
-enum ERewardType { 
-    Standard = 'standard',
-    Incrementing = 'incrementing',
-    Accumulating = 'accumulating'
+enum EBehavior { 
+    All,
+    Random,
+    Incrementing,
+    Accumulating,
+    Multitier
 }
 
 /**
@@ -23,21 +25,31 @@ interface IEvent {
     options?: {
         /**
          * Optional: Set this to add special behavior to this reward.
-         * - standard: is the same as leaving this out, no special behavior.
-         * - incrementing: will increment the reward config every time it is redeemed.
+         * - **All**: Is the same as leaving this out, no special behavior, will trigger everything provided.
+         * - **Random**: Will pick a random reward from the list.
+         * - **Incrementing**: Will increment every time it is redeemed.
+         * - **Accumulating**: Will show the first setting until goal is met when it shows the second.
+         * - **Multitier**: Will switch to the next, but will reset after a duration, can have multiple levels.
          */
-        rewardType?: ERewardType
+        behavior?: EBehavior
+       
+        /**
+         * Optional: Will reset an incrementing reward when the reset command is run, resetting the index to 0.
+         */
+        resetIncrementOnCommand?: boolean
+
+        /**
+         * Optional: Will reset an accumulating reward when the reset command is run, resetting the index to 0.
+         */
+        resetAccumulationOnCommand?: boolean
+
+        // TODO: Add capability to refund accumulations later.
 
         /**
          * Optional: A list of rewards that will only be created, not updated using `!update`.
          * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
          */
         rewardIgnoreUpdateCommand?: boolean
-
-        /**
-         * Optional: Will reset an incrementing reward when the reset command is run, resetting the index to 0.
-         */
-        rewardResetIncrementOnCommand?: boolean
 
         /**
          * Optional: Will avoid refunding the redemption when the clear redemptions command is used.
@@ -72,7 +84,14 @@ interface IEvent {
          */
         timer?: ITimerConfig
     }
-    actions?: IActions|IActionsTimeline
+
+    /**
+     * Optional: Set this to execute actions when the event is triggered. There are a few options.
+     * 1. A single batch of actions to execute.
+     * 2. A timeline of actions to execute.
+     * 3. An array single action to execute.
+     */
+    actions?: IActions|IActionsTimeline|IActions[]|IActionsTimeline[]
 }
 
 interface ITimerConfig {
