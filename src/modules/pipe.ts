@@ -120,11 +120,9 @@ class Pipe {
             if(imageDataUrl != null) {
                 // Replace undefined colors in outlines with user color or default
                 const avatarConfig = Utils.clone(Config.pipe.customChatAvatarConfig)
-                for(const outlineIndex in avatarConfig.outlines) {
-                    const index = parseInt(outlineIndex)
-                    if(avatarConfig.outlines[index].color == undefined) {
-                        avatarConfig.outlines[index].color = userColor ?? Color.White
-                    }
+                for(const [key, value] of avatarConfig.outlines?.entries() ?? []) {
+                    // TODO: Does changing this in value actually update the avatarConfig? Debug this later.
+                    if(value.color == undefined) value.color = userColor ?? Color.White
                 }
                 // Draw
                 const avatarRect = isOneRow ? {

@@ -14,9 +14,7 @@ class Dictionary {
 
     constructor() {
         // Build audio dictionary from Config
-        for(const entry of Object.entries(Config.google.dictionaryConfig.wordToAudioConfig)) {
-            const word = entry[0]
-            const config = entry[1]
+        for(const [word, config] of Object.entries(Config.google.dictionaryConfig.wordToAudioConfig)) {
             this._audioConfigs.push(config)
             const configIndex = this._audioConfigs.length - 1
             for(const w of word.split('|')) {

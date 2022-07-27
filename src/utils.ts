@@ -159,7 +159,7 @@ class Utils {
 
     static matchFirstChar(text:string, chars:string[]):Boolean {
         let trimmed = text.trim()
-        for(let i in chars) {
+        for(let i=0; i<chars.length; i++) {
             if(trimmed.indexOf(chars[i]) == 0) return true
         }
         return false
@@ -212,8 +212,8 @@ class Utils {
     static logWithBold(message:string, color:string) {
         const formatNormal = `color: ${color}; font-weight: normal;`
         const formatBold = `color: ${color}; font-weight: bold;`
-        var formats = [formatNormal];
-        for(var i=0; i<message.length;i++) {
+        let formats = [formatNormal];
+        for(let i=0; i<message.length;i++) {
             if (message[i] === "<") formats.push(formatBold);
             else if (message[i] === ">") formats.push(formatNormal);
         }
@@ -568,7 +568,7 @@ class Utils {
     static getTimelineFromActions(actions: IActions|IActionsTimeline|undefined): IActionsTimeline {
         return actions && !Utils.hasNumberKeys(actions)
             ? <IActionsTimeline> {0: actions}
-            : actions 
+            : (actions && Object.keys(actions).length > 0)
                 ? <IActionsTimeline> actions
                 : {0: {}}
     }

@@ -213,31 +213,32 @@ class Actions {
             const stack: IActionCallback[] = []
 
             // Build callbacks
-            ArrayUtils.pushIfExists(stack, actions?.custom)
-            ArrayUtils.pushIfExists(stack, Commands.callbacks[key])
-            ArrayUtils.pushIfExists(stack, Rewards.callbacks[key])
-            ArrayUtils.pushIfExists(stack, this.buildOBSCallback(actions?.obs, key))
-            ArrayUtils.pushIfExists(stack, this.buildColorCallback(actions?.lights))
-            ArrayUtils.pushIfExists(stack, this.buildPlugCallback(actions?.plugs))
-            ArrayUtils.pushIfExists(stack, this.buildSoundAndSpeechCallback(
+            stack.pushIfExists(actions?.custom)
+            stack.pushIfExists(Commands.callbacks[key])
+            stack.pushIfExists(Rewards.callbacks[key])
+            if(Rewards.callbacks[key]) console.log(" ================= ", Rewards.callbacks[key])
+            stack.pushIfExists(this.buildOBSCallback(actions?.obs, key))
+            stack.pushIfExists(this.buildColorCallback(actions?.lights))
+            stack.pushIfExists(this.buildPlugCallback(actions?.plugs))
+            stack.pushIfExists(this.buildSoundAndSpeechCallback(
                 actions?.audio, 
                 actions?.speech,
                 nonceTTS, 
                 !!(actions?.speech)
             ))
-            ArrayUtils.pushIfExists(stack, this.buildPipeCallback(actions?.pipe))
-            ArrayUtils.pushIfExists(stack, this.buildOpenVR2WSSettingCallback(actions?.openVR2WS))
-            ArrayUtils.pushIfExists(stack, this.buildSignCallback(actions?.sign))
-            ArrayUtils.pushIfExists(stack, this.buildExecCallback(actions?.exec))
-            ArrayUtils.pushIfExists(stack, this.buildWebCallback(actions?.web))
-            ArrayUtils.pushIfExists(stack, this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS))
-            ArrayUtils.pushIfExists(stack, this.buildDiscordMessageCallback(actions?.discord, key))
-            ArrayUtils.pushIfExists(stack, this.buildTwitchChatCallback(actions?.chat))
-            ArrayUtils.pushIfExists(stack, this.buildTwitchWhisperCallback(actions?.whisper))
-            ArrayUtils.pushIfExists(stack, this.buildLabelCallback(actions?.label))
-            ArrayUtils.pushIfExists(stack, this.buildCommandsCallback(actions?.commands))
-            ArrayUtils.pushIfExists(stack, this.buildRemoteCommandCallback(actions?.remoteCommand))
-            ArrayUtils.pushIfExists(stack, this.buildRewardStatesCallback(actions?.rewardStates))
+            stack.pushIfExists(this.buildPipeCallback(actions?.pipe))
+            stack.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.openVR2WS))
+            stack.pushIfExists(this.buildSignCallback(actions?.sign))
+            stack.pushIfExists(this.buildExecCallback(actions?.exec))
+            stack.pushIfExists(this.buildWebCallback(actions?.web))
+            stack.pushIfExists(this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS))
+            stack.pushIfExists(this.buildDiscordMessageCallback(actions?.discord, key))
+            stack.pushIfExists(this.buildTwitchChatCallback(actions?.chat))
+            stack.pushIfExists(this.buildTwitchWhisperCallback(actions?.whisper))
+            stack.pushIfExists(this.buildLabelCallback(actions?.label))
+            stack.pushIfExists(this.buildCommandsCallback(actions?.commands))
+            stack.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
+            stack.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
 
             // Logging
             if(stack.length == 1) {
@@ -346,7 +347,7 @@ class Actions {
                 if(config) { // If we have an audio config, play it. Attach 
                     const configClone = Utils.clone(config)
                     const srcArr = Utils.ensureArray( configClone.src)
-                    for(let i in srcArr) {
+                    for(let i = 0; i<srcArr.length; i++) {
                         srcArr[i] = await Utils.replaceTagsInText(srcArr[i], user) // To support audio URLs in input
                     }
                     configClone.src = srcArr
@@ -388,8 +389,8 @@ class Actions {
                     }
                     
                     // Replace tags in texts.
-                    if(cfg.texts) for(const t in cfg.texts) {
-                        cfg.texts[t] = await Utils.replaceTagsInText(cfg.texts[t], user)
+                    if(cfg.texts) for(let i=0; i<cfg.texts.length; i++) {
+                        cfg.texts[i] = await Utils.replaceTagsInText(cfg.texts[i], user)
                     }
 
                     // If no image is supplied, use the redeemer user image instead.

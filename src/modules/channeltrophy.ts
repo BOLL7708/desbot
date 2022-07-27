@@ -475,8 +475,8 @@ class NumberPatterns {
             if(this.checkIfSquare(i)) result.square++
             if(this.checkIfCube(i)) result.cube++
         }
-        for(let key in result) {
-            console.log(`\t${key}\t${result[key]}\t`)
+        for(const [key, value] of Object.entries(result)) {
+            console.log(`\t${key}\t${value}\t`)
         }
     }
 }

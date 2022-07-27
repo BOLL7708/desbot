@@ -50,15 +50,14 @@ class Discord {
         if(response == null) return new Promise<boolean>(resolve => resolve(false))
         
         const headers: IDiscordResponseHeaders = {}
-        for(const key in response.headers) {
-            const header = response.headers.get(key)
+        for(const [key, header] of response.headers.entries()) {
             headers[key] = header
         }
         const bucket = headers["x-ratelimit-bucket"]
         if(bucket) {
             if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
-            const remaining = parseInt(headers.get("x-ratelimit-remaining"))
-            const reset = parseInt(headers.get("x-ratelimit-reset"))
+            const remaining = parseInt(headers["x-ratelimit-remaining"] ?? '')
+            const reset = parseInt(headers["x-ratelimit-reset"] ?? '')
             if(!isNaN(remaining) && !isNaN(reset)) {
                 const resetTimestamp = reset * 1000
                 this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
