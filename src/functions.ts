@@ -59,7 +59,7 @@ class Functions {
             }
             
             // TTS runs the command due to doing more things than just toggling the flag.
-            modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
+            await modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
             states.pipeAllChat = combinedSettings.pipeAllChat ?? false
             states.pingForChat = combinedSettings.pingForChat ?? false
             this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the flag directly.
@@ -88,18 +88,17 @@ class Functions {
         const gameProfile = Config.twitch.rewardProfilePerGame[appId]
         let profileToUse: {[key: string]: boolean} = {}
         if(appId.length == 0) {
-            Utils.log(`Applying profile for no game as app ID was undefined`, Color.Green, true, true)
-            profileToUse = {...defaultProfile, ...Config.twitch.rewardProfileNoGame}
+            Utils.log(`Applying NO GAME reward profile as no app ID`, Color.Green, true, true)
+            profileToUse = { ...defaultProfile, ...Config.twitch.rewardProfileNoGame }
 			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [no game](${Object.keys(Config.twitch.rewardProfileNoGame).length}) to [merged](${Object.keys(profileToUse).length})`, Color.Gray)
         } else if(gameProfile != undefined) {
-            Utils.log(`Applying game reward profile for: ${appId}`, Color.Green, true, true)
+            Utils.log(`Applying GAME reward profile for: ${appId}`, Color.Green, true, true)
 			profileToUse = {...defaultProfile, ...gameProfile}
 			Utils.log(`--> merging [default${isVr?' vr':''}](${Object.keys(defaultProfile).length}) with [game](${Object.keys(gameProfile).length}) to [merged](${Object.keys(profileToUse).length})`, Color.Gray)
-            
         } else {
-            Utils.log(`Applying default, as no game reward profile for: ${appId}`, Color.Green, true, true)
-			Utils.log(`--> using [default${isVr?' vr':''}](${Object.keys(defaultProfile).length})`, Color.Gray)
+            Utils.log(`Applying DEFAULT, as no game reward profile for: ${appId}`, Color.Green, true, true)
             profileToUse = defaultProfile
+            Utils.log(`--> using [default${isVr?' vr':''}](${Object.keys(defaultProfile).length})`, Color.Gray)
         }
        
         // Update rewards
@@ -110,23 +109,23 @@ class Functions {
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
             const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
             Utils.log(`--> will turn on reward '${rewardKey}' depending on game.`, Color.Gray)
-            profileToUse[rewardKey] = games.includes(appId)
+            if(games.includes(appId)) profileToUse[rewardKey] = true
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
             const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
             Utils.log(`--> will turn off reward '${rewardKey}' depending on game.`, Color.Gray)
-            profileToUse[rewardKey] = !games.includes(appId)
+            if(games.includes(appId)) profileToUse[rewardKey] = false
         }
 
         /**
          * Game specific reward configuration
          */
-         const allGameRewardKeys = Utils.getAllEventKeysForGames(true)
-         const gameSpecificRewards = states.useGameSpecificRewards ? Utils.getEventsForGame(appId) : undefined
-         const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
-         const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
-        
-         // Disable all resuable generic rewards that are not in use.
+        const allGameRewardKeys = Utils.getAllEventKeysForGames(true)
+        const gameSpecificRewards = states.useGameSpecificRewards ? Utils.getEventsForGame(appId) : undefined
+        const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
+        const unavailableGameRewardKeys = allGameRewardKeys.filter((key) => !availableGameRewardKeys.includes(key))
+
+        // Disable all reusable generic rewards that are not in use.
         for(const rewardKey of unavailableGameRewardKeys) {
             profileToUse[rewardKey] = false
         }
@@ -144,7 +143,7 @@ class Functions {
                 Utils.logWithBold(`Updating Game Reward: <${rewardKey}:${rewardId}>`, Color.Purple)
                 
                 // Update game rewards on Twitch
-                modules.twitchHelix.updateReward(rewardId, {
+                await modules.twitchHelix.updateReward(rewardId, {
                     ...defaultRewardConfig,
                     ...rewardConfig,
                     ...{is_enabled: true}
@@ -157,7 +156,7 @@ class Functions {
                     }
                 }
                 // Update game reward actions
-                Actions.registerReward(rewardKey, eventWithActions)
+                await Actions.registerReward(rewardKey, eventWithActions)
             }
         }
         
@@ -171,7 +170,7 @@ class Functions {
 
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
-        modules.twitchHelix.toggleRewards(profileToUse)
+        await modules.twitchHelix.toggleRewards(profileToUse)
         
 		/*
 		.##...##..######...####....####..
@@ -219,9 +218,9 @@ class Functions {
                 const speech = Config.controller.speechReferences[Keys.CALLBACK_APPID]
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
-                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}))
+                    await modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}))
                 } else {
-                    modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}))
+                    await modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}))
                 }
             } else {
                 Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)
