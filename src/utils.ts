@@ -310,7 +310,7 @@ class Utils {
             userInputHead: '',
             userInputRest: '',
             userInputTail: '',
-            userNumber: '',
+            userInputNumber: '',
             userBits: userBits,
             userBitsTotal: userBitsTotal,
             userSubsTotal: subs?.totalMonths ?? '0',
@@ -343,7 +343,7 @@ class Utils {
             result.userInputHead = inputSplit.shift() ?? ''
             result.userInputRest = inputSplit.join(' ')
             result.userInputTail = inputSplit.pop() ?? result.userInputHead // If the array is already empty, head & tail are the same.
-            result.userNumber = parseFloat(input).toString()
+            result.userInputNumber = parseFloat(input).toString()
         }
         return result
     }

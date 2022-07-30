@@ -149,7 +149,7 @@ interface ITextTags {
     userInputHead: string
     userInputRest: string
     userInputTail: string
-    userNumber: string
+    userInputNumber: string
     userBits: string
     userBitsTotal: string
     userSubsTotal: string
