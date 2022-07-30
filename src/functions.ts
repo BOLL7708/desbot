@@ -59,7 +59,7 @@ class Functions {
             }
             
             // TTS runs the command due to doing more things than just toggling the flag.
-            await modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF)
+            modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF).then()
             states.pipeAllChat = combinedSettings.pipeAllChat ?? false
             states.pingForChat = combinedSettings.pingForChat ?? false
             this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the flag directly.
@@ -143,11 +143,11 @@ class Functions {
                 Utils.logWithBold(`Updating Game Reward: <${rewardKey}:${rewardId}>`, Color.Purple)
                 
                 // Update game rewards on Twitch
-                await modules.twitchHelix.updateReward(rewardId, {
+                modules.twitchHelix.updateReward(rewardId, {
                     ...defaultRewardConfig,
                     ...rewardConfig,
                     ...{is_enabled: true}
-                })
+                }).then()
                 const eventWithActions = event
                 if(event.actions && defaultEvent.actions) {
                     eventWithActions.actions = {
@@ -156,7 +156,7 @@ class Functions {
                     }
                 }
                 // Update game reward actions
-                await Actions.registerReward(rewardKey, eventWithActions)
+                Actions.registerReward(rewardKey, eventWithActions).then()
             }
         }
         
@@ -170,7 +170,7 @@ class Functions {
 
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
-        await modules.twitchHelix.toggleRewards(profileToUse)
+        modules.twitchHelix.toggleRewards(profileToUse).then()
         
 		/*
 		.##...##..######...####....####..

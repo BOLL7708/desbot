@@ -97,7 +97,7 @@ class Actions {
                         const newRewardConfig = rewardConfig[counter.count]
                         if(newRewardConfig != undefined) {
                             await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
-                            modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig)
+                            modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig).then()
                         }
                     }
                 }
@@ -110,7 +110,7 @@ class Actions {
         }
     }
 
-    public static async registerCommand(key: string, event: IEvent) {
+    private static async registerCommand(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         const triggers = key.split('|')
         for(const trigger of triggers) {
@@ -125,7 +125,7 @@ class Actions {
         }
     }
 
-    public static async registerRemoteCommand(key: string, event: IEvent) {
+    private static async registerRemoteCommand(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()        
         const triggers = key.split('|')
         for(const trigger of triggers) {
@@ -140,7 +140,7 @@ class Actions {
         }
     }
 
-    public static async registerCheer(key: string, event: IEvent) {
+    private static async registerCheer(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         const actionCallback = this.buildActionCallback(key, event)
         const cheer: ITwitchCheer = {
@@ -160,7 +160,7 @@ class Actions {
         }
     }
 
-    public static async registerTimer(key: string, event: IEvent) {
+    private static async registerTimer(key: string, event: IEvent) {
         const actionCallback = this.buildActionCallback(key, event)
         const user = await this.getEmptyUserDataForCommands()
         const config = event.triggers.timer
@@ -282,7 +282,7 @@ class Actions {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
-    public static buildOBSCallback(config: IObsAction|IObsAction[]|undefined, key: string): IActionCallback|undefined {
+    private static buildOBSCallback(config: IObsAction|IObsAction[]|undefined, key: string): IActionCallback|undefined {
         if(config) return {
             tag: '🎬',
             description: 'Callback that triggers an OBS action',
@@ -299,11 +299,11 @@ class Actions {
         }
     }
 
-    public static buildColorCallback(config: IPhilipsHueColorAction|IPhilipsHueColorAction[]|undefined): IActionCallback|undefined {
+    private static buildColorCallback(config: IPhilipsHueColorAction|IPhilipsHueColorAction[]|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎨',
             description: 'Callback that triggers a Philips Hue color action',
-            call: (user: IActionUser) => {
+            call: () => {
                 const modules = ModulesSingleton.getInstance()
                 const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
                 const lights:number[] = Config.philipshue.lightsIds
@@ -314,11 +314,11 @@ class Actions {
         }
     }
 
-    public static buildPlugCallback(config: IPhilipsHuePlugAction|undefined): IActionCallback|undefined {
+    private static buildPlugCallback(config: IPhilipsHuePlugAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🔌',
             description: 'Callback that triggers a Philips Hue plug action',
-            call: (user: IActionUser) => {
+            call: () => {
                 const modules = ModulesSingleton.getInstance()
                 modules.hue.runPlugConfig(config)
             }
@@ -328,18 +328,18 @@ class Actions {
     /**
      * Will play back a sound and/or speak.
      * @param config The config for the sound effect to be played.
-     * @param speech What to be spoken, if TTS is enabled.
+     * @param speechConfig What to be spoken, if TTS is enabled.
      * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
      * @returns 
      */
-    public static buildSoundAndSpeechCallback(config: IAudioAction|undefined, speechConfig:ISpeechAction|undefined, nonce: string, onTtsQueue:boolean = false):IActionCallback|undefined {
+    private static buildSoundAndSpeechCallback(config: IAudioAction|undefined, speechConfig:ISpeechAction|undefined, nonce: string, onTtsQueue:boolean = false):IActionCallback|undefined {
         if(config || speechConfig) return {
             tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
                 let ttsString: string|undefined
-                if(speechConfig && (Array.isArray(speechConfig.entries) || typeof speechConfig.entries == 'string')) {
+                if(speechConfig?.entries) {
                     ttsString = <string> Utils.randomOrSpecificFromArray(speechConfig.entries, index)
                     ttsString = await Utils.replaceTagsInText(ttsString, user)
                     onTtsQueue = true
@@ -354,7 +354,7 @@ class Actions {
                     if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
                     else modules.audioPlayer.enqueueAudio(configClone)
                 }
-                if(ttsString && speechConfig) modules.tts.enqueueSpeakSentence(
+                if(ttsString && speechConfig) await modules.tts.enqueueSpeakSentence(
                     ttsString,
                     await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user), 
                     speechConfig.type ?? TTSType.Announcement, 
@@ -364,7 +364,7 @@ class Actions {
         }
     }
 
-    public static buildPipeCallback(config: IPipeAction|IPipeAction[]|undefined): IActionCallback|undefined {
+    private static buildPipeCallback(config: IPipeAction|IPipeAction[]|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '📺',
             description: 'Callback that triggers an OpenVRNotificationPipe action',
@@ -400,24 +400,24 @@ class Actions {
                     }
 
                     // Show it
-                    modules.pipe.showPreset(cfg)
+                    modules.pipe.showPreset(cfg).then()
                 }
             }
         }
     }
 
-    public static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): IActionCallback|undefined {
+    private static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🔧',
             description: 'Callback that triggers an OpenVR2WSSetting action',
-            call: (user: IActionUser) => {
+            call: () => {
                 const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.setSetting(config)
+                modules.openvr2ws.setSetting(config).then()
             }
         }
     }
 
-    public static buildSignCallback(config: ISignAction|undefined): IActionCallback|undefined {
+    private static buildSignCallback(config: ISignAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🚦',
             description: 'Callback that triggers a Sign action',
@@ -436,7 +436,7 @@ class Actions {
         }
     }
 
-    public static buildExecCallback(config: IExecAction|undefined): IActionCallback|undefined {
+    private static buildExecCallback(config: IExecAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎓',
             description: 'Callback that triggers an Exec action',
@@ -461,7 +461,7 @@ class Actions {
         if(url) return {
             tag: '🌐',
             description: 'Callback that triggers a Web action',
-            call: (user: IActionUser) => {
+            call: () => {
                 fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
             }
         }
@@ -558,9 +558,9 @@ class Actions {
             description: 'Callback that triggers a Label action',
             call: async (user: IActionUser) => {
                 if(config.append) {
-                    Settings.appendSetting(config.fileName, await Utils.replaceTagsInText(config.text, user))
+                    Settings.appendSetting(config.fileName, await Utils.replaceTagsInText(config.text, user)).then()
                 } else {
-                    Settings.pushLabel(config.fileName, await Utils.replaceTagsInText(config.text, user))
+                    Settings.pushLabel(config.fileName, await Utils.replaceTagsInText(config.text, user)).then()
                 }
             }
         }
@@ -580,7 +580,7 @@ class Actions {
                     let inputText = user.input
                     if(command.includes(' ')) inputText = Utils.splitOnFirst(' ', inputText)[0]
                     setTimeout(()=>{
-                        modules.twitch.runCommand(command, {...user, input: inputText})
+                        modules.twitch.runCommand(command, {...user, input: inputText}).then()
                     }, delay*1000)
                     delay += interval
                 }
@@ -592,9 +592,9 @@ class Actions {
         if(commandStr && commandStr.length > 0) return {
             tag: '🤝',
             description: 'Callback that triggers a Remote Command action',
-            call: (user: IActionUser) => {
+            call: () => {
                 const modules = ModulesSingleton.getInstance()
-                modules.twitch.sendRemoteCommand(commandStr)
+                modules.twitch.sendRemoteCommand(commandStr).then()
             }
         }
     }
@@ -603,7 +603,7 @@ class Actions {
         if(config) return {
             tag: '⏯',
             description: 'Callback that triggers a Reward States action',
-            call: async (user: IActionUser) => {
+            call: async () => {
                 const modules = ModulesSingleton.getInstance()
                 
                 // Change the overrides to make this persistent this session.
