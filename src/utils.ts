@@ -283,6 +283,7 @@ class Utils {
                     tags.targetGame = channelData.game_name
                     tags.targetTitle = channelData.title
                     tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
+                    tags.targetColor = await modules.twitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
                 }
             }
         }
@@ -306,12 +307,15 @@ class Utils {
             userTag: `@${userData?.name}`,
             userNick: await this.loadCleanName(userData?.login ?? ''),
             userInput: '',
+            userInputHead: '',
+            userInputRest: '',
+            userInputTail: '',
             userNumber: '',
-            userWord: '',
             userBits: userBits,
             userBitsTotal: userBitsTotal,
             userSubsTotal: subs?.totalMonths ?? '0',
             userSubsStreak: subs?.streakMonths ?? '0',
+            userColor: userData?.color ?? '',
 
             gameId: '',
             gamePrice: '',
@@ -330,14 +334,16 @@ class Utils {
             targetGame: '',
             targetTitle: '',
             targetLink: '',
-
-            utilRandom: ''
+            targetColor: ''
         }
         if(userData?.input) {
             const input = userData.input
+            const inputSplit = input.split(' ')
             result.userInput = input
+            result.userInputHead = inputSplit.shift() ?? ''
+            result.userInputRest = inputSplit.join(' ')
+            result.userInputTail = inputSplit.pop() ?? result.userInputHead // If the array is already empty, head & tail are the same.
             result.userNumber = parseFloat(input).toString()
-            result.userWord = input.split(' ').pop() ?? ''
         }
         return result
     }
@@ -345,12 +351,8 @@ class Utils {
     static replaceTags(text: string|string[], replace: { [key: string]: string }) {
         if(Array.isArray(text)) text = Utils.randomFromArray(text)
         for(const key of Object.keys(replace)) {
-            const rx = new RegExp(`\%${key}([^a-zA-Z0-9]|$)`, 'g') // Match the key word and any non-character afterwards
-            if(key === 'utilRandom') {
-                text = text.replace(rx, (_, c2)=>{ return Math.random().toString()+c2 }) // c2 is whatever we matched in the group that was not text
-            } else {
-                text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text
-            }
+            const rx = new RegExp(`\%${key}([^a-zA-Z]|$)`, 'g') // Match the key word and any non-character afterwards
+            text = text.replace(rx, `${replace[key]}$1`) // $1 is whatever we matched in the group that was not text}
         }
         return text
     }

@@ -169,9 +169,9 @@ class Callbacks {
                 modules.pipe.sendBasic(
                     redemption.user_input, 
                     user?.display_name, 
-                    TwitchFactory.userColors.get(parseInt(redemption.user.id)) ?? Color.White,
+                    await modules.twitchHelix.getUserColor(parseInt(redemption.user.id)) ?? Color.White,
                     user?.profile_image_url
-                )
+                ).then()
             }
         })
 
@@ -229,7 +229,7 @@ class Callbacks {
             const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
             const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
             
-            if(requestData != null) { // A screenshot from a reward
+            if(requestData) { // A screenshot from a reward
                 const userData = await modules.twitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                 
@@ -238,7 +238,7 @@ class Callbacks {
                 const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
                 const color = Utils.hexToDecColor(
-                    TwitchFactory.userColors.get(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                    await modules.twitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
@@ -314,7 +314,7 @@ class Callbacks {
                 const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
                 const color = Utils.hexToDecColor(
-                    TwitchFactory.userColors.get(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                    await modules.twitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description}) 

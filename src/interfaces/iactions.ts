@@ -146,12 +146,15 @@ interface ITextTags {
     userTag: string
     userNick: string
     userInput: string
+    userInputHead: string
+    userInputRest: string
+    userInputTail: string
     userNumber: string
-    userWord: string
     userBits: string
     userBitsTotal: string
     userSubsTotal: string
     userSubsStreak: string
+    userColor: string
 
     gameId: string
     gamePrice: string
@@ -170,8 +173,7 @@ interface ITextTags {
     targetGame: string
     targetTitle: string
     targetLink: string
-
-    utilRandom: string
+    targetColor: string
 }
 
 interface ITTSConfig {
@@ -234,7 +236,7 @@ interface IAudioAction {
 interface ISpeechAction {
     entries: string|string[]
     voiceOfUser?: string
-    type?: TTSType
+    type?: ETTSType
 }
 
 interface ILabelAction {

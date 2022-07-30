@@ -98,7 +98,7 @@ class TwitchPubsub {
                                 
                                 // Event
                                 const reward = this._rewards.get(id)
-                                if(reward?.callback) reward.callback.call(Actions.userDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
+                                if(reward?.callback) reward.callback.call(await Actions.userDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
                                 else console.warn(`Reward not found: ${id}, the reward might be in the wrong group!`)
                                 
                                 break

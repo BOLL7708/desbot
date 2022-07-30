@@ -175,3 +175,14 @@ interface ITwitchHelixChannelRequest {
     title?: string
     delay?: number
 }
+
+interface ITwitchHelixChatColorResponse {
+    data: [
+        {
+            user_id: string,
+            user_name: string,
+            user_login: string,
+            color: string
+        }
+    ]
+}

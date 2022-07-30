@@ -1,6 +1,4 @@
 class TwitchFactory {
-    static userColors: Map<number, string> = new Map()
-
     private static buildMessage(data:string):ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
         const matches: RegExpExecArray|null = re.exec(data)
@@ -105,16 +103,6 @@ class TwitchFactory {
         const messageCmd:ITwitchMessageCmd = {
             properties: this.buildMessageProperties(props),
             message: this.buildMessage(msg)
-        }
-        
-        // Cache user color
-        const userId = Utils.toInt(messageCmd.properties['user-id'])
-        if(
-            !isNaN(userId)
-            && !this.userColors.has(userId) 
-            && messageCmd.properties.color
-        ) {
-            this.userColors.set(userId, messageCmd.properties.color)
         }
 
         // Will truncate the default user tag at the start if it is a response to a thread.

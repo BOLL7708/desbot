@@ -10,13 +10,15 @@ class Actions {
         }
     }
 
-    public static userDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): IActionUser {
+    public static async userDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
+        const modules = ModulesSingleton.getInstance()
+        const id = message?.data?.redemption?.user?.id ?? ''
         return {
-            id: message?.data?.redemption?.user?.id ?? '',
+            id: id,
             login: message?.data?.redemption?.user?.login ?? '',
             name: message?.data?.redemption?.user?.display_name ?? '',
             input: message?.data?.redemption?.user_input ?? '',
-            color: '',
+            color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
@@ -28,12 +30,13 @@ class Actions {
     public static async userDataFromCheerMessage(message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_id ?? '')
+        const id = user?.id ?? ''
         return {
-            id: user?.id ?? '',
+            id: id,
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: message?.data?.chat_message ?? '',
-            color: '',
+            color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
@@ -54,7 +57,7 @@ class Actions {
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: '',
-            color: '',
+            color: await modules.twitchHelix.getUserColor(user?.id ?? '') ?? '',
             isBroadcaster: true,
             isModerator: false,
             isVIP: false,
