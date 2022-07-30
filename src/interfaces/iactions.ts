@@ -6,7 +6,7 @@ interface IActionCallback {
 
 interface IActionsTimeline { [ms: number]: IActions }
 interface IActions {
-    // TODO: Add array support to everything? Random/Shuffle functionality?
+    // TODO: Remove arrays for configs, instead let users do arrays of actions.
 
     /**
      * Optional: Used to change SteamVR settings.
@@ -149,12 +149,28 @@ interface ITextTags {
     userInputHead: string
     userInputRest: string
     userInputTail: string
+    userInputNoTags: string
     userInputNumber: string
     userBits: string
     userBitsTotal: string
     userSubsTotal: string
     userSubsStreak: string
     userColor: string
+
+    targetLogin: string
+    targetName: string
+    targetTag: string
+    targetNick: string
+    targetGame: string
+    targetTitle: string
+    targetLink: string
+    targetColor: string
+
+    targetOrUserLogin: string
+    targetOrUserName: string
+    targetOrUserTag: string
+    targetOrUserNick: string
+    targetOrUserColor: string
 
     gameId: string
     gamePrice: string
@@ -165,15 +181,6 @@ interface ITextTags {
     gamePublisher: string
     gameBanner: string
     gameRelease: string
-
-    targetLogin: string
-    targetName: string
-    targetTag: string
-    targetNick: string
-    targetGame: string
-    targetTitle: string
-    targetLink: string
-    targetColor: string
 }
 
 interface ITTSConfig {

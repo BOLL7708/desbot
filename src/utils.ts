@@ -271,22 +271,27 @@ class Utils {
             
             // Was it a full link? If so use last word after /
             if(userLogin.includes('https://')) userLogin = userLogin.split('/').pop() ?? ''
-            
+
             // If we have a possible login, get the user data, if they exist
-            if(userLogin) {
-                const channelData = await modules.twitchHelix.getChannelByName(userLogin)
-                if(channelData) {
-                    tags.targetLogin = channelData.broadcaster_login
-                    tags.targetName = channelData.broadcaster_name
-                    tags.targetTag = `@${channelData.broadcaster_name}`
-                    tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
-                    tags.targetGame = channelData.game_name
-                    tags.targetTitle = channelData.title
-                    tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
-                    tags.targetColor = await modules.twitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
-                }
+            const channelData = await modules.twitchHelix.getChannelByName(userLogin)
+
+            if(channelData) {
+                tags.targetLogin = channelData.broadcaster_login
+                tags.targetName = channelData.broadcaster_name
+                tags.targetTag = `@${channelData.broadcaster_name}`
+                tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
+                tags.targetGame = channelData.game_name
+                tags.targetTitle = channelData.title
+                tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
+                tags.targetColor = await modules.twitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
             }
         }
+
+        tags.targetOrUserLogin = tags.targetLogin.length > 0 ? tags.targetLogin : tags.userLogin
+        tags.targetOrUserName = tags.targetName.length > 0 ? tags.targetName : tags.userName
+        tags.targetOrUserTag = tags.targetTag.length > 0 ? tags.targetTag : tags.userTag
+        tags.targetOrUserNick = tags.targetNick.length > 0 ? tags.targetNick : tags.userNick
+        tags.targetOrUserColor = tags.targetColor.length > 0 ? tags.targetColor : tags.userColor
 
         // Apply tags and return
         return this.replaceTags(text, {...tags, ...extraTags})
@@ -310,12 +315,28 @@ class Utils {
             userInputHead: '',
             userInputRest: '',
             userInputTail: '',
+            userInputNoTags: '',
             userInputNumber: '',
             userBits: userBits,
             userBitsTotal: userBitsTotal,
             userSubsTotal: subs?.totalMonths ?? '0',
             userSubsStreak: subs?.streakMonths ?? '0',
             userColor: userData?.color ?? '',
+
+            targetLogin: '',
+            targetName: '',
+            targetTag: '',
+            targetNick: '',
+            targetGame: '',
+            targetTitle: '',
+            targetLink: '',
+            targetColor: '',
+
+            targetOrUserLogin: '',
+            targetOrUserName: '',
+            targetOrUserTag: '',
+            targetOrUserNick: '',
+            targetOrUserColor: '',
 
             gameId: '',
             gamePrice: '',
@@ -327,22 +348,15 @@ class Utils {
             gameBanner: '',
             gameRelease: '',
 
-            targetLogin: '',
-            targetName: '',
-            targetTag: '',
-            targetNick: '',
-            targetGame: '',
-            targetTitle: '',
-            targetLink: '',
-            targetColor: ''
         }
-        if(userData?.input) {
+        if(typeof userData?.input === 'string') {
             const input = userData.input
             const inputSplit = input.split(' ')
             result.userInput = input
             result.userInputHead = inputSplit.shift() ?? ''
             result.userInputRest = inputSplit.join(' ')
-            result.userInputTail = inputSplit.pop() ?? result.userInputHead // If the array is already empty, head & tail are the same.
+            result.userInputTail = inputSplit.pop() ?? ''
+            result.userInputNoTags = input.replace(/@\w+/g, '')
             result.userInputNumber = parseFloat(input).toString()
         }
         return result
