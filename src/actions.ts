@@ -213,13 +213,13 @@ class Actions {
         const callbacks: { [ms: number]: IActionCallback } = {}
         for(const [msStr, actions] of Object.entries(timeline)) {
             const ms = parseInt(msStr)
-            const stack: IActionCallback[] = []
+            const stack: IActionAsyncCallback[] = []
 
             // Build callbacks
+            stack.pushIfExists(this.buildTTSCallback(actions?.tts))
             stack.pushIfExists(actions?.custom)
             stack.pushIfExists(Commands.callbacks[key])
             stack.pushIfExists(Rewards.callbacks[key])
-            if(Rewards.callbacks[key]) console.log(" ================= ", Rewards.callbacks[key])
             stack.pushIfExists(this.buildOBSCallback(actions?.obs, key))
             stack.pushIfExists(this.buildColorCallback(actions?.lights))
             stack.pushIfExists(this.buildPlugCallback(actions?.plugs))
@@ -242,7 +242,6 @@ class Actions {
             stack.pushIfExists(this.buildCommandsCallback(actions?.commands))
             stack.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
             stack.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
-            stack.pushIfExists(this.buildTTSCallback(actions?.tts))
 
             // Logging
             if(stack.length == 1) {
@@ -257,7 +256,8 @@ class Actions {
                 description: `Timeline callback that is called after a certain delay: ${ms}ms`,
                 call: async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
                     for(const callback of stack) {
-                        callback.call(user, index, msg)
+                        if(callback.asyncCall) await callback.asyncCall(user, index, msg)
+                        if(callback.call) callback.call(user, index, msg)
                     }
                 }
             }
@@ -629,14 +629,19 @@ class Actions {
         }
     }
 
-    private static buildTTSCallback(config: ITTSAction|undefined): IActionCallback|undefined {
+    private static buildTTSCallback(config: ITTSAction|undefined): IActionAsyncCallback|undefined {
         if(config) return {
             tag: '🗣',
-            description: 'Callback that triggers a TTS action',
-            call: async (user: IActionUser) => {
+            description: 'Callback that executes a TTS function',
+            asyncCall: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 const input = await Utils.replaceTagsInText(config.inputOverride ?? user.input ?? '', user)
+                const targetLogin = await Utils.replaceTagsInText('%targetLogin', user)
+                const targetOrUserLogin = await Utils.replaceTagsInText('%targetOrUserLogin', user)
+                const userInputRest = await Utils.replaceTagsInText('%userInputRest', user)
+                const userInputTag = await Utils.replaceTagsInText('%userInputTag', user)
+                const userInputNoTags = await Utils.replaceTagsInText('%userInputNoTags', user)
                 switch(config.function) {
                     case ETTSFunction.Enable:
                         states.ttsForAll = true
@@ -651,19 +656,18 @@ class Actions {
                         modules.tts.stopSpeaking(true)
                         break
                     case ETTSFunction.SetUserEnabled:
-                        const userToUnmute = await Utils.replaceTagsInText('%targetLogin', user)
-                        if(userToUnmute.length == 0) break
-                        const reasonToUnmute = Utils.cleanSetting(await Utils.replaceTagsInText('%userInputRest', user))
-                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: userToUnmute, active: false, reason: reasonToUnmute }).then()
+                        if(targetLogin.length == 0) break
+                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: targetLogin, active: false, reason: userInputRest }).then()
                         break
                     case ETTSFunction.SetUserDisabled:
-                        const userToMute = await Utils.replaceTagsInText('%targetLogin', user)
-                        if(userToMute.length == 0) break
-                        const reasonToMute = Utils.cleanSetting(await Utils.replaceTagsInText('%userInputRest', user))
-                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: userToMute, active: true, reason: reasonToMute }).then()
+                        if(targetLogin.length == 0) break
+                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: targetLogin, active: true, reason: userInputRest }).then()
+                        break
+
+                    case ETTSFunction.SetUserVoice:
+                        await modules.tts.setVoiceForUser(targetOrUserLogin, userInputNoTags)
                         break
                 }
-
             }
         }
     }    

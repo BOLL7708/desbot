@@ -4,6 +4,13 @@ interface IActionCallback {
     call: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => void
 }
 
+interface IActionAsyncCallback {
+    tag: string
+    description: string
+    asyncCall?: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => Promise<void>
+    call?: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => void
+}
+
 interface IActionsTimeline { [ms: number]: IActions }
 interface IActions {
     // TODO: Remove arrays for configs, instead let users do arrays of actions.
@@ -156,11 +163,13 @@ interface ITextTags {
     userInputTail: string
     userInputNoTags: string
     userInputNumber: string
+    userInputTag: string
     userBits: string
     userBitsTotal: string
     userSubsTotal: string
     userSubsStreak: string
     userColor: string
+    userVoice: string
 
     targetLogin: string
     targetName: string
@@ -170,12 +179,14 @@ interface ITextTags {
     targetTitle: string
     targetLink: string
     targetColor: string
+    targetVoice: string
 
     targetOrUserLogin: string
     targetOrUserName: string
     targetOrUserTag: string
     targetOrUserNick: string
     targetOrUserColor: string
+    targetOrUserVoice: string
 
     gameId: string
     gamePrice: string

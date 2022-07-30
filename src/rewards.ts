@@ -54,23 +54,6 @@ class Rewards {
         ...##......##........##.
         ...##......##.....####..
         */
-        [Keys.REWARD_TTSSETVOICE]: { 
-            tag: 'TTSSetVoice',
-            description: 'Set the TTS voice for the user.',
-            call: async (user: IActionUser) => {
-                Utils.log(`TTS Voice Set Reward: ${user.login} -> ${user.input}`, Color.DarkOrange)
-                const modules = ModulesSingleton.getInstance()
-                await modules.tts.setVoiceForUser(user.login, user.input)
-                const voiceData = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES,'userName', user.login)
-                const voiceName = voiceData?.voiceName ?? ''
-                const voiceText = voiceName.length == 0 
-                    ? `${voiceData?.languageCode.toUpperCase()} ${voiceData?.gender.toUpperCase()}` 
-                    : `${voiceName.toUpperCase()}`
-                modules.twitch._twitchChatOut.sendMessageToChannel(
-                    `@${user.name} got their voice set to: ${voiceText}`
-                )
-            }
-        },
         [Keys.REWARD_TTSSWITCHVOICEGENDER]: {
             tag: 'TTSSwitchVoiceGender',
             description: 'Switch the gender of your TTS voice.',

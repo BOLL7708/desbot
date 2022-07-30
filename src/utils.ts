@@ -10,7 +10,7 @@ class Utils {
         if(cleanName == null) {
             cleanName = this.cleanName(userName)
             cleanNameSetting = {userName: userName, shortName: cleanName, editor: '', datetime: Utils.getISOTimestamp()}
-            Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', cleanNameSetting)
+            Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', cleanNameSetting).then()
         }
         return cleanName
     }
@@ -33,7 +33,7 @@ class Utils {
             7: 't',
             8: 'b'
         }
-        var re = new RegExp(Object.keys(numToChar).join("|"),"gi");
+        let re = new RegExp(Object.keys(numToChar).join("|"),"gi");
         let result = namePart.replace(re, function(matched){
             return numToChar[parseInt(matched)];
         });
@@ -230,11 +230,12 @@ class Utils {
     /**
      * Replaces certain tags in strings used in events.
      * @param text
-     * @param message
+     * @param userData
+     * @param extraTags
      * @returns
      */
-    static async replaceTagsInText(text: string, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
-        if(typeof text !== 'string') {
+    static async replaceTagsInText(text: string|undefined, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
+        if(!text) {
             console.warn(`Utils.replaceTagsInText: text is not a string: (${typeof text})`)
             return ''
         }
@@ -264,18 +265,15 @@ class Utils {
 
         // Target tags
         if(text.includes('%target')) {
-            let userLogin = 
-                this.getFirstUserTagInText(userData?.input ?? '') // @-tag
-                ?? userData?.input?.split(' ')?.shift() // Just first word
-                ?? ''
-            
-            // Was it a full link? If so use last word after /
-            if(userLogin.includes('https://')) userLogin = userLogin.split('/').pop() ?? ''
+            // Get the fist user tag or if the last word in the input is a link we expect it's a twitch channel link.
+            const word = userData?.input?.split(' ')?.shift()
+            const link = word?.includes('https://') ? word.split('/').pop() ?? '' : ''
+            let userLogin = this.getFirstUserTagInText(userData?.input ?? '') ?? link
 
             // If we have a possible login, get the user data, if they exist
             const channelData = await modules.twitchHelix.getChannelByName(userLogin)
-
             if(channelData) {
+                const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', channelData.broadcaster_login)
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
                 tags.targetTag = `@${channelData.broadcaster_name}`
@@ -284,6 +282,7 @@ class Utils {
                 tags.targetTitle = channelData.title
                 tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
                 tags.targetColor = await modules.twitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
+                tags.targetVoice = this.getVoiceString(voice)
             }
         }
 
@@ -292,6 +291,7 @@ class Utils {
         tags.targetOrUserTag = tags.targetTag.length > 0 ? tags.targetTag : tags.userTag
         tags.targetOrUserNick = tags.targetNick.length > 0 ? tags.targetNick : tags.userNick
         tags.targetOrUserColor = tags.targetColor.length > 0 ? tags.targetColor : tags.userColor
+        tags.targetOrUserVoice = tags.targetVoice.length > 0 ? tags.targetVoice : tags.userVoice
 
         // Apply tags and return
         return this.replaceTags(text, {...tags, ...extraTags})
@@ -299,7 +299,8 @@ class Utils {
 
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const subs = await Settings.pullSetting<ITwitchSubSetting>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
-        const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)        
+        const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
+        const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
         const userBits = (userData?.bits ?? 0) > 0 
             ? userData?.bits?.toString() ?? '0'
             : cheers?.lastBits ?? '0'
@@ -317,11 +318,13 @@ class Utils {
             userInputTail: '',
             userInputNoTags: '',
             userInputNumber: '',
+            userInputTag: '',
             userBits: userBits,
             userBitsTotal: userBitsTotal,
             userSubsTotal: subs?.totalMonths ?? '0',
             userSubsStreak: subs?.streakMonths ?? '0',
             userColor: userData?.color ?? '',
+            userVoice: this.getVoiceString(voice),
 
             targetLogin: '',
             targetName: '',
@@ -331,12 +334,14 @@ class Utils {
             targetTitle: '',
             targetLink: '',
             targetColor: '',
+            targetVoice: '',
 
             targetOrUserLogin: '',
             targetOrUserName: '',
             targetOrUserTag: '',
             targetOrUserNick: '',
             targetOrUserColor: '',
+            targetOrUserVoice: '',
 
             gameId: '',
             gamePrice: '',
@@ -346,8 +351,7 @@ class Utils {
             gameDeveloper: '',
             gamePublisher: '',
             gameBanner: '',
-            gameRelease: '',
-
+            gameRelease: ''
         }
         if(typeof userData?.input === 'string') {
             const input = userData.input
@@ -358,8 +362,18 @@ class Utils {
             result.userInputTail = inputSplit.pop() ?? ''
             result.userInputNoTags = input.replace(/@\w+/g, '')
             result.userInputNumber = parseFloat(input).toString()
+            result.userInputTag = Utils.getFirstUserTagInText(input) ?? ''
         }
         return result
+    }
+
+    static getVoiceString(voiceData: IUserVoice|undefined): string {
+        const voiceName = voiceData?.voiceName ?? ''
+        if(voiceData) {
+            return voiceName.length == 0
+                ? `${voiceData.languageCode.toUpperCase()} ${voiceData.gender.toUpperCase()}`
+                : `${voiceName.toUpperCase()}`
+        } else return ''
     }
 
     static replaceTags(text: string|string[], replace: { [key: string]: string }) {
