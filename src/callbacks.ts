@@ -42,7 +42,7 @@ class Callbacks {
             modules.tts.enqueueSpeakSentence(
                 messageData.text, 
                 userData.login, 
-                TTSType.Cheer, 
+                ETTSType.Cheer,
                 Utils.getNonce('TTS'), 
                 messageData.bits, 
                 clearRanges
@@ -55,8 +55,8 @@ class Callbacks {
 
         modules.twitch.setChatCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
-            let type = TTSType.Said
-            if(messageData.isAction) type = TTSType.Action
+            let type = ETTSType.Said
+            if(messageData.isAction) type = ETTSType.Action
             
             if(states.ttsForAll) { 
                 // TTS is on for everyone

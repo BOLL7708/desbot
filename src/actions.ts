@@ -357,7 +357,7 @@ class Actions {
                 if(ttsString && speechConfig) await modules.tts.enqueueSpeakSentence(
                     ttsString,
                     await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user), 
-                    speechConfig.type ?? TTSType.Announcement, 
+                    speechConfig.type ?? ETTSType.Announcement,
                     nonce
                 )
             }

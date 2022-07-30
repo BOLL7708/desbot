@@ -1,10 +1,3 @@
-enum TTSType {
-    Said, // [name] said: [text]
-    Action, // [name] [text]
-    Announcement, // [text]
-    Cheer // [name] cheered: [text]
-}
-
 class GoogleTTS {
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
     // TODO: Split this up into a TTS master class, and separate voice integrations.
@@ -90,7 +83,7 @@ class GoogleTTS {
     async enqueueSpeakSentence(
         input: string|string[],
         userName: string = Config.twitch.chatbotName,
-        type: TTSType = TTSType.Announcement,
+        type: ETTSType = ETTSType.Announcement,
         nonce: string = '',
         meta: any = null,
         clearRanges: ITwitchEmotePosition[]=[],
@@ -122,7 +115,7 @@ class GoogleTTS {
         
         let cleanName = await Utils.loadCleanName(sentence.userName)
         const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
-        cleanTextConfig.removeBitEmotes = sentence.type == TTSType.Cheer
+        cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
         let cleanText = await Utils.cleanText(
             text, 
             cleanTextConfig,
@@ -135,7 +128,7 @@ class GoogleTTS {
         }
 
         if( // If announcement the dictionary can be skipped.
-            type == TTSType.Announcement 
+            type == ETTSType.Announcement
             && Config.google.dictionaryConfig.skipForAnnouncements
         ) skipDictionary = true
 
@@ -143,16 +136,16 @@ class GoogleTTS {
 
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
         switch(sentence.type) {
-            case TTSType.Said:
+            case ETTSType.Said:
                 const speech = Config.twitchChat.speech ?? '%userName said: %userInput'
                 cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
                     ? cleanText 
                     : Utils.replaceTags(speech, {userName: cleanName, userInput: cleanText})
                 break
-            case TTSType.Action: 
+            case ETTSType.Action:
                 cleanText = `${cleanName} ${cleanText}`
                 break
-            case TTSType.Cheer:
+            case ETTSType.Cheer:
                 let bitText = sentence.meta > 1 ? 'bits' : 'bit'
                 cleanText = `${cleanName} cheered ${sentence.meta} ${bitText}: ${cleanText}`
                 break
@@ -295,7 +288,7 @@ class GoogleTTS {
                 ? 'now sounds like this'
                 : 'still sounds like this',
             userName,
-            TTSType.Action,
+            ETTSType.Action,
             nonce
         )
         return voice.voiceName

@@ -31,7 +31,7 @@ Config.events = {...Config.events,
             speech: {
                 voiceOfUser: '%userLogin',
                 entries: '%userInput',
-                type: TTSType.Said
+                type: ETTSType.Said
             }
         }
     },

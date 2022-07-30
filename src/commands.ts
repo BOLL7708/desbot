@@ -329,7 +329,7 @@ class Commands {
                     const steps = forMinutes*60*1000/intervalMs
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
                         // Fail to start interval
-                        modules.tts.enqueueSpeakSentence(speech[3], Config.twitch.chatbotName, TTSType.Announcement)
+                        modules.tts.enqueueSpeakSentence(speech[3], Config.twitch.chatbotName, ETTSType.Announcement)
                     } else { 
                         // TODO: Disable all scale rewards
                         // Launch interval
@@ -493,7 +493,7 @@ class Commands {
                             }
                         ),
                         Config.twitch.chatbotName,
-                        TTSType.Announcement,
+                        ETTSType.Announcement,
                         '',
                         null,
                         [],
@@ -878,7 +878,7 @@ class Commands {
                         user
                     ),  
                     Config.twitch.chatbotName,
-                    TTSType.Announcement
+                    ETTSType.Announcement
                 )
             }
         },
@@ -896,7 +896,7 @@ class Commands {
                         user
                     ),
                     Config.twitch.chatbotName,
-                    TTSType.Announcement
+                    ETTSType.Announcement
                 )
             }
         }
