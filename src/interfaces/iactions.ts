@@ -110,6 +110,11 @@ interface IActions {
      * Optional: Provide a custom action callback, this can execute any arbitrary code you provide.
      */
     custom?: IActionCallback
+
+    /**
+     * Optional: Performs functions in the TTS system.
+     */
+    tts?: ITTSAction
 }
 
 /**
@@ -183,8 +188,9 @@ interface ITextTags {
     gameRelease: string
 }
 
-interface ITTSConfig {
-
+interface ITTSAction {
+    function: ETTSFunction
+    inputOverride?: string
 }
 
 interface IWhisperAction {

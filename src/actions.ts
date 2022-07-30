@@ -242,6 +242,7 @@ class Actions {
             stack.pushIfExists(this.buildCommandsCallback(actions?.commands))
             stack.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
             stack.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
+            stack.pushIfExists(this.buildTTSCallback(actions?.tts))
 
             // Logging
             if(stack.length == 1) {
@@ -627,4 +628,43 @@ class Actions {
             }
         }
     }
-}    
+
+    private static buildTTSCallback(config: ITTSAction|undefined): IActionCallback|undefined {
+        if(config) return {
+            tag: '🗣',
+            description: 'Callback that triggers a TTS action',
+            call: async (user: IActionUser) => {
+                const modules = ModulesSingleton.getInstance()
+                const states = StatesSingleton.getInstance()
+                const input = await Utils.replaceTagsInText(config.inputOverride ?? user.input ?? '', user)
+                switch(config.function) {
+                    case ETTSFunction.Enable:
+                        states.ttsForAll = true
+                        break
+                    case ETTSFunction.Disable:
+                        states.ttsForAll = false
+                        break
+                    case ETTSFunction.StopCurrent:
+                        modules.tts.stopSpeaking()
+                        break
+                    case ETTSFunction.StopAll:
+                        modules.tts.stopSpeaking(true)
+                        break
+                    case ETTSFunction.SetUserEnabled:
+                        const userToUnmute = await Utils.replaceTagsInText('%targetLogin', user)
+                        if(userToUnmute.length == 0) break
+                        const reasonToUnmute = Utils.cleanSetting(await Utils.replaceTagsInText('%userInputRest', user))
+                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: userToUnmute, active: false, reason: reasonToUnmute }).then()
+                        break
+                    case ETTSFunction.SetUserDisabled:
+                        const userToMute = await Utils.replaceTagsInText('%targetLogin', user)
+                        if(userToMute.length == 0) break
+                        const reasonToMute = Utils.cleanSetting(await Utils.replaceTagsInText('%userInputRest', user))
+                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: userToMute, active: true, reason: reasonToMute }).then()
+                        break
+                }
+
+            }
+        }
+    }    
+}

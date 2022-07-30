@@ -33,7 +33,7 @@ class GoogleTTS {
                 } else {
                     // The request has failed
                     delete this._preloadQueue[key]
-                    Utils.log(`GoogleTTS: Request [${key}] failed.`, Color.DarkRed)
+                    Utils.log(`GoogleTTS: Request [${key}] failed, "${entry}"`, Color.DarkRed)
                 }
                 this._dequeueCount = 0
             } else { // We are still waiting for this request to finish

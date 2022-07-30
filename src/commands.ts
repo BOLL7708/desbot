@@ -16,46 +16,6 @@ class Commands {
     ...##......##.....####..
     */
     public static callbacks: { [key: string]: IActionCallback|undefined } = {
-        [Keys.COMMAND_TTS_ON]: {
-            tag: 'TTS On',
-            description: 'Turn on TTS',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const states = StatesSingleton.getInstance()
-                const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_ON]
-                const onText:string = !states.ttsForAll ? speech[0] : speech[1]
-                states.ttsForAll = true
-                modules.tts.enqueueSpeakSentence(onText)
-                modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: false})
-            }
-        },
-        [Keys.COMMAND_TTS_OFF]: {
-            tag: 'TTS Off',
-            description: 'Turn off TTS',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const states = StatesSingleton.getInstance()
-                const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_OFF]
-                const offText = states.ttsForAll ? speech[0] : speech[1]
-                states.ttsForAll = false
-                modules.tts.enqueueSpeakSentence(offText)
-                modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: true})
-            }
-        },
-        [Keys.COMMAND_TTS_SILENCE]: {
-            tag: 'TTS Silence',
-            description: 'Stops the current TTS from being played back.',
-            call: (user) => {
-                ModulesSingleton.getInstance().tts.stopSpeaking()
-            }
-        },
-        [Keys.COMMAND_TTS_DIE]: {
-            tag: 'TTS Die',
-            description: 'Stops the current TTS from being played back and clears the current TTS queue.',
-            call: (user) => {
-                ModulesSingleton.getInstance().tts.stopSpeaking(true)
-            }
-        },
         [Keys.COMMAND_TTS_NICK]: {
             tag: 'TTS Nick',
             description: 'Sets the current TTS nickname.',
@@ -113,46 +73,6 @@ class Commands {
                             }
                         )
                     )
-                }
-            }
-        },
-        [Keys.COMMAND_TTS_MUTE]: {
-            tag: 'TTS Mute',
-            description: 'Blacklists a user from being heard with the TTS.',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const parts = Utils.splitOnFirst(' ', user.input)
-                const name = Utils.cleanUserName(parts[0] ?? '')
-                if(name.length > 0 && name != Config.twitch.chatbotName.toLowerCase()) {
-                    let reason = (parts[1] ?? '').replace('|', ' ').replace(';', ' ')
-                    const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', name)
-                    const cleanName = await Utils.loadCleanName(name)                       
-                    const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_MUTE]
-                    if(blacklist == null || blacklist.active == false) {
-                        Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: true, reason: reason })
-                        modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user))
-                    } else {
-                        modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user))
-                    }                    
-                }
-            }
-        },
-        [Keys.COMMAND_TTS_UNMUTE]: {
-            tag: 'TTS Unmute',
-            description: 'Removes a user from the TTS blacklist so they can be heard again.',
-            call: async (user) => {
-              const modules = ModulesSingleton.getInstance()
-                const parts = Utils.splitOnFirst(' ', user.input)
-                const name = Utils.cleanUserName(parts[0] ?? '')
-                if(name.length == 0) return
-                const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', name)
-                const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_UNMUTE]
-                if(blacklist != null && blacklist.active) {
-                    const reason = Utils.cleanSetting(parts[1] ?? '')
-                    Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: name, active: false, reason: reason })    
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[0], user))
-                } else {
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech[1], user))
                 }
             }
         },

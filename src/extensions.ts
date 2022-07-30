@@ -116,3 +116,22 @@ Array.prototype.pushIfExists = function<T>(item: T|undefined): number {
     }
     return -1
 }
+
+/**
+ * String extensions
+ */
+interface String {
+    toBoolean(def: boolean): boolean
+    toBooleanOrUndefined(): boolean|undefined
+}
+String.prototype.toBoolean = function(def: boolean): boolean {
+    return this.toBooleanOrUndefined() ?? def
+}
+String.prototype.toBooleanOrUndefined = function(): boolean|undefined {
+    const trueStrings = ['true', 't', '1', 'on', 'yes', 'y', '+']
+    const falseStrings = ['false', 'f', '0', 'off', 'no', 'n', '-']
+    const strCopy = this.toLowerCase()
+    if(trueStrings.includes(strCopy)) return true
+    if(falseStrings.includes(strCopy)) return false
+    return undefined
+}
