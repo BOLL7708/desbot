@@ -636,7 +636,8 @@ class Actions {
             asyncCall: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
-                const input = await Utils.replaceTagsInText(config.inputOverride ?? user.input ?? '', user)
+                const input = await Utils.replaceTagsInText(config.inputOverride ?? user.input, user)
+                const inputLowerCase = input.toLowerCase()
                 const targetLogin = await Utils.replaceTagsInText('%targetLogin', user)
                 const targetOrUserLogin = await Utils.replaceTagsInText('%targetOrUserLogin', user)
                 const userInputRest = await Utils.replaceTagsInText('%userInputRest', user)
@@ -666,6 +667,19 @@ class Actions {
 
                     case ETTSFunction.SetUserVoice:
                         await modules.tts.setVoiceForUser(targetOrUserLogin, userInputNoTags)
+                        break
+                    case ETTSFunction.SetUserGender:
+                        const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', targetOrUserLogin)
+                        let gender = ''
+                        // Use input for a specific gender
+                        if(inputLowerCase.includes('female')) gender = 'female'
+                        else if(inputLowerCase.includes('male')) gender = 'male'
+                        // If missing, flip current or fall back to random.
+                        if(gender.length == 0) {
+                            if(voiceSetting) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
+                            else gender = Utils.randomFromArray(['male', 'female'])
+                        }
+                        modules.tts.setVoiceForUser(targetOrUserLogin, gender).then()
                         break
                 }
             }

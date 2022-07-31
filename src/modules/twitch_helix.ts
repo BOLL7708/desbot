@@ -78,11 +78,12 @@ class TwitchHelix {
     }
 
     async getChannelByName(channel: string, skipCache: boolean = false):Promise<ITwitchHelixChannelResponseData|undefined> {
+        if(channel.length == 0) return undefined
         const user = await this.getUserByLogin(channel, skipCache)
         return this.getChannelById(parseInt(user?.id ?? '0'), skipCache)
     }
     async getChannelById(id: number, skipCache: boolean = false): Promise<ITwitchHelixChannelResponseData|undefined> {
-        if(isNaN(id)) {
+        if(isNaN(id) || id === 0) {
             Utils.log(`TwitchHelix: Invalid channel id when trying to load channel: ${id}`, Color.Red)
             return undefined
         }

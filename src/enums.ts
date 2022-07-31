@@ -12,4 +12,5 @@ enum ETTSFunction {
     SetUserEnabled,
     SetUserDisabled,
     SetUserVoice,
+    SetUserGender,
 }

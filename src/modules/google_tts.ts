@@ -214,10 +214,9 @@ class GoogleTTS {
         let changed = false
         inputArr.forEach(setting => {
             setting = setting.toLowerCase()
-            
 
             // Match gender
-            if((setting == 'female' || setting == 'male') && setting != voice.gender.toLowerCase()) {
+            if((setting == 'female' || setting == 'male')) {
                 voice.voiceName = '' // Gender is not respected if we have a name
                 voice.gender = setting
                 changed = true
@@ -283,14 +282,6 @@ class GoogleTTS {
         })
         let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
-        this.enqueueSpeakSentence(
-            changed
-                ? 'now sounds like this'
-                : 'still sounds like this',
-            userName,
-            ETTSType.Action,
-            nonce
-        )
         return voice.voiceName
     }
 

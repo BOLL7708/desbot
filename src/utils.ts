@@ -235,10 +235,7 @@ class Utils {
      * @returns
      */
     static async replaceTagsInText(text: string|undefined, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
-        if(!text) {
-            console.warn(`Utils.replaceTagsInText: text is not a string: (${typeof text})`)
-            return ''
-        }
+        if(!text) return ''
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
 

@@ -48,26 +48,6 @@ class Rewards {
     }
     public static callbacks: { [key: string]: IActionCallback|undefined } = {
         /*
-        .######..######...####..
-        ...##......##....##.....
-        ...##......##.....####..
-        ...##......##........##.
-        ...##......##.....####..
-        */
-        [Keys.REWARD_TTSSWITCHVOICEGENDER]: {
-            tag: 'TTSSwitchVoiceGender',
-            description: 'Switch the gender of your TTS voice.',
-            call: (user: IActionUser) => {
-                Utils.log(`TTS Gender Set Reward: ${user.login}`, Color.DarkOrange)
-                Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', user.login).then(voice => {
-                    const voiceSetting = voice
-                    let gender:string = ''
-                    if(voiceSetting != null) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
-                    ModulesSingleton.getInstance().tts.setVoiceForUser(user.login, `reset ${gender}`)
-                })
-            }
-        },
-        /*
         .######..#####....####...#####...##..##..##..##.
         ...##....##..##..##..##..##..##..##..##...####..
         ...##....#####...##..##..#####...######....##...
