@@ -107,6 +107,7 @@ class Twitch{
 
         // User data for most callbacks
         const user: IActionUser = {
+            source: EEventSource.TwitchChat,
             id: messageCmd.properties["user-id"] ?? '',
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? userName,
@@ -162,6 +163,7 @@ class Twitch{
 
             // Execute
             if(command && commandStr) {
+                user.source = EEventSource.TwitchCommand
                 user.input = textStr
                 if(allowedRole && command.callback) {
                     command.callback.call(user)
@@ -190,6 +192,7 @@ class Twitch{
             if(text.length >= 1 && announcement.triggers.indexOf(firstWord) != -1) return announcement.callback(user, messageData, firstWord)
         } 
         else if(!isNaN(bits) && bits > 0) { // Cheers
+            user.source = EEventSource.TwitchCheer
             return this._chatCheerCallback(user, messageData)
         } 
         else { // Normal users
@@ -206,9 +209,9 @@ class Twitch{
         let text:string = msg.text?.trim() ?? ''
         if(text.length == 0) return
 
-        const user = await Actions.getEmptyUserDataForCommands()
+        const user = await Actions.buildEmptyUserData(EEventSource.TwitchRemoteCommand)
         user.login = userName
-        user.name = messageCmd.properties?.["display-name"] ?? userName,
+        user.name = messageCmd.properties?.["display-name"] ?? userName
         user.id = messageCmd.properties["user-id"] ?? ''
 
         // Commands
@@ -244,8 +247,8 @@ class Twitch{
     async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.callback) command.callback.call(userData ?? await Actions.getEmptyUserDataForCommands())
-        else if(command?.cooldownCallback) command?.cooldownCallback.call(userData ?? await Actions.getEmptyUserDataForCommands())
+        if(command?.callback) command.callback.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand))
+        else if(command?.cooldownCallback) command?.cooldownCallback.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand))
     }
 
     async sendRemoteCommand(commandStr: string) {

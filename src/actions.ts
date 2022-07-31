@@ -10,10 +10,11 @@ class Actions {
         }
     }
 
-    public static async userDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
+    public static async buildUserDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const id = message?.data?.redemption?.user?.id ?? ''
         return {
+            source: EEventSource.TwitchReward,
             id: id,
             login: message?.data?.redemption?.user?.login ?? '',
             name: message?.data?.redemption?.user?.display_name ?? '',
@@ -27,11 +28,12 @@ class Actions {
             bitsTotal: 0
         }
     }
-    public static async userDataFromCheerMessage(message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
+    public static async buildUserDataFromCheerMessage(message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_id ?? '')
         const id = user?.id ?? ''
         return {
+            source: EEventSource.TwitchCheer,
             id: id,
             login: user?.login ?? '',
             name: user?.display_name ?? '',
@@ -49,10 +51,11 @@ class Actions {
      * Used for programmatic command execution not done by a user.
      * @returns 
      */
-    public static async getEmptyUserDataForCommands(): Promise<IActionUser> {
+    public static async buildEmptyUserData(source: EEventSource): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(Config.twitch.channelName)
         return {
+            source: source,
             id: user?.id ?? '',
             login: user?.login ?? '',
             name: user?.display_name ?? '',
@@ -165,7 +168,7 @@ class Actions {
 
     private static async registerTimer(key: string, event: IEvent) {
         const actionCallback = this.buildActionCallback(key, event)
-        const user = await this.getEmptyUserDataForCommands()
+        const user = await this.buildEmptyUserData(EEventSource.Timer)
         const config = event.triggers.timer
         let handle: number = -1
         let count = 0

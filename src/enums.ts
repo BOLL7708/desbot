@@ -16,3 +16,12 @@ enum ETTSFunction {
     SetDictionaryEntry,
     GetDictionaryEntry
 }
+enum EEventSource {
+    TwitchReward,
+    TwitchCheer,
+    TwitchChat,
+    TwitchCommand,
+    TwitchRemoteCommand,
+    AutoCommand,
+    Timer
+}

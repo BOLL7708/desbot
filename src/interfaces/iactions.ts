@@ -128,6 +128,7 @@ interface IActions {
  * Combined Reward and Command result object for shared actions.
  */
 interface IActionUser {
+    source: EEventSource
     id: string
     login: string
     name: string

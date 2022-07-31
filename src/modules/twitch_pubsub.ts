@@ -98,7 +98,7 @@ class TwitchPubsub {
                                 
                                 // Event
                                 const reward = this._rewards.get(id)
-                                if(reward?.callback) reward.callback.call(await Actions.userDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
+                                if(reward?.callback) reward.callback.call(await Actions.buildUserDataFromRedemptionMessage(rewardMessage), undefined, rewardMessage)
                                 else console.warn(`Reward not found: ${id}, the reward might be in the wrong group!`)
                                 
                                 break
@@ -122,7 +122,7 @@ class TwitchPubsub {
 
                         // Event
                         const cheer = this._cheers.get(cheerMessage.data?.bits_used)
-                        if(cheer?.callback) cheer.callback.call(await Actions.userDataFromCheerMessage(cheerMessage), undefined, undefined)
+                        if(cheer?.callback) cheer.callback.call(await Actions.buildUserDataFromCheerMessage(cheerMessage), undefined, undefined)
                         else console.warn(`Cheer not found: ${cheerMessage.data?.bits_used}, the cheer might just not exist!`)
 
                         break
