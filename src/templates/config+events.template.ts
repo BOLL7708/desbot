@@ -1,13 +1,61 @@
-/*
-..######...#######..##.....##.##.....##....###....##....##.########...######.
-.##....##.##.....##.###...###.###...###...##.##...###...##.##.....##.##....##
-.##.......##.....##.####.####.####.####..##...##..####..##.##.....##.##......
-.##.......##.....##.##.###.##.##.###.##.##.....##.##.##.##.##.....##..######.
-.##.......##.....##.##.....##.##.....##.#########.##..####.##.....##.......##
-.##....##.##.....##.##.....##.##.....##.##.....##.##...###.##.....##.##....##
-..######...#######..##.....##.##.....##.##.....##.##....##.########...######.
+Config.events = {
+    ...Config.events,
+    /*
+    .########.##.....##.########.##....##.########..######.
+    .##.......##.....##.##.......###...##....##....##....##
+    .##.......##.....##.##.......####..##....##....##......
+    .######...##.....##.######...##.##.##....##.....######.
+    .##........##...##..##.......##..####....##..........##
+    .##.........##.##...##.......##...###....##....##....##
+    .########....###....########.##....##....##.....######.
     */
-Config.events = {...Config.events,
+
+    /*
+    .######..######...####..
+    ...##......##....##.....
+    ...##......##.....####..
+    ...##......##........##.
+    ...##......##.....####..
+    */
+    [KeysTemplate.EVENT_TTSSETVOICE]: {
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
+                }
+            },
+            reward: {
+                title: 'Set Your Voice',
+                cost: 5,
+                prompt: 'Change your speaking voice, see the About section for options.',
+                background_color: '#AAAAAA',
+                is_user_input_required: true,
+                should_redemptions_skip_request_queue: true
+            }
+        },
+        actions: {
+            tts: {
+                function: ETTSFunction.SetUserVoice
+            },
+            speech: {
+                entries: '%targetOrUserTag now sounds like this.',
+                voiceOfUser: '%targetOrUserLogin'
+            },
+            chat: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice'
+        }
+    },
+
+
+    /*
+    ..######...#######..##.....##.##.....##....###....##....##.########...######.
+    .##....##.##.....##.###...###.###...###...##.##...###...##.##.....##.##....##
+    .##.......##.....##.####.####.####.####..##...##..####..##.##.....##.##......
+    .##.......##.....##.##.###.##.##.###.##.##.....##.##.##.##.##.....##..######.
+    .##.......##.....##.##.....##.##.....##.#########.##..####.##.....##.......##
+    .##....##.##.....##.##.....##.##.....##.##.....##.##...###.##.....##.##....##
+    ..######...#######..##.....##.##.....##.##.....##.##....##.########...######.
+    */
+
     /*
     .######..######...####..
     ...##......##....##.....
@@ -18,21 +66,37 @@ Config.events = {...Config.events,
     [KeysTemplate.COMMAND_TTS_ON]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            speech: { entries: 'Global TTS is now enabled.' },
+            tts: { function: ETTSFunction.Enable },
+            rewardStates: { [Keys.REWARD_TTSSPEAK]: true }
         }
     },
     [KeysTemplate.COMMAND_TTS_OFF]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            speech: { entries: 'Global TTS is now disabled.' },
+            tts: { function: ETTSFunction.Disable },
+            rewardStates: { [Keys.REWARD_TTSSPEAK]: false }
         }
     },
     [KeysTemplate.COMMAND_TTS_SILENCE]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            tts: { function: ETTSFunction.StopCurrent }
         }
     },
     [KeysTemplate.COMMAND_TTS_DIE]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            tts: { function: ETTSFunction.StopAll }
         }
     },
     [KeysTemplate.COMMAND_TTS_NICK]: {
@@ -41,18 +105,88 @@ Config.events = {...Config.events,
                 permissions: {
                     VIPs: true,
                     subscribers: true
+                },
+                requireMinimumWordCount: 1
+            }
+        },
+        actions: {
+            tts: { function: ETTSFunction.SetUserNick },
+            speech: { entries: '%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute' }
+        }
+    },
+    [KeysTemplate.COMMAND_TTS_GETNICK]: {
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
                 }
             }
+        },
+        actions: {
+            tts: { function: ETTSFunction.GetUserNick },
+            chat: 'TTS: "%lastTTSSetNickLogin" is called "%lastTTSSetNickSubstitute"'
+        }
+    },
+    [KeysTemplate.COMMAND_TTS_CLEARNICK]: {
+        triggers: {
+            command: {
+                permissions: {
+                    VIPs: true,
+                    subscribers: true
+                }
+            }
+        },
+        actions: {
+            tts: { function: ETTSFunction.ClearUserNick },
+            speech: { entries: '%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute' }
         }
     },
     [KeysTemplate.COMMAND_TTS_MUTE]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            tts: { function: ETTSFunction.SetUserDisabled },
+            speech: { entries: '%targetTag has lost their voice.' }
         }
     },
     [KeysTemplate.COMMAND_TTS_UNMUTE]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            tts: { function: ETTSFunction.SetUserEnabled },
+            speech: { entries: '%targetTag has regained their voice.' }
+        }
+    },
+    [KeysTemplate.COMMAND_TTS_GETVOICE]: {
+        triggers: {
+            command: {
+                permissions: {
+                    everyone: true
+                }
+            }
+        },
+        actions: {
+            chat: 'TTS: %targetOrUserTag\'s voice is "%targetOrUserVoice"'
+        }
+    },
+    [KeysTemplate.COMMAND_TTS_GENDER]: {
+        triggers: {
+            command: {
+                permissions: {
+                    VIPs: true,
+                    subscribers: true
+                }
+            }
+        },
+        actions: {
+            tts: { function: ETTSFunction.SetUserGender },
+            speech: {
+                entries: '%targetOrUserTag now sounds like this',
+                voiceOfUser: '%targetOrUserLogin'
+            },
+            chat: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice'
         }
     },
     [KeysTemplate.COMMAND_TTS_VOICES]: {
@@ -157,9 +291,47 @@ Config.events = {...Config.events,
     .##..##....##....##..##....##......##....##..##..##..##..##..##..##..##....##...
     .#####...######...####.....##....######...####...##..##..##..##..##..##....##...
     */
-    [KeysTemplate.COMMAND_DICTIONARY]: {
+    [KeysTemplate.COMMAND_DICTIONARY_SET]: {
+        triggers: {
+            command: {
+                requireMinimumWordCount: 2
+            }
+        },
+        actions: {
+            tts: {
+                function: ETTSFunction.SetDictionaryEntry
+            },
+            speech: {
+                entries: '%lastDictionaryWord is now said as %lastDictionarySubstitute',
+                skipDictionary: true
+            }
+        }
+    },
+    [KeysTemplate.COMMAND_DICTIONARY_GET]: {
         triggers: {
             command: {}
+        },
+        actions: {
+            tts: {
+                function: ETTSFunction.GetDictionaryEntry
+            },
+            chat: 'Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"'
+        }
+    },
+    [KeysTemplate.COMMAND_DICTIONARY_CLEAR]: {
+        triggers: {
+            command: {
+                requireExactWordCount: 1
+            }
+        },
+        actions: {
+            tts: {
+                function: ETTSFunction.SetDictionaryEntry
+            },
+            speech: {
+                entries: '%lastDictionaryWord was cleared from the dictionary',
+                skipDictionary: true
+            }
         }
     },
 
@@ -420,6 +592,79 @@ Config.events = {...Config.events,
         },
         actions: {
             chat: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki'
+        }
+    },
+
+    /*
+    .########..########.##......##....###....########..########...######.
+    .##.....##.##.......##..##..##...##.##...##.....##.##.....##.##....##
+    .##.....##.##.......##..##..##..##...##..##.....##.##.....##.##......
+    .########..######...##..##..##.##.....##.########..##.....##..######.
+    .##...##...##.......##..##..##.#########.##...##...##.....##.......##
+    .##....##..##.......##..##..##.##.....##.##....##..##.....##.##....##
+    .##.....##.########..###..###..##.....##.##.....##.########...######.
+    */
+
+    /*
+    .######..######...####..
+    ...##......##....##.....
+    ...##......##.....####..
+    ...##......##........##.
+    ...##......##.....####..
+    */
+    [KeysTemplate.REWARD_TTSSPEAK]: {
+        triggers: {
+            reward: {
+                title: 'Speak Once',
+                cost: 5,
+                prompt: 'Your message is read aloud.',
+                background_color: '#AAAAAA',
+                is_user_input_required: true,
+                should_redemptions_skip_request_queue: true
+            }
+        },
+        actions: {
+            speech: {
+                voiceOfUser: '%userLogin',
+                entries: '%userInput',
+                type: ETTSType.Said
+            }
+        }
+    },
+
+    /*
+    ..####...##..##...####...##..##..##..##..######..##......######..#####....####...#####...##..##..##..##.
+    .##..##..##..##..##..##..###.##..###.##..##......##........##....##..##..##..##..##..##..##..##...####..
+    .##......######..######..##.###..##.###..####....##........##....#####...##..##..#####...######....##...
+    .##..##..##..##..##..##..##..##..##..##..##......##........##....##..##..##..##..##......##..##....##...
+    ..####...##..##..##..##..##..##..##..##..######..######....##....##..##...####...##......##..##....##...
+    */
+    [KeysTemplate.REWARD_CHANNELTROPHY]: {
+        options: {
+            rewardIgnoreUpdateCommand: true
+        },
+        triggers: {
+            reward: {
+                title: 'Held by nobody!',
+                cost: 1,
+                prompt: 'Become the Channel Trophy holder! You hold the trophy until someone else pays the ever increasing (+1) price!',
+                background_color: '#000000',
+                is_max_per_stream_enabled: true,
+                max_per_stream: 10000,
+                is_global_cooldown_enabled: true,
+                global_cooldown_seconds: 15
+            }
+        },
+        actions: {
+            audio: {
+                src: '_assets/random_audio.wav',
+                volume: 0.75
+            },
+            sign: {
+                durationMs: 10000,
+                title: 'The trophy was grabbed!',
+                subtitle: '%userName',
+            }
         }
     }
 }

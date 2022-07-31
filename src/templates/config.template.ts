@@ -80,22 +80,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         .##........##.....####...##......##..##.
         .##......######..##..##..######..#####..
         */
-        [KeysTemplate.COMMAND_TTS_ON]: [
-            'Global TTS activated', 
-            'Global TTS already on'
-        ],
-        [KeysTemplate.COMMAND_TTS_OFF]: [
-            'Global TTS terminated', 
-            'Global TTS already off'
-        ],
-        [KeysTemplate.COMMAND_TTS_MUTE]: [
-            '%targetName has lost their voice',
-            '%targetName is already muted'
-        ],
-        [KeysTemplate.COMMAND_TTS_UNMUTE]: [
-            '%targetName has regained their voice', 
-            '%targetName is not muted'
-        ],
         [KeysTemplate.COMMAND_SCALE]: [
             'World scale set to %userNumber%',
             'World scale will change from %from to %to% over %mins minutes',
@@ -129,9 +113,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Finished resetting %reset out of %total incremental rewards, skipping %skipped'
         ],
         [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
-        [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is now called %targetNick',
         [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
-        [KeysTemplate.COMMAND_DICTIONARY]: '%word is now said as %substitute',
         [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
         [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
         [KeysTemplate.COMMAND_PING_ON]: 'Chat ping enabled',
@@ -145,11 +127,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',
     },
     chatReferences: {
-        [KeysTemplate.COMMAND_DICTIONARY]: [
-            'There is no entry for "%word" in the dictionary.',
-            '"%word" is set to "%value" in the dictionary.'
-        ],
-        [KeysTemplate.COMMAND_TTS_NICK]: '%targetName is called: "%targetNick"',
         [KeysTemplate.COMMAND_QUOTE]: '%targetTag said: "%text" (on: %date, game: %gameName)',
         [KeysTemplate.COMMAND_REFUND_REDEMPTION]: [
             '%targetTag was refunded: %cost points',
@@ -208,7 +185,7 @@ Config.google = <IGoogleConfig> {
         removeBitEmotes: false,
         keepCase: false,
         replaceUserTags: true,
-        removeParantheses: true,
+        removeParentheses: true,
         reduceRepeatedCharacters: true,
         replaceBigNumbers: true,
         replaceBigNumbersWith: '"big number"',
@@ -308,7 +285,7 @@ Config.pipe = <IPipeConfig> {
         removeBitEmotes: false,
         keepCase: true,
         replaceUserTags: false,
-        removeParantheses: true,
+        removeParentheses: true,
         reduceRepeatedCharacters: true,
         replaceBigNumbers: false,
         replaceLinks: true,

@@ -15,9 +15,9 @@ interface ICleanTextConfig {
     replaceUserTags: boolean
 
     /**
-     * Remove text surrounded in parantheses or brackets: (like this).
+     * Remove text surrounded in parentheses or brackets: (like this).
      */
-    removeParantheses: boolean
+    removeParentheses: boolean
 
     /**
      * Will reduce anything with more repeated characters to only two.

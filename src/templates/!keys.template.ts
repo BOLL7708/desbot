@@ -17,6 +17,7 @@ class KeysTemplate {
     .##.....##.##.......##.......##.....##.##.....##.##..........##...
     .########..########.##.......##.....##..#######..########....##...
     */
+    static readonly EVENT_TTSSETVOICE = 'voice|setvoice'
 
     /*
     ..####....####...##...##..##...##...####...##..##..#####....####..
@@ -29,10 +30,14 @@ class KeysTemplate {
     static readonly COMMAND_TTS_OFF = 'ttsoff'
     static readonly COMMAND_TTS_SILENCE = 'silence'
     static readonly COMMAND_TTS_DIE = 'ttsdie'
-    static readonly COMMAND_TTS_NICK = 'nick'
+    static readonly COMMAND_TTS_NICK = 'nick|setnick'
+    static readonly COMMAND_TTS_GETNICK = 'getnick'
+    static readonly COMMAND_TTS_CLEARNICK = 'clearnick'
     static readonly COMMAND_TTS_MUTE = 'mute'
     static readonly COMMAND_TTS_UNMUTE = 'unmute'
     static readonly COMMAND_TTS_VOICES = 'tts|voices'
+    static readonly COMMAND_TTS_GETVOICE = 'getvoice'
+    static readonly COMMAND_TTS_GENDER = 'gender'
     static readonly COMMAND_CHAT = 'chat'
     static readonly COMMAND_CHAT_ON = 'chaton'
     static readonly COMMAND_CHAT_OFF = 'chatoff'
@@ -41,7 +46,9 @@ class KeysTemplate {
     static readonly COMMAND_LOG_ON = 'logon'
     static readonly COMMAND_LOG_OFF = 'logoff'
     static readonly COMMAND_SCALE = 'scale'
-    static readonly COMMAND_DICTIONARY = 'word'
+    static readonly COMMAND_DICTIONARY_SET = 'word|setword'
+    static readonly COMMAND_DICTIONARY_GET = 'getword'
+    static readonly COMMAND_DICTIONARY_CLEAR = 'clearword'
     static readonly COMMAND_UPDATEREWARDS = 'update'
     static readonly COMMAND_RELOADWIDGET = 'reload'
     static readonly COMMAND_GAMEREWARDS_ON = 'rewardson'
@@ -82,8 +89,6 @@ class KeysTemplate {
     .##..##..######...##.##...##..##..##..##..#####....####..
     */
     static readonly REWARD_TTSSPEAK = 'Speak'
-    static readonly REWARD_TTSSETVOICE = 'SetVoice'
-    static readonly REWARD_TTSSWITCHVOICEGENDER = 'SwitchVoiceGender'
     static readonly REWARD_CHANNELTROPHY = 'ChannelTrophy'
 
     /*

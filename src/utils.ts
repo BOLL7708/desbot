@@ -58,7 +58,7 @@ class Utils {
         }
 
         // Remove things in ()
-        if(config.removeParantheses) {
+        if(config.removeParentheses) {
             text = text.replace(/(\(.*\))/g, '')
         }
 
