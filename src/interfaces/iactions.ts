@@ -1,14 +1,14 @@
 interface IActionCallback {
     tag: string
     description: string
-    call: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => void
+    call: (user: IActionUser, index?: number) => void
 }
 
 interface IActionAsyncCallback {
     tag: string
     description: string
-    asyncCall?: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => Promise<void>
-    call?: (user: IActionUser, index?: number, redemptionMessage?: ITwitchPubsubRewardMessage) => void
+    asyncCall?: (user: IActionUser, index?: number) => Promise<void>
+    call?: (user: IActionUser, index?: number) => void
 }
 
 interface IActionsTimeline { [ms: number]: IActions }
@@ -140,6 +140,8 @@ interface IActionUser {
     isSubscriber: boolean,
     bits: number,
     bitsTotal: number
+    commandConfig?: ITwitchActionCommandConfig
+    rewardMessage?: ITwitchPubsubRewardMessage
 }
 
 interface ICommandAction {

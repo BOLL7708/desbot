@@ -33,17 +33,17 @@ class Rewards {
         }
 
         // Toggle TTS rewards
-        modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: !states.ttsForAll})
+        modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: !states.ttsForAll}).then()
 
         // Enable default rewards
         const enableRewards = Config.twitch.alwaysOnRewards.filter(reward => { return !Config.twitch.alwaysOffRewards.includes(reward) })
         for(const key of enableRewards) {
-            modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true})
+            modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true}).then()
         }
         
         // Disable unwanted rewards
         for(const key of Config.twitch.alwaysOffRewards) {
-            modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false})
+            modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false}).then()
         }
     }
     public static callbacks: { [key: string]: IActionCallback|undefined } = {
@@ -57,14 +57,14 @@ class Rewards {
         [Keys.REWARD_CHANNELTROPHY]: {
             tag: 'ChannelTrophy',
             description: 'A user grabbed the Channel Trophy.',
-            call: async (user: IActionUser, index: number|undefined, message: ITwitchPubsubRewardMessage|undefined) => {
+            call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
                 
                 // Save stat
                 const row: IChannelTrophyStat = {
                     userId: user.id,
-                    index: message?.data?.redemption.reward.redemptions_redeemed_current_stream,
-                    cost: message?.data?.redemption.reward.cost.toString() ?? '0'
+                    index: user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream,
+                    cost: user.rewardMessage?.data?.redemption.reward.cost.toString() ?? '0'
                 }
                 const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
                 if(!settingsUpdated) return Utils.log(`ChannelTrophy: Could not write settings reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
@@ -86,7 +86,7 @@ class Rewards {
                                 funnyNumberConfig.speech, 
                                 user
                             )
-                        )
+                        ).then()
                     }
                     // Update label in overlay
                     const labelUpdated = await Settings.pushLabel(

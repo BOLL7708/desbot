@@ -25,7 +25,8 @@ class Actions {
             isVIP: false,
             isSubscriber: false,
             bits: 0,
-            bitsTotal: 0
+            bitsTotal: 0,
+            rewardMessage: message
         }
     }
     public static async buildUserDataFromCheerMessage(message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
@@ -88,14 +89,14 @@ class Actions {
             callback: {
                 tag: '1',
                 description: 'Triggers a predefined reward function',
-                call: async (user, index, msg) => {
+                call: async (user, index) => {
                     // Prep for incremental reward // TODO: Move this out to above the registration?
                     const rewardConfig = Utils.getEventConfig(key)?.triggers.reward
                     let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
                     if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
                     
                     // Trigger actions, main thing that happens for all rewards
-                    actionCallback.call(user, counter?.count, msg)
+                    actionCallback.call(user, counter?.count)
 
                     // Switch to the next incremental reward if it has more configs available
                     if(Array.isArray(rewardConfig) && counter != undefined) {                       
@@ -154,8 +155,8 @@ class Actions {
             callback: {
                 tag: 'Cheer',
                 description: 'Triggers callbacks on a specific cheer amount',
-                call: async (user, index, msg) => {
-                    actionCallback.call(user, index, msg)
+                call: async (user, index) => {
+                    actionCallback.call(user, index)
                 }
             }
         }
@@ -259,8 +260,8 @@ class Actions {
                 description: `Timeline callback that is called after a certain delay: ${ms}ms`,
                 call: async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
                     for(const callback of stack) {
-                        if(callback.asyncCall) await callback.asyncCall(user, index, msg)
-                        if(callback.call) callback.call(user, index, msg)
+                        if(callback.asyncCall) await callback.asyncCall(user, index)
+                        if(callback.call) callback.call(user, index)
                     }
                 }
             }
@@ -272,7 +273,7 @@ class Actions {
                 for(const [key, callback] of Object.entries(callbacks)) {
                     const ms = parseInt(key)
                     setTimeout(()=>{
-                        callback.call(user, index, msg)
+                        callback.call(user, index)
                     }, ms)
                 }
             }
@@ -671,7 +672,12 @@ class Actions {
                         if(targetLogin.length == 0) break
                         Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: targetLogin, active: true, reason: userInputRest }).then()
                         break
+                        break
                     case ETTSFunction.SetUserVoice:
+                        let setUserVoiceLogin = targetOrUserLogin // We can change voice for us or someone else by default
+                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            setUserVoiceLogin = user.login
+                        }
                         await modules.tts.setVoiceForUser(targetOrUserLogin, userInputNoTags)
                         break
                     case ETTSFunction.SetDictionaryEntry:
@@ -709,17 +715,21 @@ class Actions {
                         }
                         break
                     case ETTSFunction.SetUserGender:
-                        const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', targetOrUserLogin)
+                        let setUserGenderLogin = targetOrUserLogin // We can change gender for us or someone else by default
+                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            setUserGenderLogin = user.login
+                        }
+                        const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', setUserGenderLogin)
                         let gender = ''
                         // Use input for a specific gender
-                        if(inputLowerCase.includes('female')) gender = 'female'
-                        else if(inputLowerCase.includes('male')) gender = 'male'
+                        if(inputLowerCase.includes('f')) gender = 'female'
+                        else if(inputLowerCase.includes('m')) gender = 'male'
                         // If missing, flip current or fall back to random.
                         if(gender.length == 0) {
                             if(voiceSetting) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
                             else gender = Utils.randomFromArray(['male', 'female'])
                         }
-                        modules.tts.setVoiceForUser(targetOrUserLogin, gender).then()
+                        modules.tts.setVoiceForUser(setUserGenderLogin, gender).then()
                         break
                 }
             }

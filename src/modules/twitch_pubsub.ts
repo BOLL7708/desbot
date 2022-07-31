@@ -91,7 +91,7 @@ class TwitchPubsub {
                                         status: redemption.status,
                                         cost: redemption.reward?.cost?.toString()
                                     }
-                                    Settings.pushRow(Settings.TWITCH_REWARD_REDEMPTIONS, redemptionStatus)
+                                    Settings.pushRow(Settings.TWITCH_REWARD_REDEMPTIONS, redemptionStatus).then()
                                 }
                                 Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                                 if(id !== null) this._onRewardCallback(id, rewardMessage)

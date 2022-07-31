@@ -165,6 +165,7 @@ class Twitch{
             if(command && commandStr) {
                 user.source = EEventSource.TwitchCommand
                 user.input = textStr
+                user.commandConfig = command
                 if(allowedRole && command.callback) {
                     command.callback.call(user)
                 }
