@@ -23,4 +23,8 @@ class StatesSingleton {
     public lastSteamAppId: string|undefined 
     public lastSteamAppIsVR: boolean = false
     public runRemoteCommands: boolean = Config.controller.defaults.runRemoteCommands ?? false
+    public textTagCache: ITextTagsCached = {
+        lastDictionaryWord: '',
+        lastDictionarySubstitute: ''
+    }
 }

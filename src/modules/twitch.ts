@@ -135,6 +135,17 @@ class Twitch{
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
+            // Word count
+            const wordCount = textStr.split(' ').length
+            if(command?.requireMinimumWordCount && wordCount < command.requireMinimumWordCount) {
+                console.log(`Twitch Chat: Skipped command as word count it too low: ${wordCount} < ${command.requireMinimumWordCount}`)
+                return
+            }
+            if(command?.requireExactWordCount && wordCount !== command.requireExactWordCount) {
+                console.log(`Twitch Chat: Skipped command as word count is incorrect: ${wordCount} != ${command.requireMinimumWordCount}`)
+                return
+            }
+
             // Command
             const allowedRole = command && (
                 (command.permissions?.streamer && isBroadcaster)

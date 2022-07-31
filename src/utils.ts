@@ -116,7 +116,7 @@ class Utils {
     }
 
     static cleanSetting(setting: string) {
-        return setting.trim().replace('|', ' ').replace(';', ' ')
+        return setting.trim().replace(/[|;]/g, ' ')
     }
 
     static async sha256(message: string) {
@@ -361,7 +361,7 @@ class Utils {
             result.userInputNumber = parseFloat(input).toString()
             result.userInputTag = Utils.getFirstUserTagInText(input) ?? ''
         }
-        return result
+        return { ...result, ...StatesSingleton.getInstance().textTagCache }
     }
 
     static getVoiceString(voiceData: IUserVoice|undefined): string {

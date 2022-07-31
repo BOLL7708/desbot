@@ -379,59 +379,6 @@ class Commands {
         },
 
         /*
-        .#####...######...####...######..######...####...##..##...####...#####...##..##.
-        .##..##....##....##..##....##......##....##..##..###.##..##..##..##..##...####..
-        .##..##....##....##........##......##....##..##..##.###..######..#####.....##...
-        .##..##....##....##..##....##......##....##..##..##..##..##..##..##..##....##...
-        .#####...######...####.....##....######...####...##..##..##..##..##..##....##...
-        */
-        [Keys.COMMAND_DICTIONARY]: {
-            tag: 'Dictionary',
-            description: 'Get or set a word replacement in the dictionary used for TTS.',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                let [word, substitute] = Utils.splitOnFirst(' ', user.input)
-                word = word.trim().toLocaleLowerCase()
-                substitute = substitute.trim().replace(/\|/g, ',').toLowerCase()
-                if(word.length && substitute.length > 0) {
-                    const speech = Config.controller.speechReferences[Keys.COMMAND_DICTIONARY]
-                    const setting = <IDictionaryEntry> {
-                        original: word, 
-                        substitute: substitute, 
-                        editor: user.login, 
-                        datetime: Utils.getISOTimestamp()
-                    }
-                    Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setting)
-                    modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
-                    modules.tts.enqueueSpeakSentence(
-                        await Utils.replaceTagsInText(
-                            <string> speech, 
-                            user,
-                            {
-                                word: word, 
-                                substitute: substitute
-                            }
-                        ),
-                        Config.twitch.chatbotName,
-                        ETTSType.Announcement,
-                        '',
-                        null,
-                        [],
-                        true
-                    )
-                } else { // Messed up
-                    const chat = Config.controller.chatReferences[Keys.COMMAND_DICTIONARY]
-                    const currentEntry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
-                    if(currentEntry) {
-                        modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[1], user,  {word: currentEntry.original, value: currentEntry.substitute}))
-                    } else {
-                        modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[0],  user,  {word: word}))
-                    }
-                }
-            }
-        },
-
-        /*
         .#####...######..##...##...####...#####...#####....####..
         .##..##..##......##...##..##..##..##..##..##..##..##.....
         .#####...####....##.#.##..######..#####...##..##...####..

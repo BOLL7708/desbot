@@ -249,7 +249,7 @@ class GoogleTTS {
             }
             
             // Match incoming full voice name
-            let re = new RegExp(/([a-z]+)-([a-z]+)-([\w]+)-([a-z])/)
+            let re = new RegExp(/([a-z]+)-([a-z]+)-(\w+)-([a-z])/)
             const matches = setting.match(re)
             if(matches != null) {
                 if(this._voices.find(v => v.name.toLowerCase() == matches[0])) {

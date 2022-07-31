@@ -152,7 +152,7 @@ interface ICommandAction {
     interval?: number
 }
 
-interface ITextTags {
+interface ITextTags extends ITextTagsCached{
     userLogin: string
     userName: string
     userTag: string
@@ -197,6 +197,11 @@ interface ITextTags {
     gamePublisher: string
     gameBanner: string
     gameRelease: string
+}
+
+interface ITextTagsCached {
+    lastDictionaryWord: string
+    lastDictionarySubstitute: string
 }
 
 interface ITTSAction {
@@ -259,6 +264,7 @@ interface IAudioAction {
 
 interface ISpeechAction {
     entries: string|string[]
+    skipDictionary?: boolean
     voiceOfUser?: string
     type?: ETTSType
 }

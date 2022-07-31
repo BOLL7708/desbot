@@ -162,9 +162,17 @@ interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandConfig {
      */
     permissions?: ICommandPermissions
     /**
-     * Optional: Require this command to include a user tag to actually get triggered.
+     * Optional: Require this command to include a user tag to get triggered.
      */
     requireUserTag?: boolean
+    /**
+     * Optional: Require this command to include exactly this number of words to get triggered.
+     */
+    requireExactWordCount?: number
+    /**
+     * Optional: Require this command to include at least this number of words to get triggered.
+     */
+    requireMinimumWordCount?: number
 }
 /**
  * All these properties are added before registering the command with the Twitch class.

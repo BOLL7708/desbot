@@ -362,7 +362,10 @@ class Actions {
                     ttsString,
                     await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user), 
                     speechConfig.type ?? ETTSType.Announcement,
-                    nonce
+                    nonce,
+                    undefined,
+                    undefined,
+                    speechConfig?.skipDictionary
                 )
             }
         }
@@ -640,6 +643,7 @@ class Actions {
                 const inputLowerCase = input.toLowerCase()
                 const targetLogin = await Utils.replaceTagsInText('%targetLogin', user)
                 const targetOrUserLogin = await Utils.replaceTagsInText('%targetOrUserLogin', user)
+                const userInputHead = await Utils.replaceTagsInText('%userInputHead', user)
                 const userInputRest = await Utils.replaceTagsInText('%userInputRest', user)
                 const userInputTag = await Utils.replaceTagsInText('%userInputTag', user)
                 const userInputNoTags = await Utils.replaceTagsInText('%userInputNoTags', user)
@@ -664,9 +668,42 @@ class Actions {
                         if(targetLogin.length == 0) break
                         Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: targetLogin, active: true, reason: userInputRest }).then()
                         break
-
                     case ETTSFunction.SetUserVoice:
                         await modules.tts.setVoiceForUser(targetOrUserLogin, userInputNoTags)
+                        break
+                    case ETTSFunction.SetDictionaryEntry:
+                        const dicWord = userInputHead.trim().toLowerCase()
+                        const dicSubstitute = Utils.cleanSetting(userInputRest).toLowerCase()
+                        const setDictionaryEntry = <IDictionaryEntry> {
+                            original: dicWord,
+                            substitute: dicSubstitute,
+                            editor: user.login,
+                            datetime: Utils.getISOTimestamp()
+                        }
+                        states.textTagCache.lastDictionaryWord = dicWord
+                        states.textTagCache.lastDictionarySubstitute = dicSubstitute
+                        // Set substitute for word
+                        if(dicWord.length && dicSubstitute.length) {
+                            await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setDictionaryEntry)
+                        }
+                        // Clearing a word by setting it to itself
+                        else if(dicWord.length) {
+                            setDictionaryEntry.substitute = dicWord
+                            states.textTagCache.lastDictionarySubstitute = dicWord
+                            await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setDictionaryEntry)
+                        }
+                        modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
+                        break
+                    case ETTSFunction.GetDictionaryEntry:
+                        const getDicWord = userInputHead.trim().toLowerCase()
+                        const getDicEntry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', getDicWord)
+                        if(getDicEntry) {
+                            states.textTagCache.lastDictionaryWord = getDicEntry.original
+                            states.textTagCache.lastDictionarySubstitute = getDicEntry.substitute
+                        } else {
+                            states.textTagCache.lastDictionaryWord = getDicWord
+                            states.textTagCache.lastDictionarySubstitute = ''
+                        }
                         break
                     case ETTSFunction.SetUserGender:
                         const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', targetOrUserLogin)
