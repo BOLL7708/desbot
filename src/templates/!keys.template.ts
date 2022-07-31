@@ -29,7 +29,7 @@ class KeysTemplate {
     static readonly COMMAND_TTS_ON = 'ttson'
     static readonly COMMAND_TTS_OFF = 'ttsoff'
     static readonly COMMAND_TTS_SILENCE = 'silence'
-    static readonly COMMAND_TTS_DIE = 'ttsdie'
+    static readonly COMMAND_TTS_DIE = 'die|ttsdie'
     static readonly COMMAND_TTS_NICK = 'nick|setnick'
     static readonly COMMAND_TTS_GETNICK = 'getnick'
     static readonly COMMAND_TTS_CLEARNICK = 'clearnick'

@@ -309,7 +309,11 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_DICTIONARY_GET]: {
         triggers: {
-            command: {}
+            command: {
+                permissions: {
+                    everyone: true
+                }
+            }
         },
         actions: {
             tts: {
