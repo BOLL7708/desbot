@@ -205,6 +205,8 @@ interface ITextTags extends ITextTagsCached{
 interface ITextTagsCached {
     lastDictionaryWord: string
     lastDictionarySubstitute: string
+    lastTTSSetNickLogin: string
+    lastTTSSetNickSubstitute: string
 }
 
 interface ITTSAction {

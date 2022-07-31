@@ -649,8 +649,8 @@ class Actions {
                 const targetOrUserLogin = await Utils.replaceTagsInText('%targetOrUserLogin', user)
                 const userInputHead = await Utils.replaceTagsInText('%userInputHead', user)
                 const userInputRest = await Utils.replaceTagsInText('%userInputRest', user)
-                const userInputTag = await Utils.replaceTagsInText('%userInputTag', user)
                 const userInputNoTags = await Utils.replaceTagsInText('%userInputNoTags', user)
+                const canSetThingsForOthers = user.isBroadcaster || user.isModerator
                 switch(config.function) {
                     case ETTSFunction.Enable:
                         states.ttsForAll = true
@@ -672,13 +672,76 @@ class Actions {
                         if(targetLogin.length == 0) break
                         Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: targetLogin, active: true, reason: userInputRest }).then()
                         break
+                    case ETTSFunction.SetUserNick:
+                        let setUserNickLogin = targetOrUserLogin // We can change nick for us or someone else by default
+                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            setUserNickLogin = user.login
+                        }
+                        const isSettingNickOfOther = user.login !== setUserNickLogin
+                        const setNickNewName = userInputNoTags
+
+                        // Cancel if the user does not actually exist on Twitch
+                        const setNickUserData = await modules.twitchHelix.getUserByLogin(setUserNickLogin)
+                        if(!setNickUserData) return Utils.log(`TTS Nick: User "${setUserNickLogin}" does not exist.`, Color.Red)
+
+                        if(
+                            setUserNickLogin.length && setNickNewName.length
+                            && (canSetThingsForOthers || (isSettingNickOfOther == canSetThingsForOthers))
+                        ) {
+                            // We rename the user
+                            states.textTagCache.lastTTSSetNickLogin = setUserNickLogin
+                            states.textTagCache.lastTTSSetNickSubstitute = setNickNewName
+                            const setting = <IUserName> {userName: setUserNickLogin, shortName: setNickNewName, editor: user.login, datetime: Utils.getISOTimestamp()}
+                            await Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
+                        } else {
+                            // We do nothing
+                            states.textTagCache.lastTTSSetNickLogin =
+                            states.textTagCache.lastTTSSetNickSubstitute = ''
+                        }
+                        break
+                    case ETTSFunction.GetUserNick:
+                        const getNickUserData = await modules.twitchHelix.getUserByLogin(targetOrUserLogin)
+                        if(getNickUserData && getNickUserData.login.length) {
+                            const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', getNickUserData.login)
+                            if(currentName) {
+                                states.textTagCache.lastTTSSetNickLogin = currentName.userName
+                                states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
+                            } else {
+                                states.textTagCache.lastTTSSetNickLogin = getNickUserData.login
+                                states.textTagCache.lastTTSSetNickSubstitute = ''
+                            }
+                        }
+                        break
+                    case ETTSFunction.ClearUserNick:
+                        let clearUserNickLogin = targetOrUserLogin // We can change nick for us or someone else by default
+                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            clearUserNickLogin = user.login
+                        }
+                        const isClearingNickOfOther = user.login !== clearUserNickLogin
+                        if(
+                            clearUserNickLogin.length
+                            && (canSetThingsForOthers || (isClearingNickOfOther == canSetThingsForOthers))
+                        ) {
+                            // We clear the custom nick for the user, setting it to a clean one.
+                            const cleanName = Utils.cleanName(clearUserNickLogin)
+                            states.textTagCache.lastTTSSetNickLogin = clearUserNickLogin
+                            states.textTagCache.lastTTSSetNickSubstitute = cleanName
+                            const setting = <IUserName> {userName: clearUserNickLogin, shortName: cleanName, editor: user.login, datetime: Utils.getISOTimestamp()}
+                            await Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
+                        }
                         break
                     case ETTSFunction.SetUserVoice:
                         let setUserVoiceLogin = targetOrUserLogin // We can change voice for us or someone else by default
                         if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
                             setUserVoiceLogin = user.login
                         }
-                        await modules.tts.setVoiceForUser(targetOrUserLogin, userInputNoTags)
+                        const isSettingVoiceOfOther = user.login !== setUserVoiceLogin
+                        if(
+                            setUserVoiceLogin.length && userInputNoTags.length
+                            && (canSetThingsForOthers || (isSettingVoiceOfOther == canSetThingsForOthers))
+                        ) {
+                            await modules.tts.setVoiceForUser(setUserVoiceLogin, userInputNoTags)
+                        }
                         break
                     case ETTSFunction.SetDictionaryEntry:
                         const dicWord = userInputHead.trim().toLowerCase()

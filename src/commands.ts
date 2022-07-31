@@ -16,67 +16,6 @@ class Commands {
     ...##......##.....####..
     */
     public static callbacks: { [key: string]: IActionCallback|undefined } = {
-        [Keys.COMMAND_TTS_NICK]: {
-            tag: 'TTS Nick',
-            description: 'Sets the current TTS nickname.',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const states = StatesSingleton.getInstance()
-                const parts = Utils.splitOnFirst(' ', user.input)
-                let userToRename: string = ''
-                let newName: string = ''
-                
-                const canRenameOthers = user?.isBroadcaster || user?.isModerator
-                const hasUserTag = parts[0].indexOf('@') > -1 
-                const hasUserTagAndInput = hasUserTag && parts.length >= 1
-                                
-                if(canRenameOthers && hasUserTagAndInput)  { 
-                    // Rename someone else
-                    userToRename = Utils.cleanUserName(parts[0])
-                    newName = parts[1].toLowerCase()
-                } else {
-                    // Rename ourselves
-                    userToRename = user.login ?? ''
-                    newName = hasUserTagAndInput ? parts[1] : user.input.toLowerCase()
-                }
-
-                // Cancel if the user does not actually exist on Twitch
-                const userData = await modules.twitchHelix.getUserByLogin(userToRename)
-                if(!userData) return Utils.log(`TTS Nick: User "${userToRename}" does not exist.`, Color.Red)
-
-                if(userToRename.length > 0 && newName.length > 0) {
-                    // We do the rename
-                    const setting = <IUserName> {userName: userToRename, shortName: newName, editor: user.login, datetime: Utils.getISOTimestamp()}
-                    Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
-                    const speech = Config.controller.speechReferences[Keys.COMMAND_TTS_NICK]
-                    modules.tts.enqueueSpeakSentence(
-                        await Utils.replaceTagsInText(
-                            <string> speech, 
-                            user,
-                            { // We override the target values because it can also be the user
-                                targetName: userToRename, 
-                                targetNick: newName
-                            }
-                        )
-                    )
-                } else if(userToRename.length > 0) { 
-                    // We return current name in chat
-                    const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userToRename)
-                    const message = Config.controller.chatReferences[Keys.COMMAND_TTS_NICK]
-                    ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(
-                        await Utils.replaceTagsInText(
-                            <string> message, 
-                            user,
-                            {
-                                targetName: hasUserTag ? parts[0] : `@${userData.display_name}`, 
-                                targetNick: currentName?.shortName ?? 'N/A'
-                            }
-                        )
-                    )
-                }
-            }
-        },
-
         /*
         ..####...##..##...####...######.
         .##..##..##..##..##..##....##...
