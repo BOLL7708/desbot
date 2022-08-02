@@ -1,0 +1,19 @@
+name: 'Post Release to Twitter'
+# Trigger on release
+on: 
+  release:
+    types: 
+      - published
+jobs:
+  tweet:
+    name: posting_on_twitter
+    runs-on: ubuntu-latest
+    steps:
+      - name: post
+        uses: m1ner79/Github-Twittction@v1.0.1
+        with:
+            twitter_status: "Update: ${{github.event.release.tag_name}} ${{github.event.repository.full_name}} ${{github.event.release.html_url}}"
+            twitter_consumer_key: ${{ secrets.TWITTER_CONSUMER_KEY }} 
+            twitter_consumer_secret: ${{ secrets.TWITTER_CONSUMER_SECRET }} 
+            twitter_access_token_key: ${{ secrets.TWITTER_ACCESS_TOKEN_KEY }} 
+            twitter_access_token_secret: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }} 
