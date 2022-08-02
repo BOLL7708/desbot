@@ -298,13 +298,14 @@ class Utils {
         const subs = await Settings.pullSetting<ITwitchSubSetting>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
         const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
         const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
+        const now = new Date()
         const userBits = (userData?.bits ?? 0) > 0 
             ? userData?.bits?.toString() ?? '0'
             : cheers?.lastBits ?? '0'
         const userBitsTotal = (userData?.bitsTotal ?? 0) > 0
             ? userData?.bitsTotal?.toString() ?? '0'
             : cheers?.totalBits ?? '0'
-        const result = {
+        const result = <ITextTags> {
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
             userTag: `@${userData?.name}`,
@@ -348,7 +349,14 @@ class Utils {
             gameDeveloper: '',
             gamePublisher: '',
             gameBanner: '',
-            gameRelease: ''
+            gameRelease: '',
+
+            nowDate: now.toLocaleDateString('sv-SE'),
+            nowTime: now.toLocaleTimeString('sv-SE'),
+            nowTimeMs: now.toLocaleTimeString('sv-SE')+'.'+now.getMilliseconds(),
+            nowDateTime: now.toLocaleString('sv-SE'),
+            nowDateTimeMs: now.toLocaleString('sv-SE')+'.'+now.getMilliseconds(),
+            nowISO: now.toISOString()
         }
         if(typeof userData?.input === 'string') {
             const input = userData.input

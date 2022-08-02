@@ -200,6 +200,13 @@ interface ITextTags extends ITextTagsCached{
     gamePublisher: string
     gameBanner: string
     gameRelease: string
+
+    nowDate: string
+    nowTime: string
+    nowTimeMs: string
+    nowDateTime: string
+    nowDateTimeMs: string
+    nowISO: string
 }
 
 interface ITextTagsCached {

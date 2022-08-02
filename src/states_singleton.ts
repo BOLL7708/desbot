@@ -25,6 +25,8 @@ class StatesSingleton {
     public runRemoteCommands: boolean = Config.controller.defaults.runRemoteCommands ?? false
     public textTagCache: ITextTagsCached = {
         lastDictionaryWord: '',
-        lastDictionarySubstitute: ''
+        lastDictionarySubstitute: '',
+        lastTTSSetNickLogin: '',
+        lastTTSSetNickSubstitute: ''
     }
 }
