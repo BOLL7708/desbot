@@ -119,16 +119,18 @@ class Actions {
 
     private static async registerCommand(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        const triggers = key.split('|')
-        for(const trigger of triggers) {
-            let command = event?.triggers.command
-            const actionCallback = this.buildActionCallback(trigger, event)
-            const useThisCommand = <ITwitchCommandConfig> (
-                command?.cooldown == undefined 
-                    ? {...event.triggers.command, trigger: trigger, callback: actionCallback}
-                    : {...event.triggers.command, trigger: trigger, cooldownCallback: actionCallback}
-            )
-            modules.twitch.registerCommand(useThisCommand)
+        let command = event?.triggers.command
+        if(command) {
+            const triggers = Utils.ensureArray<string>(command.entries)
+            for(const trigger of triggers) {
+                const actionCallback = this.buildActionCallback(trigger, event)
+                const useThisCommand = <ITwitchCommandConfig> (
+                    command?.cooldown == undefined
+                        ? {...event.triggers.command, trigger: trigger, callback: actionCallback}
+                        : {...event.triggers.command, trigger: trigger, cooldownCallback: actionCallback}
+                )
+                modules.twitch.registerCommand(useThisCommand)
+            }
         }
     }
 

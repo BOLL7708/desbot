@@ -20,9 +20,8 @@ Config.events = {
     [KeysTemplate.EVENT_TTSSETVOICE]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                }
+                entries: ['voice', 'setvoice'],
+                permissions: { everyone: true }
             },
             reward: {
                 title: 'Set Your Voice',
@@ -34,9 +33,7 @@ Config.events = {
             }
         },
         actions: {
-            tts: {
-                function: ETTSFunction.SetUserVoice
-            },
+            tts: { function: ETTSFunction.SetUserVoice },
             speech: {
                 entries: '%targetOrUserTag now sounds like this.',
                 voiceOfUser: '%targetOrUserLogin'
@@ -65,7 +62,7 @@ Config.events = {
     */
     [KeysTemplate.COMMAND_TTS_ON]: {
         triggers: {
-            command: {}
+            command: { entries: 'ttson' }
         },
         actions: {
             speech: { entries: 'Global TTS is now enabled.' },
@@ -75,7 +72,7 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_TTS_OFF]: {
         triggers: {
-            command: {}
+            command: { entries: 'ttsoff' }
         },
         actions: {
             speech: { entries: 'Global TTS is now disabled.' },
@@ -85,7 +82,7 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_TTS_SILENCE]: {
         triggers: {
-            command: {}
+            command: { entries: 'silence' }
         },
         actions: {
             tts: { function: ETTSFunction.StopCurrent }
@@ -93,7 +90,7 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_TTS_DIE]: {
         triggers: {
-            command: {}
+            command: { entries: ['die', 'ttsdie'] }
         },
         actions: {
             tts: { function: ETTSFunction.StopAll }
@@ -102,6 +99,7 @@ Config.events = {
     [KeysTemplate.COMMAND_TTS_NICK]: {
         triggers: {
             command: {
+                entries: ['nick', 'setnick'],
                 permissions: {
                     VIPs: true,
                     subscribers: true
@@ -117,9 +115,8 @@ Config.events = {
     [KeysTemplate.COMMAND_TTS_GETNICK]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                }
+                entries: 'getnick',
+                permissions: { everyone: true }
             }
         },
         actions: {
@@ -130,6 +127,7 @@ Config.events = {
     [KeysTemplate.COMMAND_TTS_CLEARNICK]: {
         triggers: {
             command: {
+                entries: 'clearnick',
                 permissions: {
                     VIPs: true,
                     subscribers: true
@@ -143,7 +141,7 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_TTS_MUTE]: {
         triggers: {
-            command: {}
+            command: { entries: 'mute' }
         },
         actions: {
             tts: { function: ETTSFunction.SetUserDisabled },
@@ -152,7 +150,7 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_TTS_UNMUTE]: {
         triggers: {
-            command: {}
+            command: { entries: 'unmute' }
         },
         actions: {
             tts: { function: ETTSFunction.SetUserEnabled },
@@ -162,9 +160,8 @@ Config.events = {
     [KeysTemplate.COMMAND_TTS_GETVOICE]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                }
+                entries: 'getvoice',
+                permissions: { everyone: true }
             }
         },
         actions: {
@@ -174,6 +171,7 @@ Config.events = {
     [KeysTemplate.COMMAND_TTS_GENDER]: {
         triggers: {
             command: {
+                entries: 'gender',
                 permissions: {
                     VIPs: true,
                     subscribers: true
@@ -192,9 +190,8 @@ Config.events = {
     [KeysTemplate.COMMAND_TTS_VOICES]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                },
+                entries: ['tts', 'voices'],
+                permissions: { everyone: true },
                 cooldown: 60 * 5
             }
         },
@@ -213,35 +210,34 @@ Config.events = {
     [KeysTemplate.COMMAND_CHAT]: {
         triggers: {
             command: {
-                permissions: {
-                    VIPs: true
-                }
+                entries: 'chat',
+                permissions: { VIPs: true }
             }
         }
     },
     [KeysTemplate.COMMAND_CHAT_ON]: {
         triggers: {
-            command: {}
+            command: { entries: 'chaton' }
         }
     },
     [KeysTemplate.COMMAND_CHAT_OFF]: {
         triggers: {
-            command: {}
+            command: { entries: 'chatoff' }
         }
     },
     [KeysTemplate.COMMAND_PING_ON]: {
         triggers: {
-            command: {}
+            command: { entries: 'pingon' }
         }
     },
     [KeysTemplate.COMMAND_PING_OFF]: {
         triggers: {
-            command: {}
+            command: { entries: 'pingoff' }
         }
     },
     [KeysTemplate.COMMAND_QUOTE]: {
         triggers: {
-            command: {}
+            command: { entries: 'quote' }
         }
     },
 
@@ -255,18 +251,16 @@ Config.events = {
     [KeysTemplate.COMMAND_LOG_ON]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'logon',
+                permissions: { moderators: false }
             }
         }
     },
     [KeysTemplate.COMMAND_LOG_OFF]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'logoff',
+                permissions: { moderators: false }
             }
         }
     },
@@ -280,7 +274,7 @@ Config.events = {
     */
     [KeysTemplate.COMMAND_SCALE]: {
         triggers: {
-            command: {}
+            command: { entries: 'scale' }
         }
     },
 
@@ -294,13 +288,12 @@ Config.events = {
     [KeysTemplate.COMMAND_DICTIONARY_SET]: {
         triggers: {
             command: {
+                entries: ['word', 'setword'],
                 requireMinimumWordCount: 2
             }
         },
         actions: {
-            tts: {
-                function: ETTSFunction.SetDictionaryEntry
-            },
+            tts: { function: ETTSFunction.SetDictionaryEntry },
             speech: {
                 entries: '%lastDictionaryWord is now said as %lastDictionarySubstitute',
                 skipDictionary: true
@@ -310,28 +303,24 @@ Config.events = {
     [KeysTemplate.COMMAND_DICTIONARY_GET]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                }
+                entries: ['getword'],
+                permissions: { everyone: true }
             }
         },
         actions: {
-            tts: {
-                function: ETTSFunction.GetDictionaryEntry
-            },
+            tts: { function: ETTSFunction.GetDictionaryEntry },
             chat: 'Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"'
         }
     },
     [KeysTemplate.COMMAND_DICTIONARY_CLEAR]: {
         triggers: {
             command: {
+                entries: 'clearword',
                 requireExactWordCount: 1
             }
         },
         actions: {
-            tts: {
-                function: ETTSFunction.SetDictionaryEntry
-            },
+            tts: { function: ETTSFunction.SetDictionaryEntry },
             speech: {
                 entries: '%lastDictionaryWord was cleared from the dictionary',
                 skipDictionary: true
@@ -349,25 +338,25 @@ Config.events = {
     [KeysTemplate.COMMAND_UPDATEREWARDS]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'update',
+                permissions: { moderators: false }
             }
         }
     },
     [KeysTemplate.COMMAND_GAMEREWARDS_ON]: {
         triggers: {
-            command: {}
+            command: { entries: 'rewardson' }
         }
     },
     [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: {
         triggers: {
-            command: {}
+            command: { entries: 'rewardsoff' }
         }
     },
     [KeysTemplate.COMMAND_REFUND_REDEMPTION]: {
         triggers: {
             command: {
+                entries: 'refund',
                 cooldown: 30
             }
         }
@@ -375,9 +364,8 @@ Config.events = {
     [KeysTemplate.COMMAND_CLEAR_REDEMPTIONS]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                },
+                entries: 'clearqueue',
+                permissions: { moderators: false },
                 cooldown: 60
             }
         }
@@ -385,9 +373,8 @@ Config.events = {
     [KeysTemplate.COMMAND_RESET_INCREWARD]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                },
+                entries: 'resetincrew',
+                permissions: { moderators: false },
                 cooldown: 20
             }
         }
@@ -403,57 +390,54 @@ Config.events = {
     [KeysTemplate.COMMAND_RELOADWIDGET]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'resetincrew',
+                permissions: { moderators: false },
+                cooldown: 20
             }
         }
     },
     [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'trophy',
+                permissions: { moderators: false }
             }
         }
     },
     [KeysTemplate.COMMAND_CLIPS]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'clips',
+                permissions: { moderators: false }
             }
         }
     },
     [KeysTemplate.COMMAND_GAMERESET]: {
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'nogame',
+                permissions: { moderators: false }
             }
         }
     },
     [KeysTemplate.COMMAND_RAID]: {
         triggers: {
-            command: {}
+            command: { entries: 'raid' }
         }
     },
     [KeysTemplate.COMMAND_UNRAID]: {
         triggers: {
-            command: {}
+            command: { entries: 'unraid' }
         }
     },
     [KeysTemplate.COMMAND_REMOTE_ON]: {
         triggers: {
-            command: {}
+            command: { entries: 'remoteon' }
         }
     },
     [KeysTemplate.COMMAND_REMOTE_OFF]: {
         triggers: {
-            command: {}
+            command: { entries: 'remoteoff' }
         }
     },
 
@@ -467,9 +451,8 @@ Config.events = {
     [KeysTemplate.COMMAND_GAME]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                },
+                entries: 'game',
+                permissions: { everyone: true },
                 cooldown: 3*60
             }
         },
@@ -493,22 +476,32 @@ Config.events = {
     */
     [KeysTemplate.COMMAND_SAY]: { // Announces something with the TTS
         triggers: {
-            command: {}
+            command: {
+                entries: 'say',
+                permissions: { VIPs: true }
+            }
         },
         actions: {
-            speech: {
-                entries: '%userInput'
+            speech: { entries: '%userInput' }
+        }
+    },
+    [KeysTemplate.COMMAND_LURK]: { // Used to announce that a user is lurking
+        triggers: {
+            command: {
+                entries: 'lurk',
+                permissions: { everyone: true }
             }
+        },
+        actions: {
+            chat: 'Just to let you know, %userTag will be lurking! %userInput'
         }
     },
     [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
         triggers: {
-            command: {}
+            command: { entries: ['label', 'txt'] }
         },
         actions: {
-            speech: {
-                entries: 'Label set to "%userInput"'
-            },
+            speech: { entries: 'Label set to "%userInput"' },
             label: {
                 fileName: 'your_label_in_settings.txt',
                 text: '%userInput'
@@ -517,21 +510,30 @@ Config.events = {
     },
     [KeysTemplate.COMMAND_TODO]: { // Puts a post in Discord using the Discord webhook with the same key
         triggers: {
-            command: {}
+            command: { entries: 'todo' }
         },
         actions: {
-            speech: {
-                entries: 'To do list appended with: %userInput'
-            },
+            speech: { entries: 'To do list appended with: %userInput' },
             discord: '-> %userInput'
+        }
+    },
+    [KeysTemplate.COMMAND_SHOUTOUT]: { // Used to promote another user
+        triggers: {
+            command: {
+                entries: ['so', 'shoutout'],
+                cooldown: 30,
+                requireUserTag: true
+            }
+        },
+        actions: {
+            chat: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)'
         }
     },
     [KeysTemplate.COMMAND_END_STREAM]: { // Runs multiple commands suitable for when ending a stream
         triggers: {
             command: {
-                permissions: {
-                    moderators: false
-                }
+                entries: 'endstream',
+                permissions: { moderators: false }
             }
         },
         actions: {
@@ -549,35 +551,11 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_SHOUTOUT]: { // Used to promote another user
-        triggers: {
-            command: {
-                cooldown: 30,
-                requireUserTag: true
-            }
-        },
-        actions: {
-            chat: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)'
-        }
-    },
-    [KeysTemplate.COMMAND_LURK]: { // Used to announce that a user is lurking
-        triggers: {
-            command: {
-                permissions: {
-                    everyone: true
-                }
-            }
-        },
-        actions: {
-            chat: 'Just to let you know, %userTag will be lurking! %userInput'
-        }
-    },
     [KeysTemplate.COMMAND_WIDGET]: {
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                },
+                entries: 'widget',
+                permissions: { everyone: true },
                 cooldown: 60 * 5
             }
         },
@@ -588,9 +566,8 @@ Config.events = {
     [KeysTemplate.COMMAND_WIKI]: { // A link to the user wiki for the widget
         triggers: {
             command: {
-                permissions: {
-                    everyone: true
-                },
+                entries: 'wiki',
+                permissions: { everyone: true },
                 cooldown: 60 * 5
             }
         },

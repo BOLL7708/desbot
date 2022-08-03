@@ -158,6 +158,10 @@ interface ITwitchActionRemoteCommandConfig {
  */
 interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandConfig {
     /**
+     * The command or commands that can be used with this trigger.
+     */
+    entries: string|string[]
+    /**
      * Permission for who can execute this command.
      */
     permissions?: ICommandPermissions
