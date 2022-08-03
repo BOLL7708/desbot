@@ -123,7 +123,7 @@ class Actions {
         if(command) {
             const triggers = Utils.ensureArray<string>(command.entries)
             for(const trigger of triggers) {
-                const actionCallback = this.buildActionCallback(trigger, event)
+                const actionCallback = this.buildActionCallback(key, event)
                 const useThisCommand = <ITwitchCommandConfig> (
                     command?.cooldown == undefined
                         ? {...event.triggers.command, trigger: trigger, callback: actionCallback}
