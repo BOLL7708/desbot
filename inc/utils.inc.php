@@ -30,19 +30,27 @@ class Utils {
         // Setup
         $root = './dist/';
 
-        // Include data first
+        // Include base first
+        $dataPath = 'base';
+        $dir = new DirectoryIterator($root.$dataPath);
+        foreach ($dir as $file) {
+            includeFile($root, $file, $dataPath);
+        }
+
+        // Include data second
         $dataPath = '_data';
         $dir = new DirectoryIterator($root.$dataPath);
         foreach ($dir as $file) {
             includeFile($root, $file, $dataPath);
         }
     
-        // Scan root for files and subfolders except configs and templates
+        // Scan root for files and subfolders except base, configs, data and templates
         $dir = new DirectoryIterator($root);
         foreach ($dir as $file) {
             $name = $file->getFilename();
             if (
-                $file->isDir() 
+                $file->isDir()
+                && strpos($name, 'base') === false
                 && strpos($name, '_configs') === false
                 && strpos($name, '_data') === false
                 && strpos($name, 'templates') === false

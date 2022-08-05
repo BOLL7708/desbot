@@ -12,6 +12,11 @@ interface IPhilipsHueConfig {
     lightsIds: number[]
 }
 
+interface IPhilipsHueBulb {
+    x: number
+    y: number
+}
+
 // Response
 interface IPhilipsHueLightState {
     on: boolean

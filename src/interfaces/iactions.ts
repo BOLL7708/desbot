@@ -13,22 +13,20 @@ interface IActionAsyncCallback {
 
 interface IActionsTimeline { [ms: number]: IActions }
 interface IActions {
-    // TODO: Remove arrays for configs, instead let users do arrays of actions.
-
     /**
      * Optional: Used to change SteamVR settings.
      */
-    openVR2WS?: IOpenVR2WSSetting|IOpenVR2WSSetting[]
+    openVR2WS?: IOpenVR2WSSetting
 
     /**
      * Optional: Used to toggle OBS sources or filters.
      */
-    obs?: IObsAction|IObsAction[]
+    obs?: IObsAction
 
     /**
      * Optional: Trigger one or multiple pipe overlays.
      */
-    pipe?: IPipeAction|IPipeAction[]
+    pipe?: IPipeAction
 
     /**
      * Optional: Trigger OBS or VR screenshots.
@@ -38,7 +36,7 @@ interface IActions {
     /**
      * Optional: Trigger Philips Hue lights changes.
      */
-    lights?: IPhilipsHueColorAction|IPhilipsHueColorAction[]
+    lights?: IPhilipsHueColorAction
 
     /**
      * Optional: Trigger Philips Hue plug changes.
@@ -68,25 +66,19 @@ interface IActions {
     exec?: IExecAction
 
     /**
-     * Optional: Load a page in the background.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
+     * Optional: Load a page or pages in the background.
      */
-    web?: string
+    web?: IEntriesAction
 
     /**
      * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.webhooks} for the same key.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
-    discord?: string|string[],
+    discord?: IEntriesAction
 
     /**
      * Optional: Send a message to the Twitch chat.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
-    chat?: string|string[]
+    chat?: IEntriesAction
 
     /**
      * Optional: Send a whisper message to a Twitch user.
@@ -106,7 +98,7 @@ interface IActions {
     /**
      * Optional: Send remote command to set remote command channel.
      */
-    remoteCommand?: string
+    remoteCommand?: IEntriesAction
 
     /**
      * Optional: Change Twitch reward status, indexed on the key for the reward, set to the enabled state.
@@ -320,9 +312,9 @@ interface IObsAction {
  * This can be retrieved from Philips Hue API after setting the color of the lights manually.
  * TODO: Add a function to get this through a chat command?
  */
- interface IPhilipsHueColorAction {
-    x: number
-    y: number
+interface IPhilipsHueColorAction {
+    entries: IPhilipsHueBulb|IPhilipsHueBulb[]
+    bulbs: number[]
 }
 
 /**
@@ -415,4 +407,11 @@ interface ISignAction {
      * The duration for the Sign to be visible for, in milliseconds.
      */
     durationMs: number
+}
+
+/**
+ * Generic interface for actions that at the moment just takes strings.
+ */
+interface IEntriesAction {
+    entries: string|string[]
 }

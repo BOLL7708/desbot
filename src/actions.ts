@@ -309,17 +309,17 @@ class Actions {
         }
     }
 
-    private static buildColorCallback(config: IPhilipsHueColorAction|IPhilipsHueColorAction[]|undefined): IActionCallback|undefined {
+    private static buildColorCallback(config: IPhilipsHueColorAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎨',
             description: 'Callback that triggers a Philips Hue color action',
-            call: () => {
+            call: (user, index) => {
                 const modules = ModulesSingleton.getInstance()
-                const cfg = Array.isArray(config) ? Utils.randomFromArray(config) : config
-                const lights:number[] = Config.philipshue.lightsIds
-                lights.forEach(light => {
-                    modules.hue.setLightState(light, cfg.x, cfg.y)
-                })
+                const colors = Utils.ensureArray(config.entries).getAsType(index)
+                const color = colors.pop() // No reason to set more than one color at the same time for the same bulb.
+                for(const bulb of config.bulbs) {
+                    if(color) modules.hue.setLightState(bulb, color.x, color.y)
+                }
             }
         }
     }
@@ -551,16 +551,13 @@ class Actions {
             description: 'Callback that triggers a Twitch whisper action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                modules.twitch._twitchChatOut.sendMessageToUser(
-                    await Utils.replaceTagsInText(config.user, user),
-                    await Utils.replaceTagsInText(
-                        Utils.randomOrSpecificFromArray(
-                            Utils.ensureArray(config.entries), 
-                            index
-                        ), 
-                        user
+                const messages = Utils.ensureArray<string>(config.entries).getAsType(index)
+                for(const message of messages) {
+                    modules.twitch._twitchChatOut.sendMessageToUser(
+                        await Utils.replaceTagsInText(config.user, user),
+                        await Utils.replaceTagsInText(message, user)
                     )
-                )
+                }
             }
         }
     }
@@ -583,11 +580,11 @@ class Actions {
         if(config) return {
             tag: '🖐',
             description: 'Callback that triggers a Commands action',
-            call: (user: IActionUser) => {
+            call: (user, index) => {
                 const modules = ModulesSingleton.getInstance()
                 const interval = config.interval ?? 0
                 let delay = 0
-                const commands = Utils.ensureArray(config.entries)
+                const commands = Utils.ensureArray(config.entries).getAsType(index)
                 for(const command of commands) {
                     console.log(`Executing command: ${command} in ${delay} seconds...`)
                     let inputText = user.input

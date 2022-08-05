@@ -97,22 +97,19 @@ class PipePresetsTemplate {
             widthM: 0.4,
             yawDeg: -30,
             pitchDeg: -20,
-            transitions: [
-                {
-                    xDistanceM: -1,
-                    yDistanceM: -1,
-                    rollDeg: 180,
-                    durationMs: 200,
-                    tweenType: 6
-                },
-                {
-                    xDistanceM: -1,
-                    yDistanceM: -1,
-                    rollDeg: -180,
-                    durationMs: 200,
-                    tweenType: 6
-                }
-            ],
+            transitions: [{
+                xDistanceM: -1,
+                yDistanceM: -1,
+                rollDeg: 180,
+                durationMs: 200,
+                tweenType: 6
+            },{
+                xDistanceM: -1,
+                yDistanceM: -1,
+                rollDeg: -180,
+                durationMs: 200,
+                tweenType: 6
+            }],
             textAreas: [{
                 xPositionPx: 16,
                 yPositionPx: 512-16,
@@ -122,8 +119,7 @@ class PipePresetsTemplate {
                 fontFamily: 'Arial',
                 fontColor: '#ddd',
                 verticalAlignment: 2
-            },
-            {
+            },{
                 xPositionPx: 16,
                 yPositionPx: 16,
                 widthPx: 1024-32,

@@ -24,15 +24,18 @@ class Dictionary {
     }
     
     /**
-     * Set the dicitionary to use.  
+     * Set the dictionary to use, will append or update the existing entries.
      * This is public for when new words are added at runtime.
-     * @param dictionary
+     * @param dictionary New entries for the dictionary.
+     * @param clearExisting If true, will clear the existing dictionary.
      */
-    public set(dictionary: IDictionaryEntry[]) {
-        if(dictionary != null) {
-            dictionary.forEach(pair => {
+    public set(dictionary?: IDictionaryEntry[], clearExisting = false): void {
+        if(clearExisting) this._dictionary.clear()
+        if(dictionary) {
+            for(const pair of dictionary) {
+                // Checking if they exist as this could come from settings, which can't be trusted!
                 if(pair.original && pair.substitute) this._dictionary.set(pair.original, pair.substitute)
-            })
+            }
         }
     }
 

@@ -38,7 +38,7 @@ Config.events = {
                 entries: '%targetOrUserTag now sounds like this.',
                 voiceOfUser: '%targetOrUserLogin'
             },
-            chat: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice'
+            chat: { entries: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice' }
         }
     },
 
@@ -121,7 +121,7 @@ Config.events = {
         },
         actions: {
             tts: { function: ETTSFunction.GetUserNick },
-            chat: 'TTS: "%lastTTSSetNickLogin" is called "%lastTTSSetNickSubstitute"'
+            chat: { entries: 'TTS: "%lastTTSSetNickLogin" is called "%lastTTSSetNickSubstitute"' }
         }
     },
     [KeysTemplate.COMMAND_TTS_CLEARNICK]: {
@@ -165,7 +165,7 @@ Config.events = {
             }
         },
         actions: {
-            chat: 'TTS: %targetOrUserTag\'s voice is "%targetOrUserVoice"'
+            chat: { entries: 'TTS: %targetOrUserTag\'s voice is "%targetOrUserVoice"' }
         }
     },
     [KeysTemplate.COMMAND_TTS_GENDER]: {
@@ -184,7 +184,7 @@ Config.events = {
                 entries: '%targetOrUserTag now sounds like this',
                 voiceOfUser: '%targetOrUserLogin'
             },
-            chat: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice'
+            chat: { entries: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice' }
         }
     },
     [KeysTemplate.COMMAND_TTS_VOICES]: {
@@ -196,7 +196,7 @@ Config.events = {
             }
         },
         actions: {
-            chat: 'Preview Google TTS voices here, pick a Wavenet (mandatory) voice and use the name with the "Set Your Voice" reward: https://cloud.google.com/text-to-speech/docs/voices'
+            chat: { entries: 'Preview Google TTS voices here, pick a Wavenet (mandatory) voice and use the name with the "Set Your Voice" reward: https://cloud.google.com/text-to-speech/docs/voices' }
         }
     },
 
@@ -309,7 +309,7 @@ Config.events = {
         },
         actions: {
             tts: { function: ETTSFunction.GetDictionaryEntry },
-            chat: 'Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"'
+            chat: { entries: 'Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"' }
         }
     },
     [KeysTemplate.COMMAND_DICTIONARY_CLEAR]: {
@@ -390,7 +390,7 @@ Config.events = {
     [KeysTemplate.COMMAND_RELOADWIDGET]: {
         triggers: {
             command: {
-                entries: 'resetincrew',
+                entries: 'reload',
                 permissions: { moderators: false },
                 cooldown: 20
             }
@@ -463,7 +463,7 @@ Config.events = {
                 subtitle: '%gameName\n%gamePrice',
                 durationMs: 10000
             },
-            chat: 'Game: %gameName - Released: %gameRelease - Price: %gamePrice - Link: %gameLink'
+            chat: { entries: 'Game: %gameName - Released: %gameRelease - Price: %gamePrice - Link: %gameLink' }
         }
     },
 
@@ -493,7 +493,7 @@ Config.events = {
             }
         },
         actions: {
-            chat: 'Just to let you know, %userTag will be lurking! %userInput'
+            chat: { entries: 'Just to let you know, %userTag will be lurking! %userInput' }
         }
     },
     [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
@@ -514,7 +514,7 @@ Config.events = {
         },
         actions: {
             speech: { entries: 'To do list appended with: %userInput' },
-            discord: '-> %userInput'
+            discord: { entries: '-> %userInput' }
         }
     },
     [KeysTemplate.COMMAND_SHOUTOUT]: { // Used to promote another user
@@ -526,7 +526,7 @@ Config.events = {
             }
         },
         actions: {
-            chat: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)'
+            chat: { entries: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)' }
         }
     },
     [KeysTemplate.COMMAND_END_STREAM]: { // Runs multiple commands suitable for when ending a stream
@@ -560,7 +560,7 @@ Config.events = {
             }
         },
         actions: {
-            chat: 'Streaming Widget Repository -> https://github.com/BOLL7708/streaming_widget'
+            chat: { entries: 'Streaming Widget Repository -> https://github.com/BOLL7708/streaming_widget' }
         }
     },
     [KeysTemplate.COMMAND_WIKI]: { // A link to the user wiki for the widget
@@ -572,7 +572,7 @@ Config.events = {
             }
         },
         actions: {
-            chat: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki'
+            chat: { entries: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki' }
         }
     },
 
