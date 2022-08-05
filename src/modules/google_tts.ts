@@ -274,7 +274,7 @@ class GoogleTTS {
             // Randomize among ALL voices
             if(setting == 'random' || setting == 'rand' || setting == '?') {
                 Utils.log(`GoogleTTS: Matched random: ${setting}`, Color.BlueViolet)
-                const randomVoice = this._voices[Math.floor(Math.random()*this._voices.length)]
+                const randomVoice = this._voices.getRandom()
                 voice = this.buildVoice(userName, randomVoice)
                 changed = true
                 return
