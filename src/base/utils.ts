@@ -431,7 +431,8 @@ class Utils {
         return result
     }
 
-    static ensureArray<Type>(value: Type[]|Type): Type[] {
+    static ensureArray<Type>(value: Type[]|Type|undefined): Type[] {
+        if(value === undefined) return []
         return Array.isArray(value) ? value : [value]
     }
 
@@ -564,7 +565,7 @@ class Utils {
      * Get event config from any pool
      */
     static getEventConfig(key: string): IEvent|undefined {
-        return Config.events[key]
+        return Config.events[key] ?? undefined
     }
 
     static getEventsForGame(key: string): { [key: string]: IEvent }|undefined {

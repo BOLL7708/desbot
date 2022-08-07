@@ -541,12 +541,7 @@ Config.events = {
                 entries: 'Running stream end tasks'
             },
             commands: { 
-                entries: [
-                    KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
-                    KeysTemplate.COMMAND_CLIPS,
-                    KeysTemplate.COMMAND_CLEAR_REDEMPTIONS,
-                    KeysTemplate.COMMAND_RESET_INCREWARD
-                ],
+                entries: [ 'trophy', 'clips', 'clearqueue', 'resetincrew' ],
                 interval: 20
             }
         }

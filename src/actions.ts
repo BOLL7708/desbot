@@ -10,6 +10,7 @@ class Actions {
         }
     }
 
+    // region User Data Builders
     public static async buildUserDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const id = message?.data?.redemption?.user?.id ?? ''
@@ -70,6 +71,7 @@ class Actions {
             bitsTotal: 0
         }
     }
+    // endregion
 
     /*
     .########..########..######...####..######..########.########.########.
@@ -81,6 +83,8 @@ class Actions {
     .##.....##.########..######...####..######.....##....########.##.....##
     */
 
+
+    // region Trigger Registration
     public static async registerReward(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         const actionCallback = this.buildActionCallback(key, event)
@@ -188,6 +192,7 @@ class Actions {
             }, interval*1000)
         }, delay*1000)
     }
+    // endregion
 
     /*
     .##.....##....###....####.##....##....########..##.....##.####.##.......########..########.########.
@@ -292,6 +297,7 @@ class Actions {
     .########...#######..####.########.########..########.##.....##..######.
     */
 
+    // region Action Builders
     private static buildOBSCallback(config: IObsAction|IObsAction[]|undefined, key: string): IActionCallback|undefined {
         if(config) return {
             tag: '🎬',
@@ -796,5 +802,7 @@ class Actions {
                 }
             }
         }
-    }    
+    }
+
+    // endregion
 }
