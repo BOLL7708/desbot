@@ -234,7 +234,23 @@ class Utils {
      * @param extraTags
      * @returns
      */
-    static async replaceTagsInText(text: string|undefined, userData?: IActionUser, extraTags: { [key:string]: string } = {}) {
+    static async replaceTagsInTextArray(texts: string[]|undefined, userData?: IActionUser, extraTags: { [key:string]: string } = {}): Promise<string[]> {
+        if(!texts) return []
+        const result: string[] = []
+        for(const text of texts) {
+            result.push(await this.replaceTagsInText(text, userData, extraTags))
+        }
+        return result
+    }
+
+    /**
+     * Replaces certain tags in strings used in events.
+     * @param text
+     * @param userData
+     * @param extraTags
+     * @returns
+     */
+    static async replaceTagsInText(text: string|undefined, userData?: IActionUser, extraTags: { [key:string]: string } = {}): Promise<string> {
         if(!text) return ''
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
@@ -593,19 +609,5 @@ class Utils {
             }
         }
         return [text]
-    }
-
-    static hasNumberKeys(obj: object): boolean {
-        const keys = Object.keys(obj)
-        const numberedKeys = keys.filter((key) => !isNaN(parseInt(key)))
-        return keys.length == numberedKeys.length
-    }
-
-    static getTimelineFromActions(actions: IActions|IActionsTimeline|undefined): IActionsTimeline {
-        return actions && !Utils.hasNumberKeys(actions)
-            ? <IActionsTimeline> {0: actions}
-            : (actions && Object.keys(actions).length > 0)
-                ? <IActionsTimeline> actions
-                : {0: {}}
     }
 }

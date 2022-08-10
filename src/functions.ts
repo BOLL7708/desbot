@@ -132,31 +132,36 @@ class Functions {
 
         if(gameSpecificRewards) {
             // Update and enable all reusable generic rewards in use.
-            for(const entry of Object.entries(gameSpecificRewards)) {
-                const rewardKey = entry[0]
-                const event = entry[1] ?? {triggers: {}}
-                const defaultEvent = Config.events[rewardKey] ?? {triggers: {}}
-                const rewardConfig = event.triggers.reward ?? {}
+            for(const [key, event] of Object.entries(gameSpecificRewards)) {
+                const thisEvent = event ?? {triggers: {}}
+                const defaultEvent = Config.events[key] ?? {triggers: {}}
+                const rewardConfig = thisEvent.triggers.reward ?? {}
                 const defaultRewardConfig = defaultEvent.triggers.reward ?? {}
-                delete profileToUse[rewardKey] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
-                const rewardId = await Utils.getRewardId(rewardKey)
-                Utils.logWithBold(`Updating Game Reward: <${rewardKey}:${rewardId}>`, Color.Purple)
-                
+                delete profileToUse[key] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
+                const rewardId = await Utils.getRewardId(key)
+                Utils.logWithBold(`Updating Game Reward: <${key}:${rewardId}>`, Color.Purple)
+
                 // Update game rewards on Twitch
                 modules.twitchHelix.updateReward(rewardId, {
                     ...defaultRewardConfig,
                     ...rewardConfig,
                     ...{is_enabled: true}
                 }).then()
-                const eventWithActions = event
+                const newEvent = Utils.clone(event)
                 if(event.actions && defaultEvent.actions) {
-                    eventWithActions.actions = {
-                        ...defaultEvent.actions, 
-                        ...event.actions
+                    const newActions = []
+                    const defaultActions = Utils.ensureArray(defaultEvent.actions ?? {})
+                    const thisActions = Utils.ensureArray(thisEvent.actions ?? {})
+                    for(let i=0; i<Math.max(defaultActions.length, thisActions.length); i++) {
+                        newActions[i] = {
+                            ...(defaultActions[i] ?? {}),
+                            ...(thisActions[i] ?? {})
+                        }
+                        newEvent.actions = newActions
                     }
                 }
                 // Update game reward actions
-                Actions.registerReward(rewardKey, eventWithActions).then()
+                Actions.registerReward(key, newEvent).then()
             }
         }
         

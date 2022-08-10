@@ -1,18 +1,25 @@
 interface IActionCallback {
     tag: string
     description: string
-    call: (user: IActionUser, index?: number) => void
+    call: (user: IActionUser, index?: number) => void // Index is used for entries-fields, provided by handler.
 }
-
-interface IActionAsyncCallback {
-    tag: string
-    description: string
-    asyncCall?: (user: IActionUser, index?: number) => Promise<void>
-    call?: (user: IActionUser, index?: number) => void
+interface IActionsExecutor {
+    timeMs?: number,
+    delayMs?: number,
+    execute: (user: IActionUser, index?: number) => void
 }
-
-interface IActionsTimeline { [ms: number]: IActions }
+interface IActionsMainCallback {
+    (user: IActionUser, index?: number): void
+}
 interface IActions {
+    /**
+     * Optional: Set this to execute this batch of actions at a specific time in a timeline, overrides `_delayMs`.
+     */
+    _timeMs?: number
+    /**
+     * Optional: Set this to execute this batch of actions a set delay after the previous batch, can get overridden by `_timeMs`.
+     */
+    _delayMs?: number
     /**
      * Optional: Used to change SteamVR settings.
      */
@@ -61,9 +68,14 @@ interface IActions {
     sign?: ISignAction
 
     /**
-     * Optional: Execute a key command in a specific window or trigger a custom URI.
+     * Optional: Execute a key command in a specific window.
      */
-    exec?: IExecAction
+    keys?: IPressKeysAction
+
+    /**
+     * Optional: Trigger a custom URI.
+     */
+    uri?: IEntriesAction
 
     /**
      * Optional: Load a page or pages in the background.
@@ -225,11 +237,9 @@ interface IRewardStatesAction {
 // Data
 interface IAudioAction {
     /**
-     * The web URL, local URL or data URL of the audio file to play.
-     * 
-     * If an array of URLs is provided, a random URL out of those will be used.
+     * The web URL, local URL or data URL of one or more audio files.
      */
-    src: string | string[]
+    srcEntries: string | string[]
 
     /**
      * Optional: The volume of the audio, the valid range is 0.0 to 1.0.
@@ -252,18 +262,27 @@ interface IAudioAction {
 }
 
 /**
- * Execute kepresses and/or a custom URI.
+ * Send key-presses to a window.
  */
- interface IExecAction {
+ interface IPressKeysAction {
     /**
-     * Send key presses to a window.
+     * The title of the window to send the key press to.
      */
-    run?: IRunCommand
-    
+    window: string
     /**
-     * Trigger a custom URI. An array will trigger all of them.
+     * A list of commands to execute.
      */
-    uri?: string|string[]
+    commands: IRunCommandConfig[]
+    /**
+     * Optional: Seconds before running the command if the optional reset value is provided.
+     */
+    duration?: number
+    /**
+     * Optional: Press enter at the end of every command, defaults to `true`.
+     *
+     * The thinking here is that most console commands need this, but it can be turned off if needed.
+     */
+    postfixEnterStroke?: boolean
 }
 
 interface ISpeechAction {
@@ -344,12 +363,12 @@ interface IPipeAction {
      * Optional: An absolute path to an image or an array of image for random selection.
      * If this is skipped, `imageData` needs to be set instead.
      */
-    imagePath?: string|string[]
+    imagePathEntries?: string|string[]
     /**
      * Optional: Image data (b64) for the image to be displayed.
      * If this is skipped, `imagePath` needs to be set instead.
      */
-    imageData?: string
+    imageDataEntries?: string|string[]
     /**
      * The duration for this notification to be displayed in milliseconds.
      */
@@ -361,7 +380,6 @@ interface IPipeAction {
     config: IPipeCustomMessage
     /**
      * If your custom notification includes text areas, this is where you add the texts that are to be used for it.
-     * When left empty or when using an empty string, the redeemers name will be used instead.
      */
     texts?: string[]
 }

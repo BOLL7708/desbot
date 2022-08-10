@@ -184,7 +184,7 @@ class GoogleTTS {
                 console.log(`GoogleTTS: Successfully got speech: [${json.audioContent.length}]`)
                 this._preloadQueue[serial] = {
                     nonce: nonce,
-                    src: `data:audio/ogg;base64,${json.audioContent}`
+                    srcEntries: `data:audio/ogg;base64,${json.audioContent}`
                 }
                 this._lastEnqueued = Date.now()
             } else {

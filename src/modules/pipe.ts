@@ -152,8 +152,8 @@ class Pipe {
 
             // Show it
             const messageDataUrl = imageEditor.getData()
-            preset.imageData = messageDataUrl
-            preset.imagePath = undefined
+            preset.imageDataEntries = messageDataUrl
+            preset.imagePathEntries = undefined
             preset.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
                 let width = preset.config?.customProperties?.widthM ?? 0
@@ -187,35 +187,37 @@ class Pipe {
 
     async showPreset(preset: IPipeAction) {
         // If path exists, load image, in all cases output base64 image data
-        let imageb64: string|undefined
-        if(preset.imagePath != undefined) {
-            const imagePath = Array.isArray(preset.imagePath) ? Utils.randomFromArray(preset.imagePath) : preset.imagePath
-            imageb64 = await ImageLoader.getDataUrl(imagePath)
-        } else if (preset.imageData != undefined) {
-            imageb64 = preset.imageData
+        let imageB64arr: string[] = []
+        if(preset.imagePathEntries) {
+            for(const imagePath of preset.imagePathEntries) {
+                imageB64arr.push(await ImageLoader.getDataUrl(imagePath))
+            }
+        } else if (preset.imageDataEntries) {
+            imageB64arr = Utils.ensureArray(preset.imageDataEntries)
         } else {
             console.warn("Pipe: No image path nor image data found for preset")
         }
         
         // If the above resulted in image data, broadcast it
-        const config = Utils.clone(preset.config)
-        if(imageb64) {
-            config.imageData = Utils.removeImageHeader(imageb64)
-            if(config.customProperties) {           
-               config.customProperties.animationHz = -1
-               config.customProperties.durationMs = preset.durationMs;
-               if(
-                   config.customProperties.textAreas != undefined
-                   && preset.texts != undefined 
-                   && preset.texts.length >= config.customProperties.textAreas.length
-               ) {
-                   for(let i=0; i<preset.texts.length; i++) {
-                       config.customProperties.textAreas[i].text = preset.texts[i]
-                   }
-               }
+        const configClone = Utils.clone(preset.config)
+        for(const imageB64 of imageB64arr) {
+            configClone.imageData = Utils.removeImageHeader(imageB64)
+            if (configClone.customProperties) {
+                configClone.customProperties.animationHz = -1
+                configClone.customProperties.durationMs = preset.durationMs;
+                if (
+                    configClone.customProperties.textAreas != undefined
+                    && preset.texts != undefined
+                    && preset.texts.length >= configClone.customProperties.textAreas.length
+                ) {
+                    for (let i = 0; i < preset.texts.length; i++) {
+                        configClone.customProperties.textAreas[i].text = preset.texts[i]
+                    }
+                }
             }
-            this.sendCustom(config)
-        } else {
+            this.sendCustom(configClone)
+        }
+        if(imageB64arr.length == 0) {
             console.warn('Pipe: Show Custom, could not find image!')
         }
     }

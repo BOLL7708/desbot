@@ -166,11 +166,11 @@ class Twitch{
                 user.source = EEventSource.TwitchCommand
                 user.input = textStr
                 user.commandConfig = command
-                if(allowedRole && command.callback) {
-                    command.callback.call(user)
+                if(allowedRole && command.handler) {
+                    command.handler.call(user)
                 }
-                if(allowedRole && allowedByCooldown && command.cooldownCallback) {
-                    command.cooldownCallback.call(user)
+                if(allowedRole && allowedByCooldown && command.cooldownHandler) {
+                    command.cooldownHandler.call(user)
                 }
                 if(command.cooldown !== undefined && allowedByCooldown) {
                     this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
@@ -231,11 +231,11 @@ class Twitch{
             // Execute
             if(command && commandStr) {
                 user.input = textStr
-                if(allowedUser && command.callback) {
-                    command.callback.call(user)
+                if(allowedUser && command.handler) {
+                    command.handler.call(user)
                 }
-                if(allowedUser && allowedByCooldown && command.cooldownCallback) {
-                    command.cooldownCallback.call(user)
+                if(allowedUser && allowedByCooldown && command.cooldownHandler) {
+                    command.cooldownHandler.call(user)
                 }
                 if(command.cooldown !== undefined && allowedByCooldown) {
                     this._remoteCooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
@@ -248,8 +248,8 @@ class Twitch{
     async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.callback) command.callback.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand))
-        else if(command?.cooldownCallback) command?.cooldownCallback.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand))
+        if(command?.handler) command.handler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand))
+        else if(command?.cooldownHandler) command?.cooldownHandler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand))
     }
 
     async sendRemoteCommand(commandStr: string) {

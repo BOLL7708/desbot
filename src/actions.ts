@@ -1,3 +1,34 @@
+class ActionHandler {
+    options: IEventOptions = {}
+    actions: IActions[] = []
+    constructor(
+        public key: string,
+        public event: IEvent
+    ) {
+        this.options = event.options ?? {}
+        this.actions = Utils.ensureArray(event.actions)
+    }
+    actionsMainCallback?: IActionsMainCallback
+
+    public async call(user: IActionUser) {
+        let index: number|undefined = undefined
+        /*
+            Here we handle the different types of behavior of the event.
+            This means we often rebuild the full main callback.
+            As well as calculate and provide the index for action entries.
+         */
+        switch(this.options?.behavior) {
+            case EBehavior.Random:
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, [this.actions.getRandom() ?? {}])
+                break
+            default: // No special behavior, only generate the callback if it is missing.
+                if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actions))
+                break
+        }
+        if(this.actionsMainCallback) this.actionsMainCallback(user, index) // Index is included here to supply it to entries-handling.
+        else console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${this.options?.behavior}`)
+    }
+}
 class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
@@ -87,32 +118,10 @@ class Actions {
     // region Trigger Registration
     public static async registerReward(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        const actionCallback = this.buildActionCallback(key, event)
+        const actionHandler = new ActionHandler(key, event)
         const reward: ITwitchReward = {
             id: await Utils.getRewardId(key),
-            callback: {
-                tag: '1',
-                description: 'Triggers a predefined reward function',
-                call: async (user, index) => {
-                    // Prep for incremental reward // TODO: Move this out to above the registration?
-                    const rewardConfig = Utils.getEventConfig(key)?.triggers.reward
-                    let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
-                    if(Array.isArray(rewardConfig) && counter == null) counter = {key: key, count: 0}
-                    
-                    // Trigger actions, main thing that happens for all rewards
-                    actionCallback.call(user, counter?.count)
-
-                    // Switch to the next incremental reward if it has more configs available
-                    if(Array.isArray(rewardConfig) && counter != undefined) {                       
-                        counter.count++
-                        const newRewardConfig = rewardConfig[counter.count]
-                        if(newRewardConfig != undefined) {
-                            await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
-                            modules.twitchHelix.updateReward(await Utils.getRewardId(key), newRewardConfig).then()
-                        }
-                    }
-                }
-            }
+            handler: actionHandler
         }
         if(reward.id != null) {
             modules.twitchPubsub.registerReward(reward)
@@ -127,11 +136,11 @@ class Actions {
         if(command) {
             const triggers = Utils.ensureArray<string>(command.entries)
             for(const trigger of triggers) {
-                const actionCallback = this.buildActionCallback(key, event)
+                const actionHandler = new ActionHandler(key, event)
                 const useThisCommand = <ITwitchCommandConfig> (
                     command?.cooldown == undefined
-                        ? {...event.triggers.command, trigger: trigger, callback: actionCallback}
-                        : {...event.triggers.command, trigger: trigger, cooldownCallback: actionCallback}
+                        ? {...event.triggers.command, trigger: trigger, handler: actionHandler}
+                        : {...event.triggers.command, trigger: trigger, cooldownHandler: actionHandler}
                 )
                 modules.twitch.registerCommand(useThisCommand)
             }
@@ -143,11 +152,11 @@ class Actions {
         const triggers = key.split('|')
         for(const trigger of triggers) {
             let command = event?.triggers.command
-            const actionCallback = this.buildActionCallback(trigger, event)
+            const actionHandler = new ActionHandler(trigger, event)
             const useThisCommand = <ITwitchCommandConfig> (
                 command?.cooldown == undefined 
-                    ? {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, callback: actionCallback}
-                    : {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, cooldownCallback: actionCallback}
+                    ? {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, handler: actionHandler}
+                    : {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, cooldownHandler: actionHandler}
             )
             modules.twitch.registerRemoteCommand(useThisCommand)
         }
@@ -155,16 +164,10 @@ class Actions {
 
     private static async registerCheer(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        const actionCallback = this.buildActionCallback(key, event)
+        const actionHandler = new ActionHandler(key, event)
         const cheer: ITwitchCheer = {
             bits: event.triggers.cheer ?? 0,
-            callback: {
-                tag: 'Cheer',
-                description: 'Triggers callbacks on a specific cheer amount',
-                call: async (user, index) => {
-                    actionCallback.call(user, index)
-                }
-            }
+            handler: actionHandler
         }
         if(cheer.bits > 0) {
             modules.twitchPubsub.registerCheer(cheer)
@@ -174,7 +177,7 @@ class Actions {
     }
 
     private static async registerTimer(key: string, event: IEvent) {
-        const actionCallback = this.buildActionCallback(key, event)
+        const actionHandler = new ActionHandler(key, event)
         const user = await this.buildEmptyUserData(EEventSource.Timer)
         const config = event.triggers.timer
         let handle: number = -1
@@ -184,7 +187,7 @@ class Actions {
         const delay = Math.max(0, (config?.delay ?? 10) - interval)
         setTimeout(()=>{
             handle = setInterval(()=>{
-                actionCallback.call(user)
+                actionHandler.call(user)
                 count++
                 if(times > 0) {
                     if(count >= times) clearInterval(handle)
@@ -204,14 +207,12 @@ class Actions {
     .##.....##.##.....##.####.##....##....########...#######..####.########.########..########.##.....##
     */
 
-    private static buildActionCallback(key: string, event: IEvent): IActionCallback {
+    public static buildActionsMainCallback(key: string, actionsArr: IActions[]): IActionsMainCallback {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup
          * 2. Multiple setup
-         * 3. Single timeline setup
-         * 4. Multiple timeline setup
-         * 
+         *
          * The multiple setups can be set to be all, random, incremental, accumulating or multitier.
          * In the future, possible other alternatives, like leveling up/community challenge.
          * 
@@ -220,69 +221,69 @@ class Actions {
          * This does not work with timelines.
          */
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-        const timeline = Utils.getTimelineFromActions(event.actions)
-        const callbacks: { [ms: number]: IActionCallback } = {}
-        for(const [msStr, actions] of Object.entries(timeline)) {
-            const ms = parseInt(msStr)
-            const stack: IActionAsyncCallback[] = []
+
+        const actionsExecutors: IActionsExecutor[] = [] // A list of stacks of actions to execute.
+        if(actionsArr.length == 0) actionsArr.push({}) // We need at least one empty object to register default actions in the loop below.
+        for(const actions of actionsArr) {
+            const actionCallbacks: IActionCallback[] = [] // The stack of actions to execute.
 
             // Build callbacks
-            stack.pushIfExists(this.buildTTSCallback(actions?.tts))
-            stack.pushIfExists(actions?.custom)
-            stack.pushIfExists(Commands.callbacks[key])
-            stack.pushIfExists(Rewards.callbacks[key])
-            stack.pushIfExists(this.buildOBSCallback(actions?.obs, key))
-            stack.pushIfExists(this.buildColorCallback(actions?.lights))
-            stack.pushIfExists(this.buildPlugCallback(actions?.plugs))
-            stack.pushIfExists(this.buildSoundAndSpeechCallback(
+            actionCallbacks.pushIfExists(this.buildTTSCallback(actions?.tts))
+            actionCallbacks.pushIfExists(actions?.custom)
+            actionCallbacks.pushIfExists(Commands.callbacks[key])
+            actionCallbacks.pushIfExists(Rewards.callbacks[key])
+            actionCallbacks.pushIfExists(this.buildOBSCallback(actions?.obs, key))
+            actionCallbacks.pushIfExists(this.buildColorCallback(actions?.lights))
+            actionCallbacks.pushIfExists(this.buildPlugCallback(actions?.plugs))
+            actionCallbacks.pushIfExists(this.buildSoundAndSpeechCallback(
                 actions?.audio, 
                 actions?.speech,
                 nonceTTS, 
                 !!(actions?.speech)
             ))
-            stack.pushIfExists(this.buildPipeCallback(actions?.pipe))
-            stack.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.openVR2WS))
-            stack.pushIfExists(this.buildSignCallback(actions?.sign))
-            stack.pushIfExists(this.buildExecCallback(actions?.exec))
-            stack.pushIfExists(this.buildWebCallback(actions?.web))
-            stack.pushIfExists(this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS))
-            stack.pushIfExists(this.buildDiscordMessageCallback(actions?.discord, key))
-            stack.pushIfExists(this.buildTwitchChatCallback(actions?.chat))
-            stack.pushIfExists(this.buildTwitchWhisperCallback(actions?.whisper))
-            stack.pushIfExists(this.buildLabelCallback(actions?.label))
-            stack.pushIfExists(this.buildCommandsCallback(actions?.commands))
-            stack.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
-            stack.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
+            actionCallbacks.pushIfExists(this.buildPipeCallback(actions?.pipe))
+            actionCallbacks.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.openVR2WS))
+            actionCallbacks.pushIfExists(this.buildSignCallback(actions?.sign))
+            actionCallbacks.pushIfExists(this.buildKeysCallback(actions?.keys))
+            actionCallbacks.pushIfExists(this.buildURICallback(actions?.uri))
+            actionCallbacks.pushIfExists(this.buildWebCallback(actions?.web))
+            actionCallbacks.pushIfExists(this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS))
+            actionCallbacks.pushIfExists(this.buildDiscordMessageCallback(actions?.discord, key))
+            actionCallbacks.pushIfExists(this.buildTwitchChatCallback(actions?.chat))
+            actionCallbacks.pushIfExists(this.buildTwitchWhisperCallback(actions?.whisper))
+            actionCallbacks.pushIfExists(this.buildLabelCallback(actions?.label))
+            actionCallbacks.pushIfExists(this.buildCommandsCallback(actions?.commands))
+            actionCallbacks.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
+            actionCallbacks.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
 
             // Logging
-            if(stack.length == 1) {
-                Utils.logWithBold(` Built Action Callback for <${key}>: ${stack[0].tag} "${stack[0].description}"`, Color.Green)
+            if(actionCallbacks.length == 1) {
+                Utils.logWithBold(` Built Action Callback for <${key}>: ${actionCallbacks[0].tag} "${actionCallbacks[0].description}"`, Color.Green)
             } else {
-                Utils.logWithBold(` Built Action Callback for <${key}>: ${stack.map(ac => ac.tag).join(', ')}`, Color.Green)
+                Utils.logWithBold(` Built Action Callback for <${key}>: ${actionCallbacks.map(ac => ac.tag).join(', ')}`, Color.Green)
             }
 
-            // Return callback that triggers all the actions
-            callbacks[ms] = {
-                tag: '⏲',
-                description: `Timeline callback that is called after a certain delay: ${ms}ms`,
-                call: async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
-                    for(const callback of stack) {
-                        if(callback.asyncCall) await callback.asyncCall(user, index)
-                        if(callback.call) callback.call(user, index)
+            // Push item with callback that triggers all the actions generated.
+            actionsExecutors.push({
+                timeMs: actions._timeMs,
+                delayMs: actions._delayMs,
+                execute: async (user: IActionUser, index?: number) => {
+                    for (const stackCallback of actionCallbacks) {
+                        if (stackCallback.call) stackCallback.call(user, index)
                     }
                 }
-            }
+            })
         }
-        return {
-            tag: '🏟',
-            description: 'Main callback that triggers all the actions',
-            call: async (user: IActionUser, index?: number, msg?: ITwitchPubsubRewardMessage) => {
-                for(const [key, callback] of Object.entries(callbacks)) {
-                    const ms = parseInt(key)
-                    setTimeout(()=>{
-                        callback.call(user, index)
-                    }, ms)
-                }
+
+        // Return a callback that will execute all the actions in the stack of each item.
+        return async (user: IActionUser, index?: number) => {
+            let timeout = 0
+            for(const actionsExecutor of actionsExecutors) {
+                if(actionsExecutor.timeMs !== undefined) timeout = actionsExecutor.timeMs // Overrides delay
+                else if(actionsExecutor.delayMs !== undefined) timeout += actionsExecutor.delayMs // Adds to previous time
+                setTimeout(()=>{
+                    actionsExecutor.execute(user, index)
+                }, timeout)
             }
         }
     }
@@ -298,19 +299,16 @@ class Actions {
     */
 
     // region Action Builders
-    private static buildOBSCallback(config: IObsAction|IObsAction[]|undefined, key: string): IActionCallback|undefined {
+    private static buildOBSCallback(config: IObsAction|undefined, key: string): IActionCallback|undefined {
         if(config) return {
             tag: '🎬',
             description: 'Callback that triggers an OBS action',
-            call: (user: IActionUser, index?: number) => {
-                const singleConfig = Utils.randomOrSpecificFromArray(config, index)
-                if(singleConfig) {
-                    const modules = ModulesSingleton.getInstance()
-                    singleConfig.key = key
-                    const state = singleConfig.state ?? true
-                    console.log("OBS Reward triggered")
-                    modules.obs.toggle(singleConfig, state)
-                }
+            call: () => {
+                const modules = ModulesSingleton.getInstance()
+                config.key = key
+                const state = config.state ?? true
+                console.log("OBS Reward triggered")
+                modules.obs.toggle(config, state)
             }
         }
     }
@@ -362,11 +360,11 @@ class Actions {
                 }
                 if(config) { // If we have an audio config, play it. Attach 
                     const configClone = Utils.clone(config)
-                    const srcArr = Utils.ensureArray( configClone.src)
+                    const srcArr = Utils.ensureArray( configClone.srcEntries).getAsType(index)
                     for(let i = 0; i<srcArr.length; i++) {
                         srcArr[i] = await Utils.replaceTagsInText(srcArr[i], user) // To support audio URLs in input
                     }
-                    configClone.src = srcArr
+                    configClone.srcEntries = srcArr
                     if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
                     else modules.audioPlayer.enqueueAudio(configClone)
                 }
@@ -383,44 +381,30 @@ class Actions {
         }
     }
 
-    private static buildPipeCallback(config: IPipeAction|IPipeAction[]|undefined): IActionCallback|undefined {
+    private static buildPipeCallback(config: IPipeAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '📺',
             description: 'Callback that triggers an OpenVRNotificationPipe action',
-            call: async (user: IActionUser) => {
-                /*
-                * We check if we don't have enough texts to fill the preset 
-                * and fill the empty spots up with the redeemer's display name.
-                * Same with image and the avatar of the redeemer.
-                */            
-                let asyncConfig = Utils.clone(config)
-                if(!Array.isArray(asyncConfig)) asyncConfig = [asyncConfig]
+            call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                for(const cfg of asyncConfig) {
-                    const textAreaCount = cfg.config.customProperties?.textAreas?.length ?? 0
-                    if(textAreaCount > 0 && cfg.texts == undefined) cfg.texts = []
-                    const textCount = cfg.texts?.length ?? 0
-                    
-                    // If not enough texts for all areas, fill with redeemer's display name.
-                    if(textAreaCount > textCount && cfg.texts) {
-                        cfg.texts.length = textAreaCount
-                        cfg.texts.fill(user.name, textCount, textAreaCount)
-                    }
-                    
-                    // Replace tags in texts.
-                    if(cfg.texts) for(let i=0; i<cfg.texts.length; i++) {
-                        cfg.texts[i] = await Utils.replaceTagsInText(cfg.texts[i], user)
-                    }
+                const configClone = Utils.clone(config)
 
-                    // If no image is supplied, use the redeemer user image instead.
-                    if(cfg.imageData == null && cfg.imagePath == null) {
-                        const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                        cfg.imagePath = userData?.profile_image_url
-                    }
+                // Need to reference the original config arrays here as the __type is dropped in the clone process.
+                configClone.imagePathEntries = Utils.ensureArray(config.imagePathEntries).getAsType(index)
+                configClone.imageDataEntries = Utils.ensureArray(config.imageDataEntries).getAsType(index)
 
-                    // Show it
-                    modules.pipe.showPreset(cfg).then()
+                // Replace tags in texts.
+                configClone.texts = await Utils.replaceTagsInTextArray(configClone.texts, user)
+                configClone.imagePathEntries = await Utils.replaceTagsInTextArray(configClone.imagePathEntries, user)
+                if(configClone.config.customProperties) {
+                    configClone.config.customProperties.textAreas = Utils.ensureArray(config.config.customProperties?.textAreas)
+                    for(const textArea of configClone.config.customProperties.textAreas) {
+                        textArea.text = await Utils.replaceTagsInText(textArea.text, user)
+                    }
                 }
+
+                // Show it
+                modules.pipe.showPreset(configClone).then()
             }
         }
     }
@@ -455,33 +439,39 @@ class Actions {
         }
     }
 
-    private static buildExecCallback(config: IExecAction|undefined): IActionCallback|undefined {
+    private static buildKeysCallback(config: IPressKeysAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎓',
             description: 'Callback that triggers an Exec action',
-            call: async (user: IActionUser) => {
-                if(config.run) {
-                    Exec.runKeyPressesFromPreset(config.run)
-                }
-                if(config.uri) {
-                    if(Array.isArray(config.uri)) {
-                        for(const u of config.uri) {
-                            Exec.loadCustomURI(await Utils.replaceTagsInText(u, user))
-                        }
-                    } else {
-                        Exec.loadCustomURI(await Utils.replaceTagsInText(config.uri, user))
-                    }
-                }
+            call: async () => {
+                Exec.runKeyPressesFromPreset(config)
             }
         } 
     }
 
-    private static buildWebCallback(url: string|undefined): IActionCallback|undefined {
-        if(url) return {
+    private static buildURICallback(config: IEntriesAction|undefined): IActionCallback|undefined {
+        if(config) return {
+            tag: '🦾',
+            description: 'Callback that triggers an URI action',
+            call: async (user: IActionUser, index?: number) => {
+                const entries = Utils.ensureArray(config.entries).getAsType(index)
+                for(const entry of entries) {
+                    Exec.loadCustomURI(await Utils.replaceTagsInText(entry, user))
+                }
+            }
+        }
+    }
+
+    private static buildWebCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
+        if(config) return {
             tag: '🌐',
             description: 'Callback that triggers a Web action',
-            call: () => {
-                fetch(url, {mode: 'no-cors'}).then(result => console.log(result))
+            call: async (user: IActionUser, index?: number) => {
+                const entries = Utils.ensureArray(config.entries).getAsType(index)
+                for(const entry of entries) {
+                    const result = await fetch(entry, {mode: 'no-cors'})
+                    console.log(result)
+                }
             }
         }
     }
@@ -522,32 +512,38 @@ class Actions {
         }
     }
 
-    private static buildDiscordMessageCallback(message: string|string[]|undefined, key: string): IActionCallback|undefined {
-        if(message && message.length > 0) return {
+    private static buildDiscordMessageCallback(config: IEntriesAction|undefined, key: string): IActionCallback|undefined {
+        if(config) return {
             tag: '💬',
             description: 'Callback that triggers a Discord message action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
                 const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                Discord.enqueueMessage(
-                    Config.credentials.DiscordWebhooks[key],
-                    user.name,
-                    userData?.profile_image_url,
-                    await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
-                )
+                const entries = Utils.ensureArray(config.entries).getAsType(index)
+                for(const entry of entries ) {
+                    Discord.enqueueMessage(
+                        Config.credentials.DiscordWebhooks[key],
+                        user.name,
+                        userData?.profile_image_url,
+                        await Utils.replaceTagsInText(entry, user)
+                    )
+                }
             }
         }
     }
 
-    private static buildTwitchChatCallback(message: string|string[]|undefined): IActionCallback|undefined {
-        if(message && message.length > 0) return {
+    private static buildTwitchChatCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
+        if(config) return {
             tag: '📄',
             description: 'Callback that triggers a Twitch chat message action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                modules.twitch._twitchChatOut.sendMessageToChannel(
-                    await Utils.replaceTagsInText(Utils.randomOrSpecificFromArray(message, index), user)
-                )
+                const entries = Utils.ensureArray(config.entries).getAsType(index)
+                for(const entry of entries) {
+                    modules.twitch._twitchChatOut.sendMessageToChannel(
+                        await Utils.replaceTagsInText(entry, user)
+                    )
+                }
             }
         }
     }
@@ -557,11 +553,11 @@ class Actions {
             description: 'Callback that triggers a Twitch whisper action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                const messages = Utils.ensureArray<string>(config.entries).getAsType(index)
-                for(const message of messages) {
+                const entries = Utils.ensureArray<string>(config.entries).getAsType(index)
+                for(const entry of entries) {
                     modules.twitch._twitchChatOut.sendMessageToUser(
                         await Utils.replaceTagsInText(config.user, user),
-                        await Utils.replaceTagsInText(message, user)
+                        await Utils.replaceTagsInText(entry, user)
                     )
                 }
             }
@@ -604,13 +600,16 @@ class Actions {
         }
     }
 
-    private static buildRemoteCommandCallback(commandStr: string|undefined): IActionCallback|undefined {
-        if(commandStr && commandStr.length > 0) return {
+    private static buildRemoteCommandCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
+        if(config) return {
             tag: '🤝',
             description: 'Callback that triggers a Remote Command action',
-            call: () => {
+            call: (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                modules.twitch.sendRemoteCommand(commandStr).then()
+                const entries = Utils.ensureArray(config.entries).getAsType(index)
+                for(const entry of entries) {
+                    modules.twitch.sendRemoteCommand(entry).then()
+                }
             }
         }
     }
@@ -641,11 +640,11 @@ class Actions {
         }
     }
 
-    private static buildTTSCallback(config: ITTSAction|undefined): IActionAsyncCallback|undefined {
+    private static buildTTSCallback(config: ITTSAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🗣',
             description: 'Callback that executes a TTS function',
-            asyncCall: async (user: IActionUser) => {
+            call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 const input = await Utils.replaceTagsInText(config.inputOverride ?? user.input, user)

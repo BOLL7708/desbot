@@ -422,7 +422,7 @@ Config.twitchChat = <ITwitchChatConfig> {
         config: PipePresetsTemplate.PIPE_CHAT
     },
     audio: {
-        src: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
+        srcEntries: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
         volume: 0.5
     },
     speech: '%userName said: %userInput'

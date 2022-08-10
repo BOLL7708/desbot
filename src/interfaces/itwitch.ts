@@ -119,11 +119,11 @@ interface ITwitchConfig {
 }
 interface ITwitchReward {
     id?: string
-    callback?: IActionCallback
+    handler?: ActionHandler
 }
 interface ITwitchCheer {
     bits: number
-    callback?: IActionCallback
+    handler?: ActionHandler
 }
 
 // Settings
@@ -189,13 +189,13 @@ interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
     /**
      * Optional: The callback the command executes.
      */
-    callback?: IActionCallback
+    handler?: ActionHandler
     /**
      * Optional: A callback that can only be run once in every `cooldown` seconds.
      * 
      * Note: The broadcaster and moderators are exempt from cooldowns.
      */
-    cooldownCallback?: IActionCallback
+    cooldownHandler?: ActionHandler
     /**
      * Optional: Only allow this command for these specific users.
      */

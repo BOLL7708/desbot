@@ -6,7 +6,7 @@ class Exec {
         fetch(`exec/run.php?window=${windowb64}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`, {headers: {password: passwordB64}})
     }
 
-    static runKeyPressesFromPreset(preset: IRunCommand) {
+    static runKeyPressesFromPreset(preset: IPressKeysAction) {
         // Store command strings for possible reset
         const commands: string[] = []
         

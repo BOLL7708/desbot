@@ -83,12 +83,12 @@ class AudioPlayerInstance {
         const audio = this._queue.shift()
         if(audio == undefined) return // The queue is empty
 
-        let src = audio.src
+        let src = audio.srcEntries
         if(Array.isArray(src)) {
             src = Utils.randomFromArray<string>(src)
         }
 
-        if (audio.src != null) {
+        if (audio.srcEntries != null) {
             this._isPlaying = true
             this._currentNonce = audio.nonce
             if(this._audio) {

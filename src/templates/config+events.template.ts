@@ -633,7 +633,7 @@ Config.events = {
         },
         actions: {
             audio: {
-                src: '_assets/random_audio.wav',
+                srcEntries: '_assets/random_audio.wav',
                 volume: 0.75
             },
             sign: {
