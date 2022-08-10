@@ -11,6 +11,7 @@ class ActionHandler {
     actionsMainCallback?: IActionsMainCallback
 
     public async call(user: IActionUser) {
+        const modules = ModulesSingleton.getInstance()
         let index: number|undefined = undefined
         /*
             Here we handle the different types of behavior of the event.
@@ -21,11 +22,29 @@ class ActionHandler {
             case EBehavior.Random:
                 this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, [this.actions.getRandom() ?? {}])
                 break
-            default: // No special behavior, only generate the callback if it is missing.
+            case EBehavior.Incrementing:
+                // Load or instantiate incremental counter
+                let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', this.key)
+                const rewardConfig = Utils.ensureArray(this.event.triggers.reward)
+                if(rewardConfig.length > 1 && counter == null) counter = {key: this.key, count: 0}
+
+                // Switch to the next incremental reward if it has more configs available
+                if(rewardConfig.length > 1 && counter != null) {
+                    counter.count++
+                    const newRewardConfig = rewardConfig[counter.count]
+                    if (newRewardConfig) {
+                        await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
+                        modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
+                    }
+                }
+                // Build callback for this step of the sequence
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actions).getAsType(counter?.count))
+                break
+            default: // No special behavior, only generate the callback if it is missing
                 if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actions))
                 break
         }
-        if(this.actionsMainCallback) this.actionsMainCallback(user, index) // Index is included here to supply it to entries-handling.
+        if(this.actionsMainCallback) this.actionsMainCallback(user, index) // Index is included here to supply it to entries-handling
         else console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${this.options?.behavior}`)
     }
 }
