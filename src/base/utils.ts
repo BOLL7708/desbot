@@ -151,6 +151,10 @@ class Utils {
         return `data:${contentType};base64,${b64data}`
     }
 
+    static unescapeQuotes(str: string): string {
+        return str.replace(/\\"/g, '"')
+    }
+
     static hexToDecColor(hex: string): number {
         if(hex.indexOf('#') == 0) hex = hex.substr(1)
         if(hex.length == 3) hex = hex.split('').map(ch => ch+ch).join('')
@@ -257,6 +261,11 @@ class Utils {
 
         // Default tags from incoming user data
         const tags = await this.getDefaultTags(userData)
+
+        // Accumulating reward percentage
+        tags.eventCountPercent = (tags.eventCount !== '0' && tags.eventGoal !== '0')
+            ? (parseInt(tags.eventCount) / parseInt(tags.eventGoal) * 100)+'%'
+            : '0%'
 
         // Game tags
         if(text.includes('%game')) {
@@ -372,7 +381,12 @@ class Utils {
             nowTimeMs: now.toLocaleTimeString('sv-SE')+'.'+now.getMilliseconds(),
             nowDateTime: now.toLocaleString('sv-SE'),
             nowDateTimeMs: now.toLocaleString('sv-SE')+'.'+now.getMilliseconds(),
-            nowISO: now.toISOString()
+            nowISO: now.toISOString(),
+
+            eventKey: userData?.eventKey,
+            eventCost: userData?.rewardCost ?? '0',
+            eventCount: (await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? '0',
+            eventGoal: Utils.getEventConfig(userData?.eventKey ?? '')?.options?.accumulationGoal ?? '0',
         }
         if(typeof userData?.input === 'string') {
             const input = userData.input
@@ -460,7 +474,10 @@ class Utils {
         const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
         return reward?.id
     }
-
+    static async getRewardKey(id: string): Promise<string|undefined> {
+        const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
+        return reward?.key
+    }
     static encode(value: string): string {
         let b64 = btoa(value)
         let b64url = b64.replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '')
@@ -580,7 +597,8 @@ class Utils {
     /**
      * Get event config from any pool
      */
-    static getEventConfig(key: string): IEvent|undefined {
+    static getEventConfig(key: string|undefined): IEvent|undefined {
+        if(key === undefined) return undefined
         return Config.events[key] ?? undefined
     }
 

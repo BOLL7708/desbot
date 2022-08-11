@@ -344,8 +344,8 @@ class Commands {
                             
                             // If update was successful, also reset incremental setting as the reward should have been reset.
                             if(Array.isArray(rewardSetup)) {
-                                const reset: ITwitchRewardCounter = {key: pair.key, count: 0}
-                                Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
+                                const reset: IEventCounter = {key: pair.key, count: 0}
+                                Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', reset)
                             }
                         } else {
                             Utils.logWithBold(`Reward <${pair.key}> update unsuccessful.`, Color.Red)
@@ -450,7 +450,7 @@ class Commands {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_INCREWARD]
-                modules.tts.enqueueSpeakSentence(speech[0])
+                modules.tts.enqueueSpeakSentence(speech[0]).then()
                 // Reset rewards with multiple steps
                 const allRewardKeys = Utils.getAllEventKeys(true)
                 let totalCount = 0
@@ -468,11 +468,11 @@ class Commands {
                             // We check if the reward counter is at zero because then we should not update as it enables 
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the base reward, we update it as any normal reward, using !update.
-                            const current = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', key)
+                            const current = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                                const reset: ITwitchRewardCounter = {key: key, count: 0}
-                                await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', reset)
+                                const reset: IEventCounter = {key: key, count: 0}
+                                await Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', reset)
                                 await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
                             } else {
@@ -485,7 +485,51 @@ class Commands {
                     total: totalCount.toString(), 
                     reset: totalResetCount.toString(), 
                     skipped: totalSkippedCount.toString()
-                }))
+                })).then()
+            }
+        },
+        [Keys.COMMAND_RESET_ACCREWARD]: {
+            tag: 'ResetAccumulatingReward',
+            description: 'Reset the accumulating reward counter for those rewards, unless ignored.',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_ACCREWARD]
+                modules.tts.enqueueSpeakSentence(speech[0]).then()
+                // Reset rewards with multiple steps
+                const allRewardKeys = Utils.getAllEventKeys(true)
+                let totalCount = 0
+                let totalResetCount = 0
+                let totalSkippedCount = 0
+                for(const key of allRewardKeys) {
+                    const eventConfig = Utils.getEventConfig(key)
+                    if(
+                        eventConfig?.options?.behavior == EBehavior.Accumulating
+                        && eventConfig?.options?.resetAccumulationOnCommand === true
+                    ) {
+                        totalCount++
+                        const rewardSetup = eventConfig?.triggers?.reward
+                        if(Array.isArray(rewardSetup)) {
+                            // We check if the reward counter is at zero because then we should not update as it enables
+                            // the reward while it could have been disabled by profiles.
+                            // To update settings for the base reward, we update it as any normal reward, using !update.
+                            const current = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', key)
+                            if((current?.count ?? 0) > 0) {
+                                Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
+                                const reset: IEventCounter = {key: key, count: 0}
+                                await Settings.pushSetting(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', reset)
+                                await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
+                                totalResetCount++
+                            } else {
+                                totalSkippedCount++
+                            }
+                        }
+                    }
+                }
+                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {
+                    total: totalCount.toString(),
+                    reset: totalResetCount.toString(),
+                    skipped: totalSkippedCount.toString()
+                })).then()
             }
         },
 

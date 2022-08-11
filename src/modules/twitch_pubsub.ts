@@ -77,7 +77,7 @@ class TwitchPubsub {
             case "MESSAGE":
                 switch(topic) {
                     case 'channel-points-channel': 
-                        let rewardMessage: ITwitchPubsubRewardMessage = JSON.parse(decodeURI(msg?.data?.message))
+                        let rewardMessage: ITwitchPubsubRewardMessage = JSON.parse(Utils.unescapeQuotes(msg?.data?.message))
                         switch(rewardMessage.type) {
                             case 'reward-redeemed': 
                                 const id = rewardMessage?.data?.redemption?.reward?.id ?? null
@@ -98,9 +98,8 @@ class TwitchPubsub {
                                 
                                 // Event
                                 const reward = this._rewards.get(id)
-                                if(reward?.handler) reward.handler.call(await Actions.buildUserDataFromRedemptionMessage(rewardMessage)).then()
-                                else console.warn(`Reward not found: ${id}, the reward might be in the wrong group!`)
-                                
+                                if(reward?.handler) reward.handler.call(await Actions.buildUserDataFromRedemptionMessage(reward.handler.key, rewardMessage)).then()
+                                else console.warn(`Reward not found: ${id}`)
                                 break
                             default:
                                 Utils.log(`Unknown PubSub message type: ${rewardMessage.type}`, this.LOG_COLOR)
@@ -109,20 +108,20 @@ class TwitchPubsub {
                         }
                         break
                     case 'channel-subscribe-events': 
-                        let subscriptionMessage: ITwitchPubsubSubscriptionMessage = JSON.parse(decodeURI(msg?.data?.message))
+                        let subscriptionMessage: ITwitchPubsubSubscriptionMessage = JSON.parse(Utils.unescapeQuotes(msg?.data?.message))
                         console.log(msg)
                         console.log(subscriptionMessage)
                         this._onSubscriptionCallback(subscriptionMessage)
                         break
                     case 'channel-bits-events': 
-                    let cheerMessage: ITwitchPubsubCheerMessage = JSON.parse(decodeURI(msg?.data?.message))
+                    let cheerMessage: ITwitchPubsubCheerMessage = JSON.parse(Utils.unescapeQuotes(msg?.data?.message))
                         console.log(msg)
                         console.log(cheerMessage)
                         this._onCheerCallback(cheerMessage)
 
                         // Event
                         const cheer = this._cheers.get(cheerMessage.data?.bits_used)
-                        if(cheer?.handler) cheer.handler.call(await Actions.buildUserDataFromCheerMessage(cheerMessage)).then()
+                        if(cheer?.handler) cheer.handler.call(await Actions.buildUserDataFromCheerMessage(cheer.handler.key, cheerMessage)).then()
                         else console.warn(`Cheer not found: ${cheerMessage.data?.bits_used}, the cheer might just not exist!`)
 
                         break

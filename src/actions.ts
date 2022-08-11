@@ -13,6 +13,8 @@ class ActionHandler {
     public async call(user: IActionUser) {
         const modules = ModulesSingleton.getInstance()
         let index: number|undefined = undefined
+        let counter: IEventCounter = {key: this.key, count: 0}
+        let rewardConfigs: ITwitchHelixRewardUpdate[] = []
         /*
             Here we handle the different types of behavior of the event.
             This means we often rebuild the full main callback.
@@ -23,22 +25,49 @@ class ActionHandler {
                 this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, [this.actionsEntries.getRandom() ?? {}])
                 break
             case EBehavior.Incrementing:
-                // Load or instantiate incremental counter
-                let counter = await Settings.pullSetting<ITwitchRewardCounter>(Settings.TWITCH_REWARD_COUNTERS, 'key', this.key)
-                const rewardConfig = Utils.ensureArray(this.event.triggers.reward)
-                if(rewardConfig.length > 1 && counter == null) counter = {key: this.key, count: 0}
+                // Load incremental counter
+                counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', this.key) ?? counter
 
                 // Switch to the next incremental reward if it has more configs available
-                if(rewardConfig.length > 1 && counter != null) {
+                rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
+                if(rewardConfigs.length > 1) {
                     counter.count++
-                    const newRewardConfig = rewardConfig[counter.count]
+                    const newRewardConfig = rewardConfigs[counter.count]
                     if (newRewardConfig) {
-                        await Settings.pushSetting(Settings.TWITCH_REWARD_COUNTERS, 'key', counter)
+                        await Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', counter)
                         modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
                     }
                 }
                 // Register index and build callback for this step of the sequence
                 index = (counter?.count ?? 1)-1
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
+                break
+            case EBehavior.Accumulating:
+                // Load accumulating counter
+                counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', this.key) ?? counter
+                counter.count = parseInt(counter.count.toString()) + Math.max(user.rewardCost, 1) // Without the parse loop, what should be a number can be a string due to coming from PHP. Add 1 for commands.
+
+                // Switch to the next incremental reward if it has more configs available
+                rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
+                let rewardIndex = 0
+                if(rewardConfigs.length >= 3 && counter.count >= (this.options.accumulationGoal ?? 0)) {
+                    // Final reward (when goal has been reached)
+                    index = 1
+                    rewardIndex = 2
+                } else if(rewardConfigs.length >= 2) {
+                    // Intermediate reward (before reaching goal)
+                    rewardIndex = 1
+                }
+                if(rewardIndex > 0) { // Update reward
+                    const newRewardConfigClone = Utils.clone(rewardConfigs[rewardIndex])
+                    if (newRewardConfigClone) {
+                        await Settings.pushSetting(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', counter)
+                        newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
+                        newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                    }
+                }
+                // Register index and build callback for this step of the sequence
                 this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
                 break
             default: // No special behavior, only generate the callback if it is missing
@@ -62,11 +91,12 @@ class Actions {
     }
 
     // region User Data Builders
-    public static async buildUserDataFromRedemptionMessage(message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
+    public static async buildUserDataFromRedemptionMessage(key: string, message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const id = message?.data?.redemption?.user?.id ?? ''
         return {
             source: EEventSource.TwitchReward,
+            eventKey: key,
             id: id,
             login: message?.data?.redemption?.user?.login ?? '',
             name: message?.data?.redemption?.user?.display_name ?? '',
@@ -78,15 +108,17 @@ class Actions {
             isSubscriber: false,
             bits: 0,
             bitsTotal: 0,
+            rewardCost: message?.data?.redemption?.reward?.cost ?? 0,
             rewardMessage: message
         }
     }
-    public static async buildUserDataFromCheerMessage(message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
+    public static async buildUserDataFromCheerMessage(key: string, message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_id ?? '')
         const id = user?.id ?? ''
         return {
             source: EEventSource.TwitchCheer,
+            eventKey: key,
             id: id,
             login: user?.login ?? '',
             name: user?.display_name ?? '',
@@ -97,7 +129,8 @@ class Actions {
             isVIP: false,
             isSubscriber: false,
             bits: message?.data?.bits_used ?? 0,
-            bitsTotal: message?.data?.total_bits_used ?? 0
+            bitsTotal: message?.data?.total_bits_used ?? 0,
+            rewardCost: 0
         }
     }
     /**
@@ -109,6 +142,7 @@ class Actions {
         const user = await modules.twitchHelix.getUserByLogin(Config.twitch.channelName)
         return {
             source: source,
+            eventKey: '',
             id: user?.id ?? '',
             login: user?.login ?? '',
             name: user?.display_name ?? '',
@@ -119,7 +153,8 @@ class Actions {
             isVIP: false,
             isSubscriber: false,
             bits: 0,
-            bitsTotal: 0
+            bitsTotal: 0,
+            rewardCost: 0
         }
     }
     // endregion

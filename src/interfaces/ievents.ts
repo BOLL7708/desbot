@@ -52,6 +52,11 @@ interface IEventOptions {
     behavior?: EBehavior
 
     /**
+     * Optional: The goal to reach if behavior is set to accumulating.
+     */
+    accumulationGoal?: number
+
+    /**
      * Optional: Will reset an incrementing reward when the reset command is run, resetting the index to 0.
      */
     resetIncrementOnCommand?: boolean

@@ -133,6 +133,7 @@ interface IActions {
  */
 interface IActionUser {
     source: EEventSource
+    eventKey: string
     id: string
     login: string
     name: string
@@ -144,6 +145,7 @@ interface IActionUser {
     isSubscriber: boolean,
     bits: number,
     bitsTotal: number
+    rewardCost: number
     commandConfig?: ITwitchActionCommandConfig
     rewardMessage?: ITwitchPubsubRewardMessage
 }
@@ -211,6 +213,12 @@ interface ITextTags extends ITextTagsCached{
     nowDateTime: string
     nowDateTimeMs: string
     nowISO: string
+
+    eventKey: string
+    eventCost: string
+    eventCount: string
+    eventCountPercent: string
+    eventGoal: string
 }
 
 interface ITextTagsCached {

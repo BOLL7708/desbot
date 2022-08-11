@@ -44,3 +44,7 @@ interface ITwitchRedemption {
     status: TTwitchRedemptionStatus,
     cost: string
 }
+interface IEventCounter {
+    key: string
+    count: number
+}

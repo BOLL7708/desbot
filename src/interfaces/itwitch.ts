@@ -135,10 +135,6 @@ interface ITwitchTokens {
     clientId: string
     clientSecret: string
 }
-interface ITwitchRewardCounter {
-    key: string
-    count: number
-}
 
 /**
  * The most basic command, used for remote execution.

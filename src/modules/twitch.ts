@@ -108,6 +108,7 @@ class Twitch{
         // User data for most callbacks
         const user: IActionUser = {
             source: EEventSource.TwitchChat,
+            eventKey: '',
             id: messageCmd.properties["user-id"] ?? '',
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? userName,
@@ -118,7 +119,8 @@ class Twitch{
             isSubscriber: isSubscriber,
             isBroadcaster: isBroadcaster,
             bits: parseInt(messageCmd?.properties?.bits ?? '0'),
-            bitsTotal: 0
+            bitsTotal: 0,
+            rewardCost: 0
         }
 
         // For logging
@@ -163,14 +165,15 @@ class Twitch{
 
             // Execute
             if(command && commandStr) {
+                user.eventKey = command.handler?.key ?? ''
                 user.source = EEventSource.TwitchCommand
                 user.input = textStr
                 user.commandConfig = command
                 if(allowedRole && command.handler) {
-                    command.handler.call(user)
+                    command.handler.call(user).then()
                 }
                 if(allowedRole && allowedByCooldown && command.cooldownHandler) {
-                    command.cooldownHandler.call(user)
+                    command.cooldownHandler.call(user).then()
                 }
                 if(command.cooldown !== undefined && allowedByCooldown) {
                     this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
