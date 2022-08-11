@@ -148,16 +148,16 @@ class Functions {
                     ...{is_enabled: true}
                 }).then()
                 const newEvent = Utils.clone(event)
-                if(event.actions && defaultEvent.actions) {
+                if(event.actionsEntries && defaultEvent.actionsEntries) {
                     const newActions = []
-                    const defaultActions = Utils.ensureArray(defaultEvent.actions ?? {})
-                    const thisActions = Utils.ensureArray(thisEvent.actions ?? {})
+                    const defaultActions = Utils.ensureArray(defaultEvent.actionsEntries ?? {})
+                    const thisActions = Utils.ensureArray(thisEvent.actionsEntries ?? {})
                     for(let i=0; i<Math.max(defaultActions.length, thisActions.length); i++) {
                         newActions[i] = {
                             ...(defaultActions[i] ?? {}),
                             ...(thisActions[i] ?? {})
                         }
-                        newEvent.actions = newActions
+                        newEvent.actionsEntries = newActions
                     }
                 }
                 // Update game reward actions

@@ -32,7 +32,7 @@ Config.events = {
                 should_redemptions_skip_request_queue: true
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetUserVoice },
             speech: {
                 entries: '%targetOrUserTag now sounds like this.',
@@ -64,7 +64,7 @@ Config.events = {
         triggers: {
             command: { entries: 'ttson' }
         },
-        actions: {
+        actionsEntries: {
             speech: { entries: 'Global TTS is now enabled.' },
             tts: { function: ETTSFunction.Enable },
             rewardStates: { [Keys.REWARD_TTSSPEAK]: false }
@@ -74,7 +74,7 @@ Config.events = {
         triggers: {
             command: { entries: 'ttsoff' }
         },
-        actions: {
+        actionsEntries: {
             speech: { entries: 'Global TTS is now disabled.' },
             tts: { function: ETTSFunction.Disable },
             rewardStates: { [Keys.REWARD_TTSSPEAK]: true }
@@ -84,7 +84,7 @@ Config.events = {
         triggers: {
             command: { entries: 'silence' }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.StopCurrent }
         }
     },
@@ -92,7 +92,7 @@ Config.events = {
         triggers: {
             command: { entries: ['die', 'ttsdie'] }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.StopAll }
         }
     },
@@ -107,7 +107,7 @@ Config.events = {
                 requireMinimumWordCount: 1
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetUserNick },
             speech: { entries: '%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute' }
         }
@@ -119,7 +119,7 @@ Config.events = {
                 permissions: { everyone: true }
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.GetUserNick },
             chat: { entries: 'TTS: "%lastTTSSetNickLogin" is called "%lastTTSSetNickSubstitute"' }
         }
@@ -134,7 +134,7 @@ Config.events = {
                 }
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.ClearUserNick },
             speech: { entries: '%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute' }
         }
@@ -143,7 +143,7 @@ Config.events = {
         triggers: {
             command: { entries: 'mute' }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetUserDisabled },
             speech: { entries: '%targetTag has lost their voice.' }
         }
@@ -152,7 +152,7 @@ Config.events = {
         triggers: {
             command: { entries: 'unmute' }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetUserEnabled },
             speech: { entries: '%targetTag has regained their voice.' }
         }
@@ -164,7 +164,7 @@ Config.events = {
                 permissions: { everyone: true }
             }
         },
-        actions: {
+        actionsEntries: {
             chat: { entries: 'TTS: %targetOrUserTag\'s voice is "%targetOrUserVoice"' }
         }
     },
@@ -178,7 +178,7 @@ Config.events = {
                 }
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetUserGender },
             speech: {
                 entries: '%targetOrUserTag now sounds like this',
@@ -195,7 +195,7 @@ Config.events = {
                 cooldown: 60 * 5
             }
         },
-        actions: {
+        actionsEntries: {
             chat: { entries: 'Preview Google TTS voices here, pick a Wavenet (mandatory) voice and use the name with the "Set Your Voice" reward: https://cloud.google.com/text-to-speech/docs/voices' }
         }
     },
@@ -292,7 +292,7 @@ Config.events = {
                 requireMinimumWordCount: 2
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetDictionaryEntry },
             speech: {
                 entries: '%lastDictionaryWord is now said as %lastDictionarySubstitute',
@@ -307,7 +307,7 @@ Config.events = {
                 permissions: { everyone: true }
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.GetDictionaryEntry },
             chat: { entries: 'Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"' }
         }
@@ -319,7 +319,7 @@ Config.events = {
                 requireExactWordCount: 1
             }
         },
-        actions: {
+        actionsEntries: {
             tts: { function: ETTSFunction.SetDictionaryEntry },
             speech: {
                 entries: '%lastDictionaryWord was cleared from the dictionary',
@@ -456,7 +456,7 @@ Config.events = {
                 cooldown: 3*60
             }
         },
-        actions: {
+        actionsEntries: {
             sign: {
                 title: 'Current Game',
                 image: '%gameBanner',
@@ -481,7 +481,7 @@ Config.events = {
                 permissions: { VIPs: true }
             }
         },
-        actions: {
+        actionsEntries: {
             speech: { entries: '%userInput' }
         }
     },
@@ -492,7 +492,7 @@ Config.events = {
                 permissions: { everyone: true }
             }
         },
-        actions: {
+        actionsEntries: {
             chat: { entries: 'Just to let you know, %userTag will be lurking! %userInput' }
         }
     },
@@ -500,7 +500,7 @@ Config.events = {
         triggers: {
             command: { entries: ['label', 'txt'] }
         },
-        actions: {
+        actionsEntries: {
             speech: { entries: 'Label set to "%userInput"' },
             label: {
                 fileName: 'your_label_in_settings.txt',
@@ -512,7 +512,7 @@ Config.events = {
         triggers: {
             command: { entries: 'todo' }
         },
-        actions: {
+        actionsEntries: {
             speech: { entries: 'To do list appended with: %userInput' },
             discord: { entries: '-> %userInput' }
         }
@@ -525,7 +525,7 @@ Config.events = {
                 requireUserTag: true
             }
         },
-        actions: {
+        actionsEntries: {
             chat: { entries: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)' }
         }
     },
@@ -536,7 +536,7 @@ Config.events = {
                 permissions: { moderators: false }
             }
         },
-        actions: {
+        actionsEntries: {
             speech: {
                 entries: 'Running stream end tasks'
             },
@@ -554,7 +554,7 @@ Config.events = {
                 cooldown: 60 * 5
             }
         },
-        actions: {
+        actionsEntries: {
             chat: { entries: 'Streaming Widget Repository -> https://github.com/BOLL7708/streaming_widget' }
         }
     },
@@ -566,7 +566,7 @@ Config.events = {
                 cooldown: 60 * 5
             }
         },
-        actions: {
+        actionsEntries: {
             chat: { entries: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki' }
         }
     },
@@ -599,7 +599,7 @@ Config.events = {
                 should_redemptions_skip_request_queue: true
             }
         },
-        actions: {
+        actionsEntries: {
             speech: {
                 voiceOfUser: '%userLogin',
                 entries: '%userInput',
@@ -631,7 +631,7 @@ Config.events = {
                 global_cooldown_seconds: 15
             }
         },
-        actions: {
+        actionsEntries: {
             audio: {
                 srcEntries: '_assets/random_audio.wav',
                 volume: 0.75

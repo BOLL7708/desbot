@@ -15,7 +15,7 @@
  * ```
  */ 
 class ControllerPresetsTemplate {
-    // static YOUR_PRESET: IControllerDefaults = { ttsForAll: false }
+    // static readonly YOUR_PRESET: IControllerDefaults = { ttsForAll: false }
 }
 
 /** 
@@ -28,7 +28,7 @@ class ControllerPresetsTemplate {
  */
 class GamePresetsTemplate {
     /*
-    static REWARDS_EXAMPLE1: ITwitchRewardProfileConfig = {
+    static readonly REWARDS_EXAMPLE1: ITwitchRewardProfileConfig = {
         [KeysTemplate.KEY_YOURREWARD]: false
     }
     */
@@ -51,7 +51,7 @@ class GamePresetsTemplate {
  * through the application itself, click the `Example` link in OpenVRNotificationPipe.
  */ 
 class PipePresetsTemplate {
-    static PIPE_DOT: IPipeCustomMessage = {
+    static readonly PIPE_DOT: IPipeCustomMessage = {
         customProperties: {
             enabled: true,
             attachToAnchor: true,
@@ -62,7 +62,7 @@ class PipePresetsTemplate {
             pitchDeg: -30,
         }
     }
-    static PIPE_CHAT: IPipeCustomMessage = {
+    static readonly PIPE_CHAT: IPipeCustomMessage = {
         customProperties: {
             enabled: true,
             ignoreAnchorPitch: true,
@@ -88,7 +88,7 @@ class PipePresetsTemplate {
             }]
         }
     }
-    static PIPE_SCREENSHOT: IPipeCustomMessage = {
+    static readonly PIPE_SCREENSHOT: IPipeCustomMessage = {
         customProperties: {
             enabled: true,
             ignoreAnchorPitch: true,

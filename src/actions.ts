@@ -1,12 +1,12 @@
 class ActionHandler {
     options: IEventOptions = {}
-    actions: IActions[] = []
+    actionsEntries: IActions[] = []
     constructor(
         public key: string,
         public event: IEvent
     ) {
         this.options = event.options ?? {}
-        this.actions = Utils.ensureArray(event.actions)
+        this.actionsEntries = Utils.ensureArray(event.actionsEntries)
     }
     actionsMainCallback?: IActionsMainCallback
 
@@ -20,7 +20,7 @@ class ActionHandler {
          */
         switch(this.options?.behavior) {
             case EBehavior.Random:
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, [this.actions.getRandom() ?? {}])
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, [this.actionsEntries.getRandom() ?? {}])
                 break
             case EBehavior.Incrementing:
                 // Load or instantiate incremental counter
@@ -37,11 +37,12 @@ class ActionHandler {
                         modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
                     }
                 }
-                // Build callback for this step of the sequence
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actions).getAsType(counter?.count))
+                // Register index and build callback for this step of the sequence
+                index = (counter?.count ?? 1)-1
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
                 break
             default: // No special behavior, only generate the callback if it is missing
-                if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actions))
+                if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries))
                 break
         }
         if(this.actionsMainCallback) this.actionsMainCallback(user, index) // Index is included here to supply it to entries-handling
@@ -362,40 +363,51 @@ class Actions {
      * Will play back a sound and/or speak.
      * @param config The config for the sound effect to be played.
      * @param speechConfig What to be spoken, if TTS is enabled.
+     * @param nonceTTS The nonce to use for TTS.
      * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
      * @returns 
      */
-    private static buildSoundAndSpeechCallback(config: IAudioAction|undefined, speechConfig:ISpeechAction|undefined, nonce: string, onTtsQueue:boolean = false):IActionCallback|undefined {
+    private static buildSoundAndSpeechCallback(
+        config: IAudioAction|undefined,
+        speechConfig:ISpeechAction|undefined,
+        nonceTTS: string,
+        onTtsQueue:boolean = false
+    ): IActionCallback|undefined {
         if(config || speechConfig) return {
             tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                let ttsString: string|undefined
+                let ttsStrings: string[] = []
                 if(speechConfig?.entries) {
-                    ttsString = <string> Utils.randomOrSpecificFromArray(speechConfig.entries, index)
-                    ttsString = await Utils.replaceTagsInText(ttsString, user)
+                    ttsStrings = await Utils.replaceTagsInTextArray(
+                        Utils.ensureArray(speechConfig.entries).getAsType(index),
+                        user
+                    )
                     onTtsQueue = true
                 }
                 if(config) { // If we have an audio config, play it. Attach 
                     const configClone = Utils.clone(config)
-                    const srcArr = Utils.ensureArray( configClone.srcEntries).getAsType(index)
-                    for(let i = 0; i<srcArr.length; i++) {
-                        srcArr[i] = await Utils.replaceTagsInText(srcArr[i], user) // To support audio URLs in input
-                    }
-                    configClone.srcEntries = srcArr
+                    configClone.srcEntries = await Utils.replaceTagsInTextArray( // To support audio URLs in input
+                        Utils.ensureArray(configClone.srcEntries).getAsType(index),
+                        user
+                    )
                     if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
                     else modules.audioPlayer.enqueueAudio(configClone)
                 }
-                if(ttsString && speechConfig) await modules.tts.enqueueSpeakSentence(
-                    ttsString,
-                    await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user), 
-                    speechConfig.type ?? ETTSType.Announcement,
-                    nonce,
-                    undefined,
-                    undefined,
-                    speechConfig?.skipDictionary
-                )
+                if(speechConfig && ttsStrings.length > 0) {
+                    for(const ttsStr of ttsStrings) {
+                        await modules.tts.enqueueSpeakSentence(
+                            ttsStr,
+                            await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? Config.twitch.chatbotName, user),
+                            speechConfig.type ?? ETTSType.Announcement,
+                            nonceTTS,
+                            undefined,
+                            undefined,
+                            speechConfig?.skipDictionary
+                        )
+                    }
+                }
             }
         }
     }
@@ -416,7 +428,7 @@ class Actions {
                 configClone.texts = await Utils.replaceTagsInTextArray(configClone.texts, user)
                 configClone.imagePathEntries = await Utils.replaceTagsInTextArray(configClone.imagePathEntries, user)
                 if(configClone.config.customProperties) {
-                    configClone.config.customProperties.textAreas = Utils.ensureArray(config.config.customProperties?.textAreas)
+                    configClone.config.customProperties.textAreas = Utils.clone(Utils.ensureArray(config.config.customProperties?.textAreas))
                     for(const textArea of configClone.config.customProperties.textAreas) {
                         textArea.text = await Utils.replaceTagsInText(textArea.text, user)
                     }

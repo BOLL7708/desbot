@@ -65,7 +65,7 @@ class OBS {
             if(group) { // If this source is in a group, hide all other sources in the group. Useful for sources sharing a single position on screen.
                 for(const k of group) {
                     if(k != config.key) {
-                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actions)
+                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actionsEntries)
                         for(const actions of actionsArr) {
                             this.hide(actions?.obs)
                         }
@@ -87,7 +87,7 @@ class OBS {
             if(group) {
                 for(const k of group) {
                     if(k != config.key) {
-                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actions)
+                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actionsEntries)
                         for(const actions of actionsArr) {
                             this.hide(actions?.obs)
                         }

@@ -37,7 +37,7 @@ interface IEvent {
      * 1. A single actions-set to execute.
      * 2. An array of actions-sets to execute. This can behave differently depending on the behavior set for the event.
      */
-    actions?: IActions|IActions[]
+    actionsEntries?: IActions|IActions[]
 }
 
 interface IEventOptions {
