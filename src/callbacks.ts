@@ -176,6 +176,15 @@ class Callbacks {
         })
 
         modules.twitchPubsub.setOnSubscriptionCallback( (message) => {
+            // https://dev.twitch.tv/docs/pubsub#topics Channel Subscription Event Message
+            const subTier = parseInt(message.sub_plan) || 0 // Prime ends up as 0 as it's not a valid int.
+            const multiMonth = message.multi_month_duration ?? 0 // Only exists if it was a multi month subscription.
+            const sub = Config.twitch.announceSubs.find((sub) =>
+                    sub.gift == message.is_gift
+                    && sub.tier == subTier
+                    && sub.multi == false // Not sure how to get this value, just listen for messages with some common transaction ID?
+            )
+
             // Save user sub
             const subSetting: ITwitchSubSetting = {
                 userName: message.user_name ?? '', 
@@ -183,6 +192,21 @@ class Callbacks {
                 streakMonths: message.streak_months?.toString() ?? ''
             }
             Settings.pushSetting(Settings.TWITCH_USER_SUBS, 'userName', subSetting)
+
+            // Announce sub
+            if(sub) {
+                modules.twitch._twitchChatOut.sendMessageToChannel(
+                    Utils.replaceTags(
+                        sub.message,
+                        {
+                            userName: message.display_name ?? '',
+                            userTag: `@${message.display_name}`,
+                            targetName: message.recipient_display_name ?? '',
+                            targetTag: `@${message.recipient_display_name}`
+                        }
+                    )
+                )
+            }
         })
         modules.twitchPubsub.setOnCheerCallback((message) => {
             // Save user cheer

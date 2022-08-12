@@ -44,6 +44,12 @@ interface ITwitchConfig {
      * These could be referenced in `Keys.*` and also used to trigger sound effects, as with automatic rewards.
      */
     announcerTriggers: string[]
+
+    /**
+     * Subscription types to announce in chat.
+     */
+    announceSubs: IAnnounceSubConfig[],
+
     /**
      * Cheer levels to announce in chat.
      */
@@ -258,6 +264,13 @@ interface ITwitchMessageData {
     bits: number
     isAction: boolean
     emotes: ITwitchEmote[]
+}
+// Announcements
+interface IAnnounceSubConfig {
+    tier: number
+    gift: boolean
+    multi: boolean
+    message: string
 }
 interface IAnnounceCheerConfig {
     bits: number

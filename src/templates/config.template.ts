@@ -450,6 +450,15 @@ Config.twitch = <ITwitchConfig> {
     remoteCommandAllowedUsers: ['AllowedUser1', 'AllowedUser2'],
     announcerNames: ['AnnouncerName'],
     announcerTriggers: ['§'],
+    announceSubs: [
+        {tier: 0, gift: false, multi: false, message: '%userTag subbed with Prime'},
+        {tier: 1000, gift: false, multi: false, message: '%userTag subbed with tier 1'},
+        {tier: 2000, gift: false, multi: false, message: '%userTag subbed with tier 2'},
+        {tier: 3000, gift: false, multi: false, message: '%userTag subbed with tier 3'},
+        {tier: 1000, gift: true, multi: false, message: '%userTag gifted %targetTag a tier 1 sub'},
+        {tier: 2000, gift: true, multi: false, message: '%userTag gifted %targetTag a tier 2 sub'},
+        {tier: 3000, gift: true, multi: false, message: '%userTag gifted %targetTag a tier 3 sub'}
+    ],
     announceCheers: [
         {bits: 1, message: '%userTag cheered %userBits bits! (will be the default message)'},
         {bits: 100, message: 'Wow %userTag cheered %userBits bits! (for 100 or more)'}
