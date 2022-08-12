@@ -62,7 +62,8 @@ class KeysTemplate {
     static readonly COMMAND_CLEAR_REDEMPTIONS = 'ClearRedemptions'
     static readonly COMMAND_RAID = 'Raid'
     static readonly COMMAND_UNRAID = 'Unraid'
-    static readonly COMMAND_RESET_INCREWARD = 'ResetIncrementingRewards'
+    static readonly COMMAND_RESET_INCREMENTING_EVENTS = 'ResetIncrementingEvents'
+    static readonly COMMAND_RESET_ACCUMULATING_EVENTS = 'ResetAccumulatingEvents'
     static readonly COMMAND_REMOTE_ON = 'RemoteOn'
     static readonly COMMAND_REMOTE_OFF = 'RemoteOff'
     

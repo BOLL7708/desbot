@@ -370,10 +370,19 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_RESET_INCREWARD]: {
+    [KeysTemplate.COMMAND_RESET_INCREMENTING_EVENTS]: {
         triggers: {
             command: {
-                entries: 'resetincrew',
+                entries: 'resetinc',
+                permissions: { moderators: false },
+                cooldown: 20
+            }
+        }
+    },
+    [KeysTemplate.COMMAND_RESET_ACCUMULATING_EVENTS]: {
+        triggers: {
+            command: {
+                entries: 'resetacc',
                 permissions: { moderators: false },
                 cooldown: 20
             }
@@ -541,7 +550,7 @@ Config.events = {
                 entries: 'Running stream end tasks'
             },
             commands: { 
-                entries: [ 'trophy', 'clips', 'clearqueue', 'resetincrew' ],
+                entries: [ 'trophy', 'clips', 'clearqueue', 'resetinc', 'resetacc' ],
                 interval: 20
             }
         }

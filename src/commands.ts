@@ -444,12 +444,12 @@ class Commands {
                 } else modules.tts.enqueueSpeakSentence(speech[2])
             }
         },
-        [Keys.COMMAND_RESET_INCREWARD]: {
+        [Keys.COMMAND_RESET_INCREMENTING_EVENTS]: {
             tag: 'ResetIncrementalReward',
             description: 'Reset the incremental reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_INCREWARD]
+                const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_INCREMENTING_EVENTS]
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
                 // Reset rewards with multiple steps
                 const allRewardKeys = Utils.getAllEventKeys(true)
@@ -488,12 +488,12 @@ class Commands {
                 })).then()
             }
         },
-        [Keys.COMMAND_RESET_ACCREWARD]: {
+        [Keys.COMMAND_RESET_ACCUMULATING_EVENTS]: {
             tag: 'ResetAccumulatingReward',
             description: 'Reset the accumulating reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_ACCREWARD]
+                const speech = Config.controller.speechReferences[Keys.COMMAND_RESET_ACCUMULATING_EVENTS]
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
                 // Reset rewards with multiple steps
                 const allRewardKeys = Utils.getAllEventKeys(true)

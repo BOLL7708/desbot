@@ -108,9 +108,13 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Completed clearing the reward redemptions queue, set %count out of %total to fulfilled',
             'There were no reward redemptions in the queue to clear'
         ],
-        [KeysTemplate.COMMAND_RESET_INCREWARD]: [
-            'Initiating reset of incremental rewards',
-            'Finished resetting %reset out of %total incremental rewards, skipping %skipped'
+        [KeysTemplate.COMMAND_RESET_INCREMENTING_EVENTS]: [
+            'Initiating reset of incremental events',
+            'Finished resetting %reset out of %total incremental events, skipping %skipped'
+        ],
+        [KeysTemplate.COMMAND_RESET_ACCUMULATING_EVENTS]: [
+            'Initiating reset of accumulating events',
+            'Finished resetting %reset out of %total accumulating events, skipping %skipped'
         ],
         [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
         [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
