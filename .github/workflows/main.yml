@@ -11,7 +11,7 @@ jobs:
       - name: post
         uses: m1ner79/Github-Twittction@v1.0.1
         with:
-            twitter_status: "Update: ${{github.event.release.body}} ${{github.event.release.html_url}}"
+            twitter_status: "Update: ${{github.event.release.name}} ${{github.event.release.html_url}}"
             twitter_consumer_key: ${{ secrets.TWITTER_CONSUMER_KEY }} 
             twitter_consumer_secret: ${{ secrets.TWITTER_CONSUMER_SECRET }} 
             twitter_access_token_key: ${{ secrets.TWITTER_ACCESS_TOKEN_KEY }} 

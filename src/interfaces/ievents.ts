@@ -8,14 +8,14 @@ interface IEventsForGamesConfig {
 }
 
 /**
- * Various types of special reward behavior.
+ * Various types of special event behavior.
  */
 enum EBehavior { 
     All,
     Random,
     Incrementing,
     Accumulating,
-    Multitier
+    Multitier // TODO: Not implemented yet.
 }
 
 /**
