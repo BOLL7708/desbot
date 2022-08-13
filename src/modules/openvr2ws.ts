@@ -62,6 +62,11 @@ class OpenVR2WS {
         this._inputCallback = callback
     }
 
+    private _relayCallback: IOpenVR2WSRelayCallback = ()=>{ Utils.log('OpenVR2WS: Unhandled relay message', Color.Red) }
+    setRelayCallback(callback: IOpenVR2WSRelayCallback) {
+        this._relayCallback = callback
+    }
+
     public sendMessage(message: IOpenVRWSCommandMessage) {
         // console.log(JSON.stringify(message))
         this._socket.send(JSON.stringify(message));
@@ -91,8 +96,17 @@ class OpenVR2WS {
                     if(!success) console.warn(data)
                     break
                 case 'FindOverlay':
-                    const result: IOpenVR2WSFindOverlayData = data.data
-                    this._findOverlayCallback(result.key, result.handle)
+                    const overlayResult: IOpenVR2WSFindOverlayData = data.data
+                    this._findOverlayCallback(overlayResult.key, overlayResult.handle)
+                case 'Relay':
+                    const relayData: IOpenVR2WSRelayData = data.data
+                    const relayPass = Config.credentials.OpenVR2WSRelayPassword
+                    if(relayPass.length > 0 && relayPass === relayData.password) {
+                        this._relayCallback(relayData.user, relayData.key, relayData.data)
+                    } else {
+                        Utils.log('OpenVR2WS: Relay password did not match!', Color.Red)
+                    }
+                    break
                 default:
                     // console.log(data)
                     break

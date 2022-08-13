@@ -107,6 +107,11 @@ interface IEventTriggers {
      * Optional: Have something happen automatically on a timer.
      */
     timer?: ITimerConfig
+
+    /**
+     * Optional: Listen to incoming relay messages from OpenVR2WS.
+     */
+    relay?: string
 }
 
 interface ITimerConfig {

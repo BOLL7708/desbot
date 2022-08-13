@@ -149,6 +149,10 @@ interface ITwitchTokens {
  */
 interface ITwitchActionRemoteCommandConfig {
     /**
+     * The command or commands that can be used with this trigger.
+     */
+    entries: string|string[]
+    /**
      * Optional: The number of seconds before this can be used again, by anyone.
      */
     cooldown?: number

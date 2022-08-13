@@ -52,4 +52,10 @@ interface ICredentialsConfig {
      * - https://www.steamidfinder.com/
      */
     SteamUserID: string
+
+    /**
+     * The password for the OpenVR2WS relay trigger.
+     * This allows clients connected to OpenVR2WS to send messages to each other.
+     */
+    OpenVR2WSRelayPassword: string
 }

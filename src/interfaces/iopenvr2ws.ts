@@ -46,6 +46,16 @@ interface IOpenVR2WSFindOverlayData {
     key: string
     handle: number
 }
+interface IOpenVR2WSRelayData {
+    password: string
+    user: string
+    key: string
+    data: string
+}
+interface IOpenVR2WSRelay {
+    key: string
+    handler?: ActionHandler
+}
 interface IOpenVRWSCommandMessage {
     key: string
     value: string
@@ -69,4 +79,7 @@ interface IOpenVR2WSAppIdCallback {
 }
 interface IOpenVR2WSFindOverlayCallback {
     (overlayKey: string, overlayHandle: number): void
+}
+interface IOpenVR2WSRelayCallback {
+    (user: string, key: string, data: string): void
 }

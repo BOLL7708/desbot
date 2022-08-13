@@ -87,6 +87,7 @@ class Actions {
             if(event.triggers.remoteCommand) await this.registerRemoteCommand(key, event)
             if(event.triggers.cheer) await this.registerCheer(key, event)
             if(event.triggers.timer) await this.registerTimer(key, event)
+            if(event.triggers.relay) await this.registerRelay(key, event)
         }
     }
 
@@ -134,19 +135,19 @@ class Actions {
         }
     }
     /**
-     * Used for programmatic command execution not done by a user.
+     * Used for programmatic command execution not done by an actual user.
      * @returns 
      */
-    public static async buildEmptyUserData(source: EEventSource): Promise<IActionUser> {
+    public static async buildEmptyUserData(source: EEventSource, userName?: string, userInput?: string): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
-        const user = await modules.twitchHelix.getUserByLogin(Config.twitch.channelName)
+        const user = await modules.twitchHelix.getUserByLogin(userName ?? Config.twitch.channelName)
         return {
             source: source,
             eventKey: '',
             id: user?.id ?? '',
             login: user?.login ?? '',
             name: user?.display_name ?? '',
-            input: '',
+            input: userInput ?? '',
             color: await modules.twitchHelix.getUserColor(user?.id ?? '') ?? '',
             isBroadcaster: true,
             isModerator: false,
@@ -189,8 +190,9 @@ class Actions {
         const modules = ModulesSingleton.getInstance()
         let command = event?.triggers.command
         if(command) {
-            const triggers = Utils.ensureArray<string>(command.entries)
-            for(const trigger of triggers) {
+            const triggers = Utils.ensureArray(command.entries)
+            for(let trigger of triggers) {
+                trigger = Utils.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key, event)
                 const useThisCommand = <ITwitchCommandConfig> (
                     command?.cooldown == undefined
@@ -204,16 +206,20 @@ class Actions {
 
     private static async registerRemoteCommand(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()        
-        const triggers = key.split('|')
-        for(const trigger of triggers) {
-            let command = event?.triggers.command
-            const actionHandler = new ActionHandler(trigger, event)
-            const useThisCommand = <ITwitchCommandConfig> (
-                command?.cooldown == undefined 
-                    ? {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, handler: actionHandler}
-                    : {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, cooldownHandler: actionHandler}
-            )
-            modules.twitch.registerRemoteCommand(useThisCommand)
+        const remoteCommand = event?.triggers.remoteCommand
+        if(remoteCommand) {
+            const triggers = Utils.ensureArray(remoteCommand.entries)
+            for(let trigger of triggers) {
+                trigger = Utils.replaceTags(trigger, {eventKey: key})
+                let command = event?.triggers.command
+                const actionHandler = new ActionHandler(trigger, event)
+                const useThisCommand = <ITwitchCommandConfig> (
+                    command?.cooldown == undefined
+                        ? {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, handler: actionHandler}
+                        : {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, cooldownHandler: actionHandler}
+                )
+                modules.twitch.registerRemoteCommand(useThisCommand)
+            }
         }
     }
 
@@ -249,6 +255,18 @@ class Actions {
                 }
             }, interval*1000)
         }, delay*1000)
+    }
+
+    private static async registerRelay(key: string, event: IEvent) {
+        const relay: IOpenVR2WSRelay = {
+            key: Utils.replaceTags(event.triggers.relay ?? '', {eventKey: key}),
+            handler: new ActionHandler(key, event)
+        }
+        if(relay.key.length > 0) {
+            Callbacks.registerRelay(relay)
+        } else {
+            Utils.logWithBold(`Cannot register relay event for: <${key}>, it might be missing a relay config.`, 'red')
+        }
     }
     // endregion
 

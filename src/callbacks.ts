@@ -1,4 +1,9 @@
 class Callbacks {
+    private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
+    public static registerRelay(relay: IOpenVR2WSRelay) {
+        this._relays.set(relay.key, relay)
+    }
+
     public static async init() {   
         /*
         ..######.....###....##.......##.......########.....###.....######..##....##..######.
@@ -436,6 +441,16 @@ class Callbacks {
                     rewards[rewardKey] = state
                 })
                 modules.twitchHelix.toggleRewards(rewards)
+            }
+        })
+
+        modules.openvr2ws.setRelayCallback(async (user, key, data) => {
+            const relay = this._relays.get(key)
+            if(relay) {
+                Utils.log(`Callbacks: OpenVR2WS Relay callback found for ${key}: ${JSON.stringify(data)}`, Color.Green)
+                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, user, data))
+            } else {
+                Utils.log(`Callbacks: OpenVR2WS Relay callback for ${key} not found.`, Color.OrangeRed)
             }
         })
 

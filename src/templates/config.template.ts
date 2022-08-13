@@ -23,7 +23,8 @@ Config.credentials = <ICredentialsConfig> {
         [KeysTemplate.COMMAND_CLIPS]: 'The webhook URL you want to use for Twitch clips'
     },
     SteamWebAPIKey: '',
-    SteamUserID: ''
+    SteamUserID: '',
+    OpenVR2WSRelayPassword: ''
 }
 
 /*

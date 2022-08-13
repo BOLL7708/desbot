@@ -26,5 +26,6 @@ enum EEventSource {
     TwitchCommand,
     TwitchRemoteCommand,
     AutoCommand,
-    Timer
+    Timer,
+    Relay
 }
