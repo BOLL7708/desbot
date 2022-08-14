@@ -315,7 +315,8 @@ class Actions {
                 !!(actions?.speech)
             ))
             actionCallbacks.pushIfExists(this.buildPipeCallback(actions?.pipe))
-            actionCallbacks.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.openVR2WS))
+            actionCallbacks.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.vrSetting))
+            actionCallbacks.pushIfExists(this.buildOpenVR2WSMoveSpaceCallback(actions?.vrMoveSpace))
             actionCallbacks.pushIfExists(this.buildSignCallback(actions?.sign))
             actionCallbacks.pushIfExists(this.buildKeysCallback(actions?.keys))
             actionCallbacks.pushIfExists(this.buildURICallback(actions?.uri))
@@ -493,13 +494,24 @@ class Actions {
         }
     }
 
-    private static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]|undefined): IActionCallback|undefined {
+    private static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🔧',
             description: 'Callback that triggers an OpenVR2WSSetting action',
             call: () => {
                 const modules = ModulesSingleton.getInstance()
                 modules.openvr2ws.setSetting(config).then()
+            }
+        }
+    }
+
+    private static buildOpenVR2WSMoveSpaceCallback(config: IOpenVR2WSMoveSpace|undefined): IActionCallback|undefined {
+        if(config) return {
+            tag: '⚖',
+            description: 'Callback that triggers an OpenVR2WSMoveSpace action',
+            call: () => {
+                const modules = ModulesSingleton.getInstance()
+                modules.openvr2ws.moveSpace(config).then()
             }
         }
     }

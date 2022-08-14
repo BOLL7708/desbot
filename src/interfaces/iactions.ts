@@ -20,10 +20,16 @@ interface IActions {
      * Optional: Set this to execute this batch of actions a set delay after the previous batch, can get overridden by `_timeMs`.
      */
     _delayMs?: number
+
     /**
      * Optional: Used to change SteamVR settings.
      */
-    openVR2WS?: IOpenVR2WSSetting
+    vrSetting?: IOpenVR2WSSetting
+
+    /**
+     * Optional: Used to change SteamVR settings.
+     */
+    vrMoveSpace?: IOpenVR2WSMoveSpace
 
     /**
      * Optional: Used to toggle OBS sources or filters.

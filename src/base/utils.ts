@@ -123,8 +123,7 @@ class Utils {
         const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
         const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
         const byteArray = Array.from(new Uint8Array(hashBuffer)); // convert ArrayBuffer to Array
-        let base64String = btoa(String.fromCharCode(...byteArray)); // b64 encode byte array
-        return base64String;
+        return btoa(String.fromCharCode(...byteArray));
     }
 
     static b64toBlob = (b64Data: string, contentType='image/png', sliceSize=512) => {
@@ -142,9 +141,7 @@ class Utils {
             const byteArray = new Uint8Array(byteNumbers);
             byteArrays.push(byteArray);
         }
-    
-        const blob = new Blob(byteArrays, {type: contentType});
-        return blob;
+        return new Blob(byteArrays, {type: contentType});
     }
 
     static b64ToDataUrl(b64data: string, contentType='image/png'):string {

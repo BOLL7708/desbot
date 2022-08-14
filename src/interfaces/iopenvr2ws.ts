@@ -9,7 +9,7 @@ interface IOpenVR2WSConfig {
 }
 
 /**
- * SteamVR setting triggered by an automatic reward.
+ * Change SteamVR setting.
  */
 interface IOpenVR2WSSetting {
     /**
@@ -28,6 +28,32 @@ interface IOpenVR2WSSetting {
     resetToValue?: boolean|number|string
     /**
      * Optional: The amount of time to wait before resetting the setting to default.
+     */
+    duration?: number // Seconds
+}
+
+/**
+ * Move SteamVR Play Space.
+ */
+interface IOpenVR2WSMoveSpace {
+    /**
+     * Optional: Sideways position offset
+     */
+    x?: number
+    /**
+     * Optional: Height position offset
+     */
+    y?: number
+    /**
+     * Optional: Forward position offset
+     */
+    z?: number
+    /**
+     * Optional: Move the Chaperone bounds in the opposite direction to keep them in the right place, defaults to true.
+     */
+    moveChaperone?: boolean
+    /**
+     * Optional: The amount of time to wait before moving back.
      */
     duration?: number // Seconds
 }

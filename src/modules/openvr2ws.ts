@@ -13,8 +13,8 @@ class OpenVR2WS {
 
     private _socket: WebSockets
     private _resetLoopHandle: number = 0
-    private _resetMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
-    private _resetTimers: Map<string, number> = new Map()
+    private _resetSettingMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
+    private _resetSettingTimers: Map<string, number> = new Map()
     private _currentAppId?: string // Updated every time an ID is received
     public isConnected: boolean = false
     
@@ -132,30 +132,49 @@ class OpenVR2WS {
         this._statusCallback(false)
     }
 
-    public async setSetting(config: IOpenVR2WSSetting|IOpenVR2WSSetting[]) {
+    public async setSetting(config: IOpenVR2WSSetting) {
         const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
-        if(!Array.isArray(config)) config = [config]
-        for(const cfg of config) {
-            const settingArr: string[] = cfg.setting.split('|') ?? []
-            if(settingArr.length != 3) return Utils.log(`OpenVR2WS: Malformed setting, did not split into 3 on '|': ${cfg.setting}`, Color.Red)
-            if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString() ?? ''
-            const message :IOpenVRWSCommandMessage = {
-                key: 'RemoteSetting',
-                value: password,
-                value2: settingArr[0],
-                value3: settingArr[1],
-                value4: cfg.value.toString()
-            }
-            this.sendMessage(message)
-            console.log(`OpenVR2WS: Setting ${cfg.setting} to ${cfg.value}`)
-            if(cfg.duration != null && (cfg.resetToValue != null || settingArr[2].length > 0)) {
-                message.value4 = (cfg.resetToValue ?? settingArr[2]).toString()
-                this._resetTimers.set(cfg.setting,  cfg.duration)
-                this._resetMessages.set(cfg.setting, message)
-            } else {
-                this._resetTimers.set(cfg.setting, -1)
-                this._resetMessages.delete(cfg.setting)
-            }
+        const settingArr: string[] = config.setting.split('|') ?? []
+        if(settingArr.length != 3) return Utils.log(`OpenVR2WS: Malformed setting, did not split into 3 on '|': ${config.setting}`, Color.Red)
+        if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString() ?? ''
+        const message: IOpenVRWSCommandMessage = {
+            key: 'RemoteSetting',
+            value: password,
+            value2: settingArr[0],
+            value3: settingArr[1],
+            value4: config.value.toString()
+        }
+        this.sendMessage(message)
+        console.log(`OpenVR2WS: Setting ${config.setting} to ${config.value}`)
+        if(config.duration && (config.resetToValue != null || settingArr[2].length > 0)) {
+            message.value4 = (config.resetToValue ?? settingArr[2]).toString()
+            this._resetSettingTimers.set(config.setting,  config.duration)
+            this._resetSettingMessages.set(config.setting, message)
+        } else {
+            this._resetSettingTimers.set(config.setting, -1)
+            this._resetSettingMessages.delete(config.setting)
+        }
+    }
+
+    public async moveSpace(config: IOpenVR2WSMoveSpace) {
+        const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
+        const message: IOpenVRWSCommandMessage = {
+            key: 'MoveSpace',
+            value: password,
+            value2: (config.x ?? 0).toString(),
+            value3: (config.y ?? 0).toString(),
+            value4: (config.z ?? 0).toString(),
+            value5: (config.moveChaperone ?? true).toString()
+        }
+        this.sendMessage(message)
+        console.log(`OpenVR2WS: Moving space: ${JSON.stringify(config)}`)
+        if(config.duration) {
+            message.value2 = (-(config.x ?? 0)).toString()
+            message.value3 = (-(config.y ?? 0)).toString()
+            message.value4 = (-(config.z ?? 0)).toString()
+            setTimeout(() => {
+                this.sendMessage(message)
+            }, config.duration*1000)
         }
     }
 
@@ -164,16 +183,16 @@ class OpenVR2WS {
      */
     public resetSettings() {
         // Loop over all timers, reduce until 0, then send message
-        for(const pair of this._resetTimers) {
+        for(const pair of this._resetSettingTimers) {
             const key = pair[0]
             let timer = pair[1]
             timer--
-            this._resetTimers.set(key, timer)
+            this._resetSettingTimers.set(key, timer)
             if(timer <= 0) {
-                const message = this._resetMessages.get(key)
+                const message = this._resetSettingMessages.get(key)
                 if(message) this.sendMessage(message)
-                this._resetTimers.delete(key)
-                this._resetMessages.delete(key)
+                this._resetSettingTimers.delete(key)
+                this._resetSettingMessages.delete(key)
             }
         }
     }
