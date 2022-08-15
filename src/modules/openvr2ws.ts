@@ -92,8 +92,8 @@ class OpenVR2WS {
                     this._inputCallback(data.key, inputData)
                     break
                 case 'RemoteSetting':
-                    const success = data.data.success
-                    if(!success) console.warn(data)
+                    const remoteSettingData: IOpenVR2WSGenericResponseData = data.data
+                    if(!remoteSettingData?.success) Utils.log(`OpenVR2WS: ${data.key} failed with ${remoteSettingData?.message}`, Color.DarkRed)
                     break
                 case 'FindOverlay':
                     const overlayResult: IOpenVR2WSFindOverlayData = data.data
@@ -105,6 +105,12 @@ class OpenVR2WS {
                         this._relayCallback(relayData.user, relayData.key, relayData.data)
                     } else {
                         Utils.log('OpenVR2WS: Relay password did not match!', Color.Red)
+                    }
+                    break
+                case 'MoveSpace':
+                    const moveSpaceData: IOpenVR2WSGenericResponseData = data.data
+                    if(!moveSpaceData?.success) {
+                        Utils.log(`OpenVR2WS: ${data.key} failed with: ${moveSpaceData?.message}`, Color.DarkRed)
                     }
                     break
                 default:

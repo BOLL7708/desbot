@@ -78,6 +78,10 @@ interface IOpenVR2WSRelayData {
     key: string
     data: string
 }
+interface IOpenVR2WSGenericResponseData {
+    message: string
+    success: boolean
+}
 interface IOpenVR2WSRelay {
     key: string
     handler?: ActionHandler
