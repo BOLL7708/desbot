@@ -343,7 +343,10 @@ class Actions {
                 delayMs: actions._delayMs,
                 execute: async (user: IActionUser, index?: number) => {
                     for (const stackCallback of actionCallbacks) {
-                        if (stackCallback.call) stackCallback.call(user, index)
+                        if (stackCallback.call) {
+                            if(stackCallback.waitForCall) await stackCallback.call(user, index)
+                            else stackCallback.call(user, index)
+                        }
                     }
                 }
             })
@@ -739,6 +742,7 @@ class Actions {
     private static buildTTSCallback(config: ITTSAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🗣',
+            waitForCall: true,
             description: 'Callback that executes a TTS function',
             call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
