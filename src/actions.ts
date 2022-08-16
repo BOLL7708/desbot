@@ -12,6 +12,7 @@ class ActionHandler {
 
     public async call(user: IActionUser) {
         const modules = ModulesSingleton.getInstance()
+        const states = StatesSingleton.getInstance()
         let index: number|undefined = undefined
         let counter: IEventCounter = {key: this.key, count: 0}
         let rewardConfigs: ITwitchHelixRewardUpdate[] = []
@@ -47,7 +48,7 @@ class ActionHandler {
                 counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', this.key) ?? counter
                 counter.count = parseInt(counter.count.toString()) + Math.max(user.rewardCost, 1) // Without the parse loop, what should be a number can be a string due to coming from PHP. Add 1 for commands.
 
-                // Switch to the next incremental reward if it has more configs available
+                // Switch to the next accumulating reward if it has more configs available
                 rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
                 let rewardIndex = 0
                 if(rewardConfigs.length >= 3 && counter.count >= (this.options.accumulationGoal ?? 0)) {
@@ -68,6 +69,54 @@ class ActionHandler {
                     }
                 }
                 // Register index and build callback for this step of the sequence
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
+                break
+            case EBehavior.MultiTier:
+                rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
+
+                // Increase multi-tier counter
+                const multiTierCounter = states.multitierEventCounters.get(this.key) ?? {count: 0, timeoutHandle: 0}
+                multiTierCounter.count++
+                const multiTierMaxValue = this.options.multiTierMaxLevel ?? rewardConfigs.length
+                if(multiTierCounter.count > multiTierMaxValue) {
+                    multiTierCounter.count = multiTierMaxValue
+                }
+                const wasLastLevel = multiTierCounter.count === multiTierMaxValue
+
+                // Switch to the next multi-tier reward if it has more configs available, or disable if maxed and that option is set.
+                if(rewardConfigs.length > 1 && multiTierCounter.count < multiTierMaxValue) {
+                    const newRewardConfig = rewardConfigs[multiTierCounter.count]
+                    if (newRewardConfig) modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
+                } else if(this.options.multiTierDisableWhenMaxed) {
+                    modules.twitchHelix.toggleRewards({[this.key]: false}).then()
+                }
+
+                // Reset timeout
+                clearTimeout(multiTierCounter.timeoutHandle)
+                multiTierCounter.timeoutHandle = setTimeout(async() => {
+                    // We will trigger the action one above max level to reset.
+                    if(this.options.multiTierDoResetActions) {
+                        index = 0
+                        Actions.buildActionsMainCallback(
+                            this.key,
+                            Utils.ensureArray(this.event.actionsEntries).getAsType(index)
+                        ) (user, index)
+                    }
+                    multiTierCounter.count = 0
+                    multiTierCounter.timeoutHandle = 0
+                    states.multitierEventCounters.set(this.key, multiTierCounter)
+                    if(rewardConfigs.length > 0) {
+                        const newRewardConfig = rewardConfigs[0]
+                        if (newRewardConfig) modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
+                    }
+                    modules.twitchHelix.toggleRewards({[this.key]: true}).then()
+                }, (this.options.multiTierTimeout ?? 30)*1000)
+
+                // Store new counter value
+                states.multitierEventCounters.set(this.key, multiTierCounter)
+
+                // Register index and build callback for this step of the sequence
+                index = multiTierCounter.count
                 this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
                 break
             default: // No special behavior, only generate the callback if it is missing

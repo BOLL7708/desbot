@@ -235,6 +235,11 @@ interface ITextTagsCached {
     lastTTSSetNickSubstitute: string
 }
 
+interface IMultiTierEventCounter {
+    count: number
+    timeoutHandle: number
+}
+
 interface ITTSAction {
     function: ETTSFunction
     inputOverride?: string

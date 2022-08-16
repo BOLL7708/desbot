@@ -15,7 +15,7 @@ enum EBehavior {
     Random,
     Incrementing,
     Accumulating,
-    Multitier // TODO: Not implemented yet.
+    MultiTier
 }
 
 /**
@@ -47,7 +47,7 @@ interface IEventOptions {
      * - **Random**: Will pick a random reward from the list.
      * - **Incrementing**: Will increment every time it is redeemed.
      * - **Accumulating**: Will show the first setting until goal is met when it shows the second.
-     * - **Multitier**: Will switch to the next, but will reset after a duration, can have multiple levels.
+     * - **MultiTier**: Will switch to the next, but will reset after a duration, can have multiple levels.
      */
     behavior?: EBehavior
 
@@ -57,10 +57,28 @@ interface IEventOptions {
     accumulationGoal?: number
 
     /**
+     * Optional: The duration in seconds before we reset the multi-tier level unless it is triggered again.
+     */
+    multiTierTimeout?: number
+    /**
+     * Optional: The maximum level we can reach with the multi-tier behavior. If this is not provided we will use the count of `triggers.reward`.
+     */
+    multiTierMaxLevel?: number
+    /**
+     * Optional: Also perform actions when resetting this multi-tier event.
+     *
+     * The level after `multiTierMaxLevel` or the level matching the count of `triggers.reward` plus one will be used.
+     */
+    multiTierDoResetActions?: boolean
+    /**
+     * Optional: Will only allow the last level to be redeemed once before resetting again.
+     */
+    multiTierDisableWhenMaxed?: boolean
+
+    /**
      * Optional: Will reset an incrementing reward when the reset command is run, resetting the index to 0.
      */
     resetIncrementOnCommand?: boolean
-
     /**
      * Optional: Will reset an accumulating reward when the reset command is run, resetting the index to 0.
      */
@@ -73,7 +91,6 @@ interface IEventOptions {
      * Usually references from: `Keys.*`, and it's recommended to put the channel trophy reward in here if you use it.
      */
     rewardIgnoreUpdateCommand?: boolean
-
     /**
      * Optional: Will avoid refunding the redemption when the clear redemptions command is used.
      */

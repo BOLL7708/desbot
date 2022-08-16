@@ -29,4 +29,5 @@ class StatesSingleton {
         lastTTSSetNickLogin: '',
         lastTTSSetNickSubstitute: ''
     }
+    public multitierEventCounters: Map<string, IMultiTierEventCounter> = new Map()
 }
