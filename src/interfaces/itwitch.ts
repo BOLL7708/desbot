@@ -155,7 +155,11 @@ interface ITwitchActionRemoteCommandConfig {
     /**
      * Optional: The number of seconds before this can be used again, by anyone.
      */
-    cooldown?: number
+    globalCooldown?: number
+    /**
+     * Optional: The number of seconds before this can be used again, by the same user.
+     */
+    userCooldown?: number
 }
 /**
  * A standard chat command.
@@ -193,17 +197,23 @@ interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
      */
     trigger: string
     /**
-     * Optional: The callback the command executes.
+     * Optional: The handler that the command runs.
      */
     handler?: ActionHandler
     /**
-     * Optional: A callback that can only be run once in every `cooldown` seconds.
+     * Optional: A handler that can only be run once in every `cooldown` seconds.
      * 
-     * Note: The broadcaster and moderators are exempt from cooldowns.
+     * Note: The broadcaster is exempt from cooldowns.
      */
     cooldownHandler?: ActionHandler
     /**
-     * Optional: Only allow this command for these specific users.
+     * Optional: A handler that can only be run once in every `cooldown` seconds per user.
+     *
+     * Note: The broadcaster is exempt from cooldowns.
+     */
+    cooldownUserHandler?: ActionHandler
+    /**
+     * Optional: Only allow this command for these specific users, used for remote commands.
      */
     allowedUsers?: string[]
 }

@@ -194,11 +194,12 @@ class Actions {
             for(let trigger of triggers) {
                 trigger = Utils.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key, event)
-                const useThisCommand = <ITwitchCommandConfig> (
-                    command?.cooldown == undefined
-                        ? {...event.triggers.command, trigger: trigger, handler: actionHandler}
-                        : {...event.triggers.command, trigger: trigger, cooldownHandler: actionHandler}
-                )
+
+                // Set handler depending on cooldowns
+                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.command, trigger: trigger }
+                if(command?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
+                else if(command?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
+                else useThisCommand.handler = actionHandler
                 modules.twitch.registerCommand(useThisCommand)
             }
         }
@@ -211,13 +212,13 @@ class Actions {
             const triggers = Utils.ensureArray(remoteCommand.entries)
             for(let trigger of triggers) {
                 trigger = Utils.replaceTags(trigger, {eventKey: key})
-                let command = event?.triggers.command
                 const actionHandler = new ActionHandler(trigger, event)
-                const useThisCommand = <ITwitchCommandConfig> (
-                    command?.cooldown == undefined
-                        ? {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, handler: actionHandler}
-                        : {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers, cooldownHandler: actionHandler}
-                )
+
+                // Set handler depending on cooldowns
+                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers }
+                if(remoteCommand?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
+                else if(remoteCommand?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
+                else useThisCommand.handler = actionHandler
                 modules.twitch.registerRemoteCommand(useThisCommand)
             }
         }
@@ -344,7 +345,7 @@ class Actions {
                 execute: async (user: IActionUser, index?: number) => {
                     for (const stackCallback of actionCallbacks) {
                         if (stackCallback.call) {
-                            if(stackCallback.waitForCall) await stackCallback.call(user, index)
+                            if(stackCallback.awaitCall) await stackCallback.call(user, index)
                             else stackCallback.call(user, index)
                         }
                     }
@@ -742,7 +743,7 @@ class Actions {
     private static buildTTSCallback(config: ITTSAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🗣',
-            waitForCall: true,
+            awaitCall: true,
             description: 'Callback that executes a TTS function',
             call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()

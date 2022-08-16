@@ -19,6 +19,7 @@ class MainController {
         await Settings.loadSettings(Settings.TTS_DICTIONARY)
         await Settings.loadSettings(Settings.TWITCH_CLIPS)
         await Settings.loadSettings(Settings.EVENT_COUNTERS_INCREMENTAL)
+        await Settings.loadSettings(Settings.EVENT_COUNTERS_ACCUMULATING)
         await Settings.loadSettings(Settings.QUOTES)
 
         const modules = ModulesSingleton.getInstance()

@@ -192,7 +192,7 @@ Config.events = {
             command: {
                 entries: ['tts', 'voices'],
                 permissions: { everyone: true },
-                cooldown: 60 * 5
+                globalCooldown: 60 * 5
             }
         },
         actionsEntries: {
@@ -357,7 +357,7 @@ Config.events = {
         triggers: {
             command: {
                 entries: 'refund',
-                cooldown: 30
+                globalCooldown: 30
             }
         }
     },
@@ -366,7 +366,7 @@ Config.events = {
             command: {
                 entries: 'clearqueue',
                 permissions: { moderators: false },
-                cooldown: 60
+                globalCooldown: 60
             }
         }
     },
@@ -375,7 +375,7 @@ Config.events = {
             command: {
                 entries: 'resetinc',
                 permissions: { moderators: false },
-                cooldown: 20
+                globalCooldown: 20
             }
         }
     },
@@ -384,7 +384,7 @@ Config.events = {
             command: {
                 entries: 'resetacc',
                 permissions: { moderators: false },
-                cooldown: 20
+                globalCooldown: 20
             }
         }
     },
@@ -401,7 +401,7 @@ Config.events = {
             command: {
                 entries: 'reload',
                 permissions: { moderators: false },
-                cooldown: 20
+                globalCooldown: 20
             }
         }
     },
@@ -462,7 +462,7 @@ Config.events = {
             command: {
                 entries: 'game',
                 permissions: { everyone: true },
-                cooldown: 3*60
+                globalCooldown: 3*60
             }
         },
         actionsEntries: {
@@ -530,7 +530,7 @@ Config.events = {
         triggers: {
             command: {
                 entries: ['so', 'shoutout'],
-                cooldown: 30,
+                globalCooldown: 30,
                 requireUserTag: true
             }
         },
@@ -560,7 +560,7 @@ Config.events = {
             command: {
                 entries: 'widget',
                 permissions: { everyone: true },
-                cooldown: 60 * 5
+                globalCooldown: 60 * 5
             }
         },
         actionsEntries: {
@@ -572,7 +572,7 @@ Config.events = {
             command: {
                 entries: 'wiki',
                 permissions: { everyone: true },
-                cooldown: 60 * 5
+                globalCooldown: 60 * 5
             }
         },
         actionsEntries: {

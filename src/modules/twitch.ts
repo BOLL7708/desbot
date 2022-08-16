@@ -22,7 +22,8 @@ class Twitch{
         })
     }
 
-    private _cooldowns: Map<string, number> = new Map()
+    private _globalCooldowns: Map<string, number> = new Map()
+    private _userCooldowns: Map<string, number> = new Map()
     private _commands: ITwitchCommandConfig[] = []
     registerCommand(command: ITwitchCommandConfig) {
 		if(command.trigger.length != 0) {
@@ -47,7 +48,8 @@ class Twitch{
         }
     }
 
-    private _remoteCooldowns: Map<string, number> = new Map()
+    private _remoteGlobalCooldowns: Map<string, number> = new Map()
+    private _remoteUserCooldowns: Map<string, number> = new Map()
     private _remoteCommands: ITwitchCommandConfig[] = []
     registerRemoteCommand(remoteCommand: ITwitchCommandConfig) {
         if(remoteCommand.trigger.length != 0) {
@@ -86,9 +88,9 @@ class Twitch{
     private onChatMessage(messageCmd: ITwitchMessageCmd) {
         const msg = messageCmd.message
         if(!msg) return
-        let userName:string = msg.username?.toLowerCase() ?? ''
+        let userName: string = msg.username?.toLowerCase() ?? ''
         if(userName.length == 0) return
-        let text:string = msg.text?.trim() ?? ''
+        let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
         const isBroadcaster = (messageCmd.properties?.badges ?? <string[]>[]).indexOf('broadcaster/1') > -1
         const isModerator = messageCmd.properties?.mod == '1' && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
@@ -149,7 +151,7 @@ class Twitch{
                 return
             }
 
-            // Command
+            // Role check
             const allowedRole = command && (
                 (command.permissions?.streamer && isBroadcaster)
                 || (command.permissions?.moderators && isModerator) 
@@ -157,27 +159,12 @@ class Twitch{
                 || (command.permissions?.subscribers && isSubscriber)
                 || command.permissions?.everyone
             )
-            const allowedByCooldown = command && (
-                isBroadcaster 
-                || command.cooldown == undefined 
-                || new Date().getTime() > (this._cooldowns.get(commandStr ?? '') ?? 0)
-            )
 
-            // Execute
-            if(command && commandStr) {
-                user.eventKey = command.handler?.key ?? ''
-                user.source = EEventSource.TwitchCommand
+            // Execute command
+            if(command && commandStr && allowedRole) {
                 user.input = textStr
-                user.commandConfig = command
-                if(allowedRole && command.handler) {
-                    command.handler.call(user).then()
-                }
-                if(allowedRole && allowedByCooldown && command.cooldownHandler) {
-                    command.cooldownHandler.call(user).then()
-                }
-                if(command.cooldown !== undefined && allowedByCooldown) {
-                    this._cooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
-                }
+                user.source = EEventSource.TwitchCommand
+                this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 return
             }
         }
@@ -208,9 +195,9 @@ class Twitch{
         if(!StatesSingleton.getInstance().runRemoteCommands) return
         const msg = messageCmd.message
         if(!msg) return
-        let userName:string = msg.username?.toLowerCase() ?? ''
+        let userName: string = msg.username?.toLowerCase() ?? ''
         if(userName.length == 0) return
-        let text:string = msg.text?.trim() ?? ''
+        let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
 
         const user = await Actions.buildEmptyUserData(EEventSource.TwitchRemoteCommand)
@@ -224,28 +211,86 @@ class Twitch{
             let command = this._remoteCommands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
-            // Command
+            // User check
             const allowedUser = command && (command.allowedUsers ?? []).find((allowedUserName) => allowedUserName.toLowerCase() == userName)
-            const allowedByCooldown = command && (
-                command.cooldown == undefined 
-                || new Date().getTime() > (this._remoteCooldowns.get(commandStr ?? '') ?? 0)
-            )
 
-            // Execute
-            if(command && commandStr) {
+            // Execute command
+            if(command && commandStr && allowedUser) {
                 user.input = textStr
-                if(allowedUser && command.handler) {
-                    command.handler.call(user)
-                }
-                if(allowedUser && allowedByCooldown && command.cooldownHandler) {
-                    command.cooldownHandler.call(user)
-                }
-                if(command.cooldown !== undefined && allowedByCooldown) {
-                    this._remoteCooldowns.set(commandStr, new Date().getTime()+command.cooldown*1000)
-                }
+                user.source = EEventSource.TwitchRemoteCommand
+                this.handleCommand(command, user, this._remoteGlobalCooldowns, this._remoteUserCooldowns, false)
                 return
             }
         }
+    }
+
+    /**
+     * Will execute the command handler if it is allowed by the cooldowns.
+     * @param command
+     * @param user
+     * @param pool
+     * @param poolUsers
+     * @param override
+     * @private
+     */
+    private handleCommand(command: ITwitchCommandConfig, user: IActionUser, pool: Map<string, number>, poolUsers: Map<string, number>, override: boolean) {
+        const allowedByGlobalCooldown = command && (
+            override
+            || command.globalCooldown == undefined
+            || new Date().getTime() > (pool.get(command.trigger) ?? 0)
+        )
+        const cooldownUserKey = `${command.trigger}_${user.login}`
+        const allowedByUserCooldown = command && (
+            override
+            || command.userCooldown == undefined
+            || new Date().getTime() > (poolUsers.get(cooldownUserKey) ?? 0)
+        )
+        user.eventKey = command.handler?.key ?? command.cooldownHandler?.key ?? command.cooldownUserHandler?.key ?? ''
+        user.commandConfig = command
+
+        // Standard
+        if(command.handler) {
+            command.handler.call(user).then()
+        }
+
+        // Cooldown
+        if(
+            allowedByGlobalCooldown
+            && command.cooldownHandler // If this is set, it means we have no user cooldown.
+        ) {
+            command.cooldownHandler.call(user).then()
+        }
+        if(
+            !override // Prevent overriding users from activating the cooldown for others.
+            && command.globalCooldown !== undefined
+            && allowedByGlobalCooldown
+            && command.userCooldown === undefined // If we have a user cooldown we set this further down to avoid false positives.
+        ) {
+            pool.set(command.trigger, new Date().getTime()+(command.globalCooldown*1000))
+        }
+
+        // Cooldown User
+        if(
+            allowedByUserCooldown
+            && command.cooldownUserHandler
+            && allowedByGlobalCooldown // This will be true if there is no global cooldown, so only affects this if that is also present.
+        ) {
+            command.cooldownUserHandler.call(user).then()
+        }
+        if(
+            !override // Prevent overriding users from activating the cooldown for others.
+            && command.userCooldown !== undefined
+            && allowedByUserCooldown
+            && allowedByGlobalCooldown // If we were blocked by the global cooldown, we should not set the user cooldown either.
+        ) {
+            poolUsers.set(cooldownUserKey, new Date().getTime()+(command.userCooldown*1000))
+            if(command.globalCooldown !== undefined) {
+                // As we call a user cooldown, we set the global cooldown here as well, if we have one.
+                pool.set(command.trigger, new Date().getTime()+(command.globalCooldown*1000))
+            }
+        }
+
+        return
     }
 
     async runCommand(commandStr: string, userData?: IActionUser) {

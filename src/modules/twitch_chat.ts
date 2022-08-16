@@ -44,7 +44,7 @@ class TwitchChat {
     private onMessage(evt: any) {
         let data:string|undefined = evt?.data
         if(data != undefined) {
-            Utils.log(data, this.LOG_COLOR)
+            // Utils.log(data, this.LOG_COLOR)
             if(data.indexOf('PING') == 0) return this._socket?.send('PONG :tmi.twitch.tv\r\n')
             let messageStrings = data.split("\r\n")
             messageStrings.forEach(str => {

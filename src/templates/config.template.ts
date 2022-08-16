@@ -324,7 +324,7 @@ Config.screenshots = <IScreenshotConfig> {
         ],
         pipeMessagePreset: PipePresetsTemplate.PIPE_SCREENSHOT,
         soundEffectForOBSScreenshots: {
-            // src: '_assets/yoursound.wav',
+            // srcEntries: '_assets/yoursound.wav',
         }
     }
 }
@@ -385,7 +385,7 @@ Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
     configs: {
         /*
         [KeysTemplate.KEY_ANNOUNCE_SOUND_EFFECT_FOR_AN_EMOTE]: {
-            src: '_assets/your_chat_sound.wav',
+            srcEntries: '_assets/your_chat_sound.wav',
             volume: 0.5
         }
         */

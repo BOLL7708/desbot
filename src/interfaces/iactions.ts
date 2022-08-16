@@ -1,7 +1,7 @@
 interface IActionCallback {
     tag: string
     description: string
-    waitForCall?: boolean
+    awaitCall?: boolean
     call: (user: IActionUser, index?: number) => void // Index is used for entries-fields, provided by handler.
 }
 interface IActionsExecutor {
