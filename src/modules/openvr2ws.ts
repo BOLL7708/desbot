@@ -98,6 +98,7 @@ class OpenVR2WS {
                 case 'FindOverlay':
                     const overlayResult: IOpenVR2WSFindOverlayData = data.data
                     this._findOverlayCallback(overlayResult.key, overlayResult.handle)
+                    break
                 case 'Relay':
                     const relayData: IOpenVR2WSRelayData = data.data
                     const relayPass = Config.credentials.OpenVR2WSRelayPassword

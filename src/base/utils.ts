@@ -317,16 +317,23 @@ class Utils {
     }
 
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
+        const states = StatesSingleton.getInstance()
         const subs = await Settings.pullSetting<ITwitchSubSetting>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
         const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
         const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
         const now = new Date()
-        const userBits = (userData?.bits ?? 0) > 0 
+
+        const eventConfig = Utils.getEventConfig(userData?.eventKey ?? '')
+        const eventLevel = states.multitierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
+        const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
+
+        const userBits = (userData?.bits ?? 0) > 0
             ? userData?.bits?.toString() ?? '0'
             : cheers?.lastBits ?? '0'
         const userBitsTotal = (userData?.bitsTotal ?? 0) > 0
             ? userData?.bitsTotal?.toString() ?? '0'
             : cheers?.totalBits ?? '0'
+
         const result = <ITextTags> {
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
@@ -383,7 +390,12 @@ class Utils {
             eventKey: userData?.eventKey,
             eventCost: userData?.rewardCost ?? '0',
             eventCount: (await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? '0',
-            eventGoal: Utils.getEventConfig(userData?.eventKey ?? '')?.options?.accumulationGoal ?? '0',
+            eventGoal: eventConfig?.options?.accumulationGoal ?? '0',
+
+            eventLevel: eventLevel.toString(),
+            eventLevelNext: (eventLevel+1).toString(),
+            eventLevelMax: eventLevelMax.toString(),
+            eventLevelProgress: `${eventLevel}/${eventLevelMax}`
         }
         if(typeof userData?.input === 'string') {
             const input = userData.input

@@ -81,39 +81,53 @@ class ActionHandler {
                 if(multiTierCounter.count > multiTierMaxValue) {
                     multiTierCounter.count = multiTierMaxValue
                 }
-                const wasLastLevel = multiTierCounter.count === multiTierMaxValue
-
-                // Switch to the next multi-tier reward if it has more configs available, or disable if maxed and that option is set.
-                if(rewardConfigs.length > 1 && multiTierCounter.count < multiTierMaxValue) {
-                    const newRewardConfig = rewardConfigs[multiTierCounter.count]
-                    if (newRewardConfig) modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
-                } else if(this.options.multiTierDisableWhenMaxed) {
-                    modules.twitchHelix.toggleRewards({[this.key]: false}).then()
-                }
 
                 // Reset timeout
                 clearTimeout(multiTierCounter.timeoutHandle)
                 multiTierCounter.timeoutHandle = setTimeout(async() => {
-                    // We will trigger the action one above max level to reset.
+                    // Run reset actions if enabled.
                     if(this.options.multiTierDoResetActions) {
-                        index = 0
+                        index = 0 // Should always be the first set of actions.
                         Actions.buildActionsMainCallback(
                             this.key,
                             Utils.ensureArray(this.event.actionsEntries).getAsType(index)
                         ) (user, index)
                     }
+
+                    // Reset counter
                     multiTierCounter.count = 0
                     multiTierCounter.timeoutHandle = 0
                     states.multitierEventCounters.set(this.key, multiTierCounter)
+
+                    // Reset reward
                     if(rewardConfigs.length > 0) {
-                        const newRewardConfig = rewardConfigs[0]
-                        if (newRewardConfig) modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
+                        const newRewardConfigClone = Utils.clone(rewardConfigs[0])
+                        newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
+                        newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        if (newRewardConfigClone) modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                     modules.twitchHelix.toggleRewards({[this.key]: true}).then()
                 }, (this.options.multiTierTimeout ?? 30)*1000)
 
                 // Store new counter value
                 states.multitierEventCounters.set(this.key, multiTierCounter)
+
+                // Switch to the next multi-tier reward if it has more configs available, or disable if maxed and that option is set.
+                const wasLastLevel = multiTierCounter.count === multiTierMaxValue
+                if(!wasLastLevel) {
+                    const newRewardConfigClone = Utils.clone(
+                        rewardConfigs.length == 1
+                            ? rewardConfigs[0]
+                            : rewardConfigs[multiTierCounter.count]
+                    )
+                    if (newRewardConfigClone) {
+                        newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
+                        newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                    }
+                } else if(this.options.multiTierDisableWhenMaxed) {
+                    modules.twitchHelix.toggleRewards({[this.key]: false}).then()
+                }
 
                 // Register index and build callback for this step of the sequence
                 index = multiTierCounter.count
