@@ -28,7 +28,7 @@ interface IActions {
     vrSetting?: IOpenVR2WSSetting
 
     /**
-     * Optional: Used to change SteamVR settings.
+     * Optional: Used to move the SteamVR play space.
      */
     vrMoveSpace?: IOpenVR2WSMoveSpace
 
@@ -64,8 +64,6 @@ interface IActions {
 
     /**
      * Optional: Trigger the TTS to read a message.
-     * 
-     * Note: Supplying an array will pick a random one, or if the reward is incrementing, it will pick the matching index.
      */
     speech?: ISpeechAction
 
@@ -90,7 +88,7 @@ interface IActions {
     web?: IEntriesAction
 
     /**
-     * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.webhooks} for the same key.
+     * Optional: Send a message to a Discord channel, make sure to set a webhook URL in {@link Config.credentials.DiscordWebhooks} for the same key.
      */
     discord?: IEntriesAction
 
@@ -230,6 +228,7 @@ interface ITextTags extends ITextTagsCached{
     eventLevelNext: string
     eventLevelMax: string
     eventLevelProgress: string
+    eventLevelNextProgress: string
 }
 
 interface ITextTagsCached {

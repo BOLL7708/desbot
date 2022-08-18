@@ -42,9 +42,8 @@ Array.prototype.useSpecific = function(): Array<any> {
 /**
  * Will use the `__type` property to determine how to return the array.
  * Returns an array with the values to act upon, modified by the `__type` extension property of the array.
- * @param value An array, single value or undefined, will always return an array with 0 or more elements.
  * @param index Use to retrieve a specific value, will use 0 if missing, uses last value if too large.
- * @returns 
+ * @returns A resulting array with one or more items depending on the set type.
  */
 Array.prototype.getAsType = function<T>(index?: number): T[] {
     if(this.length <= 1) return this

@@ -337,6 +337,9 @@ class Commands {
                     const rewardSetup = eventConfig?.triggers?.reward
                     const config = Array.isArray(rewardSetup) ? rewardSetup[0] : rewardSetup
                     if(config != undefined && eventConfig?.options?.rewardIgnoreUpdateCommand !== true) {
+                        const configClone = Utils.clone(config)
+                        configClone.title = await Utils.replaceTagsInText(configClone.title, user)
+                        configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, user)
                         const response = await modules.twitchHelix.updateReward(pair.id, config)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id

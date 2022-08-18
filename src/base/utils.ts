@@ -391,11 +391,11 @@ class Utils {
             eventCost: userData?.rewardCost ?? '0',
             eventCount: (await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? '0',
             eventGoal: eventConfig?.options?.accumulationGoal ?? '0',
-
             eventLevel: eventLevel.toString(),
             eventLevelNext: (eventLevel+1).toString(),
             eventLevelMax: eventLevelMax.toString(),
-            eventLevelProgress: `${eventLevel}/${eventLevelMax}`
+            eventLevelProgress: `${eventLevel}/${eventLevelMax}`,
+            eventLevelNextProgress: `${eventLevel+1}/${eventLevelMax}`
         }
         if(typeof userData?.input === 'string') {
             const input = userData.input

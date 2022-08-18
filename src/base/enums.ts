@@ -20,6 +20,7 @@ enum ETTSFunction {
     GetDictionaryEntry
 }
 enum EEventSource {
+    Created,
     TwitchReward,
     TwitchCheer,
     TwitchChat,
