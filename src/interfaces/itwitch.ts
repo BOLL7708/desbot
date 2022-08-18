@@ -88,13 +88,11 @@ interface ITwitchConfig {
      * Applied when no specific profile is found
      */
     rewardProfileDefault: ITwitchRewardProfileConfig
-
     /**
      * Default for turning rewards on or off depending on SteamVR game.
      * Applied when no specific profile is found
      */
     rewardProfileDefaultVR: ITwitchRewardProfileConfig
-
     /**
      * Turn rewards on or off if there is no game,
      * will be applied on top of the default profile, the configs are merged.
@@ -106,22 +104,28 @@ interface ITwitchConfig {
      * will be applied on top of the default profile, the configs are merged.
      */
     rewardProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
-
     /**
      * Turn on rewards depending on if a game is running, else off.
      */
     turnOnRewardForGames: { [key: string]: string[] }
-    
     /**
      * Turn off rewards depending on if a game is running, else on
      */
     turnOffRewardForGames: { [key: string]: string[] }
-
     /**
      * Turn on rewards for specific overlays, can be used to toggle rewards on 
      * things like LIV running as it has an overlay that is always enabled.
      */
-    turnOnRewardForOverlays: { [key: string]: string[] }  
+    turnOnRewardForOverlays: { [key: string]: string[] }
+
+    /**
+     * The default options values for an event if it needs to be reset on change to unlisted game.
+     */
+    eventOptionsDefault: { [key: string]: IEventOptions }
+    /**
+     * Change the event options and update the reward (if there is one) depending on the game.
+     */
+    eventOptionsPerGame: { [game: string]: { [key: string]: IEventOptions } }
 }
 interface ITwitchReward {
     id?: string

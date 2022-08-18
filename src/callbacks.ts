@@ -448,7 +448,7 @@ class Callbacks {
             const relay = this._relays.get(key)
             if(relay) {
                 Utils.log(`Callbacks: OpenVR2WS Relay callback found for ${key}: ${JSON.stringify(data)}`, Color.Green)
-                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, user, data))
+                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, key, user, data))
             } else {
                 Utils.log(`Callbacks: OpenVR2WS Relay callback for ${key} not found.`, Color.OrangeRed)
             }

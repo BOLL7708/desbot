@@ -68,6 +68,39 @@ class Functions {
             states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory ?? false
         }
 
+        // region Update Event Options
+        const eventOptions = Config.twitch.eventOptionsPerGame[appId] ?? {}
+        const allEventOptionsKeys = [
+            ...new Set( // All unique keys
+                [
+                    ...Object.keys(Config.twitch.eventOptionsDefault),
+                    ...Object.keys(eventOptions)
+                ]
+            )
+        ]
+        for(let key of allEventOptionsKeys) {
+            const eventRef = Config.events[key]
+            if(eventRef) {
+                // Update live options with new values.
+                eventRef.options = {
+                    ...( eventRef.options ?? {} ),
+                    ...( Config.twitch.eventOptionsDefault[key] ?? {} ),
+                    ...( eventOptions[key] ?? {} )
+                }
+                Utils.log(`Updating event "${key}" options: ${Object.keys(eventRef.options).join(', ')}`, Color.DarkOliveGreen)
+                if(eventRef.triggers.reward) {
+                    let rewardConfigClone = Utils.clone(Utils.ensureArray(eventRef.triggers.reward)[0])
+                    if(rewardConfigClone) {
+                        Utils.log(`Updating reward for event "${key}" to be in line with options.`, Color.DarkOliveGreen)
+                        rewardConfigClone.title = await Utils.replaceTagsInText(rewardConfigClone.title, await Actions.buildEmptyUserData(EEventSource.Updated, key))
+                        rewardConfigClone.prompt = await Utils.replaceTagsInText(rewardConfigClone.prompt, await Actions.buildEmptyUserData(EEventSource.Updated, key))
+                        modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
+                    }
+                }
+            }
+        }
+        // endregion
+
 		/*
 		.#####...######..##...##...####...#####...#####...........######...####....####....####...##......######..##..##...####..
 		.##..##..##......##...##..##..##..##..##..##..##............##....##..##..##......##......##........##....###.##..##.....
@@ -75,7 +108,7 @@ class Functions {
 		.##..##..##......#######..##..##..##..##..##..##............##....##..##..##..##..##..##..##........##....##..##..##..##.
 		.##..##..######...##.##...##..##..##..##..#####.............##.....####....####....####...######..######..##..##...####..
 		*/
-		
+
 		/**
          * Check if LIV is running, this will toggle rewards in that callback.
          */
@@ -100,7 +133,7 @@ class Functions {
             profileToUse = defaultProfile
             Utils.log(`--> using [default${isVr?' vr':''}](${Object.keys(defaultProfile).length})`, Color.Gray)
         }
-       
+
         // Update rewards
 
         /**
@@ -164,7 +197,7 @@ class Functions {
                 Actions.registerReward(key, newEvent).then()
             }
         }
-        
+
         // Apply always on/off filters
         for(const rewardKey of Config.twitch.alwaysOnRewards) {
             profileToUse[rewardKey] = true
@@ -176,7 +209,7 @@ class Functions {
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
         modules.twitchHelix.toggleRewards(profileToUse).then()
-        
+
 		/*
 		.##...##..######...####....####..
 		.###.###....##....##......##..##.

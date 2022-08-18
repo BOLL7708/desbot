@@ -1,18 +1,22 @@
 class ActionHandler {
+    event: IEvent|undefined
     options: IEventOptions = {}
     actionsEntries: IActions[] = []
     constructor(
-        public key: string,
-        public event: IEvent
+        public key: string
     ) {
-        this.options = event.options ?? {}
-        this.actionsEntries = Utils.ensureArray(event.actionsEntries)
+
     }
     actionsMainCallback?: IActionsMainCallback
 
     public async call(user: IActionUser) {
+        this.event = Utils.getEventConfig(user.eventKey)
+        this.options = this.event?.options ?? {}
+        this.actionsEntries = Utils.ensureArray(this.event?.actionsEntries)
+
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
+
         let index: number|undefined = undefined
         let counter: IEventCounter = {key: this.key, count: 0}
         let rewardConfigs: ITwitchHelixRewardUpdate[] = []
@@ -30,7 +34,7 @@ class ActionHandler {
                 counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', this.key) ?? counter
 
                 // Switch to the next incremental reward if it has more configs available
-                rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
+                rewardConfigs = Utils.ensureArray(this.event?.triggers.reward)
                 if(rewardConfigs.length > 1) {
                     counter.count++
                     const newRewardConfig = rewardConfigs[counter.count]
@@ -41,7 +45,7 @@ class ActionHandler {
                 }
                 // Register index and build callback for this step of the sequence
                 index = (counter?.count ?? 1)-1
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries).getAsType(index))
                 break
             case EBehavior.Accumulating:
                 // Load accumulating counter
@@ -49,7 +53,7 @@ class ActionHandler {
                 counter.count = parseInt(counter.count.toString()) + Math.max(user.rewardCost, 1) // Without the parse loop, what should be a number can be a string due to coming from PHP. Add 1 for commands.
 
                 // Switch to the next accumulating reward if it has more configs available
-                rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
+                rewardConfigs = Utils.ensureArray(this.event?.triggers.reward)
                 let rewardIndex = 0
                 if(rewardConfigs.length >= 3 && counter.count >= (this.options.accumulationGoal ?? 0)) {
                     // Final reward (when goal has been reached)
@@ -69,10 +73,10 @@ class ActionHandler {
                     }
                 }
                 // Register index and build callback for this step of the sequence
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries).getAsType(index))
                 break
             case EBehavior.MultiTier:
-                rewardConfigs = Utils.ensureArray(this.event.triggers.reward)
+                rewardConfigs = Utils.ensureArray(this.event?.triggers.reward)
 
                 // Increase multi-tier counter
                 const multiTierCounter = states.multitierEventCounters.get(this.key) ?? {count: 0, timeoutHandle: 0}
@@ -90,7 +94,7 @@ class ActionHandler {
                         index = 0 // Should always be the first set of actions.
                         Actions.buildActionsMainCallback(
                             this.key,
-                            Utils.ensureArray(this.event.actionsEntries).getAsType(index)
+                            Utils.ensureArray(this.event?.actionsEntries).getAsType(index)
                         ) (user, index)
                     }
 
@@ -131,10 +135,10 @@ class ActionHandler {
 
                 // Register index and build callback for this step of the sequence
                 index = multiTierCounter.count
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries).getAsType(index))
+                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries).getAsType(index))
                 break
             default: // No special behavior, only generate the callback if it is missing
-                if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event.actionsEntries))
+                if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries))
                 break
         }
         if(this.actionsMainCallback) this.actionsMainCallback(user, index) // Index is included here to supply it to entries-handling
@@ -201,12 +205,12 @@ class Actions {
      * Used for programmatic command execution not done by an actual user.
      * @returns 
      */
-    public static async buildEmptyUserData(source: EEventSource, userName?: string, userInput?: string): Promise<IActionUser> {
+    public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(userName ?? Config.twitch.channelName)
         return {
             source: source,
-            eventKey: '',
+            eventKey: key ?? '',
             id: user?.id ?? '',
             login: user?.login ?? '',
             name: user?.display_name ?? '',
@@ -237,7 +241,7 @@ class Actions {
     // region Trigger Registration
     public static async registerReward(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(key, event)
+        const actionHandler = new ActionHandler(key)
         const reward: ITwitchReward = {
             id: await Utils.getRewardId(key),
             handler: actionHandler
@@ -256,7 +260,7 @@ class Actions {
             const triggers = Utils.ensureArray(command.entries)
             for(let trigger of triggers) {
                 trigger = Utils.replaceTags(trigger, {eventKey: key})
-                const actionHandler = new ActionHandler(key, event)
+                const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
                 const useThisCommand = <ITwitchCommandConfig> {...event.triggers.command, trigger: trigger }
@@ -275,7 +279,7 @@ class Actions {
             const triggers = Utils.ensureArray(remoteCommand.entries)
             for(let trigger of triggers) {
                 trigger = Utils.replaceTags(trigger, {eventKey: key})
-                const actionHandler = new ActionHandler(trigger, event)
+                const actionHandler = new ActionHandler(trigger)
 
                 // Set handler depending on cooldowns
                 const useThisCommand = <ITwitchCommandConfig> {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers }
@@ -289,7 +293,7 @@ class Actions {
 
     private static async registerCheer(key: string, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(key, event)
+        const actionHandler = new ActionHandler(key)
         const cheer: ITwitchCheer = {
             bits: event.triggers.cheer ?? 0,
             handler: actionHandler
@@ -302,8 +306,8 @@ class Actions {
     }
 
     private static async registerTimer(key: string, event: IEvent) {
-        const actionHandler = new ActionHandler(key, event)
-        const user = await this.buildEmptyUserData(EEventSource.Timer)
+        const actionHandler = new ActionHandler(key)
+        const user = await this.buildEmptyUserData(EEventSource.Timer, key)
         const config = event.triggers.timer
         let handle: number = -1
         let count = 0
@@ -324,7 +328,7 @@ class Actions {
     private static async registerRelay(key: string, event: IEvent) {
         const relay: IOpenVR2WSRelay = {
             key: Utils.replaceTags(event.triggers.relay ?? '', {eventKey: key}),
-            handler: new ActionHandler(key, event)
+            handler: new ActionHandler(key)
         }
         if(relay.key.length > 0) {
             Callbacks.registerRelay(relay)

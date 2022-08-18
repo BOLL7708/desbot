@@ -489,6 +489,7 @@ Config.twitch = <ITwitchConfig> {
     rewardProfilePerGame: {
         // [GamesTemplate.A_GAME]: { [KeysTemplate.KEY_YOURREWARD]: true, [KeysTemplate.KEY_YOUROTHERREWARD]: false }
     },
+
     turnOnRewardForGames: {
         // [GamesTemplate.A_GAME]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
     },
@@ -497,5 +498,12 @@ Config.twitch = <ITwitchConfig> {
     },
     turnOnRewardForOverlays: {
         // [OpenVR2WS.AN_OVERLAY_KEY]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
+    },
+
+    eventOptionsDefault: {
+        // [KeysTemplate.KEY_YOURREWARD]: { multiTierMaxLevel: 2 }
+    },
+    eventOptionsPerGame: {
+        // [GamesTemplate.A_GAME]: { [KeysTemplate.KEY_YOURREWARD]: { multiTierMaxLevel: 5 } }
     }
 }

@@ -24,8 +24,8 @@ class Rewards {
             const config = <ITwitchHelixRewardConfig> Utils.getEventConfig(key)?.triggers.reward
             if(config) {
                 const configClone = Utils.clone(Array.isArray(config) ? config[0] : config)
-                configClone.title = await Utils.replaceTagsInText(configClone.title, await Actions.buildEmptyUserData(EEventSource.Created))
-                configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, await Actions.buildEmptyUserData(EEventSource.Created))
+                configClone.title = await Utils.replaceTagsInText(configClone.title, await Actions.buildEmptyUserData(EEventSource.Created, key))
+                configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, await Actions.buildEmptyUserData(EEventSource.Created, key))
                 let reward = await modules.twitchHelix.createReward(configClone)
                 if(reward && reward.data && reward.data.length > 0) {
                     await Settings.pushSetting(Settings.TWITCH_REWARDS, 'key', {key: key, id: reward.data[0].id})

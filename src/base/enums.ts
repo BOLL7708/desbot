@@ -21,6 +21,7 @@ enum ETTSFunction {
 }
 enum EEventSource {
     Created,
+    Updated,
     TwitchReward,
     TwitchCheer,
     TwitchChat,

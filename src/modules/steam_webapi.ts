@@ -39,10 +39,15 @@ class SteamWebApi {
         const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetPlayerAchievements/v0001', id)
-            const response: ISteamWebApiPlayerAchievements = await fetch(`./proxy.php?url=${encodedUrl}`)
-                .then(response => response.json())
-            if(response != null) {
-                return response.playerstats.achievements ?? []
+            const response = await fetch(`./proxy.php?url=${encodedUrl}`)
+            let json: ISteamWebApiPlayerAchievements|undefined = undefined
+            try {
+                json = await response.json()
+            } catch (e) {
+                console.warn(`SteamWebApi: Failed to parse achievement JSON for ${appId}`)
+            }
+            if(json) {
+                return json?.playerstats?.achievements ?? undefined
             } else {
                 console.warn(`SteamWebApi: Failed to get achievements for ${appId}`)
             }
