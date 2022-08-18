@@ -95,6 +95,10 @@ interface IEventOptions {
      * Optional: Will avoid refunding the redemption when the clear redemptions command is used.
      */
     rewardIgnoreClearRedemptionsCommand?: boolean
+    /**
+     * Optional: Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.
+     */
+    specificIndex?: number
 }
 
 interface IEventTriggers {

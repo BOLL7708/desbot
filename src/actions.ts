@@ -1,18 +1,12 @@
 class ActionHandler {
-    event: IEvent|undefined
-    options: IEventOptions = {}
-    actionsEntries: IActions[] = []
     constructor(
         public key: string
-    ) {
-
-    }
-    actionsMainCallback?: IActionsMainCallback
-
+    ) {}
     public async call(user: IActionUser) {
-        this.event = Utils.getEventConfig(user.eventKey)
-        this.options = this.event?.options ?? {}
-        this.actionsEntries = Utils.ensureArray(this.event?.actionsEntries)
+        const event = Utils.getEventConfig(this.key)
+        const options = event?.options ?? {}
+        const actionsEntries = Utils.ensureArray(event?.actionsEntries)
+        let actionsMainCallback: IActionsMainCallback
 
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
@@ -25,16 +19,16 @@ class ActionHandler {
             This means we often rebuild the full main callback.
             As well as calculate and provide the index for action entries.
          */
-        switch(this.options?.behavior) {
+        switch(options?.behavior) {
             case EBehavior.Random:
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, [this.actionsEntries.getRandom() ?? {}])
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, [actionsEntries.getRandom() ?? {}])
                 break
             case EBehavior.Incrementing:
                 // Load incremental counter
                 counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', this.key) ?? counter
 
                 // Switch to the next incremental reward if it has more configs available
-                rewardConfigs = Utils.ensureArray(this.event?.triggers.reward)
+                rewardConfigs = Utils.ensureArray(event?.triggers.reward)
                 if(rewardConfigs.length > 1) {
                     counter.count++
                     const newRewardConfig = rewardConfigs[counter.count]
@@ -45,7 +39,7 @@ class ActionHandler {
                 }
                 // Register index and build callback for this step of the sequence
                 index = (counter?.count ?? 1)-1
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries).getAsType(index))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
             case EBehavior.Accumulating:
                 // Load accumulating counter
@@ -53,9 +47,9 @@ class ActionHandler {
                 counter.count = parseInt(counter.count.toString()) + Math.max(user.rewardCost, 1) // Without the parse loop, what should be a number can be a string due to coming from PHP. Add 1 for commands.
 
                 // Switch to the next accumulating reward if it has more configs available
-                rewardConfigs = Utils.ensureArray(this.event?.triggers.reward)
+                rewardConfigs = Utils.ensureArray(event?.triggers.reward)
                 let rewardIndex = 0
-                if(rewardConfigs.length >= 3 && counter.count >= (this.options.accumulationGoal ?? 0)) {
+                if(rewardConfigs.length >= 3 && counter.count >= (options.accumulationGoal ?? 0)) {
                     // Final reward (when goal has been reached)
                     index = 1
                     rewardIndex = 2
@@ -73,15 +67,15 @@ class ActionHandler {
                     }
                 }
                 // Register index and build callback for this step of the sequence
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries).getAsType(index))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
             case EBehavior.MultiTier:
-                rewardConfigs = Utils.ensureArray(this.event?.triggers.reward)
+                rewardConfigs = Utils.ensureArray(event?.triggers.reward)
 
                 // Increase multi-tier counter
                 const multiTierCounter = states.multitierEventCounters.get(this.key) ?? {count: 0, timeoutHandle: 0}
                 multiTierCounter.count++
-                const multiTierMaxValue = this.options.multiTierMaxLevel ?? rewardConfigs.length
+                const multiTierMaxValue = options.multiTierMaxLevel ?? rewardConfigs.length
                 if(multiTierCounter.count > multiTierMaxValue) {
                     multiTierCounter.count = multiTierMaxValue
                 }
@@ -90,11 +84,11 @@ class ActionHandler {
                 clearTimeout(multiTierCounter.timeoutHandle)
                 multiTierCounter.timeoutHandle = setTimeout(async() => {
                     // Run reset actions if enabled.
-                    if(this.options.multiTierDoResetActions) {
+                    if(options.multiTierDoResetActions) {
                         index = 0 // Should always be the first set of actions.
                         Actions.buildActionsMainCallback(
                             this.key,
-                            Utils.ensureArray(this.event?.actionsEntries).getAsType(index)
+                            actionsEntries.getAsType(index)
                         ) (user, index)
                     }
 
@@ -111,7 +105,7 @@ class ActionHandler {
                         if (newRewardConfigClone) modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                     modules.twitchHelix.toggleRewards({[this.key]: true}).then()
-                }, (this.options.multiTierTimeout ?? 30)*1000)
+                }, (options.multiTierTimeout ?? 30)*1000)
 
                 // Store new counter value
                 states.multitierEventCounters.set(this.key, multiTierCounter)
@@ -129,20 +123,20 @@ class ActionHandler {
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
                         modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
-                } else if(this.options.multiTierDisableWhenMaxed) {
+                } else if(options.multiTierDisableWhenMaxed) {
                     modules.twitchHelix.toggleRewards({[this.key]: false}).then()
                 }
 
                 // Register index and build callback for this step of the sequence
                 index = multiTierCounter.count
-                this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries).getAsType(index))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
-            default: // No special behavior, only generate the callback if it is missing
-                if(!this.actionsMainCallback) this.actionsMainCallback = Actions.buildActionsMainCallback(this.key, Utils.ensureArray(this.event?.actionsEntries))
+            default: // No special behavior, only generate the callback if it is missing, but uses the entries by type.
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(options.specificIndex))
                 break
         }
-        if(this.actionsMainCallback) this.actionsMainCallback(user, index) // Index is included here to supply it to entries-handling
-        else console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${this.options?.behavior}`)
+        if(actionsMainCallback) actionsMainCallback(user, index ?? options.specificIndex) // Index is included here to supply it to entries-handling
+        else console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${options?.behavior}`)
     }
 }
 class Actions {
