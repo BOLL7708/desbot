@@ -412,6 +412,11 @@ class Utils {
             result.userInputNoTags = input.replace(/@\w+/g, '')
             result.userInputNumber = parseFloat(input).toString()
             result.userInputTag = Utils.getFirstUserTagInText(input) ?? ''
+            result.userInputWord1 = inputSplit[0] ?? ''
+            result.userInputWord2 = inputSplit[1] ?? ''
+            result.userInputWord3 = inputSplit[2] ?? ''
+            result.userInputWord4 = inputSplit[3] ?? ''
+            result.userInputWord5 = inputSplit[4] ?? ''
         }
         return { ...result, ...StatesSingleton.getInstance().textTagCache }
     }

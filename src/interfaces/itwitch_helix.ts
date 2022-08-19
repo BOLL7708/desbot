@@ -186,3 +186,7 @@ interface ITwitchHelixChatColorResponse {
         }
     ]
 }
+
+interface ITwitchHelixRewardStates {
+    [key: string]: boolean
+}

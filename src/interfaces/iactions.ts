@@ -184,6 +184,11 @@ interface ITextTags extends ITextTagsCached{
     userInputNoTags: string
     userInputNumber: string
     userInputTag: string
+    userInputWord1: string
+    userInputWord2: string
+    userInputWord3: string
+    userInputWord4: string
+    userInputWord5: string
     userBits: string
     userBitsTotal: string
     userSubsTotal: string

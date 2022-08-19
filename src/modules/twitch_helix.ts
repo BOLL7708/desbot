@@ -142,7 +142,7 @@ class TwitchHelix {
             body: JSON.stringify(updateData)
         }
         let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
-        if(response.status == 500) {
+        if(response.status == 500) { // Retry once if the server broke
             Utils.log(`Failed to update Twitch reward ${rewardId}: ${response.error}(${response.status}) [${response.message}] retrying once.`, Color.OrangeRed)
             response = await fetch(url, request).then(res => res.json())
         }
@@ -150,11 +150,29 @@ class TwitchHelix {
         return response
     }
 
-    async toggleRewards(kvp: { [key: string]: boolean }) {
-        for(const [key, state] of Object.entries(kvp)) {
-            const id = await Utils.getRewardId(key)
-            if(id) this.updateReward(id, {is_enabled: state}).then()
+    async toggleRewards(rewards: ITwitchHelixRewardStates|string[]): Promise<ITwitchHelixRewardStates> {
+        const result: ITwitchHelixRewardStates = {}
+        if(Array.isArray(rewards)) {
+            for(const key of rewards) {
+                const id = await Utils.getRewardId(key)
+                if(id) {
+                    const reward = await this.getReward(id)
+                    const rewardData = reward?.data?.getSpecific(0)
+                    const isEnabled = rewardData?.is_enabled ?? null
+                    const updated = await this.updateReward(id, {is_enabled: !isEnabled})
+                    if(updated !== null ) result[key] = !isEnabled
+                }
+            }
+        } else {
+            for(const [key, state] of Object.entries(rewards)) {
+                const id = await Utils.getRewardId(key)
+                if(id) {
+                    const updated = await this.updateReward(id, {is_enabled: state})
+                    if(updated !== null) result[key] = state
+                }
+            }
         }
+        return result
     }
 
     async getClips(count: number = 20, pagination?: string): Promise<ITwitchHelixClipResponse> {
