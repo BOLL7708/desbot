@@ -108,9 +108,9 @@ interface IActions {
     label?: ILabelAction
 
     /**
-     * Optional: Trigger other commands, propagating input.
+     * Optional: Trigger other events, propagating input.
      */
-    commands?: ICommandAction
+    events?: IEventsAction
 
     /**
      * Optional: Send remote command to set remote command channel.
@@ -156,11 +156,15 @@ interface IActionUser {
     rewardMessage?: ITwitchPubsubRewardMessage
 }
 
-interface ICommandAction {
+interface IEventsAction {
     /**
-     * The command or commands to trigger, you can reference things in {@link Keys} here.
+     * Optional: Command(s) to trigger.
      */
-    entries: string|string[]
+    commandEntries?: string|string[]
+    /**
+     * Optional: Event(s) to trigger by key, referenced from {@link Keys}.
+     */
+    keyEntries?: string|string[]
     /**
      * Optional: Set the commands to be triggered at an interval to space things out in time.
      */

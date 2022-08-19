@@ -413,7 +413,7 @@ class Actions {
             actionCallbacks.pushIfExists(this.buildTwitchChatCallback(actions?.chat))
             actionCallbacks.pushIfExists(this.buildTwitchWhisperCallback(actions?.whisper))
             actionCallbacks.pushIfExists(this.buildLabelCallback(actions?.label))
-            actionCallbacks.pushIfExists(this.buildCommandsCallback(actions?.commands))
+            actionCallbacks.pushIfExists(this.buildEventsCallback(actions?.events))
             actionCallbacks.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
             actionCallbacks.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
 
@@ -764,21 +764,33 @@ class Actions {
         }
     }
 
-    private static buildCommandsCallback(config: ICommandAction|undefined): IActionCallback|undefined {
+    private static buildEventsCallback(config: IEventsAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🖐',
-            description: 'Callback that triggers a Commands action',
+            description: 'Callback that triggers events',
             call: (user, index) => {
                 const modules = ModulesSingleton.getInstance()
                 const interval = config.interval ?? 0
                 let delay = 0
-                const commands = Utils.ensureArray(config.entries).getAsType(index)
+
+                // Commands
+                const commands = Utils.ensureArray(config.commandEntries).getAsType(index)
                 for(const command of commands) {
-                    console.log(`Executing command: ${command} in ${delay} seconds...`)
+                    Utils.log(`Executing command: ${command} in ${delay} seconds...`, Color.Grey)
                     let inputText = user.input
                     if(command.includes(' ')) inputText = Utils.splitOnFirst(' ', inputText)[0]
                     setTimeout(()=>{
                         modules.twitch.runCommand(command, {...user, input: inputText}).then()
+                    }, delay*1000)
+                    delay += interval
+                }
+
+                // Keys
+                const keys = Utils.ensureArray(config.keyEntries).getAsType(index)
+                for(const key of keys) {
+                    Utils.log(`Executing event: ${key} in ${delay} seconds...`, Color.Grey)
+                    setTimeout(()=>{
+                        new ActionHandler(key).call(user).then()
                     }, delay*1000)
                     delay += interval
                 }

@@ -549,8 +549,14 @@ Config.events = {
             speech: {
                 entries: 'Running stream end tasks'
             },
-            commands: { 
-                entries: [ 'trophy', 'clips', 'clearqueue', 'resetinc', 'resetacc' ],
+            events: {
+                keyEntries: [
+                    KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
+                    KeysTemplate.COMMAND_CLIPS,
+                    KeysTemplate.COMMAND_CLEAR_REDEMPTIONS,
+                    KeysTemplate.COMMAND_RESET_INCREMENTING_EVENTS,
+                    KeysTemplate.COMMAND_RESET_ACCUMULATING_EVENTS
+                ],
                 interval: 20
             }
         }
