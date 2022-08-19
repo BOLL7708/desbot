@@ -1,5 +1,5 @@
 class TwitchFactory {
-    private static buildMessage(data:string):ITwitchChatMessage {
+    private static buildMessage(data:string): ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
         const matches: RegExpExecArray|null = re.exec(data)
         let matches2:RegExpExecArray|null = null
@@ -32,7 +32,7 @@ class TwitchFactory {
         return message.username != undefined && message.type != undefined && message.text != undefined
     }
 
-    private static buildMessageProperties(data:string):ITwitchChatMessageProperties {
+    private static buildMessageProperties(data:string): ITwitchChatMessageProperties {
         const rows: string[] = data.split(';')
         const props:any = {}
         rows.forEach(row => { // Fill props with all incoming data pairs
@@ -72,7 +72,7 @@ class TwitchFactory {
         return properties
     }
 
-    private static buildMessageEmotes(data:string):ITwitchEmote[] {
+    private static buildMessageEmotes(data:string): ITwitchEmote[] {
         const emoteStrings:string[] = data ? data.split('/') : []
         const result:ITwitchEmote[] = emoteStrings.map(str => { 
             const [id, rest]:string[] = str.split(':')
@@ -89,7 +89,7 @@ class TwitchFactory {
         return result
     }
 
-    public static getEmotePositions(emotes: ITwitchEmote[]):ITwitchEmotePosition[] {
+    public static getEmotePositions(emotes: ITwitchEmote[]): ITwitchEmotePosition[] {
         const ranges: ITwitchEmotePosition[] = []
         if(emotes.length > 0) {
             emotes.forEach(emotes => ranges.push(...emotes.positions))
@@ -97,10 +97,16 @@ class TwitchFactory {
         }
         return ranges
     }
+    public static getPubsubEmotePositions(emotes: ITwitchPubsubEmote[]): ITwitchEmotePosition[] {
+        const twitchEmotes = emotes.map(emote => {
+            return <ITwitchEmote> { id: emote.id.toString(), positions: [{ start: emote.start, end: emote.end}] }
+        })
+        return this.getEmotePositions(twitchEmotes)
+    }
 
-    public static buildMessageCmd(data:string):ITwitchMessageCmd {
+    public static buildMessageCmd(data:string): ITwitchMessageCmd {
         const [props, msg] = Utils.splitOnFirst(' :', data)
-        const messageCmd:ITwitchMessageCmd = {
+        const messageCmd: ITwitchMessageCmd = {
             properties: this.buildMessageProperties(props),
             message: this.buildMessage(msg)
         }

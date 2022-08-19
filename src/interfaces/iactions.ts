@@ -143,6 +143,7 @@ interface IActionUser {
     login: string
     name: string
     input: string
+    message: string
     color: string
     isBroadcaster: boolean
     isModerator: boolean
@@ -171,6 +172,7 @@ interface ITextTags extends ITextTagsCached{
     userName: string
     userTag: string
     userNick: string
+    userMessage: string
     userInput: string
     userInputHead: string
     userInputRest: string

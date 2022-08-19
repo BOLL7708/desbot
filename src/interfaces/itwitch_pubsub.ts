@@ -88,18 +88,17 @@ interface ITwitchPubsubSubscriptionMessage {
     is_gift: false
     sub_message: {
         message: string
-        emotes: null|[
-            {
-                start: number
-                end: number
-                id: number
-            }
-        ]
+        emotes: null|ITwitchPubsubEmote[]
     },
     recipient_id?: string
     recipient_user_name?: string
     recipient_display_name?: string
     multi_month_duration?: number
+}
+interface ITwitchPubsubEmote {
+    start: number
+    end: number
+    id: number
 }
 
 // Cheer

@@ -42,7 +42,11 @@ class Utils {
         return result.length > 0 ? result : name
     }
 
-    static async cleanText(text:string, config: ICleanTextConfig, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
+    static async cleanText(textInput:string|undefined, config?: ICleanTextConfig, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
+        if(textInput == undefined || textInput.length == 0) return ''
+        let text = textInput ?? ''
+
+        if(!config) config = Config.google.cleanTextConfig
         if(!config.keepCase) text = text.toLowerCase()
 
         // Remove Twitch emojis
@@ -339,6 +343,7 @@ class Utils {
             userName: `${userData?.name}`,
             userTag: `@${userData?.name}`,
             userNick: await this.loadCleanName(userData?.login ?? ''),
+            userMessage: userData?.message ?? '',
             userInput: '',
             userInputHead: '',
             userInputRest: '',

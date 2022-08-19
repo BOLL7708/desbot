@@ -85,7 +85,7 @@ class Twitch{
         this._allChatCallback = callback
     }
 
-    private onChatMessage(messageCmd: ITwitchMessageCmd) {
+    private async onChatMessage(messageCmd: ITwitchMessageCmd) {
         const msg = messageCmd.message
         if(!msg) return
         let userName: string = msg.username?.toLowerCase() ?? ''
@@ -115,6 +115,7 @@ class Twitch{
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? userName,
             input: '',
+            message: await Utils.cleanText(messageCmd.message.text, Config.google.cleanTextConfig, TwitchFactory.getEmotePositions(messageCmd.properties.emotes ?? [])),
             color: messageCmd.properties?.color ?? '',
             isModerator: isModerator,
             isVIP: isVIP,

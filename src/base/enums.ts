@@ -24,6 +24,7 @@ enum EEventSource {
     Updated,
     TwitchReward,
     TwitchCheer,
+    TwitchSubscription,
     TwitchChat,
     TwitchCommand,
     TwitchRemoteCommand,

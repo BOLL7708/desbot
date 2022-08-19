@@ -180,7 +180,7 @@ class Callbacks {
             }
         })
 
-        modules.twitchPubsub.setOnSubscriptionCallback( (message) => {
+        modules.twitchPubsub.setOnSubscriptionCallback( async(message) => {
             // https://dev.twitch.tv/docs/pubsub#topics Channel Subscription Event Message
             const subTier = parseInt(message.sub_plan) || 0 // Prime ends up as 0 as it's not a valid int.
             const multiMonth = message.multi_month_duration ?? 0 // Only exists if it was a multi month subscription.
@@ -200,20 +200,17 @@ class Callbacks {
 
             // Announce sub
             if(sub) {
+                const user = await Actions.buildUserDataFromSubscriptionMessage('', message)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
-                    Utils.replaceTags(
-                        sub.message,
-                        {
-                            userName: message.display_name ?? '',
-                            userTag: `@${message.display_name}`,
-                            targetName: message.recipient_display_name ?? '',
-                            targetTag: `@${message.recipient_display_name}`
-                        }
-                    )
+                    await Utils.replaceTagsInText(sub.message, user, {
+                        targetLogin: message.recipient_user_name ?? '',
+                        targetName: message.recipient_display_name ?? '',
+                        targetTag: `@${message.recipient_display_name}`
+                    })
                 )
             }
         })
-        modules.twitchPubsub.setOnCheerCallback((message) => {
+        modules.twitchPubsub.setOnCheerCallback(async (message) => {
             // Save user cheer
             const cheerSetting: ITwitchCheerSetting = {
                 userName: message.data.user_name ?? '', 
@@ -230,19 +227,12 @@ class Callbacks {
                 if(bits >= level.bits) selectedLevel = level
             }
             if(selectedLevel) {
+                const user = await Actions.buildUserDataFromCheerMessage('', message)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
-                    Utils.replaceTags(
-                        selectedLevel.message, 
-                        {
-                            userName: message.data.user_name ?? '',
-                            userTag: `@${message.data.user_name}`, 
-                            userBits: (message.data.bits_used ?? 0).toString()
-                        }
-                    )
+                    await Utils.replaceTagsInText(selectedLevel.message, user)
                 )
             }
         })
-
 
         /*
         ..####....####...#####...######..######..##..##...####...##..##...####...######...####..

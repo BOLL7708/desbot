@@ -163,6 +163,7 @@ class Actions {
             login: message?.data?.redemption?.user?.login ?? '',
             name: message?.data?.redemption?.user?.display_name ?? '',
             input: message?.data?.redemption?.user_input ?? '',
+            message: await Utils.cleanText(message?.data?.redemption?.user_input),
             color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -176,7 +177,7 @@ class Actions {
     }
     public static async buildUserDataFromCheerMessage(key: string, message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
-        const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_id ?? '')
+        const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_name ?? '')
         const id = user?.id ?? ''
         return {
             source: EEventSource.TwitchCheer,
@@ -185,6 +186,7 @@ class Actions {
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: message?.data?.chat_message ?? '',
+            message: await Utils.cleanText(message?.data?.chat_message),
             color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -195,11 +197,33 @@ class Actions {
             rewardCost: 0
         }
     }
+    public static async buildUserDataFromSubscriptionMessage(key: string, message?: ITwitchPubsubSubscriptionMessage): Promise<IActionUser> {
+        const modules = ModulesSingleton.getInstance()
+        const user = await modules.twitchHelix.getUserByLogin(message?.user_name ?? '')
+        const id = user?.id ?? ''
+        return {
+            source: EEventSource.TwitchSubscription,
+            eventKey: key,
+            id: id,
+            login: user?.login ?? '',
+            name: user?.display_name ?? '',
+            input: message?.sub_message.message ?? '',
+            message: await Utils.cleanText(message?.sub_message.message),
+            color: await modules.twitchHelix.getUserColor(id) ?? '',
+            isBroadcaster: false,
+            isModerator: false,
+            isVIP: false,
+            isSubscriber: false, // True? Or can it be a gift sub so it's true for someone else?
+            bits: 0,
+            bitsTotal: 0,
+            rewardCost: 0
+        }
+    }
     /**
      * Used for programmatic command execution not done by an actual user.
      * @returns 
      */
-    public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string): Promise<IActionUser> {
+    public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(userName ?? Config.twitch.channelName)
         return {
@@ -209,6 +233,7 @@ class Actions {
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: userInput ?? '',
+            message: await Utils.cleanText(userMessage ?? userInput),
             color: await modules.twitchHelix.getUserColor(user?.id ?? '') ?? '',
             isBroadcaster: true,
             isModerator: false,
