@@ -67,7 +67,7 @@ Config.events = {
         actionsEntries: {
             speech: { entries: 'Global TTS is now enabled.' },
             tts: { function: ETTSFunction.Enable },
-            rewardStates: { [Keys.REWARD_TTSSPEAK]: false }
+            rewardStates: { [Keys.REWARD_TTSSPEAK]: { state: false } }
         }
     },
     [KeysTemplate.COMMAND_TTS_OFF]: {
@@ -77,7 +77,7 @@ Config.events = {
         actionsEntries: {
             speech: { entries: 'Global TTS is now disabled.' },
             tts: { function: ETTSFunction.Disable },
-            rewardStates: { [Keys.REWARD_TTSSPEAK]: true }
+            rewardStates: { [Keys.REWARD_TTSSPEAK]: { state: true } }
         }
     },
     [KeysTemplate.COMMAND_TTS_SILENCE]: {

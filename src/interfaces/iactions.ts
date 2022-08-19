@@ -254,7 +254,16 @@ interface IWhisperAction {
 }
 
 interface IRewardStatesAction {
-    [key: string]: boolean
+    [key: string]: {
+        /**
+         * Optional: Set to true to enable the reward, false to disable, leave it out to toggle.
+         */
+        state?: boolean
+        /**
+         * Optional: Set this to add overrides for this reward for this session, meaning game profiles will not change it anymore.
+         */
+        override?: boolean
+    }
 }
 
 // Data

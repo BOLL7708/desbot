@@ -637,4 +637,13 @@ class Utils {
         }
         return [text]
     }
+
+    static newKey(): string {
+        const keys = [...new Set( ...Object.keys(Config.events ?? {}), ... Object.keys(Config.eventsForGames ?? {}))]
+        let newKey = ''
+        while(newKey.length == 0 || keys.includes(newKey)) {
+            newKey = Math.random().toString(36).substring(2)
+        }
+        return newKey
+    }
 }

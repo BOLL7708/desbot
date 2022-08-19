@@ -781,22 +781,30 @@ class Actions {
             description: 'Callback that triggers a Reward States action',
             call: async () => {
                 const modules = ModulesSingleton.getInstance()
-                
-                // Change the overrides to make this persistent this session.
-                for(const [key, state] of Object.entries(config)) {
-                    const on = Config.twitch.alwaysOnRewards
-                    const off = Config.twitch.alwaysOffRewards
-                    if(state) {
-                        if(!on.includes(key)) on.push(key)
-                        if(off.includes(key)) delete off[off.indexOf(key)]
-                    } else {
-                        if(!off.includes(key)) off.push(key)
-                        if(on.includes(key)) delete on[on.indexOf(key)]
+                for(const [key, stateConfig] of Object.entries(config)) {
+                    const stateConfigClone = Utils.clone(stateConfig)
+                    // Get current reward state if none was provided in config.
+                    if(stateConfigClone.state == undefined) {
+                        const reward = await modules.twitchHelix.getReward(await Utils.getRewardId(key) ?? '')
+                        const rewardData = reward?.data?.getSpecific(0)
+                        const isEnabled = rewardData?.is_enabled ?? null
+                        stateConfigClone.state = !isEnabled // Flip as we will toggle.
                     }
+                    // Change the overrides to make this persistent this session.
+                    if(stateConfigClone.override) {
+                        const on = Config.twitch.alwaysOnRewards
+                        const off = Config.twitch.alwaysOffRewards
+                        if(stateConfigClone.state) {
+                            if (!on.includes(key)) on.push(key)
+                            if (off.includes(key)) delete off[off.indexOf(key)]
+                        } else {
+                            if (!off.includes(key)) off.push(key)
+                            if (on.includes(key)) delete on[on.indexOf(key)]
+                        }
+                    }
+                    // Toggle the reward on Twitch
+                    await modules.twitchHelix.toggleRewards({ [key]: stateConfigClone.state })
                 }
-                
-                // Toggle the reward(s) on Twitch
-                await modules.twitchHelix.toggleRewards(config)
             }
         }
     }
