@@ -137,17 +137,23 @@ class Functions {
         // Update rewards
 
         /**
-         * Toggle individual rewards on/off depending on the app ID
+         * Toggle individual rewards on/off depending on the app ID.
+         *
+         * At one point, I fixed something that was messing things up for Doc, I think his main profiles were overridden.
+         * So I switched to setting a fixed value, but this is also not what was originally intended.
+         * I've changed it so we set a value if the game is included, then we only set the opposite value if the key is not set yet.
          */
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
-            const games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
+            let games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
             Utils.log(`--> will turn on reward '${rewardKey}' depending on game.`, Color.Gray)
             if(games.includes(appId)) profileToUse[rewardKey] = true
+            else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = false
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
-            const games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
+            let games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
             Utils.log(`--> will turn off reward '${rewardKey}' depending on game.`, Color.Gray)
             if(games.includes(appId)) profileToUse[rewardKey] = false
+            else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = true
         }
 
         /**

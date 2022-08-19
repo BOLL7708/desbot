@@ -105,11 +105,11 @@ interface ITwitchConfig {
      */
     rewardProfilePerGame: { [key: string]: ITwitchRewardProfileConfig }
     /**
-     * Turn on rewards depending on if a game is running, else off.
+     * Turn on rewards depending on if a game is running, else off, if the key has not been set yet (used in a profile).
      */
     turnOnRewardForGames: { [key: string]: string[] }
     /**
-     * Turn off rewards depending on if a game is running, else on
+     * Turn off rewards depending on if a game is running, else on, if the key has not been set yet (used in a profile).
      */
     turnOffRewardForGames: { [key: string]: string[] }
     /**
