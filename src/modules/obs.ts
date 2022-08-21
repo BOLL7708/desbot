@@ -61,7 +61,7 @@ class OBS {
 
     show(config: IObsAction|undefined, ignoreDuration: boolean = false) {
         if(config?.sceneNames != undefined) { // If we have scenes, it would be sources we toggle.
-            const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? ''))
+            const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? 'Unknown'))
             if(group) { // If this source is in a group, hide all other sources in the group. Useful for sources sharing a single position on screen.
                 for(const k of group) {
                     if(k != config.key) {
@@ -83,7 +83,7 @@ class OBS {
             }
         } else if(config?.filterName != undefined) {
             // If this filter is in a group, hide all the other ones, useful for audio filters that should not overlap.
-            const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? ''))
+            const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? 'Unknown'))
             if(group) {
                 for(const k of group) {
                     if(k != config.key) {
@@ -138,12 +138,12 @@ class OBS {
     /**
      * Triggers the screenshot capture of an OBS source
      * @param rewardKey The internal key for the reward
-     * @param rewardData Data from the Twitch reward
+     * @param userData Data from the Twitch reward
      * @param sourceName What source in OBS to capture
      * @param delaySeconds Amount of time to delay the capture
      * @returns The message ID that is referenced in the result callback
      */
-    takeSourceScreenshot(rewardKey: string, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
+    takeSourceScreenshot(rewardKey: TKeys, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
         const requestData: IScreenshotRequestData = { 
             rewardKey: rewardKey, 
             userId: Utils.toInt(userData.id, -1), 

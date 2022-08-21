@@ -14,13 +14,13 @@ Config.credentials = <ICredentialsConfig> {
     PhilipsHueUsername: '',
     PHPPassword: '',
     DiscordWebhooks: {
-        [KeysTemplate.DISCORD_CHAT]: 'The webhook URL you want to use for logging Twitch chat',
-        [KeysTemplate.DISCORD_VRSCREENSHOT]: 'The webhook URL you want to use for VR screenshots',
-        [KeysTemplate.DISCORD_OBSSCREENSHOT]: 'The webhook URL you want to use for OBS screenshots',
-        [KeysTemplate.REWARD_CHANNELTROPHY]: 'The webhook URL you want to use for the channel trophy',
-        [KeysTemplate.CALLBACK_ACHIEVEMENT]: 'The webhook URL you want to use for the achievement callback',
-        [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: 'The webhook URL you want to use for channel trophy statistics',
-        [KeysTemplate.COMMAND_CLIPS]: 'The webhook URL you want to use for Twitch clips'
+        'DiscordChat': 'The webhook URL you want to use for logging Twitch chat',
+        'DiscordVRScreenshot': 'The webhook URL you want to use for VR screenshots',
+        'DiscordOBSScreenshot': 'The webhook URL you want to use for OBS screenshots',
+        'ChannelTrophy': 'The webhook URL you want to use for the channel trophy',
+        'CallbackAchievement': 'The webhook URL you want to use for the achievement callback',
+        'ChannelTrophyStats': 'The webhook URL you want to use for channel trophy statistics',
+        'Clips': 'The webhook URL you want to use for Twitch clips'
     },
     SteamWebAPIKey: '',
     SteamUserID: '',
@@ -64,15 +64,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         subscribers: false,
         everyone: false
     },
-    commandPermissionsOverrides: {
-        [KeysTemplate.COMMAND_LOG_ON]: {moderators: false},
-        [KeysTemplate.COMMAND_LOG_OFF]: {moderators: false},
-        [KeysTemplate.COMMAND_TTS_NICK]: {VIPs: true},
-        [KeysTemplate.COMMAND_BRIGHTNESS]: {moderators: false},
-        [KeysTemplate.COMMAND_REFRESHRATE]: {moderators: false},
-        [KeysTemplate.COMMAND_VRVIEWEYE]: {moderators: false},
-        [KeysTemplate.COMMAND_GAME]: {everyone: true}
-    },
     speechReferences: {
         /*
         .######..######..##..##..######..#####..
@@ -81,69 +72,69 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         .##........##.....####...##......##..##.
         .##......######..##..##..######..#####..
         */
-        [KeysTemplate.COMMAND_SCALE]: [
+        'Scale': [
             'World scale set to %userNumber%',
             'World scale will change from %from to %to% over %mins minutes',
             'World scale sequence finished',
             'World scale sequence not set',
             'World scale sequence terminated'
         ],
-        [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: [
+        'ChannelTrophyStats': [
             'Initiating posting all Channel Trophy statistics',
             'Completed posting all Channel Trophy statistics',
             'Initiating posting of Channel Trophy statistics',
             'Completed posting of Channel Trophy statistics',
             'Failed to post Channel Trophy statistics'
         ],
-        [KeysTemplate.COMMAND_CLIPS]: [
+        'Clips': [
             'Starting Twitch clip import.',
             'There are %count1 old clips, %count2 new clips.',
             'Finished posting %count new clips.'
         ],
-        [KeysTemplate.CALLBACK_APPID]: [
+        'CallbackAppID': [
             'Twitch game updated: %game',
             'Twitch game not matched: %game'
         ],
-        [KeysTemplate.COMMAND_CLEAR_REDEMPTIONS]: [
+        'ClearRedemptions': [
             'Initiating clearing of reward redemptions queue',
             'Completed clearing the reward redemptions queue, set %count out of %total to fulfilled',
             'There were no reward redemptions in the queue to clear'
         ],
-        [KeysTemplate.COMMAND_RESET_INCREMENTING_EVENTS]: [
+        'ResetIncrementingEvents': [
             'Initiating reset of incremental events',
             'Finished resetting %reset out of %total incremental events, skipping %skipped'
         ],
-        [KeysTemplate.COMMAND_RESET_ACCUMULATING_EVENTS]: [
+        'ResetAccumulatingEvents': [
             'Initiating reset of accumulating events',
             'Finished resetting %reset out of %total accumulating events, skipping %skipped'
         ],
-        [KeysTemplate.COMMAND_QUOTE]: 'Quote by %targetTag added',
-        [KeysTemplate.COMMAND_GAMERESET]: 'Currently running Steam game has been reset.',
-        [KeysTemplate.COMMAND_CHAT_ON]: 'Chat enabled',
-        [KeysTemplate.COMMAND_CHAT_OFF]: 'Chat disabled',
-        [KeysTemplate.COMMAND_PING_ON]: 'Chat ping enabled',
-        [KeysTemplate.COMMAND_PING_OFF]: 'Chat ping disabled',
-        [KeysTemplate.COMMAND_LOG_ON]: 'Logging enabled',
-        [KeysTemplate.COMMAND_LOG_OFF]: 'Logging disabled',
-        [KeysTemplate.COMMAND_BRIGHTNESS]: 'Headset brightness set to %value%',
-        [KeysTemplate.COMMAND_REFRESHRATE]: 'Headset refresh rate set to %value hertz',
-        [KeysTemplate.COMMAND_VRVIEWEYE]: 'Output eye mode changed to %value',
-        [KeysTemplate.COMMAND_GAMEREWARDS_ON]: 'Game specific rewards enabled',
-        [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: 'Game specific rewards disabled',
+        'Quote': 'Quote by %targetTag added',
+        'GameReset': 'Currently running Steam game has been reset.',
+        'ChatOn': 'Chat enabled',
+        'ChatOff': 'Chat disabled',
+        'PingOn': 'Chat ping enabled',
+        'PingOff': 'Chat ping disabled',
+        'LogOn': 'Logging enabled',
+        'LogOff': 'Logging disabled',
+        'Brightness': 'Headset brightness set to %value%',
+        'RefreshRate': 'Headset refresh rate set to %value hertz',
+        'VrViewEye': 'Output eye mode changed to %value',
+        'GameRewardsOn': 'Game specific rewards enabled',
+        'GameRewardsOff': 'Game specific rewards disabled',
     },
     chatReferences: {
-        [KeysTemplate.COMMAND_QUOTE]: '%targetTag said: "%text" (on: %date, game: %gameName)',
-        [KeysTemplate.COMMAND_REFUND_REDEMPTION]: [
+        'Quote': '%targetTag said: "%text" (on: %date, game: %gameName)',
+        'RefundRedemption': [
             '%targetTag was refunded: %cost points',
             'Failed to refund %targetTag anything.',
             '%targetTag has nothing to refund!'
         ],
-        [KeysTemplate.COMMAND_RAID]: [
+        'Raid': [
             'Initiating raid on %targetTag, currently playing: %targetGame',
             'Stream title "%targetTitle", link to avoid preroll: %targetLink',
             'I could not find channel: "%userInput"'
         ],
-        [KeysTemplate.COMMAND_UNRAID]: [
+        'Unraid': [
             'Raid cancelled.',
             'Could not cancel raid.'
         ]
@@ -264,7 +255,7 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
 Config.pipe = <IPipeConfig> {
     port: 8077,
     showRewardsWithKeys: [
-        KeysTemplate.REWARD_TTSSPEAK
+        'Speak'
     ],
     useCustomChatNotification: false,
     customChatMessageConfig: {
@@ -319,8 +310,8 @@ Config.screenshots = <IScreenshotConfig> {
         signManualSubtitle: 'Manual shot!',
         signDurationMs: 5000,
         pipeEnabledForManual: false,
-        pipeEnabledForRewards: <string[]> [
-            // KeysTemplate.YOUR_SCREENSHOT_REWARD_KEY
+        pipeEnabledForRewards: [
+            'Unknown' // Your screenshot reward key
         ],
         pipeMessagePreset: PipePresetsTemplate.PIPE_SCREENSHOT,
         soundEffectForOBSScreenshots: {
@@ -384,7 +375,7 @@ Config.openvr2ws = <IOpenVR2WSConfig> {
 Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
     configs: {
         /*
-        [KeysTemplate.KEY_ANNOUNCE_SOUND_EFFECT_FOR_AN_EMOTE]: {
+        'MatchedString': {
             srcEntries: '_assets/your_chat_sound.wav',
             volume: 0.5
         }
@@ -473,37 +464,37 @@ Config.twitch = <ITwitchConfig> {
     ],
 
     alwaysOnRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
-        KeysTemplate.REWARD_CHANNELTROPHY
+        'ChannelTrophy'
     ],
     alwaysOffRewards: [],
 
     rewardProfileDefault: {
-        // [KeysTemplate.KEY_YOURREWARD]: true,
+        // 'YourReward': true,
     },
     rewardProfileDefaultVR: {
-        // [KeysTemplate.KEY_YOURREWARD]: true,
+        // 'YourReward': true,
     },
     rewardProfileNoGame: {
-        // [KeysTemplate.KEY_YOURREWARD]: true,
+        // 'YourReward': true,
     },
     rewardProfilePerGame: {
-        // [GamesTemplate.A_GAME]: { [KeysTemplate.KEY_YOURREWARD]: true, [KeysTemplate.KEY_YOUROTHERREWARD]: false }
+        // [GamesTemplate.A_GAME]: { 'YourReward': true, 'YourOtherReward': false }
     },
 
     turnOnRewardForGames: {
-        // [GamesTemplate.A_GAME]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
+        // [GamesTemplate.A_GAME]: ['YourReward', 'YourOtherReward']
     },
     turnOffRewardForGames: {
-        // [GamesTemplate.A_GAME]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
+        // [GamesTemplate.A_GAME]: ['YourReward', 'YourOtherReward']
     },
     turnOnRewardForOverlays: {
-        // [OpenVR2WS.AN_OVERLAY_KEY]: [KeysTemplate.KEY_YOURREWARD, KeysTemplate.KEY_YOUROTHERREWARD]
+        // [OpenVR2WS.AN_OVERLAY_KEY]: ['YourReward', 'YourOtherReward']
     },
 
     eventOptionsDefault: {
-        // [KeysTemplate.KEY_YOURREWARD]: { multiTierMaxLevel: 2 }
+        // 'YourReward': { multiTierMaxLevel: 2 }
     },
     eventOptionsPerGame: {
-        // [GamesTemplate.A_GAME]: { [KeysTemplate.KEY_YOURREWARD]: { multiTierMaxLevel: 5 } }
+        // [GamesTemplate.A_GAME]: { 'YourReward': { multiTierMaxLevel: 5 } }
     }
 }

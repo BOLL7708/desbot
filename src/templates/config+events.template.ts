@@ -17,7 +17,7 @@ Config.events = {
     ...##......##........##.
     ...##......##.....####..
     */
-    [KeysTemplate.EVENT_TTSSETVOICE]: {
+    'SetVoice': {
         triggers: {
             command: {
                 entries: ['voice', 'setvoice'],
@@ -60,27 +60,27 @@ Config.events = {
     ...##......##........##.
     ...##......##.....####..
     */
-    [KeysTemplate.COMMAND_TTS_ON]: {
+    'TtsOn': {
         triggers: {
             command: { entries: 'ttson' }
         },
         actionsEntries: {
-            speech: { entries: 'Global TTS is now enabled.' },
+            speech: { entries: 'TTS enabled.' },
             tts: { function: ETTSFunction.Enable },
-            rewardStates: { [Keys.REWARD_TTSSPEAK]: { state: false } }
+            rewardStates: { 'Speak': { state: false } }
         }
     },
-    [KeysTemplate.COMMAND_TTS_OFF]: {
+    'TtsOff': {
         triggers: {
             command: { entries: 'ttsoff' }
         },
         actionsEntries: {
-            speech: { entries: 'Global TTS is now disabled.' },
+            speech: { entries: 'TTS disabled.' },
             tts: { function: ETTSFunction.Disable },
-            rewardStates: { [Keys.REWARD_TTSSPEAK]: { state: true } }
+            rewardStates: { 'Speak': { state: true } }
         }
     },
-    [KeysTemplate.COMMAND_TTS_SILENCE]: {
+    'Silence': {
         triggers: {
             command: { entries: 'silence' }
         },
@@ -88,7 +88,7 @@ Config.events = {
             tts: { function: ETTSFunction.StopCurrent }
         }
     },
-    [KeysTemplate.COMMAND_TTS_DIE]: {
+    'TtsDie': {
         triggers: {
             command: { entries: ['die', 'ttsdie'] }
         },
@@ -96,7 +96,7 @@ Config.events = {
             tts: { function: ETTSFunction.StopAll }
         }
     },
-    [KeysTemplate.COMMAND_TTS_NICK]: {
+    'TtsNick': {
         triggers: {
             command: {
                 entries: ['nick', 'setnick'],
@@ -112,7 +112,7 @@ Config.events = {
             speech: { entries: '%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_GETNICK]: {
+    'TtsGetNick': {
         triggers: {
             command: {
                 entries: 'getnick',
@@ -124,7 +124,7 @@ Config.events = {
             chat: { entries: 'TTS: "%lastTTSSetNickLogin" is called "%lastTTSSetNickSubstitute"' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_CLEARNICK]: {
+    'TtsClearNick': {
         triggers: {
             command: {
                 entries: 'clearnick',
@@ -139,7 +139,7 @@ Config.events = {
             speech: { entries: '%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_MUTE]: {
+    'TtsMute': {
         triggers: {
             command: { entries: 'mute' }
         },
@@ -148,7 +148,7 @@ Config.events = {
             speech: { entries: '%targetTag has lost their voice.' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_UNMUTE]: {
+    'TtsUnmute': {
         triggers: {
             command: { entries: 'unmute' }
         },
@@ -157,7 +157,7 @@ Config.events = {
             speech: { entries: '%targetTag has regained their voice.' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_GETVOICE]: {
+    'TtsGetVoice': {
         triggers: {
             command: {
                 entries: 'getvoice',
@@ -168,7 +168,7 @@ Config.events = {
             chat: { entries: 'TTS: %targetOrUserTag\'s voice is "%targetOrUserVoice"' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_GENDER]: {
+    'TtsGender': {
         triggers: {
             command: {
                 entries: 'gender',
@@ -187,7 +187,7 @@ Config.events = {
             chat: { entries: 'TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice' }
         }
     },
-    [KeysTemplate.COMMAND_TTS_VOICES]: {
+    'TtsVoices': {
         triggers: {
             command: {
                 entries: ['tts', 'voices'],
@@ -207,7 +207,7 @@ Config.events = {
     .##..##..##..##..##..##....##...
     ..####...##..##..##..##....##...
     */
-    [KeysTemplate.COMMAND_CHAT]: {
+    'Chat': {
         triggers: {
             command: {
                 entries: 'chat',
@@ -215,27 +215,27 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_CHAT_ON]: {
+    'ChatOn': {
         triggers: {
             command: { entries: 'chaton' }
         }
     },
-    [KeysTemplate.COMMAND_CHAT_OFF]: {
+    'ChatOff': {
         triggers: {
             command: { entries: 'chatoff' }
         }
     },
-    [KeysTemplate.COMMAND_PING_ON]: {
+    'PingOn': {
         triggers: {
             command: { entries: 'pingon' }
         }
     },
-    [KeysTemplate.COMMAND_PING_OFF]: {
+    'PingOff': {
         triggers: {
             command: { entries: 'pingoff' }
         }
     },
-    [KeysTemplate.COMMAND_QUOTE]: {
+    'Quote': {
         triggers: {
             command: { entries: 'quote' }
         }
@@ -248,7 +248,7 @@ Config.events = {
     .##......##..##..##..##.
     .######...####....####..
     */
-    [KeysTemplate.COMMAND_LOG_ON]: {
+    'LogOn': {
         triggers: {
             command: {
                 entries: 'logon',
@@ -256,7 +256,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_LOG_OFF]: {
+    'LogOff': {
         triggers: {
             command: {
                 entries: 'logoff',
@@ -272,7 +272,7 @@ Config.events = {
     .....##..##..##..##..##..##......##.....
     ..####....####...##..##..######..######.
     */
-    [KeysTemplate.COMMAND_SCALE]: {
+    'Scale': {
         triggers: {
             command: { entries: 'scale' }
         }
@@ -285,7 +285,7 @@ Config.events = {
     .##..##....##....##..##....##......##....##..##..##..##..##..##..##..##....##...
     .#####...######...####.....##....######...####...##..##..##..##..##..##....##...
     */
-    [KeysTemplate.COMMAND_DICTIONARY_SET]: {
+    'DictionarySetWord': {
         triggers: {
             command: {
                 entries: ['word', 'setword'],
@@ -300,7 +300,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_DICTIONARY_GET]: {
+    'DictionaryGetWord': {
         triggers: {
             command: {
                 entries: ['getword'],
@@ -312,7 +312,7 @@ Config.events = {
             chat: { entries: 'Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"' }
         }
     },
-    [KeysTemplate.COMMAND_DICTIONARY_CLEAR]: {
+    'DictionaryClearWord': {
         triggers: {
             command: {
                 entries: 'clearword',
@@ -335,7 +335,7 @@ Config.events = {
     .##..##..##......#######..##..##..##..##..##..##......##.
     .##..##..######...##.##...##..##..##..##..#####....####..
     */
-    [KeysTemplate.COMMAND_UPDATEREWARDS]: {
+    'UpdateRewards': {
         triggers: {
             command: {
                 entries: 'update',
@@ -343,17 +343,17 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_GAMEREWARDS_ON]: {
+    'GameRewardsOn': {
         triggers: {
             command: { entries: 'rewardson' }
         }
     },
-    [KeysTemplate.COMMAND_GAMEREWARDS_OFF]: {
+    'GameRewardsOff': {
         triggers: {
             command: { entries: 'rewardsoff' }
         }
     },
-    [KeysTemplate.COMMAND_REFUND_REDEMPTION]: {
+    'RefundRedemption': {
         triggers: {
             command: {
                 entries: 'refund',
@@ -361,7 +361,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_CLEAR_REDEMPTIONS]: {
+    'ClearRedemptions': {
         triggers: {
             command: {
                 entries: 'clearqueue',
@@ -370,7 +370,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_RESET_INCREMENTING_EVENTS]: {
+    'ResetIncrementingEvents': {
         triggers: {
             command: {
                 entries: 'resetinc',
@@ -379,7 +379,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_RESET_ACCUMULATING_EVENTS]: {
+    'ResetAccumulatingEvents': {
         triggers: {
             command: {
                 entries: 'resetacc',
@@ -396,7 +396,7 @@ Config.events = {
     .....##....##........##....##....##......##...##.
     ..####.....##.....####.....##....######..##...##.
     */    
-    [KeysTemplate.COMMAND_RELOADWIDGET]: {
+    'ReloadWidget': {
         triggers: {
             command: {
                 entries: 'reload',
@@ -405,7 +405,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_CHANNELTROPHY_STATS]: {
+    'ChannelTrophyStats': {
         triggers: {
             command: {
                 entries: 'trophy',
@@ -413,7 +413,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_CLIPS]: {
+    'Clips': {
         triggers: {
             command: {
                 entries: 'clips',
@@ -421,7 +421,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_GAMERESET]: {
+    'GameReset': {
         triggers: {
             command: {
                 entries: 'nogame',
@@ -429,22 +429,22 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_RAID]: {
+    'Raid': {
         triggers: {
             command: { entries: 'raid' }
         }
     },
-    [KeysTemplate.COMMAND_UNRAID]: {
+    'Unraid': {
         triggers: {
             command: { entries: 'unraid' }
         }
     },
-    [KeysTemplate.COMMAND_REMOTE_ON]: {
+    'RemoteOn': {
         triggers: {
             command: { entries: 'remoteon' }
         }
     },
-    [KeysTemplate.COMMAND_REMOTE_OFF]: {
+    'RemoteOff': {
         triggers: {
             command: { entries: 'remoteoff' }
         }
@@ -457,7 +457,7 @@ Config.events = {
     .##......##..##..##..##..##........##....##..##.
     .##.......####...#####...######..######...####..
     */
-    [KeysTemplate.COMMAND_GAME]: {
+    'Game': {
         triggers: {
             command: {
                 entries: 'game',
@@ -483,7 +483,7 @@ Config.events = {
     .##.......####...##..##..##...##..##......##......##..........##.
     .######..##..##..##..##..##...##..##......######..######...####..
     */
-    [KeysTemplate.COMMAND_SAY]: { // Announces something with the TTS
+    'Say': { // Announces something with the TTS
         triggers: {
             command: {
                 entries: 'say',
@@ -494,7 +494,7 @@ Config.events = {
             speech: { entries: '%userInput' }
         }
     },
-    [KeysTemplate.COMMAND_LURK]: { // Used to announce that a user is lurking
+    'Lurk': { // Used to announce that a user is lurking
         triggers: {
             command: {
                 entries: 'lurk',
@@ -505,7 +505,7 @@ Config.events = {
             chat: { entries: 'Just to let you know, %userTag will be lurking! %userInput' }
         }
     },
-    [KeysTemplate.COMMAND_LABEL]: { // Writes a label to the disk that can be used as a source
+    'Label': { // Writes a label to the disk that can be used as a source
         triggers: {
             command: { entries: ['label', 'txt'] }
         },
@@ -517,7 +517,7 @@ Config.events = {
             }
         }
     },
-    [KeysTemplate.COMMAND_TODO]: { // Puts a post in Discord using the Discord webhook with the same key
+    'Todo': { // Puts a post in Discord using the Discord webhook with the same key
         triggers: {
             command: { entries: 'todo' }
         },
@@ -526,7 +526,7 @@ Config.events = {
             discord: { entries: '-> %userInput' }
         }
     },
-    [KeysTemplate.COMMAND_SHOUTOUT]: { // Used to promote another user
+    'ShoutOut': { // Used to promote another user
         triggers: {
             command: {
                 entries: ['so', 'shoutout'],
@@ -538,7 +538,7 @@ Config.events = {
             chat: { entries: 'Say hello to %targetTag who last streamed "%targetGame", considering following! (their channel: %targetLink)' }
         }
     },
-    [KeysTemplate.COMMAND_END_STREAM]: { // Runs multiple commands suitable for when ending a stream
+    'EndStream': { // Runs multiple commands suitable for when ending a stream
         triggers: {
             command: {
                 entries: 'endstream',
@@ -551,17 +551,17 @@ Config.events = {
             },
             events: {
                 keyEntries: [
-                    KeysTemplate.COMMAND_CHANNELTROPHY_STATS,
-                    KeysTemplate.COMMAND_CLIPS,
-                    KeysTemplate.COMMAND_CLEAR_REDEMPTIONS,
-                    KeysTemplate.COMMAND_RESET_INCREMENTING_EVENTS,
-                    KeysTemplate.COMMAND_RESET_ACCUMULATING_EVENTS
+                    'ChannelTrophyStats',
+                    'Clips',
+                    'ClearRedemptions',
+                    'ResetIncrementingEvents',
+                    'ResetAccumulatingEvents'
                 ],
                 interval: 20
             }
         }
     },
-    [KeysTemplate.COMMAND_WIDGET]: {
+    'WidgetLink': {
         triggers: {
             command: {
                 entries: 'widget',
@@ -573,7 +573,7 @@ Config.events = {
             chat: { entries: 'Streaming Widget Repository -> https://github.com/BOLL7708/streaming_widget' }
         }
     },
-    [KeysTemplate.COMMAND_WIKI]: { // A link to the user wiki for the widget
+    'UserWikiLink': { // A link to the user wiki for the widget
         triggers: {
             command: {
                 entries: 'wiki',
@@ -603,7 +603,7 @@ Config.events = {
     ...##......##........##.
     ...##......##.....####..
     */
-    [KeysTemplate.REWARD_TTSSPEAK]: {
+    'Speak': {
         triggers: {
             reward: {
                 title: 'Speak Once',
@@ -630,7 +630,7 @@ Config.events = {
     .##..##..##..##..##..##..##..##..##..##..##......##........##....##..##..##..##..##......##..##....##...
     ..####...##..##..##..##..##..##..##..##..######..######....##....##..##...####...##......##..##....##...
     */
-    [KeysTemplate.REWARD_CHANNELTROPHY]: {
+    'ChannelTrophy': {
         options: {
             rewardIgnoreUpdateCommand: true
         },

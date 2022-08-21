@@ -29,7 +29,7 @@ class ControllerPresetsTemplate {
 class GamePresetsTemplate {
     /*
     static readonly REWARDS_EXAMPLE1: ITwitchRewardProfileConfig = {
-        [KeysTemplate.KEY_YOURREWARD]: false
+        'YourRewardKey': false
     }
     */
 }
@@ -38,7 +38,7 @@ class GamePresetsTemplate {
  * Pipe presets, big configs used for the notification pipe, usage:
  * ```
  *     Config.pipe.configs: {
- *         [Keys.KEY_YOURREWARD]: {
+ *         'YourRewardKey': {
  *             {
  *                 imagePath: ['_assets/yourimage.png'],
  *                 durationMs: 5000,

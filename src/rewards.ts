@@ -36,10 +36,10 @@ class Rewards {
         }
 
         // Toggle TTS rewards
-        modules.twitchHelix.updateReward(await Utils.getRewardId(Keys.REWARD_TTSSPEAK), {is_enabled: !states.ttsForAll}).then()
+        modules.twitchHelix.updateReward(await Utils.getRewardId('Speak'), {is_enabled: !states.ttsForAll}).then()
 
         // Enable default rewards
-        const enableRewards = Config.twitch.alwaysOnRewards.filter(reward => { return !Config.twitch.alwaysOffRewards.includes(reward) })
+        const enableRewards = Config.twitch.alwaysOnRewards.filter(rewardKey => { return !Config.twitch.alwaysOffRewards.includes(rewardKey) })
         for(const key of enableRewards) {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: true}).then()
         }
@@ -49,7 +49,7 @@ class Rewards {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false}).then()
         }
     }
-    public static callbacks: { [key: string]: IActionCallback|undefined } = {
+    public static callbacks: IActionsCallbackStack = {
         /*
         .######..#####....####...#####...##..##..##..##.
         ...##....##..##..##..##..##..##..##..##...####..
@@ -57,7 +57,7 @@ class Rewards {
         ...##....##..##..##..##..##......##..##....##...
         ...##....##..##...####...##......##..##....##...
         */
-        [Keys.REWARD_CHANNELTROPHY]: {
+        'ChannelTrophy': {
             tag: 'ChannelTrophy',
             description: 'A user grabbed the Channel Trophy.',
             call: async (user: IActionUser) => {
@@ -70,13 +70,13 @@ class Rewards {
                     cost: user.rewardMessage?.data?.redemption.reward.cost.toString() ?? '0'
                 }
                 const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
-                if(!settingsUpdated) return Utils.log(`ChannelTrophy: Could not write settings reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+                if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward: ChannelTrophy', Color.Red)
 
                 const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                if(userData == undefined) return Utils.log(`ChannelTrophy: Could not retrieve user for reward: ${Keys.REWARD_CHANNELTROPHY}`, Color.Red)
+                if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward: ChannelTrophy', Color.Red)
 
                 // Update reward
-                const rewardId = await Utils.getRewardId(Keys.REWARD_CHANNELTROPHY)
+                const rewardId = await Utils.getRewardId('ChannelTrophy')
                 const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
@@ -103,7 +103,7 @@ class Rewards {
                     if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
                     
                     // Update reward
-                    const configArrOrNot = Utils.getEventConfig(Keys.REWARD_CHANNELTROPHY)?.triggers.reward
+                    const configArrOrNot = Utils.getEventConfig('ChannelTrophy')?.triggers.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;
@@ -124,9 +124,9 @@ class Rewards {
                                 }
                             )
                         })
-                        if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
-                    } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
-                } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ${Keys.REWARD_CHANNELTROPHY}->${rewardId}`, Color.Red)
+                        if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ChannelTrophy->${rewardId}`, Color.Red)
+                    } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ChannelTrophy->${rewardId}`, Color.Red)
+                } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ChannelTrophy->${rewardId}`, Color.Red)
             }
         }
     }

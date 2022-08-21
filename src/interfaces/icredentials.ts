@@ -38,7 +38,7 @@ interface ICredentialsConfig {
     /**
      * Webhooks from Discord to which we pipe various things.
      */
-    DiscordWebhooks: IDiscordWebhookConfig
+    DiscordWebhooks: Partial<Record<TKeys, string>>
 
     /**
      * API Key for loading Steam user data.

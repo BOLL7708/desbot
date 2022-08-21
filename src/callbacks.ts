@@ -1,5 +1,5 @@
 class Callbacks {
-    private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
+    private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
     public static registerRelay(relay: IOpenVR2WSRelay) {
         this._relays.set(relay.key, relay)
     }
@@ -122,7 +122,7 @@ class Callbacks {
             
             if(states.logChatToDiscord) {
                 Discord.enqueueMessage(
-                    Config.credentials.DiscordWebhooks[Keys.DISCORD_CHAT],
+                    Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
                     user?.display_name,
                     user?.profile_image_url,
                     `${label}${logText}`
@@ -152,13 +152,13 @@ class Callbacks {
             if(redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(redemption.user_input))}`
             if(states.logChatToDiscord) {
                 Discord.enqueueMessage(
-                    Config.credentials.DiscordWebhooks[Keys.DISCORD_CHAT],
+                    Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
                     user?.display_name,
                     user?.profile_image_url,
                     description
                 )
             }
-            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair?.key ?? '']
+            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair?.key ?? 'Unknown']
             if(rewardSpecificWebhook) {
                 Discord.enqueueMessage(
                     rewardSpecificWebhook,
@@ -169,7 +169,7 @@ class Callbacks {
             }
 
             // Pipe to VR (basic)
-            const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair?.key ?? '') > -1
+            const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair?.key ?? 'Unknown') > -1
             if(showReward) {
                 modules.pipe.sendBasic(
                     redemption.user_input, 
@@ -200,7 +200,7 @@ class Callbacks {
 
             // Announce sub
             if(sub) {
-                const user = await Actions.buildUserDataFromSubscriptionMessage('', message)
+                const user = await Actions.buildUserDataFromSubscriptionMessage('Unknown', message)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
                     await Utils.replaceTagsInText(sub.message, user, {
                         targetLogin: message.recipient_user_name ?? '',
@@ -227,7 +227,7 @@ class Callbacks {
                 if(bits >= level.bits) selectedLevel = level
             }
             if(selectedLevel) {
-                const user = await Actions.buildUserDataFromCheerMessage('', message)
+                const user = await Actions.buildUserDataFromCheerMessage('Unknown', message)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
                     await Utils.replaceTagsInText(selectedLevel.message, user)
                 )
@@ -242,7 +242,7 @@ class Callbacks {
         ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
         */
         modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
-            const discordCfg = Config.credentials.DiscordWebhooks[Keys.DISCORD_VRSCREENSHOT]
+            const discordCfg = Config.credentials.DiscordWebhooks['DiscordVRScreenshot'] ?? ''
             const blob = Utils.b64toBlob(responseData.image)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
@@ -287,7 +287,7 @@ class Callbacks {
 
             // Pipe manual screenshots into VR if configured.
             if(
-                Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? '')
+                Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? 'Unknown')
                 || (requestData == null && Config.screenshots.callback.pipeEnabledForManual)
             ) {
                 const preset = Config.screenshots.callback.pipeMessagePreset
@@ -315,7 +315,7 @@ class Callbacks {
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData, nonce) => {
             const b64data = img.split(',').pop() ?? ''
-            const discordCfg = Config.credentials.DiscordWebhooks[Keys.DISCORD_OBSSCREENSHOT]
+            const discordCfg = Config.credentials.DiscordWebhooks['DiscordOBSScreenshot'] ?? ''
             const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
             const nonceCallback = states.nonceCallbacks.get(nonce)
@@ -349,8 +349,8 @@ class Callbacks {
                 })
 
                 // Sound effect
-                const soundConfig = Config.audioplayer.configs[Keys.DISCORD_OBSSCREENSHOT]
-                if(soundConfig != undefined) modules.audioPlayer.enqueueAudio(soundConfig)
+                const soundConfig = Config.audioplayer.configs['DiscordOBSScreenshot']
+                if(soundConfig) modules.audioPlayer.enqueueAudio(soundConfig)
             }
         })
 

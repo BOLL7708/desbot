@@ -10,7 +10,7 @@ interface IPipeConfig {
     /**
      * Pipe the input text for these rewards into VR.
      */
-    showRewardsWithKeys: string[]
+    showRewardsWithKeys: TKeys[]
 
     /**
      * If on uses a custom notification graphic for text pipes into VR, instead of the default SteamVR notification.

@@ -27,7 +27,7 @@ class SuperScreenShotterVR {
     setScreenshotCallback(callback: ISSSVRCallback) {
         this._messageCallback = callback
     }
-    sendScreenshotRequest(rewardKey: string, userData: IActionUser, delaySeconds: number = 0) {
+    sendScreenshotRequest(rewardKey: TKeys, userData: IActionUser, delaySeconds: number = 0) {
         this._messageCounter++
         this._screenshotRequests.set(this._messageCounter, {
             rewardKey: rewardKey,

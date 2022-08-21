@@ -12,6 +12,7 @@ interface IActionsExecutor {
 interface IActionsMainCallback {
     (user: IActionUser, index?: number): void
 }
+interface IActionsCallbackStack extends Partial<Record<TKeys, IActionCallback|undefined>> {}
 interface IActions {
     /**
      * Optional: Set this to execute this batch of actions at a specific time in a timeline, overrides `_delayMs`.
@@ -138,7 +139,7 @@ interface IActions {
  */
 interface IActionUser {
     source: EEventSource
-    eventKey: string
+    eventKey: TKeys
     id: string
     login: string
     name: string
@@ -164,7 +165,7 @@ interface IEventsAction {
     /**
      * Optional: Event(s) to trigger by key, referenced from {@link Keys}.
      */
-    keyEntries?: string|string[]
+    keyEntries?: TKeys|TKeys[]
     /**
      * Optional: Set the commands to be triggered at an interval to space things out in time.
      */
@@ -264,18 +265,17 @@ interface IWhisperAction {
     user: string
 }
 
-interface IRewardStatesAction {
-    [key: string]: {
-        /**
-         * Optional: Set to true to enable the reward, false to disable, leave it out to toggle.
-         */
-        state?: boolean
-        /**
-         * Optional: Set this to add overrides for this reward for this session, meaning game profiles will not change it anymore.
-         */
-        override?: boolean
-    }
+interface IRewardStatesActionConfig {
+    /**
+     * Optional: Set to true to enable the reward, false to disable, leave it out to toggle.
+     */
+    state?: boolean
+    /**
+     * Optional: Set this to add overrides for this reward for this session, meaning game profiles will not change it anymore.
+     */
+    override?: boolean
 }
+interface IRewardStatesAction extends Partial<Record<TKeys, IRewardStatesActionConfig>> {}
 
 // Data
 interface IAudioAction {
@@ -365,7 +365,7 @@ interface IObsAction {
     /**
      * Optional: Set in code to reference the key that triggered it for group toggling.
      */
-    key?: string
+    key?: TKeys
 }
 
 /**

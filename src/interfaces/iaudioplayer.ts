@@ -3,7 +3,7 @@
  */
 interface IAudioPlayerConfig {
     /**
-     * Configurations for audio playback that can be triggered by automatic rewards or other functions.
+     * Configurations for audio playback that are triggered by string matches.
      */
     configs: { [key:string]: IAudioAction }
 }

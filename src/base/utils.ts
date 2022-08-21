@@ -327,7 +327,7 @@ class Utils {
         const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
         const now = new Date()
 
-        const eventConfig = Utils.getEventConfig(userData?.eventKey ?? '')
+        const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multitierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
 
@@ -430,7 +430,8 @@ class Utils {
         } else return ''
     }
 
-    static replaceTags(text: string|string[], replace: { [key: string]: string }) {
+    static replaceTags(text: string|string[]|undefined, replace: { [key: string]: string }) {
+        if(!text) return ''
         if(Array.isArray(text)) text = Utils.randomFromArray(text)
         for(const key of Object.keys(replace)) {
             const rx = new RegExp(`\%${key}([^a-zA-Z]|$)`, 'g') // Match the key word and any non-character afterwards
@@ -578,6 +579,7 @@ class Utils {
     /**
      * Basically a parseInt that also takes undefined
      * @param intStr
+     * @param defaultValue
      */
     static toInt(intStr: string|undefined, defaultValue: number = NaN): number {
         return parseInt(intStr ?? '') || defaultValue
@@ -588,25 +590,28 @@ class Utils {
      * @param onlyRewards
      * @returns
      */
-    static getAllEventKeys(onlyRewards: boolean): string[] {
-        // TODO: Return all keys that are for events with reward configs?
+    static getAllEventKeys(onlyRewards: boolean): TKeys[] {
         if(onlyRewards) {
-            const rewardEvents = Object.entries(Config.events).filter(e => e[1].triggers.reward !== undefined)
+            const rewardEvents = (Object.entries(Config.events) as [TKeys, IEvent][])
+                .filter(e => e[1].triggers.reward !== undefined)
             return rewardEvents.map(e => e[0])
         }
-        return Object.keys(Config.events)
+        return Object.keys(Config.events) as TKeys[]
     }
 
     /**
-     * Lists the event keys that are for events that are used for the events that are modified on a per game basis.
+     * Lists the event keys of main events that are used for custom game events.
      * @param onlyRewards
      * @returns 
      */
-    static getAllEventKeysForGames(onlyRewards: boolean): string[] {
-        const allEventKeysForGames = Object.entries(Config.eventsForGames).map(e => e[1]).flatMap(e => Object.keys(e))
-        const uniqueKeys = allEventKeysForGames.filter((value, index, array) => array.indexOf(value) === index)
+    static getAllEventKeysForGames(onlyRewards: boolean): TKeys[] {
+        const allEventKeysForGames = (Object.entries(Config.eventsForGames) as [TKeys, IEvent][])
+            .map(event => event[1])
+            .flatMap(event => Object.keys(event))
+        const uniqueKeys = [...new Set(allEventKeysForGames)] as TKeys[]
         if(onlyRewards) {
-			const rewardEvents = Object.entries(Config.events).filter(e => e[1].triggers.reward !== undefined)
+			const rewardEvents = (Object.entries(Config.events) as [TKeys, IEvent][])
+                .filter(event => event[1].triggers.reward !== undefined)
             const rewardEventKeys = rewardEvents.map(e => e[0])
 			return rewardEventKeys.filter((key => uniqueKeys.indexOf(key) > -1))
         }
@@ -616,13 +621,13 @@ class Utils {
     /**
      * Get event config from any pool
      */
-    static getEventConfig(key: string|undefined): IEvent|undefined {
+    static getEventConfig(key: TKeys|undefined): IEvent|undefined {
         if(key === undefined) return undefined
         return Config.events[key] ?? undefined
     }
 
-    static getEventsForGame(key: string): { [key: string]: IEvent }|undefined {
-        return Config.eventsForGames[key]
+    static getEventsForGame(gameId: string): IEventsConfig|undefined {
+        return Config.eventsForGames[gameId]
     }
 
     static removeLastPart(splitOn: string, text: string|undefined): string {
@@ -646,14 +651,5 @@ class Utils {
             }
         }
         return [text]
-    }
-
-    static newKey(): string {
-        const keys = [...new Set( ...Object.keys(Config.events ?? {}), ... Object.keys(Config.eventsForGames ?? {}))]
-        let newKey = ''
-        while(newKey.length == 0 || keys.includes(newKey)) {
-            newKey = Math.random().toString(36).substring(2)
-        }
-        return newKey
     }
 }

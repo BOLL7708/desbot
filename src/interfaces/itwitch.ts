@@ -77,11 +77,11 @@ interface ITwitchConfig {
      * 
      * The only override is if they are also listed in {@link ITwitch.alwaysOffRewards}.
      */
-    alwaysOnRewards: string[]
+    alwaysOnRewards: TKeys[]
     /**
      * These rewards will always be switched off at widget load as well as on game change.
      */
-    alwaysOffRewards: string[]
+    alwaysOffRewards: TKeys[]
     
     /**
      * Default for turning rewards on or off depending on Steam game.
@@ -97,7 +97,7 @@ interface ITwitchConfig {
      * Turn rewards on or off if there is no game,
      * will be applied on top of the default profile, the configs are merged.
      */
-    rewardProfileNoGame: { [key: string]: boolean }
+    rewardProfileNoGame: ITwitchRewardProfileConfig
 
     /**
      * Turn rewards on or off depending on which SteamVR game is detected,
@@ -107,26 +107,30 @@ interface ITwitchConfig {
     /**
      * Turn on rewards depending on if a game is running, else off, if the key has not been set yet (used in a profile).
      */
-    turnOnRewardForGames: { [key: string]: string[] }
+    turnOnRewardForGames: IToggleRewardsOnGame
     /**
      * Turn off rewards depending on if a game is running, else on, if the key has not been set yet (used in a profile).
      */
-    turnOffRewardForGames: { [key: string]: string[] }
+    turnOffRewardForGames: IToggleRewardsOnGame
     /**
      * Turn on rewards for specific overlays, can be used to toggle rewards on 
      * things like LIV running as it has an overlay that is always enabled.
      */
-    turnOnRewardForOverlays: { [key: string]: string[] }
+    turnOnRewardForOverlays: { [key: string]: TKeys[] }
 
     /**
      * The default options values for an event if it needs to be reset on change to unlisted game.
      */
-    eventOptionsDefault: { [key: string]: IEventOptions }
+    eventOptionsDefault: IEventOptionsOverrides
     /**
      * Change the event options and update the reward (if there is one) depending on the game.
      */
-    eventOptionsPerGame: { [game: string]: { [key: string]: IEventOptions } }
+    eventOptionsPerGame: { [game: string]: IEventOptionsOverrides }
 }
+
+interface IToggleRewardsOnGame extends Partial<Record<TKeys, string[]>> {}
+interface IEventOptionsOverrides extends Partial<Record<TKeys, IEventOptions>> {}
+
 interface ITwitchReward {
     id?: string
     handler?: ActionHandler

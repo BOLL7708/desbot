@@ -1,0 +1,1 @@
+interface IKeyBoolRecord extends Partial<Record<TKeys, boolean>> {}

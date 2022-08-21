@@ -53,12 +53,12 @@ interface IControllerConfig {
      * - The dynamic section contains single strings that can be replaced with arrays for random selection or for incrementing rewards.
      * - %[label] is a templated value, those gets replaced by parameters that match their names.
      */
-    speechReferences: { [key: string]: string|string[] }
+    speechReferences: Partial<Record<TKeys, string|string[]>>
 
     /**
      * References to texts written in chat by the bot.
      */
-    chatReferences: { [key: string]: string|string[] }
+    chatReferences: Partial<Record<TKeys, string|string[]>>
 
     /**
      * As Twitch category can be automatically matched, this is the one used when there is no match.

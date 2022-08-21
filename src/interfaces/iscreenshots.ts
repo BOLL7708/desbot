@@ -47,7 +47,7 @@ interface IScreenshotConfig {
         /**
          * Keys for screenshot rewards that should be output to VR through the Pipe.
          */
-        pipeEnabledForRewards: string[]
+        pipeEnabledForRewards: TKeys[]
         /**
          * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
          */
@@ -67,7 +67,7 @@ interface IScreenshotConfig {
     /**
      * Key for the reward that triggered the screenshot.
      */
-    rewardKey: string
+    rewardKey: TKeys
     /**
      * Twitch user ID for the redeemer.
      */

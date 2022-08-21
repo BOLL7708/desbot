@@ -1,7 +1,7 @@
 Config.eventsForGames = {
     /*
     [GamesTemplate.ANY_GAME]: {
-        [KeysTemplate.YOUR_REWARD]: {
+        'YourRewardKey': {
             triggers: {
                 reward: {
                     title: 'Reward',

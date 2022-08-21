@@ -110,7 +110,7 @@ class Twitch{
         // User data for most callbacks
         const user: IActionUser = {
             source: EEventSource.TwitchChat,
-            eventKey: '',
+            eventKey: 'Unknown',
             id: messageCmd.properties["user-id"] ?? '',
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? userName,
@@ -201,7 +201,7 @@ class Twitch{
         let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
 
-        const user = await Actions.buildEmptyUserData(EEventSource.TwitchRemoteCommand, '')
+        const user = await Actions.buildEmptyUserData(EEventSource.TwitchRemoteCommand, 'Unknown')
         user.login = userName
         user.name = messageCmd.properties?.["display-name"] ?? userName
         user.id = messageCmd.properties["user-id"] ?? ''
@@ -246,7 +246,7 @@ class Twitch{
             || command.userCooldown == undefined
             || new Date().getTime() > (poolUsers.get(cooldownUserKey) ?? 0)
         )
-        user.eventKey = command.handler?.key ?? command.cooldownHandler?.key ?? command.cooldownUserHandler?.key ?? ''
+        user.eventKey = command.handler?.key ?? command.cooldownHandler?.key ?? command.cooldownUserHandler?.key ?? 'Unknown'
         user.commandConfig = command
 
         // Standard
@@ -297,8 +297,8 @@ class Twitch{
     async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.handler) command.handler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, ''))
-        else if(command?.cooldownHandler) command?.cooldownHandler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, ''))
+        if(command?.handler) command.handler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown'))
+        else if(command?.cooldownHandler) command?.cooldownHandler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown'))
     }
 
     async sendRemoteCommand(commandStr: string) {

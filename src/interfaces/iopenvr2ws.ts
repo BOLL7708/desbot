@@ -75,7 +75,7 @@ interface IOpenVR2WSFindOverlayData {
 interface IOpenVR2WSRelayData {
     password: string
     user: string
-    key: string
+    key: TKeys
     data: string
 }
 interface IOpenVR2WSGenericResponseData {
@@ -83,7 +83,7 @@ interface IOpenVR2WSGenericResponseData {
     success: boolean
 }
 interface IOpenVR2WSRelay {
-    key: string
+    key: TKeys
     handler?: ActionHandler
 }
 interface IOpenVRWSCommandMessage {
@@ -111,5 +111,5 @@ interface IOpenVR2WSFindOverlayCallback {
     (overlayKey: string, overlayHandle: number): void
 }
 interface IOpenVR2WSRelayCallback {
-    (user: string, key: string, data: string): void
+    (user: string, key: TKeys, data: string): void
 }

@@ -58,8 +58,11 @@ class Functions {
                 Utils.log(`Applying default, as no controller settings for: ${appId}`, Color.Green )
             }
             
-            // TTS runs the command due to doing more things than just toggling the flag.
-            modules.twitch.runCommand(combinedSettings.ttsForAll ? Keys.COMMAND_TTS_ON : Keys.COMMAND_TTS_OFF).then()
+            // We run the TTS command events due to doing more things than just toggling the flag.
+            const ttsUser = await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown')
+            if(combinedSettings.ttsForAll) new ActionHandler('TtsOn').call(ttsUser).then()
+            else new ActionHandler('TtsOff').call(ttsUser).then()
+
             states.pipeAllChat = combinedSettings.pipeAllChat ?? false
             states.pingForChat = combinedSettings.pingForChat ?? false
             this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the flag directly.
@@ -73,8 +76,8 @@ class Functions {
         const allEventOptionsKeys = [
             ...new Set( // All unique keys
                 [
-                    ...Object.keys(Config.twitch.eventOptionsDefault),
-                    ...Object.keys(eventOptions)
+                    ...Object.keys(Config.twitch.eventOptionsDefault) as TKeys[],
+                    ...Object.keys(eventOptions) as TKeys[]
                 ]
             )
         ]
@@ -144,13 +147,13 @@ class Functions {
          * I've changed it so we set a value if the game is included, then we only set the opposite value if the key is not set yet.
          */
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
-            let games = Config.twitch.turnOnRewardForGames[rewardKey] ?? []
+            let games = Config.twitch.turnOnRewardForGames[rewardKey as TKeys] ?? []
             Utils.log(`--> will turn on reward '${rewardKey}' depending on game.`, Color.Gray)
             if(games.includes(appId)) profileToUse[rewardKey] = true
             else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = false
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
-            let games = Config.twitch.turnOffRewardForGames[rewardKey] ?? []
+            let games = Config.twitch.turnOffRewardForGames[rewardKey as TKeys] ?? []
             Utils.log(`--> will turn off reward '${rewardKey}' depending on game.`, Color.Gray)
             if(games.includes(appId)) profileToUse[rewardKey] = false
             else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = true
@@ -171,7 +174,7 @@ class Functions {
 
         if(gameSpecificRewards) {
             // Update and enable all reusable generic rewards in use.
-            for(const [key, event] of Object.entries(gameSpecificRewards)) {
+            for(const [key, event] of Object.entries(gameSpecificRewards) as [TKeys, IEvent][]) {
                 const thisEvent = event ?? {triggers: {}}
                 const defaultEvent = Config.events[key] ?? {triggers: {}}
                 const rewardConfig = thisEvent.triggers.reward ?? {}
@@ -259,7 +262,7 @@ class Functions {
                     game_id: twitchGameData.id
                 }
                 const response = await modules.twitchHelix.updateChannelInformation(request)
-                const speech = Config.controller.speechReferences[Keys.CALLBACK_APPID]
+                const speech = Config.controller.speechReferences['CallbackAppID'] ?? []
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
                     await modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}))
@@ -329,7 +332,7 @@ class Functions {
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
-                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks[Keys.CALLBACK_ACHIEVEMENT], {
+                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks['CallbackAchievement'] ?? '', {
                             username: gameMeta?.name ?? 'N/A',
                             avatar_url: gameMeta?.header_image ?? '',
                             embeds: [

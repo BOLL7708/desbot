@@ -1,6 +1,4 @@
-/**
- * Array extensions, we add a type and various accessors for various output.
- */
+// region Array Extensions
 enum EArrayType {
     All,
     Random,
@@ -115,10 +113,9 @@ Array.prototype.pushIfExists = function<T>(item: T|undefined): number {
     }
     return -1
 }
+// endregion
 
-/**
- * String extensions
- */
+// String Extensions
 interface String {
     toBoolean(def: boolean): boolean
     toBooleanOrUndefined(): boolean|undefined
@@ -134,3 +131,4 @@ String.prototype.toBooleanOrUndefined = function(): boolean|undefined {
     if(falseStrings.includes(strCopy)) return false
     return undefined
 }
+// endregion

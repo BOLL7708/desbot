@@ -18,7 +18,7 @@ interface IDictionaryEntry {
     datetime: string
 }
 interface ITwitchRewardPair {
-    key: string
+    key: TKeys
     id: string
 }
 interface IChannelTrophyStat {

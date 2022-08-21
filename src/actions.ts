@@ -1,6 +1,6 @@
 class ActionHandler {
     constructor(
-        public key: string
+        public key: TKeys
     ) {}
     public async call(user: IActionUser) {
         const event = Utils.getEventConfig(this.key)
@@ -142,7 +142,7 @@ class ActionHandler {
 class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-        for(const [key, event] of Object.entries(Config.events)) {
+        for(const [key, event] of Object.entries(Config.events) as [TKeys, IEvent][]) {
             if(event.triggers.reward) await this.registerReward(key, event)
             if(event.triggers.command) await this.registerCommand(key, event)
             if(event.triggers.remoteCommand) await this.registerRemoteCommand(key, event)
@@ -153,7 +153,7 @@ class Actions {
     }
 
     // region User Data Builders
-    public static async buildUserDataFromRedemptionMessage(key: string, message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
+    public static async buildUserDataFromRedemptionMessage(key: TKeys, message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const id = message?.data?.redemption?.user?.id ?? ''
         return {
@@ -175,7 +175,7 @@ class Actions {
             rewardMessage: message
         }
     }
-    public static async buildUserDataFromCheerMessage(key: string, message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
+    public static async buildUserDataFromCheerMessage(key: TKeys, message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_name ?? '')
         const id = user?.id ?? ''
@@ -197,7 +197,7 @@ class Actions {
             rewardCost: 0
         }
     }
-    public static async buildUserDataFromSubscriptionMessage(key: string, message?: ITwitchPubsubSubscriptionMessage): Promise<IActionUser> {
+    public static async buildUserDataFromSubscriptionMessage(key: TKeys, message?: ITwitchPubsubSubscriptionMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.user_name ?? '')
         const id = user?.id ?? ''
@@ -223,12 +223,12 @@ class Actions {
      * Used for programmatic command execution not done by an actual user.
      * @returns 
      */
-    public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
+    public static async buildEmptyUserData(source: EEventSource, key: TKeys, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(userName ?? Config.twitch.channelName)
         return {
             source: source,
-            eventKey: key ?? '',
+            eventKey: key ?? 'Unknown',
             id: user?.id ?? '',
             login: user?.login ?? '',
             name: user?.display_name ?? '',
@@ -258,7 +258,7 @@ class Actions {
 
 
     // region Trigger Registration
-    public static async registerReward(key: string, event: IEvent) {
+    public static async registerReward(key: TKeys, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         const actionHandler = new ActionHandler(key)
         const reward: ITwitchReward = {
@@ -272,7 +272,7 @@ class Actions {
         }
     }
 
-    private static async registerCommand(key: string, event: IEvent) {
+    private static async registerCommand(key: TKeys, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         let command = event?.triggers.command
         if(command) {
@@ -291,17 +291,17 @@ class Actions {
         }
     }
 
-    private static async registerRemoteCommand(key: string, event: IEvent) {
+    private static async registerRemoteCommand(key: TKeys, event: IEvent) {
         const modules = ModulesSingleton.getInstance()        
         const remoteCommand = event?.triggers.remoteCommand
         if(remoteCommand) {
             const triggers = Utils.ensureArray(remoteCommand.entries)
             for(let trigger of triggers) {
                 trigger = Utils.replaceTags(trigger, {eventKey: key})
-                const actionHandler = new ActionHandler(trigger)
+                const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
-                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.command, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers }
+                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.remoteCommand, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers }
                 if(remoteCommand?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
                 else if(remoteCommand?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
                 else useThisCommand.handler = actionHandler
@@ -310,7 +310,7 @@ class Actions {
         }
     }
 
-    private static async registerCheer(key: string, event: IEvent) {
+    private static async registerCheer(key: TKeys, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
         const actionHandler = new ActionHandler(key)
         const cheer: ITwitchCheer = {
@@ -324,7 +324,7 @@ class Actions {
         }
     }
 
-    private static async registerTimer(key: string, event: IEvent) {
+    private static async registerTimer(key: TKeys, event: IEvent) {
         const actionHandler = new ActionHandler(key)
         const user = await this.buildEmptyUserData(EEventSource.Timer, key)
         const config = event.triggers.timer
@@ -344,9 +344,9 @@ class Actions {
         }, delay*1000)
     }
 
-    private static async registerRelay(key: string, event: IEvent) {
+    private static async registerRelay(key: TKeys, event: IEvent) {
         const relay: IOpenVR2WSRelay = {
-            key: Utils.replaceTags(event.triggers.relay ?? '', {eventKey: key}),
+            key: <TKeys> Utils.replaceTags(event.triggers.relay ?? 'Unknown', {eventKey: key}),
             handler: new ActionHandler(key)
         }
         if(relay.key.length > 0) {
@@ -367,7 +367,7 @@ class Actions {
     .##.....##.##.....##.####.##....##....########...#######..####.########.########..########.##.....##
     */
 
-    public static buildActionsMainCallback(key: string, actionsArr: IActions[]): IActionsMainCallback {
+    public static buildActionsMainCallback(key: TKeys, actionsArr: IActions[]): IActionsMainCallback {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup
@@ -463,7 +463,7 @@ class Actions {
     */
 
     // region Action Builders
-    private static buildOBSCallback(config: IObsAction|undefined, key: string): IActionCallback|undefined {
+    private static buildOBSCallback(config: IObsAction|undefined, key: TKeys): IActionCallback|undefined {
         if(config) return {
             tag: '🎬',
             description: 'Callback that triggers an OBS action',
@@ -662,7 +662,7 @@ class Actions {
         }
     }
 
-    private static buildScreenshotCallback(config: IScreenshotAction|undefined, key: string, nonce: string): IActionCallback|undefined {
+    private static buildScreenshotCallback(config: IScreenshotAction|undefined, key: TKeys, nonce: string): IActionCallback|undefined {
         if(config) return {
             tag: '📸',
             description: 'Callback that triggers a Screenshot action',
@@ -698,7 +698,7 @@ class Actions {
         }
     }
 
-    private static buildDiscordMessageCallback(config: IEntriesAction|undefined, key: string): IActionCallback|undefined {
+    private static buildDiscordMessageCallback(config: IEntriesAction|undefined, key: TKeys): IActionCallback|undefined {
         if(config) return {
             tag: '💬',
             description: 'Callback that triggers a Discord message action',
@@ -708,7 +708,7 @@ class Actions {
                 const entries = Utils.ensureArray(config.entries).getAsType(index)
                 for(const entry of entries ) {
                     Discord.enqueueMessage(
-                        Config.credentials.DiscordWebhooks[key],
+                        Config.credentials.DiscordWebhooks[key] ?? '',
                         user.name,
                         userData?.profile_image_url,
                         await Utils.replaceTagsInText(entry, user)
@@ -818,9 +818,9 @@ class Actions {
             description: 'Callback that triggers a Reward States action',
             call: async () => {
                 const modules = ModulesSingleton.getInstance()
-                const states:{[key:string]: boolean} = {}
+                const states: IKeyBoolRecord = {}
                 const toggles = []
-                for(const [key, stateConfig] of Object.entries(config)) {
+                for(const [key, stateConfig] of Object.entries(config) as [TKeys, IRewardStatesActionConfig][]) {
                     const stateConfigClone = Utils.clone(stateConfig)
                     // Get current reward state if none was provided in config.
                     if(stateConfigClone.state == undefined) {

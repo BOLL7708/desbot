@@ -9,11 +9,11 @@ interface IObsConfig {
     /**
      * When part of a group, turning one source on turns all the others off.
      */
-    sourceGroups: string[][]
+    sourceGroups: TKeys[][]
     /**
      * When part of a group, turning one filter on turns all the others off.
      */
-    filterGroups: string[][]
+    filterGroups: TKeys[][]
     /**
      * WIP: This appears buggy but would filter certain features to work in certain scenes. 
      * It changed even when messing around in the studio mode though, so for now it's disabled.

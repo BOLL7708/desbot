@@ -1,11 +1,7 @@
-interface IEventsConfig {
-    [key: string]: IEvent
-}
-interface IEventsForGamesConfig {
-    [key: string]: { 
-        [key: string]: IEvent
-    }
-}
+/**
+ * Config for events
+ */
+interface IEventsConfig extends Partial<Record<TKeys, IEvent>> {}
 
 /**
  * Various types of special event behavior.
@@ -132,7 +128,7 @@ interface IEventTriggers {
     /**
      * Optional: Listen to incoming relay messages from OpenVR2WS.
      */
-    relay?: string
+    relay?: TKeys
 }
 
 interface ITimerConfig {

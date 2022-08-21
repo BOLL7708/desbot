@@ -17,7 +17,7 @@ class Config {
     static credentials: ICredentialsConfig
     static controller: IControllerConfig
     static events: IEventsConfig
-    static eventsForGames: IEventsForGamesConfig
+    static eventsForGames: {[game: string]: IEventsConfig}
     static google: IGoogleConfig
     static steam: ISteamConfig
     static obs: IObsConfig

@@ -30,9 +30,6 @@ interface IDiscordConfig {
      */
     prefixReward: string
 }
-interface IDiscordWebhookConfig {
-    [key: string]: string
-}
 
 // https://discord.com/developers/docs/resources/webhook#execute-webhook
 interface IDiscordWebookPayload {
