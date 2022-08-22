@@ -163,7 +163,7 @@ interface IEventsAction {
      */
     commandEntries?: string|string[]
     /**
-     * Optional: Event(s) to trigger by key, referenced from {@link Keys}.
+     * Optional: Event(s) to trigger by key, referenced from {@link TKeys}.
      */
     keyEntries?: TKeys|TKeys[]
     /**

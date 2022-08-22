@@ -81,8 +81,8 @@ interface IControllerConfig {
      * 
      * The reward will get the name of the previous redeemer, both in the title and in the prompt.
      * 
-     * Note: The key for the channel trophy, {@link Keys}.CHANNEL_TROPHY, is also used for the
-     * reward config in {@link Config.twitch.defaultRewardConfigs} which can include more settings.
+     * Note: The key for the channel trophy, {@link TKeys}.CHANNEL_TROPHY, is also used for the
+     * reward config in {@link Config.twitch.rewardProfileDefault} which can include more settings.
      * These can be left out which means they just won't be used.
      */
     channelTrophySettings: {

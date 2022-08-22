@@ -75,7 +75,7 @@ interface ITwitchConfig {
     /**
      * These rewards will be switched on at widget load as well as on game change.
      * 
-     * The only override is if they are also listed in {@link ITwitch.alwaysOffRewards}.
+     * The only override is if they are also listed in {@link ITwitchConfig.alwaysOffRewards}.
      */
     alwaysOnRewards: TKeys[]
     /**
