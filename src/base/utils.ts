@@ -399,6 +399,7 @@ class Utils {
             eventLevel: eventLevel.toString(),
             eventLevelNext: (eventLevel+1).toString(),
             eventLevelMax: eventLevelMax.toString(),
+            eventLevelMaxShort: Utils.formatShortNumber(eventLevelMax),
             eventLevelProgress: `${eventLevel}/${eventLevelMax}`,
             eventLevelNextProgress: `${eventLevel+1}/${eventLevelMax}`
         }
@@ -651,5 +652,18 @@ class Utils {
             }
         }
         return [text]
+    }
+
+    static formatShortNumber(nr: number, withDecimals: boolean = true): string {
+        const m = 1000000, k = 1000, useDec = withDecimals ? 1 : 0
+             if (nr >= 100000000) return (nr/m).toFixed()+'m' // 100m
+        else if (nr >= 10000000) return (nr/m).toFixed(1*useDec)+'m' // 10.0m
+        else if (nr >= 1000000) return (nr/m).toFixed(2*useDec)+'m' // 1.00m
+        else if (nr >= 100000) return (nr/k).toFixed()+'k' // 100k
+        else if (nr >= 10000) return (nr/k).toFixed(1*useDec)+'k' // 10.0k
+        else if (nr >= 1000) return (nr/k).toFixed(2*useDec)+'k' // 1.00k
+        else if (nr >= 100) return nr.toFixed() // 100
+        else if (nr >= 10) return nr.toFixed(1*useDec) // 10.0
+        else return nr.toFixed(2*useDec) // 1.00
     }
 }

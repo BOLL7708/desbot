@@ -239,6 +239,7 @@ interface ITextTags extends ITextTagsCached{
     eventLevel: string
     eventLevelNext: string
     eventLevelMax: string
+    eventLevelMaxShort: string
     eventLevelProgress: string
     eventLevelNextProgress: string
 }
