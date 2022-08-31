@@ -63,6 +63,16 @@ export interface ITwitchConfig {
     announceCheers: IAnnounceCheerConfig[],
 
     /**
+     * The Twitch category that will be used if a game title cannot be automatically matched.
+     */
+    defaultGameCategory: string,
+
+    /**
+     * Manual override of game title to Twitch category for when a match is faulty or missing.
+     */
+    gameTitleToCategoryOverride: { [title:string]: string }
+
+    /**
      * When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.
      */
     proxyChatBotName: string

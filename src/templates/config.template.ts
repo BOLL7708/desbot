@@ -156,7 +156,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Could not cancel raid.'
         ]
     },
-    defaultTwitchGameCategory: 'Games + Demos',
     saveConsoleOutputToSettings: false,
     secretChatSymbols: ['!'],
     channelTrophySettings: {
@@ -472,6 +471,11 @@ Config.twitch = <ITwitchConfig> {
         {bits: 1, message: '%userTag cheered %userBits bits! (will be the default message)'},
         {bits: 100, message: 'Wow %userTag cheered %userBits bits! (for 100 or more)'}
     ],
+
+    defaultGameCategory: 'Games + Demos',
+    gameTitleToCategoryOverride: {
+        // 'Game Title from Steam': 'Twitch Category Name'
+    },
 
     proxyChatBotName: 'RestreamBot',
     proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/,

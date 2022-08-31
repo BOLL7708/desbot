@@ -260,7 +260,11 @@ export default class Functions {
         // Update category on Twitch
         if(appId.length > 0 && states.updateTwitchGameCategory) {
             const gameData = await SteamStore.getGameMeta(appId)
-            let twitchGameData = await modules.twitchHelix.searchForGame(gameData?.name ?? '')
+            let gameName = gameData?.name ?? ''
+            if(Config.twitch.gameTitleToCategoryOverride[gameName]) {
+                gameName = Config.twitch.gameTitleToCategoryOverride[gameName]
+            }
+            let twitchGameData = await modules.twitchHelix.searchForGame(gameName)
             if(twitchGameData == null && typeof gameData?.name == 'string') {
                 let nameParts = gameData.name.split(' ')
                 if(nameParts.length >= 2) {
@@ -272,7 +276,7 @@ export default class Functions {
             }
             if(twitchGameData == null) {
                 // If still no Twitch match, we load a possible default category.
-                twitchGameData = await modules.twitchHelix.searchForGame(Config.controller.defaultTwitchGameCategory)
+                twitchGameData = await modules.twitchHelix.searchForGame(Config.twitch.defaultGameCategory)
             }
             if(twitchGameData != undefined) {
                 const request: ITwitchHelixChannelRequest = {

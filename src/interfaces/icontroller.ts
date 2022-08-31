@@ -65,11 +65,6 @@ export interface IControllerConfig {
     chatReferences: Partial<Record<TKeys, string|string[]>>
 
     /**
-     * As Twitch category can be automatically matched, this is the one used when there is no match.
-     */
-    defaultTwitchGameCategory: string
-
-    /**
      * Console output will also be written to a file in the _settings folder.
      * It buffers the output and writes it every 10 seconds.
      */
