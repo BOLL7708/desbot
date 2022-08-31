@@ -1,10 +1,10 @@
-interface ISteamStoreGameResponse {
+export interface ISteamStoreGameResponse {
     [key:number]:{
         data: ISteamStoreGameData
         success: boolean
     }
 }
-interface ISteamStoreGameData {
+export interface ISteamStoreGameData {
     about_the_game?: string
     achievements?: {
         highlighted: [{

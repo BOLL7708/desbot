@@ -1,3 +1,5 @@
+import {IPipeCustomMessage} from '../interfaces/ipipe.js'
+
 /*
  * This is a premade file with examples of how to make preset objects.
  * It is useful if you want to reuse the same config values in multiple places.
@@ -6,7 +8,7 @@
  * The ones provided are examples that were deemed useful.
  */
 
-/** 
+/**
  * Override presets for the default controller options per game, usage:
  * ```
  * Config.controller.gameDefaults: {
@@ -14,7 +16,7 @@
  * }
  * ```
  */ 
-class ControllerPresetsTemplate {
+export class ControllerPresetsTemplate {
     // static readonly YOUR_PRESET: IControllerDefaults = { ttsForAll: false }
 }
 
@@ -26,7 +28,7 @@ class ControllerPresetsTemplate {
  *     }
  * ```
  */
-class GamePresetsTemplate {
+export class GamePresetsTemplate {
     /*
     static readonly REWARDS_EXAMPLE1: ITwitchRewardProfileConfig = {
         'YourRewardKey': false
@@ -50,7 +52,7 @@ class GamePresetsTemplate {
  * The values for these configs are best made with the example page you can open
  * through the application itself, click the `Example` link in OpenVRNotificationPipe.
  */ 
-class PipePresetsTemplate {
+export class PipePresetsTemplate {
     static readonly PIPE_DOT: IPipeCustomMessage = {
         customProperties: {
             enabled: true,

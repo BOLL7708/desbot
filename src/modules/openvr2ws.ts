@@ -1,4 +1,16 @@
-class OpenVR2WS {
+import {
+    IOpenVR2WSAppIdCallback,
+    IOpenVR2WSFindOverlayCallback, IOpenVR2WSFindOverlayData, IOpenVR2WSGenericResponseData, IOpenVR2WSInputCallback,
+    IOpenVR2WSInputData,
+    IOpenVR2WSMessage, IOpenVR2WSMoveSpace,
+    IOpenVR2WSRelayCallback, IOpenVR2WSRelayData, IOpenVR2WSSetting, IOpenVR2WSStatusCallback, IOpenVRWSCommandMessage
+} from '../interfaces/iopenvr2ws.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import WebSockets from './websockets.js'
+import Utils from '../base/utils.js'
+
+export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }
     static get SETTING_ANALOG_GAIN() { return 'steamvr|analogGain|1.30' }
     static get SETTING_PREFERRED_REFRESH_RATE() { return 'steamvr|preferredRefreshRate|120' }

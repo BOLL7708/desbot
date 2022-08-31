@@ -1,4 +1,8 @@
-class Exec {
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import {IPressKeysAction} from '../interfaces/iactions.js'
+
+export default class Exec {
     static runKeyPresses(window: string, command: string, postfixEnterStroke: boolean = true) {  
         const windowb64 = Utils.encode(window)
         const commandb64 = Utils.encode(command)

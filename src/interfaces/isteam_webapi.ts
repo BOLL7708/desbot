@@ -6,7 +6,7 @@
 ..####...######....##......##....######..##..##...####....####..
 */
 
-interface ISteamWebApiSettingAchievement {
+export interface ISteamWebApiSettingAchievement {
     key: string
     state: string // A number but is parsed out to string
 }
@@ -20,12 +20,12 @@ interface ISteamWebApiSettingAchievement {
 */
 
 // Player Summaries
-interface ISteamWebApiPlayerSummaries {
+export interface ISteamWebApiPlayerSummaries {
     response: {
         players: ISteamWebApiPlayerSummaryData[]
     }
 }
-interface ISteamWebApiPlayerSummaryData {
+export interface ISteamWebApiPlayerSummaryData {
     /**
      * 64bit SteamID of the user
      */
@@ -121,7 +121,7 @@ interface ISteamWebApiPlayerSummaryData {
 /**
  * https://partner.steamgames.com/doc/webapi/ISteamUserStats#GetSchemaForGame
  */
-interface ISteamWebApiGameSchema {
+export interface ISteamWebApiGameSchema {
     game: {
         gameName: string
         gameVersion: string
@@ -131,7 +131,7 @@ interface ISteamWebApiGameSchema {
         }
     }
 }
-interface IStreamWebApiGameSchemaAchievement {
+export interface IStreamWebApiGameSchemaAchievement {
     name: string
     defaultvalue: number
     displayName: string
@@ -140,14 +140,14 @@ interface IStreamWebApiGameSchemaAchievement {
     icon: string
     icongray: string
 }
-interface IStreamWebApiGameSchemaStat {
+export interface IStreamWebApiGameSchemaStat {
     name: string
     defaultvalue: number
     displayName: string
 }
 
 // Player Achievements
-interface ISteamWebApiPlayerAchievements {
+export interface ISteamWebApiPlayerAchievements {
     playerstats: {
         steamID: string
         gameName: string
@@ -155,7 +155,7 @@ interface ISteamWebApiPlayerAchievements {
         success: boolean
     }
 }
-interface ISteamWebApiPlayerAchievementData {
+export interface ISteamWebApiPlayerAchievementData {
     /**
      * The API name of the achievement
      */
@@ -179,12 +179,12 @@ interface ISteamWebApiPlayerAchievementData {
 }
 
 // Global Achievements
-interface IStreamWebApiGlobalAchievementStats {
+export interface IStreamWebApiGlobalAchievementStats {
     achievementpercentages: {
         achievements: IStreamWebApiGlobalAchievementData[]
     }
 }
-interface IStreamWebApiGlobalAchievementData {
+export interface IStreamWebApiGlobalAchievementData {
     name: string
     percent: number
 }

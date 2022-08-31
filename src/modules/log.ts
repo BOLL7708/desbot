@@ -1,4 +1,6 @@
-class LogWriter {
+import Settings from './settings.js'
+
+export default class LogWriter {
     // TODO: Extend console with new functions that take color and style as arguments.
     // TODO: Add one console output that does not write to the log file.
     public static init() {

@@ -1,4 +1,23 @@
-class TwitchPubsub {
+import {ITwitchCheer, ITwitchReward, ITwitchTokens} from '../interfaces/itwitch.js'
+import TwitchHelix from './twitch_helix.js'
+import {
+    ITwitchPubsubCheerCallback,
+    ITwitchPubsubCheerMessage,
+    ITwitchPubsubMessage,
+    ITwitchPubsubRewardCallback,
+    ITwitchPubsubRewardMessage,
+    ITwitchPubsubSubscriptionCallback,
+    ITwitchPubsubSubscriptionMessage
+} from '../interfaces/itwitch_pubsub.js'
+import {Actions} from '../actions.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import {ITwitchRedemption} from '../interfaces/isettings.js'
+import WebSockets from './websockets.js'
+import Utils from '../base/utils.js'
+import Settings from './settings.js'
+
+export default class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
     private _socket?: WebSockets
     private _pingIntervalHandle?: number

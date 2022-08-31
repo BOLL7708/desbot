@@ -1,42 +1,45 @@
+import {TKeys} from '../_data/!keys.js'
+import {TTwitchRedemptionStatus} from './itwitch_pubsub.js'
+
 // Settings
-interface IUserVoice {
+export interface IUserVoice {
     userName: string
     languageCode: string
     voiceName: string
     gender: string
 }
-interface IUserName {
+export interface IUserName {
     userName: string
     shortName: string
     editor: string
     datetime: string
 }
-interface IDictionaryEntry {
+export interface IDictionaryEntry {
     original: string
     substitute: string
     editor: string
     datetime: string
 }
-interface ITwitchRewardPair {
+export interface ITwitchRewardPair {
     key: TKeys
     id: string
 }
-interface IChannelTrophyStat {
+export interface IChannelTrophyStat {
     userId: string
     index: string
     cost: string
 }
-interface ITwitchClip {
+export interface ITwitchClip {
     id: string
 }
-interface IStreamQuote {
+export interface IStreamQuote {
     submitter: string
     author: string
     quote: string
     datetime: string
     game: string
 }
-interface ITwitchRedemption {
+export interface ITwitchRedemption {
     userId: string,
     rewardId: string,
     redemptionId: string,
@@ -44,7 +47,7 @@ interface ITwitchRedemption {
     status: TTwitchRedemptionStatus,
     cost: string
 }
-interface IEventCounter {
+export interface IEventCounter {
     key: string
     count: number
 }

@@ -1,4 +1,11 @@
-class TwitchChat {
+import WebSockets from './websockets.js'
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import TwitchFactory from './twitch_factory.js'
+import {ITwitchChatMessageCallback, ITwitchTokens} from '../interfaces/itwitch.js'
+import Settings from './settings.js'
+
+export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
     private _socket?: WebSockets
     private _isConnected: boolean = false

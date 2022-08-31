@@ -1,4 +1,13 @@
-class TwitchFactory {
+import {
+    ITwitchChatMessage,
+    ITwitchChatMessageProperties,
+    ITwitchEmote, ITwitchEmotePosition,
+    ITwitchMessageCmd
+} from '../interfaces/itwitch_chat.js'
+import Utils from '../base/utils.js'
+import {ITwitchPubsubEmote} from '../interfaces/itwitch_pubsub.js'
+
+export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {
         const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
         const matches: RegExpExecArray|null = re.exec(data)

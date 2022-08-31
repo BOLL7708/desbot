@@ -1,7 +1,9 @@
+import {IAudioAction} from './iactions.js'
+
 /**
  * Settings for the AudioPlayer which can play back local sound files or data URLs.
  */
-interface IAudioPlayerConfig {
+export interface IAudioPlayerConfig {
     /**
      * Configurations for audio playback that are triggered by string matches.
      */
@@ -10,6 +12,6 @@ interface IAudioPlayerConfig {
 
 
 // Callbacks
-interface IAudioPlayedCallback {
+export interface IAudioPlayedCallback {
     (nonce: string, status: number): void
 }

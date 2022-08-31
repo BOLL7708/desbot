@@ -1,4 +1,10 @@
-class Sign {
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import {ISignConfig} from '../interfaces/isign.js'
+import {ISignAction} from '../interfaces/iactions.js'
+
+export default class Sign {
     private _config: ISignConfig = Config.sign
     private _div: HTMLDivElement
     private _img: HTMLImageElement

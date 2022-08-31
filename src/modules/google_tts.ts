@@ -1,4 +1,18 @@
-class GoogleTTS {
+import Dictionary from './dictionary.js'
+import {IDictionaryEntry, IUserVoice} from '../interfaces/isettings.js'
+import {ETTSType} from '../base/enums.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import AudioPlayer, {AudioPlayerInstance} from './audioplayer.js'
+import {IAudioAction} from '../interfaces/iactions.js'
+import {IBlacklistEntry} from '../interfaces/itts.js'
+import {IGoogleVoice} from '../interfaces/igoogle.js'
+import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
+import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
+import Utils from '../base/utils.js'
+import Settings from './settings.js'
+
+export default class GoogleTTS {
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
     // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs

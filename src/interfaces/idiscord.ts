@@ -1,7 +1,7 @@
 /**
  * Settings for sending things to Discord channels.
  */
-interface IDiscordConfig {
+export interface IDiscordConfig {
     /**
      * Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.
      * 
@@ -32,7 +32,7 @@ interface IDiscordConfig {
 }
 
 // https://discord.com/developers/docs/resources/webhook#execute-webhook
-interface IDiscordWebookPayload {
+export interface IDiscordWebookPayload {
     content?: string // content, file or embeds
     username?: string
     avatar_url?: string
@@ -44,7 +44,7 @@ interface IDiscordWebookPayload {
     components?: any // TODO
 }
 // https://discord.com/developers/docs/resources/channel#embed-object
-interface IDiscordEmbed {
+export interface IDiscordEmbed {
     title?: string
     type?: string // Always "rich" for webhooks
     description?: string
@@ -59,47 +59,47 @@ interface IDiscordEmbed {
     author?: IDiscordEmbedAuthor
     fields?: IDiscordEmbedField[]
 }
-interface IDiscordEmbedFooter {
+export interface IDiscordEmbedFooter {
     text: string
     icon_url?: string
     proxy_icon_uri?: string
 }
-interface IDiscordEmbedMedia {
+export interface IDiscordEmbedMedia {
     url: string
     proxy_url?: string
     height?: number
     width?: number
 }
-interface IDiscordEmbedProvider {
+export interface IDiscordEmbedProvider {
     name?: string
     url?: string
 }
-interface IDiscordEmbedAuthor {
+export interface IDiscordEmbedAuthor {
     name: string
     url?: string
     icon_url?: string
     proxy_icon_url? : string
 }
 // https://discord.com/developers/docs/resources/channel#embed-object-embed-field-structure
-interface IDiscordEmbedField {
+export interface IDiscordEmbedField {
     name: string
     value: string
     inline?: boolean
 }
 
 // Internal
-interface IDiscordRateLimit {
+export interface IDiscordRateLimit {
     remaining: number
     resetTimestamp: number
 }
-interface IDiscordQueue {
+export interface IDiscordQueue {
     formData: FormData,
     callback?: (success: boolean) => void
 }
 
 // Response rate-limit headers
 // https://discord.com/developers/docs/topics/rate-limits
-interface IDiscordResponseHeaders {
+export interface IDiscordResponseHeaders {
     'content-type'?: string
     date?: string
     'x-ratelimit-bucket'?: string

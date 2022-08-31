@@ -1,3 +1,20 @@
+import {ETTSType} from './base/enums.js'
+import Config from './statics/config.js'
+import OpenVR2WS from './modules/openvr2ws.js'
+import Color from './statics/colors.js'
+import {IEventCounter, IStreamQuote, ITwitchClip, ITwitchRedemption, ITwitchRewardPair} from './interfaces/isettings.js'
+import {IActionsCallbackStack} from './interfaces/iactions.js'
+import Functions from './functions.js'
+import ModulesSingleton from './modules_singleton.js'
+import {EBehavior} from './interfaces/ievents.js'
+import ChannelTrophy from './modules/channeltrophy.js'
+import StatesSingleton from './base/states_singleton.js'
+import Utils from './base/utils.js'
+import {ITwitchHelixClipResponseData} from './interfaces/itwitch_helix.js'
+import Discord from './modules/discord.js'
+import SteamStore from './modules/steam_store.js'
+import Settings from './modules/settings.js'
+
 /*
 ..######...#######..##.....##.##.....##....###....##....##.########...######.
 .##....##.##.....##.###...###.###...###...##.##...###...##.##.....##.##....##
@@ -7,7 +24,7 @@
 .##....##.##.....##.##.....##.##.....##.##.....##.##...###.##.....##.##....##
 ..######...#######..##.....##.##.....##.##.....##.##....##.########...######.
 */
-class Commands {
+export default class Commands {
     /*
     .######..######...####..
     ...##......##....##.....

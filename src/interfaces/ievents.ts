@@ -1,12 +1,17 @@
+import {TKeys} from '../_data/!keys.js'
+import {IActions} from './iactions.js'
+import {ITwitchActionCommandConfig, ITwitchActionRemoteCommandConfig} from './itwitch.js'
+import {ITwitchHelixRewardConfig, ITwitchHelixRewardUpdate} from './itwitch_helix.js'
+
 /**
  * Config for events
  */
-interface IEventsConfig extends Partial<Record<TKeys, IEvent>> {}
+export interface IEventsConfig extends Partial<Record<TKeys, IEvent>> {}
 
 /**
  * Various types of special event behavior.
  */
-enum EBehavior { 
+export enum EBehavior {
     All,
     Random,
     Incrementing,
@@ -17,7 +22,7 @@ enum EBehavior {
 /**
  * The event that contains triggers and actions.
  */
-interface IEvent {
+export interface IEvent {
     /**
      * Set various options for event behavior.
      */
@@ -36,7 +41,7 @@ interface IEvent {
     actionsEntries?: IActions|IActions[]
 }
 
-interface IEventOptions {
+export interface IEventOptions {
     /**
      * Optional: Set this to add special behavior to this reward.
      * - **All**: Is the same as leaving this out, no special behavior, will trigger everything provided.
@@ -97,7 +102,7 @@ interface IEventOptions {
     specificIndex?: number
 }
 
-interface IEventTriggers {
+export interface IEventTriggers {
     /**
      * Optional: Set this to trigger from a chat command.
      */
@@ -131,7 +136,7 @@ interface IEventTriggers {
     relay?: TKeys
 }
 
-interface ITimerConfig {
+export interface ITimerConfig {
     /**
      * Optional: The time in seconds between each trigger.
      */

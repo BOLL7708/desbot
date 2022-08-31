@@ -5,7 +5,7 @@
  * 
  * Note: For this to work you should run Apache from autorun and not as a service, because services aren't allowed to touch the desktop.
  */
-interface IRunCommandConfig {
+export interface IRunCommandConfig {
     /**
      * A full command 
      */

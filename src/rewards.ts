@@ -1,4 +1,17 @@
-class Rewards {
+import Config from './statics/config.js'
+import ModulesSingleton from './modules_singleton.js'
+import StatesSingleton from './base/states_singleton.js'
+import Settings from './modules/settings.js'
+import {IChannelTrophyStat, ITwitchRewardPair} from './interfaces/isettings.js'
+import Utils from './base/utils.js'
+import {ITwitchHelixRewardConfig} from './interfaces/itwitch_helix.js'
+import {Actions} from './actions.js'
+import {EEventSource} from './base/enums.js'
+import Color from './statics/colors.js'
+import {IActionsCallbackStack, IActionUser} from './interfaces/iactions.js'
+import ChannelTrophy from './modules/channeltrophy.js'
+
+export default class Rewards {
     public static async init() {
         /*
         .########..########.##......##....###....########..########...######.

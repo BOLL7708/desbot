@@ -1,4 +1,10 @@
-class ImageEditor {
+import Utils from '../base/utils.js'
+import {ITwitchMessageData} from '../interfaces/itwitch.js'
+import Color from '../statics/colors.js'
+import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from '../interfaces/iimage_editor.js'
+import ImageLoader from './image_loader.js'
+
+export default class ImageEditor {
     private _canvas: HTMLCanvasElement
     private _textCanvas: HTMLCanvasElement
     private _ctx: CanvasRenderingContext2D|null

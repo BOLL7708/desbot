@@ -1,4 +1,24 @@
-class TwitchHelix {
+import {
+    ITwitchHelixCategoriesResponseData,
+    ITwitchHelixChannelRequest, ITwitchHelixChannelResponse,
+    ITwitchHelixChannelResponseData,
+    ITwitchHelixChatColorResponse,
+    ITwitchHelixClipResponse,
+    ITwitchHelixGamesResponse,
+    ITwitchHelixGamesResponseData, ITwitchHelixRewardConfig, ITwitchHelixRewardResponse,
+    ITwitchHelixRewardStates,
+    ITwitchHelixRewardUpdate,
+    ITwitchHelixUsersResponse,
+    ITwitchHelixUsersResponseData
+} from '../interfaces/itwitch_helix.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import {ITwitchRedemption, ITwitchRewardPair} from '../interfaces/isettings.js'
+import {ITwitchTokens} from '../interfaces/itwitch.js'
+import Utils from '../base/utils.js'
+import Settings from './settings.js'
+
+export default class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
     _userCache: Map<number, ITwitchHelixUsersResponseData> = new Map()
     _userNameToId: Map<string, number> = new Map()

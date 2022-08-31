@@ -1,13 +1,13 @@
 <?php
 
 class Utils {
-    static function loadJSFiles() {
+    static function loadJSIncludesAndConfigs() {
         // Load PHP config
         $config = include_once('_configs/config.php');
 
         // Include single file
         function includeFile($root, $file, $directory=null) {
-            if(is_string($file)) {
+            if (is_string($file)) {
                 $name = $file;
                 $fileArr = explode('.', $file);
                 $ext = array_pop($fileArr);
@@ -15,14 +15,11 @@ class Utils {
                 $name = $file->getFilename();
                 $ext = $file->getExtension();
             }
-            if(
-                $ext == 'js' 
-                && strpos($directory, 'templates') === false
-            ) {
+            if ($ext == 'js') {
                 if(is_string($directory) && file_exists($root.$directory.'/'.$name)) {
-                    echo '<script src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";
+                    echo '<script type="module" src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";
                 } elseif (file_exists($root.$name)) {
-                    echo '<script src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
+                    echo '<script type="module" src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
                 }
             }
         }
@@ -30,41 +27,14 @@ class Utils {
         // Setup
         $root = './dist/';
 
-        // Include base first
-        $dataPath = 'base';
-        $dir = new DirectoryIterator($root.$dataPath);
-        foreach ($dir as $file) {
-            includeFile($root, $file, $dataPath);
-        }
-
-        // Include data second
-        $dataPath = '_data';
-        $dir = new DirectoryIterator($root.$dataPath);
-        foreach ($dir as $file) {
-            includeFile($root, $file, $dataPath);
-        }
-    
-        // Scan root for files and subfolders except base, configs, data and templates
-        $dir = new DirectoryIterator($root);
-        foreach ($dir as $file) {
-            $name = $file->getFilename();
-            if (
-                $file->isDir()
-                && strpos($name, 'base') === false
-                && strpos($name, '_configs') === false
-                && strpos($name, '_data') === false
-                && strpos($name, 'templates') === false
-                && !$file->isDot()
-                && substr($name,0,1) != '.'
-            ) { // Subdirectory to scan
-                $dir2 = new DirectoryIterator($root.$name);
-                foreach($dir2 as $file2) {
-                    includeFile($root, $file2, $name);
-                    if($file2 == 'files.js') { // Fill a value in AssetFiles that needs to be filled before config loads.
-                        echo '<script>AssetFiles._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES).'</script>';
-                    }
-                }
-            } elseif($file->isFile()) includeFile($root, $file); // File in root
+        // Include files that aren't modules
+        $includesPath = 'includes';
+        $includesDir = new DirectoryIterator($root.$includesPath);
+        foreach($includesDir as $includeFile) {
+            $includeName = $includeFile->getFileName();
+            if(!$includeFile->isDir()) {
+                includeFile($root, $includeName, $includesPath);
+            }
         }
 
         // Scan root for previously skipped configs

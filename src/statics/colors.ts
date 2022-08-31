@@ -1,7 +1,7 @@
 /**
  * This is a class that contains all valid HTML color names, simply as a way to easily reference them.
  */
-class Color {
+export default class Color {
     static AliceBlue: string = "aliceblue"
     static AntiqueWhite: string = "antiquewhite"
     static Aqua: string = "aqua"

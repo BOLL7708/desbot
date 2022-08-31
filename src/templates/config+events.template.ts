@@ -1,3 +1,6 @@
+import Config from '../statics/config.js'
+import {ETTSFunction, ETTSType} from '../base/enums.js'
+
 Config.events = {
     ...Config.events,
     /*

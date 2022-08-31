@@ -1,7 +1,11 @@
+import {TKeys} from '../_data/!keys.js'
+import {ICommandPermissions} from './itwitch.js'
+import {IChannelTrophyFunnyNumberTexts} from '../modules/channeltrophy.js'
+
 /**
  * These are the settings for `MainController`, the main class that connects all the different modules together.
  */
-interface IControllerConfig {
+export interface IControllerConfig {
     /**
      * Default settings for controller functions.
      */
@@ -132,7 +136,7 @@ interface IControllerConfig {
     }
 }
 
-interface IControllerDefaults {
+export interface IControllerDefaults {
     /**
      * Turn this on to get chat messages as notifications in SteamVR.
      */

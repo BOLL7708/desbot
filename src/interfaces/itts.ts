@@ -1,12 +1,12 @@
 // Data
-interface ISentence {
+export interface ISentence {
     text: string
     userName: string
     type: number
     meta: any
 }
 
-interface IBlacklistEntry {
+export interface IBlacklistEntry {
     userName: string
     active: boolean
     reason: string

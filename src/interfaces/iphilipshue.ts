@@ -1,7 +1,7 @@
 /**
  * Control Philips Hue lights or sockets
  */
-interface IPhilipsHueConfig {
+export interface IPhilipsHueConfig {
     /**
      * Local IP address of the Philips Hue bridge, start with the protocol: `http://`
      */
@@ -12,13 +12,13 @@ interface IPhilipsHueConfig {
     lightsIds: number[]
 }
 
-interface IPhilipsHueBulb {
+export interface IPhilipsHueBulb {
     x: number
     y: number
 }
 
 // Response
-interface IPhilipsHueLightState {
+export interface IPhilipsHueLightState {
     on: boolean
     bri: number
     hue: number
@@ -30,11 +30,11 @@ interface IPhilipsHueLightState {
     mode: string
     reachable: boolean
 }
-interface IPhilipsHueLightSWUpdate {
+export interface IPhilipsHueLightSWUpdate {
     state: string
     lastinstall: string
 }
-interface IPhilipsHueLight {
+export interface IPhilipsHueLight {
     state: IPhilipsHueLightState
     swupdate: IPhilipsHueLightSWUpdate
     type: string
@@ -45,12 +45,12 @@ interface IPhilipsHueLight {
     capabilities: IPhilipsHueLightCapabilities
     
 }
-interface IPhilipsHueLightCapabilities {
+export interface IPhilipsHueLightCapabilities {
     certified: boolean,
     control: IPhilipsHueLightCapabilitiesControl
     streaming: IPhilipsHueLightCapabilitiesStreaming
 }
-interface IPhilipsHueLightCapabilitiesControl {
+export interface IPhilipsHueLightCapabilitiesControl {
     mindimlevel: number
     maxlumen: number
     colorgamuttype: string
@@ -60,11 +60,11 @@ interface IPhilipsHueLightCapabilitiesControl {
         max: number
     }
 }
-interface IPhilipsHueLightCapabilitiesControlCT {
+export interface IPhilipsHueLightCapabilitiesControlCT {
     min: number
     max: number
 }
-interface IPhilipsHueLightCapabilitiesStreaming {
+export interface IPhilipsHueLightCapabilitiesStreaming {
     renderer: boolean
     proxy: boolean
 }

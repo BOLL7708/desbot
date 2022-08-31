@@ -1,4 +1,4 @@
-interface IImageEditorRect {
+export interface IImageEditorRect {
     /**
      * Horizontal position.
      */
@@ -17,7 +17,7 @@ interface IImageEditorRect {
     h: number
 }
 
-interface IImageEditorEmote {
+export interface IImageEditorEmote {
     /**
      * Character index in the string where the emote string starts.
      */
@@ -35,7 +35,7 @@ interface IImageEditorEmote {
 /**
  * Font settings for text to be drawn on the canvas.
  */
-interface IImageEditorFontSettings {
+export interface IImageEditorFontSettings {
     /**
      * The font family of any font that exists on the system.
      */
@@ -64,7 +64,7 @@ interface IImageEditorFontSettings {
     lineSpacing?: number
 }
 
-interface IImageEditorOutline {
+export interface IImageEditorOutline {
     /**
      * A HTML color, can be a text representation or a hex value.
      */

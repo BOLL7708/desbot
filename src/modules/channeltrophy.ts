@@ -1,4 +1,11 @@
-class ChannelTrophy {
+import TwitchHelix from './twitch_helix.js'
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import {IChannelTrophyStat} from '../interfaces/isettings.js'
+import {IDiscordEmbed, IDiscordEmbedField} from '../interfaces/idiscord.js'
+import Settings from './settings.js'
+
+export default class ChannelTrophy {
     static async getNumberOfStreams():Promise<number> {
         await Settings.loadSettings(Settings.CHANNEL_TROPHY_STATS, true)
         const stats = Settings.getFullSettings<IChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
@@ -484,7 +491,7 @@ class NumberPatterns {
 /**
  * Channel Trophy numbers that are in addition to the pattern matched ones.
  */
-interface IChannelTrophyFunnyNumberTexts {
+export interface IChannelTrophyFunnyNumberTexts {
     [key:number]: {
         /**
          * The tag `%start` is based on {@link Config.controller.channelTrophySettings.ttsName} and `%number` is the number of the trophy.

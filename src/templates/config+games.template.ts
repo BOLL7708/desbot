@@ -1,3 +1,5 @@
+import Config from '../statics/config.js'
+
 Config.eventsForGames = {
     /*
     [GamesTemplate.ANY_GAME]: {

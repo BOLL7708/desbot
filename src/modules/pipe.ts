@@ -1,4 +1,16 @@
-class Pipe {
+import {IActionUser, IPipeAction} from '../interfaces/iactions.js'
+import ImageEditor from './image_editor.js'
+import {ITwitchMessageData} from '../interfaces/itwitch.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import {IPipeBasicMessage, IPipeCustomMessage} from '../interfaces/ipipe.js'
+import TwitchFactory from './twitch_factory.js'
+import {ITwitchHelixUsersResponseData} from '../interfaces/itwitch_helix.js'
+import WebSockets from './websockets.js'
+import Utils from '../base/utils.js'
+import ImageLoader from './image_loader.js'
+
+export default class Pipe {
     private _socket:WebSockets
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${Config.pipe.port}`, 10, true)

@@ -1,13 +1,13 @@
 // Callbacks
-interface IWebsocketsOpenCallback {
+export interface IWebsocketsOpenCallback {
     (evt: Event): void
 }
-interface IWebsocketsCloseCallback {
+export interface IWebsocketsCloseCallback {
     (evt: CloseEvent): void
 }
-interface IWebsocketsMessageCallback {
+export interface IWebsocketsMessageCallback {
     (evt: MessageEvent): void
 }
-interface IWebsocketsErrorCallback {
+export interface IWebsocketsErrorCallback {
     (evt: Event): void
 }

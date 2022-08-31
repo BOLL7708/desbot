@@ -1,7 +1,7 @@
 /**
  * The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.
  */
-interface ISignConfig {
+export interface ISignConfig {
     /**
      * Set if the Sign is enabled at all.
      */

@@ -1,4 +1,8 @@
-class AudioPlayer {
+import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
+import Utils from '../base/utils.js'
+import {IAudioAction} from '../interfaces/iactions.js'
+
+export default class AudioPlayer {
     static get STATUS_OK() { return 0 }
     static get STATUS_ERROR() { return 1 }
     static get STATUS_ABORTED() { return 2 }
@@ -30,7 +34,7 @@ class AudioPlayer {
     }
 }
 
-class AudioPlayerInstance {
+export class AudioPlayerInstance {
     private _audio?: HTMLAudioElement
     private _queueLoopHandle: number = 0
     private _queue: IAudioAction[] = []

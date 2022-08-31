@@ -1,4 +1,17 @@
-class Utils {
+import Config from '../statics/config.js'
+import StatesSingleton from './states_singleton.js'
+import ModulesSingleton from '../modules_singleton.js'
+import {TKeys} from '../_data/!keys.js'
+import Settings from '../modules/settings.js'
+import {IEventCounter, ITwitchRewardPair, IUserName, IUserVoice} from '../interfaces/isettings.js'
+import {IActionUser, ITextTags} from '../interfaces/iactions.js'
+import SteamStore from '../modules/steam_store.js'
+import {ITwitchCheerSetting, ITwitchSubSetting} from '../interfaces/itwitch_pubsub.js'
+import {IEvent, IEventsConfig} from '../interfaces/ievents.js'
+import {ICleanTextConfig} from '../interfaces/iutils.js'
+import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
+
+export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
         const [first, ...rest] = str.split(needle)
         return rest ? [first, rest.join(needle)] : [first]
@@ -47,7 +60,7 @@ class Utils {
         let text = textInput ?? ''
 
         if(!config) config = Config.google.cleanTextConfig
-        if(!config.keepCase) text = text.toLowerCase()
+        if(!config?.keepCase) text = text.toLowerCase()
 
         // Remove Twitch emojis
         if(clearRanges.length > 0) clearRanges.forEach(range => {
@@ -56,13 +69,13 @@ class Utils {
         })
         
         // Clear bit emojis
-        if(config.removeBitEmotes) {
+        if(config?.removeBitEmotes) {
             let bitMatches = text.match(/(\S+\d+)+/g) // Find all [word][number] references to clear out bit emotes
             if(bitMatches != null) bitMatches.forEach(match => text = text.replace(match, ' '))
         }
 
         // Remove things in ()
-        if(config.removeParentheses) {
+        if(config?.removeParentheses) {
             text = text.replace(/(\(.*\))/g, '')
         }
 
@@ -70,13 +83,13 @@ class Utils {
         text = text.replace(/([\.]{2,})/g, '…')
 
         // Reduce XXX...XXX to XX
-        if(config.reduceRepeatedCharacters) {
+        if(config?.reduceRepeatedCharacters) {
             const repeatCharMatches = text.match(/(\D)\1{2,}/g) // 2+ len group of any repeat non-digit https://stackoverflow.com/a/6306113
             if(repeatCharMatches != null) repeatCharMatches.forEach(match => text = text.replace(match, match.slice(0,2))) // Limit to 2 chars
         }
         
         // Replace numbers of more than 7 digits to just big number.
-        if(config.replaceBigNumbers) {
+        if(config?.replaceBigNumbers) {
             const bigNumberDigits = config.replaceBigNumbersWithDigits ?? 7;
             const bigNumberRegex = new RegExp(`(\\d){${bigNumberDigits},}`, 'g')
             text = text.replace(bigNumberRegex, config.replaceBigNumbersWith ?? 'big number') // 7+ len group of any mixed digits
@@ -88,7 +101,7 @@ class Utils {
             for(let i=0; i<tagMatches.length; i++) {
                 let match = tagMatches[i]
                 let untaggedName = match.substring(1)
-                if(config.replaceUserTags) {
+                if(config?.replaceUserTags) {
                     let cleanName = await Utils.loadCleanName(match.substring(1).toLowerCase())
                     text = text.replace(match, cleanName)
                 } else {
@@ -97,13 +110,13 @@ class Utils {
             }
         }
 
-        if(config.replaceLinks) {
+        if(config?.replaceLinks) {
             // Links: https://stackoverflow.com/a/23571059/2076423
             text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, config.replaceLinksWith ?? 'link')
         }
 
         // TODO: This might remove more symbols than emojis, not sure if that is something to fix.
-        if(config.removeUnicodeEmojis) {
+        if(config?.removeUnicodeEmojis) {
             // Emojis: https://stackoverflow.com/a/63464318/2076423
             // text = text.replace(/[\p{Emoji_Presentation}]/gu, '')
             // text = text.replace(/[^\p{Letter}\p{Number}\p{Punctuation}\p{Separator}\p{Symbol}]/gu, '')

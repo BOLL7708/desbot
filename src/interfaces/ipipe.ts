@@ -1,7 +1,11 @@
+import {ICleanTextConfig} from './iutils.js'
+import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from './iimage_editor.js'
+import {TKeys} from '../_data/!keys.js'
+
 /**
  * In-VR-overlays and notifications with [OpenVRNotificationPipe](https://github.com/BOLL7708/OpenVRNotificationPipe)
  */
-interface IPipeConfig {
+export interface IPipeConfig {
     /**
      * The port number set in OpenVRNotificationPipe.
      */
@@ -51,7 +55,7 @@ interface IPipeConfig {
      cleanTextConfig: ICleanTextConfig
 }
 
-interface IPipeCustomMessageConfig {
+export interface IPipeCustomMessageConfig {
     width: number
     top: number
     margin: number
@@ -59,11 +63,11 @@ interface IPipeCustomMessageConfig {
     textMaxHeight: number
     font: IImageEditorFontSettings
 }
-interface IPipeCustomMessageNameConfig {
+export interface IPipeCustomMessageNameConfig {
     rect: IImageEditorRect
     font: IImageEditorFontSettings
 }
-interface IPipeCustomMessageAvatarConfig {
+export interface IPipeCustomMessageAvatarConfig {
     /**
      * The corner radius of the user avatar.
      * - -1 = Circle.
@@ -84,7 +88,7 @@ interface IPipeCustomMessageAvatarConfig {
 }
 // Data
 
-interface IPipeBasicMessage {
+export interface IPipeBasicMessage {
     imageData?: string
     basicTitle?: string
     basicMessage?: string
@@ -93,7 +97,7 @@ interface IPipeBasicMessage {
 /**
  * This is what is sent to the Pipe application
  */
-interface IPipeCustomMessage {
+export interface IPipeCustomMessage {
     /**
      * Optional: In this solution we set the image from the preset so this is not needed in the payload.
      * 
@@ -115,7 +119,7 @@ interface IPipeCustomMessage {
 /**
  * Properties for the general state of the notification
  */
-interface IPipeCustomProperties {
+export interface IPipeCustomProperties {
     /**
      * Set to true to show a custom notification instead of a basic one.
      */
@@ -234,14 +238,14 @@ interface IPipeCustomProperties {
 /**
  * Follow 
  */
-interface IPipeCustomFollow {
+export interface IPipeCustomFollow {
     enabled?: boolean
     triggerAngle?: number
     durationMs?: number
     tweenType?: number
 }
 
-interface IPipeCustomAnimation {
+export interface IPipeCustomAnimation {
     property?: number
     amplitude?: number
     frequency?: number
@@ -254,7 +258,7 @@ interface IPipeCustomAnimation {
  * Transition properties for the in/out animations
  * A value is transitioned from, then we display the image, then to
  */
-interface IPipeCustomTransition {
+export interface IPipeCustomTransition {
     scalePer?: number
     opacityPer?: number
     zDistanceM?: number
@@ -270,7 +274,7 @@ interface IPipeCustomTransition {
 /**
  * Layout properties for text areas
  */
-interface IPipeCustomTextArea {
+export interface IPipeCustomTextArea {
     text?: string
     xPositionPx?: number
     yPositionPx?: number

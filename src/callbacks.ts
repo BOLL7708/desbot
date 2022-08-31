@@ -1,4 +1,25 @@
-class Callbacks {
+import {IOpenVR2WSRelay} from './interfaces/iopenvr2ws.js'
+import {EEventSource, ETTSType} from './base/enums.js'
+import {Actions} from './actions.js'
+import Config from './statics/config.js'
+import {ITwitchMessageCmd} from './interfaces/itwitch_chat.js'
+import Color from './statics/colors.js'
+import AudioPlayer from './modules/audioplayer.js'
+import Functions from './functions.js'
+import {TKeys} from './_data/!keys.js'
+import ModulesSingleton from './modules_singleton.js'
+import TwitchFactory from './modules/twitch_factory.js'
+import {IPipeCustomMessage} from './interfaces/ipipe.js'
+import {ITwitchCheerSetting, ITwitchPubsubRewardMessage, ITwitchSubSetting} from './interfaces/itwitch_pubsub.js'
+import StatesSingleton from './base/states_singleton.js'
+import Utils from './base/utils.js'
+import MainController from './main_controller.js'
+import Discord from './modules/discord.js'
+import SteamStore from './modules/steam_store.js'
+import Settings from './modules/settings.js'
+import {ITwitchRewardPair} from './interfaces/isettings.js'
+
+export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
     public static registerRelay(relay: IOpenVR2WSRelay) {
         this._relays.set(relay.key, relay)

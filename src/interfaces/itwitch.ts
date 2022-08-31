@@ -1,7 +1,14 @@
+import {IActionUser} from './iactions.js'
+import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
+import {ITwitchEmote, ITwitchMessageCmd} from './itwitch_chat.js'
+import {TKeys} from '../_data/!keys.js'
+import {IEventOptions} from './ievents.js'
+import {ActionHandler} from '../actions.js'
+
 /**
  * Settings for various Twitch functions, like chat and rewards.
  */
-interface ITwitchConfig {
+export interface ITwitchConfig {
     /**
      * The name of the channel to connect to as well as the username that will be used when registering and managing rewards.
      * 
@@ -128,20 +135,20 @@ interface ITwitchConfig {
     eventOptionsPerGame: { [game: string]: IEventOptionsOverrides }
 }
 
-interface IToggleRewardsOnGame extends Partial<Record<TKeys, string[]>> {}
-interface IEventOptionsOverrides extends Partial<Record<TKeys, IEventOptions>> {}
+export interface IToggleRewardsOnGame extends Partial<Record<TKeys, string[]>> {}
+export interface IEventOptionsOverrides extends Partial<Record<TKeys, IEventOptions>> {}
 
-interface ITwitchReward {
+export interface ITwitchReward {
     id?: string
     handler?: ActionHandler
 }
-interface ITwitchCheer {
+export interface ITwitchCheer {
     bits: number
     handler?: ActionHandler
 }
 
 // Settings
-interface ITwitchTokens {
+export interface ITwitchTokens {
     userName: string
     accessToken: string
     refreshToken: string
@@ -155,7 +162,7 @@ interface ITwitchTokens {
  * 
  * Note: The actual command trigger is filled in at registration from the key used for the event.
  */
-interface ITwitchActionRemoteCommandConfig {
+export interface ITwitchActionRemoteCommandConfig {
     /**
      * The command or commands that can be used with this trigger.
      */
@@ -174,7 +181,7 @@ interface ITwitchActionRemoteCommandConfig {
  * 
  * Note: The actual command trigger is filled in at registration from the key used for the event.
  */
-interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandConfig {
+export interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandConfig {
     /**
      * The command or commands that can be used with this trigger.
      */
@@ -199,7 +206,7 @@ interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandConfig {
 /**
  * All these properties are added before registering the command with the Twitch class.
  */
-interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
+export interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
     /**
      * The command that is matched from the chat.
      */
@@ -229,7 +236,7 @@ interface ITwitchCommandConfig extends ITwitchActionCommandConfig {
 /**
  * Permission regarding who can trigger this command in the chat.
  */
-interface ICommandPermissions {
+export interface ICommandPermissions {
     /**
      * The channel owner/streamer.
      */
@@ -251,50 +258,50 @@ interface ICommandPermissions {
      */
     everyone?: boolean
 }
-interface ITwitchAnnouncement {
+export interface ITwitchAnnouncement {
     userNames: string[]
     triggers: string[]
     callback: ITwitchAnnouncementCallback
 }
 
-interface ITwitchRewardProfileConfig {
+export interface ITwitchRewardProfileConfig {
     [key: string]: boolean
 }
 // Callbacks
-interface ITwitchChatCallback { // In Twitch
+export interface ITwitchChatCallback { // In Twitch
     (user: IActionUser, messageData: ITwitchMessageData): void
 }
-interface ITwitchChatMessageCallback {
+export interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
 }
-interface ITwitchCommandCallback {
+export interface ITwitchCommandCallback {
     (user: IActionUser): void
 }
-interface ITwitchAnnouncementCallback {
+export interface ITwitchAnnouncementCallback {
     (user: IActionUser, messageData: ITwitchMessageData, firstWord: string): void
 }
-interface ITwitchChatCheerCallback {
+export interface ITwitchChatCheerCallback {
     (user: IActionUser, messageData: ITwitchMessageData): void
 }
-interface ITwitchRewardRedemptionCallback {
+export interface ITwitchRewardRedemptionCallback {
     (message: ITwitchPubsubRewardMessage): void
 }
 
 // Callback data
-interface ITwitchMessageData {
+export interface ITwitchMessageData {
     text: string
     bits: number
     isAction: boolean
     emotes: ITwitchEmote[]
 }
 // Announcements
-interface IAnnounceSubConfig {
+export interface IAnnounceSubConfig {
     tier: number
     gift: boolean
     multi: boolean
     message: string
 }
-interface IAnnounceCheerConfig {
+export interface IAnnounceCheerConfig {
     bits: number
     message: string
 }

@@ -1,4 +1,10 @@
-class TwitchTokens {
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import Settings from './settings.js'
+import {ITwitchTokens} from '../interfaces/itwitch.js'
+
+export default class TwitchTokens {
     /**
      * Load existing tokens for channel and chatbot (if different) and refresh them.
      */

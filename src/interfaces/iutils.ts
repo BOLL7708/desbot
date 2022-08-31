@@ -1,4 +1,4 @@
-interface ICleanTextConfig {
+export interface ICleanTextConfig {
     /**
      * Removes [word][number] in Twitch cher messages.
      */

@@ -1,4 +1,7 @@
-class Settings {
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+
+export default class Settings {
     static CHANNEL_TROPHY_LABEL: string = 'channel_trophy_label.txt'
     static CHANNEL_TROPHY_STATS: string = 'channel_trophy_stats'
     static LOG_OUTPUT: string = 'log_output.html'

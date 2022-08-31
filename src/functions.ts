@@ -1,4 +1,21 @@
-class Functions {
+import {IEvent} from './interfaces/ievents.js'
+import {ActionHandler, Actions} from './actions.js'
+import Config from './statics/config.js'
+import OpenVR2WS from './modules/openvr2ws.js'
+import Color from './statics/colors.js'
+import ModulesSingleton from './modules_singleton.js'
+import {TKeys} from './_data/!keys.js'
+import {ITwitchHelixChannelRequest} from './interfaces/itwitch_helix.js'
+import SteamWebApi from './modules/steam_webapi.js'
+import StatesSingleton from './base/states_singleton.js'
+import {ISteamWebApiSettingAchievement} from './interfaces/isteam_webapi.js'
+import Utils from './base/utils.js'
+import {EEventSource} from './base/enums.js'
+import Discord from './modules/discord.js'
+import SteamStore from './modules/steam_store.js'
+import Settings from './modules/settings.js'
+
+export default class Functions {
     /*
     .########.##.....##.##....##..######..########.####..#######..##....##..######.
     .##.......##.....##.###...##.##....##....##.....##..##.....##.###...##.##....##

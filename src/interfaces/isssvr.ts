@@ -1,11 +1,12 @@
+import {IScreenshotRequestData} from './iscreenshots.js'
 
 // SuperScreenShotterVR
-interface ISSSVRRequest {
+export interface ISSSVRRequest {
     nonce: string
     tag: string
     delay: number
 }
-interface ISSSVRResponse {
+export interface ISSSVRResponse {
     nonce: string
     image: string
     width: number
@@ -13,6 +14,6 @@ interface ISSSVRResponse {
 }
 
 // Callbacks
-interface ISSSVRCallback {
+export interface ISSSVRCallback {
     (screenshotRequest: IScreenshotRequestData|undefined, screenshotResponse: ISSSVRResponse): void
 }

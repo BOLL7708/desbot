@@ -1,3 +1,20 @@
+import Config from '../statics/config.js'
+import {ICredentialsConfig} from '../interfaces/icredentials.js'
+import {IGoogleConfig} from '../interfaces/igoogle.js'
+import {IPipeConfig} from '../interfaces/ipipe.js'
+import {IPhilipsHueConfig} from '../interfaces/iphilipshue.js'
+import {IOpenVR2WSConfig} from '../interfaces/iopenvr2ws.js'
+import {ITwitchConfig} from '../interfaces/itwitch.js'
+import {IControllerConfig} from '../interfaces/icontroller.js'
+import {IObsConfig} from '../interfaces/iobs.js'
+import {ISignConfig} from '../interfaces/isign.js'
+import {IDiscordConfig} from '../interfaces/idiscord.js'
+import {ITwitchChatConfig} from '../interfaces/itwitch_chat.js'
+import {ISteamConfig} from '../interfaces/isteam.js'
+import {IScreenshotConfig} from '../interfaces/iscreenshots.js'
+import {IAudioPlayerConfig} from '../interfaces/iaudioplayer.js'
+import {PipePresetsTemplate} from './presets.template.js'
+
 /*
 ..######..########..########.########..########.##....##.########.####....###....##........######.
 .##....##.##.....##.##.......##.....##.##.......###...##....##.....##....##.##...##.......##....##

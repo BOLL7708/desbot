@@ -1,4 +1,21 @@
-class Twitch{
+import {IActionUser} from '../interfaces/iactions.js'
+import {
+    ITwitchAnnouncement,
+    ITwitchChatCallback, ITwitchChatCheerCallback, ITwitchChatMessageCallback,
+    ITwitchCommandConfig,
+    ITwitchMessageData
+} from '../interfaces/itwitch.js'
+import {Actions} from '../actions.js'
+import Config from '../statics/config.js'
+import {ITwitchMessageCmd} from '../interfaces/itwitch_chat.js'
+import Color from '../statics/colors.js'
+import TwitchChat from './twitch_chat.js'
+import TwitchFactory from './twitch_factory.js'
+import StatesSingleton from '../base/states_singleton.js'
+import Utils from '../base/utils.js'
+import {EEventSource} from '../base/enums.js'
+
+export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     public _twitchChatRemote: TwitchChat = new TwitchChat()

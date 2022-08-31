@@ -1,7 +1,10 @@
+import Config from '../statics/config.js'
+import {IMultiTierEventCounter, ITextTagsCached} from '../interfaces/iactions.js'
+
 /**
  * Contains states and settings for this session
  */
-class StatesSingleton {
+export default class StatesSingleton {
     private static _instance: StatesSingleton;
     private constructor() {}
     public static getInstance(): StatesSingleton {

@@ -3,7 +3,7 @@
 /**
  * Main message received from PubSub
  */
-interface ITwitchPubsubMessage {
+export interface ITwitchPubsubMessage {
     /**
      * Type of message, most common type we check is just: "MESSAGE"
      */
@@ -24,7 +24,7 @@ interface ITwitchPubsubMessage {
 }
 
 // Seconary message payloads
-interface ITwitchPubsubRewardMessage {
+export interface ITwitchPubsubRewardMessage {
     type: string
     data: {
         timestamp: string
@@ -65,14 +65,14 @@ interface ITwitchPubsubRewardMessage {
         }
     }
 }
-type TTwitchRedemptionStatus =
+export type TTwitchRedemptionStatus =
 | 'FULFILLED'
 | 'UNFULFILLED'
 | 'CANCELED'
 
 // Subscription
 // https://dev.twitch.tv/docs/pubsub#receiving-messages
-interface ITwitchPubsubSubscriptionMessage {
+export interface ITwitchPubsubSubscriptionMessage {
     user_name?: string
     display_name?: string
     channel_name: string
@@ -95,14 +95,14 @@ interface ITwitchPubsubSubscriptionMessage {
     recipient_display_name?: string
     multi_month_duration?: number
 }
-interface ITwitchPubsubEmote {
+export interface ITwitchPubsubEmote {
     start: number
     end: number
     id: number
 }
 
 // Cheer
-interface ITwitchPubsubCheerMessage {
+export interface ITwitchPubsubCheerMessage {
     data: {
         badge_entitlement?: null|object // ?
         bits_used: number
@@ -124,23 +124,23 @@ interface ITwitchPubsubCheerMessage {
 }
 
 // Callback
-interface ITwitchPubsubRewardCallback {
+export interface ITwitchPubsubRewardCallback {
     (id: string, message: ITwitchPubsubRewardMessage): void
 }
-interface ITwitchPubsubSubscriptionCallback {
+export interface ITwitchPubsubSubscriptionCallback {
     (message: ITwitchPubsubSubscriptionMessage): void
 }
-interface ITwitchPubsubCheerCallback {
+export interface ITwitchPubsubCheerCallback {
     (message: ITwitchPubsubCheerMessage): void
 }
 
 // Settings
-interface ITwitchSubSetting {
+export interface ITwitchSubSetting {
     userName: string
     totalMonths: string
     streakMonths: string
 }
-interface ITwitchCheerSetting {
+export interface ITwitchCheerSetting {
     userName: string
     totalBits: string
     lastBits: string

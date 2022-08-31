@@ -1,4 +1,12 @@
-class WebSockets {
+import Utils from '../base/utils.js'
+import Color from '../statics/colors.js'
+import {
+    IWebsocketsCloseCallback,
+    IWebsocketsErrorCallback,
+    IWebsocketsMessageCallback, IWebsocketsOpenCallback
+} from '../interfaces/iwebsockets.js'
+
+export default class WebSockets {
     private LOG_COLOR: string = Color.Gray
 
     constructor(

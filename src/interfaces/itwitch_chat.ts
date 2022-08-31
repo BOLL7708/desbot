@@ -1,4 +1,6 @@
-interface ITwitchChatConfig {
+import {IAudioAction, IPipeAction} from './iactions.js'
+
+export interface ITwitchChatConfig {
     /**
      * Pipe preset used for displaying custom chat messages in VR.
      */
@@ -14,11 +16,11 @@ interface ITwitchChatConfig {
 }
 
 // Data (used in Factory)
-interface ITwitchMessageCmd {
+export interface ITwitchMessageCmd {
     properties: ITwitchChatMessageProperties
     message: ITwitchChatMessage
 }
-interface ITwitchChatMessage {
+export interface ITwitchChatMessage {
     data: string
     username?: string
     channel?: string
@@ -26,7 +28,7 @@ interface ITwitchChatMessage {
     text?: string
     isAction: boolean
 }
-interface ITwitchChatMessageProperties {
+export interface ITwitchChatMessageProperties {
     // Standard
     data: string
     '@badge-info'?: string
@@ -58,11 +60,11 @@ interface ITwitchChatMessageProperties {
     [x: string]: any
 }
 
-interface ITwitchEmote {
+export interface ITwitchEmote {
     id: string,
     positions: ITwitchEmotePosition[]
 }
-interface ITwitchEmotePosition {
+export interface ITwitchEmotePosition {
     start: number
     end: number
 }

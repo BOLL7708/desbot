@@ -1,7 +1,7 @@
 /**
  * Gets filled with all the filepaths from the `_assets` folder, to be referenced in configs.
  */
-class AssetFiles {
+export default class AssetFiles {
     /**
      * Filled by PHP in index.php
      */

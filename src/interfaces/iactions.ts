@@ -1,19 +1,28 @@
-interface IActionCallback {
+import {TKeys} from '../_data/!keys.js'
+import {EEventSource, ETTSFunction, ETTSType} from '../base/enums.js'
+import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from './iopenvr2ws.js'
+import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
+import {IPhilipsHueBulb} from './iphilipshue.js'
+import {IRunCommandConfig} from './iexec.js'
+import {ITwitchActionCommandConfig} from './itwitch.js'
+import {IPipeCustomMessage} from './ipipe.js'
+
+export interface IActionCallback {
     tag: string
     description: string
     awaitCall?: boolean
     call: (user: IActionUser, index?: number) => void // Index is used for entries-fields, provided by handler.
 }
-interface IActionsExecutor {
+export interface IActionsExecutor {
     timeMs?: number,
     delayMs?: number,
     execute: (user: IActionUser, index?: number) => void
 }
-interface IActionsMainCallback {
+export interface IActionsMainCallback {
     (user: IActionUser, index?: number): void
 }
-interface IActionsCallbackStack extends Partial<Record<TKeys, IActionCallback|undefined>> {}
-interface IActions {
+export interface IActionsCallbackStack extends Partial<Record<TKeys, IActionCallback|undefined>> {}
+export interface IActions {
     /**
      * Optional: Set this to execute this batch of actions at a specific time in a timeline, overrides `_delayMs`.
      */
@@ -137,7 +146,7 @@ interface IActions {
 /**
  * Combined Reward and Command result object for shared actions.
  */
-interface IActionUser {
+export interface IActionUser {
     source: EEventSource
     eventKey: TKeys
     id: string
@@ -157,7 +166,7 @@ interface IActionUser {
     rewardMessage?: ITwitchPubsubRewardMessage
 }
 
-interface IEventsAction {
+export interface IEventsAction {
     /**
      * Optional: Command(s) to trigger.
      */
@@ -172,7 +181,7 @@ interface IEventsAction {
     interval?: number
 }
 
-interface ITextTags extends ITextTagsCached{
+export interface ITextTags extends ITextTagsCached{
     userLogin: string
     userName: string
     userTag: string
@@ -244,29 +253,29 @@ interface ITextTags extends ITextTagsCached{
     eventLevelNextProgress: string
 }
 
-interface ITextTagsCached {
+export interface ITextTagsCached {
     lastDictionaryWord: string
     lastDictionarySubstitute: string
     lastTTSSetNickLogin: string
     lastTTSSetNickSubstitute: string
 }
 
-interface IMultiTierEventCounter {
+export interface IMultiTierEventCounter {
     count: number
     timeoutHandle: number
 }
 
-interface ITTSAction {
+export interface ITTSAction {
     function: ETTSFunction
     inputOverride?: string
 }
 
-interface IWhisperAction {
+export interface IWhisperAction {
     entries: string|string[]
     user: string
 }
 
-interface IRewardStatesActionConfig {
+export interface IRewardStatesActionConfig {
     /**
      * Optional: Set to true to enable the reward, false to disable, leave it out to toggle.
      */
@@ -276,10 +285,10 @@ interface IRewardStatesActionConfig {
      */
     override?: boolean
 }
-interface IRewardStatesAction extends Partial<Record<TKeys, IRewardStatesActionConfig>> {}
+export interface IRewardStatesAction extends Partial<Record<TKeys, IRewardStatesActionConfig>> {}
 
 // Data
-interface IAudioAction {
+export interface IAudioAction {
     /**
      * The web URL, local URL or data URL of one or more audio files.
      */
@@ -308,7 +317,7 @@ interface IAudioAction {
 /**
  * Send key-presses to a window.
  */
- interface IPressKeysAction {
+export interface IPressKeysAction {
     /**
      * The title of the window to send the key press to.
      */
@@ -329,20 +338,20 @@ interface IAudioAction {
     postfixEnterStroke?: boolean
 }
 
-interface ISpeechAction {
+export interface ISpeechAction {
     entries: string|string[]
     skipDictionary?: boolean
     voiceOfUser?: string
     type?: ETTSType
 }
 
-interface ILabelAction {
+export interface ILabelAction {
     fileName: string
     text: string
     append?: boolean
 }
 
-interface IObsAction {
+export interface IObsAction {
     /**
      * The name of the source to affect.
      */
@@ -375,7 +384,7 @@ interface IObsAction {
  * This can be retrieved from Philips Hue API after setting the color of the lights manually.
  * TODO: Add a function to get this through a chat command?
  */
-interface IPhilipsHueColorAction {
+export interface IPhilipsHueColorAction {
     entries: IPhilipsHueBulb|IPhilipsHueBulb[]
     bulbs: number[]
 }
@@ -383,7 +392,7 @@ interface IPhilipsHueColorAction {
 /**
  * Configuration for a Philips Hue plug.
  */
-interface IPhilipsHuePlugAction {
+export interface IPhilipsHuePlugAction {
     /**
      * Id from the Philips Hue bridge
      */
@@ -402,7 +411,7 @@ interface IPhilipsHuePlugAction {
     duration?: number
 }
 
-interface IPipeAction {
+export interface IPipeAction {
     /**
      * Optional: An absolute path to an image or an array of image for random selection.
      * If this is skipped, `imageData` needs to be set instead.
@@ -428,7 +437,7 @@ interface IPipeAction {
     texts?: string[]
 }
 
-interface IScreenshotAction {
+export interface IScreenshotAction {
     /**
      * Optional: Fill this in if you want to capture an OBS screenshot, 
      * if left out it will default to capture a VR screenshot.
@@ -450,7 +459,7 @@ interface IScreenshotAction {
 /**
  * Configuration for a single Sign pop-in.
  */
-interface ISignAction {
+export interface ISignAction {
     /**
      * The title above the image, takes tags.
      */
@@ -474,6 +483,6 @@ interface ISignAction {
 /**
  * Generic interface for actions that at the moment just takes strings.
  */
-interface IEntriesAction {
+export interface IEntriesAction {
     entries: string|string[]
 }

@@ -1,4 +1,11 @@
-class SuperScreenShotterVR {
+import WebSockets from './websockets.js'
+import {IActionUser} from '../interfaces/iactions.js'
+import Config from '../statics/config.js'
+import {ISSSVRCallback, ISSSVRRequest, ISSSVRResponse} from '../interfaces/isssvr.js'
+import {IScreenshotConfig, IScreenshotRequestData} from '../interfaces/iscreenshots.js'
+import {TKeys} from '../_data/!keys.js'
+
+export default class SuperScreenShotterVR {
     private _socket: WebSockets
     private _messageCounter: number = 0
     private _screenshotRequests: Map<number, IScreenshotRequestData> = new Map()

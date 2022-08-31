@@ -1,4 +1,13 @@
-class Discord {
+import Utils from '../base/utils.js'
+import {
+    IDiscordQueue,
+    IDiscordRateLimit,
+    IDiscordResponseHeaders,
+    IDiscordWebookPayload
+} from '../interfaces/idiscord.js'
+import Color from '../statics/colors.js'
+
+export default class Discord {
     private static _rateLimits: Record<string, IDiscordRateLimit> = {} // Bucket, limit?
     private static _rateLimitBuckets: Record<string, string> = {} // Url, Bucket
     private static _messageQueues: Record<string, IDiscordQueue[]> = {} // URL, Payloads

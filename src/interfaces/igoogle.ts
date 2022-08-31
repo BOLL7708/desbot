@@ -1,7 +1,9 @@
+import {ICleanTextConfig} from './iutils.js'
+
 /**
  * These are settings for the Google Text-to-Speech API.
  */
-interface IGoogleConfig {
+export interface IGoogleConfig {
     /**
      * This is the amount of time between two utterances that can pass before a person's name will be said again.
      */
@@ -65,7 +67,7 @@ interface IGoogleConfig {
 }
 
 // Data
-interface IGoogleVoice {
+export interface IGoogleVoice {
     languageCodes: string[]
     name: string
     ssmlGender: string
@@ -76,7 +78,7 @@ interface IGoogleVoice {
  * A full config for a SSML audio tag.  
  * See what all the settings do in detail here: https://cloud.google.com/text-to-speech/docs/ssml?authuser=0#attributes_1
  */
-interface IGoogleAudio {
+export interface IGoogleAudio {
     /**
      * The full URL to the audio file.  
      * This needs to be .wav (deprecated but works?) .mp3 or .ogg.  

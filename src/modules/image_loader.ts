@@ -1,4 +1,4 @@
-class ImageLoader {
+export default class ImageLoader {
     // TODO: Maybe limit cache to 100 images or something? To avoid memory issues.
     static _imageCache: Map<string, string> = new Map()
 

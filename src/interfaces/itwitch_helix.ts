@@ -1,8 +1,8 @@
 // Data
-interface ITwitchHelixUsersResponse {
+export interface ITwitchHelixUsersResponse {
     data: ITwitchHelixUsersResponseData[]
 }
-interface ITwitchHelixUsersResponseData {
+export interface ITwitchHelixUsersResponseData {
     id: string
     login: string
     display_name: string
@@ -16,10 +16,10 @@ interface ITwitchHelixUsersResponseData {
     created_at: string
 }
 
-interface ITwitchHelixChannelResponse {
+export interface ITwitchHelixChannelResponse {
     data: ITwitchHelixChannelResponseData[]
 }
-interface ITwitchHelixChannelResponseData {
+export interface ITwitchHelixChannelResponseData {
     broadcaster_id: string
     broadcaster_login: string
     broadcaster_name: string
@@ -31,15 +31,15 @@ interface ITwitchHelixChannelResponseData {
 }
 
 // Requests
-interface ITwitchHelixRewardConfig extends ITwitchHelixRewardConfigShared {
+export interface ITwitchHelixRewardConfig extends ITwitchHelixRewardConfigShared {
     title: string
     cost: number
 }
-interface ITwitchHelixRewardUpdate extends ITwitchHelixRewardConfigShared{
+export interface ITwitchHelixRewardUpdate extends ITwitchHelixRewardConfigShared{
     title?: string
     cost?: number
 }
-interface ITwitchHelixRewardConfigShared {
+export interface ITwitchHelixRewardConfigShared {
     prompt?: string
     background_color?: string
     is_enabled?: boolean
@@ -73,13 +73,13 @@ interface ITwitchHelixRewardConfigShared {
 }
 
 // Responses
-interface ITwitchHelixRewardResponse {
+export interface ITwitchHelixRewardResponse {
     data?: ITwitchHelixRewardResponseData[]
     error?: string
     message?: string
     status?: number
 }
-interface ITwitchHelixRewardResponseData {
+export interface ITwitchHelixRewardResponseData {
     broadcaster_name: string
     broadcaster_login: string
     broadcaster_id: string
@@ -119,13 +119,13 @@ interface ITwitchHelixRewardResponseData {
     cooldown_expires_at: any // Not specified in docs
 }
 
-interface ITwitchHelixClipResponse {
+export interface ITwitchHelixClipResponse {
     data: ITwitchHelixClipResponseData[],
     pagination: {
         cursor: string
     }
 }
-interface ITwitchHelixClipResponseData {
+export interface ITwitchHelixClipResponseData {
     id: string
     url: string
     embed_url: string
@@ -143,40 +143,40 @@ interface ITwitchHelixClipResponseData {
     duration: number
 }
 
-interface ITwitchHelixGamesResponse {
+export interface ITwitchHelixGamesResponse {
     data: ITwitchHelixGamesResponseData[]
     pagination: {
         cursor: string
     }
 }
 
-interface ITwitchHelixGamesResponseData {
+export interface ITwitchHelixGamesResponseData {
     box_art_url: string
     id: string
     name: string
 }
 
-interface ITwitchHelixCategoriesResponse {
+export interface ITwitchHelixCategoriesResponse {
     data: ITwitchHelixCategoriesResponseData[],
     pagination: {
         cursor: string
     }
 }
 
-interface ITwitchHelixCategoriesResponseData {
+export interface ITwitchHelixCategoriesResponseData {
     id: string
     name: string
     box_art_url: string
 }
 
-interface ITwitchHelixChannelRequest {
+export interface ITwitchHelixChannelRequest {
     game_id?: string
     broadcaster_language?: string
     title?: string
     delay?: number
 }
 
-interface ITwitchHelixChatColorResponse {
+export interface ITwitchHelixChatColorResponse {
     data: [
         {
             user_id: string,
@@ -187,6 +187,6 @@ interface ITwitchHelixChatColorResponse {
     ]
 }
 
-interface ITwitchHelixRewardStates {
+export interface ITwitchHelixRewardStates {
     [key: string]: boolean
 }

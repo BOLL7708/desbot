@@ -1,7 +1,10 @@
+import {TKeys} from '../_data/!keys.js'
+import {IScreenshotRequestData} from './iscreenshots.js'
+
 /**
  * Enables a secure connection to OBS Studio for remote functions through the OBS WebSockets plugin.
  */
-interface IObsConfig {
+export interface IObsConfig {
     /**
      * The port set for the OBS WebSockets plugin.
      */
@@ -26,7 +29,7 @@ interface IObsConfig {
      */
     sourceScreenshotConfig: IObsSourceScreenshotConfig
 }
-interface IObsSourceScreenshotConfig {
+export interface IObsSourceScreenshotConfig {
     /**
      * Image format of the screenshot file.
      */
@@ -54,9 +57,9 @@ interface IObsSourceScreenshotConfig {
 }
 
 // Callbacks
-interface ISceneChangeCallback {
+export interface ISceneChangeCallback {
     (sceneName: string): void
 }
-interface ISourceScreenshotCallback {
+export interface ISourceScreenshotCallback {
     (img: string, data: IScreenshotRequestData, nonce: string): void
 }

@@ -1,4 +1,9 @@
-class Dictionary {
+import {IDictionaryEntry} from '../interfaces/isettings.js'
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import {IGoogleAudio} from '../interfaces/igoogle.js'
+
+export default class Dictionary {
     private static SSMLEscapeSymbols: { [x:string]: string } = {
         "\"": "&quot;",
         "'": "&apos;",

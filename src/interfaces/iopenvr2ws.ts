@@ -1,7 +1,10 @@
+import {TKeys} from '../_data/!keys.js'
+import {ActionHandler} from '../actions.js'
+
 /**
  * Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS
  */
-interface IOpenVR2WSConfig {
+export interface IOpenVR2WSConfig {
     /**
      * The port that is set in the OpenVR2WS application.
      */
@@ -11,7 +14,7 @@ interface IOpenVR2WSConfig {
 /**
  * Change SteamVR setting.
  */
-interface IOpenVR2WSSetting {
+export interface IOpenVR2WSSetting {
     /**
      * The setting, reference: `OpenVR2WS.SETTING_*` for a few predefined ones.
      * 
@@ -35,7 +38,7 @@ interface IOpenVR2WSSetting {
 /**
  * Move SteamVR Play Space.
  */
-interface IOpenVR2WSMoveSpace {
+export interface IOpenVR2WSMoveSpace {
     /**
      * Optional: Sideways position offset
      */
@@ -59,34 +62,34 @@ interface IOpenVR2WSMoveSpace {
 }
 
 // Data
-interface IOpenVR2WSMessage {
+export interface IOpenVR2WSMessage {
     key: string
     data: any
 }
-interface IOpenVR2WSInputData {
+export interface IOpenVR2WSInputData {
     source: string
     input: string
     value: boolean
 }
-interface IOpenVR2WSFindOverlayData {
+export interface IOpenVR2WSFindOverlayData {
     key: string
     handle: number
 }
-interface IOpenVR2WSRelayData {
+export interface IOpenVR2WSRelayData {
     password: string
     user: string
     key: TKeys
     data: string
 }
-interface IOpenVR2WSGenericResponseData {
+export interface IOpenVR2WSGenericResponseData {
     message: string
     success: boolean
 }
-interface IOpenVR2WSRelay {
+export interface IOpenVR2WSRelay {
     key: TKeys
     handler?: ActionHandler
 }
-interface IOpenVRWSCommandMessage {
+export interface IOpenVRWSCommandMessage {
     key: string
     value: string
     value2?: string
@@ -98,18 +101,18 @@ interface IOpenVRWSCommandMessage {
 }
 
 // Callbacks
-interface IOpenVR2WSStatusCallback {
+export interface IOpenVR2WSStatusCallback {
     (status: boolean): void
 }
-interface IOpenVR2WSInputCallback {
+export interface IOpenVR2WSInputCallback {
     (key: string, data: IOpenVR2WSInputData): void
 }
-interface IOpenVR2WSAppIdCallback {
+export interface IOpenVR2WSAppIdCallback {
     (appId: string): void
 }
-interface IOpenVR2WSFindOverlayCallback {
+export interface IOpenVR2WSFindOverlayCallback {
     (overlayKey: string, overlayHandle: number): void
 }
-interface IOpenVR2WSRelayCallback {
+export interface IOpenVR2WSRelayCallback {
     (user: string, key: TKeys, data: string): void
 }

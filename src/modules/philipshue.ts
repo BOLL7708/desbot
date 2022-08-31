@@ -1,4 +1,9 @@
-class PhilipsHue {
+import Utils from '../base/utils.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+import {IPhilipsHuePlugAction} from '../interfaces/iactions.js'
+
+export default class PhilipsHue {
     private _config = Config.philipshue
     private _baseUrl = `${this._config.serverPath}/api/${Config.credentials.PhilipsHueUsername}`
     constructor() {

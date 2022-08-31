@@ -1,7 +1,20 @@
+import TwitchTokens from './modules/twitch_tokens.js'
+import OBS from './modules/obs.js'
+import TwitchHelix from './modules/twitch_helix.js'
+import Twitch from './modules/twitch.js'
+import OpenVR2WS from './modules/openvr2ws.js'
+import AudioPlayer from './modules/audioplayer.js'
+import SuperScreenShotterVR from './modules/sssvr.js'
+import Sign from './modules/sign.js'
+import Pipe from './modules/pipe.js'
+import TwitchPubsub from './modules/twitch_pubsub.js'
+import PhilipsHue from './modules/philipshue.js'
+import GoogleTTS from './modules/google_tts.js'
+
 /**
  * Contains instances of various modules
  */
-class ModulesSingleton {
+export default class ModulesSingleton {
     private static _instance: ModulesSingleton;
     private constructor() {}
     public static getInstance(): ModulesSingleton {

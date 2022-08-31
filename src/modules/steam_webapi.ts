@@ -1,9 +1,19 @@
+import Utils from '../base/utils.js'
+import {
+    ISteamWebApiGameSchema,
+    ISteamWebApiPlayerAchievementData,
+    ISteamWebApiPlayerAchievements, ISteamWebApiPlayerSummaries, ISteamWebApiPlayerSummaryData,
+    IStreamWebApiGlobalAchievementData, IStreamWebApiGlobalAchievementStats
+} from '../interfaces/isteam_webapi.js'
+import Config from '../statics/config.js'
+import Color from '../statics/colors.js'
+
 /**
- * These are calls to the Steam Web API to fetch various kinds of data. 
+ * These are calls to the Steam Web API to fetch various kinds of data.
  * Keep in mind that the combined rates for these requests should not surpass the rate limit.
  * The current rate limit is 100k calls/24h, as mentioned her: https://steamcommunity.com/dev/apiterms
  */
-class SteamWebApi {
+export default class SteamWebApi {
     private static _profileTag: string = ''
     static async getPlayerSummary(): Promise<ISteamWebApiPlayerSummaryData|undefined> {
         if(Config.credentials.SteamWebAPIKey.length == 0) {

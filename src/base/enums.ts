@@ -1,10 +1,10 @@
-enum ETTSType {
+export enum ETTSType {
     Said, // [name] said: [text]
     Action, // [name] [text]
     Announcement, // [text]
     Cheer // [name] cheered: [text]
 }
-enum ETTSFunction {
+export enum ETTSFunction {
     Enable,
     Disable,
     StopCurrent,
@@ -19,7 +19,7 @@ enum ETTSFunction {
     SetDictionaryEntry,
     GetDictionaryEntry
 }
-enum EEventSource {
+export enum EEventSource {
     Created,
     Updated,
     TwitchReward,

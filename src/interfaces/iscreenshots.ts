@@ -1,7 +1,10 @@
+import {IAudioAction, IPipeAction} from './iactions.js'
+import {TKeys} from '../_data/!keys.js'
+
 /**
  * Trigger and transmit screenshots from [SuperScreenShotterVR](https://github.com/BOLL7708/SuperScreenShotterVR) or [OBS Studio](https://obsproject.com/) sources.
  */
-interface IScreenshotConfig {
+export interface IScreenshotConfig {
     /**
      * Port set in SuperScreenShotterVR.
      */
@@ -63,7 +66,7 @@ interface IScreenshotConfig {
 /**
  * Reference data about a screenshot that is cached from triggering it until it is completed.
  */
- interface IScreenshotRequestData {
+ export interface IScreenshotRequestData {
     /**
      * Key for the reward that triggered the screenshot.
      */

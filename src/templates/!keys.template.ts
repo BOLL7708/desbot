@@ -4,7 +4,7 @@
  * This file exists to string references for commands and rewards that
  * are used throughout the system for triggering and referencing things.
  */
-type TKeysTemplate =
+export type TKeysTemplate =
     'Unknown'
 
     // Default
