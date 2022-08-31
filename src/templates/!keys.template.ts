@@ -36,7 +36,7 @@ type TKeysTemplate =
     | 'DictionaryClearWord'
     | 'UpdateRewards'
     | 'ReloadWidget'
-    | 'GameRewardOn'
+    | 'GameRewardsOn'
     | 'GameRewardsOff'
     | 'ChannelTrophyStats'
     | 'Clips'
