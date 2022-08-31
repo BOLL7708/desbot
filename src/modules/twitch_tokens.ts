@@ -1,6 +1,8 @@
 class TwitchTokens {
+    /**
+     * Load existing tokens for channel and chatbot (if different) and refresh them.
+     */
     async refreshToken() {
-        // Load tokens from settings, and if they don't exist use the ones in Secure, which should be added for the first run.
         let channelTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
         if(channelTokenData) await this.refresh(channelTokenData)
         else Utils.log(`TwitchTokens: No tokens for channel: ${Config.twitch.channelName} in _settings, load login.php to set them.`, Color.Purple)
