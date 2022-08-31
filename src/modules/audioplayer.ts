@@ -83,12 +83,8 @@ class AudioPlayerInstance {
         const audio = this._queue.shift()
         if(audio == undefined) return // The queue is empty
 
-        let src = audio.srcEntries
-        if(Array.isArray(src)) {
-            src = Utils.randomFromArray<string>(src)
-        }
-
-        if (audio.srcEntries != null) {
+        let src = Utils.ensureValue(audio.srcEntries)
+        if (src) {
             this._isPlaying = true
             this._currentNonce = audio.nonce
             if(this._audio) {
@@ -103,10 +99,14 @@ class AudioPlayerInstance {
     enqueueAudio(audio: IAudioAction|undefined) {
         if(audio) {
             console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
-            if(audio.repeat != undefined) {
-                for(let i=0; i<audio.repeat; i++) this._queue.push(audio)
-            } else {
-                this._queue.push(audio)
+            const clone = Utils.clone(audio)
+            for(const src of Utils.ensureArray(audio.srcEntries)) {
+                clone.srcEntries = src
+                if(audio.repeat != undefined) {
+                    for(let i=0; i<audio.repeat; i++) this._queue.push(clone)
+                } else {
+                    this._queue.push(clone)
+                }
             }
         }
     }

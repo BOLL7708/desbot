@@ -533,7 +533,7 @@ class Actions {
                 if(config) { // If we have an audio config, play it. Attach 
                     const configClone = Utils.clone(config)
                     configClone.srcEntries = await Utils.replaceTagsInTextArray( // To support audio URLs in input
-                        Utils.ensureArray(configClone.srcEntries).getAsType(index),
+                        Utils.ensureArray(config.srcEntries).getAsType(index), // Need to read entries from config here as cloning drops __type
                         user
                     )
                     if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
