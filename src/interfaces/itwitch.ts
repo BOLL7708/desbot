@@ -212,6 +212,18 @@ export interface ITwitchActionCommandConfig extends ITwitchActionRemoteCommandCo
      * Optional: Require this command to include at least this number of words to get triggered.
      */
     requireMinimumWordCount?: number
+    /**
+     * Optional: A title that is used when posting all help to Discord, is inserted above this command.
+     */
+    helpTitle?: string
+    /**
+     * Optional: Input values for the command, used to build the help text.
+     */
+    helpInput?: string[]
+    /**
+     * Optional: Description that is used for help documentation.
+     */
+    helpText?: string
 }
 /**
  * All these properties are added before registering the command with the Twitch class.

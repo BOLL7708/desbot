@@ -154,6 +154,10 @@ export default class Twitch{
 
         // Commands
         if(text && text.indexOf(Config.twitch.commandPrefix) == 0) {
+            if(user.login.toLowerCase() == Config.twitch.chatbotName.toLowerCase()) {
+                Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${Config.twitch.chatbotName})`, this.LOG_COLOR_COMMAND)
+                return
+            }
             let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()
             let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
@@ -161,11 +165,11 @@ export default class Twitch{
             // Word count
             const wordCount = textStr.split(' ').length
             if(command?.requireMinimumWordCount && wordCount < command.requireMinimumWordCount) {
-                console.log(`Twitch Chat: Skipped command as word count it too low: ${wordCount} < ${command.requireMinimumWordCount}`)
+                Utils.log(`Twitch Chat: Skipped command as word count it too low: ${wordCount} < ${command.requireMinimumWordCount}`, this.LOG_COLOR_COMMAND)
                 return
             }
             if(command?.requireExactWordCount && wordCount !== command.requireExactWordCount) {
-                console.log(`Twitch Chat: Skipped command as word count is incorrect: ${wordCount} != ${command.requireMinimumWordCount}`)
+                Utils.log(`Twitch Chat: Skipped command as word count is incorrect: ${wordCount} != ${command.requireMinimumWordCount}`, this.LOG_COLOR_COMMAND)
                 return
             }
 

@@ -2,14 +2,11 @@ import Config from './statics/config.js'
 import ModulesSingleton from './modules_singleton.js'
 import StatesSingleton from './base/states_singleton.js'
 import Settings from './modules/settings.js'
-import {IChannelTrophyStat, ITwitchRewardPair} from './interfaces/isettings.js'
+import {ITwitchRewardPair} from './interfaces/isettings.js'
 import Utils from './base/utils.js'
 import {ITwitchHelixRewardConfig} from './interfaces/itwitch_helix.js'
 import {Actions} from './actions.js'
 import {EEventSource} from './base/enums.js'
-import Color from './statics/colors.js'
-import {IActionsCallbackStack, IActionUser} from './interfaces/iactions.js'
-import ChannelTrophy from './modules/channeltrophy.js'
 
 export default class Rewards {
     public static async init() {
@@ -60,87 +57,6 @@ export default class Rewards {
         // Disable unwanted rewards
         for(const key of Config.twitch.alwaysOffRewards) {
             modules.twitchHelix.updateReward(await Utils.getRewardId(key), {is_enabled: false}).then()
-        }
-    }
-    public static callbacks: IActionsCallbackStack = {
-        /*
-        .######..#####....####...#####...##..##..##..##.
-        ...##....##..##..##..##..##..##..##..##...####..
-        ...##....#####...##..##..#####...######....##...
-        ...##....##..##..##..##..##......##..##....##...
-        ...##....##..##...####...##......##..##....##...
-        */
-        'ChannelTrophy': {
-            tag: 'ChannelTrophy',
-            description: 'A user grabbed the Channel Trophy.',
-            call: async (user: IActionUser) => {
-                const modules = ModulesSingleton.getInstance()
-                
-                // Save stat
-                const row: IChannelTrophyStat = {
-                    userId: user.id,
-                    index: user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream,
-                    cost: user.rewardMessage?.data?.redemption.reward.cost.toString() ?? '0'
-                }
-                const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
-                if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward: ChannelTrophy', Color.Red)
-
-                const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
-                if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward: ChannelTrophy', Color.Red)
-
-                // Update reward
-                const rewardId = await Utils.getRewardId('ChannelTrophy')
-                const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
-                if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
-                    const cost = rewardData.data[0].cost
-                    
-                    // Do TTS
-                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
-                    if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
-                        modules.tts.enqueueSpeakSentence(
-                            await Utils.replaceTagsInText(
-                                funnyNumberConfig.speech, 
-                                user
-                            )
-                        ).then()
-                    }
-                    // Update label in overlay
-                    const labelUpdated = await Settings.pushLabel(
-                        Settings.CHANNEL_TROPHY_LABEL, 
-                        await Utils.replaceTagsInText(
-                            Config.controller.channelTrophySettings.label, 
-                            user,
-                            { number: cost.toString(), userName: user.name }
-                        )
-                    )
-                    if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
-                    
-                    // Update reward
-                    const configArrOrNot = Utils.getEventConfig('ChannelTrophy')?.triggers.reward
-                    const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
-                    if(config != undefined) {
-                        const newCost = cost+1;
-                        const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
-                            title: await Utils.replaceTagsInText(
-                                Config.controller.channelTrophySettings.rewardTitle, 
-                                user
-                            ),
-                            cost: newCost,
-                            is_global_cooldown_enabled: true,
-                            global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: await Utils.replaceTagsInText(
-                                Config.controller.channelTrophySettings.rewardPrompt,
-                                user,
-                                { 
-                                    prompt: config.prompt ?? '', 
-                                    number: newCost.toString() 
-                                }
-                            )
-                        })
-                        if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ChannelTrophy->${rewardId}`, Color.Red)
-                    } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ChannelTrophy->${rewardId}`, Color.Red)
-                } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ChannelTrophy->${rewardId}`, Color.Red)
-            }
         }
     }
 }

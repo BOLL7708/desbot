@@ -1,45 +1,31 @@
-import {ETTSType} from './base/enums.js'
-import Config from './statics/config.js'
-import OpenVR2WS from './modules/openvr2ws.js'
-import Color from './statics/colors.js'
-import {IEventCounter, IStreamQuote, ITwitchClip, ITwitchRedemption, ITwitchRewardPair} from './interfaces/isettings.js'
-import {IActionsCallbackStack} from './interfaces/iactions.js'
-import Functions from './functions.js'
+import {IActionsCallbackStack, IActionUser} from './interfaces/iactions.js'
 import ModulesSingleton from './modules_singleton.js'
-import {EBehavior} from './interfaces/ievents.js'
-import ChannelTrophy from './modules/channeltrophy.js'
 import StatesSingleton from './base/states_singleton.js'
+import Config from './statics/config.js'
+import Functions from './functions.js'
 import Utils from './base/utils.js'
-import {ITwitchHelixClipResponseData} from './interfaces/itwitch_helix.js'
-import Discord from './modules/discord.js'
 import SteamStore from './modules/steam_store.js'
 import Settings from './modules/settings.js'
+import {
+    IChannelTrophyStat,
+    IEventCounter,
+    IStreamQuote,
+    ITwitchClip,
+    ITwitchRedemption,
+    ITwitchRewardPair
+} from './interfaces/isettings.js'
+import Color from './statics/colors.js'
+import {ETTSType} from './base/enums.js'
+import OpenVR2WS from './modules/openvr2ws.js'
+import {EBehavior, IEvent} from './interfaces/ievents.js'
+import ChannelTrophy from './modules/channeltrophy.js'
+import Discord from './modules/discord.js'
+import {ITwitchHelixClipResponseData} from './interfaces/itwitch_helix.js'
+import {TKeys} from './_data/!keys.js'
 
-/*
-..######...#######..##.....##.##.....##....###....##....##.########...######.
-.##....##.##.....##.###...###.###...###...##.##...###...##.##.....##.##....##
-.##.......##.....##.####.####.####.####..##...##..####..##.##.....##.##......
-.##.......##.....##.##.###.##.##.###.##.##.....##.##.##.##.##.....##..######.
-.##.......##.....##.##.....##.##.....##.#########.##..####.##.....##.......##
-.##....##.##.....##.##.....##.##.....##.##.....##.##...###.##.....##.##....##
-..######...#######..##.....##.##.....##.##.....##.##....##.########...######.
-*/
-export default class Commands {
-    /*
-    .######..######...####..
-    ...##......##....##.....
-    ...##......##.....####..
-    ...##......##........##.
-    ...##......##.....####..
-    */
-    public static callbacks: IActionsCallbackStack = {
-        /*
-        ..####...##..##...####...######.
-        .##..##..##..##..##..##....##...
-        .##......######..######....##...
-        .##..##..##..##..##..##....##...
-        ..####...##..##..##..##....##...
-        */
+export default class ActionsCallbacks {
+    public static stack: IActionsCallbackStack = {
+        // region Chat
         'Chat': {
             tag: 'Chat',
             description: 'Sends a message to the chat overlay in VR.',
@@ -47,7 +33,7 @@ export default class Commands {
                 const modules = ModulesSingleton.getInstance()
                 modules.pipe.sendBasic(user.input)
             }
-        },       
+        },
         'ChatOn': {
             tag: 'Chat On',
             description: 'Enables the chat overlay in VR.',
@@ -58,7 +44,7 @@ export default class Commands {
                 const speech = Config.controller.speechReferences['ChatOn'] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
-        },       
+        },
         'ChatOff': {
             tag: 'Chat Off',
             description: 'Disables the chat overlay in VR.',
@@ -94,7 +80,8 @@ export default class Commands {
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
-              
+        // endregion
+
         'Quote': {
             tag: 'Quote',
             description: 'Stores a new quote or posts a random quote to chat.',
@@ -110,10 +97,10 @@ export default class Commands {
                     if(userData) {
                         await Settings.appendSetting(
                             Settings.QUOTES,
-                            <IStreamQuote> { 
-                                submitter: user.login, 
-                                author: userData.login, 
-                                quote: quote, 
+                            <IStreamQuote> {
+                                submitter: user.login,
+                                author: userData.login,
+                                quote: quote,
                                 datetime: Utils.getISOTimestamp(),
                                 game: gameData?.name ?? ''
                             }
@@ -121,7 +108,7 @@ export default class Commands {
                         const speech = Config.controller.speechReferences['Quote'] ?? ''
                         modules.tts.enqueueSpeakSentence(
                             await Utils.replaceTagsInText(
-                                <string> speech, 
+                                <string> speech,
                                 user,
                                 {quote: quote}
                             )
@@ -137,11 +124,11 @@ export default class Commands {
                         const speech = Config.controller.chatReferences['Quote'] ?? ''
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             await Utils.replaceTagsInText(
-                                <string> speech, 
+                                <string> speech,
                                 user,
                                 { // We need to add targetTag as there is no user tag in the input.
-                                    date: date.toDateString() ?? 'N/A', 
-                                    targetTag: '@'+(userData?.display_name ?? ''), 
+                                    date: date.toDateString() ?? 'N/A',
+                                    targetTag: '@'+(userData?.display_name ?? ''),
                                     text: quote.quote,
                                     gameName: quote.game ?? 'N/A'
                                 }
@@ -152,13 +139,7 @@ export default class Commands {
             }
         },
 
-        /*
-        .##.......####....####..
-        .##......##..##..##.....
-        .##......##..##..##.###.
-        .##......##..##..##..##.
-        .######...####....####..
-        */
+        // region Logging
         'LogOn': {
             tag: 'Log On',
             description: 'Enables logging of chat to Discord.',
@@ -181,14 +162,9 @@ export default class Commands {
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
+        // endregion
 
-        /*
-        ..####....####....####...##......######.
-        .##......##..##..##..##..##......##.....
-        ..####...##......######..##......####...
-        .....##..##..##..##..##..##......##.....
-        ..####....####...##..##..######..######.
-        */
+        // region Scale
         'Scale': {
             tag: 'Scale',
             description: 'Changes the world scale of the currently running VR game.',
@@ -203,23 +179,23 @@ export default class Commands {
                     const forMinutes = parseInt(parts[2])
                     const intervalMs = 10000 // 10s
                     const steps = forMinutes*60*1000/intervalMs
-                    if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) { 
+                    if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) {
                         // Fail to start interval
                         modules.tts.enqueueSpeakSentence(
                             speech[3],
                             Config.twitch.chatbotName,
                             ETTSType.Announcement
                         ).then()
-                    } else { 
+                    } else {
                         // TODO: Disable all scale rewards
                         // Launch interval
                         modules.tts.enqueueSpeakSentence(
                             await Utils.replaceTagsInText(
-                                speech[1], 
+                                speech[1],
                                 user,
                                 {
-                                    from: fromScale.toString(), 
-                                    to: toScale.toString(), 
+                                    from: fromScale.toString(),
+                                    to: toScale.toString(),
                                     mins: forMinutes.toString()
                                 }
                             )
@@ -246,7 +222,7 @@ export default class Commands {
                                     }, intervalMs)
                                 }
                                 currentStep++
-                            }, 
+                            },
                             intervalMs
                         )
                     }
@@ -263,8 +239,8 @@ export default class Commands {
                     const value = Math.max(10, Math.min(1000, scale || 100))
                     modules.tts.enqueueSpeakSentence(
                         await Utils.replaceTagsInText(
-                            speech[0], 
-                            user, 
+                            speech[0],
+                            user,
                             { // Overriding the number tag as the scale is clamped.
                                 userNumber: value.toString()
                             }
@@ -277,15 +253,10 @@ export default class Commands {
                 }
             }
         },
+        // endregion
 
-        /*
-        ..####...######..######...####...##...##..##..##..#####..
-        .##........##....##......##..##..###.###..##..##..##..##.
-        ..####.....##....####....######..##.#.##..##..##..#####..
-        .....##....##....##......##..##..##...##...####...##..##.
-        ..####.....##....######..##..##..##...##....##....##..##.
-        */
-         // TODO: WIP - Should only work with what the headset supports
+        // region SteamVR
+        // TODO: WIP - Should only work with what the headset supports
         'Brightness': {
             tag: 'Brightness',
             description: 'Changes the display brightness of the headset.',
@@ -302,12 +273,12 @@ export default class Commands {
             }
         },
 
-         // TODO: WIP - Should only work with what the headset supports
+        // TODO: WIP - Should only work with what the headset supports
         'RefreshRate': {
             tag: 'RefreshRate',
             description: 'Changes the display refresh rate of the headset.',
             call: (user) => {
-                const modules = ModulesSingleton.getInstance()  
+                const modules = ModulesSingleton.getInstance()
                 const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
                 const possibleRefreshRate = Utils.toInt(user.input, 120)
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
@@ -321,7 +292,7 @@ export default class Commands {
             }
         },
 
-         // Currently not actually effective due to how the VR View does not listen to config changes
+        // Currently not actually effective due to how the VR View does not listen to config changes
         'VrViewEye': {
             tag: 'VRViewEye',
             description: 'Changes the eye used for the VR View. Or would if it updated live.',
@@ -337,15 +308,9 @@ export default class Commands {
                 }).then()
             }
         },
+        // endregion
 
-        /*
-        .#####...######..##...##...####...#####...#####....####..
-        .##..##..##......##...##..##..##..##..##..##..##..##.....
-        .#####...####....##.#.##..######..#####...##..##...####..
-        .##..##..##......#######..##..##..##..##..##..##......##.
-        .##..##..######...##.##...##..##..##..##..#####....####..
-        */
-        
+        // region Rewards
         'UpdateRewards': {
             tag: 'UpdateRewards',
             description: 'Update the properties of the channel rewards managed by the widget.',
@@ -365,7 +330,7 @@ export default class Commands {
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id
                             Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
-                            
+
                             // If update was successful, also reset incremental setting as the reward should have been reset.
                             if(Array.isArray(rewardSetup)) {
                                 const reset: IEventCounter = {key: pair.key, count: 0}
@@ -373,14 +338,14 @@ export default class Commands {
                             }
                         } else {
                             Utils.logWithBold(`Reward <${pair.key}> update unsuccessful.`, Color.Red)
-                        }                       
+                        }
                     } else {
                         Utils.logWithBold(`Reward <${pair.key}> update skipped or unavailable.`, Color.Purple)
                     }
                 }
             }
         },
-       
+
         'GameRewardsOn': {
             tag: 'GameRewardsOn',
             description: 'Enable the channel rewards that are game specific.',
@@ -461,13 +426,89 @@ export default class Commands {
                     await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS) // Load again to replace in-memory list
                     modules.tts.enqueueSpeakSentence(
                         Utils.replaceTags(
-                            speech[1], 
+                            speech[1],
                             {total: unfulfilledRedemptions.length.toString(), count: clearCount.toString()}
                         )
                     ).then()
                 } else modules.tts.enqueueSpeakSentence(speech[2]).then()
             }
         },
+
+        'ChannelTrophy': {
+            tag: 'ChannelTrophy',
+            description: 'A user grabbed the Channel Trophy.',
+            call: async (user: IActionUser) => {
+                const modules = ModulesSingleton.getInstance()
+
+                // Save stat
+                const row: IChannelTrophyStat = {
+                    userId: user.id,
+                    index: user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream,
+                    cost: user.rewardMessage?.data?.redemption.reward.cost.toString() ?? '0'
+                }
+                const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
+                if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward: ChannelTrophy', Color.Red)
+
+                const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+                if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward: ChannelTrophy', Color.Red)
+
+                // Update reward
+                const rewardId = await Utils.getRewardId('ChannelTrophy')
+                const rewardData = await modules.twitchHelix.getReward(rewardId ?? '')
+                if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
+                    const cost = rewardData.data[0].cost
+
+                    // Do TTS
+                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
+                    if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
+                        modules.tts.enqueueSpeakSentence(
+                            await Utils.replaceTagsInText(
+                                funnyNumberConfig.speech,
+                                user
+                            )
+                        ).then()
+                    }
+                    // Update label in overlay
+                    const labelUpdated = await Settings.pushLabel(
+                        Settings.CHANNEL_TROPHY_LABEL,
+                        await Utils.replaceTagsInText(
+                            Config.controller.channelTrophySettings.label,
+                            user,
+                            { number: cost.toString(), userName: user.name }
+                        )
+                    )
+                    if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
+
+                    // Update reward
+                    const configArrOrNot = Utils.getEventConfig('ChannelTrophy')?.triggers.reward
+                    const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
+                    if(config != undefined) {
+                        const newCost = cost+1;
+                        const updatedReward = await modules.twitchHelix.updateReward(rewardId, {
+                            title: await Utils.replaceTagsInText(
+                                Config.controller.channelTrophySettings.rewardTitle,
+                                user
+                            ),
+                            cost: newCost,
+                            is_global_cooldown_enabled: true,
+                            global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
+                            prompt: await Utils.replaceTagsInText(
+                                Config.controller.channelTrophySettings.rewardPrompt,
+                                user,
+                                {
+                                    prompt: config.prompt ?? '',
+                                    number: newCost.toString()
+                                }
+                            )
+                        })
+                        if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ChannelTrophy->${rewardId}`, Color.Red)
+                    } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ChannelTrophy->${rewardId}`, Color.Red)
+                } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ChannelTrophy->${rewardId}`, Color.Red)
+            }
+        },
+        // endregion
+
+        // region Redemptions
         'ResetIncrementingEvents': {
             tag: 'ResetIncrementalReward',
             description: 'Reset the incremental reward counter for those rewards, unless ignored.',
@@ -489,7 +530,7 @@ export default class Commands {
                         totalCount++
                         const rewardSetup = eventConfig?.triggers?.reward
                         if(Array.isArray(rewardSetup)) {
-                            // We check if the reward counter is at zero because then we should not update as it enables 
+                            // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the base reward, we update it as any normal reward, using !update.
                             const current = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
@@ -506,8 +547,8 @@ export default class Commands {
                     }
                 }
                 modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {
-                    total: totalCount.toString(), 
-                    reset: totalResetCount.toString(), 
+                    total: totalCount.toString(),
+                    reset: totalResetCount.toString(),
                     skipped: totalSkippedCount.toString()
                 })).then()
             }
@@ -557,14 +598,9 @@ export default class Commands {
             }
         },
 
-        /*
-        ..####...##..##...####...######..######..##...##.
-        .##.......####...##........##....##......###.###.
-        ..####.....##.....####.....##....####....##.#.##.
-        .....##....##........##....##....##......##...##.
-        ..####.....##.....####.....##....######..##...##.
-        */
-        
+        // endregion
+
+        // region System
         'ReloadWidget': {
             tag: 'ReloadWidget',
             description: 'Reloads the page for widget.',
@@ -572,7 +608,7 @@ export default class Commands {
                 window.location.reload()
             }
         },
-        
+
         'ChannelTrophyStats': {
             tag: 'ChannelTrophyStats',
             description: 'Posts the last Channel Trophy stats to Discord.',
@@ -600,7 +636,7 @@ export default class Commands {
                     }, (success) => {
                         modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4])
                     })
-                    
+
                 } else {
                     modules.tts.enqueueSpeakSentence(speech[2]).then()
                     const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(modules.twitchHelix)
@@ -613,7 +649,106 @@ export default class Commands {
                 }
             }
         },
-        
+
+        'GameReset': {
+            tag: 'GameReset',
+            description: 'Resets the currently detected game and trigger the app ID callback.',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const states = StatesSingleton.getInstance()
+                modules.tts.enqueueSpeakSentence(Config.controller.speechReferences['GameReset'] ?? '').then()
+                Functions.appIdCallback('', false).then()
+                states.lastSteamAppId = undefined
+                states.lastSteamAppIsVR = false
+            }
+        },
+
+        'RemoteOn': {
+            tag: 'RemoteOn',
+            description: 'Enables remote commands.',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const states = StatesSingleton.getInstance()
+                states.runRemoteCommands = true
+                const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOn']) ?? ''
+                modules.tts.enqueueSpeakSentence(
+                    await Utils.replaceTagsInText(
+                        speech,
+                        user
+                    ),
+                    Config.twitch.chatbotName,
+                    ETTSType.Announcement
+                ).then()
+            }
+        },
+        'RemoteOff': {
+            tag: 'RemoteOff',
+            description: 'Disables remote commands.',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const states = StatesSingleton.getInstance()
+                states.runRemoteCommands = false
+                const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOff']) ?? ''
+                modules.tts.enqueueSpeakSentence(
+                    await Utils.replaceTagsInText(speech, user),
+                    Config.twitch.chatbotName,
+                    ETTSType.Announcement
+                ).then()
+            }
+        },
+        'HelpToDiscord': {
+            tag: 'PostHelp',
+            description: 'Post help for all commands with documentation to the specified Discord channel.',
+            call: async (user) => {
+                let messageText = ''
+                const url = Config.credentials?.DiscordWebhooks.HelpToDiscord ?? ''
+                for(const [key, event] of Object.entries(Config.events) as [TKeys, IEvent][]) {
+                    const entries = event.triggers.command?.entries
+
+                    let helpTitle = (event.triggers.command?.helpTitle) ?? ''
+                    if(helpTitle.length > 0) {
+                        Discord.enqueuePayload(url, {content: messageText})
+                        messageText = ''
+                        helpTitle = `__${helpTitle}__\n`
+                    }
+
+                    let helpInput = (event.triggers.command?.helpInput ?? []).map((input)=>`[${input}]`).join(' ')
+                    if(helpInput.length > 0) helpInput = ` ${helpInput}`
+
+                    const helpText = event.triggers.command?.helpText
+                    if(entries && helpText) {
+                        const text = `${helpTitle}\`!${Utils.ensureArray(entries).join('|')}${helpInput}\` - ${helpText}`
+                        if((messageText.length + text.length) > 2000) {
+                            Discord.enqueuePayload(url, {content: messageText})
+                            messageText = ''
+                        }
+                        if(messageText.length > 0) messageText += '\n'
+                        messageText += text
+                    }
+                }
+                Discord.enqueuePayload(url, {content: messageText})
+            }
+        },
+        'HelpToChat': {
+            tag: 'GetHelp',
+            description: 'Post help for a single command to chat.',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const command = user.input.toLowerCase()
+                const event = (Object.values(Config.events) as IEvent[])
+                    .find((event)=>Utils.ensureArray(event.triggers.command?.entries).includes(command))
+                if(event && event.triggers.command?.helpText) {
+                    let helpInput = (event.triggers.command?.helpInput ?? []).map((input)=>`[${input}]`).join(' ')
+                    if(helpInput.length > 0) helpInput = ` ${helpInput}`
+                    modules.twitch._twitchChatOut.sendMessageToChannel(`!${user.input.toLowerCase()}${helpInput} - ${event.triggers.command?.helpText}`)
+                } else {
+                    modules.twitch._twitchChatOut.sendMessageToChannel(`${user.input.toLowerCase()} - is not a command.`)
+                }
+            }
+        },
+        // endregion
+
+        // region Twitch
         'Clips': {
             tag: 'Clips',
             description: 'Posts new channel clips to Discord.',
@@ -647,10 +782,10 @@ export default class Commands {
                 })
                 modules.tts.enqueueSpeakSentence(
                     await Utils.replaceTagsInText(
-                        speech[1], 
+                        speech[1],
                         user,
                         {
-                            count1: oldClipIds.length.toString(), 
+                            count1: oldClipIds.length.toString(),
                             count2: newClips.length.toString()
                         }
                     )
@@ -678,24 +813,11 @@ export default class Commands {
                 }
                 modules.tts.enqueueSpeakSentence(
                     await Utils.replaceTagsInText(
-                        speech[2], 
+                        speech[2],
                         user,
                         {count: (count-1-oldClipIds.length).toString()}
                     )
                 ).then()
-            }
-        },
-        
-        'GameReset': {
-            tag: 'GameReset',
-            description: 'Resets the currently detected game and trigger the app ID callback.',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const states = StatesSingleton.getInstance()
-                modules.tts.enqueueSpeakSentence(Config.controller.speechReferences['GameReset'] ?? '').then()
-                Functions.appIdCallback('', false).then()
-                states.lastSteamAppId = undefined
-                states.lastSteamAppIsVR = false
             }
         },
 
@@ -704,8 +826,8 @@ export default class Commands {
             description: 'Initiates a raid for the supplied target.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                let channel = 
-                    Utils.getFirstUserTagInText(user.input) 
+                let channel =
+                    Utils.getFirstUserTagInText(user.input)
                     ?? user.input.split(' ').shift()
                     ?? ''
                 if(channel.includes('https://')) channel = channel.split('/').pop() ?? ''
@@ -737,39 +859,6 @@ export default class Commands {
                 }
             }
         },
-
-        'RemoteOn': {
-            tag: 'RemoteOn',
-            description: 'Enables remote commands.',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const states = StatesSingleton.getInstance()
-                states.runRemoteCommands = true
-                const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOn']) ?? ''
-                modules.tts.enqueueSpeakSentence(
-                    await Utils.replaceTagsInText(
-                        speech,
-                        user
-                    ),  
-                    Config.twitch.chatbotName,
-                    ETTSType.Announcement
-                ).then()
-            }
-        },
-        'RemoteOff': {
-            tag: 'RemoteOff',
-            description: 'Disables remote commands.',
-            call: async (user) => {
-                const modules = ModulesSingleton.getInstance()
-                const states = StatesSingleton.getInstance()
-                states.runRemoteCommands = false
-                const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOff']) ?? ''
-                modules.tts.enqueueSpeakSentence(
-                    await Utils.replaceTagsInText(speech, user),
-                    Config.twitch.chatbotName,
-                    ETTSType.Announcement
-                ).then()
-            }
-        }
+        // endregion
     }
 }

@@ -51,6 +51,8 @@ export type TKeysTemplate =
     | 'ResetAccumulatingEvents'
     | 'RemoteOn'
     | 'RemoteOff'
+    | 'HelpToDiscord'
+    | 'HelpToChat'
     
     // Dangerous WIP SteamVR settings commands
     | 'RefreshRate'

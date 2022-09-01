@@ -2,11 +2,24 @@ import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from './interfaces/it
 import {
     IActionCallback,
     IActions,
-    IActionsExecutor, IActionsMainCallback, IActionUser, IAudioAction, IEntriesAction,
-    IEventsAction, ILabelAction, IObsAction, IPhilipsHueColorAction, IPhilipsHuePlugAction,
-    IPipeAction, IPressKeysAction, IRewardStatesAction, IRewardStatesActionConfig,
-    IScreenshotAction, ISignAction,
-    ISpeechAction, ITTSAction,
+    IActionsExecutor,
+    IActionsMainCallback,
+    IActionUser,
+    IAudioAction,
+    IEntriesAction,
+    IEventsAction,
+    ILabelAction,
+    IObsAction,
+    IPhilipsHueColorAction,
+    IPhilipsHuePlugAction,
+    IPipeAction,
+    IPressKeysAction,
+    IRewardStatesAction,
+    IRewardStatesActionConfig,
+    IScreenshotAction,
+    ISignAction,
+    ISpeechAction,
+    ITTSAction,
     IWhisperAction
 } from './interfaces/iactions.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from './interfaces/iopenvr2ws.js'
@@ -26,12 +39,11 @@ import {TKeys} from './_data/!keys.js'
 import {EBehavior, IEvent} from './interfaces/ievents.js'
 import Config from './statics/config.js'
 import StatesSingleton from './base/states_singleton.js'
-import Rewards from './rewards.js'
-import Commands from './commands.js'
 import Discord from './modules/discord.js'
 import ModulesSingleton from './modules_singleton.js'
 import Utils from './base/utils.js'
 import {ITwitchHelixRewardUpdate} from './interfaces/itwitch_helix.js'
+import ActionsCallbacks from './actions_callbacks.js'
 
 export class ActionHandler {
     constructor(
@@ -281,17 +293,6 @@ export class Actions {
     }
     // endregion
 
-    /*
-    .########..########..######...####..######..########.########.########.
-    .##.....##.##.......##....##...##..##....##....##....##.......##.....##
-    .##.....##.##.......##.........##..##..........##....##.......##.....##
-    .########..######...##...####..##...######.....##....######...########.
-    .##...##...##.......##....##...##........##....##....##.......##...##..
-    .##....##..##.......##....##...##..##....##....##....##.......##....##.
-    .##.....##.########..######...####..######.....##....########.##.....##
-    */
-
-
     // region Trigger Registration
     public static async registerReward(key: TKeys, event: IEvent) {
         const modules = ModulesSingleton.getInstance()
@@ -392,16 +393,7 @@ export class Actions {
     }
     // endregion
 
-    /*
-    .##.....##....###....####.##....##....########..##.....##.####.##.......########..########.########.
-    .###...###...##.##....##..###...##....##.....##.##.....##..##..##.......##.....##.##.......##.....##
-    .####.####..##...##...##..####..##....##.....##.##.....##..##..##.......##.....##.##.......##.....##
-    .##.###.##.##.....##..##..##.##.##....########..##.....##..##..##.......##.....##.######...########.
-    .##.....##.#########..##..##..####....##.....##.##.....##..##..##.......##.....##.##.......##...##..
-    .##.....##.##.....##..##..##...###....##.....##.##.....##..##..##.......##.....##.##.......##....##.
-    .##.....##.##.....##.####.##....##....########...#######..####.########.########..########.##.....##
-    */
-
+    // region Main Action Builder
     public static buildActionsMainCallback(key: TKeys, actionsArr: IActions[]): IActionsMainCallback {
         /**
          * Handle all the different types of action constructs here.
@@ -425,8 +417,7 @@ export class Actions {
             // Build callbacks
             actionCallbacks.pushIfExists(this.buildTTSCallback(actions?.tts))
             actionCallbacks.pushIfExists(actions?.custom)
-            actionCallbacks.pushIfExists(Commands.callbacks[key])
-            actionCallbacks.pushIfExists(Rewards.callbacks[key])
+            actionCallbacks.pushIfExists(ActionsCallbacks.stack[key])
             actionCallbacks.pushIfExists(this.buildOBSCallback(actions?.obs, key))
             actionCallbacks.pushIfExists(this.buildColorCallback(actions?.lights))
             actionCallbacks.pushIfExists(this.buildPlugCallback(actions?.plugs))
@@ -486,16 +477,7 @@ export class Actions {
             }
         }
     }
-
-    /*
-    .########..##.....##.####.##.......########..########.########...######.
-    .##.....##.##.....##..##..##.......##.....##.##.......##.....##.##....##
-    .##.....##.##.....##..##..##.......##.....##.##.......##.....##.##......
-    .########..##.....##..##..##.......##.....##.######...########...######.
-    .##.....##.##.....##..##..##.......##.....##.##.......##...##.........##
-    .##.....##.##.....##..##..##.......##.....##.##.......##....##..##....##
-    .########...#######..####.########.########..########.##.....##..######.
-    */
+    // endregion
 
     // region Action Builders
     private static buildOBSCallback(config: IObsAction|undefined, key: TKeys): IActionCallback|undefined {
