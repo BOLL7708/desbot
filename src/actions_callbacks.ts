@@ -89,17 +89,21 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 let [login, quote] = Utils.splitOnFirst(' ', user.input)
-                login = Utils.cleanUserName(login ?? '')
-                if(login.length > 0 && quote.length > 0) {
+                if(user.input.length > 0 && quote.length > 0) {
+                    // Get login or use channel name
+                    const isTag = login.includes('@')
+                    login = Utils.cleanUserName(login ?? '')
                     const userData = await modules.twitchHelix.getUserByLogin(login)
+                    if(!isTag || !userData) login = Config.twitch.channelName
                     const gameData = await SteamStore.getGameMeta(states.lastSteamAppId?.toString() ?? '')
+
                     // Save quote to settings
-                    if(userData) {
+                    if(login.length > 0) {
                         await Settings.appendSetting(
                             Settings.QUOTES,
                             <IStreamQuote> {
                                 submitter: user.login,
-                                author: userData.login,
+                                author: login,
                                 quote: quote,
                                 datetime: Utils.getISOTimestamp(),
                                 game: gameData?.name ?? ''
@@ -113,7 +117,7 @@ export default class ActionsCallbacks {
                                 {quote: quote}
                             )
                         ).then()
-                    } else Utils.log(`Could not find user ${login}`, Color.Red)
+                    } else Utils.log(`Could not find user: ${login}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
                     const quotes = Settings.getFullSettings<IStreamQuote>(Settings.QUOTES)

@@ -125,7 +125,7 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Initiating reset of accumulating events',
             'Finished resetting %reset out of %total accumulating events, skipping %skipped'
         ],
-        'Quote': 'Quote by %targetTag added',
+        'Quote': 'Quote by %targetOrUserTag added',
         'GameReset': 'Currently running Steam game has been reset.',
         'ChatOn': 'Chat enabled',
         'ChatOff': 'Chat disabled',

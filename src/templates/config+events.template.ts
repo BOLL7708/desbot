@@ -375,7 +375,7 @@ Config.events = {
                 entries: 'quote',
                 helpTitle: 'System Functions',
                 helpInput: ['usertag', 'quote text'],
-                helpText: 'SCREW IT, fix the tag skip stuff, already.'
+                helpText: 'Save a quote by the tagger user, or if the tag is skipped, the streamer.'
             }
         }
     },
