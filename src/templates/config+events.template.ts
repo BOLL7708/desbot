@@ -251,7 +251,7 @@ Config.events = {
             command: {
                 entries: ['word', 'setword'],
                 helpInput: ['original', 'replacement'],
-                helpText: 'Adds a word to the dictionary, comma separated replacement will randomize.',
+                helpText: 'Adds a word to the dictionary, comma separated replacement will randomize, prepend original with + to append or - to remove.',
                 requireMinimumWordCount: 2
             }
         },

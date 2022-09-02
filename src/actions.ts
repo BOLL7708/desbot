@@ -902,128 +902,161 @@ export class Actions {
                         if(targetLogin.length == 0) break
                         Settings.pushSetting(Settings.TTS_BLACKLIST, 'userName', { userName: targetLogin, active: true, reason: userInputRest }).then()
                         break
-                    case ETTSFunction.SetUserNick:
-                        let setUserNickLogin = targetOrUserLogin // We can change nick for us or someone else by default
+                    case ETTSFunction.SetUserNick: {
+                        let login = targetOrUserLogin // We can change nick for us or someone else by default
                         if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
-                            setUserNickLogin = user.login
+                            login = user.login
                         }
-                        const isSettingNickOfOther = user.login !== setUserNickLogin
-                        const setNickNewName = userInputNoTags
+                        const isSettingNickOfOther = user.login !== login
+                        const newNick = userInputNoTags
 
                         // Cancel if the user does not actually exist on Twitch
-                        const setNickUserData = await modules.twitchHelix.getUserByLogin(setUserNickLogin)
-                        if(!setNickUserData) return Utils.log(`TTS Nick: User "${setUserNickLogin}" does not exist.`, Color.Red)
+                        const userData = await modules.twitchHelix.getUserByLogin(login)
+                        if(!userData) return Utils.log(`TTS Nick: User "${login}" does not exist.`, Color.Red)
 
                         if(
-                            setUserNickLogin.length && setNickNewName.length
+                            login.length && newNick.length
                             && (canSetThingsForOthers || (isSettingNickOfOther == canSetThingsForOthers))
                         ) {
                             // We rename the user
-                            states.textTagCache.lastTTSSetNickLogin = setUserNickLogin
-                            states.textTagCache.lastTTSSetNickSubstitute = setNickNewName
-                            const setting = <IUserName> {userName: setUserNickLogin, shortName: setNickNewName, editor: user.login, datetime: Utils.getISOTimestamp()}
+                            states.textTagCache.lastTTSSetNickLogin = login
+                            states.textTagCache.lastTTSSetNickSubstitute = newNick
+                            const setting = <IUserName> {userName: login, shortName: newNick, editor: user.login, datetime: Utils.getISOTimestamp()}
                             await Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                         } else {
                             // We do nothing
-                            states.textTagCache.lastTTSSetNickLogin =
+                            states.textTagCache.lastTTSSetNickLogin = ''
                             states.textTagCache.lastTTSSetNickSubstitute = ''
                         }
                         break
-                    case ETTSFunction.GetUserNick:
-                        const getNickUserData = await modules.twitchHelix.getUserByLogin(targetOrUserLogin)
-                        if(getNickUserData && getNickUserData.login.length) {
-                            const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', getNickUserData.login)
+                    }
+                    case ETTSFunction.GetUserNick: {
+                        const userData = await modules.twitchHelix.getUserByLogin(targetOrUserLogin)
+                        if(userData && userData.login.length) {
+                            const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userData.login)
                             if(currentName) {
                                 states.textTagCache.lastTTSSetNickLogin = currentName.userName
                                 states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
                             } else {
-                                states.textTagCache.lastTTSSetNickLogin = getNickUserData.login
+                                states.textTagCache.lastTTSSetNickLogin = userData.login
                                 states.textTagCache.lastTTSSetNickSubstitute = ''
                             }
                         }
                         break
-                    case ETTSFunction.ClearUserNick:
-                        let clearUserNickLogin = targetOrUserLogin // We can change nick for us or someone else by default
-                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
-                            clearUserNickLogin = user.login
+                    }
+                    case ETTSFunction.ClearUserNick: {
+                        let login = targetOrUserLogin // We can change nick for us or someone else by default
+                        if (user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            login = user.login
                         }
-                        const isClearingNickOfOther = user.login !== clearUserNickLogin
-                        if(
-                            clearUserNickLogin.length
+                        const isClearingNickOfOther = user.login !== login
+                        if (
+                            login.length
                             && (canSetThingsForOthers || (isClearingNickOfOther == canSetThingsForOthers))
                         ) {
                             // We clear the custom nick for the user, setting it to a clean one.
-                            const cleanName = Utils.cleanName(clearUserNickLogin)
-                            states.textTagCache.lastTTSSetNickLogin = clearUserNickLogin
+                            const cleanName = Utils.cleanName(login)
+                            states.textTagCache.lastTTSSetNickLogin = login
                             states.textTagCache.lastTTSSetNickSubstitute = cleanName
-                            const setting = <IUserName> {userName: clearUserNickLogin, shortName: cleanName, editor: user.login, datetime: Utils.getISOTimestamp()}
+                            const setting = <IUserName>{
+                                userName: login,
+                                shortName: cleanName,
+                                editor: user.login,
+                                datetime: Utils.getISOTimestamp()
+                            }
                             await Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                         }
                         break
-                    case ETTSFunction.SetUserVoice:
-                        let setUserVoiceLogin = targetOrUserLogin // We can change voice for us or someone else by default
-                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
-                            setUserVoiceLogin = user.login
+                    }
+                    case ETTSFunction.SetUserVoice: {
+                        let login = targetOrUserLogin // We can change voice for us or someone else by default
+                        if (user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            login = user.login
                         }
-                        const isSettingVoiceOfOther = user.login !== setUserVoiceLogin
-                        if(
-                            setUserVoiceLogin.length && userInputNoTags.length
+                        const isSettingVoiceOfOther = user.login !== login
+                        if (
+                            login.length && userInputNoTags.length
                             && (canSetThingsForOthers || (isSettingVoiceOfOther == canSetThingsForOthers))
                         ) {
-                            await modules.tts.setVoiceForUser(setUserVoiceLogin, userInputNoTags)
+                            await modules.tts.setVoiceForUser(login, userInputNoTags)
                         }
                         break
-                    case ETTSFunction.SetDictionaryEntry:
-                        const dicWord = userInputHead.trim().toLowerCase()
-                        const dicSubstitute = Utils.cleanSetting(userInputRest).toLowerCase()
-                        const setDictionaryEntry = <IDictionaryEntry> {
-                            original: dicWord,
-                            substitute: dicSubstitute,
+                    }
+                    case ETTSFunction.SetDictionaryEntry: {
+                        let word = userInputHead.trim().toLowerCase()
+                        const substitute = Utils.cleanSetting(userInputRest).toLowerCase()
+                        const firstChar = word[0] ?? ''
+                        const entry = await Settings.pullSetting<IDictionaryEntry>(
+                            Settings.TTS_DICTIONARY,
+                            'original',
+                            ['+', '-'].includes(firstChar) ? word.substring(1) : word
+                        ) ?? {
+                            original: word,
+                            substitute: '',
                             editor: user.login,
                             datetime: Utils.getISOTimestamp()
                         }
-                        states.textTagCache.lastDictionaryWord = dicWord
-                        states.textTagCache.lastDictionarySubstitute = dicSubstitute
+                        const entries = entry.substitute.split(',')
+                        entries.splice(entries.indexOf(word), 1)
+                        switch (firstChar) {
+                            case '+':
+                                word = word.substring(1)
+                                entries.push(substitute)
+                                entry.substitute = entries.join(',')
+                                break
+                            case '-':
+                                word = word.substring(1)
+                                entries.splice(entries.indexOf(substitute), 1)
+                                entry.substitute = entries.join(',')
+                                break
+                            default:
+                                entry.substitute = substitute
+                        }
+                        states.textTagCache.lastDictionaryWord = word
+                        states.textTagCache.lastDictionarySubstitute = entry.substitute
                         // Set substitute for word
-                        if(dicWord.length && dicSubstitute.length) {
-                            await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setDictionaryEntry)
+                        if(word.length && substitute.length) {
+                            await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', entry)
                         }
                         // Clearing a word by setting it to itself
-                        else if(dicWord.length) {
-                            setDictionaryEntry.substitute = dicWord
-                            states.textTagCache.lastDictionarySubstitute = dicWord
-                            await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', setDictionaryEntry)
+                        else if(word.length) {
+                            entry.substitute = word
+                            states.textTagCache.lastDictionarySubstitute = word
+                            await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', entry)
                         }
                         modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                         break
-                    case ETTSFunction.GetDictionaryEntry:
-                        const getDicWord = userInputHead.trim().toLowerCase()
-                        const getDicEntry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', getDicWord)
-                        if(getDicEntry) {
-                            states.textTagCache.lastDictionaryWord = getDicEntry.original
-                            states.textTagCache.lastDictionarySubstitute = getDicEntry.substitute
+                    }
+                    case ETTSFunction.GetDictionaryEntry: {
+                        const word = userInputHead.trim().toLowerCase()
+                        const entry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
+                        if (entry) {
+                            states.textTagCache.lastDictionaryWord = entry.original
+                            states.textTagCache.lastDictionarySubstitute = entry.substitute
                         } else {
-                            states.textTagCache.lastDictionaryWord = getDicWord
+                            states.textTagCache.lastDictionaryWord = word
                             states.textTagCache.lastDictionarySubstitute = ''
                         }
                         break
-                    case ETTSFunction.SetUserGender:
-                        let setUserGenderLogin = targetOrUserLogin // We can change gender for us or someone else by default
-                        if(user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
-                            setUserGenderLogin = user.login
+                    }
+                    case ETTSFunction.SetUserGender: {
+                        let login = targetOrUserLogin // We can change gender for us or someone else by default
+                        if (user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
+                            login = user.login
                         }
-                        const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', setUserGenderLogin)
+                        const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', login)
                         let gender = ''
                         // Use input for a specific gender
-                        if(inputLowerCase.includes('f')) gender = 'female'
-                        else if(inputLowerCase.includes('m')) gender = 'male'
+                        if (inputLowerCase.includes('f')) gender = 'female'
+                        else if (inputLowerCase.includes('m')) gender = 'male'
                         // If missing, flip current or fall back to random.
-                        if(gender.length == 0) {
-                            if(voiceSetting) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
+                        if (gender.length == 0) {
+                            if (voiceSetting) gender = voiceSetting.gender.toLowerCase() == 'male' ? 'female' : 'male'
                             else gender = Utils.randomFromArray(['male', 'female'])
                         }
-                        modules.tts.setVoiceForUser(setUserGenderLogin, gender).then()
+                        modules.tts.setVoiceForUser(login, gender).then()
                         break
+                    }
                 }
             }
         }
