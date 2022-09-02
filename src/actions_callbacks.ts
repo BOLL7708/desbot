@@ -88,22 +88,26 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
-                let [login, quote] = Utils.splitOnFirst(' ', user.input)
+                let [userTag, quote] = Utils.splitOnFirst(' ', user.input)
                 if(user.input.length > 0 && quote.length > 0) {
                     // Get login or use channel name
-                    const isTag = login.includes('@')
-                    login = Utils.cleanUserName(login ?? '')
-                    const userData = await modules.twitchHelix.getUserByLogin(login)
-                    if(!isTag || !userData) login = Config.twitch.channelName
+                    const isTag = userTag.includes('@')
+                    let cleanLogin = Utils.cleanUserName(userTag ?? '')
+                    const userData = await modules.twitchHelix.getUserByLogin(cleanLogin)
+                    if(!isTag || !userData) {
+                        cleanLogin = Config.twitch.channelName
+                        quote = user.input
+                        user.input = `@${cleanLogin} ${user.input}`
+                    }
                     const gameData = await SteamStore.getGameMeta(states.lastSteamAppId?.toString() ?? '')
 
                     // Save quote to settings
-                    if(login.length > 0) {
+                    if(userTag.length > 0) {
                         await Settings.appendSetting(
                             Settings.QUOTES,
                             <IStreamQuote> {
                                 submitter: user.login,
-                                author: login,
+                                author: cleanLogin,
                                 quote: quote,
                                 datetime: Utils.getISOTimestamp(),
                                 game: gameData?.name ?? ''
@@ -117,7 +121,7 @@ export default class ActionsCallbacks {
                                 {quote: quote}
                             )
                         ).then()
-                    } else Utils.log(`Could not find user: ${login}`, Color.Red)
+                    } else Utils.log(`Could not find user: ${userTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
                     const quotes = Settings.getFullSettings<IStreamQuote>(Settings.QUOTES)
