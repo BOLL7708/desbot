@@ -1,7 +1,7 @@
 <?php
 
 class Utils {
-    static function loadJSIncludesAndConfigs() {
+    static function printJSIncludesAndConfigs() {
         // Load PHP config
         $config = include_once('_configs/config.php');
 
@@ -64,6 +64,10 @@ class Utils {
         $configOverride = $_REQUEST['config'] ?? null;
         $overrideSymbol = $config->overrideConfigSymbol;
         if($configOverride != null) includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
+    }
+
+    static function printJSAssetFiles() {
+        echo 'AssetFiles._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES);
     }
     
     static function decode(string $b64url) {

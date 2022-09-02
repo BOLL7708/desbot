@@ -11,7 +11,11 @@
         </style>
     </head>
     <body>
-        <?php Utils::loadJSIncludesAndConfigs()?>
+        <script type="module">
+            import AssetFiles from './dist/modules/files.js'
+            <?php Utils::printJSAssetFiles()?>
+        </script>
+        <?php Utils::printJSIncludesAndConfigs()?>
         <script type="module" src="./dist/index.js"></script>
     </body>
 </html>
