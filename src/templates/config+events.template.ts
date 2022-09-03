@@ -658,15 +658,15 @@ Config.events = {
             speech: {
                 entries: 'Running stream end tasks'
             },
-            events: {
-                keyEntries: [
+            system: {
+                triggerEventEntries: [
                     'ChannelTrophyStats',
                     'Clips',
                     'ClearRedemptions',
                     'ResetIncrementingEvents',
                     'ResetAccumulatingEvents'
                 ],
-                interval: 20
+                triggerInterval: 20
             }
         }
     },

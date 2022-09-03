@@ -6,6 +6,7 @@ import {IPhilipsHueBulb} from './iphilipshue.js'
 import {IRunCommandConfig} from './iexec.js'
 import {ITwitchActionCommandConfig} from './itwitch.js'
 import {IPipeCustomMessage} from './ipipe.js'
+import IKeyBoolRecord from './i.js'
 
 export interface IActionCallback {
     tag: string
@@ -120,7 +121,7 @@ export interface IActions {
     /**
      * Optional: Trigger other events, propagating input.
      */
-    events?: IEventsAction
+    system?: ISystemAction
 
     /**
      * Optional: Send remote command to set remote command channel.
@@ -130,7 +131,7 @@ export interface IActions {
     /**
      * Optional: Change Twitch reward status, indexed on the key for the reward, set to the enabled state.
      */
-    rewardStates?: IRewardStatesAction
+    rewardStates?: IRewardStates
 
     /**
      * Optional: Provide a custom action callback, this can execute any arbitrary code you provide.
@@ -167,19 +168,23 @@ export interface IActionUser {
     rewardMessage?: ITwitchPubsubRewardMessage
 }
 
-export interface IEventsAction {
+export interface ISystemAction {
     /**
      * Optional: Command(s) to trigger.
      */
-    commandEntries?: string|string[]
+    triggerCommandEntries?: string|string[]
     /**
      * Optional: Event(s) to trigger by key, referenced from {@link TKeys}.
      */
-    keyEntries?: TKeys|TKeys[]
+    triggerEventEntries?: TKeys|TKeys[]
     /**
-     * Optional: Set the commands to be triggered at an interval to space things out in time.
+     * Optional: Set the trigger entries to be triggered at an interval to space things out in time.
      */
-    interval?: number
+    triggerInterval?: number
+    /**
+     * Optional: Set or toggle reward states
+     */
+    toggleRewardStates?: IRewardStates
 }
 
 export interface ITextTags extends ITextTagsCached{
@@ -276,7 +281,7 @@ export interface IWhisperAction {
     user: string
 }
 
-export interface IRewardStatesActionConfig {
+export interface IRewardStatesConfig {
     /**
      * Optional: Set to true to enable the reward, false to disable, leave it out to toggle.
      */
@@ -286,7 +291,7 @@ export interface IRewardStatesActionConfig {
      */
     override?: boolean
 }
-export interface IRewardStatesAction extends Partial<Record<TKeys, IRewardStatesActionConfig>> {}
+export interface IRewardStates extends Partial<Record<TKeys, IRewardStatesConfig>> {}
 
 // Data
 export interface IAudioAction {

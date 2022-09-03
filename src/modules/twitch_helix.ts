@@ -17,6 +17,7 @@ import {ITwitchRedemption, ITwitchRewardPair} from '../interfaces/isettings.js'
 import {ITwitchTokens} from '../interfaces/itwitch.js'
 import Utils from '../base/utils.js'
 import Settings from './settings.js'
+import {TKeys} from '../_data/!keys.js'
 
 export default class TwitchHelix {
     _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -170,7 +171,7 @@ export default class TwitchHelix {
         return response
     }
 
-    async toggleRewards(rewards: ITwitchHelixRewardStates|string[]): Promise<ITwitchHelixRewardStates> {
+    async toggleRewards(rewards: ITwitchHelixRewardStates|TKeys[]): Promise<ITwitchHelixRewardStates> {
         const result: ITwitchHelixRewardStates = {}
         if(Array.isArray(rewards)) {
             for(const key of rewards) {
@@ -184,7 +185,7 @@ export default class TwitchHelix {
                 }
             }
         } else {
-            for(const [key, state] of Object.entries(rewards)) {
+            for(const [key, state] of Object.entries(rewards) as [TKeys, boolean][]) {
                 const id = await Utils.getRewardId(key)
                 if(id) {
                     const updated = await this.updateReward(id, {is_enabled: state})

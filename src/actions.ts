@@ -7,15 +7,15 @@ import {
     IActionUser,
     IAudioAction,
     IEntriesAction,
-    IEventsAction,
+    ISystemAction,
     ILabelAction,
     IObsAction,
     IPhilipsHueColorAction,
     IPhilipsHuePlugAction,
     IPipeAction,
     IPressKeysAction,
-    IRewardStatesAction,
-    IRewardStatesActionConfig,
+    IRewardStates,
+    IRewardStatesConfig,
     IScreenshotAction,
     ISignAction,
     ISpeechAction,
@@ -447,9 +447,8 @@ export class Actions {
             actionCallbacks.pushIfExists(this.buildTwitchChatCallback(actions?.chat))
             actionCallbacks.pushIfExists(this.buildTwitchWhisperCallback(actions?.whisper))
             actionCallbacks.pushIfExists(this.buildLabelCallback(actions?.label))
-            actionCallbacks.pushIfExists(this.buildEventsCallback(actions?.events))
+            actionCallbacks.pushIfExists(this.buildSystemCallback(actions?.system))
             actionCallbacks.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
-            actionCallbacks.pushIfExists(this.buildRewardStatesCallback(actions?.rewardStates))
 
             // Logging
             if(actionCallbacks.length == 1) {
@@ -789,17 +788,17 @@ export class Actions {
         }
     }
 
-    private static buildEventsCallback(config: IEventsAction|undefined): IActionCallback|undefined {
+    private static buildSystemCallback(config: ISystemAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🖐',
             description: 'Callback that triggers events',
-            call: (user, index) => {
+            call: async(user, index) => {
                 const modules = ModulesSingleton.getInstance()
-                const interval = config.interval ?? 0
+                const interval = config.triggerInterval ?? 0
                 let delay = 0
 
-                // Commands
-                const commands = Utils.ensureArray(config.commandEntries).getAsType(index)
+                // Trigger Commands
+                const commands = Utils.ensureArray(config.triggerCommandEntries).getAsType(index)
                 for(const command of commands) {
                     Utils.log(`Executing command: ${command} in ${delay} seconds...`, Color.Grey)
                     let inputText = user.input
@@ -810,8 +809,8 @@ export class Actions {
                     delay += interval
                 }
 
-                // Keys
-                const keys = Utils.ensureArray(config.keyEntries).getAsType(index)
+                // Trigger Events by Keys
+                const keys = Utils.ensureArray(config.triggerEventEntries).getAsType(index)
                 for(const key of keys) {
                     Utils.log(`Executing event: ${key} in ${delay} seconds...`, Color.Grey)
                     setTimeout(()=>{
@@ -819,39 +818,17 @@ export class Actions {
                     }, delay*1000)
                     delay += interval
                 }
-            }
-        }
-    }
 
-    private static buildRemoteCommandCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🤝',
-            description: 'Callback that triggers a Remote Command action',
-            call: (user: IActionUser, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                const entries = Utils.ensureArray(config.entries).getAsType(index)
-                for(const entry of entries) {
-                    modules.twitch.sendRemoteCommand(entry).then()
-                }
-            }
-        }
-    }
-
-    private static buildRewardStatesCallback(config: IRewardStatesAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '⏯',
-            description: 'Callback that triggers a Reward States action',
-            call: async () => {
-                const modules = ModulesSingleton.getInstance()
-                const states: IKeyBoolRecord = {}
-                const toggles = []
-                for(const [key, stateConfig] of Object.entries(config) as [TKeys, IRewardStatesActionConfig][]) {
+                // Toggle Rewards
+                const rewardToggles: TKeys[] = []
+                const rewardStates: IKeyBoolRecord = {}
+                for(const [key, stateConfig] of Object.entries(config.toggleRewardStates ?? {}) as [TKeys, IRewardStatesConfig][]) {
                     const stateConfigClone = Utils.clone(stateConfig)
                     // Get current reward state if none was provided in config.
                     if(stateConfigClone.state == undefined) {
-                        toggles.push(key)
+                        rewardToggles.push(key)
                     } else {
-                        states[key] = stateConfigClone.state
+                        rewardStates[key] = stateConfigClone.state
                     }
                     // Change the overrides to make this persistent this session.
                     if(stateConfigClone.override) {
@@ -867,8 +844,24 @@ export class Actions {
                     }
                 }
                 // Toggle the rewards on Twitch
-                await modules.twitchHelix.toggleRewards(states)
-                await modules.twitchHelix.toggleRewards(toggles)
+                await modules.twitchHelix.toggleRewards(rewardStates)
+                await modules.twitchHelix.toggleRewards(rewardToggles)
+
+
+            }
+        }
+    }
+
+    private static buildRemoteCommandCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
+        if(config) return {
+            tag: '🤝',
+            description: 'Callback that triggers a Remote Command action',
+            call: (user: IActionUser, index?: number) => {
+                const modules = ModulesSingleton.getInstance()
+                const entries = Utils.ensureArray(config.entries).getAsType(index)
+                for(const entry of entries) {
+                    modules.twitch.sendRemoteCommand(entry).then()
+                }
             }
         }
     }

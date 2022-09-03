@@ -503,11 +503,11 @@ export default class Utils {
         return (Array.isArray(value) && value.length > 0) ? value.shift() : <Type> value
     }
 
-    static async getRewardId(key: string): Promise<string|undefined> {
+    static async getRewardId(key: TKeys): Promise<string|undefined> {
         const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
         return reward?.id
     }
-    static async getRewardKey(id: string): Promise<string|undefined> {
+    static async getRewardKey(id: string): Promise<TKeys|undefined> {
         const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
         return reward?.key
     }
