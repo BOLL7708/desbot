@@ -97,6 +97,10 @@ export interface IEventOptions {
      */
     rewardIgnoreClearRedemptionsCommand?: boolean
     /**
+     * Optional: Ignore the Discord webhook for this reward even if it exists. (might be used for something else)
+     */
+    rewardIgnoreAutomaticDiscordPosting?: boolean
+    /**
      * Optional: Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.
      */
     specificIndex?: number

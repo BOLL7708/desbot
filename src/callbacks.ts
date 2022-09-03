@@ -179,8 +179,10 @@ export default class Callbacks {
                     description
                 )
             }
-            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[rewardPair?.key ?? 'Unknown']
-            if(rewardSpecificWebhook) {
+            const key = rewardPair?.key ?? 'Unknown'
+            const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[key]
+            const ignoreWebhook = !!Config.events[key]?.options?.rewardIgnoreAutomaticDiscordPosting
+            if(rewardSpecificWebhook && !ignoreWebhook) {
                 Discord.enqueueMessage(
                     rewardSpecificWebhook,
                     user?.display_name,

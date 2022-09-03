@@ -9,6 +9,7 @@ import {ITwitchHelixUsersResponseData} from '../interfaces/itwitch_helix.js'
 import WebSockets from './websockets.js'
 import Utils from '../base/utils.js'
 import ImageLoader from './image_loader.js'
+import StatesSingleton from '../base/states_singleton.js'
 
 export default class Pipe {
     private _socket:WebSockets
@@ -199,9 +200,12 @@ export default class Pipe {
 
     async showPreset(preset: IPipeAction) {
         // If path exists, load image, in all cases output base64 image data
+        const states = StatesSingleton.getInstance()
         let imageB64arr: string[] = []
         if(preset.imagePathEntries) {
-            for(const imagePath of preset.imagePathEntries) {
+            for(const imagePath of Utils.ensureArray(preset.imagePathEntries)) {
+                const stateKey = preset.config.customProperties?.anchorType ?? 0
+                states.pipeLastImageFileNamePerAnchor.set(stateKey, imagePath.split('/').pop() ?? '')
                 imageB64arr.push(await ImageLoader.getDataUrl(imagePath))
             }
         } else if (preset.imageDataEntries) {

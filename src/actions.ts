@@ -7,18 +7,17 @@ import {
     IActionUser,
     IAudioAction,
     IEntriesAction,
-    ISystemAction,
     ILabelAction,
     IObsAction,
     IPhilipsHueColorAction,
     IPhilipsHuePlugAction,
     IPipeAction,
     IPressKeysAction,
-    IRewardStates,
     IRewardStatesConfig,
     IScreenshotAction,
     ISignAction,
     ISpeechAction,
+    ISystemAction,
     ITTSAction,
     IWhisperAction
 } from './interfaces/iactions.js'
@@ -120,7 +119,7 @@ export class ActionHandler {
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
 
                 // Increase multi-tier counter
-                const multiTierCounter = states.multitierEventCounters.get(this.key) ?? {count: 0, timeoutHandle: 0}
+                const multiTierCounter = states.multiTierEventCounters.get(this.key) ?? {count: 0, timeoutHandle: 0}
                 multiTierCounter.count++
                 const multiTierMaxValue = options.multiTierMaxLevel ?? rewardConfigs.length
                 if(multiTierCounter.count > multiTierMaxValue) {
@@ -142,7 +141,7 @@ export class ActionHandler {
                     // Reset counter
                     multiTierCounter.count = 0
                     multiTierCounter.timeoutHandle = 0
-                    states.multitierEventCounters.set(this.key, multiTierCounter)
+                    states.multiTierEventCounters.set(this.key, multiTierCounter)
 
                     // Reset reward
                     if(rewardConfigs.length > 0) {
@@ -155,7 +154,7 @@ export class ActionHandler {
                 }, (options.multiTierTimeout ?? 30)*1000)
 
                 // Store new counter value
-                states.multitierEventCounters.set(this.key, multiTierCounter)
+                states.multiTierEventCounters.set(this.key, multiTierCounter)
 
                 // Switch to the next multi-tier reward if it has more configs available, or disable if maxed and that option is set.
                 const wasLastLevel = multiTierCounter.count === multiTierMaxValue
@@ -846,8 +845,6 @@ export class Actions {
                 // Toggle the rewards on Twitch
                 await modules.twitchHelix.toggleRewards(rewardStates)
                 await modules.twitchHelix.toggleRewards(rewardToggles)
-
-
             }
         }
     }

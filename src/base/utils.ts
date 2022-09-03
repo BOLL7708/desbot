@@ -341,7 +341,7 @@ export default class Utils {
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
-        const eventLevel = states.multitierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
+        const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
 
         const userBits = (userData?.bits ?? 0) > 0
@@ -677,5 +677,28 @@ export default class Utils {
         else if (nr >= 100) return nr.toFixed() // 100
         else if (nr >= 10) return nr.toFixed(1*useDec) // 10.0
         else return nr.toFixed(2*useDec) // 1.00
+    }
+
+    /**
+     * Convert the hex value of an emoji to string
+     * @param emojiHex
+     */
+    static emojiHexToString(emojiHex: string): string {
+        emojiHex = emojiHex.toLowerCase()
+        if(emojiHex[0] == '\\') emojiHex = emojiHex.substring(1)
+        if(emojiHex[0] == 'u') emojiHex = emojiHex.substring(1)
+        return String.fromCodePoint(parseInt(emojiHex, 16)).trim()
+    }
+
+    /**
+     * Split a filename on underscore and extract emoji hex values from it.
+     * This is kind of specialized to work with images from Google's Emoji Kitchen,
+     * @param fileName
+     */
+    static getEmojisFromFileName(fileName: string): string[] {
+        return fileName.split('.')
+            .shift()
+            ?.split('_')
+            .map((code)=>this.emojiHexToString(code)) ?? []
     }
 }
