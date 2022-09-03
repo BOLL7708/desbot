@@ -153,6 +153,7 @@ export interface IActionUser {
     login: string
     name: string
     input: string
+    inputWords: string[]
     message: string
     color: string
     isBroadcaster: boolean

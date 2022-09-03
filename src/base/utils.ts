@@ -417,20 +417,19 @@ export default class Utils {
             eventLevelNextProgress: `${eventLevel+1}/${eventLevelMax}`
         }
         if(typeof userData?.input === 'string') {
-            const input = userData.input
-            const inputSplit = input.split(' ')
-            result.userInput = input
-            result.userInputHead = inputSplit.shift() ?? ''
-            result.userInputRest = inputSplit.join(' ')
-            result.userInputTail = inputSplit.pop() ?? ''
-            result.userInputNoTags = input.replace(/@\w+/g, '')
-            result.userInputNumber = parseFloat(input).toString()
-            result.userInputTag = Utils.getFirstUserTagInText(input) ?? ''
-            result.userInputWord1 = inputSplit[0] ?? ''
-            result.userInputWord2 = inputSplit[1] ?? ''
-            result.userInputWord3 = inputSplit[2] ?? ''
-            result.userInputWord4 = inputSplit[3] ?? ''
-            result.userInputWord5 = inputSplit[4] ?? ''
+            const inputWordsClone = Utils.clone(userData.inputWords)
+            result.userInput = userData.input
+            result.userInputHead = inputWordsClone.shift() ?? ''
+            result.userInputRest = inputWordsClone.join(' ')
+            result.userInputTail = inputWordsClone.pop() ?? ''
+            result.userInputNoTags = userData.input.replace(/@\w+/g, '')
+            result.userInputNumber = parseFloat(userData.input).toString()
+            result.userInputTag = Utils.getFirstUserTagInText(userData.input) ?? ''
+            result.userInputWord1 = userData.inputWords[0] ?? ''
+            result.userInputWord2 = userData.inputWords[1] ?? ''
+            result.userInputWord3 = userData.inputWords[2] ?? ''
+            result.userInputWord4 = userData.inputWords[3] ?? ''
+            result.userInputWord5 = userData.inputWords[4] ?? ''
         }
         return { ...result, ...StatesSingleton.getInstance().textTagCache }
     }

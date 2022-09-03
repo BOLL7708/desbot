@@ -203,13 +203,15 @@ export class Actions {
     public static async buildUserDataFromRedemptionMessage(key: TKeys, message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const id = message?.data?.redemption?.user?.id ?? ''
+        const input = message?.data?.redemption?.user_input ?? ''
         return {
             source: EEventSource.TwitchReward,
             eventKey: key,
             id: id,
             login: message?.data?.redemption?.user?.login ?? '',
             name: message?.data?.redemption?.user?.display_name ?? '',
-            input: message?.data?.redemption?.user_input ?? '',
+            input: input,
+            inputWords: input.split(' '),
             message: await Utils.cleanText(message?.data?.redemption?.user_input),
             color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
@@ -226,13 +228,15 @@ export class Actions {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.data?.user_name ?? '')
         const id = user?.id ?? ''
+        const input = message?.data?.chat_message ?? ''
         return {
             source: EEventSource.TwitchCheer,
             eventKey: key,
             id: id,
             login: user?.login ?? '',
             name: user?.display_name ?? '',
-            input: message?.data?.chat_message ?? '',
+            input: input,
+            inputWords: input.split(' '),
             message: await Utils.cleanText(message?.data?.chat_message),
             color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
@@ -248,13 +252,15 @@ export class Actions {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(message?.user_name ?? '')
         const id = user?.id ?? ''
+        const input = message?.sub_message.message ?? ''
         return {
             source: EEventSource.TwitchSubscription,
             eventKey: key,
             id: id,
             login: user?.login ?? '',
             name: user?.display_name ?? '',
-            input: message?.sub_message.message ?? '',
+            input: input,
+            inputWords: input.split(' '),
             message: await Utils.cleanText(message?.sub_message.message),
             color: await modules.twitchHelix.getUserColor(id) ?? '',
             isBroadcaster: false,
@@ -273,13 +279,15 @@ export class Actions {
     public static async buildEmptyUserData(source: EEventSource, key: TKeys, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const user = await modules.twitchHelix.getUserByLogin(userName ?? Config.twitch.channelName)
+        const input = userInput ?? ''
         return {
             source: source,
             eventKey: key ?? 'Unknown',
             id: user?.id ?? '',
             login: user?.login ?? '',
             name: user?.display_name ?? '',
-            input: userInput ?? '',
+            input: input,
+            inputWords: input.split(' '),
             message: await Utils.cleanText(userMessage ?? userInput),
             color: await modules.twitchHelix.getUserColor(user?.id ?? '') ?? '',
             isBroadcaster: true,

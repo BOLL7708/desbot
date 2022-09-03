@@ -132,6 +132,7 @@ export default class Twitch{
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? userName,
             input: '',
+            inputWords: [],
             message: await Utils.cleanText(messageCmd.message.text, Config.google.cleanTextConfig, TwitchFactory.getEmotePositions(messageCmd.properties.emotes ?? [])),
             color: messageCmd.properties?.color ?? '',
             isModerator: isModerator,
@@ -185,6 +186,7 @@ export default class Twitch{
             // Execute command
             if(command && commandStr && allowedRole) {
                 user.input = textStr
+                user.inputWords = textStr.split(' ')
                 user.source = EEventSource.TwitchCommand
                 this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 return
@@ -239,6 +241,7 @@ export default class Twitch{
             // Execute command
             if(command && commandStr && allowedUser) {
                 user.input = textStr
+                user.inputWords = textStr.split(' ')
                 user.source = EEventSource.TwitchRemoteCommand
                 this.handleCommand(command, user, this._remoteGlobalCooldowns, this._remoteUserCooldowns, false)
                 return

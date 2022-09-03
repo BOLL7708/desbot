@@ -94,7 +94,7 @@ export default class Pipe {
             }
             const textResult = await imageEditor.buildTwitchText(customMessageData, textRect, Config.pipe.customChatMessageConfig.font)
             const isOneRow = textResult.rowsDrawn == 1
-            const size = textResult.pixelHeight + margin * 2
+            const size = textResult.pixelHeight + margin * 2 // TODO: Increase this to avoid emojis clipping at top/bottom
 
             // Draw background
             const maxCanvasWidth = Config.pipe.customChatMessageConfig.width
