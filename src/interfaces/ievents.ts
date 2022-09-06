@@ -101,6 +101,11 @@ export interface IEventOptions {
      */
     rewardIgnoreAutomaticDiscordPosting?: boolean
     /**
+     * Optional: Merge the current reward config onto the first default config in the array.
+     */
+    rewardMergeUpdateConfigWithFirst?: boolean
+
+    /**
      * Optional: Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.
      */
     specificIndex?: number

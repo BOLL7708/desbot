@@ -77,7 +77,9 @@ export class ActionHandler {
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
                 if(rewardConfigs.length > 1) {
                     counter.count++
-                    const newRewardConfig = rewardConfigs[counter.count]
+                    const newRewardConfig = options.rewardMergeUpdateConfigWithFirst
+                        ? { ...rewardConfigs[0], ...rewardConfigs[counter.count] }
+                        : rewardConfigs[counter.count]
                     if (newRewardConfig) {
                         await Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', counter)
                         modules.twitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
@@ -104,7 +106,9 @@ export class ActionHandler {
                     rewardIndex = 1
                 }
                 if(rewardIndex > 0) { // Update reward
-                    const newRewardConfigClone = Utils.clone(rewardConfigs[rewardIndex])
+                    const newRewardConfigClone = options.rewardMergeUpdateConfigWithFirst
+                        ? Utils.clone({ ...rewardConfigs[0], ...rewardConfigs[rewardIndex] })
+                        : Utils.clone(rewardConfigs[rewardIndex])
                     if (newRewardConfigClone) {
                         await Settings.pushSetting(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', counter)
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
@@ -162,7 +166,9 @@ export class ActionHandler {
                     const newRewardConfigClone = Utils.clone(
                         rewardConfigs.length == 1
                             ? rewardConfigs[0]
-                            : rewardConfigs[multiTierCounter.count]
+                            : options.rewardMergeUpdateConfigWithFirst
+                                ? { ...rewardConfigs[0], ...rewardConfigs[multiTierCounter.count] }
+                                : rewardConfigs[multiTierCounter.count]
                     )
                     if (newRewardConfigClone) {
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)

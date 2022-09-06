@@ -66,8 +66,8 @@ export type TKeysTemplate =
     | 'EndStream'
     | 'ShoutOut'
     | 'Lurk'
-    | 'Widget'
-    | 'Wiki'
+    | 'WidgetLink'
+    | 'UserWikiLink'
 
     // Rewards
 

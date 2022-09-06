@@ -276,11 +276,6 @@ export default class Utils {
         // Default tags from incoming user data
         const tags = await this.getDefaultTags(userData)
 
-        // Accumulating reward percentage
-        tags.eventCountPercent = (tags.eventCount !== '0' && tags.eventGoal !== '0')
-            ? (parseInt(tags.eventCount) / parseInt(tags.eventGoal) * 100)+'%'
-            : '0%'
-
         // Game tags
         if(text.includes('%game')) {
             if(states.lastSteamAppId) {
@@ -343,6 +338,8 @@ export default class Utils {
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
+        const eventCount = (await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? 0
+        const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
 
         const userBits = (userData?.bits ?? 0) > 0
             ? userData?.bits?.toString() ?? '0'
@@ -352,6 +349,7 @@ export default class Utils {
             : cheers?.totalBits ?? '0'
 
         const result = <ITextTags> {
+            // region User
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
             userTag: `@${userData?.name}`,
@@ -370,7 +368,9 @@ export default class Utils {
             userSubsStreak: subs?.streakMonths ?? '0',
             userColor: userData?.color ?? '',
             userVoice: this.getVoiceString(voice),
+            // endregion
 
+            // region Target
             targetLogin: '',
             targetName: '',
             targetTag: '',
@@ -380,14 +380,18 @@ export default class Utils {
             targetLink: '',
             targetColor: '',
             targetVoice: '',
+            // endregion
 
+            // region Target or User
             targetOrUserLogin: '',
             targetOrUserName: '',
             targetOrUserTag: '',
             targetOrUserNick: '',
             targetOrUserColor: '',
             targetOrUserVoice: '',
+            // endregion
 
+            // region Game
             gameId: '',
             gamePrice: '',
             gameLink: '',
@@ -397,24 +401,35 @@ export default class Utils {
             gamePublisher: '',
             gameBanner: '',
             gameRelease: '',
+            // endregion
 
+            // region Time
             nowDate: now.toLocaleDateString('sv-SE'),
             nowTime: now.toLocaleTimeString('sv-SE'),
             nowTimeMs: now.toLocaleTimeString('sv-SE')+'.'+now.getMilliseconds(),
             nowDateTime: now.toLocaleString('sv-SE'),
             nowDateTimeMs: now.toLocaleString('sv-SE')+'.'+now.getMilliseconds(),
             nowISO: now.toISOString(),
+            // endregion
 
+            // region Accumulating reward
             eventKey: userData?.eventKey,
             eventCost: userData?.rewardCost ?? '0',
-            eventCount: (await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? '0',
-            eventGoal: eventConfig?.options?.accumulationGoal ?? '0',
+            eventCount: eventCount.toString(),
+            eventCountPercent: (eventCount !== 0 && eventGoal !== 0)
+                ? Math.round((eventCount / eventGoal) * 100)+'%'
+                : '0%',
+            eventGoal: eventGoal.toString(),
+            eventGoalShort: Utils.formatShortNumber(eventGoal, false),
+            // endregion
+
+            // region MultiTier reward
             eventLevel: eventLevel.toString(),
             eventLevelNext: (eventLevel+1).toString(),
             eventLevelMax: eventLevelMax.toString(),
-            eventLevelMaxShort: Utils.formatShortNumber(eventLevelMax),
             eventLevelProgress: `${eventLevel}/${eventLevelMax}`,
             eventLevelNextProgress: `${eventLevel+1}/${eventLevelMax}`
+            // endregion
         }
         if(typeof userData?.input === 'string') {
             const inputWordsClone = Utils.clone(userData.inputWords)

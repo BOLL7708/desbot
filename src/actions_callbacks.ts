@@ -327,6 +327,7 @@ export default class ActionsCallbacks {
                 let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
+                    user.eventKey = pair.key
                     const eventConfig = Utils.getEventConfig(pair.key)
                     const rewardSetup = eventConfig?.triggers?.reward
                     const config = Array.isArray(rewardSetup) ? rewardSetup[0] : rewardSetup
@@ -334,7 +335,7 @@ export default class ActionsCallbacks {
                         const configClone = Utils.clone(config)
                         configClone.title = await Utils.replaceTagsInText(configClone.title, user)
                         configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, user)
-                        const response = await modules.twitchHelix.updateReward(pair.id, config)
+                        const response = await modules.twitchHelix.updateReward(pair.id, configClone)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id
                             Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)

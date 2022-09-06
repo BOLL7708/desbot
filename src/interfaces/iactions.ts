@@ -251,10 +251,11 @@ export interface ITextTags extends ITextTagsCached{
     eventCount: string
     eventCountPercent: string
     eventGoal: string
+    eventGoalShort: string
+
     eventLevel: string
     eventLevelNext: string
     eventLevelMax: string
-    eventLevelMaxShort: string
     eventLevelProgress: string
     eventLevelNextProgress: string
 }
