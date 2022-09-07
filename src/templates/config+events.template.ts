@@ -76,7 +76,7 @@ Config.events = {
         actionsEntries: {
             speech: { entries: 'TTS enabled.' },
             tts: { function: ETTSFunction.Enable },
-            rewardStates: { 'TtsOn': { state: false } }
+            system: { toggleRewardStates: { 'Speak': { state: false } } }
         }
     },
     'TtsOff': {
@@ -89,7 +89,7 @@ Config.events = {
         actionsEntries: {
             speech: { entries: 'TTS disabled.' },
             tts: { function: ETTSFunction.Disable },
-            rewardStates: { 'Speak': { state: true } }
+            system: { toggleRewardStates: { 'Speak': { state: true } } }
         }
     },
     'Silence': {
