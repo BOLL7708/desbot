@@ -41,13 +41,7 @@ export default class Functions {
 		const states = StatesSingleton.getInstance()
 		states.lastSteamAppIsVR = isVr
 
-        /*
-        ..####....####...##..##..######..#####....####...##......##......######..#####...........######...####....####....####...##......######..##..##...####..
-        .##..##..##..##..###.##....##....##..##..##..##..##......##......##......##..##............##....##..##..##......##......##........##....###.##..##.....
-        .##......##..##..##.###....##....#####...##..##..##......##......####....#####.............##....##..##..##.###..##.###..##........##....##.###..##.###.
-        .##..##..##..##..##..##....##....##..##..##..##..##......##......##......##..##............##....##..##..##..##..##..##..##........##....##..##..##..##.
-        ..####....####...##..##....##....##..##...####...######..######..######..##..##............##.....####....####....####...######..######..##..##...####..
-        */
+        // region Controller Options Toggling
 
         // Skip if it's the last app ID again.
         if(appId.length > 0) {
@@ -64,7 +58,6 @@ export default class Functions {
 			/**
 			 * Controller defaults loading, various settings including TTS etc.
 			 */
-
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
             let combinedSettings = Config.controller.defaults
             if(controllerGameDefaults) {
@@ -87,6 +80,7 @@ export default class Functions {
             states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards ?? false // OBS: Running the command for this will create infinite loop.
             states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory ?? false
         }
+        // endregion
 
         // region Update Event Options
         const eventOptions = Config.twitch.eventOptionsPerGame[appId] ?? {}
@@ -121,13 +115,7 @@ export default class Functions {
         }
         // endregion
 
-		/*
-		.#####...######..##...##...####...#####...#####...........######...####....####....####...##......######..##..##...####..
-		.##..##..##......##...##..##..##..##..##..##..##............##....##..##..##......##......##........##....###.##..##.....
-		.#####...####....##.#.##..######..#####...##..##............##....##..##..##.###..##.###..##........##....##.###..##.###.
-		.##..##..##......#######..##..##..##..##..##..##............##....##..##..##..##..##..##..##........##....##..##..##..##.
-		.##..##..######...##.##...##..##..##..##..#####.............##.....####....####....####...######..######..##..##...####..
-		*/
+        // region Reward Toggling
 
 		/**
          * Check if LIV is running, this will toggle rewards in that callback.
@@ -206,21 +194,8 @@ export default class Functions {
                     ...rewardConfig,
                     ...{is_enabled: true}
                 }).then()
-                const newEvent = Utils.clone(event)
-                if(event.actionsEntries && defaultEvent.actionsEntries) {
-                    const newActions = []
-                    const defaultActions = Utils.ensureArray(defaultEvent.actionsEntries ?? {})
-                    const thisActions = Utils.ensureArray(thisEvent.actionsEntries ?? {})
-                    for(let i=0; i<Math.max(defaultActions.length, thisActions.length); i++) {
-                        newActions[i] = {
-                            ...(defaultActions[i] ?? {}),
-                            ...(thisActions[i] ?? {})
-                        }
-                        newEvent.actionsEntries = newActions
-                    }
-                }
                 // Update game reward actions
-                Actions.registerReward(key, newEvent).then()
+                Actions.registerReward(key, appId).then()
             }
         }
 
@@ -235,6 +210,10 @@ export default class Functions {
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
         modules.twitchHelix.toggleRewards(profileToUse).then()
+
+        // endregion
+
+        // region Misc
 
 		/*
 		.##...##..######...####....####..
@@ -294,6 +273,7 @@ export default class Functions {
                 Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)
             }
         }
+        // endregion
     }
 
     /*

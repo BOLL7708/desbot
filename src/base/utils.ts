@@ -654,8 +654,14 @@ export default class Utils {
         return Config.events[key] ?? undefined
     }
 
-    static getEventsForGame(gameId: string): IEventsConfig|undefined {
-        return Config.eventsForGames[gameId]
+    static getEventForGame(key: TKeys, appId: string): IEvent|undefined {
+        const events = this.getEventsForGame(appId)
+        if(events) return events[key]
+        else return undefined
+    }
+
+    static getEventsForGame(appId: string): IEventsConfig|undefined {
+        return Config.eventsForGames[appId]
     }
 
     static removeLastPart(splitOn: string, text: string|undefined): string {

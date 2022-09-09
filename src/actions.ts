@@ -46,10 +46,32 @@ import ActionsCallbacks from './actions_callbacks.js'
 
 export class ActionHandler {
     constructor(
-        public key: TKeys
+        public key: TKeys,
+        public appId: string = ''
     ) {}
     public async call(user: IActionUser) {
-        const event = Utils.getEventConfig(this.key)
+        let event = Utils.getEventConfig(this.key)
+        if(this.appId.length > 0) {
+            const gameEvent = Utils.getEventForGame(this.key, this.appId)
+            if(gameEvent) {
+                event = gameEvent
+            }
+
+            const newEvent = Utils.clone(event)
+            if(gameEvent?.actionsEntries && event?.actionsEntries) {
+                const newActions = []
+                const defaultActions = Utils.ensureArray(event.actionsEntries ?? {})
+                const thisActions = Utils.ensureArray(gameEvent.actionsEntries ?? {})
+                for(let i=0; i<Math.max(defaultActions.length, thisActions.length); i++) {
+                    newActions[i] = {
+                        ...(defaultActions[i] ?? {}),
+                        ...(thisActions[i] ?? {})
+                    }
+                    if(newEvent) newEvent.actionsEntries = newActions
+                }
+            }
+            event = newEvent
+        }
         const options = event?.options ?? {}
         const actionsEntries = Utils.ensureArray(event?.actionsEntries)
         let actionsMainCallback: IActionsMainCallback
@@ -195,12 +217,12 @@ export class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
         for(const [key, event] of Object.entries(Config.events) as [TKeys, IEvent][]) {
-            if(event.triggers.reward) await this.registerReward(key, event)
-            if(event.triggers.command) await this.registerCommand(key, event)
-            if(event.triggers.remoteCommand) await this.registerRemoteCommand(key, event)
-            if(event.triggers.cheer) await this.registerCheer(key, event)
-            if(event.triggers.timer) await this.registerTimer(key, event)
-            if(event.triggers.relay) await this.registerRelay(key, event)
+            if(event.triggers.reward) await this.registerReward(key)
+            if(event.triggers.command) await this.registerCommand(key)
+            if(event.triggers.remoteCommand) await this.registerRemoteCommand(key)
+            if(event.triggers.cheer) await this.registerCheer(key)
+            if(event.triggers.timer) await this.registerTimer(key)
+            if(event.triggers.relay) await this.registerRelay(key)
         }
     }
 
@@ -307,9 +329,9 @@ export class Actions {
     // endregion
 
     // region Trigger Registration
-    public static async registerReward(key: TKeys, event: IEvent) {
+    public static async registerReward(key: TKeys, appId: string = '') {
         const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(key)
+        const actionHandler = new ActionHandler(key, appId)
         const reward: ITwitchReward = {
             id: await Utils.getRewardId(key),
             handler: actionHandler
@@ -321,8 +343,9 @@ export class Actions {
         }
     }
 
-    private static async registerCommand(key: TKeys, event: IEvent) {
+    private static async registerCommand(key: TKeys) {
         const modules = ModulesSingleton.getInstance()
+        const event = Utils.getEventConfig(key)
         let command = event?.triggers.command
         if(command) {
             const triggers = Utils.ensureArray(command.entries)
@@ -331,7 +354,7 @@ export class Actions {
                 const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
-                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.command, trigger: trigger }
+                const useThisCommand = <ITwitchCommandConfig> {...(event?.triggers.command ?? {}), trigger: trigger }
                 if(command?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
                 else if(command?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
                 else useThisCommand.handler = actionHandler
@@ -340,8 +363,9 @@ export class Actions {
         }
     }
 
-    private static async registerRemoteCommand(key: TKeys, event: IEvent) {
-        const modules = ModulesSingleton.getInstance()        
+    private static async registerRemoteCommand(key: TKeys) {
+        const modules = ModulesSingleton.getInstance()
+        const event = Utils.getEventConfig(key)
         const remoteCommand = event?.triggers.remoteCommand
         if(remoteCommand) {
             const triggers = Utils.ensureArray(remoteCommand.entries)
@@ -359,11 +383,12 @@ export class Actions {
         }
     }
 
-    private static async registerCheer(key: TKeys, event: IEvent) {
+    private static async registerCheer(key: TKeys) {
         const modules = ModulesSingleton.getInstance()
         const actionHandler = new ActionHandler(key)
+        const event = Utils.getEventConfig(key)
         const cheer: ITwitchCheer = {
-            bits: event.triggers.cheer ?? 0,
+            bits: event?.triggers.cheer ?? 0,
             handler: actionHandler
         }
         if(cheer.bits > 0) {
@@ -373,10 +398,11 @@ export class Actions {
         }
     }
 
-    private static async registerTimer(key: TKeys, event: IEvent) {
+    private static async registerTimer(key: TKeys) {
         const actionHandler = new ActionHandler(key)
         const user = await this.buildEmptyUserData(EEventSource.Timer, key)
-        const config = event.triggers.timer
+        const event = Utils.getEventConfig(key)
+        const config = event?.triggers.timer
         let handle: number = -1
         let count = 0
         const times = config?.times ?? 0
@@ -393,9 +419,10 @@ export class Actions {
         }, delay*1000)
     }
 
-    private static async registerRelay(key: TKeys, event: IEvent) {
+    private static async registerRelay(key: TKeys) {
+        const event = Utils.getEventConfig(key)
         const relay: IOpenVR2WSRelay = {
-            key: <TKeys> Utils.replaceTags(event.triggers.relay ?? 'Unknown', {eventKey: key}),
+            key: <TKeys> Utils.replaceTags(event?.triggers.relay ?? 'Unknown', {eventKey: key}),
             handler: new ActionHandler(key)
         }
         if(relay.key.length > 0) {
