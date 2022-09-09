@@ -143,4 +143,10 @@ class Utils {
         $context = stream_context_create($options);
         return file_get_contents($url, false, $context);
     }
+
+    static function exitWithError(string $message, int $code = -1) {
+        header('Content-Type: application/json; charset=utf-8');
+        http_response_code(400);
+        exit(json_encode(['error'=>$message, 'code'=>$code]));
+    }
 }
