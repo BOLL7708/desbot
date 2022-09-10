@@ -13,10 +13,9 @@ import {
 } from '../interfaces/itwitch_helix.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
-import {ITwitchRedemption, ITwitchRewardPair} from '../interfaces/isettings.js'
 import {ITwitchTokens} from '../interfaces/itwitch.js'
 import Utils from '../base/utils.js'
-import Settings from './settings.js'
+import Settings, {SettingTwitchRedemption, SettingTwitchRewardPair} from './settings.js'
 import {TKeys} from '../_data/!keys.js'
 
 export default class TwitchHelix {
@@ -253,9 +252,9 @@ export default class TwitchHelix {
         return response != null && response.status == 204
     }
 
-    async updateRedemption(redemption: ITwitchRedemption):Promise<boolean> {
+    async updateRedemption(redemption: SettingTwitchRedemption):Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#update-redemption-status
-        const rewardPair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.rewardId)
+        const rewardPair = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.rewardId)
         if(rewardPair) {
             const eventConfig = Utils.getEventConfig(rewardPair.key)
             if(eventConfig && eventConfig.options?.rewardIgnoreClearRedemptionsCommand === true) {

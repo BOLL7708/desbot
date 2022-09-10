@@ -1,7 +1,7 @@
-import {IDictionaryEntry} from '../interfaces/isettings.js'
 import Utils from '../base/utils.js'
 import Config from '../statics/config.js'
 import {IGoogleAudio} from '../interfaces/igoogle.js'
+import {SettingDictionaryEntry} from './settings.js'
 
 export default class Dictionary {
     private static SSMLEscapeSymbols: { [x:string]: string } = {
@@ -34,7 +34,7 @@ export default class Dictionary {
      * @param dictionary New entries for the dictionary.
      * @param clearExisting If true, will clear the existing dictionary.
      */
-    public set(dictionary?: IDictionaryEntry[], clearExisting = false): void {
+    public set(dictionary?: SettingDictionaryEntry[], clearExisting = false): void {
         if(clearExisting) this._dictionary.clear()
         if(dictionary) {
             for(const pair of dictionary) {

@@ -2,8 +2,7 @@ import Config from '../statics/config.js'
 import StatesSingleton from './states_singleton.js'
 import ModulesSingleton from '../modules_singleton.js'
 import {TKeys} from '../_data/!keys.js'
-import Settings from '../modules/settings.js'
-import {IEventCounter, ITwitchRewardPair, IUserName, IUserVoice} from '../interfaces/isettings.js'
+import Settings, {SettingEventCounter, SettingTwitchRewardPair, SettingUserName, SettingUserVoice} from '../modules/settings.js'
 import {IActionUser, ITextTags} from '../interfaces/iactions.js'
 import SteamStore from '../modules/steam_store.js'
 import {ITwitchCheerSetting, ITwitchSubSetting} from '../interfaces/itwitch_pubsub.js'
@@ -18,7 +17,7 @@ export default class Utils {
     }
 
     static async loadCleanName(userName:string):Promise<string> {
-        let cleanNameSetting = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userName)
+        let cleanNameSetting = await Settings.pullSetting<SettingUserName>(Settings.TTS_USER_NAMES, 'userName', userName)
         let cleanName = cleanNameSetting?.shortName
         if(cleanName == null) {
             cleanName = this.cleanName(userName)
@@ -304,7 +303,7 @@ export default class Utils {
             // If we have a possible login, get the user data, if they exist
             const channelData = await modules.twitchHelix.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', channelData.broadcaster_login)
+                const voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', channelData.broadcaster_login)
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
                 tags.targetTag = `@${channelData.broadcaster_name}`
@@ -332,13 +331,13 @@ export default class Utils {
         const states = StatesSingleton.getInstance()
         const subs = await Settings.pullSetting<ITwitchSubSetting>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
         const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
-        const voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
+        const voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
-        const eventCount = (await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? 0
+        const eventCount = (await Settings.pullSetting<SettingEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? 0
         const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
 
         const userBits = (userData?.bits ?? 0) > 0
@@ -449,7 +448,7 @@ export default class Utils {
         return { ...result, ...StatesSingleton.getInstance().textTagCache }
     }
 
-    static getVoiceString(voiceData: IUserVoice|undefined): string {
+    static getVoiceString(voiceData: SettingUserVoice|undefined): string {
         const voiceName = voiceData?.voiceName ?? ''
         if(voiceData) {
             return voiceName.length == 0
@@ -519,11 +518,11 @@ export default class Utils {
     }
 
     static async getRewardId(key: TKeys): Promise<string|undefined> {
-        const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
+        const reward = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
         return reward?.id
     }
     static async getRewardKey(id: string): Promise<TKeys|undefined> {
-        const reward = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
+        const reward = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
         return reward?.key
     }
     static encode(value: string): string {

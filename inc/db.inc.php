@@ -8,13 +8,13 @@ class DB {
     }
     // endregion
 
-    // region DataBase
+    // region General Database Functions
     private mysqli $mysqli;
     public function __construct()
     {
         $this->mysqli = new mysqli('localhost', 'root', '', 'streaming_widget');
         $connectionError = $this->mysqli->connect_error;
-        if($connectionError) DBUtils::exitWithError($connectionError, 1001);
+        if($connectionError) Utils::exitWithError($connectionError, 1001);
     }
 
     /**
@@ -25,7 +25,7 @@ class DB {
     private function query(string $query, array $params = []):array|bool {
         $stmt = $this->mysqli->prepare($query);
         if(!empty($params)) {
-            $types = DBUtils::getParamTypes($params);
+            $types = self::getParamTypes($params);
             $stmt->bind_param($types, ...$params);
         }
         $executeBool = $stmt->execute();
@@ -36,52 +36,48 @@ class DB {
 
         // Array output
         $output = [];
-        while ($row = $result->fetch_assoc()) $output[] = json_decode($row['data']);
+        while ($row = $result->fetch_assoc()) $output[] = json_decode($row['dataJson']);
         return $output;
     }
     // endregion
 
     // region Settings
     /**
-     * Save a setting, optional to have sub-category and/or user ID.
-     * @param string $category
-     * @param string|null $subcategory
-     * @param int|null $userId
-     * @param string $jsonStr
-     * @param bool $update
+     * Save a setting, use subcategory and key if you want to be able to update it too.
+     * @param string $groupClass
+     * @param string|null $groupKey
+     * @param string $dataJson
      * @return bool If saving was successful or not.
      */
-    function saveSetting(string $category, string|null $subcategory, int|null $userId, string $jsonStr, bool $update = false): bool {
-        $params = $update
-            ? [$jsonStr, $category, $subcategory, $userId]
-            : [$category, $subcategory, $userId, $jsonStr];
-        return $update
-            ? $this->query("UPDATE settings SET data=? WHERE category=? AND subcategory=? AND userId=?;", $params)
-            : $this->query("INSERT INTO settings (category, subcategory, userId, data) VALUES (?, ?, ?, ?);", $params);
+    function saveSetting(
+        string      $groupClass,
+        string|null $groupKey,
+        string      $dataJson
+    ): bool {
+        return $this->query("
+            INSERT INTO settings (groupClass, groupKey, dataJson) VALUES (?, ?, ?)
+            ON DUPLICATE KEY
+            UPDATE dataJson = ?;
+        ", [$groupClass, $groupKey, $dataJson, $dataJson]);
     }
 
     /**
-     * Get all settings for a category and optional subcategory.
-     * @param string $category
-     * @param string|null $subcategory
+     * Get settings
+     * @param string $groupClass Class for the setting for the setting.
+     * @param string|null $groupKey Supply this to get one specific entry.
      * @return array
      */
-    function getSettings(string $category, string|null $subcategory): array {
-        return $subcategory == null
-            ? $this->query("SELECT data FROM settings WHERE category = ?", [$category])
-            : $this->query("SELECT data FROM settings WHERE category = ? AND subcategory = ?", [$category, $subcategory]);
-    }
-    /**
-     * Get single setting for a user
-     * @param string $category Main category for the setting
-     * @param string|null $subcategory Sub-category for the setting
-     * @param int $userId The user ID to get the setting for
-     * @return array
-     */
-    function getSetting(string $category, string|null $subcategory, int $userId): array {
-        return $subcategory == null
-            ? $this->query("SELECT data FROM settings WHERE category = ? AND userId = ?",[$category, $userId])
-            : $this->query("SELECT data FROM settings WHERE category = ? AND subcategory = ? AND userId = ?", [$category, $subcategory, $userId]);
+    function getSettings(
+        string      $groupClass,
+        string|null $groupKey)
+    : array {
+        $query = "SELECT * FROM settings WHERE groupClass = ?";
+        $params = [$groupClass];
+        if($groupKey) {
+            $query .= " AND groupKey = ?;";
+            $params[] = $groupKey;
+        }
+        return $this->query($query, $params);
     }
     // endregion
 
@@ -90,12 +86,9 @@ class DB {
 
     }
     // endregion
-}
 
-class DBUtils {
-
-
-    static function getParamTypes(array $values): string {
+    // region Helper Functions
+    private function getParamTypes(array $values): string {
         $result = [];
         foreach($values as $value) {
             if(is_bool($value) || is_int($value)) $result[] = 'i';
@@ -105,4 +98,15 @@ class DBUtils {
         }
         return implode('', $result);
     }
+
+    public function output(bool|array|stdClass $output): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(
+            is_bool($output)
+                ? ['result'=>$output]
+                : $output
+        );
+    }
+    // endregion
 }

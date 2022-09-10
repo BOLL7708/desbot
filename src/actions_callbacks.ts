@@ -5,15 +5,13 @@ import Config from './statics/config.js'
 import Functions from './functions.js'
 import Utils from './base/utils.js'
 import SteamStore from './modules/steam_store.js'
-import Settings from './modules/settings.js'
-import {
-    IChannelTrophyStat,
-    IEventCounter,
-    IStreamQuote,
-    ITwitchClip,
-    ITwitchRedemption,
-    ITwitchRewardPair
-} from './interfaces/isettings.js'
+import Settings, {
+    SettingChannelTrophyStat,
+    SettingEventCounter,
+    SettingStreamQuote, SettingTwitchClip,
+    SettingTwitchRedemption,
+    SettingTwitchRewardPair
+} from './modules/settings.js'
 import Color from './statics/colors.js'
 import {ETTSType} from './base/enums.js'
 import OpenVR2WS from './modules/openvr2ws.js'
@@ -105,7 +103,7 @@ export default class ActionsCallbacks {
                     if(userTag.length > 0) {
                         await Settings.appendSetting(
                             Settings.QUOTES,
-                            <IStreamQuote> {
+                            <SettingStreamQuote> {
                                 submitter: user.login,
                                 author: cleanLogin,
                                 quote: quote,
@@ -124,7 +122,7 @@ export default class ActionsCallbacks {
                     } else Utils.log(`Could not find user: ${userTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
-                    const quotes = Settings.getFullSettings<IStreamQuote>(Settings.QUOTES)
+                    const quotes = Settings.getFullSettings<SettingStreamQuote>(Settings.QUOTES)
                     const quote = Utils.randomFromArray(quotes)
                     if(quote) {
                         const date = new Date(quote.datetime)
@@ -324,7 +322,7 @@ export default class ActionsCallbacks {
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
+                let storedRewards = Settings.getFullSettings<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS)
                 if(storedRewards == undefined) storedRewards = []
                 for(const pair of storedRewards) {
                     user.eventKey = pair.key
@@ -342,7 +340,7 @@ export default class ActionsCallbacks {
 
                             // If update was successful, also reset incremental setting as the reward should have been reset.
                             if(Array.isArray(rewardSetup)) {
-                                const reset: IEventCounter = {key: pair.key, count: 0}
+                                const reset: SettingEventCounter = {key: pair.key, count: 0}
                                 Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', reset)
                             }
                         } else {
@@ -384,7 +382,7 @@ export default class ActionsCallbacks {
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = Settings.getFullSettings<ITwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
+                const redemptions = Settings.getFullSettings<SettingTwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
                 const userName = Utils.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
@@ -415,7 +413,7 @@ export default class ActionsCallbacks {
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = Settings.getFullSettings<ITwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
+                const redemptions = Settings.getFullSettings<SettingTwitchRedemption>(Settings.TWITCH_REWARD_REDEMPTIONS)
                 const speech = Config.controller.speechReferences['ClearRedemptions'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
                 const unfulfilledRedemptions = redemptions?.filter(
@@ -423,7 +421,7 @@ export default class ActionsCallbacks {
                 )
                 if(unfulfilledRedemptions && unfulfilledRedemptions.length > 0) {
                     let clearCount = 0
-                    const leftoverRedemptions: ITwitchRedemption[] = []
+                    const leftoverRedemptions: SettingTwitchRedemption[] = []
                     for(const redemption of unfulfilledRedemptions) {
                         const redemptionClone = Utils.clone(redemption)
                         redemptionClone.status = 'FULFILLED'
@@ -450,7 +448,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
 
                 // Save stat
-                const row: IChannelTrophyStat = {
+                const row: SettingChannelTrophyStat = {
                     userId: user.id,
                     index: user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream,
                     cost: user.rewardMessage?.data?.redemption.reward.cost.toString() ?? '0'
@@ -542,10 +540,10 @@ export default class ActionsCallbacks {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the base reward, we update it as any normal reward, using !update.
-                            const current = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
+                            const current = await Settings.pullSetting<SettingEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                                const reset: IEventCounter = {key: key, count: 0}
+                                const reset: SettingEventCounter = {key: key, count: 0}
                                 await Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', reset)
                                 await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
@@ -586,10 +584,10 @@ export default class ActionsCallbacks {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the base reward, we update it as any normal reward, using !update.
-                            const current = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', key)
+                            const current = await Settings.pullSetting<SettingEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
-                                const reset: IEventCounter = {key: key, count: 0}
+                                const reset: SettingEventCounter = {key: key, count: 0}
                                 await Settings.pushSetting(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', reset)
                                 await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
@@ -765,7 +763,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const pageCount = 20
                 let lastCount = pageCount
-                const oldClips = await Settings.getFullSettings<ITwitchClip>(Settings.TWITCH_CLIPS)
+                const oldClips = await Settings.getFullSettings<SettingTwitchClip>(Settings.TWITCH_CLIPS)
                 const speech = Config.controller.speechReferences['Clips'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
 

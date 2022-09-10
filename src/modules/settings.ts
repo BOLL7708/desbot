@@ -1,5 +1,7 @@
 import Utils from '../base/utils.js'
 import Config from '../statics/config.js'
+import {TKeys} from '../_data/!keys.js'
+import {TTwitchRedemptionStatus} from '../interfaces/itwitch_pubsub.js'
 
 export default class Settings {
     static CHANNEL_TROPHY_LABEL: string = 'channel_trophy_label.txt'
@@ -28,9 +30,79 @@ export default class Settings {
     private static _cacheWriteIntervalHandle: number = -1
 
     /**
+     * Load settings from the database.
+     * @param groupClass Main class to load settings for.
+     * @param groupKey Supply a value for this to get one specific post.
+     * @param ignoreCache Will ignore the memory cache.
+     */
+    static async loadSettingsDB<T>(groupClass: string, groupKey?: string, ignoreCache: boolean = false): Promise<T[]|T|undefined> {
+        if(!ignoreCache && this._settingsStore.has(groupClass)) {
+            return <T[]> this._settingsStore.get(groupClass)
+        }
+        let url = this.getUrlDB(groupClass)
+        if(groupKey) url += `&groupKey=${groupKey}`
+        const response = await fetch(url, {
+            headers: this.getAuthHeaderDB()
+        })
+        const result: T[]|T|undefined = response.ok ? await response.json() : undefined
+
+        // TODO: Handle getting single settings
+        if(result) {
+            if(Array.isArray(result)) {
+                this._settingsStore.set(groupClass, result)
+            } else {
+                const currentSettings = this._settingsStore.get(groupClass)
+                // TODO: Change the cache to be a record or something, so we can reference things on the groupKey.
+                // TODO: Then save single items referenced on the key... I guess? 
+                // TODO: Not sure how it would work for the arrays that come for multiple items though.
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Save a setting to the database.
+     * @param setting
+     * @param groupKey
+     */
+    static async saveSettingDB<T>(setting: T&Object, groupKey?: string): Promise<boolean> {
+        let url = this.getUrlDB(setting.constructor.name)
+        if(groupKey) url += `&groupKey=${groupKey}`
+        const response = await fetch(url, {
+            headers: this.getAuthHeaderDB(true),
+            method: 'POST',
+            body: JSON.stringify(setting)
+        })
+        return response.ok
+    }
+
+    /**
+     * Returns the relative path to the settings file
+     * @param groupClass Main category to load.
+     * @returns
+     */
+    private static getUrlDB(groupClass: string): string {
+        return `./settings_db.php?groupClass=${groupClass}`
+    }
+
+    /**
+     * Get authorization header with optional JSON content type.
+     * @param addJsonHeader
+     * @private
+     */
+    private static getAuthHeaderDB(addJsonHeader: boolean = false): HeadersInit {
+        const headers = new Headers()
+        headers.set('Authorization', 'Password ' + Utils.encode(Config.credentials.PHPPassword))
+        if (addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
+        return headers
+    }
+
+    /**
      * Will load settings off disk, to an in-memory cache, that will be used next time.
      * @param setting Key for the settings file that will be loaded.
-     * @returns 
+     * @param ignoreCache Will get the value from the local cache and ignore the database.
+     * @returns
      */
     static async loadSettings<T>(setting:string, ignoreCache:boolean = false):Promise<T[]|undefined> {
         if(!ignoreCache && this._settingsStore.has(setting)) {
@@ -170,4 +242,55 @@ export default class Settings {
     public static getPathFromKey(setting: string, key:string):string {
         return setting+(key.replace(/\./g, '_'))
     }
+}
+
+// Settings
+export class SettingUserVoice {
+    userName: string = ''
+    languageCode: string = ''
+    voiceName: string = ''
+    gender: string = ''
+}
+export class SettingUserName {
+    userName: string = ''
+    shortName: string = ''
+    editor: string = ''
+    datetime: string = ''
+}
+export class SettingDictionaryEntry {
+    original: string = ''
+    substitute: string = ''
+    editor: string = ''
+    datetime: string = ''
+}
+export class SettingTwitchRewardPair {
+    key: TKeys = 'Unknown'
+    id: string = ''
+}
+export class SettingChannelTrophyStat {
+    userId: string = ''
+    index: string = ''
+    cost: string = ''
+}
+export class SettingTwitchClip {
+    id: string = ''
+}
+export class SettingStreamQuote {
+    submitter: string = ''
+    author: string = ''
+    quote: string = ''
+    datetime: string = ''
+    game: string = ''
+}
+export class SettingTwitchRedemption {
+    userId: string = ''
+    rewardId: string = ''
+    redemptionId: string = ''
+    time: string = ''
+    status: TTwitchRedemptionStatus = 'UNFULFILLED'
+    cost: string = ''
+}
+export class SettingEventCounter {
+    key: string = ''
+    count: number = 0
 }

@@ -1,60 +1,42 @@
 <?php
+// Init
 include_once './init.php';
 $db = DB::get();
 
+// Auth
+$authorization = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? null;
+$config = include_once('./_configs/config.php');
+$authParts = explode(' ', $authorization) ?? [];
+$password = array_pop($authParts);
+$isAuthed = $config->password == Utils::decode($password);
+if(!$authorization || !$isAuthed) {
+    Utils::exitWithError('unauthorized');
+}
+
 // Parameters
-$category = $_GET['category'] ?? null;
-$subcategory = $_GET['subcategory'] ?? null;
-$userId = $_GET['userId'] ?? null;
-if(!$category) DBUtils::exitWithError('category was not supplied in request');
+$isPost = $_SERVER['REQUEST_METHOD'] == 'POST';
+$groupClass = $_GET['class'] ?? $_GET['groupClass'] ?? null;
+if(!$groupClass) Utils::exitWithError('group class was not supplied in request');
+$groupKey = $_GET['key'] ?? $_GET['groupKey'] ?? null;
+$dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 
 // Execute
 $output = null;
-switch($_SERVER['REQUEST_METHOD']) {
-    case 'POST':
-        $payload = file_get_contents('php://input');
-        $output = $db->saveSetting(
-            $category,
-            $subcategory,
-            intval($userId) ?? null,
-            $payload
-        );
-        break;
-    case 'PUT':
-        $payload = file_get_contents('php://input');
-        $output = $db->saveSetting(
-            $category,
-            $subcategory,
-            intval($userId) ?? null,
-            $payload,
-            true
-        );
-        break;
-    default:
-        if($userId) {
-            $output = $db->getSetting(
-                $category,
-                $subcategory,
-                $userId
-            );
-        } else {
-            $output = $db->getSettings(
-                $category,
-                $subcategory
-            );
-        }
-        break;
-}
-if($_SERVER['REQUEST_METHOD'] === 'POST') {
-
+if($isPost) {
+    $output = $db->saveSetting(
+        $groupClass,
+        $groupKey,
+        $dataJson
+    );
 } else {
-
+    $output = $db->getSettings(
+        $groupClass,
+        $groupKey
+    );
+    if($groupKey) {
+        $output = array_pop($output);
+    }
 }
 
 // Output
-header('Content-Type: application/json; charset=utf-8');
-echo json_encode(
-    is_bool($output)
-        ? ['result'=>$output]
-        : $output
-);
+$db->output($output);

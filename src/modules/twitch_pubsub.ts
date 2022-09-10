@@ -12,10 +12,9 @@ import {
 import {Actions} from '../actions.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
-import {ITwitchRedemption} from '../interfaces/isettings.js'
 import WebSockets from './websockets.js'
 import Utils from '../base/utils.js'
-import Settings from './settings.js'
+import Settings, {SettingTwitchRedemption} from './settings.js'
 
 export default class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
@@ -102,7 +101,7 @@ export default class TwitchPubsub {
                                 const id = rewardMessage?.data?.redemption?.reward?.id ?? null
                                 const redemption = rewardMessage?.data?.redemption
                                 if(redemption && redemption.status == 'UNFULFILLED') {
-                                    const redemptionStatus: ITwitchRedemption = {
+                                    const redemptionStatus: SettingTwitchRedemption = {
                                         userId: redemption.user?.id,
                                         rewardId: redemption.reward?.id,
                                         redemptionId: redemption.id,

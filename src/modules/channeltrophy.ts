@@ -1,14 +1,13 @@
 import TwitchHelix from './twitch_helix.js'
 import Utils from '../base/utils.js'
 import Config from '../statics/config.js'
-import {IChannelTrophyStat} from '../interfaces/isettings.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../interfaces/idiscord.js'
-import Settings from './settings.js'
+import Settings, {SettingChannelTrophyStat} from './settings.js'
 
 export default class ChannelTrophy {
     static async getNumberOfStreams():Promise<number> {
         await Settings.loadSettings(Settings.CHANNEL_TROPHY_STATS, true)
-        const stats = Settings.getFullSettings<IChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
+        const stats = Settings.getFullSettings<SettingChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
         stats.forEach(stat => {
@@ -21,7 +20,7 @@ export default class ChannelTrophy {
 
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
         await Settings.loadSettings(Settings.CHANNEL_TROPHY_STATS, true)
-        const stats = Settings.getFullSettings<IChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
+        const stats = Settings.getFullSettings<SettingChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
 
         /* GENERATE DATA */
 

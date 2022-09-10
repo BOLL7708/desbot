@@ -1,5 +1,4 @@
 import Dictionary from './dictionary.js'
-import {IDictionaryEntry, IUserVoice} from '../interfaces/isettings.js'
 import {ETTSType} from '../base/enums.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
@@ -10,7 +9,7 @@ import {IGoogleVoice} from '../interfaces/igoogle.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
 import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
 import Utils from '../base/utils.js'
-import Settings from './settings.js'
+import Settings, {SettingDictionaryEntry, SettingUserVoice} from './settings.js'
 
 export default class GoogleTTS {
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
@@ -80,7 +79,7 @@ export default class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    setDictionary(dictionary: IDictionaryEntry[]) {
+    setDictionary(dictionary: SettingDictionaryEntry[]) {
         if(dictionary != null) this._dictionary.set(dictionary)
     }
     /**
@@ -121,7 +120,7 @@ export default class GoogleTTS {
             console.error("GoogleTTS: Sentence text was null or empty")
             return 
         }
-        let voice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', sentence.userName)
+        let voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', sentence.userName)
         if(voice == null) {
             voice = await this.getDefaultVoice(sentence.userName)
             Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
@@ -219,7 +218,7 @@ export default class GoogleTTS {
 
     async setVoiceForUser(userName:string, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let loadedVoice = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', userName)
+        let loadedVoice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', userName)
         const defaultVoice = await this.getDefaultVoice(userName)
         let voice = defaultVoice
         if(loadedVoice != null) voice = loadedVoice
@@ -322,7 +321,7 @@ export default class GoogleTTS {
         } else return true
     }
 
-    private async getDefaultVoice(userName:string):Promise<IUserVoice> {
+    private async getDefaultVoice(userName:string):Promise<SettingUserVoice> {
         await this.loadVoicesAndLanguages() // Fills caches
         let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == Config.google.defaultVoice)
         let randomVoice: IGoogleVoice|undefined = this._randomVoices.length > 0
@@ -333,7 +332,7 @@ export default class GoogleTTS {
             : this.buildVoice(userName, defaultVoice)
     }
 
-    private buildVoice(userName: string, voice: IGoogleVoice|undefined):IUserVoice {
+    private buildVoice(userName: string, voice: IGoogleVoice|undefined):SettingUserVoice {
         return {
             userName: userName,
             languageCode: voice?.languageCodes.shift() ?? 'en-US',
