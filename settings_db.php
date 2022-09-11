@@ -5,7 +5,7 @@ $db = DB::get();
 
 // Auth
 $authorization = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? null;
-$config = include_once('./_configs/config.php');
+$config = Config::get();
 $authParts = explode(' ', $authorization) ?? [];
 $password = array_pop($authParts);
 $isAuthed = $config->password == Utils::decode($password);

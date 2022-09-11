@@ -20,9 +20,9 @@ class DB {
     /**
      * @param string $query
      * @param array $params
-     * @return array|bool Array if there are rows, bool otherwise.
+     * @return stdClass|bool Array if there are rows, bool otherwise.
      */
-    private function query(string $query, array $params = []):array|bool {
+    private function query(string $query, array $params = []):stdClass|bool {
         $stmt = $this->mysqli->prepare($query);
         if(!empty($params)) {
             $types = self::getParamTypes($params);
@@ -35,8 +35,16 @@ class DB {
         if(is_bool($result)) return $executeBool;
 
         // Array output
-        $output = [];
-        while ($row = $result->fetch_assoc()) $output[] = json_decode($row['dataJson']);
+        $output = new stdClass();
+        $rowIndex = 0;
+        while ($row = $result->fetch_assoc()) {
+            $groupKey = $row['groupKey'];
+            $index = empty($groupKey)
+                ? $rowIndex
+                : $groupKey;
+            $output->$index = json_decode($row['dataJson']);
+            $rowIndex++;
+        }
         return $output;
     }
     // endregion
@@ -65,12 +73,12 @@ class DB {
      * Get settings
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
-     * @return array
+     * @return stdClass
      */
     function getSettings(
         string      $groupClass,
-        string|null $groupKey)
-    : array {
+        string|null $groupKey = null)
+    : stdClass {
         $query = "SELECT * FROM settings WHERE groupClass = ?";
         $params = [$groupClass];
         if($groupKey) {

@@ -12,7 +12,7 @@ $classMap = [
     'event_counters_incremental'=>'SettingIncrementingCounter',
     'event_counters_accumulating'=>'SettingAccumulatingCounter',
     'twitch_reward_redemptions'=>'SettingTwitchRedemption',
-    'twitch_credentials'=>'SettingTwitchCredentials',
+    // 'twitch_credentials'=>'SettingTwitchCredentials',
     'twitch_user_cheers'=>'SettingTwitchSub',
     'twitch_user_subs'=>'SettingTwitchCheer'
 ];
@@ -40,16 +40,11 @@ foreach($files as $file) {
                 $setting = [];
                 foreach($pairs as $pair) {
                     $values = explode('|', $pair);
-                    if(count($values) == 2) {
+                    if (count($values) == 2) {
                         // Parse out actual values
                         $field = $values[0];
                         $value = $values[1];
-
-
-                        // TODO: Add userName conversion here.
-
-
-                        if($class == 'SettingUserMute' && $field == 'active') { // This is a blacklist bool, empty string or string '1', handle specifically.
+                        if ($class == 'SettingUserMute' && $field == 'active') { // This is a blacklist bool, empty string or string '1', handle specifically.
                             $value = boolval($value);
                         } else {
                             $value = is_numeric($value)
@@ -58,10 +53,16 @@ foreach($files as $file) {
                                     ? boolval($value)
                                     : $value);
                         }
-                        $setting[$values[0]] = $value;
+                        if (!is_string($value) || !empty($value)) $setting[$values[0]] = $value;
                     }
                 }
-                $result = $db->saveSetting($class, null, json_encode($setting));
+                // TODO: Add more userName conversions here.
+                $userId = null;
+                if(key_exists('userName', $setting)) {
+                    $userId = Twitch::getIdFromLogin($setting['userName']);
+                    unset($setting['userName']);
+                }
+                $result = $db->saveSetting($class, $userId, json_encode($setting));
                 $count = count($pairs);
                 echo $result
                     ? "Imported <u>$class</u> row, $count value(s).\n"
