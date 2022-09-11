@@ -11,7 +11,7 @@ export default class ChannelTrophy {
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
         stats.forEach(stat => {
-            const index = parseInt(stat.index)
+            const index = stat.index
             if(index < lastIndex) numberOfStreams++
             lastIndex = index
         })
@@ -56,10 +56,10 @@ export default class ChannelTrophy {
         let funnyNumbers: IChannelTrophyFunnyNumber[] = []
 
         for(const stat of stats) {
-            const userId = parseInt(stat.userId)
+            const userId = stat.userId
             
-            const index = parseInt(stat.index)
-            const cost = parseInt(stat.cost)
+            const index = stat.index
+            const cost = stat.cost
 
             if(index <= lastIndex) { // New stream!
                 if(totalStreamCount >= (stopAfterIndex+1)) break

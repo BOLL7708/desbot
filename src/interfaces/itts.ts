@@ -5,9 +5,3 @@ export interface ISentence {
     type: number
     meta: any
 }
-
-export interface IBlacklistEntry {
-    userName: string
-    active: boolean
-    reason: string
-}

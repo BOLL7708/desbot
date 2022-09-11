@@ -150,7 +150,7 @@ export interface IActions {
 export interface IActionUser {
     source: EEventSource
     eventKey: TKeys
-    id: string
+    id: number
     login: string
     name: string
     input: string

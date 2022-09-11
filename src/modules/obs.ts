@@ -154,7 +154,7 @@ export default class OBS {
     takeSourceScreenshot(rewardKey: TKeys, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
         const requestData: IScreenshotRequestData = { 
             rewardKey: rewardKey, 
-            userId: Utils.toInt(userData.id, -1), 
+            userId: userData.id,
             userName: userData.login, 
             userInput: userData.input,
         }

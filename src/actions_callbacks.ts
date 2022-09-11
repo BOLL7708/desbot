@@ -6,8 +6,8 @@ import Functions from './functions.js'
 import Utils from './base/utils.js'
 import SteamStore from './modules/steam_store.js'
 import Settings, {
-    SettingChannelTrophyStat,
-    SettingEventCounter,
+    SettingAccumulatingCounter,
+    SettingChannelTrophyStat, SettingIncrementingCounter,
     SettingStreamQuote, SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchRewardPair
@@ -340,9 +340,10 @@ export default class ActionsCallbacks {
 
                             // If update was successful, also reset incremental setting as the reward should have been reset.
                             if(Array.isArray(rewardSetup)) {
-                                const reset: SettingEventCounter = {key: pair.key, count: 0}
+                                const reset: SettingIncrementingCounter = {key: pair.key, count: 0}
                                 Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', reset)
                             }
+                            // TODO: Also reset accumulating counters here?!
                         } else {
                             Utils.logWithBold(`Reward <${pair.key}> update unsuccessful.`, Color.Red)
                         }
@@ -388,7 +389,7 @@ export default class ActionsCallbacks {
                 const userTag = `@${userName}`
                 const userData = await modules.twitchHelix.getUserByLogin(userName)
                 const userRedemptions = redemptions?.filter(
-                    redemption => (redemption.userId == userData?.id) && (redemption.status == 'UNFULFILLED')
+                    redemption => (redemption.userId == parseInt(userData?.id ?? '')) && (redemption.status == 'UNFULFILLED')
                 )
                 const message = Config.controller.chatReferences['RefundRedemption'] ?? []
                 if(userRedemptions && userRedemptions.length > 0) {
@@ -400,7 +401,7 @@ export default class ActionsCallbacks {
                         const result = await modules.twitchHelix.updateRedemption(lastRedemption)
                         if(result) {
                             Settings.pushSetting(Settings.TWITCH_REWARD_REDEMPTIONS, 'redemptionId', lastRedemption).then()
-                            modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost}))
+                            modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
                             modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[1], {targetTag: userTag}))
                         }
@@ -451,12 +452,12 @@ export default class ActionsCallbacks {
                 const row: SettingChannelTrophyStat = {
                     userId: user.id,
                     index: user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream,
-                    cost: user.rewardMessage?.data?.redemption.reward.cost.toString() ?? '0'
+                    cost: user.rewardMessage?.data?.redemption.reward.cost ?? 0
                 }
                 const settingsUpdated = await Settings.appendSetting(Settings.CHANNEL_TROPHY_STATS, row)
                 if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward: ChannelTrophy', Color.Red)
 
-                const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+                const userData = await modules.twitchHelix.getUserById(user.id)
                 if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward: ChannelTrophy', Color.Red)
 
                 // Update reward
@@ -466,7 +467,7 @@ export default class ActionsCallbacks {
                     const cost = rewardData.data[0].cost
 
                     // Do TTS
-                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(parseInt(row.cost))
+                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(row.cost)
                     if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
                         modules.tts.enqueueSpeakSentence(
                             await Utils.replaceTagsInText(
@@ -540,10 +541,10 @@ export default class ActionsCallbacks {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the base reward, we update it as any normal reward, using !update.
-                            const current = await Settings.pullSetting<SettingEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
+                            const current = await Settings.pullSetting<SettingIncrementingCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                                const reset: SettingEventCounter = {key: key, count: 0}
+                                const reset: SettingIncrementingCounter = {key: key, count: 0}
                                 await Settings.pushSetting(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', reset)
                                 await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
@@ -584,10 +585,10 @@ export default class ActionsCallbacks {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the base reward, we update it as any normal reward, using !update.
-                            const current = await Settings.pullSetting<SettingEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', key)
+                            const current = await Settings.pullSetting<SettingAccumulatingCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
-                                const reset: SettingEventCounter = {key: key, count: 0}
+                                const reset: SettingAccumulatingCounter = {key: key, count: 0}
                                 await Settings.pushSetting(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', reset)
                                 await modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++

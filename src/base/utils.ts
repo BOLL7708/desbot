@@ -2,10 +2,14 @@ import Config from '../statics/config.js'
 import StatesSingleton from './states_singleton.js'
 import ModulesSingleton from '../modules_singleton.js'
 import {TKeys} from '../_data/!keys.js'
-import Settings, {SettingEventCounter, SettingTwitchRewardPair, SettingUserName, SettingUserVoice} from '../modules/settings.js'
+import Settings, {
+    SettingAccumulatingCounter, SettingTwitchCheer,
+    SettingTwitchRewardPair, SettingTwitchSub,
+    SettingUserName,
+    SettingUserVoice
+} from '../modules/settings.js'
 import {IActionUser, ITextTags} from '../interfaces/iactions.js'
 import SteamStore from '../modules/steam_store.js'
-import {ITwitchCheerSetting, ITwitchSubSetting} from '../interfaces/itwitch_pubsub.js'
 import {IEvent, IEventsConfig} from '../interfaces/ievents.js'
 import {ICleanTextConfig} from '../interfaces/iutils.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
@@ -329,15 +333,15 @@ export default class Utils {
 
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
-        const subs = await Settings.pullSetting<ITwitchSubSetting>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
-        const cheers = await Settings.pullSetting<ITwitchCheerSetting>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
+        const subs = await Settings.pullSetting<SettingTwitchSub>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
+        const cheers = await Settings.pullSetting<SettingTwitchCheer>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
         const voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
-        const eventCount = (await Settings.pullSetting<SettingEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? 0
+        const eventCount = (await Settings.pullSetting<SettingAccumulatingCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? 0
         const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
 
         const userBits = (userData?.bits ?? 0) > 0

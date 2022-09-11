@@ -10,14 +10,13 @@ import {TKeys} from './_data/!keys.js'
 import ModulesSingleton from './modules_singleton.js'
 import TwitchFactory from './modules/twitch_factory.js'
 import {IPipeCustomMessage} from './interfaces/ipipe.js'
-import {ITwitchCheerSetting, ITwitchPubsubRewardMessage, ITwitchSubSetting} from './interfaces/itwitch_pubsub.js'
+import {ITwitchPubsubRewardMessage} from './interfaces/itwitch_pubsub.js'
 import StatesSingleton from './base/states_singleton.js'
 import Utils from './base/utils.js'
 import MainController from './main_controller.js'
 import Discord from './modules/discord.js'
 import SteamStore from './modules/steam_store.js'
-import Settings from './modules/settings.js'
-import {ITwitchRewardPair} from './interfaces/isettings.js'
+import Settings, {SettingTwitchCheer, SettingTwitchRewardPair, SettingTwitchSub} from './modules/settings.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -57,7 +56,7 @@ export default class Callbacks {
                 modules.tts.enqueueSpeakSentence(messageData.text, userData.login)
 
                 // Pipe to VR (basic)
-                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
+                const user = await modules.twitchHelix.getUserById(userData.id)
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -75,7 +74,7 @@ export default class Callbacks {
             )
 
             // Pipe to VR (basic)
-            const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
+            const user = await modules.twitchHelix.getUserById(userData.id)
             modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
@@ -112,7 +111,7 @@ export default class Callbacks {
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
-                const user = await modules.twitchHelix.getUserById(Utils.toInt(userData.id))
+                const user = await modules.twitchHelix.getUserById(userData.id)
                 modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -164,7 +163,7 @@ export default class Callbacks {
             if(!redemption) return console.warn('Reward redemption empty', message)
 
             const user = await modules.twitchHelix.getUserById(parseInt(redemption.user.id))          
-            const rewardPair = await Settings.pullSetting<ITwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.reward.id)
+            const rewardPair = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.reward.id)
 
             // Discord
             const amount = redemption.reward.redemptions_redeemed_current_stream
@@ -214,10 +213,10 @@ export default class Callbacks {
             )
 
             // Save user sub
-            const subSetting: ITwitchSubSetting = {
+            const subSetting: SettingTwitchSub = {
                 userName: message.user_name ?? '', 
-                totalMonths: message.cumulative_months?.toString() ?? '', 
-                streakMonths: message.streak_months?.toString() ?? ''
+                totalMonths: message.cumulative_months ?? 0,
+                streakMonths: message.streak_months ?? 0
             }
             Settings.pushSetting(Settings.TWITCH_USER_SUBS, 'userName', subSetting)
 
@@ -235,10 +234,10 @@ export default class Callbacks {
         })
         modules.twitchPubsub.setOnCheerCallback(async (message) => {
             // Save user cheer
-            const cheerSetting: ITwitchCheerSetting = {
+            const cheerSetting: SettingTwitchCheer = {
                 userName: message.data.user_name ?? '', 
-                totalBits: message.data.total_bits_used.toString(), 
-                lastBits: message.data.bits_used.toString()
+                totalBits: message.data.total_bits_used,
+                lastBits: message.data.bits_used
             }
             Settings.pushSetting(Settings.TWITCH_USER_CHEERS, 'userName', cheerSetting)             
 

@@ -157,16 +157,6 @@ export interface ITwitchCheer {
     handler?: ActionHandler
 }
 
-// Settings
-export interface ITwitchTokens {
-    userName: string
-    accessToken: string
-    refreshToken: string
-    updated: string
-    clientId: string
-    clientSecret: string
-}
-
 /**
  * The most basic command, used for remote execution.
  * 

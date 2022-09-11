@@ -1,11 +1,14 @@
 import {
     ITwitchHelixCategoriesResponseData,
-    ITwitchHelixChannelRequest, ITwitchHelixChannelResponse,
+    ITwitchHelixChannelRequest,
+    ITwitchHelixChannelResponse,
     ITwitchHelixChannelResponseData,
     ITwitchHelixChatColorResponse,
     ITwitchHelixClipResponse,
     ITwitchHelixGamesResponse,
-    ITwitchHelixGamesResponseData, ITwitchHelixRewardConfig, ITwitchHelixRewardResponse,
+    ITwitchHelixGamesResponseData,
+    ITwitchHelixRewardConfig,
+    ITwitchHelixRewardResponse,
     ITwitchHelixRewardStates,
     ITwitchHelixRewardUpdate,
     ITwitchHelixUsersResponse,
@@ -13,9 +16,8 @@ import {
 } from '../interfaces/itwitch_helix.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
-import {ITwitchTokens} from '../interfaces/itwitch.js'
 import Utils from '../base/utils.js'
-import Settings, {SettingTwitchRedemption, SettingTwitchRewardPair} from './settings.js'
+import Settings, {SettingTwitchCredentials, SettingTwitchRedemption, SettingTwitchRewardPair} from './settings.js'
 import {TKeys} from '../_data/!keys.js'
 
 export default class TwitchHelix {
@@ -23,7 +25,7 @@ export default class TwitchHelix {
     _userCache: Map<number, ITwitchHelixUsersResponseData> = new Map()
     _userNameToId: Map<string, number> = new Map()
     _gameCache: Map<number, ITwitchHelixGamesResponseData> = new Map()
-    _channelUserTokens?: ITwitchTokens
+    _channelUserTokens?: SettingTwitchCredentials
     _channelCache: Map<number, ITwitchHelixChannelResponseData> = new Map()
     _userColorCache: Map<number, string> = new Map()
     static _channelUserId = -1
@@ -31,7 +33,7 @@ export default class TwitchHelix {
     constructor() {}
 
     async init() {
-        await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
+        await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => this._channelUserTokens = tokenData)
         const user = await this.getUserByLogin(Config.twitch.channelName, false)
         TwitchHelix._channelUserId = Utils.toInt(user?.id, -1)
     }

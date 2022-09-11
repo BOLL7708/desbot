@@ -133,15 +133,3 @@ export interface ITwitchPubsubSubscriptionCallback {
 export interface ITwitchPubsubCheerCallback {
     (message: ITwitchPubsubCheerMessage): void
 }
-
-// Settings
-export interface ITwitchSubSetting {
-    userName: string
-    totalMonths: string
-    streakMonths: string
-}
-export interface ITwitchCheerSetting {
-    userName: string
-    totalBits: string
-    lastBits: string
-}

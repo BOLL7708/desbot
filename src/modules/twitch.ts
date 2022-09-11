@@ -128,7 +128,7 @@ export default class Twitch{
         const user: IActionUser = {
             source: EEventSource.TwitchChat,
             eventKey: 'Unknown',
-            id: messageCmd.properties["user-id"] ?? '',
+            id: parseInt(messageCmd.properties["user-id"] ?? ''),
             login: userName,
             name: messageCmd.properties?.["display-name"] ?? userName,
             input: '',
@@ -227,7 +227,7 @@ export default class Twitch{
         const user = await Actions.buildEmptyUserData(EEventSource.TwitchRemoteCommand, 'Unknown')
         user.login = userName
         user.name = messageCmd.properties?.["display-name"] ?? userName
-        user.id = messageCmd.properties["user-id"] ?? ''
+        user.id = parseInt(messageCmd.properties["user-id"] ?? '')
 
         // Commands
         if(text && text.indexOf(Config.twitch.remoteCommandPrefix) == 0) {

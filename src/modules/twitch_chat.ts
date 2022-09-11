@@ -2,8 +2,8 @@ import WebSockets from './websockets.js'
 import Utils from '../base/utils.js'
 import Config from '../statics/config.js'
 import TwitchFactory from './twitch_factory.js'
-import {ITwitchChatMessageCallback, ITwitchTokens} from '../interfaces/itwitch.js'
-import Settings from './settings.js'
+import Settings, {SettingTwitchCredentials} from './settings.js'
+import {ITwitchChatMessageCallback} from '../interfaces/itwitch.js'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
@@ -36,7 +36,7 @@ export default class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        let tokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', this._userName)
+        let tokenData = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', this._userName)
         Utils.log(`Twitch chat connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
         this._socket?.send(`PASS oauth:${tokenData?.accessToken}`)
         this._socket?.send(`NICK ${this._userName}`)

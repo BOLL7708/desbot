@@ -1,4 +1,4 @@
-import {ITwitchCheer, ITwitchReward, ITwitchTokens} from '../interfaces/itwitch.js'
+import {ITwitchCheer, ITwitchReward} from '../interfaces/itwitch.js'
 import TwitchHelix from './twitch_helix.js'
 import {
     ITwitchPubsubCheerCallback,
@@ -14,7 +14,7 @@ import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
 import WebSockets from './websockets.js'
 import Utils from '../base/utils.js'
-import Settings, {SettingTwitchRedemption} from './settings.js'
+import Settings, {SettingTwitchCredentials, SettingTwitchRedemption} from './settings.js'
 
 export default class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
@@ -63,7 +63,7 @@ export default class TwitchPubsub {
     }
 
     private onOpen(evt:any) {
-        Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => {
+        Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => {
             let payload = {
                 type: "LISTEN",
                 nonce: "7708",
@@ -102,12 +102,12 @@ export default class TwitchPubsub {
                                 const redemption = rewardMessage?.data?.redemption
                                 if(redemption && redemption.status == 'UNFULFILLED') {
                                     const redemptionStatus: SettingTwitchRedemption = {
-                                        userId: redemption.user?.id,
+                                        userId: parseInt(redemption.user?.id) ?? 0,
                                         rewardId: redemption.reward?.id,
                                         redemptionId: redemption.id,
                                         time: redemption?.redeemed_at,
                                         status: redemption.status,
-                                        cost: redemption.reward?.cost?.toString()
+                                        cost: redemption.reward?.cost
                                     }
                                     Settings.pushRow(Settings.TWITCH_REWARD_REDEMPTIONS, redemptionStatus).then()
                                 }

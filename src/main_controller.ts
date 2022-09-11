@@ -1,6 +1,5 @@
 import Config from './statics/config.js'
 import LogWriter from './modules/log.js'
-import {IDictionaryEntry} from './interfaces/isettings.js'
 import Callbacks from './callbacks.js'
 import StatesSingleton from './base/states_singleton.js'
 import Utils from './base/utils.js'
@@ -9,7 +8,7 @@ import Color from './statics/colors.js'
 import Rewards from './rewards.js'
 import Functions from './functions.js'
 import ModulesSingleton from './modules_singleton.js'
-import Settings from './modules/settings.js'
+import Settings, {SettingDictionaryEntry, SettingTwitchCredentials} from './modules/settings.js'
 
 export default class MainController {
     public static async init() {
@@ -37,12 +36,12 @@ export default class MainController {
 
         const modules = ModulesSingleton.getInstance()
 
-        const dictionarySettings = Settings.getFullSettings<IDictionaryEntry>(Settings.TTS_DICTIONARY)
+        const dictionarySettings = Settings.getFullSettings<SettingDictionaryEntry>(Settings.TTS_DICTIONARY)
         modules.tts.setDictionary(dictionarySettings ?? [])
 
         
-        const channelTokens = await Settings.pullSetting(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
-        const chatbotTokens = await Settings.pullSetting(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
+        const channelTokens = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
+        const chatbotTokens = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
         if(!channelTokens) {
             document.location.href = 'login.php?missing=channel&missingName='+Config.twitch.channelName
             return

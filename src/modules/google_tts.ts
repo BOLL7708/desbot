@@ -4,12 +4,11 @@ import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
 import AudioPlayer, {AudioPlayerInstance} from './audioplayer.js'
 import {IAudioAction} from '../interfaces/iactions.js'
-import {IBlacklistEntry} from '../interfaces/itts.js'
 import {IGoogleVoice} from '../interfaces/igoogle.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
 import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
 import Utils from '../base/utils.js'
-import Settings, {SettingDictionaryEntry, SettingUserVoice} from './settings.js'
+import Settings, {SettingDictionaryEntry, SettingUserMute, SettingUserVoice} from './settings.js'
 
 export default class GoogleTTS {
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
@@ -106,7 +105,7 @@ export default class GoogleTTS {
         this._preloadQueue[serial] = null
         userName = userName.toLowerCase()
 
-        const blacklist = await Settings.pullSetting<IBlacklistEntry>(Settings.TTS_BLACKLIST, 'userName', userName)
+        const blacklist = await Settings.pullSetting<SettingUserMute>(Settings.TTS_BLACKLIST, 'userName', userName)
         if(blacklist != null && blacklist.active) return
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
         if(input.trim().length == 0) return this.enqueueEmptyMessageSound(serial)

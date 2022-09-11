@@ -1,25 +1,24 @@
 import Utils from '../base/utils.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
-import Settings from './settings.js'
-import {ITwitchTokens} from '../interfaces/itwitch.js'
+import Settings, {SettingTwitchCredentials} from './settings.js'
 
 export default class TwitchTokens {
     /**
      * Load existing tokens for channel and chatbot (if different) and refresh them.
      */
     async refreshToken() {
-        let channelTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
+        let channelTokenData = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
         if(channelTokenData) await this.refresh(channelTokenData)
         else Utils.log(`TwitchTokens: No tokens for channel: ${Config.twitch.channelName} in _settings, load login.php to set them.`, Color.Purple)
         if(Config.twitch.channelName.toLowerCase() != Config.twitch.chatbotName.toLowerCase()) {
-            let chatbotTokenData = await Settings.pullSetting<ITwitchTokens>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
+            let chatbotTokenData = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
             if(chatbotTokenData) await this.refresh(chatbotTokenData)
             else Utils.log(`TwitchTokens: No tokens for chat bot: ${Config.twitch.channelName} in _settings, load login.php to set them.`, Color.Purple)
         } 
     }
 
-    private async refresh(data: ITwitchTokens) {
+    private async refresh(data: SettingTwitchCredentials) {
         return fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',
             body: new URLSearchParams({
@@ -31,7 +30,7 @@ export default class TwitchTokens {
         }).then((response) => response.json()
         ).then(async json => {
             if (!json.error && !(json.status >= 300)) {
-                let tokenData: ITwitchTokens = {
+                let tokenData: SettingTwitchCredentials = {
                     userName: data.userName,
                     accessToken: json.access_token,
                     refreshToken: json.refresh_token,

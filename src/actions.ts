@@ -23,7 +23,6 @@ import {
 } from './interfaces/iactions.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from './interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSFunction, ETTSType} from './base/enums.js'
-import {IDictionaryEntry, IEventCounter, IUserName, IUserVoice} from './interfaces/isettings.js'
 import IKeyBoolRecord from './interfaces/i.js'
 import Exec from './modules/exec.js'
 import Callbacks from './callbacks.js'
@@ -32,7 +31,12 @@ import {
     ITwitchPubsubRewardMessage,
     ITwitchPubsubSubscriptionMessage
 } from './interfaces/itwitch_pubsub.js'
-import Settings from './modules/settings.js'
+import Settings, {
+    SettingAccumulatingCounter,
+    SettingDictionaryEntry,
+    SettingIncrementingCounter,
+    SettingUserName, SettingUserVoice
+} from './modules/settings.js'
 import Color from './statics/colors.js'
 import {TKeys} from './_data/!keys.js'
 import {EBehavior, IEvent} from './interfaces/ievents.js'
@@ -80,7 +84,7 @@ export class ActionHandler {
         const states = StatesSingleton.getInstance()
 
         let index: number|undefined = undefined
-        let counter: IEventCounter = {key: this.key, count: 0}
+        let counter: SettingIncrementingCounter|SettingAccumulatingCounter = {key: this.key, count: 0}
         let rewardConfigs: ITwitchHelixRewardUpdate[] = []
         /*
             Here we handle the different types of behavior of the event.
@@ -93,7 +97,7 @@ export class ActionHandler {
                 break
             case EBehavior.Incrementing:
                 // Load incremental counter
-                counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', this.key) ?? counter
+                counter = await Settings.pullSetting<SettingIncrementingCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', this.key) ?? counter
 
                 // Switch to the next incremental reward if it has more configs available
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
@@ -113,7 +117,7 @@ export class ActionHandler {
                 break
             case EBehavior.Accumulating:
                 // Load accumulating counter
-                counter = await Settings.pullSetting<IEventCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', this.key) ?? counter
+                counter = await Settings.pullSetting<SettingAccumulatingCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', this.key) ?? counter
                 counter.count = parseInt(counter.count.toString()) + Math.max(user.rewardCost, 1) // Without the parse loop, what should be a number can be a string due to coming from PHP. Add 1 for commands.
 
                 // Switch to the next accumulating reward if it has more configs available
@@ -234,7 +238,7 @@ export class Actions {
         return {
             source: EEventSource.TwitchReward,
             eventKey: key,
-            id: id,
+            id: parseInt(id),
             login: message?.data?.redemption?.user?.login ?? '',
             name: message?.data?.redemption?.user?.display_name ?? '',
             input: input,
@@ -259,7 +263,7 @@ export class Actions {
         return {
             source: EEventSource.TwitchCheer,
             eventKey: key,
-            id: id,
+            id: parseInt(id),
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: input,
@@ -283,7 +287,7 @@ export class Actions {
         return {
             source: EEventSource.TwitchSubscription,
             eventKey: key,
-            id: id,
+            id: parseInt(id),
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: input,
@@ -310,7 +314,7 @@ export class Actions {
         return {
             source: source,
             eventKey: key ?? 'Unknown',
-            id: user?.id ?? '',
+            id: parseInt(user?.id ?? ''),
             login: user?.login ?? '',
             name: user?.display_name ?? '',
             input: input,
@@ -668,7 +672,7 @@ export class Actions {
             description: 'Callback that triggers a Sign action',
             call: (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
-                modules.twitchHelix.getUserById(parseInt(user.id)).then(async userData => {
+                modules.twitchHelix.getUserById(user.id).then(async userData => {
                     const modules = ModulesSingleton.getInstance()
                     const clonedConfig = Utils.clone(config)
                     clonedConfig.title = await Utils.replaceTagsInText(clonedConfig.title ?? '', user)
@@ -760,7 +764,7 @@ export class Actions {
             description: 'Callback that triggers a Discord message action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                const userData = await modules.twitchHelix.getUserById(parseInt(user.id))
+                const userData = await modules.twitchHelix.getUserById(user.id)
                 const entries = Utils.ensureArray(config.entries).getAsType(index)
                 for(const entry of entries ) {
                     Discord.enqueueMessage(
@@ -952,7 +956,7 @@ export class Actions {
                             // We rename the user
                             states.textTagCache.lastTTSSetNickLogin = login
                             states.textTagCache.lastTTSSetNickSubstitute = newNick
-                            const setting = <IUserName> {userName: login, shortName: newNick, editor: user.login, datetime: Utils.getISOTimestamp()}
+                            const setting = <SettingUserName> {userName: login, shortName: newNick, editor: user.login, datetime: Utils.getISOTimestamp()}
                             await Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', setting)
                         } else {
                             // We do nothing
@@ -964,7 +968,7 @@ export class Actions {
                     case ETTSFunction.GetUserNick: {
                         const userData = await modules.twitchHelix.getUserByLogin(targetOrUserLogin)
                         if(userData && userData.login.length) {
-                            const currentName = await Settings.pullSetting<IUserName>(Settings.TTS_USER_NAMES, 'userName', userData.login)
+                            const currentName = await Settings.pullSetting<SettingUserName>(Settings.TTS_USER_NAMES, 'userName', userData.login)
                             if(currentName) {
                                 states.textTagCache.lastTTSSetNickLogin = currentName.userName
                                 states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
@@ -989,7 +993,7 @@ export class Actions {
                             const cleanName = Utils.cleanName(login)
                             states.textTagCache.lastTTSSetNickLogin = login
                             states.textTagCache.lastTTSSetNickSubstitute = cleanName
-                            const setting = <IUserName>{
+                            const setting = <SettingUserName>{
                                 userName: login,
                                 shortName: cleanName,
                                 editor: user.login,
@@ -1017,7 +1021,7 @@ export class Actions {
                         let word = userInputHead.trim().toLowerCase()
                         const substitute = Utils.cleanSetting(userInputRest).toLowerCase()
                         const firstChar = word[0] ?? ''
-                        const entry = await Settings.pullSetting<IDictionaryEntry>(
+                        const entry = await Settings.pullSetting<SettingDictionaryEntry>(
                             Settings.TTS_DICTIONARY,
                             'original',
                             ['+', '-'].includes(firstChar) ? word.substring(1) : word
@@ -1055,12 +1059,12 @@ export class Actions {
                             states.textTagCache.lastDictionarySubstitute = word
                             await Settings.pushSetting(Settings.TTS_DICTIONARY, 'original', entry)
                         }
-                        modules.tts.setDictionary(<IDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
+                        modules.tts.setDictionary(<SettingDictionaryEntry[]> Settings.getFullSettings(Settings.TTS_DICTIONARY))
                         break
                     }
                     case ETTSFunction.GetDictionaryEntry: {
                         const word = userInputHead.trim().toLowerCase()
-                        const entry = await Settings.pullSetting<IDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
+                        const entry = await Settings.pullSetting<SettingDictionaryEntry>(Settings.TTS_DICTIONARY, 'original', word)
                         if (entry) {
                             states.textTagCache.lastDictionaryWord = entry.original
                             states.textTagCache.lastDictionarySubstitute = entry.substitute
@@ -1075,7 +1079,7 @@ export class Actions {
                         if (user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
                             login = user.login
                         }
-                        const voiceSetting = await Settings.pullSetting<IUserVoice>(Settings.TTS_USER_VOICES, 'userName', login)
+                        const voiceSetting = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', login)
                         let gender = ''
                         // Use input for a specific gender
                         if (inputLowerCase.includes('f')) gender = 'female'

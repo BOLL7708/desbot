@@ -1,8 +1,7 @@
 import Config from './statics/config.js'
 import ModulesSingleton from './modules_singleton.js'
 import StatesSingleton from './base/states_singleton.js'
-import Settings from './modules/settings.js'
-import {ITwitchRewardPair} from './interfaces/isettings.js'
+import Settings, {SettingTwitchRewardPair} from './modules/settings.js'
 import Utils from './base/utils.js'
 import {ITwitchHelixRewardConfig} from './interfaces/itwitch_helix.js'
 import {Actions} from './actions.js'
@@ -24,7 +23,7 @@ export default class Rewards {
     
 
         // Load reward IDs from settings
-        let storedRewards = Settings.getFullSettings<ITwitchRewardPair>(Settings.TWITCH_REWARDS)
+        let storedRewards = Settings.getFullSettings<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS)
         if(storedRewards == undefined) storedRewards = []
 
         // Create missing rewards if any

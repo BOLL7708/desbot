@@ -53,7 +53,7 @@ export default class Settings {
             } else {
                 const currentSettings = this._settingsStore.get(groupClass)
                 // TODO: Change the cache to be a record or something, so we can reference things on the groupKey.
-                // TODO: Then save single items referenced on the key... I guess? 
+                // TODO: Then save single items referenced on the key... I guess?
                 // TODO: Not sure how it would work for the arrays that come for multiple items though.
             }
         }
@@ -63,7 +63,7 @@ export default class Settings {
 
     /**
      * Save a setting to the database.
-     * @param setting
+     * @param setting Should be a class instance to work, as the name of the class is used to categorize the setting.
      * @param groupKey
      */
     static async saveSettingDB<T>(setting: T&Object, groupKey?: string): Promise<boolean> {
@@ -257,6 +257,11 @@ export class SettingUserName {
     editor: string = ''
     datetime: string = ''
 }
+export interface SettingUserMute {
+    userName: string
+    active: boolean
+    reason: string
+}
 export class SettingDictionaryEntry {
     original: string = ''
     substitute: string = ''
@@ -268,12 +273,30 @@ export class SettingTwitchRewardPair {
     id: string = ''
 }
 export class SettingChannelTrophyStat {
-    userId: string = ''
-    index: string = ''
-    cost: string = ''
+    userId: number = 0
+    index: number = 0
+    cost: number = 0
+}
+export class SettingTwitchSub {
+    userName: string = ''
+    totalMonths: number = 0
+    streakMonths: number = 0
+}
+export class SettingTwitchCheer {
+    userName: string = '' // TODO: Convert to userId?
+    totalBits: number = 0
+    lastBits: number = 0
 }
 export class SettingTwitchClip {
     id: string = ''
+}
+export class SettingTwitchCredentials {
+    userName: string = '' // TODO: Convert to userId?
+    accessToken: string = ''
+    refreshToken: string = ''
+    clientId: string = ''
+    clientSecret: string = ''
+    updated: string = ''
 }
 export class SettingStreamQuote {
     submitter: string = ''
@@ -283,14 +306,17 @@ export class SettingStreamQuote {
     game: string = ''
 }
 export class SettingTwitchRedemption {
-    userId: string = ''
+    userId: number = 0
     rewardId: string = ''
     redemptionId: string = ''
     time: string = ''
     status: TTwitchRedemptionStatus = 'UNFULFILLED'
-    cost: string = ''
+    cost: number = 0
 }
-export class SettingEventCounter {
-    key: string = ''
+class SettingCounterBase {
+    key: TKeys = 'Unknown'
     count: number = 0
 }
+export class SettingAccumulatingCounter extends SettingCounterBase {}
+export class SettingIncrementingCounter extends SettingCounterBase {}
+

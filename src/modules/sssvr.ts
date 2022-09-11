@@ -38,7 +38,7 @@ export default class SuperScreenShotterVR {
         this._messageCounter++
         this._screenshotRequests.set(this._messageCounter, {
             rewardKey: rewardKey,
-            userId: parseInt(userData.id),
+            userId: userData.id,
             userName: userData.login,
             userInput: userData.input
         })
