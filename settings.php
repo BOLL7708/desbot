@@ -1,6 +1,6 @@
 <?php
-include_once('./inc/utils.inc.php');
-include_once('./inc/settings.inc.php');
+include_once('./inc/Utils.inc.php');
+include_once('./inc/Settings.inc.php');
 
 $method = $_SERVER['REQUEST_METHOD'];
 $setting = $_GET['setting'] ?? null;

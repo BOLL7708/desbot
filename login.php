@@ -3,8 +3,8 @@
  * Documentation: https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#authorization-code-grant-flow
  */
 error_reporting(E_STRICT);
-include_once('inc/utils.inc.php');
-include_once('inc/settings.inc.php');
+include_once('inc/Utils.inc.php');
+include_once('inc/Settings.inc.php');
 $config = include_once('_configs/config.php');
 $pageUrl = 'http'
     .((!empty($_SERVER['HTTPS'] ?? '')) ? 's' : '')
@@ -220,7 +220,7 @@ $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
                             <div class="center">
                                 <div class="profileImg" style="background-image: url(<?=$userInfo->profile_image_url?>);"></div>
                                 <p>Tokens successfully saved for <?=$userInfo->display_name?>!</p>
-                                <p>Go back to the <a href="index.php">Streaming Widget</a>.</p>
+                                <p>Go back to the <a href="widget.php">Streaming Widget</a>.</p>
                             </div>
                             <?php
                         } else {

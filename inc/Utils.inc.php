@@ -149,4 +149,8 @@ class Utils {
         http_response_code(400);
         exit(json_encode(['error'=>$message, 'code'=>$code]));
     }
+
+    static function isArrayAssociative(array $arr): bool {
+        return array_keys($arr) !== range(0, count($arr) - 1);
+    }
 }
