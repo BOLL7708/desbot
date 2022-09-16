@@ -9,11 +9,11 @@ import {
     ITwitchPubsubSubscriptionCallback,
     ITwitchPubsubSubscriptionMessage
 } from '../interfaces/itwitch_pubsub.js'
-import {Actions} from '../actions.js'
+import {Actions} from '../widget/actions.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
 import WebSockets from './websockets.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Settings, {SettingTwitchCredentials, SettingTwitchRedemption} from './settings.js'
 
 export default class TwitchPubsub {

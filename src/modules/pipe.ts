@@ -7,9 +7,9 @@ import {IPipeBasicMessage, IPipeCustomMessage} from '../interfaces/ipipe.js'
 import TwitchFactory from './twitch_factory.js'
 import {ITwitchHelixUsersResponseData} from '../interfaces/itwitch_helix.js'
 import WebSockets from './websockets.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import ImageLoader from './image_loader.js'
-import StatesSingleton from '../base/states_singleton.js'
+import StatesSingleton from '../widget/states_singleton.js'
 
 export default class Pipe {
     private _socket:WebSockets

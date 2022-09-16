@@ -5,6 +5,7 @@ include_once('init.php');
 <html lang="en">
     <head>
         <title>Streaming Widget</title>
+        <link rel="icon" type="image/x-icon" href="widget.ico" />
         <style>
             p {
                 margin: 0.25em;
@@ -18,6 +19,6 @@ include_once('init.php');
             <?php Utils::printJSAssetFiles()?>
         </script>
         <?php Utils::printJSIncludesAndConfigs()?>
-        <script type="module" src="./dist/index.js"></script>
+        <script type="module" src="./dist/widget.js"></script>
     </body>
 </html>

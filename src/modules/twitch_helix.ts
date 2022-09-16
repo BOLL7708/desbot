@@ -16,7 +16,7 @@ import {
 } from '../interfaces/itwitch_helix.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Settings, {SettingTwitchCredentials, SettingTwitchRedemption, SettingTwitchRewardPair} from './settings.js'
 import {TKeys} from '../_data/!keys.js'
 

@@ -1,5 +1,5 @@
 import Dictionary from './dictionary.js'
-import {ETTSType} from '../base/enums.js'
+import {ETTSType} from '../widget/enums.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
 import AudioPlayer, {AudioPlayerInstance} from './audioplayer.js'
@@ -7,7 +7,7 @@ import {IAudioAction} from '../interfaces/iactions.js'
 import {IGoogleVoice} from '../interfaces/igoogle.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
 import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Settings, {SettingDictionaryEntry, SettingUserMute, SettingUserVoice} from './settings.js'
 
 export default class GoogleTTS {

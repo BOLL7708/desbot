@@ -8,7 +8,7 @@ import {
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
 import WebSockets from './websockets.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 
 export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }

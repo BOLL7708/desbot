@@ -1,11 +1,11 @@
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 
 /**
  * Gets filled with all the filepaths from the `_assets` folder, to be referenced in configs.
  */
 export default class AssetFiles {
     /**
-     * Filled by PHP in index.php
+     * Filled by PHP in widget.php
      */
     static _filePaths = []
     static _filePathCache: IAssetFilesCache = {}

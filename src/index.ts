@@ -1,2 +1,1 @@
-import MainController from './main_controller.js'
-MainController.init().then()
+import PageHandler from './editor/page_handler.js'

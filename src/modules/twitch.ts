@@ -5,15 +5,15 @@ import {
     ITwitchCommandConfig,
     ITwitchMessageData
 } from '../interfaces/itwitch.js'
-import {Actions} from '../actions.js'
+import {Actions} from '../widget/actions.js'
 import Config from '../statics/config.js'
 import {ITwitchMessageCmd} from '../interfaces/itwitch_chat.js'
 import Color from '../statics/colors.js'
 import TwitchChat from './twitch_chat.js'
 import TwitchFactory from './twitch_factory.js'
-import StatesSingleton from '../base/states_singleton.js'
-import Utils from '../base/utils.js'
-import {EEventSource} from '../base/enums.js'
+import StatesSingleton from '../widget/states_singleton.js'
+import Utils from '../widget/utils.js'
+import {EEventSource} from '../widget/enums.js'
 
 export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()

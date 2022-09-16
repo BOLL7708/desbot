@@ -4,7 +4,7 @@ import {
     ITwitchEmote, ITwitchEmotePosition,
     ITwitchMessageCmd
 } from '../interfaces/itwitch_chat.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import {ITwitchPubsubEmote} from '../interfaces/itwitch_pubsub.js'
 
 export default class TwitchFactory {

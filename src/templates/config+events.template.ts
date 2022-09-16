@@ -1,5 +1,5 @@
 import Config from '../statics/config.js'
-import {ETTSFunction, ETTSType} from '../base/enums.js'
+import {ETTSFunction, ETTSType} from '../widget/enums.js'
 
 Config.events = {
     ...Config.events,

@@ -1,4 +1,4 @@
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import {
     ISteamWebApiGameSchema,
     ISteamWebApiPlayerAchievementData,

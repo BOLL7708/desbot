@@ -1,4 +1,4 @@
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import {ITwitchMessageData} from '../interfaces/itwitch.js'
 import Color from '../statics/colors.js'
 import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from '../interfaces/iimage_editor.js'

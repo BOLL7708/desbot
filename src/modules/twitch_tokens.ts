@@ -1,4 +1,4 @@
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Config from '../statics/config.js'
 import Color from '../statics/colors.js'
 import Settings, {SettingTwitchCredentials} from './settings.js'

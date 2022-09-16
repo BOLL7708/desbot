@@ -1,5 +1,5 @@
 import WebSockets from './websockets.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Config from '../statics/config.js'
 import TwitchFactory from './twitch_factory.js'
 import Settings, {SettingTwitchCredentials} from './settings.js'

@@ -1,11 +1,11 @@
-import Config from './statics/config.js'
-import ModulesSingleton from './modules_singleton.js'
-import StatesSingleton from './base/states_singleton.js'
-import Settings, {SettingTwitchRewardPair} from './modules/settings.js'
-import Utils from './base/utils.js'
-import {ITwitchHelixRewardConfig} from './interfaces/itwitch_helix.js'
+import Config from '../statics/config.js'
+import ModulesSingleton from '../modules_singleton.js'
+import StatesSingleton from './states_singleton.js'
+import Settings, {SettingTwitchRewardPair} from '../modules/settings.js'
+import Utils from './utils.js'
+import {ITwitchHelixRewardConfig} from '../interfaces/itwitch_helix.js'
 import {Actions} from './actions.js'
-import {EEventSource} from './base/enums.js'
+import {EEventSource} from './enums.js'
 
 export default class Rewards {
     public static async init() {

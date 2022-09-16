@@ -1,5 +1,5 @@
 import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import {IAudioAction} from '../interfaces/iactions.js'
 
 export default class AudioPlayer {

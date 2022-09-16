@@ -1,4 +1,4 @@
-import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from './interfaces/itwitch.js'
+import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from '../interfaces/itwitch.js'
 import {
     IActionCallback,
     IActions,
@@ -20,32 +20,32 @@ import {
     ISystemAction,
     ITTSAction,
     IWhisperAction
-} from './interfaces/iactions.js'
-import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from './interfaces/iopenvr2ws.js'
-import {EEventSource, ETTSFunction, ETTSType} from './base/enums.js'
-import IKeyBoolRecord from './interfaces/i.js'
-import Exec from './modules/exec.js'
+} from '../interfaces/iactions.js'
+import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from '../interfaces/iopenvr2ws.js'
+import {EEventSource, ETTSFunction, ETTSType} from './enums.js'
+import IKeyBoolRecord from '../interfaces/i.js'
+import Exec from '../modules/exec.js'
 import Callbacks from './callbacks.js'
 import {
     ITwitchPubsubCheerMessage,
     ITwitchPubsubRewardMessage,
     ITwitchPubsubSubscriptionMessage
-} from './interfaces/itwitch_pubsub.js'
+} from '../interfaces/itwitch_pubsub.js'
 import Settings, {
     SettingAccumulatingCounter,
     SettingDictionaryEntry,
     SettingIncrementingCounter,
     SettingUserName, SettingUserVoice
-} from './modules/settings.js'
-import Color from './statics/colors.js'
+} from '../modules/settings.js'
+import Color from '../statics/colors.js'
 import {TKeys} from './_data/!keys.js'
-import {EBehavior, IEvent} from './interfaces/ievents.js'
-import Config from './statics/config.js'
-import StatesSingleton from './base/states_singleton.js'
-import Discord from './modules/discord.js'
-import ModulesSingleton from './modules_singleton.js'
-import Utils from './base/utils.js'
-import {ITwitchHelixRewardUpdate} from './interfaces/itwitch_helix.js'
+import {EBehavior, IEvent} from '../interfaces/ievents.js'
+import Config from '../statics/config.js'
+import StatesSingleton from './states_singleton.js'
+import Discord from '../modules/discord.js'
+import ModulesSingleton from '../modules_singleton.js'
+import Utils from './utils.js'
+import {ITwitchHelixRewardUpdate} from '../interfaces/itwitch_helix.js'
 import ActionsCallbacks from './actions_callbacks.js'
 
 export class ActionHandler {

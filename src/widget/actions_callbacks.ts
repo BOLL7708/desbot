@@ -1,24 +1,24 @@
-import {IActionsCallbackStack, IActionUser} from './interfaces/iactions.js'
-import ModulesSingleton from './modules_singleton.js'
-import StatesSingleton from './base/states_singleton.js'
-import Config from './statics/config.js'
+import {IActionsCallbackStack, IActionUser} from '../interfaces/iactions.js'
+import ModulesSingleton from '../modules_singleton.js'
+import StatesSingleton from './states_singleton.js'
+import Config from '../statics/config.js'
 import Functions from './functions.js'
-import Utils from './base/utils.js'
-import SteamStore from './modules/steam_store.js'
+import Utils from './utils.js'
+import SteamStore from '../modules/steam_store.js'
 import Settings, {
     SettingAccumulatingCounter,
     SettingChannelTrophyStat, SettingIncrementingCounter,
     SettingStreamQuote, SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchRewardPair
-} from './modules/settings.js'
-import Color from './statics/colors.js'
-import {ETTSType} from './base/enums.js'
-import OpenVR2WS from './modules/openvr2ws.js'
-import {EBehavior, IEvent} from './interfaces/ievents.js'
-import ChannelTrophy from './modules/channeltrophy.js'
-import Discord from './modules/discord.js'
-import {ITwitchHelixClipResponseData} from './interfaces/itwitch_helix.js'
+} from '../modules/settings.js'
+import Color from '../statics/colors.js'
+import {ETTSType} from './enums.js'
+import OpenVR2WS from '../modules/openvr2ws.js'
+import {EBehavior, IEvent} from '../interfaces/ievents.js'
+import ChannelTrophy from '../modules/channeltrophy.js'
+import Discord from '../modules/discord.js'
+import {ITwitchHelixClipResponseData} from '../interfaces/itwitch_helix.js'
 import {TKeys} from './_data/!keys.js'
 
 export default class ActionsCallbacks {
@@ -540,7 +540,7 @@ export default class ActionsCallbacks {
                         if(Array.isArray(rewardSetup)) {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
-                            // To update settings for the base reward, we update it as any normal reward, using !update.
+                            // To update settings for the widget reward, we update it as any normal reward, using !update.
                             const current = await Settings.pullSetting<SettingIncrementingCounter>(Settings.EVENT_COUNTERS_INCREMENTAL, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
@@ -584,7 +584,7 @@ export default class ActionsCallbacks {
                         if(Array.isArray(rewardSetup)) {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
-                            // To update settings for the base reward, we update it as any normal reward, using !update.
+                            // To update settings for the widget reward, we update it as any normal reward, using !update.
                             const current = await Settings.pullSetting<SettingAccumulatingCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)

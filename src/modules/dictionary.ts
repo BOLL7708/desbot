@@ -1,4 +1,4 @@
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Config from '../statics/config.js'
 import {IGoogleAudio} from '../interfaces/igoogle.js'
 import {SettingDictionaryEntry} from './settings.js'

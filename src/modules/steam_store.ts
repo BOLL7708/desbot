@@ -1,5 +1,5 @@
 import {ISteamStoreGameData, ISteamStoreGameResponse} from '../interfaces/isteam_store.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 
 export default class SteamStore {
     static _gameCache: Map<number, ISteamStoreGameData> = new Map()

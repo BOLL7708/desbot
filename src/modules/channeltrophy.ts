@@ -1,5 +1,5 @@
 import TwitchHelix from './twitch_helix.js'
-import Utils from '../base/utils.js'
+import Utils from '../widget/utils.js'
 import Config from '../statics/config.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../interfaces/idiscord.js'
 import Settings, {SettingChannelTrophyStat} from './settings.js'

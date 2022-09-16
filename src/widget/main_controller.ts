@@ -1,14 +1,14 @@
-import Config from './statics/config.js'
-import LogWriter from './modules/log.js'
+import Config from '../statics/config.js'
+import LogWriter from '../modules/log.js'
 import Callbacks from './callbacks.js'
-import StatesSingleton from './base/states_singleton.js'
-import Utils from './base/utils.js'
+import StatesSingleton from './states_singleton.js'
+import Utils from './utils.js'
 import {Actions} from './actions.js'
-import Color from './statics/colors.js'
+import Color from '../statics/colors.js'
 import Rewards from './rewards.js'
 import Functions from './functions.js'
-import ModulesSingleton from './modules_singleton.js'
-import Settings, {SettingDictionaryEntry, SettingTwitchCredentials} from './modules/settings.js'
+import ModulesSingleton from '../modules_singleton.js'
+import Settings, {SettingDictionaryEntry, SettingTwitchCredentials} from '../modules/settings.js'
 
 export default class MainController {
     public static async init() {
