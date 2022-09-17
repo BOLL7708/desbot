@@ -12,7 +12,14 @@ class DB {
     private mysqli $mysqli;
     public function __construct()
     {
-        $this->mysqli = new mysqli('localhost', 'root', '', 'streaming_widget');
+        $dbData = Files::read('db.php');
+        $this->mysqli = new mysqli(
+            $dbData->host ?? '',
+            $dbData->username,
+            $dbData->password,
+            'streaming_widget',
+            $dbData->port
+        );
         $connectionError = $this->mysqli->connect_error;
         if($connectionError) Utils::exitWithError($connectionError, 1001);
     }

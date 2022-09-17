@@ -38,7 +38,6 @@ import Settings, {
     SettingUserName, SettingUserVoice
 } from '../modules/settings.js'
 import Color from '../statics/colors.js'
-import {TKeys} from './_data/!keys.js'
 import {EBehavior, IEvent} from '../interfaces/ievents.js'
 import Config from '../statics/config.js'
 import StatesSingleton from './states_singleton.js'
@@ -47,6 +46,7 @@ import ModulesSingleton from '../modules_singleton.js'
 import Utils from './utils.js'
 import {ITwitchHelixRewardUpdate} from '../interfaces/itwitch_helix.js'
 import ActionsCallbacks from './actions_callbacks.js'
+import {TKeys} from '../_data/!keys.js'
 
 export class ActionHandler {
     constructor(
@@ -461,7 +461,7 @@ export class Actions {
             // Build callbacks
             actionCallbacks.pushIfExists(this.buildTTSCallback(actions?.tts))
             actionCallbacks.pushIfExists(actions?.custom)
-            actionCallbacks.pushIfExists(ActionsCallbacks.stack[key])
+            actionCallbacks.pushIfExists(ActionsCallbacks.stack[key as TKeys])
             actionCallbacks.pushIfExists(this.buildOBSCallback(actions?.obs, key))
             actionCallbacks.pushIfExists(this.buildColorCallback(actions?.lights))
             actionCallbacks.pushIfExists(this.buildPlugCallback(actions?.plugs))

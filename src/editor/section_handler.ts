@@ -1,22 +1,23 @@
 import Utils from '../widget/utils.js'
 
 type TSection =
-    'Register'
+    'Loading'
+    | 'Register'
     | 'Login'
     | 'DBSetup'
+    | 'Editor'
 
 export default class SectionHandler {
     private static sectionElements: Record<TSection, HTMLDivElement|null> = {
+        'Loading': SectionHandler.getSectionElement('Loading'),
         'Register': SectionHandler.getSectionElement('Register'),
         'Login': SectionHandler.getSectionElement('Login'),
-        'DBSetup': SectionHandler.getSectionElement('DBSetup')
+        'DBSetup': SectionHandler.getSectionElement('DBSetup'),
+        'Editor': SectionHandler.getSectionElement('Editor')
     }
     static init() {
-        // TODO: Detect what to show and start flow here.
-        // TODO: It should, if all prerequisites exists, launch the full page.
-
-        // Toggle sections
-        SectionHandler.show('Register')
+        // Show loading
+        SectionHandler.show('Loading')
 
         // Unhide container
         const container = document.querySelector<HTMLDivElement>('#container')

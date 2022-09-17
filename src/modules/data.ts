@@ -1,39 +1,51 @@
 export default class Data {
-    static async writeData(path: string, data: any): Promise<boolean> {
+    static async writeData(path: string, data: any, password: string): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {
                 method: 'POST',
                 headers: {
+                    'Authorization': password,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
             })
+        if(!response.ok) console.warn(`Could not write data: ${path}`)
         return response.ok
     }
-    static async writeText(path: string, text: string): Promise<boolean> {
+    static async writeText(path: string, text: string, password: string): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {
                 method: 'POST',
                 headers: {
+                    'Authorization': password,
                     'Content-Type': 'plain/text'
                 },
                 body: text
             })
+        if(!response.ok) console.warn(`Could not write text: ${path}`)
         return response.ok
     }
-    static async appendText(path: string, text: string): Promise<boolean> {
+    static async appendText(path: string, text: string, password: string): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {
                 method: 'PUT',
                 headers: {
+                    'Authorization': password,
                     'Content-Type': 'plain/text'
                 },
                 body: text
             })
+        if(!response.ok) console.warn(`Could not append text: ${path}`)
         return response.ok
     }
-    static async readData<T>(path: string): Promise<T|string> {
-        const response = await fetch(`data.php?path=${path}`)
+    static async readData<T>(path: string, password: string): Promise<T|string|undefined> {
+        const response = await fetch(`data.php?path=${path}`, {
+            headers: {'Authorization': password}
+        })
+        if(!response.ok) {
+            console.warn(`Could not read: ${path}`)
+            return undefined
+        }
         const contentType = response.headers.get("content-type")
         if (contentType && contentType.indexOf("application/json") > -1) {
             return await response.json() as T

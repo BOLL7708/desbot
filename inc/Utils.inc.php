@@ -144,10 +144,17 @@ class Utils {
         return file_get_contents($url, false, $context);
     }
 
-    static function exitWithError(string $message, int $code = -1) {
+    static function exitWithError(string $message, int $code = -1): void
+    {
+        error_log("Terminated script: $message, $code");
+        self::outputJson(['error'=>$message, 'code'=>$code], 400);
+    }
+
+    static function outputJson(array|stdClass $body, int $code = 200): void
+    {
         header('Content-Type: application/json; charset=utf-8');
-        http_response_code(400);
-        exit(json_encode(['error'=>$message, 'code'=>$code]));
+        http_response_code($code);
+        exit(json_encode($body));
     }
 
     static function isArrayAssociative(array $arr): bool {
@@ -163,5 +170,10 @@ class Utils {
                 include "$folder/$name";
             }
         }
+    }
+
+    public static function sha256(string $text): string
+    {
+        return hash('sha256', $text);
     }
 }

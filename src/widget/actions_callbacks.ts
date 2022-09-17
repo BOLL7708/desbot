@@ -7,8 +7,10 @@ import Utils from './utils.js'
 import SteamStore from '../modules/steam_store.js'
 import Settings, {
     SettingAccumulatingCounter,
-    SettingChannelTrophyStat, SettingIncrementingCounter,
-    SettingStreamQuote, SettingTwitchClip,
+    SettingChannelTrophyStat,
+    SettingIncrementingCounter,
+    SettingStreamQuote,
+    SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchRewardPair
 } from '../modules/settings.js'
@@ -19,7 +21,7 @@ import {EBehavior, IEvent} from '../interfaces/ievents.js'
 import ChannelTrophy from '../modules/channeltrophy.js'
 import Discord from '../modules/discord.js'
 import {ITwitchHelixClipResponseData} from '../interfaces/itwitch_helix.js'
-import {TKeys} from './_data/!keys.js'
+import {TKeys} from '../_data/!keys.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {

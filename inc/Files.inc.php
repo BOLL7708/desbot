@@ -35,7 +35,7 @@ class Files {
         $ext = strtolower(array_pop($pathArr) ?? '');
         $fullPath = self::getFullPath($path);
         return match ($ext) {
-            'php' => include($fullPath),
+            'php' => @include($fullPath) ?? '',
             'json' => json_decode(file_get_contents($fullPath)),
             default => file_get_contents($fullPath),
         };
