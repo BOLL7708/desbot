@@ -153,4 +153,15 @@ class Utils {
     static function isArrayAssociative(array $arr): bool {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
+
+    public static function includeFolder(string $folder): void
+    {
+        $dir = new DirectoryIterator($folder);
+        foreach($dir as $entry) {
+            $name = $entry->getFileName();
+            if(!$entry->isDir()) {
+                include "$folder/$name";
+            }
+        }
+    }
 }

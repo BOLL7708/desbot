@@ -9,14 +9,13 @@ class Files {
      * @param bool $append
      * @return bool|int
      */
-    static public function write(string $path, stdClass|array|string $data, bool $append = false) {
+    static public function write(string $path, stdClass|array|string $data, bool $append = false):bool|int {
         $pathArr = explode('.', $path);
         $ext = strtolower(array_pop($pathArr) ?? '');
         $fullPath = self::getFullPath($path);
-
-        $result = false;
-        if(is_string($data)) self::printTXT($fullPath, $data, $append);
-        else {
+        if(is_string($data)) {
+            $result = self::printTXT($fullPath, $data, $append);
+        } else {
             $result = match ($ext) {
                 'php' => self::printPHP($fullPath, $data),
                 'json' => self::printJSON($fullPath, $data),
@@ -29,9 +28,9 @@ class Files {
     /**
      *
      * @param string $path
-     * @return stdClass|array|string
+     * @return stdClass|array|string|null
      */
-    static public function read(string $path): stdClass|array|string {
+    static public function read(string $path): stdClass|array|string|null {
         $pathArr = explode('.', $path);
         $ext = strtolower(array_pop($pathArr) ?? '');
         $fullPath = self::getFullPath($path);
@@ -44,9 +43,30 @@ class Files {
     // endregion
 
     // region Utils
-    static private function getFullPath($path): string {
-        return self::$rootDir."/$path";
+
+    /**
+     * Get the full path for a file.
+     * @param string $path
+     * @return string
+     */
+    static private function getFullPath(string $path): string {
+        return self::$rootDir.'/'.self::cleanPath($path);
     }
+
+    /**
+     * Removes ../ including variants from a path, to prevent saving files outside the _data folder.
+     * @param string $path
+     * @return string
+     */
+    private static function cleanPath(string $path): string {
+        return preg_replace('/(\.+[\/\\\\])/', '', $path) ?? '';
+    }
+
+    /**
+     * Generates the PHP code that would represent the incoming data.
+     * @param $data
+     * @return string
+     */
     static private function makePHP($data): string {
         $arrArr = [];
         if(is_object($data)) {
@@ -68,6 +88,7 @@ class Files {
             return 'null';
         } else return '';
     }
+
     // endregion
 
     // region Converters/Printers
@@ -83,12 +104,15 @@ class Files {
         stdClass|array|string $data,
         bool $append = false
     ): false|int {
+        error_log("Printing TXT to: $path, appending: $append");
         if(is_object($data) || is_array($data)) {
             ob_start();
             var_dump($data);
             $data = ob_get_clean();
         }
         $flags = $append ? FILE_APPEND : 0;
+        $size = @filesize($path);
+        if($size) $data = "\n$data";
         return file_put_contents($path, strval($data), $flags);
     }
 
@@ -99,10 +123,12 @@ class Files {
      */
     static private function printJSON(string $path, stdClass|array $data): bool|int
     {
+        error_log("Printing JSON to: $path");
         return file_put_contents($path, json_encode($data));
     }
 
     static private function printPHP(string $path, stdClass|array $data): bool|int {
+        error_log("Printing PHP to: $path");
         $phpCode = self::makePHP($data);
         return file_put_contents($path, '<?php return '.$phpCode.';');
     }

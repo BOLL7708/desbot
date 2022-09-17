@@ -34,7 +34,8 @@ if($isPost) {
         $groupKey
     );
     if($groupKey) {
-        $output = array_pop($output);
+        $array = get_object_vars($output);
+        $output = array_pop($array);
     }
 }
 

@@ -725,4 +725,8 @@ export default class Utils {
             ?.split('_')
             .map((code)=>this.emojiHexToString(code)) ?? []
     }
+
+    static getElement<T>(id: string): T|null {
+        return document.querySelector(id) as T|null
+    }
 }
