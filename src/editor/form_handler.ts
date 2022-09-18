@@ -1,6 +1,6 @@
 import Utils from '../widget/utils.js'
 import SectionHandler from './section_handler.js'
-import Data, {AuthData, DBData, LOCAL_STORAGE_AUTH_KEY} from '../modules/data.js'
+import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../modules/data.js'
 import DB from '../modules/db.js'
 
 type TForm =
@@ -31,18 +31,21 @@ export default class FormHandler {
 
     static async setup() {
         // Decide what to show first depending on if we have a password stored.
-        const password = this.getAuth() ?? ''
-        const authData = await Data.readData<AuthData>('auth.php', password)
+        const authData = await Data.readData<AuthData>('auth.php')
 
         // No auth data on disk, we need to register a password.
         if(!authData) return SectionHandler.show('Register')
 
-        // No password saved in the browser client, we need to login.
-        if(password.length == 0) return SectionHandler.show('Login')
+        // No password saved in the browser client, we need to log in.
+        if(Utils.getAuth().length == 0) return SectionHandler.show('Login')
 
         // No database data stored on disk, we need to register that.
-        const dbData = await Data.readData<DBData>('db.php', password)
+        const dbData = await Data.readData<DBData>('db.php')
         if(!dbData) return SectionHandler.show('DBSetup')
+
+        // Database migration
+        SectionHandler.show('Loading')
+        await FormHandler.migrateDB()
 
         // Twitch credentials
         // TODO: Add section for sign in into twitch.
@@ -61,7 +64,7 @@ export default class FormHandler {
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
         else {
-            const ok = await Data.writeData('auth.php', {'password': password}, '')
+            const ok = await Data.writeData('auth.php', {'password': password})
             if(ok) {
                 FormHandler.storeAuth(password)
                 FormHandler.setup().then()
@@ -81,7 +84,7 @@ export default class FormHandler {
     static async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
         const inputData = FormHandler.getFormInputData(event.target)
-        const ok = await Data.writeData('db.php', inputData, FormHandler.getAuth())
+        const ok = await Data.writeData('db.php', inputData)
         if(ok) {
             const dbOk = await DB.testConnection()
             if(dbOk) FormHandler.setup().then()
@@ -107,12 +110,38 @@ export default class FormHandler {
         return Utils.getElement<HTMLFormElement>(`#form${name}`)
     }
 
-    private static getAuth(): string {
-        return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ?? ''
-    }
     private static storeAuth(password: string) {
         console.log(`Storing auth: ${password}`)
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, password)
+    }
+
+    /**
+     * Used to upgrade the database to the latest version.
+     * Will pop result and error alerts.
+     * @private
+     */
+    private static async migrateDB() {
+        // Get current widget version from the git master branch
+        const gitResponse = await fetch('git.php');
+        const gitJson = await gitResponse.json() as GitVersion|undefined
+        const widgetVersion = gitJson?.count ?? -1;
+        // Get previous widget version stored on disk
+        const versionData = await Data.readData<GitVersion>('version.json')
+        let databaseVersion = 0
+        if(versionData && typeof versionData !== 'string') {
+            databaseVersion = (versionData as GitVersion|undefined)?.count ?? 0
+        }
+        if(databaseVersion < widgetVersion) {
+            const migrateResponse = await fetch(
+                `migrate.php?from=${databaseVersion}&to=${widgetVersion}`,
+                { headers: { Authorization: Utils.getAuth() } }
+            )
+            const migrateResult = await migrateResponse.json() as MigrationData
+            alert(`Database migrations done: ${migrateResult.count}, reached version: ${migrateResult.id}.`)
+            const newVersion: GitVersion = {count: migrateResult.id}
+            const ok = await Data.writeData('version.json', newVersion).then()
+            if(!ok) alert('Could not store new database version on disk.')
+        }
     }
     // endregion
 }

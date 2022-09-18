@@ -7,26 +7,23 @@ if(empty($path)) Utils::exitWithError('path was not supplied', 1001);
 $path = strtolower($path);
 
 // Incoming authentication to be allowed to do this request
-$authData = Files::read(AUTH_PATH);
-$authValue = $authData->hash ?? '';
-$password = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? '';
+$auth = Utils::getAuth();
 
 // Get request body (json/string)
 $input = file_get_contents('php://input');
 $data = json_decode($input) ?? $input;
 
 // Perform authorization check
-if(empty($authValue) && $path === AUTH_PATH) {
+if(empty($auth->hash) && $path === AUTH_PATH) {
     $newPassword = $data->password ?? '';
     if($newPassword) $data = (object) ['hash'=>Utils::sha256($newPassword)];
     else Utils::exitWithError('need to provide auth value to set it for future requests', 1002);
-} elseif(empty($authValue) || empty($password) || $authValue !== Utils::sha256($password)) {
-    if($path === AUTH_PATH && !empty($authValue)) {
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode((object) ['hash'=>'']);
-        exit;
-    } else {
-        Utils::exitWithError(empty($authValue) ? 'authentication not yet set' : 'authentication did not validate', 1003);
+} elseif(empty($auth->hash) || empty($auth->password) || $auth->hash !== Utils::sha256($auth->password)) {
+    // This path is used to check that we have a stored auth hash in the setup.
+    if($path === AUTH_PATH && !empty($auth->hash)) {
+        Utils::outputJson((object) ['hash'=>'']); // Faking output as to not include actual hash.
+    } else { // Else, just throw an error that it has not been set.
+        Utils::exitWithError(empty($auth->hash) ? 'authentication not yet set' : 'authentication did not validate', 1003);
     }
 }
 

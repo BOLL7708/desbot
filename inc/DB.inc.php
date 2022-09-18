@@ -86,6 +86,11 @@ class DB {
         return !!$this->query('SELECT 1;');
     }
 
+    function migrate(string $filePath): bool {
+        $query = file_get_contents($filePath);
+        if(empty($query)) return false;
+        return $this->query($query);
+    }
     // endregion
 
     // region Settings

@@ -13,6 +13,7 @@ import SteamStore from '../modules/steam_store.js'
 import {IEvent, IEventsConfig} from '../interfaces/ievents.js'
 import {ICleanTextConfig} from '../interfaces/iutils.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
+import {LOCAL_STORAGE_AUTH_KEY} from '../modules/data.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -728,5 +729,9 @@ export default class Utils {
 
     static getElement<T>(id: string): T|null {
         return document.querySelector(id) as T|null
+    }
+
+    static getAuth(): string {
+        return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ?? ''
     }
 }

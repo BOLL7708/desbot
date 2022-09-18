@@ -1,10 +1,12 @@
+import Utils from '../widget/utils.js'
+
 export default class Data {
-    static async writeData(path: string, data: any, password: string): Promise<boolean> {
+    static async writeData(path: string, data: any): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': password,
+                    Authorization: Utils.getAuth(),
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
@@ -12,12 +14,12 @@ export default class Data {
         if(!response.ok) console.warn(`Could not write data: ${path}`)
         return response.ok
     }
-    static async writeText(path: string, text: string, password: string): Promise<boolean> {
+    static async writeText(path: string, text: string): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {
                 method: 'POST',
                 headers: {
-                    'Authorization': password,
+                    Authorization: Utils.getAuth(),
                     'Content-Type': 'plain/text'
                 },
                 body: text
@@ -25,12 +27,12 @@ export default class Data {
         if(!response.ok) console.warn(`Could not write text: ${path}`)
         return response.ok
     }
-    static async appendText(path: string, text: string, password: string): Promise<boolean> {
+    static async appendText(path: string, text: string): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {
                 method: 'PUT',
                 headers: {
-                    'Authorization': password,
+                    Authorization: Utils.getAuth(),
                     'Content-Type': 'plain/text'
                 },
                 body: text
@@ -38,9 +40,9 @@ export default class Data {
         if(!response.ok) console.warn(`Could not append text: ${path}`)
         return response.ok
     }
-    static async readData<T>(path: string, password: string): Promise<T|string|undefined> {
+    static async readData<T>(path: string): Promise<T|string|undefined> {
         const response = await fetch(`data.php?path=${path}`, {
-            headers: {'Authorization': password}
+            headers: {Authorization: Utils.getAuth()}
         })
         if(!response.ok) {
             console.warn(`Could not read: ${path}`)
@@ -67,5 +69,13 @@ export class DBData {
     username: string = ''
     password: string = ''
     database: string = ''
+}
+export class GitVersion {
+    count: number = 0
+}
+export class MigrationData {
+    ok: boolean = false
+    count: number = 0
+    id: number = 0
 }
 // endregion

@@ -1,4 +1,5 @@
 import {LOCAL_STORAGE_AUTH_KEY} from './data.js'
+import Utils from '../widget/utils.js'
 
 export default class DB {
     private static LOG_COLOR: string = 'blue'
@@ -9,7 +10,10 @@ export default class DB {
 
     static async testConnection(): Promise<boolean> {
         const response = await fetch(this.getUrlDB(), {
-            method: 'HEAD'
+            method: 'HEAD',
+            headers: {
+                Authorization: Utils.getAuth()
+            }
         })
         return response.ok
     }

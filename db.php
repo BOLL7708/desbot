@@ -4,12 +4,7 @@ include_once './init.php';
 $db = DB::get();
 
 // Auth
-$password = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? null;
-$auth = Files::read(AUTH_PATH);
-$isAuthed = ($auth->hash ?? '') === Utils::sha256($password);
-if(empty($password)) Utils::exitWithError('no password in authorization header', 2001);
-if(!$auth) Utils::exitWithError('unauthorized', 2002);
-if(!$isAuthed) Utils::exitWithError('unauthorized', 2003);
+Utils::checkAuth();
 
 // Test
 $method = strtolower($_SERVER['REQUEST_METHOD']);

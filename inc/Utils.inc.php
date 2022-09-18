@@ -176,4 +176,21 @@ class Utils {
     {
         return hash('sha256', $text);
     }
+
+    public static function getAuth(): stdClass {
+        $result = new stdClass();
+        $result->password = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? '';
+        $data = Files::read(AUTH_PATH);
+        $result->hash = $data->hash ?? '';
+        error_log(json_encode($result));
+        return $result;
+    }
+    public static function checkAuth(): void
+    {
+        $auth = self::getAuth();
+        $isAuthed = self::sha256($auth->password) === $auth->hash;
+        if(empty($auth->password)) Utils::exitWithError('no password in authorization header', 9001);
+        if(!$auth->hash) Utils::exitWithError('unauthorized', 9002);
+        if(!$isAuthed) Utils::exitWithError('unauthorized', 9003);
+    }
 }
