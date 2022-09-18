@@ -1,7 +1,7 @@
 import Utils from '../widget/utils.js'
 import SectionHandler from './section_handler.js'
 import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../modules/data.js'
-import DB from '../modules/db.js'
+import DB, {TwitchClient, TwitchToken} from '../modules/db.js'
 
 type TForm =
     'Register'
@@ -47,13 +47,21 @@ export default class FormHandler {
         SectionHandler.show('Loading')
         await FormHandler.migrateDB()
 
+        // Twitch client info
+        const twitchClient = await DB.loadSettingsDB(TwitchClient.name)
+        if(!twitchClient) return SectionHandler.show('TwitchClient')
+
         // Twitch credentials
         // TODO: Add section for sign in into twitch.
+        const twitchToken = await DB.loadSettingsDB(TwitchToken.name, 'Channel')
+        if(!twitchToken) return SectionHandler.show('TwitchLogin')
 
         // Imports
         // TODO: If settings table is empty, offer up import capability.
+        // TODO: It won't be if it has Twitch credentials in it, make it a button?
 
         // Done, show the site.
+        // TODO: Include current database version on page.
         SectionHandler.show('Editor')
     }
 

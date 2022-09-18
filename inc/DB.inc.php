@@ -151,11 +151,11 @@ class DB {
         return implode('', $result);
     }
 
-    public function output(bool|array|stdClass $output): void
+    public function output(bool|array|stdClass|null $output): void
     {
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(
-            is_bool($output)
+            is_bool($output) || $output === null
                 ? ['result'=>$output]
                 : $output
         );

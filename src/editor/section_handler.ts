@@ -6,6 +6,8 @@ type TSection =
     | 'Login'
     | 'DBSetup'
     | 'Editor'
+    | 'TwitchClient'
+    | 'TwitchLogin'
 
 export default class SectionHandler {
     private static sectionElements: Record<TSection, HTMLDivElement|null> = {
@@ -13,7 +15,9 @@ export default class SectionHandler {
         'Register': SectionHandler.getSectionElement('Register'),
         'Login': SectionHandler.getSectionElement('Login'),
         'DBSetup': SectionHandler.getSectionElement('DBSetup'),
-        'Editor': SectionHandler.getSectionElement('Editor')
+        'Editor': SectionHandler.getSectionElement('Editor'),
+        'TwitchClient': SectionHandler.getSectionElement('TwitchClient'),
+        'TwitchLogin': SectionHandler.getSectionElement('TwitchLogin')
     }
     static init() {
         // Show loading
