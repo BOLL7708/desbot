@@ -4,6 +4,7 @@
         <p><label>Host: <input type="text" name="host" value="localhost"/></label> : <label>Port: <input type="number" name="port" value="3306"/></label></p>
         <p><label>Username: <input type="text" name="username" value="root"/></label></p>
         <p><label>Password: <input type="password" name="password"/></label></p>
+        <p><label>Database: <input type="text" name="database" value="streaming_widget"/></label></p>
         <p><input type="submit" value="Connect"/></p>
     </form>
 </div>

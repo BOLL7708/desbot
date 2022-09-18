@@ -6,3 +6,4 @@ header("Expires: 0"); // Proxies.
 spl_autoload_register(function ($class_name) {
     include_once "./inc/$class_name.inc.php";
 });
+const AUTH_PATH = 'auth.php';

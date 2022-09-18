@@ -13,15 +13,40 @@ class DB {
     public function __construct()
     {
         $dbData = Files::read('db.php');
-        $this->mysqli = new mysqli(
-            $dbData->host ?? '',
-            $dbData->username,
-            $dbData->password,
-            'streaming_widget',
-            $dbData->port
-        );
-        $connectionError = $this->mysqli->connect_error;
-        if($connectionError) Utils::exitWithError($connectionError, 1001);
+        $database = preg_replace("/[^a-z0-9_-]+/i", '', $dbData->database ?? '');
+        try {
+            // Default connection
+            $this->mysqli = new mysqli(
+                $dbData->host ?? '',
+                $dbData->username ?? '',
+                $dbData->password ?? '',
+                $database,
+                $dbData->port ?? ''
+            );
+        } catch (Exception $exception) {
+            // Unknown database, we need to create it, connect again without DB.
+            if($exception->getCode() == 1049) {
+                $this->mysqli = new mysqli(
+                    $dbData->host ?? '',
+                    $dbData->username ?? '',
+                    $dbData->password ?? '',
+                    null,
+                    $dbData->port ?? ''
+                );
+                $connectionError = $this->mysqli->connect_error;
+                if($connectionError) Utils::exitWithError($connectionError, 3002);
+
+                // Create the database as defined by the user
+                $query = /** @lang MariaDB */
+                    "CREATE DATABASE IF NOT EXISTS `$database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci";
+                $createResult = $this->mysqli->query($query);
+                if($createResult) $this->mysqli->select_db($database);
+                else Utils::exitWithError($this->mysqli->error ?? 'Unable to create database', 3003);
+            }
+            else Utils::exitWithError($exception->getMessage().', code: '.$exception->getCode(), 3004);
+        }
+        $connectionError = $this->mysqli->connect_error ?? null;
+        if($connectionError) Utils::exitWithError($connectionError, 3001);
     }
 
     /**
@@ -54,6 +79,13 @@ class DB {
         }
         return $output;
     }
+    // endregion
+
+    // region System
+    function test(): bool {
+        return !!$this->query('SELECT 1;');
+    }
+
     // endregion
 
     // region Settings

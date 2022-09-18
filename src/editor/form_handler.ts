@@ -1,8 +1,8 @@
 import Utils from '../widget/utils.js'
 import SectionHandler from './section_handler.js'
-import Data from '../modules/data.js'
+import Data, {AuthData, DBData, LOCAL_STORAGE_AUTH_KEY} from '../modules/data.js'
+import DB from '../modules/db.js'
 
-const LOCAL_STORAGE_AUTH_KEY = 'BOLL7708_streaming_widget_auth'
 type TForm =
     'Register'
     | 'Login'
@@ -83,11 +83,10 @@ export default class FormHandler {
         const inputData = FormHandler.getFormInputData(event.target)
         const ok = await Data.writeData('db.php', inputData, FormHandler.getAuth())
         if(ok) {
-            // TODO: Check if can connect to the database, only then we relaunch the setup.
-            // TODO: If we couldn't connect to DB, clear out the settings again?!
-            FormHandler.setup().then()
+            const dbOk = await DB.testConnection()
+            if(dbOk) FormHandler.setup().then()
+            else alert('Could not connect to the database')
         } else alert('Could not store database settings on disk.')
-
     }
     // endregion
 
@@ -123,14 +122,3 @@ interface IInputValues {
     [key: string]: string
 }
 // endregion
-
-// region Data Classes
-class AuthData {
-    hash: string = ''
-}
-class DBData {
-    host: string = ''
-    port: number = 0
-    username: string = ''
-    password: string = ''
-}

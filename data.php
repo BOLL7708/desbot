@@ -1,6 +1,5 @@
 <?php
 include_once('./init.php');
-const AUTH_PATH = 'auth.php';
 
 // Incoming path to which file we want to write or read
 $path = $_REQUEST['path'] ?? $_REQUEST['p'] ?? '';
