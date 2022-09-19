@@ -155,6 +155,9 @@ export default class FormHandler {
             databaseVersion = (versionData as GitVersion|undefined)?.count ?? 0
         }
         if(databaseVersion < widgetVersion) {
+            const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${widgetVersion}?`)
+            if(!doMigration) return
+
             const migrateResponse = await fetch(
                 `migrate.php?from=${databaseVersion}&to=${widgetVersion}`,
                 { headers: { Authorization: Utils.getAuth() } }
