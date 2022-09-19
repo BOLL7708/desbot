@@ -153,11 +153,12 @@ class DB {
 
     public function output(bool|array|stdClass|null $output): void
     {
+        // TODO: Will this be OK? Guess we'll know when we start to actually use this.
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(
-            is_bool($output) || $output === null
+            is_bool($output)
                 ? ['result'=>$output]
-                : $output
+                : ($output ?? (object)[])
         );
     }
     // endregion

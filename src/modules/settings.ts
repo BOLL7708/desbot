@@ -251,3 +251,12 @@ class SettingCounterBase {
 export class SettingAccumulatingCounter extends SettingCounterBase {}
 export class SettingIncrementingCounter extends SettingCounterBase {}
 
+export class SettingTwitchClient {
+    id: string = ''
+    secret: string = ''
+}
+export class SettingTwitchTokens {
+    refreshToken: string = ''
+    accessToken: string = ''
+    scopes: string = ''
+}

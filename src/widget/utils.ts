@@ -3,8 +3,10 @@ import StatesSingleton from './states_singleton.js'
 import ModulesSingleton from '../modules_singleton.js'
 import {TKeys} from '../_data/!keys.js'
 import Settings, {
-    SettingAccumulatingCounter, SettingTwitchCheer,
-    SettingTwitchRewardPair, SettingTwitchSub,
+    SettingAccumulatingCounter,
+    SettingTwitchCheer,
+    SettingTwitchRewardPair,
+    SettingTwitchSub,
     SettingUserName,
     SettingUserVoice
 } from '../modules/settings.js'
@@ -733,5 +735,15 @@ export default class Utils {
 
     static getAuth(): string {
         return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ?? ''
+    }
+
+    /**
+     * @link https://stackoverflow.com/a/32108184
+     * @param object
+     */
+    static isEmptyObject(object: any) {
+        return object
+            && Object.keys(object).length === 0
+            && Object.getPrototypeOf(object) === Object.prototype
     }
 }

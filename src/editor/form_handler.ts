@@ -1,23 +1,27 @@
 import Utils from '../widget/utils.js'
 import SectionHandler from './section_handler.js'
 import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../modules/data.js'
-import DB, {TwitchClient, TwitchToken} from '../modules/db.js'
+import {SettingTwitchClient, SettingTwitchTokens} from '../modules/settings.js'
+import DB from '../modules/db.js'
 
 type TForm =
     'Register'
     | 'Login'
     | 'DBSetup'
+    | 'TwitchClient'
 export default class FormHandler {
     // region Values
     private static formElements: Record<TForm, HTMLFormElement|null> = {
         'Register': FormHandler.getFormElement('Register'),
         'Login': FormHandler.getFormElement('Login'),
-        'DBSetup': FormHandler.getFormElement('DBSetup')
+        'DBSetup': FormHandler.getFormElement('DBSetup'),
+        'TwitchClient': FormHandler.getFormElement('TwitchClient')
     }
     private static formSubmits: Record<TForm, any> = {
         'Register': FormHandler.submitRegister,
         'Login': FormHandler.submitLogin,
-        'DBSetup': FormHandler.submitDBSetup
+        'DBSetup': FormHandler.submitDBSetup,
+        'TwitchClient': FormHandler.submitTwitchClient
     }
     // endregion
 
@@ -48,13 +52,13 @@ export default class FormHandler {
         await FormHandler.migrateDB()
 
         // Twitch client info
-        const twitchClient = await DB.loadSettingsDB(TwitchClient.name)
-        if(!twitchClient) return SectionHandler.show('TwitchClient')
+        const twitchClient = await DB.loadSettingsDB<SettingTwitchClient>(SettingTwitchClient.name, 'Main')
+        if(!twitchClient || Utils.isEmptyObject(twitchClient)) return SectionHandler.show('TwitchClient')
 
         // Twitch credentials
-        // TODO: Add section for sign in into twitch.
-        const twitchToken = await DB.loadSettingsDB(TwitchToken.name, 'Channel')
-        if(!twitchToken) return SectionHandler.show('TwitchLogin')
+        const twitchTokens = await DB.loadSettingsDB<SettingTwitchTokens>(SettingTwitchTokens.name, 'Channel')
+        console.log(twitchTokens)
+        if(!twitchTokens || Utils.isEmptyObject(twitchTokens)) return SectionHandler.show('TwitchLogin')
 
         // Imports
         // TODO: If settings table is empty, offer up import capability.
@@ -68,11 +72,11 @@ export default class FormHandler {
     // region Form Logic
     static async submitRegister(event: SubmitEvent) {
         event.preventDefault()
-        const inputData = FormHandler.getFormInputData(event.target)
+        const inputData = FormHandler.getFormInputData(event.target, new PasswordInput())
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
         else {
-            const ok = await Data.writeData('auth.php', {'password': password})
+            const ok = await Data.writeData('auth.php', inputData)
             if(ok) {
                 FormHandler.storeAuth(password)
                 FormHandler.setup().then()
@@ -83,7 +87,7 @@ export default class FormHandler {
     }
     static async submitLogin(event: SubmitEvent) {
         event.preventDefault()
-        const inputData = FormHandler.getFormInputData(event.target)
+        const inputData = FormHandler.getFormInputData(event.target, new PasswordInput())
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
         else FormHandler.storeAuth(password)
@@ -91,7 +95,7 @@ export default class FormHandler {
     }
     static async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
-        const inputData = FormHandler.getFormInputData(event.target)
+        const inputData = FormHandler.getFormInputData(event.target, new DBData())
         const ok = await Data.writeData('db.php', inputData)
         if(ok) {
             const dbOk = await DB.testConnection()
@@ -99,23 +103,34 @@ export default class FormHandler {
             else alert('Could not connect to the database')
         } else alert('Could not store database settings on disk.')
     }
+    static async submitTwitchClient(event: SubmitEvent) {
+        event.preventDefault()
+        const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
+        console.log("Input from the form: ", inputData)
+        const ok = await DB.saveSettingDB(inputData, 'Main')
+        if(ok) await FormHandler.setup()
+        else alert('Could not store Twitch Client settings in DB.')
+    }
     // endregion
 
     // region Helpers
-    static getFormInputData(target: EventTarget|null): IInputValues {
-        const result: IInputValues = {}
+    static getFormInputData<T>(target: EventTarget|null, output: T&Object): T {
         if(target) {
             for(const input of Object.values(target) as HTMLInputElement[]) {
                 const key = input.name ?? input.id
-                if(key) result[key] = input.value
+                if(key && output.hasOwnProperty(key)) {
+                    (output as any)[key] = input.value
+                }
             }
         }
-        return result
+        return output
     }
 
     private static getFormElement(name: TForm): HTMLFormElement|null
     {
-        return Utils.getElement<HTMLFormElement>(`#form${name}`)
+        const element = Utils.getElement<HTMLFormElement>(`#form${name}`)
+        console.log(`Get ${name} FORM element: ${element?.id}`)
+        return element
     }
 
     private static storeAuth(password: string) {
@@ -155,7 +170,9 @@ export default class FormHandler {
 }
 
 // region Interfaces
-interface IInputValues {
-    [key: string]: string
+
+// We get these from the forms and also save it to a file on disk.
+class PasswordInput {
+    password: string = ''
 }
 // endregion

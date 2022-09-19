@@ -1,3 +1,4 @@
 <div id="sectionEditor">
-    <p>This is the editor. Soon.</p>
+    <h2>Editor</h2>
+    <p>This is the editor. Yes really.</p>
 </div>

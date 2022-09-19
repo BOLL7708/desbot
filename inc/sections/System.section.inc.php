@@ -1,3 +1,4 @@
 <div id="sectionLoading">
-    <p>Loading... (replace with spinner?)</p>
+    <h2>Loading</h2>
+    <p>Put a spinner here.</p>
 </div>

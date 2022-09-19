@@ -23,6 +23,7 @@ export default class DB {
      * @param groupClass Main class to load settings for.
      * @param groupKey Supply a value for this to get one specific post.
      * @param ignoreCache Will ignore the memory cache.
+     * TODO: Figure out if the return format is actually right. Might always be an object?
      */
     static async loadSettingsDB<T>(groupClass: string, groupKey?: string, ignoreCache: boolean = false): Promise<T[]|T|null|undefined> {
         if(!ignoreCache && this._settingsStore.has(groupClass)) {
@@ -89,15 +90,3 @@ export default class DB {
         return headers
     }
 }
-
-// region Data Classes
-export class TwitchClient {
-    clientId: string = ''
-    clientSecret: string = ''
-}
-export class TwitchToken {
-    refreshToken: string = ''
-    accessToken: string = ''
-    scopes: string = ''
-}
-// endregion
