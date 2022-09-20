@@ -51,14 +51,26 @@ export default class FormHandler {
         SectionHandler.show('Loading')
         await FormHandler.migrateDB()
 
-        // Twitch client info
-        const twitchClient = await DB.loadSettingsDB<SettingTwitchClient>(SettingTwitchClient.name, 'Main')
-        if(!twitchClient || Utils.isEmptyObject(twitchClient)) return SectionHandler.show('TwitchClient')
 
-        // Twitch credentials
+        // TODO: Should check if we are signed in.
+
+        // Twitch credentials & client info
         const twitchTokens = await DB.loadSettingsDB<SettingTwitchTokens>(SettingTwitchTokens.name, 'Channel')
-        console.log(twitchTokens)
-        if(!twitchTokens || Utils.isEmptyObject(twitchTokens)) return SectionHandler.show('TwitchLogin')
+        const twitchClient = await DB.loadSettingsDB<SettingTwitchClient>(SettingTwitchClient.name, 'Main')
+        if(!twitchTokens || Utils.isEmptyObject(twitchTokens) || !twitchClient || Utils.isEmptyObject(twitchClient)) {
+            // Fill form with existing values.
+            if(twitchClient && !Utils.isEmptyObject(twitchClient)) {
+                const form = FormHandler.formElements['TwitchClient']
+                const clientId = form?.querySelector<HTMLInputElement>('[name="clientId"]')
+                if(clientId) clientId.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientId ?? ''
+                const clientSecret = form?.querySelector<HTMLInputElement>('[name="clientSecret"]')
+                if(clientSecret) clientSecret.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientSecret ?? ''
+                const redirectUri = form?.querySelector<HTMLInputElement>('[name="redirectUri"]')
+                if(redirectUri) redirectUri.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.redirectUri ?? window.location.href+'twitch_auth.php'
+            }
+            // Show form
+            return SectionHandler.show('TwitchClient')
+        }
 
         // Imports
         // TODO: If settings table is empty, offer up import capability.
@@ -106,9 +118,14 @@ export default class FormHandler {
     static async submitTwitchClient(event: SubmitEvent) {
         event.preventDefault()
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
-        console.log("Input from the form: ", inputData)
         const ok = await DB.saveSettingDB(inputData, 'Main')
-        if(ok) await FormHandler.setup()
+        if(ok) {
+            (window as any).CallParent = async (userId: string)=>{
+                if(userId.length > 0) await FormHandler.setup()
+                else alert('Could not retrieve Twitch tokens.')
+            }
+            window.open('twitch_auth.php', 'StreamingWidgetTwitchAuthAuxiliaryWindow')
+        }
         else alert('Could not store Twitch Client settings in DB.')
     }
     // endregion

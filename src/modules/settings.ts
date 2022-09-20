@@ -252,10 +252,12 @@ export class SettingAccumulatingCounter extends SettingCounterBase {}
 export class SettingIncrementingCounter extends SettingCounterBase {}
 
 export class SettingTwitchClient {
-    id: string = ''
-    secret: string = ''
+    clientId: string = ''
+    clientSecret: string = ''
+    redirectUri: string = ''
 }
 export class SettingTwitchTokens {
+    userId: number = 0
     refreshToken: string = ''
     accessToken: string = ''
     scopes: string = ''
