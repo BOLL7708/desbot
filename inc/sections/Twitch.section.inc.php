@@ -1,7 +1,6 @@
-<div id="sectionTwitchClient">
+<div id="sectionTwitch">
     <h2>Twitch Client</h2>
-    <form id="formTwitchClient">
-
+    <form id="formTwitch">
         <ol>
             <li><label>Copy the <i>redirect URI</i> from here: <input type="text" size="48" name="redirectUri"/></label></li>
             <li>Log into the <a href="https://dev.twitch.tv/console/apps/" target="_blank">Twitch Console</a> and create an application.</li>
@@ -11,8 +10,4 @@
             <li>Click this button: <input type="submit" value="Save & Launch Auth Process"/></li>
         </ol>
     </form>
-</div>
-
-<div id="sectionTwitchLogin">
-    <p>DO TWITCH LOGIN TO GET TOKENS</p>
 </div>

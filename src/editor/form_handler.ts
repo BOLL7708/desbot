@@ -8,20 +8,20 @@ type TForm =
     'Register'
     | 'Login'
     | 'DBSetup'
-    | 'TwitchClient'
+    | 'Twitch'
 export default class FormHandler {
     // region Values
     private static formElements: Record<TForm, HTMLFormElement|null> = {
         'Register': FormHandler.getFormElement('Register'),
         'Login': FormHandler.getFormElement('Login'),
         'DBSetup': FormHandler.getFormElement('DBSetup'),
-        'TwitchClient': FormHandler.getFormElement('TwitchClient')
+        'Twitch': FormHandler.getFormElement('Twitch')
     }
     private static formSubmits: Record<TForm, any> = {
         'Register': FormHandler.submitRegister,
         'Login': FormHandler.submitLogin,
         'DBSetup': FormHandler.submitDBSetup,
-        'TwitchClient': FormHandler.submitTwitchClient
+        'Twitch': FormHandler.submitTwitchClient
     }
     // endregion
 
@@ -51,30 +51,30 @@ export default class FormHandler {
         SectionHandler.show('Loading')
         await FormHandler.migrateDB()
 
-
-        // TODO: Should check if we are signed in.
-
         // Twitch credentials & client info
         const twitchTokens = await DB.loadSettingsDB<SettingTwitchTokens>(SettingTwitchTokens.name, 'Channel')
         const twitchClient = await DB.loadSettingsDB<SettingTwitchClient>(SettingTwitchClient.name, 'Main')
         if(!twitchTokens || Utils.isEmptyObject(twitchTokens) || !twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
+            const form = FormHandler.formElements['Twitch']
             if(twitchClient && !Utils.isEmptyObject(twitchClient)) {
-                const form = FormHandler.formElements['TwitchClient']
                 const clientId = form?.querySelector<HTMLInputElement>('[name="clientId"]')
                 if(clientId) clientId.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientId ?? ''
                 const clientSecret = form?.querySelector<HTMLInputElement>('[name="clientSecret"]')
                 if(clientSecret) clientSecret.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientSecret ?? ''
-                const redirectUri = form?.querySelector<HTMLInputElement>('[name="redirectUri"]')
-                if(redirectUri) redirectUri.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.redirectUri ?? window.location.href+'twitch_auth.php'
             }
+            const redirectUri = form?.querySelector<HTMLInputElement>('[name="redirectUri"]')
+            if(redirectUri) redirectUri.value = Utils.ensureValue<SettingTwitchClient>(twitchClient ?? [])?.redirectUri ?? window.location.href+'twitch_auth.php'
             // Show form
-            return SectionHandler.show('TwitchClient')
+            return SectionHandler.show('Twitch')
         }
 
         // Imports
         // TODO: If settings table is empty, offer up import capability.
         // TODO: It won't be if it has Twitch credentials in it, make it a button?
+        // TODO: Need to decide how to do this, automatically or not... detect files? Meh... just two buttons probably... import or skip? Or automatically pop dialog?
+        // TODO: Need to save if we have done this at least, so we don't ask again and again, so will have to store a setting.
+        return SectionHandler.show('ImportSettings')
 
         // Done, show the site.
         // TODO: Include current database version on page.
@@ -117,12 +117,13 @@ export default class FormHandler {
     }
     static async submitTwitchClient(event: SubmitEvent) {
         event.preventDefault()
+        SectionHandler.show('Waiting')
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
         const ok = await DB.saveSettingDB(inputData, 'Main')
         if(ok) {
             (window as any).CallParent = async (userId: string)=>{
-                if(userId.length > 0) await FormHandler.setup()
-                else alert('Could not retrieve Twitch tokens.')
+                if(userId.length == 0) alert('Could not retrieve Twitch tokens.')
+                await FormHandler.setup()
             }
             window.open('twitch_auth.php', 'StreamingWidgetTwitchAuthAuxiliaryWindow')
         }
