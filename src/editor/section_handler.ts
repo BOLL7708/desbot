@@ -9,9 +9,10 @@ type TSection =
     | 'Editor'
     | 'Twitch'
     | 'ImportSettings'
+    | 'SettingsBrowser'
 
 export default class SectionHandler {
-    private static sectionElements: Record<TSection, HTMLDivElement | null> = {
+    private static sectionElements: Record<TSection, HTMLDivElement | undefined> = {
         'Loading': SectionHandler.getSectionElement('Loading'),
         'Waiting': SectionHandler.getSectionElement('Waiting'),
         'Register': SectionHandler.getSectionElement('Register'),
@@ -19,7 +20,8 @@ export default class SectionHandler {
         'DBSetup': SectionHandler.getSectionElement('DBSetup'),
         'Editor': SectionHandler.getSectionElement('Editor'),
         'Twitch': SectionHandler.getSectionElement('Twitch'),
-        'ImportSettings': SectionHandler.getSectionElement('ImportSettings')
+        'ImportSettings': SectionHandler.getSectionElement('ImportSettings'),
+        'SettingsBrowser': SectionHandler.getSectionElement('SettingsBrowser')
     }
 
     static init() {
@@ -37,8 +39,12 @@ export default class SectionHandler {
         }
     }
 
-    private static getSectionElement(section: TSection): HTMLDivElement | null {
-        return Utils.getElement<HTMLDivElement>(`#section${section}`)
+    static get(sectionName: TSection): HTMLDivElement|undefined {
+        return this.sectionElements[sectionName] ?? this.getSectionElement(sectionName)
+    }
+
+    private static getSectionElement(section: TSection): HTMLDivElement | undefined {
+        return Utils.getElement<HTMLDivElement>(`#section${section}`) ?? undefined
     }
 }
 

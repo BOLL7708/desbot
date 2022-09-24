@@ -17,7 +17,7 @@ if($method === 'head') {
 // Parameters
 $isPost = $method === 'post';
 $groupClass = $_GET['class'] ?? $_GET['groupClass'] ?? null;
-if(!$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
+if($isPost && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
 $groupKey = $_GET['key'] ?? $_GET['groupKey'] ?? null;
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 
@@ -31,13 +31,16 @@ if($isPost) {
         $dataJson
     );
 } else {
-    $output = $db->getSettings(
-        $groupClass,
-        $groupKey
-    );
-    if($groupKey) {
-        $array = is_object($output) ? get_object_vars($output) : $output;
-        $output = array_pop($array);
+    if(!$groupClass) $output = $db->getSettingsClasses();
+    else {
+        $output = $db->getSettings(
+            $groupClass,
+            $groupKey
+        );
+        if($groupKey) {
+            $array = is_object($output) ? get_object_vars($output) : $output;
+            $output = array_pop($array);
+        }
     }
 }
 

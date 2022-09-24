@@ -3,15 +3,17 @@ import SectionHandler from './section_handler.js'
 import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../modules/data.js'
 import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../modules/settings.js'
 import DB from '../modules/db.js'
+import SettingsHandler from './settings_handler.js'
 
 type TForm =
     'Register'
     | 'Login'
     | 'DBSetup'
     | 'Twitch'
+
 export default class FormHandler {
     // region Values
-    private static formElements: Record<TForm, HTMLFormElement|null> = {
+    private static formElements: Record<TForm, HTMLFormElement|undefined> = {
         'Register': FormHandler.getFormElement('Register'),
         'Login': FormHandler.getFormElement('Login'),
         'DBSetup': FormHandler.getFormElement('DBSetup'),
@@ -90,9 +92,13 @@ export default class FormHandler {
             await DB.saveSettingDB(importStatus, 'Legacy')
         }
 
-        // Done, show the site.
+        // Temporary stop for showing the settings browser, before we have a menu.
         // TODO: Include current database version on page.
-        SectionHandler.show('Editor')
+        await SettingsHandler.init()
+        return SectionHandler.show('SettingsBrowser')
+
+        // Done, show the site.
+        // SectionHandler.show('Editor')
     }
 
     // region Form Logic
@@ -158,7 +164,7 @@ export default class FormHandler {
         return output
     }
 
-    private static getFormElement(name: TForm): HTMLFormElement|null
+    private static getFormElement(name: TForm): HTMLFormElement|undefined
     {
         const element = Utils.getElement<HTMLFormElement>(`#form${name}`)
         console.log(`Get ${name} FORM element: ${element?.id}`)

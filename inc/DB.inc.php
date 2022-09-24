@@ -52,9 +52,9 @@ class DB {
     /**
      * @param string $query
      * @param array $params
-     * @return stdClass|array|bool Array if there are rows, bool otherwise.
+     * @return array|bool Array if there are rows, bool otherwise.
      */
-    private function query(string $query, array $params = []):stdClass|array|bool {
+    private function query(string $query, array $params = []):array|bool {
         $stmt = $this->mysqli->prepare($query);
         if(!empty($params)) {
             $types = self::getParamTypes($params);
@@ -66,17 +66,9 @@ class DB {
         // Bool output
         if(is_bool($result)) return $executeBool;
 
-        // Array output
-        $output = new stdClass();
-        $rowIndex = 0;
-        while ($row = $result->fetch_assoc()) {
-            $groupKey = $row['groupKey'];
-            $index = empty($groupKey)
-                ? $rowIndex++
-                : $groupKey;
-            $output->$index = json_decode($row['dataJson']);
-        }
-        if($rowIndex > 0 && $rowIndex == count(array_keys((array) $output))) $output = get_object_vars($output); // Remove keys if it's only numbered.
+        // Result output
+        $output = [];
+        while ($row = $result->fetch_assoc()) $output[] = $row;
         return $output;
     }
     // endregion
@@ -129,7 +121,27 @@ class DB {
             $query .= " AND groupKey = ?;";
             $params[] = $groupKey;
         }
-        return $this->query($query, $params);
+        $result = $this->query($query, $params);
+
+        $output = new stdClass();
+        if(is_array($result)) {
+            $rowIndex = 0;
+            foreach($result as $row) {
+                $groupKey = $row['groupKey'];
+                $index = empty($groupKey)
+                    ? $rowIndex++
+                    : $groupKey;
+                $output->$index = json_decode($row['dataJson']);
+            }
+            if($rowIndex > 0 && $rowIndex == count(array_keys((array) $output))) $output = get_object_vars($output); // Remove keys if it's only numbered.
+        }
+        return $output;
+    }
+
+    function getSettingsClasses(): array {
+        $query = "SELECT DISTINCT groupClass FROM settings;";
+        $result = $this->query($query);
+        return is_array($result) ? array_map(function($row) { return $row['groupClass']; }, $result) : [];
     }
     // endregion
 

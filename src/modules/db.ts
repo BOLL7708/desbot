@@ -87,6 +87,14 @@ export default class DB {
         return result
     }
 
+    static async loadSettingClasses(): Promise<string[]> {
+        const url = this.getUrlDB()
+        const response = await fetch(url, {
+            headers: await this.getAuthHeaderDB()
+        })
+        return response.ok ? await response.json() : []
+    }
+
     /**
      * Save a setting to the database.
      * @param setting Should be a class instance to work, as the name of the class is used to categorize the setting.

@@ -729,8 +729,8 @@ export default class Utils {
             .map((code)=>this.emojiHexToString(code)) ?? []
     }
 
-    static getElement<T>(id: string): T|null {
-        return document.querySelector(id) as T|null
+    static getElement<T>(id: string): T|undefined {
+        return (document.querySelector(id) as T|null) ?? undefined
     }
 
     static getAuth(): string {
