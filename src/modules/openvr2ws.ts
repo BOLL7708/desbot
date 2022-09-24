@@ -161,7 +161,7 @@ export default class OpenVR2WS {
             value: password,
             value2: settingArr[0],
             value3: settingArr[1],
-            value4: config.value.toString()
+            value4: config.value?.toString() ?? settingArr[2].toString() ?? ''
         }
         this.sendMessage(message)
         console.log(`OpenVR2WS: Setting ${config.setting} to ${config.value}`)

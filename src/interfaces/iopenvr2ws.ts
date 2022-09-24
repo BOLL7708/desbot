@@ -22,9 +22,9 @@ export interface IOpenVR2WSSetting {
      */
     setting: string
     /**
-     * The value to set the setting to, takes various formats.
+     * Optional: The value to set the setting to, takes various formats, will use possible default if missing.
      */
-    value: boolean|number|string
+    value?: boolean|number|string
     /**
      * Optional: The value to reset to after the duration has expired, will fall back on hard coded value if missing.
      */

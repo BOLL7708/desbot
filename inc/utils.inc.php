@@ -44,7 +44,7 @@ class Utils {
         // Include pre-configs
         foreach($configDir as $configFile) {
             $configName = $configFile->getFileName();
-            if(!$configFile->isDir() && strpos($configName, $config->preConfigSymbol) !== false) {
+            if(!$configFile->isDir() && str_contains($configName, $config->preConfigSymbol)) {
                 includeFile($root, $configName, $configPath);
             }
         }
@@ -55,7 +55,7 @@ class Utils {
         // Include post-configs
         foreach($configDir as $configFile) {
             $configName = $configFile->getFileName();
-            if(!$configFile->isDir() && strpos($configName, $config->postConfigSymbol) !== false) {
+            if(!$configFile->isDir() && str_contains($configName, $config->postConfigSymbol)) {
                 includeFile($root, $configName, $configPath);
             }
         }
