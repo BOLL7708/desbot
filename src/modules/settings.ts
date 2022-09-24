@@ -262,3 +262,6 @@ export class SettingTwitchTokens {
     accessToken: string = ''
     scopes: string = ''
 }
+export class SettingImportStatus {
+    done: boolean = false
+}

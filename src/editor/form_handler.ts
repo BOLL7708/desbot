@@ -1,7 +1,7 @@
 import Utils from '../widget/utils.js'
 import SectionHandler from './section_handler.js'
 import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../modules/data.js'
-import {SettingTwitchClient, SettingTwitchTokens} from '../modules/settings.js'
+import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../modules/settings.js'
 import DB from '../modules/db.js'
 
 type TForm =
@@ -52,8 +52,8 @@ export default class FormHandler {
         await FormHandler.migrateDB()
 
         // Twitch credentials & client info
-        const twitchTokens = await DB.loadSettingsDB<SettingTwitchTokens>(SettingTwitchTokens.name, 'Channel')
-        const twitchClient = await DB.loadSettingsDB<SettingTwitchClient>(SettingTwitchClient.name, 'Main')
+        const twitchTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel', true)
+        const twitchClient = await DB.loadSetting(new SettingTwitchClient(), 'Main', true)
         if(!twitchTokens || Utils.isEmptyObject(twitchTokens) || !twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
             const form = FormHandler.formElements['Twitch']
@@ -70,11 +70,25 @@ export default class FormHandler {
         }
 
         // Imports
-        // TODO: If settings table is empty, offer up import capability.
-        // TODO: It won't be if it has Twitch credentials in it, make it a button?
-        // TODO: Need to decide how to do this, automatically or not... detect files? Meh... just two buttons probably... import or skip? Or automatically pop dialog?
-        // TODO: Need to save if we have done this at least, so we don't ask again and again, so will have to store a setting.
-        return SectionHandler.show('ImportSettings')
+        let importStatus = await DB.loadSetting(new SettingImportStatus(), 'Legacy', true)
+        if(!importStatus || !importStatus.done) {
+            SectionHandler.show('Waiting')
+            const doImport = confirm('It is possible to import legacy settings, do you want do the import?')
+            importStatus = new SettingImportStatus()
+            importStatus.done = true
+            if(doImport) {
+                SectionHandler.show('Loading')
+                const importResponse = await fetch('import_settings.php')
+                const importDictionary = importResponse.ok ? await importResponse.json() as { [key:string]: number } : { 'Nothing to import.': 0 }
+                const importArr: string[] = [];
+                for(const [str, num] of Object.entries(importDictionary)) {
+                    importArr.push(` ${str} - ${num}`)
+                }
+                alert('Result:\n'+importArr.join('\n'))
+            }
+            // To avoid asking every time, we mark this as done regardless if it was done or not.
+            await DB.saveSettingDB(importStatus, 'Legacy')
+        }
 
         // Done, show the site.
         // TODO: Include current database version on page.
@@ -108,7 +122,7 @@ export default class FormHandler {
     static async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
         const inputData = FormHandler.getFormInputData(event.target, new DBData())
-        const ok = await Data.writeData('db.php', inputData)
+        const ok = await Data.writeData('db_settings.php', inputData)
         if(ok) {
             const dbOk = await DB.testConnection()
             if(dbOk) FormHandler.setup().then()
@@ -121,7 +135,7 @@ export default class FormHandler {
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
         const ok = await DB.saveSettingDB(inputData, 'Main')
         if(ok) {
-            (window as any).CallParent = async (userId: string)=>{
+            (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
                 if(userId.length == 0) alert('Could not retrieve Twitch tokens.')
                 await FormHandler.setup()
             }

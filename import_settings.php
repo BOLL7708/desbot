@@ -21,16 +21,15 @@ $classMap = [
 include_once('init.php');
 $db = DB::get();
 
-echo "<pre>";
-
 // Go through settings files
 $path = './_settings';
 $files = scandir($path);
+$output = [];
 foreach($files as $file) {
     $fileArr = explode('.', $file);
     $fileName = array_shift($fileArr);
     $fileExt = array_pop($fileArr);
-    if(strtolower($fileExt) == 'csv') {
+    if(strtolower($fileExt ?? '') == 'csv') {
         $class = $classMap[$fileName] ?? '';
         if($class) {
             $contents = file_get_contents("$path/$file");
@@ -56,18 +55,78 @@ foreach($files as $file) {
                         if (!is_string($value) || !empty($value)) $setting[$values[0]] = $value;
                     }
                 }
-                // TODO: Add more userName conversions here.
-                $userId = null;
+
+                // Moves username from TTS Voices and TTS Names to the key.
+                $key = null;
                 if(key_exists('userName', $setting)) {
-                    $userId = Twitch::getIdFromLogin($setting['userName']);
+                    $key = Twitch::getIdFromLogin($setting['userName']);
                     unset($setting['userName']);
                 }
-                $result = $db->saveSetting($class, $userId, json_encode($setting));
-                $count = count($pairs);
-                echo $result
-                    ? "Imported <u>$class</u> row, $count value(s).\n"
-                    : "<strong>Failed to import <u>$class</u> row.</strong>\n";
+
+                // Editor in Dictionary Entries and TTS Names
+                if(key_exists('editor', $setting)) {
+                    $userId = Twitch::getIdFromLogin($setting['editor']);
+                    unset($setting['editor']);
+                    $setting['editorUserId'] = $userId;
+                }
+
+                // Author and submitter for quotes
+                if(key_exists('author', $setting)) {
+                    $userId = Twitch::getIdFromLogin($setting['author']);
+                    unset($setting['author']);
+                    $setting['quoteeUserId'] = $userId;
+                }
+                if(key_exists('submitter', $setting)) {
+                    $userId = Twitch::getIdFromLogin($setting['submitter']);
+                    unset($setting['submitter']);
+                    $setting['quoterUserId'] = $userId;
+                }
+                if($class === 'SettingDictionaryEntry' && key_exists('original', $setting)) {
+                    $key = $setting['original'];
+                    unset($setting['original']);
+                }
+
+                // Twitch Redemptions
+                if(key_exists('redemptionId', $setting)) {
+                    $key = $setting['redemptionId'];
+                    unset($setting['redemptionId']);
+                }
+
+                // Twitch Clips
+                if($class === 'SettingTwitchClip' && key_exists('id', $setting)) {
+                    $key = $setting['id'];
+                    unset($setting['id']);
+                }
+
+                // Twitch Rewards & associated settings.
+                $withKey = [
+                    'SettingTwitchRewardPair',
+                    'SettingIncrementingCounter',
+                    'SettingAccumulatingCounter'
+                ];
+                if(in_array($class, $withKey) && key_exists('key', $setting)) {
+                    $key = $setting['key'];
+                    unset($setting['key']);
+                }
+
+                // Trophies
+                if($class === 'SettingChannelTrophyStat' && key_exists('cost', $setting)) {
+                    $key = $setting['cost'];
+                    unset($setting['cost']);
+                }
+
+                $result = $db->saveSetting($class, $key, json_encode($setting));
+                $classOkay = "$class(OKAY)";
+                $classFail = "$class(FAIL)";
+                if($result) {
+                    if(!array_key_exists($classOkay, $output)) $output[$classOkay] = 0;
+                    $output[$classOkay]++;
+                } else {
+                    if(!array_key_exists($classFail, $output)) $output[$classFail] = 0;
+                    $output[$classFail]++;
+                }
             }
         }
     }
 }
+Utils::outputJson($output);

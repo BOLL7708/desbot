@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <body>
 <?php
@@ -70,7 +71,7 @@ if(!$gotAuthResponse) { ?>
         $userInfo = $userInfoArr->data[0] ?? (object) [];
         if($userInfo) {
             $success = $db->saveSetting('SettingTwitchTokens', 'Channel', json_encode([
-                'userId'=> $userInfo->id,
+                'userId'=> intval($userInfo->id),
                 'accessToken' => $json->access_token,
                 'refreshToken' => $json->refresh_token,
                 'scope'=>implode(" ", $scopes)
@@ -80,7 +81,7 @@ if(!$gotAuthResponse) { ?>
     ?>
     <script>
         window.onload = ()=>{
-            window.opener['CallParent']('<?=$success ? $userInfo->id : ''?>')
+            window.opener['ReportTwitchOAuthResult']('<?=$success ? $userInfo->id : ''?>')
             window.close()
         }
     </script>

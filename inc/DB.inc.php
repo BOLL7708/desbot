@@ -21,7 +21,7 @@ class DB {
                 $dbData->username ?? '',
                 $dbData->password ?? '',
                 $database,
-                $dbData->port ?? ''
+                intval($dbData->port ?? '')
             );
         } catch (Exception $exception) {
             // Unknown database, we need to create it, connect again without DB.
@@ -31,7 +31,7 @@ class DB {
                     $dbData->username ?? '',
                     $dbData->password ?? '',
                     null,
-                    $dbData->port ?? ''
+                    intval($dbData->port ?? '')
                 );
                 $connectionError = $this->mysqli->connect_error;
                 if($connectionError) Utils::exitWithError($connectionError, 3002);
@@ -52,9 +52,9 @@ class DB {
     /**
      * @param string $query
      * @param array $params
-     * @return stdClass|bool Array if there are rows, bool otherwise.
+     * @return stdClass|array|bool Array if there are rows, bool otherwise.
      */
-    private function query(string $query, array $params = []):stdClass|bool {
+    private function query(string $query, array $params = []):stdClass|array|bool {
         $stmt = $this->mysqli->prepare($query);
         if(!empty($params)) {
             $types = self::getParamTypes($params);
@@ -72,11 +72,11 @@ class DB {
         while ($row = $result->fetch_assoc()) {
             $groupKey = $row['groupKey'];
             $index = empty($groupKey)
-                ? $rowIndex
+                ? $rowIndex++
                 : $groupKey;
             $output->$index = json_decode($row['dataJson']);
-            $rowIndex++;
         }
+        if($rowIndex > 0 && $rowIndex == count(array_keys((array) $output))) $output = get_object_vars($output); // Remove keys if it's only numbered.
         return $output;
     }
     // endregion
@@ -117,12 +117,12 @@ class DB {
      * Get settings
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
-     * @return stdClass
+     * @return stdClass|array
      */
     function getSettings(
         string      $groupClass,
         string|null $groupKey = null)
-    : stdClass {
+    : stdClass|array {
         $query = "SELECT * FROM settings WHERE groupClass = ?";
         $params = [$groupClass];
         if($groupKey) {
@@ -133,11 +133,15 @@ class DB {
     }
     // endregion
 
+
+
     // region Configs
     function saveConfig() {
 
     }
     // endregion
+
+
 
     // region Helper Functions
     private function getParamTypes(array $values): string {

@@ -21,9 +21,8 @@ class Twitch {
         $config = Config::get();
         $clientId = $config->twitchClientId;
 
-        $accessTokensData = DB::get()->getSettings('SettingTwitchCredentials');
-        error_log(json_encode($accessTokensData)); // TODO: Get access token from this.
-        $accessToken = ''; // TODO: Needs to have been set by the login form before this!
+        $tokenData = DB::get()->getSettings('SettingTwitchTokens', 'Channel');
+        $accessToken = $tokenData->Channel->accessToken;
         if(empty($accessToken)) exit;
         $context = stream_context_create(
             ['http' => [
