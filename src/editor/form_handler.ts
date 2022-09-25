@@ -89,7 +89,7 @@ export default class FormHandler {
                 alert('Result:\n'+importArr.join('\n'))
             }
             // To avoid asking every time, we mark this as done regardless if it was done or not.
-            await DB.saveSettingDB(importStatus, 'Legacy')
+            await DB.saveSetting(importStatus, 'Legacy')
         }
 
         // Temporary stop for showing the settings browser, before we have a menu.
@@ -139,7 +139,7 @@ export default class FormHandler {
         event.preventDefault()
         SectionHandler.show('Waiting')
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
-        const ok = await DB.saveSettingDB(inputData, 'Main')
+        const ok = await DB.saveSetting(inputData, 'Main')
         if(ok) {
             (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
                 if(userId.length == 0) alert('Could not retrieve Twitch tokens.')

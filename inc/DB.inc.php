@@ -106,6 +106,21 @@ class DB {
     }
 
     /**
+     * Will delete one specific setting
+     * @param string $groupClass
+     * @param string $groupKey
+     * @return bool
+     */
+    function deleteSetting(
+        string $groupClass,
+        string $groupKey
+    ): bool {
+        return $this->query(
+            "DELETE FROM settings WHERE groupClass = ? AND groupKey = ?;",
+            [$groupClass, $groupKey]);
+    }
+
+    /**
      * Get settings
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
@@ -169,7 +184,6 @@ class DB {
 
     public function output(bool|array|stdClass|null $output): void
     {
-        // TODO: Will this be OK? Guess we'll know when we start to actually use this.
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode(
             is_bool($output)

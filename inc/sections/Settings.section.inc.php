@@ -1,5 +1,5 @@
 <div id="sectionSettingsBrowser">
     <h2>Settings</h2>
-    <p>This is just a list for now, with no clicky things, need to build some interface system for lists, tables, etc... later.</p>
+    <p>This lists all available settings classes, and loads the data on click, but does not yet print a table, it just logs the result to the console.</p>
 
 </div>

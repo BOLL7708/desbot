@@ -15,33 +15,40 @@ if($method === 'head') {
 }
 
 // Parameters
-$isPost = $method === 'post';
 $groupClass = $_GET['class'] ?? $_GET['groupClass'] ?? null;
-if($isPost && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
+if($method !== 'get' && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
 $groupKey = $_GET['key'] ?? $_GET['groupKey'] ?? null;
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 
-// TODO: Add parameter for setting/config so we can use the same class for all DB interactions.
 // Execute
 $output = null;
-if($isPost) {
-    $output = $db->saveSetting(
-        $groupClass,
-        $groupKey,
-        $dataJson
-    );
-} else {
-    if(!$groupClass) $output = $db->getSettingsClasses();
-    else {
-        $output = $db->getSettings(
+switch($method) {
+    case 'post':
+        $output = $db->saveSetting(
+            $groupClass,
+            $groupKey,
+            $dataJson
+        );
+        break;
+    case 'delete':
+        $output = $db->deleteSetting(
             $groupClass,
             $groupKey
         );
-        if($groupKey) {
-            $array = is_object($output) ? get_object_vars($output) : $output;
-            $output = array_pop($array);
+        break;
+    default: // GET, etc
+        if(!$groupClass) $output = $db->getSettingsClasses();
+        else {
+            $output = $db->getSettings(
+                $groupClass,
+                $groupKey
+            );
+            if($groupKey) {
+                $array = is_object($output) ? get_object_vars($output) : $output;
+                $output = array_pop($array);
+            }
         }
-    }
+        break;
 }
 
 // Output
