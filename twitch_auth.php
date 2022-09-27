@@ -26,7 +26,7 @@ $scopes = [
 ];
 
 function getAuthUrl():string {
-    global $scopes;
+    global $scopes, $state;
     $db = DB::get();
     $twitchClient = $db->getSettings('SettingTwitchClient', 'Main');
     $config = $twitchClient->Main;
@@ -36,7 +36,7 @@ function getAuthUrl():string {
     $url .= "&force_verify=true";
     $url .= "&response_type=code";
     $url .= '&scope='.implode(" ", $scopes);
-    $url .= '&state='.rand(0, 1000000);
+    $url .= "&state=$state";
     return $url;
 }
 
@@ -70,7 +70,7 @@ if(!$gotAuthResponse) { ?>
         ]));
         $userInfo = $userInfoArr->data[0] ?? (object) [];
         if($userInfo) {
-            $success = $db->saveSetting('SettingTwitchTokens', 'Channel', json_encode([
+            $success = $db->saveSetting('SettingTwitchTokens', $state, json_encode([
                 'userId'=> intval($userInfo->id),
                 'accessToken' => $json->access_token,
                 'refreshToken' => $json->refresh_token,

@@ -2,20 +2,19 @@ import Config from '../statics/config.js'
 import StatesSingleton from './states_singleton.js'
 import ModulesSingleton from '../modules_singleton.js'
 import {TKeys} from '../_data/!keys.js'
-import Settings, {
-    SettingAccumulatingCounter,
-    SettingTwitchCheer,
-    SettingTwitchRewardPair,
-    SettingTwitchSub,
-    SettingUserName,
-    SettingUserVoice
-} from '../modules/settings.js'
 import {IActionUser, ITextTags} from '../interfaces/iactions.js'
 import SteamStore from '../modules/steam_store.js'
 import {IEvent, IEventsConfig} from '../interfaces/ievents.js'
 import {ICleanTextConfig} from '../interfaces/iutils.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
 import {LOCAL_STORAGE_AUTH_KEY} from '../modules/data.js'
+import {
+    SettingAccumulatingCounter,
+    SettingTwitchCheer, SettingTwitchReward,
+    SettingTwitchSub,
+    SettingUserName,
+    SettingUserVoice
+} from '../Classes/settings.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -23,13 +22,21 @@ export default class Utils {
         return rest ? [first, rest.join(needle)] : [first]
     }
 
-    static async loadCleanName(userName:string):Promise<string> {
-        let cleanNameSetting = await Settings.pullSetting<SettingUserName>(Settings.TTS_USER_NAMES, 'userName', userName)
-        let cleanName = cleanNameSetting?.shortName
-        if(cleanName == null) {
+    static async loadCleanName(userIdOrName: number|string):Promise<string> {
+        const userName = typeof(userIdOrName) === 'string'
+            ? userIdOrName
+            : (await TwitchHelix.getUserById(userIdOrName))?.login ?? ''
+        const userId = typeof(userIdOrName) === 'number'
+            ? userIdOrName
+            : (await TwitchHelix.getUserByLogin(userIdOrName))?.login ?? ''
+        let cleanNameSetting = await DB.loadSetting(new SettingUserName(), userId.toString())
+        let cleanName = cleanNameSetting?.shortName ?? userName
+        if(!cleanName) {
             cleanName = this.cleanName(userName)
-            cleanNameSetting = {userName: userName, shortName: cleanName, editor: '', datetime: Utils.getISOTimestamp()}
-            Settings.pushSetting(Settings.TTS_USER_NAMES, 'userName', cleanNameSetting).then()
+            const cleanNameSetting = new SettingUserName()
+            cleanNameSetting.shortName = cleanName
+            cleanNameSetting.datetime = Utils.getISOTimestamp()
+            await DB.saveSetting(cleanNameSetting, userId.toString())
         }
         return cleanName
     }
@@ -308,9 +315,9 @@ export default class Utils {
             let userLogin = this.getFirstUserTagInText(userData?.input ?? '') ?? link
 
             // If we have a possible login, get the user data, if they exist
-            const channelData = await modules.twitchHelix.getChannelByName(userLogin)
+            const channelData = await TwitchHelix.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', channelData.broadcaster_login)
+                const voice = await DB.loadSetting(new SettingUserVoice(), channelData.broadcaster_id)
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
                 tags.targetTag = `@${channelData.broadcaster_name}`
@@ -318,7 +325,7 @@ export default class Utils {
                 tags.targetGame = channelData.game_name
                 tags.targetTitle = channelData.title
                 tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
-                tags.targetColor = await modules.twitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
+                tags.targetColor = await TwitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
                 tags.targetVoice = this.getVoiceString(voice)
             }
         }
@@ -336,15 +343,16 @@ export default class Utils {
 
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
-        const subs = await Settings.pullSetting<SettingTwitchSub>(Settings.TWITCH_USER_SUBS, 'userName', userData?.login)
-        const cheers = await Settings.pullSetting<SettingTwitchCheer>(Settings.TWITCH_USER_CHEERS, 'userName', userData?.login)
-        const voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', userData?.login)
+        const userIdStr = userData?.id?.toString() ?? ''
+        const subs = await DB.loadSetting(new SettingTwitchSub(), userIdStr)
+        const cheers = await DB.loadSetting(new SettingTwitchCheer(), userIdStr)
+        const voice = await DB.loadSetting(new SettingUserVoice(), userIdStr)
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
-        const eventCount = (await Settings.pullSetting<SettingAccumulatingCounter>(Settings.EVENT_COUNTERS_ACCUMULATING, 'key', userData?.eventKey))?.count ?? 0
+        const eventCount = (await DB.loadSetting(new SettingAccumulatingCounter(), userData?.eventKey ?? ''))?.count ?? 0
         const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
 
         const userBits = (userData?.bits ?? 0) > 0
@@ -525,12 +533,13 @@ export default class Utils {
     }
 
     static async getRewardId(key: TKeys): Promise<string|undefined> {
-        const reward = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'key', key)
+        const reward = await DB.loadSetting(new SettingTwitchReward(), key)
         return reward?.id
     }
     static async getRewardKey(id: string): Promise<TKeys|undefined> {
-        const reward = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
-        return reward?.key
+        // TODO: We need to rethink how we store reward IDs in the database as this will not work with the current system.
+        // const reward = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
+        return undefined // reward?.key
     }
     static encode(value: string): string {
         let b64 = btoa(value)

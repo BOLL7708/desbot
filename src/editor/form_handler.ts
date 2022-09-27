@@ -1,15 +1,17 @@
 import Utils from '../widget/utils.js'
 import SectionHandler from './section_handler.js'
-import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../modules/data.js'
-import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../modules/settings.js'
-import DB from '../modules/db.js'
+import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../Classes/data.js'
+import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../Classes/settings.js'
+import DB from '../ClassesStatic/DB.js'
 import SettingsHandler from './settings_handler.js'
 
 type TForm =
     'Register'
     | 'Login'
     | 'DBSetup'
-    | 'Twitch'
+    | 'TwitchClient'
+    | 'TwitchLoginChannel'
+    | 'TwitchLoginChatbot'
 
 export default class FormHandler {
     // region Values
@@ -17,13 +19,17 @@ export default class FormHandler {
         'Register': FormHandler.getFormElement('Register'),
         'Login': FormHandler.getFormElement('Login'),
         'DBSetup': FormHandler.getFormElement('DBSetup'),
-        'Twitch': FormHandler.getFormElement('Twitch')
+        'TwitchClient': FormHandler.getFormElement('TwitchClient'),
+        'TwitchLoginChannel': FormHandler.getFormElement('TwitchLoginChannel'),
+        'TwitchLoginChatbot': FormHandler.getFormElement('TwitchLoginChatbot')
     }
     private static formSubmits: Record<TForm, any> = {
         'Register': FormHandler.submitRegister,
         'Login': FormHandler.submitLogin,
         'DBSetup': FormHandler.submitDBSetup,
-        'Twitch': FormHandler.submitTwitchClient
+        'TwitchClient': FormHandler.submitTwitchClient,
+        'TwitchLoginChannel': FormHandler.submitTwitchLogin,
+        'TwitchLoginChatbot': FormHandler.submitTwitchLogin
     }
     // endregion
 
@@ -53,22 +59,38 @@ export default class FormHandler {
         SectionHandler.show('Loading')
         await FormHandler.migrateDB()
 
-        // Twitch credentials & client info
-        const twitchTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel', true)
+        // Twitch client info
         const twitchClient = await DB.loadSetting(new SettingTwitchClient(), 'Main', true)
-        if(!twitchTokens || Utils.isEmptyObject(twitchTokens) || !twitchClient || Utils.isEmptyObject(twitchClient)) {
+        if(!twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
-            const form = FormHandler.formElements['Twitch']
-            if(twitchClient && !Utils.isEmptyObject(twitchClient)) {
+            const form = FormHandler.formElements['TwitchClient']
+            if (twitchClient && !Utils.isEmptyObject(twitchClient)) {
                 const clientId = form?.querySelector<HTMLInputElement>('[name="clientId"]')
-                if(clientId) clientId.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientId ?? ''
+                if (clientId) clientId.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientId ?? ''
                 const clientSecret = form?.querySelector<HTMLInputElement>('[name="clientSecret"]')
-                if(clientSecret) clientSecret.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientSecret ?? ''
+                if (clientSecret) clientSecret.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientSecret ?? ''
             }
             const redirectUri = form?.querySelector<HTMLInputElement>('[name="redirectUri"]')
-            if(redirectUri) redirectUri.value = Utils.ensureValue<SettingTwitchClient>(twitchClient ?? [])?.redirectUri ?? window.location.href+'twitch_auth.php'
+            if (redirectUri) {
+                redirectUri.value = Utils.ensureValue<SettingTwitchClient>(
+                    twitchClient ?? []
+                )?.redirectUri ?? window.location.href + 'twitch_auth.php'
+            }
+
             // Show form
-            return SectionHandler.show('Twitch')
+            return SectionHandler.show('TwitchClient')
+        }
+
+        // Twitch credentials channel
+        const twitchChannelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel', true)
+        if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens)) {
+            return SectionHandler.show('TwitchLoginChannel')
+        }
+
+        // Twitch credentials chatbot
+        const twitchChatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
+        if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens)) {
+            return SectionHandler.show('TwitchLoginChatbot')
         }
 
         // Imports
@@ -140,14 +162,21 @@ export default class FormHandler {
         SectionHandler.show('Waiting')
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
         const ok = await DB.saveSetting(inputData, 'Main')
-        if(ok) {
-            (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
-                if(userId.length == 0) alert('Could not retrieve Twitch tokens.')
-                await FormHandler.setup()
-            }
-            window.open('twitch_auth.php', 'StreamingWidgetTwitchAuthAuxiliaryWindow')
-        }
+        if(ok) FormHandler.setup().then()
         else alert('Could not store Twitch Client settings in DB.')
+    }
+    static async submitTwitchLogin(event: SubmitEvent) {
+        event.preventDefault()
+        SectionHandler.show('Waiting')
+        const inputData = FormHandler.getFormInputData(event.target, new StateInput());
+        (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
+            if(userId.length == 0) {
+                const reset = confirm('Could not retrieve Twitch tokens, do you want to reset the Twitch Client settings?')
+                if(reset) await DB.deleteSetting(new SettingTwitchClient(), 'Main')
+            }
+            await FormHandler.setup()
+        }
+        window.open(`twitch_auth.php?state=${inputData.state}`, 'StreamingWidgetTwitchAuthAuxiliaryWindow')
     }
     // endregion
 
@@ -212,8 +241,11 @@ export default class FormHandler {
 
 // region Interfaces
 
-// We get these from the forms and also save it to a file on disk.
+// We get these from the forms, but they are not saved.
 class PasswordInput {
     password: string = ''
+}
+class StateInput {
+    state: string = ''
 }
 // endregion

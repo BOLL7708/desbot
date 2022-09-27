@@ -7,7 +7,9 @@ type TSection =
     | 'Login'
     | 'DBSetup'
     | 'Editor'
-    | 'Twitch'
+    | 'TwitchClient'
+    | 'TwitchLoginChannel'
+    | 'TwitchLoginChatbot'
     | 'ImportSettings'
     | 'SettingsBrowser'
 
@@ -19,7 +21,9 @@ export default class SectionHandler {
         'Login': SectionHandler.getSectionElement('Login'),
         'DBSetup': SectionHandler.getSectionElement('DBSetup'),
         'Editor': SectionHandler.getSectionElement('Editor'),
-        'Twitch': SectionHandler.getSectionElement('Twitch'),
+        'TwitchClient': SectionHandler.getSectionElement('TwitchClient'),
+        'TwitchLoginChannel': SectionHandler.getSectionElement('TwitchLoginChannel'),
+        'TwitchLoginChatbot': SectionHandler.getSectionElement('TwitchLoginChatbot'),
         'ImportSettings': SectionHandler.getSectionElement('ImportSettings'),
         'SettingsBrowser': SectionHandler.getSectionElement('SettingsBrowser')
     }

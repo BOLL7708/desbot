@@ -1,6 +1,6 @@
-import DB from '../modules/db.js'
+import DB from '../ClassesStatic/DB.js'
 import SectionHandler from './section_handler.js'
-import {SettingDictionaryEntry} from '../modules/settings.js'
+import {SettingDictionaryEntry} from '../Classes/settings.js'
 
 export default class SettingsHandler {
     private static listDiv: HTMLDivElement|undefined

@@ -8,7 +8,7 @@ $classMap = [
     'tts_names'=>'SettingUserName',
     'tts_voices'=>'SettingUserVoice',
     'twitch_clips'=>'SettingTwitchClip',
-    'twitch_rewards'=>'SettingTwitchRewardPair',
+    'twitch_rewards'=>'SettingTwitchReward',
     'event_counters_incremental'=>'SettingIncrementingCounter',
     'event_counters_accumulating'=>'SettingAccumulatingCounter',
     'twitch_reward_redemptions'=>'SettingTwitchRedemption',
@@ -22,17 +22,29 @@ include_once('init.php');
 $db = DB::get();
 
 // Go through settings files
-$path = './_settings';
-$files = scandir($path);
+$path1= './_settings';
+$path2 = "$path1/steam_achievements";
+$files1 = scandir($path1);
+$files2 = scandir($path2);
+$files = [];
+foreach($files1 as $file) {
+    $files[] = ["$path1/$file", $file];
+}
+foreach($files2 as $file) {
+    $files[] = ["$path2/$file", $file];
+}
 $output = [];
 foreach($files as $file) {
-    $fileArr = explode('.', $file);
+    $fileArr = explode('.', $file[1]);
     $fileName = array_shift($fileArr);
     $fileExt = array_pop($fileArr);
     if(strtolower($fileExt ?? '') == 'csv') {
-        $class = $classMap[$fileName] ?? '';
-        if($class) {
-            $contents = file_get_contents("$path/$file");
+        if(str_contains($file[0], 'steam_achievements')) {
+            $steamAchievementFile = implode('.', explode('_', $fileName));
+            $class = $classMap["SettingSteamAchievement|$steamAchievementFile"];
+        } else $class = $classMap[$fileName] ?? '';
+        if($class && file_exists($file[0])) {
+            $contents = file_get_contents($file[0]);
             $rows = explode("\n", $contents);
             foreach($rows as $row) {
                 $pairs = explode(';', $row);
@@ -100,7 +112,7 @@ foreach($files as $file) {
 
                 // Twitch Rewards & associated settings.
                 $withKey = [
-                    'SettingTwitchRewardPair',
+                    'SettingTwitchReward',
                     'SettingIncrementingCounter',
                     'SettingAccumulatingCounter'
                 ];
