@@ -16,8 +16,8 @@ export default class SettingsHandler {
             a.innerText = clazz
             a.onclick = async () => {
                 if(SettingsHandler.listDiv) SettingsHandler.listDiv.innerHTML = `<p>Listing things for ${clazz}</p>`
-                const settings = await DB.loadSettingsDictionary<any>(clazz)
-                console.log(settings)
+                // const settings = await DB.loadSettingsDictionary<any>(clazz)
+                // console.log(settings)
                 return false
             }
             li.appendChild(a)

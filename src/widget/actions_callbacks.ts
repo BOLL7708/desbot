@@ -461,10 +461,9 @@ export default class ActionsCallbacks {
 
                 // Save stat
                 const cost = user.rewardMessage?.data?.redemption.reward.cost ?? 0
-                const setting: SettingChannelTrophyStat = {
-                    userId: user.id,
-                    index: user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream,
-                }
+                const setting = new SettingChannelTrophyStat()
+                setting.userId = user.id
+                setting.index = user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream
                 const settingsUpdated = await DB.saveSetting(setting, cost.toString())
                 if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward: ChannelTrophy', Color.Red)
 

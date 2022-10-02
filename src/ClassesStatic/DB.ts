@@ -1,6 +1,7 @@
 import {LOCAL_STORAGE_AUTH_KEY} from '../Classes/data.js'
 import Utils from '../widget/utils.js'
 import Color from './colors.js'
+import SettingBaseObject from '../Classes/settings.js'
 
 export default class DB {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
@@ -23,31 +24,37 @@ export default class DB {
 
     /**
      * Load settings from the database.
-     * @param emptyInstanceOrClassName Main class to load settings for.
+     * @param emptyInstance Main class to load settings for.
      * @param ignoreCache Will ignore the memory cache.
      */
-    static async loadSettingsDictionary<T>(emptyInstanceOrClassName: T&Object|string, ignoreCache: boolean = false): Promise<{ [key:string]: T }|undefined> {
-        const className = this.getClassName(emptyInstanceOrClassName)
+    static async loadSettingsDictionary<T>(emptyInstance: T&SettingBaseObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
+        const className = this.getClassName(emptyInstance)
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
         if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
-            return this._settingsDictionaryStore.get(className) as { [key:string]: T }
+            return this._settingsDictionaryStore.get(className) as { [key: string]: T }
         }
         let url = this.getSettingsUrl(className)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
-        const result = response.ok ? await response.json() as { [key:string]: T }: undefined;
-        if(result) this._settingsDictionaryStore.set(className, result)
+        const result = response.ok ? await response.json() as { [key: string]: T } : undefined;
+        if(result) {
+            // Convert plain objects to class instances and cache them
+            for(const [key, setting] of Object.entries(result)) {
+                result[key] = emptyInstance.__new(setting) as T&SettingBaseObject
+            }
+            this._settingsDictionaryStore.set(className, result)
+        }
         return result
     }
 
     /**
      * Loads an entire array of settings.
-     * @param emptyInstanceOrClassName
+     * @param emptyInstance
      * @param ignoreCache
      */
-    static async loadSettingsArray<T>(emptyInstanceOrClassName: T&Object|string, ignoreCache: boolean = false): Promise<T[]|undefined> {
-        const className = this.getClassName(emptyInstanceOrClassName)
+    static async loadSettingsArray<T>(emptyInstance: T&SettingBaseObject, ignoreCache: boolean = false): Promise<T[]|undefined> {
+        const className = this.getClassName(emptyInstance)
         if(this.checkAndReportClassError(className, 'loadArray')) return undefined
         if(!ignoreCache && this._settingsArrayStore.has(className)) {
             return this._settingsArrayStore.get(className) as T[]
@@ -58,18 +65,24 @@ export default class DB {
         })
         let result = response.ok ? await response.json() as T[]|{ [key:string]: T }: undefined
         if(result && !Array.isArray(result)) result = Object.values(result) as T[]
-        if(result) this._settingsArrayStore.set(className, result)
+        if(result) {
+            // Convert plain objects to class instances and cache them
+            for(let i=0; i<result.length; i++) {
+                result[i] = emptyInstance.__new(result[i]) as T & SettingBaseObject
+            }
+            this._settingsArrayStore.set(className, result)
+        }
         return result
     }
 
     /**
      * Loads one specific setting from a dictionary of settings.
-     * @param emptyInstanceOrClassName
+     * @param emptyInstance
      * @param key Supply a value for this to get one specific post.
      * @param ignoreCache
      */
-    static async loadSetting<T>(emptyInstanceOrClassName: T&Object, key: string, ignoreCache: boolean = false) {
-        const className = this.getClassName(emptyInstanceOrClassName)
+    static async loadSetting<T>(emptyInstance: T&SettingBaseObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
+        const className = this.getClassName(emptyInstance)
         if(this.checkAndReportClassError(className, 'loadSingle')) return undefined
         if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
             const dictionary = this._settingsDictionaryStore.get(className) as { [key:string]: T }
@@ -81,10 +94,12 @@ export default class DB {
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
-        const result: T|undefined = response.ok ? await response.json() as T : undefined
+        let result: T|undefined = response.ok ? await response.json() as T : undefined
         if(result) {
+            // Convert plain object to class instance and cache it
             if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
             const dictionary = this._settingsDictionaryStore.get(className)
+            result = emptyInstance.__new(result) as T&SettingBaseObject
             if(dictionary) dictionary[key] = result
         }
         return result
@@ -103,7 +118,7 @@ export default class DB {
      * @param setting Should be a class instance to work, as the name of the class is used to categorize the setting.
      * @param key
      */
-    static async saveSetting<T>(setting: T&Object, key?: string): Promise<boolean> {
+    static async saveSetting<T>(setting: T&SettingBaseObject, key?: string): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
         let url = this.getSettingsUrl(className, key)
@@ -132,7 +147,7 @@ export default class DB {
      * @param emptyInstanceOrClassName
      * @param key
      */
-    static async deleteSetting<T>(emptyInstanceOrClassName: T&Object|string, key: string): Promise<boolean> {
+    static async deleteSetting<T>(emptyInstanceOrClassName: T&SettingBaseObject|string, key: string): Promise<boolean> {
         const className = this.getClassName(emptyInstanceOrClassName)
         let url = this.getSettingsUrl(className, key)
         const response = await fetch(url, {

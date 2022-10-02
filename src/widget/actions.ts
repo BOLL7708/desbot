@@ -42,7 +42,7 @@ import {ITwitchHelixRewardUpdate} from '../interfaces/itwitch_helix.js'
 import ActionsCallbacks from './actions_callbacks.js'
 import {TKeys} from '../_data/!keys.js'
 import {
-    SettingAccumulatingCounter,
+    SettingAccumulatingCounter, SettingCounterBase,
     SettingDictionaryEntry,
     SettingIncrementingCounter, SettingTwitchTokens, SettingUserMute,
     SettingUserName, SettingUserVoice
@@ -88,7 +88,8 @@ export class ActionHandler {
         const states = StatesSingleton.getInstance()
 
         let index: number|undefined = undefined
-        let counter: SettingIncrementingCounter|SettingAccumulatingCounter = { count: 0}
+        let counter: SettingIncrementingCounter|SettingAccumulatingCounter = new SettingCounterBase()
+        counter.count = 0
         let rewardConfigs: ITwitchHelixRewardUpdate[] = []
         /*
             Here we handle the different types of behavior of the event.

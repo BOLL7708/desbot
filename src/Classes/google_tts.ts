@@ -333,10 +333,10 @@ export default class GoogleTTS {
     }
 
     private buildVoice(voice: IGoogleVoice|undefined):SettingUserVoice {
-        return {
-            languageCode: voice?.languageCodes.shift() ?? 'en-US',
-            voiceName: voice?.name ?? '',
-            gender: voice?.ssmlGender ?? 'FEMALE'
-        }
+        const setting = new SettingUserVoice()
+        setting.languageCode = voice?.languageCodes.shift() ?? 'en-US'
+        setting.voiceName = voice?.name ?? ''
+        setting.gender = voice?.ssmlGender ?? 'FEMALE'
+        return setting
     }
 }

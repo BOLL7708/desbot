@@ -19,7 +19,7 @@ export default class TwitchTokens {
 
     private async refresh(data: SettingTwitchTokens, key: string) {
         const clientData = await DB.loadSetting(new SettingTwitchClient(), 'Main')
-        return fetch('https://id.twitch.tv/oauth2/token', {
+        const response = await fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',
             body: new URLSearchParams({
                 'grant_type': 'refresh_token',
@@ -27,17 +27,16 @@ export default class TwitchTokens {
                 'client_id': clientData?.clientId ?? '',
                 'client_secret': clientData?.clientSecret ?? ''
             })
-        }).then((response) => response.json()
-        ).then(async json => {
-            if (!json.error && !(json.status >= 300)) {
-                data.accessToken = json.access_token
-                data.refreshToken = json.refresh_token
-                const success = await DB.saveSetting(data, key)
-                if(success) console.log(`Successfully refreshed tokens for ${key} and stored them.`);
-                else console.error(`Failed to save tokens for ${key}.`);
-            } else {
-                console.error(`Failed to refresh tokens for ${key}: ${json.status} -> ${json.error}`);
-            }
         })
+        const json = await response.json()
+        if (!json.error && !(json.status >= 300)) {
+            data.accessToken = json.access_token
+            data.refreshToken = json.refresh_token
+            const success = await DB.saveSetting(data, key)
+            if(success) console.log(`Successfully refreshed tokens for ${key} and stored them.`);
+            else console.error(`Failed to save tokens for ${key}.`);
+        } else {
+            console.error(`Failed to refresh tokens for ${key}: ${json.status} -> ${json.error}`);
+        }
     }
 }
