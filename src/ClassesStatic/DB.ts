@@ -23,16 +23,20 @@ export default class DB {
     // region Settings
 
     /**
-     * Load settings from the database.
-     * @param emptyInstance Main class to load settings for.
-     * @param ignoreCache Will ignore the memory cache.
+     * Load a dictionary of settings from the database, this will retain keys.
+     * @param emptyInstance Instance of the class to load.
+     * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadSettingsDictionary<T>(emptyInstance: T&SettingBaseObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
-        const className = this.getClassName(emptyInstance)
+        const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
+
+        // Cache
         if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
             return this._settingsDictionaryStore.get(className) as { [key: string]: T }
         }
+
+        // DB
         let url = this.getSettingsUrl(className)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
@@ -41,7 +45,7 @@ export default class DB {
         if(result) {
             // Convert plain objects to class instances and cache them
             for(const [key, setting] of Object.entries(result)) {
-                result[key] = emptyInstance.__new(setting) as T&SettingBaseObject
+                result[key] = emptyInstance.__new(setting)
             }
             this._settingsDictionaryStore.set(className, result)
         }
@@ -49,16 +53,20 @@ export default class DB {
     }
 
     /**
-     * Loads an entire array of settings.
-     * @param emptyInstance
-     * @param ignoreCache
+     * Loads an array of settings from the database, this will throw away keys.
+     * @param emptyInstance Instance of the class to load.
+     * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadSettingsArray<T>(emptyInstance: T&SettingBaseObject, ignoreCache: boolean = false): Promise<T[]|undefined> {
-        const className = this.getClassName(emptyInstance)
+        const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadArray')) return undefined
+
+        // Cache
         if(!ignoreCache && this._settingsArrayStore.has(className)) {
             return this._settingsArrayStore.get(className) as T[]
         }
+
+        // DB
         let url = this.getSettingsUrl(className)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
@@ -68,7 +76,7 @@ export default class DB {
         if(result) {
             // Convert plain objects to class instances and cache them
             for(let i=0; i<result.length; i++) {
-                result[i] = emptyInstance.__new(result[i]) as T & SettingBaseObject
+                result[i] = emptyInstance.__new(result[i])
             }
             this._settingsArrayStore.set(className, result)
         }
@@ -76,20 +84,24 @@ export default class DB {
     }
 
     /**
-     * Loads one specific setting from a dictionary of settings.
-     * @param emptyInstance
-     * @param key Supply a value for this to get one specific post.
-     * @param ignoreCache
+     * Load one specific setting from the database, is using dictionary cache.
+     * @param emptyInstance Instance of the class to load.
+     * @param key The key for the row to load.
+     * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadSetting<T>(emptyInstance: T&SettingBaseObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
-        const className = this.getClassName(emptyInstance)
+        const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadSingle')) return undefined
+
+        // Cache
         if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
             const dictionary = this._settingsDictionaryStore.get(className) as { [key:string]: T }
             if(dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
                 return dictionary[key]
             }
         }
+
+        // DB
         let url = this.getSettingsUrl(className, key)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
@@ -99,12 +111,15 @@ export default class DB {
             // Convert plain object to class instance and cache it
             if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
             const dictionary = this._settingsDictionaryStore.get(className)
-            result = emptyInstance.__new(result) as T&SettingBaseObject
+            result = emptyInstance.__new(result)
             if(dictionary) dictionary[key] = result
         }
         return result
     }
 
+    /**
+     * Load all available settings classes registered in the database.
+     */
     static async loadSettingClasses(): Promise<string[]> {
         const url = this.getSettingsUrl()
         const response = await fetch(url, {
@@ -115,18 +130,22 @@ export default class DB {
 
     /**
      * Save a setting to the database.
-     * @param setting Should be a class instance to work, as the name of the class is used to categorize the setting.
-     * @param key
+     * @param setting Instance of the class to save.
+     * @param key Optional key for the setting to save, will upsert if key is set, else insert.
      */
     static async saveSetting<T>(setting: T&SettingBaseObject, key?: string): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
+
+        // DB
         let url = this.getSettingsUrl(className, key)
         const response = await fetch(url, {
             headers: await this.getAuthHeader(true),
             method: 'POST',
             body: JSON.stringify(setting)
         })
+
+        // Cache
         if(response.ok) {
             if(key) {
                 if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
@@ -138,27 +157,42 @@ export default class DB {
                 if(arr) arr.push(setting)
             }
         }
-        Utils.log(response.ok ? `Wrote '${className}' to DB` : `Failed to write '${className}' to DB`, response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR)
+
+        // Result
+        Utils.log(
+            response.ok ? `Wrote '${className}' to DB` : `Failed to write '${className}' to DB`,
+            response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
+        )
         return response.ok
     }
 
     /**
      * Delete specific setting
-     * @param emptyInstanceOrClassName
-     * @param key
+     * @param emptyInstance Instance of the class to delete.
+     * @param key The key for the row to delete.
      */
-    static async deleteSetting<T>(emptyInstanceOrClassName: T&SettingBaseObject|string, key: string): Promise<boolean> {
-        const className = this.getClassName(emptyInstanceOrClassName)
+    static async deleteSetting<T>(emptyInstance: T&SettingBaseObject|string, key: string): Promise<boolean> {
+        const className = emptyInstance.constructor.name
+        if(this.checkAndReportClassError(className, 'deleteSingle')) return false
+
+        // DB
         let url = this.getSettingsUrl(className, key)
         const response = await fetch(url, {
             headers: await this.getAuthHeader(true),
             method: 'DELETE'
         })
+
+        // Cache
         if(response.ok) {
             const dictionary = this._settingsDictionaryStore.get(className)
             if(dictionary) delete dictionary[key]
         }
-        Utils.log(response.ok ? `Deleted '${className}:${key}' from DB` : `Failed to delete '${className}:${key}' from DB`, response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR)
+
+        // Result
+        Utils.log(
+            response.ok ? `Deleted '${className}:${key}' from DB` : `Failed to delete '${className}:${key}' from DB`,
+            response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
+        )
         return response.ok
     }
 
@@ -175,12 +209,6 @@ export default class DB {
         if(groupKey) params.push(`groupKey=${groupKey}`)
         if(params.length > 0) url += '?' + params.join('&')
         return url
-    }
-
-    private static getClassName<T>(emptyInstanceOrClassName: T&Object|string): string {
-        return typeof emptyInstanceOrClassName === 'string'
-            ? emptyInstanceOrClassName
-            : emptyInstanceOrClassName.constructor.name
     }
 
     // endregion

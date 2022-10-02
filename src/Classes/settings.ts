@@ -1,7 +1,11 @@
 import {TTwitchRedemptionStatus} from '../interfaces/itwitch_pubsub.js'
 
 export default abstract class SettingBaseObject {
-    public __init(props?: Object) {
+    /**
+     * Submit any object to get mapped to this class instance.
+     * @param props Optional properties to apply to this instance.
+     */
+    public __apply(props?: Object) {
         const prototype = Object.getPrototypeOf(this)
         for(const [name, prop] of Object.entries(props ?? {})) {
             if(
@@ -12,9 +16,14 @@ export default abstract class SettingBaseObject {
             }
         }
     }
-    public __new(props?: Object) {
-        const obj = Object.create(this) // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
-        if(props) obj.__init(props)
+
+    /**
+     * Returns a new instance with this class as a prototype, meaning it will be seen as the same class by the system.
+     * @param props Optional properties to apply to the new instance, usually a plain object cast to the same class which is why we need to do this.
+     */
+    public __new<T>(props?: T): T&SettingBaseObject {
+        const obj = Object.create(this) as T&SettingBaseObject // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
+        if(props) obj.__apply(props)
         return obj
     }
 }
