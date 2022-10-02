@@ -1,14 +1,16 @@
-import Dictionary from './dictionary.js'
+import Dictionary, {IDictionaryEntry} from './dictionary.js'
 import {ETTSType} from '../widget/enums.js'
-import Config from '../statics/config.js'
-import Color from '../statics/colors.js'
+import Config from '../ClassesStatic/Config.js'
+import Color from '../ClassesStatic/colors.js'
 import AudioPlayer, {AudioPlayerInstance} from './audioplayer.js'
 import {IAudioAction} from '../interfaces/iactions.js'
 import {IGoogleVoice} from '../interfaces/igoogle.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
 import {IAudioPlayedCallback} from '../interfaces/iaudioplayer.js'
 import Utils from '../widget/utils.js'
-import Settings, {SettingDictionaryEntry, SettingUserMute, SettingUserVoice} from './settings.js'
+import {SettingTwitchTokens, SettingUserMute, SettingUserVoice} from './settings.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import DB from '../ClassesStatic/DB.js'
 
 export default class GoogleTTS {
     static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
@@ -19,7 +21,7 @@ export default class GoogleTTS {
     private _randomVoices: IGoogleVoice[] = [] // Cache for randomizing starter voice
     private _languages: string[] = [] // Cache
     private _lastEnqueued: number = 0
-    private _lastSpeaker: string = ''
+    private _lastSpeaker: number = 0
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`GoogleTTS: Played callback not set, ${nonce}->${status}`) }
     private _emptyMessageSound: IAudioAction|undefined
     private _count = 0
@@ -78,13 +80,13 @@ export default class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    setDictionary(dictionary: SettingDictionaryEntry[]) {
-        if(dictionary != null) this._dictionary.set(dictionary)
+    setDictionary(dictionary?: IDictionaryEntry[]) {
+        if(dictionary) this._dictionary.set(dictionary)
     }
     /**
      * Will enqueue 
      * @param input The text to be spoken
-     * @param userName The name of the user speaking
+     * @param userId The id of the user speaking
      * @param type The type: TYPE_SAID, TYPE_ACTION, TYPE_ANNOUNCEMENT, TYPE_CHEER
      * @param nonce Unique value that will be provided in the done speaking callback
      * @param meta Used to provide bit count for cheering messages (at least)
@@ -94,24 +96,23 @@ export default class GoogleTTS {
      */
     async enqueueSpeakSentence(
         input: string|string[],
-        userName: string = Config.twitch.chatbotName,
+        userId: number = 0,
         type: ETTSType = ETTSType.Announcement,
         nonce: string = '',
         meta: any = null,
         clearRanges: ITwitchEmotePosition[]=[],
         skipDictionary: boolean = false
     ) {
+        if(userId == 0) userId = (await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
         const serial = ++this._count
         this._preloadQueue[serial] = null
-        userName = userName.toLowerCase()
-
-        const blacklist = await Settings.pullSetting<SettingUserMute>(Settings.TTS_BLACKLIST, 'userName', userName)
-        if(blacklist != null && blacklist.active) return
+        const blacklist = await DB.loadSetting(new SettingUserMute(), userId.toString())
+        if(blacklist?.active) return
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
         if(input.trim().length == 0) return this.enqueueEmptyMessageSound(serial)
         if(Utils.matchFirstChar(input, Config.controller.secretChatSymbols)) return // Will not even make empty message sound, so secret!
 
-        const sentence = {text: input, userName: userName, type: type, meta: meta}      
+        const sentence = {text: input, userId: userId, type: type, meta: meta}
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${Config.credentials.GoogleTTSApiKey}`
         let text = sentence.text
         if(text == null || text.length == 0) {
@@ -119,13 +120,13 @@ export default class GoogleTTS {
             console.error("GoogleTTS: Sentence text was null or empty")
             return 
         }
-        let voice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', sentence.userName)
+        let voice = await DB.loadSetting(new SettingUserVoice(), userId.toString())
         if(voice == null) {
-            voice = await this.getDefaultVoice(sentence.userName)
-            Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
+            voice = await this.getDefaultVoice()
+            await DB.saveSetting(voice, userId.toString())
         }
-        
-        let cleanName = await Utils.loadCleanName(sentence.userName)
+        const userData = await TwitchHelix.getUserById(sentence.userId)
+        let cleanName = await Utils.loadCleanName(userData?.login ?? sentence.userId)
         const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
         let cleanText = await Utils.cleanText(
@@ -146,11 +147,11 @@ export default class GoogleTTS {
 
         if(!skipDictionary) cleanText = this._dictionary.apply(cleanText)
 
-        if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = ''
+        if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = 0
         switch(sentence.type) {
             case ETTSType.Said:
                 const speech = Config.twitchChat.speech ?? '%userName said: %userInput'
-                cleanText = (this._lastSpeaker == sentence.userName || Config.google.skipSaid) 
+                cleanText = (this._lastSpeaker == sentence.userId || Config.google.skipSaid)
                     ? cleanText 
                     : Utils.replaceTags(speech, {userName: cleanName, userInput: cleanText})
                 break
@@ -162,7 +163,7 @@ export default class GoogleTTS {
                 cleanText = `${cleanName} cheered ${sentence.meta} ${bitText}: ${cleanText}`
                 break
         }
-        this._lastSpeaker = sentence.userName
+        this._lastSpeaker = sentence.userId
 
         // Surround in speak tags to make the SSML parse if we have used audio tags.
         if(Config.google.dictionaryConfig.replaceWordsWithAudio) {
@@ -201,7 +202,7 @@ export default class GoogleTTS {
                 this._lastEnqueued = Date.now()
             } else {
                 delete this._preloadQueue[serial]
-                this._lastSpeaker = ''
+                this._lastSpeaker = 0
                 console.error(`GoogleTTS: Failed to generate speech: [${json.status}], ${json.error}`)
                 this._callback?.call(this, nonce, AudioPlayer.STATUS_ERROR)
             }
@@ -215,10 +216,10 @@ export default class GoogleTTS {
         }
     }
 
-    async setVoiceForUser(userName:string, input:string, nonce:string=''):Promise<string> {
+    async setVoiceForUser(userId: number, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let loadedVoice = await Settings.pullSetting<SettingUserVoice>(Settings.TTS_USER_VOICES, 'userName', userName)
-        const defaultVoice = await this.getDefaultVoice(userName)
+        let loadedVoice = await DB.loadSetting(new SettingUserVoice(), userId.toString())
+        const defaultVoice = await this.getDefaultVoice()
         let voice = defaultVoice
         if(loadedVoice != null) voice = loadedVoice
         
@@ -287,12 +288,12 @@ export default class GoogleTTS {
             if(setting == 'random' || setting == 'rand' || setting == '?') {
                 Utils.log(`GoogleTTS: Matched random: ${setting}`, Color.BlueViolet)
                 const randomVoice = this._voices.getRandom()
-                voice = this.buildVoice(userName, randomVoice)
+                voice = this.buildVoice(randomVoice)
                 changed = true
                 return
             }
         })
-        let success = await Settings.pushSetting(Settings.TTS_USER_VOICES, 'userName', voice)
+        let success = await DB.saveSetting(voice, userId.toString())
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
         return voice.voiceName
     }
@@ -320,20 +321,19 @@ export default class GoogleTTS {
         } else return true
     }
 
-    private async getDefaultVoice(userName:string):Promise<SettingUserVoice> {
+    private async getDefaultVoice():Promise<SettingUserVoice> {
         await this.loadVoicesAndLanguages() // Fills caches
         let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == Config.google.defaultVoice)
         let randomVoice: IGoogleVoice|undefined = this._randomVoices.length > 0
             ? this._randomVoices[Math.floor(Math.random()*this._randomVoices.length)]
             : undefined
         return Config.google.randomizeVoice && randomVoice != null
-            ? this.buildVoice(userName, randomVoice) 
-            : this.buildVoice(userName, defaultVoice)
+            ? this.buildVoice(randomVoice)
+            : this.buildVoice(defaultVoice)
     }
 
-    private buildVoice(userName: string, voice: IGoogleVoice|undefined):SettingUserVoice {
+    private buildVoice(voice: IGoogleVoice|undefined):SettingUserVoice {
         return {
-            userName: userName,
             languageCode: voice?.languageCodes.shift() ?? 'en-US',
             voiceName: voice?.name ?? '',
             gender: voice?.ssmlGender ?? 'FEMALE'

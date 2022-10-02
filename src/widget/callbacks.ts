@@ -1,22 +1,24 @@
 import {IOpenVR2WSRelay} from '../interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './enums.js'
 import {Actions} from './actions.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {ITwitchMessageCmd} from '../interfaces/itwitch_chat.js'
-import Color from '../statics/colors.js'
-import AudioPlayer from '../modules/audioplayer.js'
+import Color from '../ClassesStatic/colors.js'
+import AudioPlayer from '../Classes/audioplayer.js'
 import Functions from './functions.js'
 import {TKeys} from '../_data/!keys.js'
 import ModulesSingleton from '../modules_singleton.js'
-import TwitchFactory from '../modules/twitch_factory.js'
+import TwitchFactory from '../Classes/twitch_factory.js'
 import {IPipeCustomMessage} from '../interfaces/ipipe.js'
 import {ITwitchPubsubRewardMessage} from '../interfaces/itwitch_pubsub.js'
 import StatesSingleton from './states_singleton.js'
 import Utils from './utils.js'
 import MainController from './main_controller.js'
-import Discord from '../modules/discord.js'
-import SteamStore from '../modules/steam_store.js'
-import Settings, {SettingTwitchCheer, SettingTwitchRewardPair, SettingTwitchSub} from '../modules/settings.js'
+import Discord from '../Classes/discord.js'
+import SteamStore from '../Classes/steam_store.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import {SettingTwitchCheer, SettingTwitchSub} from '../Classes/settings.js'
+import DB from '../ClassesStatic/DB.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -53,20 +55,20 @@ export default class Callbacks {
                 if(Config.audioplayer.configs.hasOwnProperty(firstWord)) {
                     modules.tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
                 }
-                modules.tts.enqueueSpeakSentence(messageData.text, userData.login)
+                await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 
                 // Pipe to VR (basic)
-                const user = await modules.twitchHelix.getUserById(userData.id)
-                modules.pipe.sendBasicObj(messageData, userData, user)
+                const user = await TwitchHelix.getUserById(userData.id)
+                await modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
         modules.twitch.setChatCheerCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             // TTS
-            modules.tts.enqueueSpeakSentence(
+            await modules.tts.enqueueSpeakSentence(
                 messageData.text, 
-                userData.login, 
+                userData.id,
                 ETTSType.Cheer,
                 Utils.getNonce('TTS'), 
                 messageData.bits, 
@@ -74,8 +76,8 @@ export default class Callbacks {
             )
 
             // Pipe to VR (basic)
-            const user = await modules.twitchHelix.getUserById(userData.id)
-            modules.pipe.sendBasicObj(messageData, userData, user)
+            const user = await TwitchHelix.getUserById(userData.id)
+            await modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
         modules.twitch.setChatCallback(async (userData, messageData) => {
@@ -85,9 +87,9 @@ export default class Callbacks {
             
             if(states.ttsForAll) { 
                 // TTS is on for everyone
-                modules.tts.enqueueSpeakSentence(
+                await modules.tts.enqueueSpeakSentence(
                     messageData.text, 
-                    userData.login, 
+                    userData.id,
                     type, 
                     undefined, 
                     Utils.getNonce('TTS'), 
@@ -95,9 +97,9 @@ export default class Callbacks {
                 )
             } else if(states.ttsEnabledUsers.indexOf(userData.name) > -1) {
                 // Reward users
-                modules.tts.enqueueSpeakSentence(
+                await modules.tts.enqueueSpeakSentence(
                     messageData.text, 
-                    userData.login, 
+                    userData.id,
                     type, 
                     undefined, 
                     Utils.getNonce('TTS'), 
@@ -111,8 +113,8 @@ export default class Callbacks {
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
-                const user = await modules.twitchHelix.getUserById(userData.id)
-                modules.pipe.sendBasicObj(messageData, userData, user)
+                const user = await TwitchHelix.getUserById(userData.id)
+                await modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
@@ -122,7 +124,7 @@ export default class Callbacks {
             const bits = Utils.toInt(message?.properties?.bits, 0)
             
             // Discord
-            const user = await modules.twitchHelix.getUserById(Utils.toInt(message.properties['user-id']))
+            const user = await TwitchHelix.getUserById(Utils.toInt(message.properties['user-id']))
             let text = message?.message?.text
             if(text == null || text.length == 0) return
 
@@ -162,8 +164,9 @@ export default class Callbacks {
             const redemption = message?.data?.redemption
             if(!redemption) return console.warn('Reward redemption empty', message)
 
-            const user = await modules.twitchHelix.getUserById(parseInt(redemption.user.id))          
-            const rewardPair = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', redemption.reward.id)
+            const user = await TwitchHelix.getUserById(parseInt(redemption.user.id))
+            const rewardPairs = await Utils.getRewardPairs()
+            const rewardPair = rewardPairs.find((pair) => { return pair.id === redemption.reward.id })
 
             // Discord
             const amount = redemption.reward.redemptions_redeemed_current_stream
@@ -196,7 +199,7 @@ export default class Callbacks {
                 modules.pipe.sendBasic(
                     redemption.user_input, 
                     user?.display_name, 
-                    await modules.twitchHelix.getUserColor(parseInt(redemption.user.id)) ?? Color.White,
+                    await TwitchHelix.getUserColor(parseInt(redemption.user.id)) ?? Color.White,
                     user?.profile_image_url
                 ).then()
             }
@@ -213,12 +216,10 @@ export default class Callbacks {
             )
 
             // Save user sub
-            const subSetting: SettingTwitchSub = {
-                userName: message.user_name ?? '', 
-                totalMonths: message.cumulative_months ?? 0,
-                streakMonths: message.streak_months ?? 0
-            }
-            Settings.pushSetting(Settings.TWITCH_USER_SUBS, 'userName', subSetting)
+            const subSetting = new SettingTwitchSub()
+            subSetting.totalMonths = message.cumulative_months ?? 0
+            subSetting.streakMonths = message.streak_months ?? 0
+            await DB.saveSetting(subSetting, message.user_id)
 
             // Announce sub
             if(sub) {
@@ -234,12 +235,10 @@ export default class Callbacks {
         })
         modules.twitchPubsub.setOnCheerCallback(async (message) => {
             // Save user cheer
-            const cheerSetting: SettingTwitchCheer = {
-                userName: message.data.user_name ?? '', 
-                totalBits: message.data.total_bits_used,
-                lastBits: message.data.bits_used
-            }
-            Settings.pushSetting(Settings.TWITCH_USER_CHEERS, 'userName', cheerSetting)             
+            const cheerSetting = new SettingTwitchCheer()
+            cheerSetting.totalBits = message.data.total_bits_used
+            cheerSetting.lastBits = message.data.bits_used
+            await DB.saveSetting(cheerSetting, message.data.user_id)
 
             // Announce cheer
             const bits = message.data.bits_used ?? 0
@@ -271,7 +270,7 @@ export default class Callbacks {
             const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
             
             if(requestData) { // A screenshot from a reward
-                const userData = await modules.twitchHelix.getUserById(requestData.userId)
+                const userData = await TwitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                 
                 // Discord
@@ -279,7 +278,7 @@ export default class Callbacks {
                 const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
                 const color = Utils.hexToDecColor(
-                    await modules.twitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                    await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
@@ -323,7 +322,7 @@ export default class Callbacks {
                             tas[0].text = `${responseData.width}x${responseData.height}`
                         }
                         if(requestData != null && tas && tas.length > 1) {
-                            const userData = await modules.twitchHelix.getUserById(requestData.userId)
+                            const userData = await TwitchHelix.getUserById(requestData.userId)
                             const title = requestData.userInput 
                                 ? `"${requestData.userInput}"\n${userData?.display_name ?? ''}`
                                 : userData?.display_name ?? ''
@@ -347,7 +346,7 @@ export default class Callbacks {
                 const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
                 const gameTitle = gameData ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
 
-                const userData = await modules.twitchHelix.getUserById(requestData.userId)
+                const userData = await TwitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
                         
                 // Discord
@@ -355,7 +354,7 @@ export default class Callbacks {
                 const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                 const authorIconUrl = userData?.profile_image_url ?? ''
                 const color = Utils.hexToDecColor(
-                    await modules.twitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                    await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                 )
                 const descriptionText = description?.trim().length > 0
                     ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description}) 
@@ -452,7 +451,7 @@ export default class Callbacks {
                 rewardsToToggle.map(rewardKey => {
                     rewards[rewardKey] = state
                 })
-                modules.twitchHelix.toggleRewards(rewards)
+                TwitchHelix.toggleRewards(rewards)
             }
         })
 

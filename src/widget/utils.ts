@@ -1,13 +1,15 @@
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import StatesSingleton from './states_singleton.js'
 import ModulesSingleton from '../modules_singleton.js'
 import {TKeys} from '../_data/!keys.js'
 import {IActionUser, ITextTags} from '../interfaces/iactions.js'
-import SteamStore from '../modules/steam_store.js'
+import SteamStore from '../Classes/steam_store.js'
 import {IEvent, IEventsConfig} from '../interfaces/ievents.js'
 import {ICleanTextConfig} from '../interfaces/iutils.js'
 import {ITwitchEmotePosition} from '../interfaces/itwitch_chat.js'
-import {LOCAL_STORAGE_AUTH_KEY} from '../modules/data.js'
+import {LOCAL_STORAGE_AUTH_KEY} from '../Classes/data.js'
+import DB from '../ClassesStatic/DB.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 import {
     SettingAccumulatingCounter,
     SettingTwitchCheer, SettingTwitchReward,
@@ -318,6 +320,7 @@ export default class Utils {
             const channelData = await TwitchHelix.getChannelByName(userLogin)
             if(channelData) {
                 const voice = await DB.loadSetting(new SettingUserVoice(), channelData.broadcaster_id)
+                tags.targetId = channelData.broadcaster_id
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
                 tags.targetTag = `@${channelData.broadcaster_name}`
@@ -330,6 +333,7 @@ export default class Utils {
             }
         }
 
+        tags.targetOrUserId = tags.targetId.length > 0 ? tags.targetId : tags.userId
         tags.targetOrUserLogin = tags.targetLogin.length > 0 ? tags.targetLogin : tags.userLogin
         tags.targetOrUserName = tags.targetName.length > 0 ? tags.targetName : tags.userName
         tags.targetOrUserTag = tags.targetTag.length > 0 ? tags.targetTag : tags.userTag
@@ -364,6 +368,7 @@ export default class Utils {
 
         const result = <ITextTags> {
             // region User
+            userId: userIdStr,
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
             userTag: `@${userData?.name}`,
@@ -385,6 +390,7 @@ export default class Utils {
             // endregion
 
             // region Target
+            targetId: '',
             targetLogin: '',
             targetName: '',
             targetTag: '',
@@ -397,6 +403,7 @@ export default class Utils {
             // endregion
 
             // region Target or User
+            targetOrUserId: '',
             targetOrUserLogin: '',
             targetOrUserName: '',
             targetOrUserTag: '',
@@ -537,9 +544,9 @@ export default class Utils {
         return reward?.id
     }
     static async getRewardKey(id: string): Promise<TKeys|undefined> {
-        // TODO: We need to rethink how we store reward IDs in the database as this will not work with the current system.
-        // const reward = await Settings.pullSetting<SettingTwitchRewardPair>(Settings.TWITCH_REWARDS, 'id', id)
-        return undefined // reward?.key
+        const pairs = await this.getRewardPairs()
+        const reward = pairs.find((pair)=>{ return pair.id === id })
+        return reward?.key
     }
     static encode(value: string): string {
         let b64 = btoa(value)
@@ -755,4 +762,18 @@ export default class Utils {
             && Object.keys(object).length === 0
             && Object.getPrototypeOf(object) === Object.prototype
     }
+
+    static async getRewardPairs(): Promise<IRewardPair[]> {
+        const settings = await DB.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
+        const rewardPairs: IRewardPair[] = []
+        for(const [key, idObj] of Object.entries(settings) as [string, SettingTwitchReward][]) {
+            rewardPairs.push({key: key as TKeys, id: idObj.id})
+        }
+        return rewardPairs;
+    }
+}
+
+interface IRewardPair {
+    key: TKeys
+    id: string
 }

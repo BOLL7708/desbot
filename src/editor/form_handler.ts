@@ -72,9 +72,10 @@ export default class FormHandler {
             }
             const redirectUri = form?.querySelector<HTMLInputElement>('[name="redirectUri"]')
             if (redirectUri) {
+                const href = window.location.href.split('?').shift()
                 redirectUri.value = Utils.ensureValue<SettingTwitchClient>(
                     twitchClient ?? []
-                )?.redirectUri ?? window.location.href + 'twitch_auth.php'
+                )?.redirectUri ?? href + 'twitch_auth.php'
             }
 
             // Show form
@@ -150,7 +151,7 @@ export default class FormHandler {
     static async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
         const inputData = FormHandler.getFormInputData(event.target, new DBData())
-        const ok = await Data.writeData('db_settings.php', inputData)
+        const ok = await Data.writeData('db.php', inputData)
         if(ok) {
             const dbOk = await DB.testConnection()
             if(dbOk) FormHandler.setup().then()

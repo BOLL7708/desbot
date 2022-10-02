@@ -1,5 +1,5 @@
 import Utils from '../widget/utils.js'
-import Color from '../statics/colors.js'
+import Color from '../ClassesStatic/colors.js'
 import {
     IWebsocketsCloseCallback,
     IWebsocketsErrorCallback,

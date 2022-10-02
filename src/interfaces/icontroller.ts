@@ -1,6 +1,6 @@
 import {TKeys} from '../_data/!keys.js'
 import {ICommandPermissions} from './itwitch.js'
-import {IChannelTrophyFunnyNumberTexts} from '../modules/channeltrophy.js'
+import {IChannelTrophyFunnyNumberTexts} from '../Classes/channeltrophy.js'
 
 /**
  * These are the settings for `MainController`, the main class that connects all the different modules together.

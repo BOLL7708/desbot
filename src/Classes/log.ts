@@ -1,11 +1,14 @@
-import Settings from './settings.js'
+import Data from './data.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 
 export default class LogWriter {
     // TODO: Extend console with new functions that take color and style as arguments.
     // TODO: Add one console output that does not write to the log file.
-    public static init() {
+    private static _fileName = 'log.txt'
+
+    public static async init() {
         // Clear the log
-        Settings.pushLabel(Settings.LOG_OUTPUT, '')
+        await Data.writeText(this._fileName, '')
         this.override()
     }
 
@@ -68,7 +71,7 @@ export default class LogWriter {
         return message
     }
 
-    private static write(message: string) {
-        Settings.appendSettingAtInterval(Settings.LOG_OUTPUT, message)
+    private static async write(message: string) {
+        await Data.appendText(this._fileName, message)
     }
 }

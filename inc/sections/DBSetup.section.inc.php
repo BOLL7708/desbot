@@ -1,6 +1,10 @@
 <?php
-    $reqArr = array_filter(explode('/', $_SERVER['REQUEST_URI']));
-    $dbName = array_pop($reqArr) ?? 'streaming_widget';
+    $reqUri = $_SERVER['REQUEST_URI'] ?? '';
+    if(empty($reqUri)) exit('PHP runs but is broken, fix it.');
+
+    $reqArr = explode('?', $reqUri);
+    $reqParts = array_filter(explode('/', array_shift($reqArr)));
+    $dbName = array_pop($reqParts) ?? 'streaming_widget';
 ?>
 <div id="sectionDBSetup">
     <h2>Database Setup</h2>

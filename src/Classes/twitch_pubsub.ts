@@ -1,5 +1,5 @@
 import {ITwitchCheer, ITwitchReward} from '../interfaces/itwitch.js'
-import TwitchHelix from './twitch_helix.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 import {
     ITwitchPubsubCheerCallback,
     ITwitchPubsubCheerMessage,
@@ -10,11 +10,12 @@ import {
     ITwitchPubsubSubscriptionMessage
 } from '../interfaces/itwitch_pubsub.js'
 import {Actions} from '../widget/actions.js'
-import Config from '../statics/config.js'
-import Color from '../statics/colors.js'
+import Config from '../ClassesStatic/Config.js'
+import Color from '../ClassesStatic/colors.js'
 import WebSockets from './websockets.js'
 import Utils from '../widget/utils.js'
-import Settings, {SettingTwitchCredentials, SettingTwitchRedemption} from './settings.js'
+import {SettingTwitchRedemption, SettingTwitchTokens} from './settings.js'
+import DB from '../ClassesStatic/DB.js'
 
 export default class TwitchPubsub {
     private LOG_COLOR: string = 'teal'
@@ -62,25 +63,24 @@ export default class TwitchPubsub {
         this._socket.init()
     }
 
-    private onOpen(evt:any) {
-        Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName).then(tokenData => {
-            let payload = {
-                type: "LISTEN",
-                nonce: "7708",
-                data: {
-                    topics: [
-                        `channel-points-channel-v1.${TwitchHelix._channelUserId}`,
-                        `channel-subscribe-events-v1.${TwitchHelix._channelUserId}`,
-                        `channel-bits-events-v2.${TwitchHelix._channelUserId}`,
-                        
-                    ],
-                    auth_token: tokenData?.accessToken
-                }
+    private async onOpen(evt:any) {
+        const tokenData = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const userId = tokenData?.userId ?? 0
+        let payload = {
+            type: "LISTEN",
+            nonce: "7708",
+            data: {
+                topics: [
+                    `channel-points-channel-v1.${userId}`,
+                    `channel-subscribe-events-v1.${userId}`,
+                    `channel-bits-events-v2.${userId}`
+                ],
+                auth_token: tokenData?.accessToken
             }
-            this._socket?.send(JSON.stringify(payload))
-            this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
-            Utils.log('PubSub connected', this.LOG_COLOR, true, true)
-        })
+        }
+        this._socket?.send(JSON.stringify(payload))
+        this._pingIntervalHandle = setInterval(this.ping.bind(this), 4*60*1000) // Ping at least every 5 minutes to keep the connection open
+        Utils.log('PubSub connected', this.LOG_COLOR, true, true)
     }
 
     private onClose(evt:any) {
@@ -101,15 +101,13 @@ export default class TwitchPubsub {
                                 const id = rewardMessage?.data?.redemption?.reward?.id ?? null
                                 const redemption = rewardMessage?.data?.redemption
                                 if(redemption && redemption.status == 'UNFULFILLED') {
-                                    const redemptionStatus: SettingTwitchRedemption = {
-                                        userId: parseInt(redemption.user?.id) ?? 0,
-                                        rewardId: redemption.reward?.id,
-                                        redemptionId: redemption.id,
-                                        time: redemption?.redeemed_at,
-                                        status: redemption.status,
-                                        cost: redemption.reward?.cost
-                                    }
-                                    Settings.pushRow(Settings.TWITCH_REWARD_REDEMPTIONS, redemptionStatus).then()
+                                    const redemptionStatus = new SettingTwitchRedemption()
+                                    redemptionStatus.userId = parseInt(redemption.user?.id) ?? 0
+                                    redemptionStatus.rewardId = redemption.reward?.id
+                                    redemptionStatus.time = redemption.redeemed_at
+                                    redemptionStatus.status = redemption.status
+                                    redemptionStatus.cost = redemption.reward?.cost
+                                    await DB.saveSetting(redemption, redemption.id)
                                 }
                                 Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                                 if(id !== null) this._onRewardCallback(id, rewardMessage)

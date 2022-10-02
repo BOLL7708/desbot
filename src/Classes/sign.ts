@@ -1,6 +1,6 @@
 import Utils from '../widget/utils.js'
-import Config from '../statics/config.js'
-import Color from '../statics/colors.js'
+import Config from '../ClassesStatic/Config.js'
+import Color from '../ClassesStatic/colors.js'
 import {ISignConfig} from '../interfaces/isign.js'
 import {ISignAction} from '../interfaces/iactions.js'
 

@@ -188,6 +188,7 @@ export interface ISystemAction {
 }
 
 export interface ITextTags extends ITextTagsCached{
+    userId: string
     userLogin: string
     userName: string
     userTag: string
@@ -212,6 +213,7 @@ export interface ITextTags extends ITextTagsCached{
     userColor: string
     userVoice: string
 
+    targetId: string
     targetLogin: string
     targetName: string
     targetTag: string
@@ -222,6 +224,7 @@ export interface ITextTags extends ITextTagsCached{
     targetColor: string
     targetVoice: string
 
+    targetOrUserId: string
     targetOrUserLogin: string
     targetOrUserName: string
     targetOrUserTag: string
@@ -263,7 +266,7 @@ export interface ITextTags extends ITextTagsCached{
 export interface ITextTagsCached {
     lastDictionaryWord: string
     lastDictionarySubstitute: string
-    lastTTSSetNickLogin: string
+    lastTTSSetNickId: string
     lastTTSSetNickSubstitute: string
 }
 

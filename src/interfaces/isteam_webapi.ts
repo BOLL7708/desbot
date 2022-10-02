@@ -161,7 +161,7 @@ export interface ISteamWebApiPlayerAchievementData {
      */
     apiname: string
     /**
-     * Whether or not the achievement has been completed.
+     * Whether the achievement has been completed.
      */
     achieved: number
     /**

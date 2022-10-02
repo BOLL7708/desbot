@@ -1,14 +1,25 @@
-import Config from '../statics/config.js'
-import LogWriter from '../modules/log.js'
+import Config from '../ClassesStatic/Config.js'
+import LogWriter from '../Classes/log.js'
 import Callbacks from './callbacks.js'
 import StatesSingleton from './states_singleton.js'
 import Utils from './utils.js'
 import {Actions} from './actions.js'
-import Color from '../statics/colors.js'
+import Color from '../ClassesStatic/colors.js'
 import Rewards from './rewards.js'
 import Functions from './functions.js'
 import ModulesSingleton from '../modules_singleton.js'
-import Settings, {SettingDictionaryEntry, SettingTwitchCredentials} from '../modules/settings.js'
+import DB from '../ClassesStatic/DB.js'
+import {
+    SettingAccumulatingCounter,
+    SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip,
+    SettingTwitchRedemption,
+    SettingTwitchReward,
+    SettingTwitchTokens,
+    SettingUserMute,
+    SettingUserName,
+    SettingUserVoice
+} from '../Classes/settings.js'
+import {IDictionaryEntry} from '../Classes/dictionary.js'
 
 export default class MainController {
     public static async init() {
@@ -22,33 +33,30 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
-        await Settings.loadSettings(Settings.TTS_BLACKLIST)
-        await Settings.loadSettings(Settings.TTS_USER_NAMES)
-        await Settings.loadSettings(Settings.TTS_USER_VOICES)
-        await Settings.loadSettings(Settings.TWITCH_CREDENTIALS)
-        await Settings.loadSettings(Settings.TWITCH_REWARDS)
-        await Settings.loadSettings(Settings.TWITCH_REWARD_REDEMPTIONS)
-        await Settings.loadSettings(Settings.TTS_DICTIONARY)
-        await Settings.loadSettings(Settings.TWITCH_CLIPS)
-        await Settings.loadSettings(Settings.EVENT_COUNTERS_INCREMENTAL)
-        await Settings.loadSettings(Settings.EVENT_COUNTERS_ACCUMULATING)
-        await Settings.loadSettings(Settings.QUOTES)
+        await DB.loadSettingsDictionary(new SettingUserMute())
+        await DB.loadSettingsDictionary(new SettingUserName())
+        await DB.loadSettingsDictionary(new SettingUserVoice())
+        await DB.loadSettingsDictionary(new SettingTwitchTokens())
+        await DB.loadSettingsDictionary(new SettingTwitchReward())
+        await DB.loadSettingsDictionary(new SettingTwitchRedemption())
+        const dictionarySettings = await DB.loadSettingsDictionary(new SettingDictionaryEntry())
+        await DB.loadSettingsDictionary(new SettingTwitchClip())
+        await DB.loadSettingsDictionary(new SettingIncrementingCounter())
+        await DB.loadSettingsDictionary(new SettingAccumulatingCounter())
+        await DB.loadSettingsArray(new SettingStreamQuote())
 
         const modules = ModulesSingleton.getInstance()
-
-        const dictionarySettings = Settings.getFullSettings<SettingDictionaryEntry>(Settings.TTS_DICTIONARY)
-        modules.tts.setDictionary(dictionarySettings ?? [])
-
-        
-        const channelTokens = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.channelName)
-        const chatbotTokens = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', Config.twitch.chatbotName)
-        if(!channelTokens) {
-            document.location.href = 'login.php?missing=channel&missingName='+Config.twitch.channelName
-            return
-        }
-        if(!chatbotTokens) {
-            document.location.href = 'login.php?missing=chatbot&missingName='+Config.twitch.chatbotName
-            return
+        if(dictionarySettings) {
+            // TODO: Make a custom mapping function for this.
+            const dictionary: IDictionaryEntry[] = []
+            for(const [key, dictionaryEntry] of Object.entries(dictionarySettings)) {
+                const entry: IDictionaryEntry = {
+                    original: key,
+                    substitute: dictionaryEntry.substitute
+                }
+                dictionary.push(entry)
+            }
+            modules.tts.setDictionary(dictionary ?? [])
         }
 
         /*
@@ -61,7 +69,6 @@ export default class MainController {
         .####.##....##.####....##...
         */
         await modules.twitchTokens.refreshToken()
-        await modules.twitchHelix.init()
         if(Config.controller.websocketsUsed.twitchPubsub) await modules.twitchPubsub.init()
 
         modules.pipe.setOverlayTitle("Streaming Widget")
@@ -92,7 +99,7 @@ export default class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        modules.twitch.init(Config.controller.websocketsUsed.twitchChat)
+        await modules.twitch.init(Config.controller.websocketsUsed.twitchChat)
         if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init()
         if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
         if(Config.controller.websocketsUsed.obs) modules.obs.init()
@@ -110,7 +117,7 @@ export default class MainController {
     .####.##....##....##....########.##.....##....###....##.....##.########..######.
     */
 
-    public static startSteamPlayerSummaryInterval() {
+    public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()
         if(
             Config.steam.playerSummaryIntervalMs 
@@ -118,19 +125,19 @@ export default class MainController {
             && !ModulesSingleton.getInstance().openvr2ws.isConnected
         ) {
             Utils.log('Starting Steam player summary interval', Color.Green)
-            Functions.loadPlayerSummary() // Get initial state immidately
-            states.steamPlayerSummaryIntervalHandle = setInterval(() => {
-                Functions.loadPlayerSummary()
+            await Functions.loadPlayerSummary() // Get initial state immidately
+            states.steamPlayerSummaryIntervalHandle = setInterval(async() => {
+                await Functions.loadPlayerSummary()
             }, Config.steam.playerSummaryIntervalMs)
         }
     }
 
-    public static startSteamAchievementsInterval() {
+    public static async startSteamAchievementsInterval() {
         if(Config.steam.achievementsIntervalMs) {
             Utils.log('Starting Steam achievements interval', Color.Green)
             const states = StatesSingleton.getInstance()
-            states.steamAchievementsIntervalHandle = setInterval(() => {
-                Functions.loadAchievements()
+            states.steamAchievementsIntervalHandle = setInterval(async() => {
+                await Functions.loadAchievements()
             }, Config.steam.achievementsIntervalMs)
         }
     }

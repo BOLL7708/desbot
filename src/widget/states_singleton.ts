@@ -1,4 +1,4 @@
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {IMultiTierEventCounter, ITextTagsCached} from '../interfaces/iactions.js'
 
 /**
@@ -29,7 +29,7 @@ export default class StatesSingleton {
     public textTagCache: ITextTagsCached = {
         lastDictionaryWord: '',
         lastDictionarySubstitute: '',
-        lastTTSSetNickLogin: '',
+        lastTTSSetNickId: '0', // Tags needs to be strings
         lastTTSSetNickSubstitute: ''
     }
     public multiTierEventCounters: Map<string, IMultiTierEventCounter> = new Map()

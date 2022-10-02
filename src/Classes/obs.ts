@@ -1,7 +1,7 @@
 import WebSockets from './websockets.js'
 import {IActionUser, IObsAction} from '../interfaces/iactions.js'
 import Utils from '../widget/utils.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {ISceneChangeCallback, ISourceScreenshotCallback} from '../interfaces/iobs.js'
 import {TKeys} from '../_data/!keys.js'
 import {IScreenshotRequestData} from '../interfaces/iscreenshots.js'

@@ -5,8 +5,8 @@ import {
     ISteamWebApiPlayerAchievements, ISteamWebApiPlayerSummaries, ISteamWebApiPlayerSummaryData,
     IStreamWebApiGlobalAchievementData, IStreamWebApiGlobalAchievementStats
 } from '../interfaces/isteam_webapi.js'
-import Config from '../statics/config.js'
-import Color from '../statics/colors.js'
+import Config from '../ClassesStatic/Config.js'
+import Color from '../ClassesStatic/colors.js'
 
 /**
  * These are calls to the Steam Web API to fetch various kinds of data.

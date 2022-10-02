@@ -5,8 +5,8 @@ import {
     IOpenVR2WSMessage, IOpenVR2WSMoveSpace,
     IOpenVR2WSRelayCallback, IOpenVR2WSRelayData, IOpenVR2WSSetting, IOpenVR2WSStatusCallback, IOpenVRWSCommandMessage
 } from '../interfaces/iopenvr2ws.js'
-import Config from '../statics/config.js'
-import Color from '../statics/colors.js'
+import Config from '../ClassesStatic/Config.js'
+import Color from '../ClassesStatic/colors.js'
 import WebSockets from './websockets.js'
 import Utils from '../widget/utils.js'
 

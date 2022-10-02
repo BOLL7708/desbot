@@ -1,26 +1,26 @@
-import TwitchHelix from './twitch_helix.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 import Utils from '../widget/utils.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../interfaces/idiscord.js'
-import Settings, {SettingChannelTrophyStat} from './settings.js'
+import DB from '../ClassesStatic/DB.js'
+import {SettingChannelTrophyStat} from './settings.js'
+import Color from '../ClassesStatic/colors.js'
 
 export default class ChannelTrophy {
     static async getNumberOfStreams():Promise<number> {
-        await Settings.loadSettings(Settings.CHANNEL_TROPHY_STATS, true)
-        const stats = Settings.getFullSettings<SettingChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
+        const stats = await DB.loadSettingsDictionary(new SettingChannelTrophyStat(), true) ?? {}
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
-        stats.forEach(stat => {
-            const index = stat.index
-            if(index < lastIndex) numberOfStreams++
-            lastIndex = index
-        })
+
+        for(const [_, stat] of Object.entries(stats).sort() as [string, SettingChannelTrophyStat][]) {
+            if(stat.index <= lastIndex) numberOfStreams++ // If the next index is less, or the same (like 1) we increment.
+            lastIndex = stat.index
+        }
         return numberOfStreams
     }
 
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
-        await Settings.loadSettings(Settings.CHANNEL_TROPHY_STATS, true)
-        const stats = Settings.getFullSettings<SettingChannelTrophyStat>(Settings.CHANNEL_TROPHY_STATS) ?? []
+        const stats = await DB.loadSettingsDictionary(new SettingChannelTrophyStat(), true) ?? {}
 
         /* GENERATE DATA */
 
@@ -55,11 +55,15 @@ export default class ChannelTrophy {
         // Random garbage
         let funnyNumbers: IChannelTrophyFunnyNumber[] = []
 
-        for(const stat of stats) {
+        for(const [costStr, stat] of Object.entries(stats) as [string, SettingChannelTrophyStat][]) {
             const userId = stat.userId
             
             const index = stat.index
-            const cost = stat.cost
+            const cost = parseInt(costStr)
+            if(isNaN(cost)) {
+                Utils.log(`Trophy cost was not a number: ${costStr}`, Color.Red)
+                continue
+            }
 
             if(index <= lastIndex) { // New stream!
                 if(totalStreamCount >= (stopAfterIndex+1)) break
@@ -189,11 +193,11 @@ export default class ChannelTrophy {
 
         // Get helix stuff
         async function getName(userId: number):Promise<string> {
-            const user = await _twitchHelix.getUserById(userId)
+            const user = await TwitchHelix.getUserById(userId)
             return user?.display_name ?? ''
         }
         async function getImage(userId: number):Promise<string> {
-            const user = await _twitchHelix.getUserById(userId)
+            const user = await TwitchHelix.getUserById(userId)
             return user?.profile_image_url ?? ''
         }
 

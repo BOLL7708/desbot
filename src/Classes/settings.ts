@@ -64,6 +64,7 @@ export class SettingTwitchClient {
     redirectUri: string = ''
 }
 export class SettingTwitchTokens {
+    userLogin: string = ''
     userId: number = 0
     refreshToken: string = ''
     accessToken: string = ''
@@ -72,6 +73,6 @@ export class SettingTwitchTokens {
 export class SettingImportStatus {
     done: boolean = false
 }
-export class SettingSteamAchievement {
-    [key: string]: { state: number }
+export class SettingSteamAchievements {
+    [key: string]: boolean
 }

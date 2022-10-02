@@ -5,7 +5,7 @@ import {
     IDiscordResponseHeaders,
     IDiscordWebookPayload
 } from '../interfaces/idiscord.js'
-import Color from '../statics/colors.js'
+import Color from '../ClassesStatic/colors.js'
 
 export default class Discord {
     private static _rateLimits: Record<string, IDiscordRateLimit> = {} // Bucket, limit?

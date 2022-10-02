@@ -1,19 +1,21 @@
 import {IEvent} from '../interfaces/ievents.js'
 import {ActionHandler, Actions} from './actions.js'
-import Config from '../statics/config.js'
-import OpenVR2WS from '../modules/openvr2ws.js'
-import Color from '../statics/colors.js'
+import Config from '../ClassesStatic/Config.js'
+import OpenVR2WS from '../Classes/openvr2ws.js'
+import Color from '../ClassesStatic/colors.js'
 import ModulesSingleton from '../modules_singleton.js'
 import {TKeys} from '../_data/!keys.js'
 import {ITwitchHelixChannelRequest} from '../interfaces/itwitch_helix.js'
-import SteamWebApi from '../modules/steam_webapi.js'
+import SteamWebApi from '../Classes/steam_webapi.js'
 import StatesSingleton from './states_singleton.js'
 import {ISteamWebApiSettingAchievement} from '../interfaces/isteam_webapi.js'
 import Utils from './utils.js'
 import {EEventSource} from './enums.js'
-import Discord from '../modules/discord.js'
-import SteamStore from '../modules/steam_store.js'
-import Settings from '../modules/settings.js'
+import Discord from '../Classes/discord.js'
+import SteamStore from '../Classes/steam_store.js'
+import DB from '../ClassesStatic/DB.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import {SettingSteamAchievements} from '../Classes/settings.js'
 
 export default class Functions {
     /*
@@ -49,12 +51,12 @@ export default class Functions {
             Utils.log(`Steam AppId is new: "${appId}" != "${states.lastSteamAppId}", isVr: ${isVr}`, Color.DarkBlue)
             states.lastSteamAppId = appId
             
-			// Load achievements before we update the ID for everything else, so we don't overwrite them by accident.
-            await Settings.loadSettings(Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, appId))
+			// Load achievements before we update the ID for everything else, so we don't overwrite them by accident. (2022-10-01: Not sure if this is still needed)
+            await DB.loadSetting(new SettingSteamAchievements(), appId)
             await SteamWebApi.getGameSchema(appId)
             await SteamWebApi.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
-	
+
 			/**
 			 * Controller defaults loading, various settings including TTS etc.
 			 */
@@ -108,7 +110,7 @@ export default class Functions {
                         Utils.log(`Updating reward for event "${key}" to be in line with options.`, Color.DarkOliveGreen)
                         rewardConfigClone.title = await Utils.replaceTagsInText(rewardConfigClone.title, await Actions.buildEmptyUserData(EEventSource.Updated, key))
                         rewardConfigClone.prompt = await Utils.replaceTagsInText(rewardConfigClone.prompt, await Actions.buildEmptyUserData(EEventSource.Updated, key))
-                        modules.twitchHelix.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
+                        TwitchHelix.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
                     }
                 }
             }
@@ -189,7 +191,7 @@ export default class Functions {
                 Utils.logWithBold(`Updating Game Reward: <${key}:${rewardId}>`, Color.Purple)
 
                 // Update game rewards on Twitch
-                modules.twitchHelix.updateReward(rewardId, {
+                TwitchHelix.updateReward(rewardId, {
                     ...defaultRewardConfig,
                     ...rewardConfig,
                     ...{is_enabled: true}
@@ -209,7 +211,7 @@ export default class Functions {
 
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
-        modules.twitchHelix.toggleRewards(profileToUse).then()
+        TwitchHelix.toggleRewards(profileToUse).then()
 
         // endregion
 
@@ -243,25 +245,25 @@ export default class Functions {
             if(Config.twitch.gameTitleToCategoryOverride[gameName]) {
                 gameName = Config.twitch.gameTitleToCategoryOverride[gameName]
             }
-            let twitchGameData = await modules.twitchHelix.searchForGame(gameName)
+            let twitchGameData = await TwitchHelix.searchForGame(gameName)
             if(twitchGameData == null && typeof gameData?.name == 'string') {
                 let nameParts = gameData.name.split(' ')
                 if(nameParts.length >= 2) {
                     // This is to also match games that are "name VR" on Steam but "name" on Twitch
                     // so we effectively trim off VR and see if we get a match.
                     nameParts.pop()
-                    twitchGameData = await modules.twitchHelix.searchForGame(nameParts.join(' '))
+                    twitchGameData = await TwitchHelix.searchForGame(nameParts.join(' '))
                 }
             }
             if(twitchGameData == null) {
                 // If still no Twitch match, we load a possible default category.
-                twitchGameData = await modules.twitchHelix.searchForGame(Config.twitch.defaultGameCategory)
+                twitchGameData = await TwitchHelix.searchForGame(Config.twitch.defaultGameCategory)
             }
             if(twitchGameData != undefined) {
                 const request: ITwitchHelixChannelRequest = {
                     game_id: twitchGameData.id
                 }
-                const response = await modules.twitchHelix.updateChannelInformation(request)
+                const response = await TwitchHelix.updateChannelInformation(request)
                 const speech = Config.controller.speechReferences['CallbackAppID'] ?? []
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
@@ -295,38 +297,35 @@ export default class Functions {
         if(this._isLoadingAchievements) return Utils.log('Steam achievements already loading', Color.Red)
         this._isLoadingAchievements = true
         const modules = ModulesSingleton.getInstance()
-        const states = StatesSingleton.getInstance()
-        if(states.lastSteamAppId != undefined && states.lastSteamAppId.length > 0) {
+        const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
+        if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
-            const setting = Settings.getPathFromKey(Settings.STEAM_ACHIEVEMENTS, states.lastSteamAppId)
-            const storedAchievements = Settings.getFullSettings<ISteamWebApiSettingAchievement>(setting) ?? []
-            const doneAchievements = storedAchievements.length > 0 ? storedAchievements.map(a=>parseInt(a.state)).reduce((a,b)=>a+b) : 0
+            const storedAchievements = await DB.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
+            const doneAchievements = Object.values(storedAchievements).filter((value)=>{ return value }).length
 
             // Remote
-            const achievements = await SteamWebApi.getAchievements(states.lastSteamAppId) ?? []
+            const achievements = await SteamWebApi.getAchievements(lastSteamAppId) ?? []
 
             Utils.log(`Number of achievements from Steam: ${achievements.length}, completed stored achievements: ${doneAchievements}`, Color.Gray)
             let countNew = 0
             for(const achievement of achievements) {
                 // Check if the state has changed since last stored
-                const storedAchievement = await Settings.pullSetting<ISteamWebApiSettingAchievement>(setting, 'key', achievement.apiname)
-                if(storedAchievement?.state != achievement.achieved.toString()) {
-                    if(achievement.achieved) countNew++
+                const storedAchievementState = storedAchievements[achievement.apiname]
+                const isAchieved = achievement.achieved > 0
+                if(!storedAchievementState && isAchieved) {
+                    countNew++
 
-                    // Store achievement
-                    await Settings.pushSetting(setting, 'key',
-                    <ISteamWebApiSettingAchievement>{
-                        key: achievement.apiname, 
-                        state: achievement.achieved.toString()
-                    })
+                    // Update achievement state
+                    storedAchievements[achievement.apiname] = isAchieved
+
                     // Announce achievement
                     if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
                         Utils.log(`New achievement unlocked! ${achievement.apiname}`, Color.Green, true, true)
                         const key = achievement.apiname
                         const profileTag = await SteamWebApi.getProfileTag()
-                        const gameMeta = await SteamStore.getGameMeta(states.lastSteamAppId)
-                        const gameSchema = await SteamWebApi.getGameSchema(states.lastSteamAppId)
-                        const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(states.lastSteamAppId))?.find(s => s.name == key)
+                        const gameMeta = await SteamStore.getGameMeta(lastSteamAppId)
+                        const gameSchema = await SteamWebApi.getGameSchema(lastSteamAppId)
+                        const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(lastSteamAppId))?.find(s => s.name == key)
                         const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
                         const totalAchievements = achievements.length
                         const progressStr = `${doneAchievements+countNew}/${totalAchievements}`
@@ -340,7 +339,7 @@ export default class Functions {
                                 {
                                     title: achievementDetails?.displayName ?? key,
                                     description: achievementDetails?.description ?? '',
-                                    url: SteamStore.getAchievementsURL(states.lastSteamAppId, profileTag),
+                                    url: SteamStore.getAchievementsURL(lastSteamAppId, profileTag),
                                     thumbnail: {
                                         url: achievementDetails?.icon ?? ''
                                     },
@@ -373,6 +372,7 @@ export default class Functions {
                     }
                 }
             }
+            await DB.saveSetting(storedAchievements, lastSteamAppId) // Update states in DB
             this._isLoadingAchievements = false
         } else {
             this._isLoadingAchievements = false

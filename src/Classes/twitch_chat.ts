@@ -1,9 +1,11 @@
 import WebSockets from './websockets.js'
 import Utils from '../widget/utils.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import TwitchFactory from './twitch_factory.js'
-import Settings, {SettingTwitchCredentials} from './settings.js'
 import {ITwitchChatMessageCallback} from '../interfaces/itwitch.js'
+import DB from '../ClassesStatic/DB.js'
+import {SettingTwitchTokens} from './settings.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
@@ -11,9 +13,10 @@ export default class TwitchChat {
     private _isConnected: boolean = false
     private _userName: string = ''
     private _channel: string = ''
-    init(userName: string, channel?: string) {
+    init(userName?: string, channel?: string) {
+        if(!userName || !channel) return console.error(`Twitch Chat: Cannot initiate without proper username (${userName}) and channel (${channel}).`)
         this._userName = userName
-        this._channel = (channel ?? Config.twitch.channelName ?? '').toLowerCase()
+        this._channel = channel
         this._socket = new WebSockets(
             'wss://irc-ws.chat.twitch.tv:443',
             15,
@@ -36,7 +39,9 @@ export default class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        let tokenData = await Settings.pullSetting<SettingTwitchCredentials>(Settings.TWITCH_CREDENTIALS, 'userName', this._userName)
+        const userData = await TwitchHelix.getUserByLogin(this._userName)
+        const tokens = await DB.loadSettingsArray(new SettingTwitchTokens())
+        const tokenData = tokens?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
         Utils.log(`Twitch chat connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
         this._socket?.send(`PASS oauth:${tokenData?.accessToken}`)
         this._socket?.send(`NICK ${this._userName}`)

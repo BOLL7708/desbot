@@ -10,20 +10,6 @@ import {ActionHandler} from '../widget/actions.js'
  */
 export interface ITwitchConfig {
     /**
-     * The name of the channel to connect to as well as the username that will be used when registering and managing rewards.
-     * 
-     * Make sure to also provide an initial refresh token in: `Config.credentials.TwitchChannelRefreshToken`
-     */
-    channelName: string
-    /**
-     * The username of the chatbot used when reading and speaking in chat as well as sending whispers, this can be the same as `channelName`.
-     * 
-     * Note: New users might not be able to send whispers to random users, due to Twitch spambot prevention.
-     * 
-     * Make sure to also provide an initial refresh token in: `Config.credentials.TwitchChatbotRefreshToken`
-     */
-    chatbotName: string
-    /**
      * Prefix for triggering chat commands.
      */
     commandPrefix: string

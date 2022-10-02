@@ -1,7 +1,6 @@
 import Utils from '../widget/utils.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {IGoogleAudio} from '../interfaces/igoogle.js'
-import {SettingDictionaryEntry} from './settings.js'
 
 export default class Dictionary {
     private static SSMLEscapeSymbols: { [x:string]: string } = {
@@ -27,19 +26,19 @@ export default class Dictionary {
             }
         }
     }
-    
+
+
     /**
      * Set the dictionary to use, will append or update the existing entries.
      * This is public for when new words are added at runtime.
      * @param dictionary New entries for the dictionary.
      * @param clearExisting If true, will clear the existing dictionary.
      */
-    public set(dictionary?: SettingDictionaryEntry[], clearExisting = false): void {
+    public set(dictionary?: IDictionaryEntry[], clearExisting = false): void {
         if(clearExisting) this._dictionary.clear()
         if(dictionary) {
-            for(const pair of dictionary) {
-                // Checking if they exist as this could come from settings, which can't be trusted!
-                if(pair.original && pair.substitute) this._dictionary.set(pair.original, pair.substitute)
+            for(const entry of dictionary) {
+                if(entry.original && entry.substitute) this._dictionary.set(entry.original, entry.substitute)
             }
         }
     }
@@ -139,4 +138,9 @@ export default class Dictionary {
     private escapeSymbolsForSSML(text: string): string {
         return text.replace(Dictionary.SSMLRegex, function(matched) { return Dictionary.SSMLEscapeSymbols[matched] })
     }
+}
+
+export interface IDictionaryEntry {
+    original: string
+    substitute: string
 }

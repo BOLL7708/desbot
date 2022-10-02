@@ -28,6 +28,7 @@ export default class DB {
      */
     static async loadSettingsDictionary<T>(emptyInstanceOrClassName: T&Object|string, ignoreCache: boolean = false): Promise<{ [key:string]: T }|undefined> {
         const className = this.getClassName(emptyInstanceOrClassName)
+        if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
         if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
             return this._settingsDictionaryStore.get(className) as { [key:string]: T }
         }
@@ -47,6 +48,7 @@ export default class DB {
      */
     static async loadSettingsArray<T>(emptyInstanceOrClassName: T&Object|string, ignoreCache: boolean = false): Promise<T[]|undefined> {
         const className = this.getClassName(emptyInstanceOrClassName)
+        if(this.checkAndReportClassError(className, 'loadArray')) return undefined
         if(!ignoreCache && this._settingsArrayStore.has(className)) {
             return this._settingsArrayStore.get(className) as T[]
         }
@@ -68,6 +70,7 @@ export default class DB {
      */
     static async loadSetting<T>(emptyInstanceOrClassName: T&Object, key: string, ignoreCache: boolean = false) {
         const className = this.getClassName(emptyInstanceOrClassName)
+        if(this.checkAndReportClassError(className, 'loadSingle')) return undefined
         if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
             const dictionary = this._settingsDictionaryStore.get(className) as { [key:string]: T }
             if(dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
@@ -102,12 +105,24 @@ export default class DB {
      */
     static async saveSetting<T>(setting: T&Object, key?: string): Promise<boolean> {
         const className = setting.constructor.name
+        if(this.checkAndReportClassError(className, 'saveSingle')) return false
         let url = this.getSettingsUrl(className, key)
         const response = await fetch(url, {
             headers: await this.getAuthHeader(true),
             method: 'POST',
             body: JSON.stringify(setting)
         })
+        if(response.ok) {
+            if(key) {
+                if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
+                const dictionary = this._settingsDictionaryStore.get(className)
+                if(dictionary) dictionary[key] = setting
+            } else {
+                if(!this._settingsArrayStore.has(className)) this._settingsArrayStore.set(className, [])
+                const arr = this._settingsArrayStore.get(className)
+                if(arr) arr.push(setting)
+            }
+        }
         Utils.log(response.ok ? `Wrote '${className}' to DB` : `Failed to write '${className}' to DB`, response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR)
         return response.ok
     }
@@ -124,6 +139,10 @@ export default class DB {
             headers: await this.getAuthHeader(true),
             method: 'DELETE'
         })
+        if(response.ok) {
+            const dictionary = this._settingsDictionaryStore.get(className)
+            if(dictionary) delete dictionary[key]
+        }
         Utils.log(response.ok ? `Deleted '${className}:${key}' from DB` : `Failed to delete '${className}:${key}' from DB`, response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR)
         return response.ok
     }
@@ -163,6 +182,15 @@ export default class DB {
         headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ?? '')
         if (addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
         return headers
+    }
+
+    private static checkAndReportClassError(className: string, action: string): boolean {
+        // TODO: Add callstack?
+        const isProblem = className == 'Object'
+        if(isProblem) {
+            Utils.log(`DB: ${action} got ${className} which is invalid.`, Color.DarkRed, true, true)
+        }
+        return isProblem
     }
 
     // endregion

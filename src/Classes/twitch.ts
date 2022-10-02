@@ -6,14 +6,16 @@ import {
     ITwitchMessageData
 } from '../interfaces/itwitch.js'
 import {Actions} from '../widget/actions.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {ITwitchMessageCmd} from '../interfaces/itwitch_chat.js'
-import Color from '../statics/colors.js'
+import Color from '../ClassesStatic/colors.js'
 import TwitchChat from './twitch_chat.js'
 import TwitchFactory from './twitch_factory.js'
 import StatesSingleton from '../widget/states_singleton.js'
 import Utils from '../widget/utils.js'
 import {EEventSource} from '../widget/enums.js'
+import DB from '../ClassesStatic/DB.js'
+import {SettingTwitchTokens} from './settings.js'
 
 export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
@@ -24,12 +26,14 @@ export default class Twitch{
     async init(initChat: boolean = true) {
         if(initChat) {
             // In/out for chat in the main channel
-            this._twitchChatIn.init(Config.twitch.channelName)
-            this._twitchChatOut.init(Config.twitch.chatbotName)
+            const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
+            const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+            this._twitchChatIn.init(channelTokens?.userLogin, channelTokens?.userLogin)
+            this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin)
 
             // Remote command channel
             const remoteChannel = Config.twitch.remoteCommandChannel
-            if(remoteChannel.length > 0) this._twitchChatRemote.init(Config.twitch.chatbotName, Config.twitch.remoteCommandChannel)
+            if(remoteChannel.length > 0) this._twitchChatRemote.init(chatbotTokens?.userLogin, Config.twitch.remoteCommandChannel)
         }        
         this._twitchChatIn.registerChatMessageCallback((message) => {
             this.onChatMessage(message)
@@ -155,8 +159,9 @@ export default class Twitch{
 
         // Commands
         if(text && text.indexOf(Config.twitch.commandPrefix) == 0) {
-            if(user.login.toLowerCase() == Config.twitch.chatbotName.toLowerCase()) {
-                Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${Config.twitch.chatbotName})`, this.LOG_COLOR_COMMAND)
+            const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+            if(user.login.toLowerCase() == chatbotTokens?.userLogin) {
+                Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${chatbotTokens?.userLogin})`, this.LOG_COLOR_COMMAND)
                 return
             }
             let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()

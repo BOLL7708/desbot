@@ -1,5 +1,5 @@
 import Utils from '../widget/utils.js'
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 import {IPressKeysAction} from '../interfaces/iactions.js'
 
 export default class Exec {

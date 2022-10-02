@@ -71,10 +71,11 @@ if(!$gotAuthResponse) { ?>
         $userInfo = $userInfoArr->data[0] ?? (object) [];
         if($userInfo) {
             $success = $db->saveSetting('SettingTwitchTokens', $state, json_encode([
-                'userId'=> intval($userInfo->id),
+                'userId' => intval($userInfo->id),
+                'userLogin' => $userInfo->login,
                 'accessToken' => $json->access_token,
                 'refreshToken' => $json->refresh_token,
-                'scope'=>implode(" ", $scopes)
+                'scope' => implode(" ", $scopes)
             ]));
         }
     }

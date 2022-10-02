@@ -1,4 +1,4 @@
-import Config from '../statics/config.js'
+import Config from '../ClassesStatic/Config.js'
 
 Config.eventsForGames = {
     /*
