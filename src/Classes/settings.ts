@@ -5,15 +5,23 @@ export default abstract class SettingBaseObject {
      * Submit any object to get mapped to this class instance.
      * @param props Optional properties to apply to this instance.
      */
-    public __apply(props?: Object) {
+    public __apply(props: Object = {}) {
         const prototype = Object.getPrototypeOf(this)
-        for(const [name, prop] of Object.entries(props ?? {})) {
+        for(const [name, prop] of Object.entries(props)) {
             if(
                 this.hasOwnProperty(name) // This is true if the `props` is an original instance of the implementing class.
                 || prototype.hasOwnProperty(name) // The `__new()` call returns an instance with the original class as prototype, which is why we also check it.
             ) {
                 (this as any)[name] = prop // We cast to `any` or else we cannot set a property this way.
             }
+        }
+        // If we don't fill the instance with the properties of the prototype, the prototype will get future assignments and not the instance.
+        const propsKeys = Object.keys(props)
+        const prototypePropsKeys = Object.keys(prototype).filter(
+            (prop) => { return prototype.hasOwnProperty(prop) && !propsKeys.includes(prop) }
+        )
+        for(const name of prototypePropsKeys) {
+            (this as any)[name] = prototype[name] ?? undefined
         }
     }
 
@@ -101,5 +109,5 @@ export class SettingImportStatus extends SettingBaseObject {
     done: boolean = false
 }
 export class SettingSteamAchievements extends SettingBaseObject {
-    [key: string]: any // TODO: Probably delete entirely, and only save keys of achievements already achieved.
+    achieved: string[] = []
 }

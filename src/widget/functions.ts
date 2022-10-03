@@ -300,8 +300,8 @@ export default class Functions {
         const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
         if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
-            const storedAchievements = await DB.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
-            const doneAchievements = Object.values(storedAchievements).filter((value)=>{ return value }).length
+            const steamAchievements = await DB.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
+            const doneAchievements = steamAchievements.achieved.length
 
             // Remote
             const achievements = await SteamWebApi.getAchievements(lastSteamAppId) ?? []
@@ -310,13 +310,13 @@ export default class Functions {
             let countNew = 0
             for(const achievement of achievements) {
                 // Check if the state has changed since last stored
-                const storedAchievementState = storedAchievements[achievement.apiname]
+                const newAchievement = !steamAchievements.achieved.includes(achievement.apiname)
                 const isAchieved = achievement.achieved > 0
-                if(!storedAchievementState && isAchieved) {
+                if(newAchievement && isAchieved) {
                     countNew++
 
                     // Update achievement state
-                    storedAchievements[achievement.apiname] = isAchieved
+                    steamAchievements.achieved.push(achievement.apiname)
 
                     // Announce achievement
                     if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
@@ -372,7 +372,7 @@ export default class Functions {
                     }
                 }
             }
-            await DB.saveSetting(storedAchievements, lastSteamAppId) // Update states in DB
+            await DB.saveSetting(steamAchievements, lastSteamAppId) // Update states in DB
             this._isLoadingAchievements = false
         } else {
             this._isLoadingAchievements = false
