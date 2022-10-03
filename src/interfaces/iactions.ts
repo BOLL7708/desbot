@@ -266,7 +266,7 @@ export interface ITextTags extends ITextTagsCached{
 export interface ITextTagsCached {
     lastDictionaryWord: string
     lastDictionarySubstitute: string
-    lastTTSSetNickId: string
+    lastTTSSetNickLogin: string
     lastTTSSetNickSubstitute: string
 }
 

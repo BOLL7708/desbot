@@ -608,7 +608,8 @@ export class Actions {
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {
                         const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
-                        const voiceUser = await TwitchHelix.getUserByLogin(speechConfig.voiceOfUser ?? '')
+                        const voiceOfUserTagged = await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? '', user)
+                        const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelix.getUserByLogin(voiceOfUserTagged) : undefined
                         const voiceUserId = parseInt(voiceUser?.id ?? '')
                         await modules.tts.enqueueSpeakSentence(
                             ttsStr,
@@ -976,7 +977,7 @@ export class Actions {
                             )
                         ) {
                             // We rename the user
-                            states.textTagCache.lastTTSSetNickId = id.toString()
+                            states.textTagCache.lastTTSSetNickLogin = userData.display_name
                             states.textTagCache.lastTTSSetNickSubstitute = newNick
                             const setting = new SettingUserName()
                             setting.shortName = newNick
@@ -985,7 +986,7 @@ export class Actions {
                             await DB.saveSetting(setting, id.toString())
                         } else {
                             // We do nothing
-                            states.textTagCache.lastTTSSetNickId = '0'
+                            states.textTagCache.lastTTSSetNickLogin = ''
                             states.textTagCache.lastTTSSetNickSubstitute = ''
                         }
                         break
@@ -995,10 +996,10 @@ export class Actions {
                         if(userData && userData.login.length) {
                             const currentName = await DB.loadSetting(new SettingUserName(), userData.id)
                             if(currentName) {
-                                states.textTagCache.lastTTSSetNickId = userData.id
+                                states.textTagCache.lastTTSSetNickLogin = userData.display_name
                                 states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
                             } else {
-                                states.textTagCache.lastTTSSetNickId = userData.id
+                                states.textTagCache.lastTTSSetNickLogin = userData.display_name
                                 states.textTagCache.lastTTSSetNickSubstitute = ''
                             }
                         }
@@ -1016,7 +1017,7 @@ export class Actions {
                         ) {
                             // We clear the custom nick for the user, setting it to a clean one.
                             const cleanName = Utils.cleanName(userData.login)
-                            states.textTagCache.lastTTSSetNickId = id.toString()
+                            states.textTagCache.lastTTSSetNickLogin = userData.display_name
                             states.textTagCache.lastTTSSetNickSubstitute = cleanName
                             const setting = new SettingUserName()
                             setting.shortName = cleanName

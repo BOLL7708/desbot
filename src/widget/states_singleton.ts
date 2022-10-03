@@ -29,7 +29,7 @@ export default class StatesSingleton {
     public textTagCache: ITextTagsCached = {
         lastDictionaryWord: '',
         lastDictionarySubstitute: '',
-        lastTTSSetNickId: '0', // Tags needs to be strings
+        lastTTSSetNickLogin: '',
         lastTTSSetNickSubstitute: ''
     }
     public multiTierEventCounters: Map<string, IMultiTierEventCounter> = new Map()

@@ -64,6 +64,10 @@ export default class TwitchHelix {
     }
     
     static async getUserByLogin(login: string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
+        if(login.length == 0) {
+            Utils.log(`TwitchHelix: Tried to lookup empty login name.`, Color.Red)
+            return undefined
+        }
         const id = this._userNameToId.get(login)
         if(id && !skipCache && this._userCache.has(id)) return this._userCache.get(id)
         const url = `${this._baseUrl}/users/?login=${login}`
