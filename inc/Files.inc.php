@@ -10,6 +10,7 @@ class Files {
      * @return bool|int
      */
     static public function write(string $path, stdClass|array|string $data, bool $append = false):bool|int {
+        self::ensureFolderExists($path);
         $pathArr = explode('.', $path);
         $ext = strtolower(array_pop($pathArr) ?? '');
         $fullPath = self::getFullPath($path);
@@ -34,6 +35,7 @@ class Files {
         $pathArr = explode('.', $path);
         $ext = strtolower(array_pop($pathArr) ?? '');
         $fullPath = self::getFullPath($path);
+        self::ensureFolderExists($fullPath);
         return match ($ext) {
             'php' => @include($fullPath) ?? '',
             'json' => json_decode(file_get_contents($fullPath)),
@@ -59,6 +61,7 @@ class Files {
      * @return string
      */
     private static function cleanPath(string $path): string {
+        // TODO: Also replace backslashes with forward slashes?
         return preg_replace('/(\.+[\/\\\\])/', '', $path) ?? '';
     }
 
@@ -87,6 +90,19 @@ class Files {
         } elseif(is_null($data)) {
             return 'null';
         } else return '';
+    }
+
+    /**
+     * @param string $path
+     * @return void
+     */
+    static private function ensureFolderExists(string $path): void {
+        $pathArr = explode('/', $path);
+        array_pop($pathArr);
+        $path = implode('/', $pathArr);
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
     }
 
     // endregion

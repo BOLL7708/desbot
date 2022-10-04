@@ -108,7 +108,7 @@ export default class DB {
             headers: await this.getAuthHeader()
         })
         let result: T|undefined = response.ok ? await response.json() as T : undefined
-        if(result) {
+        if(result && !Utils.isEmptyObject(result)) {
             // Convert plain object to class instance and cache it
             if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
             const dictionary = this._settingsDictionaryStore.get(className)

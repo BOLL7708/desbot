@@ -74,7 +74,8 @@ export default class TwitchHelix {
         return this.getUserByUrl(url)
     }
 
-    static async getUserById(id: number, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
+    static async getUserById(id: number|string, skipCache: boolean = false):Promise<ITwitchHelixUsersResponseData|undefined> {
+        if(typeof id === 'string') id = parseInt(id)
         if(isNaN(id)) {
             Utils.log(`TwitchHelix: Invalid user id when trying to load user: ${id}`, Color.Red)
             return undefined

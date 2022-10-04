@@ -126,7 +126,7 @@ export default class GoogleTTS {
             await DB.saveSetting(voice, userId.toString())
         }
         const userData = await TwitchHelix.getUserById(sentence.userId)
-        let cleanName = await Utils.loadCleanName(userData?.login ?? sentence.userId)
+        let cleanName = await Utils.loadCleanName(userData?.id ?? sentence.userId)
         const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
         let cleanText = await Utils.cleanText(
@@ -150,10 +150,10 @@ export default class GoogleTTS {
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = 0
         switch(sentence.type) {
             case ETTSType.Said:
-                const speech = Config.twitchChat.speech ?? '%userName said: %userInput'
+                const speech = Config.twitchChat.speech ?? '%userNick said: %userInput'
                 cleanText = (this._lastSpeaker == sentence.userId || Config.google.skipSaid)
                     ? cleanText 
-                    : Utils.replaceTags(speech, {userName: cleanName, userInput: cleanText})
+                    : Utils.replaceTags(speech, {userNick: cleanName, userInput: cleanText})
                 break
             case ETTSType.Action:
                 cleanText = `${cleanName} ${cleanText}`

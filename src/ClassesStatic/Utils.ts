@@ -17,6 +17,7 @@ import {
     SettingUserName,
     SettingUserVoice
 } from '../Classes/_Settings.js'
+import {ITwitchHelixUsersResponseData} from '../interfaces/itwitch_helix.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -24,21 +25,25 @@ export default class Utils {
         return rest ? [first, rest.join(needle)] : [first]
     }
 
-    static async loadCleanName(userIdOrName: number|string):Promise<string> {
-        const userName = typeof(userIdOrName) === 'string'
-            ? userIdOrName
-            : (await TwitchHelix.getUserById(userIdOrName))?.login ?? ''
-        const userId = typeof(userIdOrName) === 'number'
-            ? userIdOrName
-            : (await TwitchHelix.getUserByLogin(userIdOrName))?.login ?? ''
-        let cleanNameSetting = await DB.loadSetting(new SettingUserName(), userId.toString())
+    static async loadCleanName(userIdOrName: string|number):Promise<string> {
+        let userData: ITwitchHelixUsersResponseData|undefined
+        if(typeof userIdOrName === 'string') {
+            userData = isNaN(parseInt(userIdOrName))
+                ? await TwitchHelix.getUserByLogin(userIdOrName)
+                : await TwitchHelix.getUserById(userIdOrName)
+        } else {
+            userData = await TwitchHelix.getUserById(userIdOrName)
+        }
+        const userId = userData?.id ?? ''
+        const userName = userData?.login ?? ''
+        let cleanNameSetting = await DB.loadSetting(new SettingUserName(), userId)
         let cleanName = cleanNameSetting?.shortName ?? userName
         if(!cleanName) {
             cleanName = this.cleanName(userName)
             const cleanNameSetting = new SettingUserName()
             cleanNameSetting.shortName = cleanName
             cleanNameSetting.datetime = Utils.getISOTimestamp()
-            await DB.saveSetting(cleanNameSetting, userId.toString())
+            await DB.saveSetting(cleanNameSetting, userId)
         }
         return cleanName
     }
@@ -324,7 +329,7 @@ export default class Utils {
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
                 tags.targetTag = `@${channelData.broadcaster_name}`
-                tags.targetNick = await this.loadCleanName(channelData.broadcaster_login)
+                tags.targetNick = await this.loadCleanName(channelData.broadcaster_id)
                 tags.targetGame = channelData.game_name
                 tags.targetTitle = channelData.title
                 tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
@@ -372,7 +377,7 @@ export default class Utils {
             userLogin: userData?.login ?? '',
             userName: `${userData?.name}`,
             userTag: `@${userData?.name}`,
-            userNick: await this.loadCleanName(userData?.login ?? ''),
+            userNick: await this.loadCleanName(userData?.id ?? ''),
             userMessage: userData?.message ?? '',
             userInput: '',
             userInputHead: '',
