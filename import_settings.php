@@ -118,13 +118,16 @@ foreach($files as $file) {
 
                 // Twitch Rewards & associated settings.
                 $withKey = [
-                    'SettingTwitchReward',
                     'SettingIncrementingCounter',
                     'SettingAccumulatingCounter'
                 ];
                 if(in_array($class, $withKey) && key_exists('key', $setting)) {
                     $key = $setting['key'];
                     unset($setting['key']);
+                }
+                if($class === 'SettingTwitchReward' && key_exists('id', $setting)) {
+                    $key = $setting['id'];
+                    unset($setting['id']);
                 }
 
                 // Steam Achievements

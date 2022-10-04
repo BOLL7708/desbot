@@ -15,7 +15,7 @@ include_once('init.php');
     </head>
     <body>
         <script type="module">
-            import AssetFiles from './dist/Classes/files.js'
+            import AssetFiles from './dist/ClassesStatic/AssetFiles.js'
             <?php Utils::printJSAssetFiles()?>
         </script>
         <?php Utils::printJSIncludesAndConfigs()?>

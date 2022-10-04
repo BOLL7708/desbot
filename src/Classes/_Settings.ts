@@ -57,7 +57,8 @@ export class SettingDictionaryEntry extends SettingBaseObject {
     datetime: string = ''
 }
 export class SettingTwitchReward extends SettingBaseObject {
-    id: string = ''
+    key: string = ''
+    // TODO: This can get extended in the future when we stop relying on keys, might add a title, note, etc.
 }
 export class SettingChannelTrophyStat extends SettingBaseObject {
     userId: number = 0

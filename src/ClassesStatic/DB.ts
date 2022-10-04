@@ -135,7 +135,6 @@ export default class DB {
      * @param key Optional key for the setting to save, will upsert if key is set, else insert.
      */
     static async saveSetting<T>(setting: T&SettingBaseObject, key?: string): Promise<boolean> {
-        console.log(setting)
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
@@ -234,7 +233,6 @@ export default class DB {
         const isProblem = className == 'Object'
         if(isProblem) {
             const modules = ModulesSingleton.getInstance()
-            modules.audioPlayer.enqueueAudio({ srcEntries: ['./assets/failure/NarratorVoice_missionFailed.wav'] }) // TODO: Hard-coded funsies
             Utils.log(`DB: ${action} got ${className} which is invalid.`, Color.DarkRed, true, true)
         }
         return isProblem

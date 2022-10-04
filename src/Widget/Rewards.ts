@@ -28,7 +28,7 @@ export default class Rewards {
 
         // Create missing rewards if any
         const allRewardKeys = Utils.getAllEventKeys(true)
-        const missingRewardKeys = allRewardKeys.filter(key => !Object.keys(storedRewards)?.find(rewardKey => rewardKey == key))
+        const missingRewardKeys = allRewardKeys.filter(key => !Object.values(storedRewards)?.find(rewardData => rewardData.key == key))
         for(const key of missingRewardKeys) {
             const config = <ITwitchHelixRewardConfig> Utils.getEventConfig(key)?.triggers.reward
             if(config) {
@@ -38,8 +38,8 @@ export default class Rewards {
                 let reward = await TwitchHelix.createReward(configClone)
                 if(reward && reward.data && reward.data.length > 0) {
                     const newReward = new SettingTwitchReward()
-                    newReward.id = reward.data[0].id
-                    await DB.saveSetting(newReward, key)
+                    newReward.key = key
+                    await DB.saveSetting(newReward, reward.data[0].id)
                 }
             } else {
                 console.warn(`Reward ${key} is missing a setup.`)

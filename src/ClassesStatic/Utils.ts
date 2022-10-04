@@ -540,12 +540,13 @@ export default class Utils {
     }
 
     static async getRewardId(key: TKeys): Promise<string|undefined> {
-        const reward = await DB.loadSetting(new SettingTwitchReward(), key)
+        const rewards = await this.getRewardPairs()
+        const reward = rewards.find((obj)=>{return obj.key === key})
         return reward?.id
     }
     static async getRewardKey(id: string): Promise<TKeys|undefined> {
-        const pairs = await this.getRewardPairs()
-        const reward = pairs.find((pair)=>{ return pair.id === id })
+        const rewards = await this.getRewardPairs()
+        const reward = rewards.find((obj)=>{return obj.id === id})
         return reward?.key
     }
     static encode(value: string): string {
@@ -763,17 +764,17 @@ export default class Utils {
             && Object.getPrototypeOf(object) === Object.prototype
     }
 
-    static async getRewardPairs(): Promise<IRewardPair[]> {
-        const settings = await DB.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
-        const rewardPairs: IRewardPair[] = []
-        for(const [key, idObj] of Object.entries(settings) as [string, SettingTwitchReward][]) {
-            rewardPairs.push({key: key as TKeys, id: idObj.id})
+    static async getRewardPairs(): Promise<IRewardData[]> {
+        const rewards = await DB.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
+        const rewardPairs: IRewardData[] = []
+        for(const [id, obj] of Object.entries(rewards) as [string, SettingTwitchReward][]) {
+            rewardPairs.push({key: obj.key as TKeys, id: id})
         }
         return rewardPairs;
     }
 }
 
-interface IRewardPair {
+interface IRewardData {
     key: TKeys
     id: string
 }
