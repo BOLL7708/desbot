@@ -1,7 +1,8 @@
-import {LOCAL_STORAGE_AUTH_KEY} from '../Classes/data.js'
-import Utils from '../widget/utils.js'
+import {LOCAL_STORAGE_AUTH_KEY} from './Data.js'
+import Utils from './Utils.js'
 import Color from './colors.js'
-import SettingBaseObject from '../Classes/settings.js'
+import SettingBaseObject from '../Classes/_Settings.js'
+import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 
 export default class DB {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
@@ -134,6 +135,7 @@ export default class DB {
      * @param key Optional key for the setting to save, will upsert if key is set, else insert.
      */
     static async saveSetting<T>(setting: T&SettingBaseObject, key?: string): Promise<boolean> {
+        console.log(setting)
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
@@ -231,6 +233,8 @@ export default class DB {
         // TODO: Add callstack?
         const isProblem = className == 'Object'
         if(isProblem) {
+            const modules = ModulesSingleton.getInstance()
+            modules.audioPlayer.enqueueAudio({ srcEntries: ['./assets/failure/NarratorVoice_missionFailed.wav'] }) // TODO: Hard-coded funsies
             Utils.log(`DB: ${action} got ${className} which is invalid.`, Color.DarkRed, true, true)
         }
         return isProblem

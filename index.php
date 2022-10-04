@@ -14,6 +14,6 @@ include_once './init.php';
     <div id="container" style="display:none;">
         <?php Utils::includeFolder('./inc/sections')?>
     </div>
-    <script type="module" src="./dist/index.js"></script>
+    <script type="module" src="./dist/Index.js"></script>
 </body>
 </html>

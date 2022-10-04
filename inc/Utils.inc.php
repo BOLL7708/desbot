@@ -28,7 +28,7 @@ class Utils {
         $root = './dist/';
 
         // Include files that aren't modules
-        $includesPath = 'includes';
+        $includesPath = 'Includes';
         $includesDir = new DirectoryIterator($root.$includesPath);
         foreach($includesDir as $includeFile) {
             $includeName = $includeFile->getFileName();

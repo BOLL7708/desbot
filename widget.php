@@ -19,6 +19,6 @@ include_once('init.php');
             <?php Utils::printJSAssetFiles()?>
         </script>
         <?php Utils::printJSIncludesAndConfigs()?>
-        <script type="module" src="./dist/widget.js"></script>
+        <script type="module" src="./dist/Widget.js"></script>
     </body>
 </html>

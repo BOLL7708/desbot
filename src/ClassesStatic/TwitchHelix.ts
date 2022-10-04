@@ -13,11 +13,11 @@ import {
     ITwitchHelixRewardUpdate,
     ITwitchHelixUsersResponse,
     ITwitchHelixUsersResponseData
-} from '../interfaces/itwitch_helix.js'
+} from '../Interfaces/itwitch_helix.js'
 import Color from './colors.js'
-import Utils from '../widget/utils.js'
+import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
-import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Classes/settings.js'
+import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Classes/_Settings.js'
 import DB from './DB.js'
 
 export default class TwitchHelix {
