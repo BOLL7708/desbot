@@ -6,6 +6,7 @@
 /_settings/*
 /_assets/*
 /_backups/*
+/_data/*
 
 /src/_configs/*
 /src/_data/*
