@@ -31,7 +31,7 @@ export default abstract class SettingBaseObject {
      */
     public __new<T>(props?: T): T&SettingBaseObject {
         const obj = Object.create(this) as T&SettingBaseObject // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
-        if(props) obj.__apply(props)
+        obj.__apply(props)
         return obj
     }
 }
