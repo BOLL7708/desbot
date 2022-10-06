@@ -92,12 +92,12 @@ export default class DB {
      */
     static async loadSetting<T>(emptyInstance: T&SettingBaseObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
         const className = emptyInstance.constructor.name
-        if(this.checkAndReportClassError(className, 'loadSingle')) return undefined
+        if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
         // Cache
-        if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
-            const dictionary = this._settingsDictionaryStore.get(className) as { [key:string]: T }
-            if(dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
+        if (!ignoreCache && this._settingsDictionaryStore.has(className)) {
+            const dictionary = this._settingsDictionaryStore.get(className) as { [key: string]: T }
+            if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
                 return dictionary[key]
             }
         }
@@ -107,13 +107,20 @@ export default class DB {
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
-        let result: T|undefined = response.ok ? await response.json() as T : undefined
-        if(result && !Utils.isEmptyObject(result)) {
-            // Convert plain object to class instance and cache it
-            if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
+        let result: T | undefined = response.ok ? await response.json() as T : undefined
+        if (result) {
+            // Convert plain object to class instance
+            if (!Utils.isEmptyObject(result)) {
+                result = emptyInstance.__new(result)
+            } else {
+                result = emptyInstance.__new()
+            }
+            if (!this._settingsDictionaryStore.has(className)) {
+                const newDic: { [key: string]: T } = {}
+                this._settingsDictionaryStore.set(className, newDic)
+            }
             const dictionary = this._settingsDictionaryStore.get(className)
-            result = emptyInstance.__new(result)
-            if(dictionary) dictionary[key] = result
+            if (dictionary) dictionary[key] = result
         }
         return result
     }
@@ -232,7 +239,6 @@ export default class DB {
         // TODO: Add callstack?
         const isProblem = className == 'Object'
         if(isProblem) {
-            const modules = ModulesSingleton.getInstance()
             Utils.log(`DB: ${action} got ${className} which is invalid.`, Color.DarkRed, true, true)
         }
         return isProblem
