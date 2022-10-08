@@ -302,12 +302,9 @@ export default class Functions {
             // Local
             const steamAchievements = await DB.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
             const doneAchievements = steamAchievements.achieved.length
-            console.log("Steam Achievements", steamAchievements, doneAchievements)
 
             // Remote
             const achievements = await SteamWebApi.getAchievements(lastSteamAppId) ?? []
-
-            Utils.log(`Number of achievements from Steam: ${achievements.length}, completed stored achievements: ${doneAchievements}`, Color.Gray)
             let countNew = 0
             for(const achievement of achievements) {
                 // Check if the state has changed since last stored
@@ -373,8 +370,10 @@ export default class Functions {
                     }
                 }
             }
-            console.log("Save Achievements", steamAchievements, lastSteamAppId)
-            await DB.saveSetting(steamAchievements, lastSteamAppId) // Update states in DB
+            if(steamAchievements.achieved.length > doneAchievements) {
+                console.log("Save Achievements", steamAchievements, lastSteamAppId)
+                await DB.saveSetting(steamAchievements, lastSteamAppId) // Update states in DB
+            }
             this._isLoadingAchievements = false
         } else {
             this._isLoadingAchievements = false

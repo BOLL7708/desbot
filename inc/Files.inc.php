@@ -128,7 +128,7 @@ class Files {
         }
         $flags = $append ? FILE_APPEND : 0;
         $size = @filesize($path);
-        if($size) $data = "\n$data";
+        if($size && $append) $data = "\n$data";
         return file_put_contents($path, strval($data), $flags);
     }
 
