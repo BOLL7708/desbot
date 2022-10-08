@@ -91,22 +91,23 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
-                let [userTag, quote] = Utils.splitOnFirst(' ', user.input)
-                if(user.input.length > 0 && quote.length > 0) {
+                let [possibleUserTag, quote] = Utils.splitOnFirst(' ', user.input)
+                if(user.input.length > 0 && (possibleUserTag.length > 0 || quote.length > 0)) {
                     // Get login or use channel name
-                    const isTag = userTag.includes('@')
-                    let cleanLogin = Utils.cleanUserName(userTag ?? '')
-                    const userData = await TwitchHelix.getUserByLogin(cleanLogin)
-                    if(!isTag || !userData) {
-                        const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
-                        cleanLogin = channelTokens?.userLogin ?? ''
-                        quote = user.input
-                        user.input = `@${cleanLogin} ${user.input}`
+                    const isTag = possibleUserTag.includes('@')
+                    const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
+                    const userLogin = isTag
+                        ? Utils.cleanUserName(possibleUserTag)
+                        : channelTokens?.userLogin ?? ''
+                    const userData = await TwitchHelix.getUserByLogin(userLogin)
+                    if(!isTag) {
+                        quote = user.input // Use the full input
+                        user.input = `@${userLogin} ${user.input}` // To make text tags work.
                     }
                     const gameData = await SteamStore.getGameMeta(states.lastSteamAppId?.toString() ?? '')
 
                     // Save quote to settings
-                    if(userTag.length > 0) {
+                    if(userData) {
                         const quoteSetting = new SettingStreamQuote()
                         quoteSetting.quote = quote
                         quoteSetting.quoterUserId = user.id
@@ -122,7 +123,7 @@ export default class ActionsCallbacks {
                                 {quote: quote}
                             )
                         ).then()
-                    } else Utils.log(`Could not find user: ${userTag}`, Color.Red)
+                    } else Utils.log(`Could not find user: ${possibleUserTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
                     const quotes = await DB.loadSettingsArray(new SettingStreamQuote())
