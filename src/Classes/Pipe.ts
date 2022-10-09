@@ -164,8 +164,7 @@ export default class Pipe {
             }
 
             // Show it
-            const messageDataUrl = imageEditor.getData()
-            preset.imageDataEntries = messageDataUrl
+            preset.imageDataEntries = imageEditor.getData()
             preset.imagePathEntries = undefined
             preset.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
@@ -173,7 +172,7 @@ export default class Pipe {
                 // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
                 if(preset.config.customProperties) preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
             }
-            this.showPreset(preset)
+            this.showPreset(preset).then()
             done = true
         } 
         

@@ -19,6 +19,8 @@ import SteamStore from '../ClassesStatic/SteamStore.js'
 import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 import {SettingTwitchCheer, SettingTwitchSub} from '../Classes/_Settings.js'
 import DB from '../ClassesStatic/DB.js'
+import ImageLoader from '../Classes/ImageLoader.js'
+import ImageEditor from '../Classes/ImageEditor.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -40,13 +42,7 @@ export default class Callbacks {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
 
-        /*
-        ..####...##..##...####...######.
-        .##..##..##..##..##..##....##...
-        .##......######..######....##...
-        .##..##..##..##..##..##....##...
-        ..####...##..##..##..##....##...
-        */
+        // region Chat
         modules.twitch.registerAnnouncers({
             userNames: Config.twitch.announcerNames.map((name)=>{return name.toLowerCase()}),
             triggers: Config.twitch.announcerTriggers,
@@ -151,14 +147,10 @@ export default class Callbacks {
                 )
             }
         })
+        // endregion
 
-        /*
-        .#####...######..##...##...####...#####...#####....####..
-        .##..##..##......##...##..##..##..##..##..##..##..##.....
-        .#####...####....##.#.##..######..#####...##..##...####..
-        .##..##..##......#######..##..##..##..##..##..##......##.
-        .##..##..######...##.##...##..##..##..##..#####....####..
-        */
+        // region Rewards
+
         // This callback was added as rewards with no text input does not come in through the chat callback
         modules.twitchPubsub.setOnRewardCallback(async (id: string, message: ITwitchPubsubRewardMessage) => {
             const redemption = message?.data?.redemption
@@ -255,57 +247,11 @@ export default class Callbacks {
             }
         })
 
-        /*
-        ..####....####...#####...######..######..##..##...####...##..##...####...######...####..
-        .##......##..##..##..##..##......##......###.##..##......##..##..##..##....##....##.....
-        ..####...##......#####...####....####....##.###...####...######..##..##....##.....####..
-        .....##..##..##..##..##..##......##......##..##......##..##..##..##..##....##........##.
-        ..####....####...##..##..######..######..##..##...####...##..##...####.....##.....####..
-        */
+        // endregion
+
+        // region Screenshots
+
         modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
-            const discordCfg = Config.credentials.DiscordWebhooks['DiscordVRScreenshot'] ?? ''
-            const blob = Utils.b64toBlob(responseData.image)
-            const dataUrl = Utils.b64ToDataUrl(responseData.image)
-            const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
-            const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
-            
-            if(requestData) { // A screenshot from a reward
-                const userData = await TwitchHelix.getUserById(requestData.userId)
-                const authorName = userData?.display_name ?? ''
-                
-                // Discord
-                const description = requestData.userInput
-                const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
-                const authorIconUrl = userData?.profile_image_url ?? ''
-                const color = Utils.hexToDecColor(
-                    await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
-                )
-                const descriptionText = description?.trim().length > 0
-                    ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
-                    : Config.screenshots.callback.discordRewardInstantTitle
-                Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
-
-                // Sign
-                modules.sign.enqueueSign({
-                    title: Config.screenshots.callback.signTitle,
-                    image: dataUrl,
-                    subtitle: authorName,
-                    durationMs: Config.screenshots.callback.signDurationMs
-                })
-            } else { // A manually taken screenshot
-                // Discord
-                const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
-                Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
-
-                // Sign
-                modules.sign.enqueueSign({
-                    title: Config.screenshots.callback.signTitle,
-                    image: dataUrl,
-                    subtitle: Config.screenshots.callback.signManualSubtitle,
-                    durationMs: Config.screenshots.callback.signDurationMs
-                })
-            }
-
             // Pipe manual screenshots into VR if configured.
             if(
                 Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? 'Unknown')
@@ -323,7 +269,7 @@ export default class Callbacks {
                         }
                         if(requestData != null && tas && tas.length > 1) {
                             const userData = await TwitchHelix.getUserById(requestData.userId)
-                            const title = requestData.userInput 
+                            const title = requestData.userInput
                                 ? `"${requestData.userInput}"\n${userData?.display_name ?? ''}`
                                 : userData?.display_name ?? ''
                             tas[1].text = title
@@ -332,34 +278,69 @@ export default class Callbacks {
                     modules.pipe.sendCustom(configClone)
                 }
             }
+
+            const discordCfg = Config.credentials.DiscordWebhooks['DiscordVRScreenshot'] ?? ''
+            const dataUrl = Utils.b64ToDataUrl(responseData.image)
+
+            // Post screenshot to Sign and Discord
+            if(requestData) { // A screenshot from a reward
+                const userData = await TwitchHelix.getUserById(requestData.userId)
+                const authorName = userData?.display_name ?? ''
+
+                // Sign
+                modules.sign.enqueueSign({
+                    title: Config.screenshots.callback.signTitle,
+                    image: dataUrl,
+                    subtitle: authorName,
+                    durationMs: Config.screenshots.callback.signDurationMs
+                })
+
+                // Discord
+                if(discordCfg) {
+                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                    const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
+                    const description = requestData.userInput
+                    const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
+                    const authorIconUrl = userData?.profile_image_url ?? ''
+                    const color = Utils.hexToDecColor(
+                        await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                    )
+                    const descriptionText = description?.trim().length > 0
+                        ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
+                        : Config.screenshots.callback.discordRewardInstantTitle
+                    const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
+                    Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                }
+            } else { // A manually taken screenshot
+                // Sign
+                modules.sign.enqueueSign({
+                    title: Config.screenshots.callback.signTitle,
+                    image: dataUrl,
+                    subtitle: Config.screenshots.callback.signManualSubtitle,
+                    durationMs: Config.screenshots.callback.signDurationMs
+                })
+
+                // Discord
+                if(discordCfg) {
+                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                    const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
+                    const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
+                    const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
+                    Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
+                }
+            }
         })
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData, nonce) => {
             const b64data = img.split(',').pop() ?? ''
             const discordCfg = Config.credentials.DiscordWebhooks['DiscordOBSScreenshot'] ?? ''
-            const blob = Utils.b64toBlob(b64data)
             const dataUrl = Utils.b64ToDataUrl(b64data)
             const nonceCallback = states.nonceCallbacks.get(nonce)
             if(nonceCallback) nonceCallback()
 
             if(requestData != null) {
-                const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
-                const gameTitle = gameData ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
-
                 const userData = await TwitchHelix.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
-                        
-                // Discord
-                const description = requestData.userInput
-                const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
-                const authorIconUrl = userData?.profile_image_url ?? ''
-                const color = Utils.hexToDecColor(
-                    await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
-                )
-                const descriptionText = description?.trim().length > 0
-                    ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description}) 
-                    : Config.obs.sourceScreenshotConfig.discordDescription
-                Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
 
                 // Sign
                 modules.sign.enqueueSign({
@@ -372,28 +353,36 @@ export default class Callbacks {
                 // Sound effect
                 const soundConfig = Config.audioplayer.configs['DiscordOBSScreenshot']
                 if(soundConfig) modules.audioPlayer.enqueueAudio(soundConfig)
+
+                // Discord
+                if(discordCfg) {
+                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                    const gameTitle = gameData ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
+                    const description = requestData.userInput
+                    const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
+                    const authorIconUrl = userData?.profile_image_url ?? ''
+                    const color = Utils.hexToDecColor(
+                        await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                    )
+                    const descriptionText = description?.trim().length > 0
+                        ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
+                        : Config.obs.sourceScreenshotConfig.discordDescription
+                    const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
+                    Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                }
             }
         })
 
-        /*
-        ..####...#####....####..
-        .##..##..##..##..##.....
-        .##..##..#####....####..
-        .##..##..##..##......##.
-        ..####...#####....####..
-        */
+        // endregion
+
+        // region OBS
         modules.obs.registerSceneChangeCallback((sceneName) => {
             // let filterScene = Config.obs.filterOnScenes.indexOf(sceneName) > -1
             // this._ttsForAll = !filterScene
         })
+        // endregion
 
-        /*
-        ..####...##..##..#####...######...####..
-        .##..##..##..##..##..##....##....##..##.
-        .######..##..##..##..##....##....##..##.
-        .##..##..##..##..##..##....##....##..##.
-        .##..##...####...#####...######...####..
-        */
+        // region Audio
         modules.audioPlayer.setPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
             const callback = states.nonceCallbacks.get(nonce)
@@ -411,14 +400,9 @@ export default class Callbacks {
                 states.nonceCallbacks.delete(nonce)
             }
         })
+        // endregion
 
-        /*
-        .##..##..#####..
-        .##..##..##..##.
-        .##..##..#####..
-        ..####...##..##.
-        ...##....##..##.
-        */
+        // region VR
         modules.openvr2ws.setInputCallback((key, data) => {
             switch(data.input) {
                 case "Proximity": if(data.source == 'Head') {
@@ -464,16 +448,12 @@ export default class Callbacks {
                 Utils.log(`Callbacks: OpenVR2WS Relay callback for ${key} not found.`, Color.OrangeRed)
             }
         })
+        // endregion
 
-        /*
-        ..####...#####...#####...........######..#####..
-        .##..##..##..##..##..##............##....##..##.
-        .######..#####...#####.............##....##..##.
-        .##..##..##......##................##....##..##.
-        .##..##..##......##..............######..#####..
-        */
+        // region App ID
         modules.openvr2ws.setAppIdCallback(async (appId) => {
-            Functions.appIdCallback(appId, true)
+            Functions.appIdCallback(appId, true).then()
         })
+        // endregion
     }
 }

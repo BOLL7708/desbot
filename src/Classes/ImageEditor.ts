@@ -16,6 +16,8 @@ export default class ImageEditor {
         this._textCtx = this._textCanvas.getContext('2d')
     }
 
+    // region Init
+
     /**
      * Will load an image URL and cache the result using ImageLoader.
      * Do not call this inside ImageLoader, as it could cause an infinite loop.
@@ -53,20 +55,27 @@ export default class ImageEditor {
         this._ctx?.clearRect(0, 0, width, height)
     }
 
-    /*
-    ..####...##..##..######..#####...##..##..######.
-    .##..##..##..##....##....##..##..##..##....##...
-    .##..##..##..##....##....#####...##..##....##...
-    .##..##..##..##....##....##......##..##....##...
-    ..####....####.....##....##.......####.....##...
-    */
-    getDataUrl(): string {
-        return this._canvas.toDataURL()
-    }
-    getData(): string {
-        return Utils.removeImageHeader(this.getDataUrl())
-    }
+    // endregion
 
+    // region Output
+    getDataUrl(type: string = 'image/png', quality: number = 1): string {
+        return this._canvas.toDataURL(type, quality)
+    }
+    getData(type: string = 'image/png', quality: number = 1): string {
+        return Utils.removeImageHeader(this.getDataUrl(type, quality))
+    }
+    // endregion
+
+    // region Convenience
+    static async convertPngDataUrlToJpegBlobForDiscord(pngDataUrl: string, quality: number = 0.85): Promise<Blob> {
+        const imageEditor = new ImageEditor()
+        await imageEditor.loadDataUrl(pngDataUrl)
+        const data = imageEditor.getData('image/jpeg', quality)
+        return Utils.b64toBlob(data, 'image/jpeg')
+    }
+    // endregion
+
+    // region Drawing
     async drawImage(
         imageData: string, 
         rect: IImageEditorRect,
@@ -345,6 +354,7 @@ export default class ImageEditor {
     drawBuiltTwitchText(rect: IImageEditorRect) {
         this._ctx?.drawImage(this._textCanvas, rect.x, rect.y)
     }
+    // endregion
 }
 
 interface ITwitchTextResult {
