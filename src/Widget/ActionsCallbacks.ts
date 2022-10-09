@@ -624,7 +624,7 @@ export default class ActionsCallbacks {
             tag: 'ReloadWidget',
             description: 'Reloads the page for widget.',
             call: (user) => {
-                window.location.reload()
+                Utils.reload()
             }
         },
 

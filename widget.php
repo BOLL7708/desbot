@@ -6,19 +6,18 @@ include_once('init.php');
     <head>
         <title>Streaming Widget</title>
         <link rel="icon" type="image/x-icon" href="widget.ico" />
-        <style>
-            p {
-                margin: 0.25em;
-                text-shadow: 0 0 6px #000f;
-            }
-        </style>
+        <link rel="stylesheet" href="./styles/widget.css"/>
     </head>
     <body>
+        <!-- Script -->
         <script type="module">
             import AssetFiles from './dist/ClassesStatic/AssetFiles.js'
             <?php Utils::printJSAssetFiles()?>
         </script>
         <?php Utils::printJSIncludesAndConfigs()?>
         <script type="module" src="./dist/Widget.js"></script>
+
+        <!-- DOM Elements -->
+        <div id="container"></div>
     </body>
 </html>

@@ -786,6 +786,10 @@ export default class Utils {
         }
         return rewardPairs;
     }
+
+    static reload() {
+        window.location.reload()
+    }
 }
 
 interface IRewardData {

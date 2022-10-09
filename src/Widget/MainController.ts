@@ -20,9 +20,16 @@ import {
     SettingUserVoice
 } from '../Classes/_Settings.js'
 import {IDictionaryEntry} from '../Classes/Dictionary.js'
+import Auth from '../ClassesStatic/Auth.js'
+import PasswordForm from './PasswordForm.js'
 
 export default class MainController {
     public static async init() {
+        const authed = await Auth.checkIfAuthed()
+        if(!authed) {
+            PasswordForm.spawn()
+            return
+        }
         if(Config.controller.saveConsoleOutputToSettings) LogWriter.init()
 
         // Check configs

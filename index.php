@@ -6,9 +6,7 @@ include_once './init.php';
 <head>
     <title>Streaming Widget Editor</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <style>
-        body { font-family: sans-serif; }
-    </style>
+    <link rel="stylesheet" href="./styles/index.css"/>
 </head>
 <body>
     <div id="container" style="display:none;">

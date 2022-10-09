@@ -6,7 +6,7 @@
     </form>
 </div>
 <div id="sectionLogin">
-    <h2>Log In</h2>
+    <h2>Authenticate</h2>
     <p>Please log in with your password, it will be cached in the browser.</p>
     <form id="formLogin">
         <p><label>Password: <input type="password" name="password"/></label> <input type="submit" value="Login"/></p>

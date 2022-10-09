@@ -1,0 +1,5 @@
+body { font-family: sans-serif; }
+.sign {
+    margin: 0.25em;
+    text-shadow: 0 0 6px #000f;
+}

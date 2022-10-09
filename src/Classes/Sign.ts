@@ -16,6 +16,7 @@ export default class Sign {
 
     constructor() {
         this._div = document.createElement('div')
+        this._div.className = 'sign'
         this._div.style.width = `${this._config.width}px`
         this._div.style.height = `${this._config.height}px`
         this._div.style.background = 'transparent'
