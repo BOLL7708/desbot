@@ -6,7 +6,7 @@ import {
     IStreamWebApiGlobalAchievementData, IStreamWebApiGlobalAchievementStats
 } from '../Interfaces/isteam_webapi.js'
 import Config from './Config.js'
-import Color from './colors.js'
+import Color from './Colors.js'
 
 /**
  * These are calls to the Steam Web API to fetch various kinds of data.

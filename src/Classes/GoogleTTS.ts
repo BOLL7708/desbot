@@ -1,7 +1,7 @@
 import Dictionary, {IDictionaryEntry} from './Dictionary.js'
 import {ETTSType} from '../Widget/Enums.js'
 import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import AudioPlayer, {AudioPlayerInstance} from './AudioPlayer.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
 import {IGoogleVoice} from '../Interfaces/igoogle.js'

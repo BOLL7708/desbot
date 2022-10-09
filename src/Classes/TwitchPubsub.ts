@@ -11,7 +11,7 @@ import {
 } from '../Interfaces/itwitch_pubsub.js'
 import {Actions} from '../Widget/Actions.js'
 import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import WebSockets from './WebSockets.js'
 import Utils from '../ClassesStatic/Utils.js'
 import {SettingTwitchRedemption, SettingTwitchTokens} from './_Settings.js'

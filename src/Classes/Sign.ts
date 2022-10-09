@@ -1,6 +1,6 @@
 import Utils from '../ClassesStatic/Utils.js'
 import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import {ISignConfig} from '../Interfaces/isign.js'
 import {ISignAction} from '../Interfaces/iactions.js'
 

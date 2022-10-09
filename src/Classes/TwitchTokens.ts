@@ -1,6 +1,6 @@
 import Utils from '../ClassesStatic/Utils.js'
 import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import DB from '../ClassesStatic/DB.js'
 import {SettingTwitchClient, SettingTwitchTokens} from './_Settings.js'
 

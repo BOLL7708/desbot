@@ -1,4 +1,4 @@
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import Utils from '../ClassesStatic/Utils.js'
 import {LOCAL_STORAGE_AUTH_KEY} from '../ClassesStatic/Data.js'
 

@@ -31,7 +31,7 @@ import {
     ITwitchPubsubRewardMessage,
     ITwitchPubsubSubscriptionMessage
 } from '../Interfaces/itwitch_pubsub.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import {EBehavior, IEvent} from '../Interfaces/ievents.js'
 import Config from '../ClassesStatic/Config.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'

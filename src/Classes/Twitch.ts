@@ -8,7 +8,7 @@ import {
 import {Actions} from '../Widget/Actions.js'
 import Config from '../ClassesStatic/Config.js'
 import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import TwitchChat from './TwitchChat.js'
 import TwitchFactory from './TwitchFactory.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'

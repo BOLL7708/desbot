@@ -6,7 +6,7 @@ import {
     IOpenVR2WSRelayCallback, IOpenVR2WSRelayData, IOpenVR2WSSetting, IOpenVR2WSStatusCallback, IOpenVRWSCommandMessage
 } from '../Interfaces/iopenvr2ws.js'
 import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import WebSockets from './WebSockets.js'
 import Utils from '../ClassesStatic/Utils.js'
 

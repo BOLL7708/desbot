@@ -1,6 +1,6 @@
 import {LOCAL_STORAGE_AUTH_KEY} from './Data.js'
 import Utils from './Utils.js'
-import Color from './colors.js'
+import Color from './Colors.js'
 import SettingBaseObject from '../Classes/_Settings.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 

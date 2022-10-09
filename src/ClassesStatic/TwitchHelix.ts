@@ -14,7 +14,7 @@ import {
     ITwitchHelixUsersResponse,
     ITwitchHelixUsersResponseData
 } from '../Interfaces/itwitch_helix.js'
-import Color from './colors.js'
+import Color from './Colors.js'
 import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Classes/_Settings.js'

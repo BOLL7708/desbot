@@ -4,7 +4,7 @@ import Config from './Config.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../Interfaces/idiscord.js'
 import DB from './DB.js'
 import {SettingChannelTrophyStat} from '../Classes/_Settings.js'
-import Color from './colors.js'
+import Color from './Colors.js'
 
 export default class ChannelTrophy {
     static async getNumberOfStreams():Promise<number> {

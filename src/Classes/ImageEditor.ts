@@ -1,6 +1,6 @@
 import Utils from '../ClassesStatic/Utils.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
-import Color from '../ClassesStatic/colors.js'
+import Color from '../ClassesStatic/Colors.js'
 import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from '../Interfaces/iimage_editor.js'
 import ImageLoader from './ImageLoader.js'
 
