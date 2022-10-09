@@ -144,17 +144,22 @@ class Utils {
         return file_get_contents($url, false, $context);
     }
 
-    static function exitWithError(string $message, int $code = -1): void
+    static function exitWithError(string $message, int $code = -1, int $httpCode = 400): void
     {
         error_log("Terminated script: $message, $code");
-        self::outputJson(['error'=>$message, 'code'=>$code], 400);
+        header("Streaming-Widget-Error-Code: $code");
+        header("Streaming-Widget-Error-Message: $message");
+        self::outputJson(['error'=>$message, 'code'=>$code], $httpCode);
     }
 
     static function outputJson(array|stdClass $body, int $code = 200): void
     {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
-        exit(json_encode($body));
+        $body = json_encode($body);
+        error_log($body);
+        echo $body;
+        exit;
     }
 
     static function isArrayAssociative(array $arr): bool {
@@ -178,19 +183,24 @@ class Utils {
     }
 
     public static function getAuth(): stdClass {
-        $result = new stdClass();
-        $result->password = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? '';
+        $password = getallheaders()['Authorization'] ?? getallheaders()['authorization'] ?? '';
         $data = Files::read(AUTH_PATH);
-        $result->hash = $data->hash ?? '';
+        $hash = $data->hash ?? '';
+        $ok = self::sha256($password) === $hash;
+
+        $result = new stdClass();
+        $result->password = $password;
+        $result->hash = $hash;
+        $result->ok = $ok;
+
         error_log(json_encode($result));
         return $result;
     }
     public static function checkAuth(): void
     {
         $auth = self::getAuth();
-        $isAuthed = self::sha256($auth->password) === $auth->hash;
-        if(empty($auth->password)) Utils::exitWithError('no password in authorization header', 9001);
-        if(!$auth->hash) Utils::exitWithError('unauthorized', 9002);
-        if(!$isAuthed) Utils::exitWithError('unauthorized', 9003);
+        if(empty($auth->password)) Utils::exitWithError('no password in authorization header', 9001, 401);
+        if(!$auth->hash) Utils::exitWithError('no hash to compare password to', 9002, 401);
+        if(!$auth->ok) Utils::exitWithError('password did not match', 9003, 401);
     }
 }

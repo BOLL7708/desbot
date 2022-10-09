@@ -756,7 +756,16 @@ export default class Utils {
     }
 
     static getAuth(): string {
-        return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ?? ''
+        return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? ''
+    }
+
+    static getCurrentFolder(): string {
+        const pathArray = window.location.pathname.split('/');
+        let pathItem = '.'
+        while(pathArray.length && pathItem.includes('.')) {
+            pathItem = pathArray.pop() ?? ''
+        }
+        return pathItem
     }
 
     /**

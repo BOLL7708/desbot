@@ -3,8 +3,10 @@
     if(empty($reqUri)) exit('PHP runs but is broken, fix it.');
 
     $reqArr = explode('?', $reqUri);
-    $reqParts = array_filter(explode('/', array_shift($reqArr)));
-    $dbName = array_pop($reqParts) ?? 'streaming_widget';
+    $reqParts = array_filter(explode('/', array_shift($reqArr))); // Skip fragments, query and trailing slash
+    $possibleName = array_pop($reqParts);
+    if(str_contains($possibleName, '.')) $possibleName = array_pop($reqParts); // Skip index.php
+    $dbName = array_pop($reqParts) ?? 'streaming_widget'; // Fallback
 ?>
 <div id="sectionDBSetup">
     <h2>Database Setup</h2>

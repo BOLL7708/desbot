@@ -14,16 +14,20 @@ $input = file_get_contents('php://input');
 $data = json_decode($input) ?? $input;
 
 // Perform authorization check
-if(empty($auth->hash) && $path === AUTH_PATH) {
+
+// Prepare to save new password as we didn't have a hash saved.
+$hashIsEmpty = empty($auth->hash);
+if($hashIsEmpty && $path === AUTH_PATH) {
     $newPassword = $data->password ?? '';
     if($newPassword) $data = (object) ['hash'=>Utils::sha256($newPassword)];
-    else Utils::exitWithError('need to provide auth value to set it for future requests', 1002);
-} elseif(empty($auth->hash) || empty($auth->password) || $auth->hash !== Utils::sha256($auth->password)) {
-    // This path is used to check that we have a stored auth hash in the setup.
-    if($path === AUTH_PATH && !empty($auth->hash)) {
+    else Utils::exitWithError('need to provide auth value to set it for future requests', 1002, 401);
+}
+// Check if we can authorize, but also include the ability to return an empty result for the setup flow.
+elseif($hashIsEmpty || empty($auth->password) || $auth->hash !== Utils::sha256($auth->password)) {
+    if($path === AUTH_PATH && !$hashIsEmpty) { // Check that we have a stored auth hash in the setup, but return empty result.
         Utils::outputJson((object) ['hash'=>'']); // Faking output as to not include actual hash.
     } else { // Else, just throw an error that it has not been set.
-        Utils::exitWithError(empty($auth->hash) ? 'authentication not yet set' : 'authentication did not validate', 1003);
+        Utils::exitWithError($hashIsEmpty ? 'authentication not yet set' : 'authentication did not validate', $hashIsEmpty ? 1003 : 1007, 401);
     }
 }
 

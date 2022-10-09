@@ -230,7 +230,7 @@ export default class DB {
      */
     private static async getAuthHeader(addJsonHeader: boolean = false): Promise<HeadersInit> {
         const headers = new Headers()
-        headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY) ?? '')
+        headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
         if (addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
         return headers
     }

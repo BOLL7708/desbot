@@ -4,6 +4,7 @@ import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationDat
 import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../Classes/_Settings.js'
 import DB from '../ClassesStatic/DB.js'
 import SettingsHandler from './SettingsHandler.js'
+import Auth from '../ClassesStatic/Auth.js'
 
 type TForm =
     'Register'
@@ -48,8 +49,9 @@ export default class FormHandler {
         // No auth data on disk, we need to register a password.
         if(!authData) return SectionHandler.show('Register')
 
+        const localAuth = Utils.getAuth()
         // No password saved in the browser client, we need to log in.
-        if(Utils.getAuth().length == 0) return SectionHandler.show('Login')
+        if(localAuth.length == 0 || !await Auth.checkIfAuthed()) return SectionHandler.show('Login')
 
         // No database data stored on disk, we need to register that.
         const dbData = await Data.readData<DBData>('db.php')
@@ -203,7 +205,7 @@ export default class FormHandler {
 
     private static storeAuth(password: string) {
         console.log(`Storing auth: ${password}`)
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, password)
+        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder(), password)
     }
 
     /**
