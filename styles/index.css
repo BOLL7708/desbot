@@ -1,1 +1,9 @@
 body { font-family: sans-serif; }
+h2 {
+    padding-left: 2em;
+    padding-top: 0.5em;
+    background-image: url('../media/sw_logo.svg');
+    background-repeat: no-repeat;
+    background-position: left;
+    background-size: contain;
+}

@@ -5,7 +5,7 @@ include_once('init.php');
 <html lang="en">
     <head>
         <title>Streaming Widget</title>
-        <link rel="icon" type="image/x-icon" href="widget.ico" />
+        <link rel="icon" type="image/x-icon" href="./media/sw_art.ico" />
         <link rel="stylesheet" href="./styles/widget.css"/>
     </head>
     <body>
