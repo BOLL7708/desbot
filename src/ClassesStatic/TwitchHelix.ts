@@ -252,7 +252,13 @@ export default class TwitchHelix {
         return response != null && response.status == 204
     }
 
-    static async updateRedemption(redemptionId: string, redemption: SettingTwitchRedemption):Promise<boolean> {
+    /**
+     * Update a Twitch redemption.
+     * @param redemptionId
+     * @param redemption
+     * @return Boolean if succeeded or failed, null if not found.
+     */
+    static async updateRedemption(redemptionId: string, redemption: SettingTwitchRedemption):Promise<boolean|null> {
         // https://dev.twitch.tv/docs/api/reference#update-redemption-status
         const rewardPairs = await Utils.getRewardPairs()
         const rewardPair = rewardPairs.find((pair)=>{ return pair.id === redemption.rewardId })
@@ -273,7 +279,11 @@ export default class TwitchHelix {
             body: JSON.stringify({status: redemption.status})
         }
         const response = await fetch(url, request)
-        return response != null && response.status == 200
+        return response?.status == 200
+            ? true
+            : response?.status == 404
+                ? null
+                : false
     }
 
     static async raidChannel(channelId: string): Promise<boolean> {

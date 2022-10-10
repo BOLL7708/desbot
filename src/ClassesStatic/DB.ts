@@ -177,7 +177,7 @@ export default class DB {
     /**
      * Delete specific setting
      * @param emptyInstance Instance of the class to delete.
-     * @param key The key for the row to delete.
+     * @param key The key for the row to delete. // TODO: Could do this optional to delete a whole group, but that is scary... wait with adding until we need it.
      */
     static async deleteSetting<T>(emptyInstance: T&SettingBaseObject|string, key: string): Promise<boolean> {
         const className = emptyInstance.constructor.name

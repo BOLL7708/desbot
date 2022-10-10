@@ -435,6 +435,8 @@ export default class ActionsCallbacks {
                         if(result) {
                             await DB.deleteSetting(new SettingTwitchRedemption(), key)
                             totalCleared++
+                        } else if (result === null) { // Not found, so should be deleted.
+                            await DB.deleteSetting(new SettingTwitchRedemption(), key)
                         }
                     } else {
                         // It has a good state already, clear from list.
