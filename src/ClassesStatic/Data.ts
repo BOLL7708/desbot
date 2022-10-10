@@ -71,7 +71,7 @@ export class DBData {
     database: string = ''
 }
 export class GitVersion {
-    count: number = 0
+    current: number = 0
 }
 export class MigrationData {
     ok: boolean = false

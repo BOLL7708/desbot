@@ -790,6 +790,12 @@ export default class Utils {
     static reload() {
         window.location.reload()
     }
+
+    static async sleep(delayMs: number) {
+        return new Promise((resolve) => {
+            setTimeout(resolve, delayMs)
+        })
+    }
 }
 
 interface IRewardData {

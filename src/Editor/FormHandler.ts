@@ -58,7 +58,6 @@ export default class FormHandler {
         if(!dbData) return SectionHandler.show('DBSetup')
 
         // Database migration
-        SectionHandler.show('Loading')
         await FormHandler.migrateDB()
 
         // Twitch client info
@@ -88,23 +87,31 @@ export default class FormHandler {
         const twitchChannelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel', true)
         if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens)) {
             return SectionHandler.show('TwitchLoginChannel')
+        } else {
+            // Update value on page, as this restarts after auth this will happen when auth has been completed.
+            const signedInChannelP = document.querySelector('#signedInChannel strong')
+            if(signedInChannelP) signedInChannelP.innerHTML += twitchChannelTokens.userLogin
         }
 
         // Twitch credentials chatbot
         const twitchChatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
         if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens)) {
             return SectionHandler.show('TwitchLoginChatbot')
+        } else {
+            // Update value on page, as this restarts after auth this will happen when auth has been completed.
+            const signedInChatbotP = document.querySelector('#signedInChatbot strong')
+            if(signedInChatbotP) signedInChatbotP.innerHTML += twitchChatbotTokens.userLogin
         }
 
         // Imports
         let importStatus = await DB.loadSetting(new SettingImportStatus(), 'Legacy', true)
         if(!importStatus || !importStatus.done) {
-            SectionHandler.show('Waiting')
-            const doImport = confirm('It is possible to import legacy settings, do you want do the import?')
+            await SectionHandler.show('Loading', 'Waiting...', 'Confirm if you want to do the import or not.')
+            const doImport = confirm('It is possible to import legacy settings, do you want do this import? Cancelling will mark it as done.')
             importStatus = new SettingImportStatus()
             importStatus.done = true
             if(doImport) {
-                SectionHandler.show('Loading')
+                await SectionHandler.show('Loading', 'Importing...', 'This can take several minutes, please wait while all your old settings are being imported.')
                 const importResponse = await fetch('import_settings.php')
                 const importDictionary = importResponse.ok ? await importResponse.json() as { [key:string]: number } : { 'Nothing to import.': 0 }
                 const importArr: string[] = [];
@@ -118,12 +125,11 @@ export default class FormHandler {
         }
 
         // Temporary stop for showing the settings browser, before we have a menu.
-        // TODO: Include current database version on page.
-        await SettingsHandler.init()
-        return SectionHandler.show('SettingsBrowser')
+        // await SettingsHandler.init()
+        // return SectionHandler.show('SettingsBrowser')
 
         // Done, show the site.
-        // SectionHandler.show('Editor')
+        await SectionHandler.show('Editor')
     }
 
     // region Form Logic
@@ -162,7 +168,7 @@ export default class FormHandler {
     }
     static async submitTwitchClient(event: SubmitEvent) {
         event.preventDefault()
-        SectionHandler.show('Waiting')
+        await SectionHandler.show('Loading', 'Saving...', '')
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
         const ok = await DB.saveSetting(inputData, 'Main')
         if(ok) FormHandler.setup().then()
@@ -170,7 +176,7 @@ export default class FormHandler {
     }
     static async submitTwitchLogin(event: SubmitEvent) {
         event.preventDefault()
-        SectionHandler.show('Waiting')
+        await SectionHandler.show('Loading', 'Authenticating...', 'Waiting for a return from Twitch, reload page to restart.')
         const inputData = FormHandler.getFormInputData(event.target, new StateInput());
         (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
             if(userId.length == 0) {
@@ -217,27 +223,33 @@ export default class FormHandler {
         // Get current widget version from the git master branch
         const gitResponse = await fetch('git.php');
         const gitJson = await gitResponse.json() as GitVersion|undefined
-        const widgetVersion = gitJson?.count ?? -1;
-        // Get previous widget version stored on disk
-        const versionData = await Data.readData<GitVersion>('version.json')
-        let databaseVersion = 0
-        if(versionData && typeof versionData !== 'string') {
-            databaseVersion = (versionData as GitVersion|undefined)?.count ?? 0
-        }
-        if(databaseVersion < widgetVersion) {
-            const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${widgetVersion}?`)
-            if(!doMigration) return
+        const widgetVersion = gitJson?.current ?? -1;
 
-            const migrateResponse = await fetch(
-                `migrate.php?from=${databaseVersion}&to=${widgetVersion}`,
-                { headers: { Authorization: Utils.getAuth() } }
-            )
-            const migrateResult = await migrateResponse.json() as MigrationData
-            alert(`Database migrations done: ${migrateResult.count}, reached version: ${migrateResult.id}.`)
-            const newVersion: GitVersion = {count: migrateResult.id}
-            const ok = await Data.writeData('version.json', newVersion).then()
-            if(!ok) alert('Could not store new database version on disk.')
+        // Get previous widget version stored on disk
+        let versionData = (await Data.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
+        let databaseVersion = versionData?.current ?? 0
+
+        // Migrate database if accepted.
+        if(databaseVersion < widgetVersion) {
+            await SectionHandler.show('Loading', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
+            const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${widgetVersion}?`)
+            if(doMigration) {
+                const migrateResponse = await fetch(
+                    `migrate.php?from=${databaseVersion}&to=${widgetVersion}`,
+                    { headers: { Authorization: Utils.getAuth() } }
+                )
+                const migrateResult = await migrateResponse.json() as MigrationData
+                alert(`Database migrations done: ${migrateResult.count}, reached version: ${migrateResult.id}.`)
+                versionData = {current: migrateResult.id}
+                const ok = await Data.writeData('version.json', versionData).then()
+                if(!ok) alert('Could not store new database version on disk.')
+            }
         }
+        // Update page with values.
+        const dbVersionP = document.querySelector('#dbversion strong')
+        if(dbVersionP) dbVersionP.innerHTML += versionData.current
+        const widgetVersionP = document.querySelector('#widgetVersion strong')
+        if(widgetVersionP) widgetVersionP.innerHTML += widgetVersion
     }
     // endregion
 }
