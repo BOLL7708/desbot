@@ -6,6 +6,7 @@ export default class SettingsHandler {
     private static listDiv: HTMLDivElement|undefined
 
     public static async init() {
+        /*
         const settingsClasses = await DB.loadSettingClasses()
         const div = SectionHandler.get('SettingsBrowser')
         SettingsHandler.listDiv = document.createElement('div')
@@ -24,5 +25,6 @@ export default class SettingsHandler {
             div?.appendChild(li)
         }
         div?.appendChild(SettingsHandler.listDiv)
+        */
     }
 }

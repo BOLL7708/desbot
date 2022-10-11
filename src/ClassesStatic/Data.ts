@@ -78,4 +78,7 @@ export class MigrationData {
     count: number = 0
     id: number = 0
 }
+export class MigrationVersion {
+    version: number = 0
+}
 // endregion

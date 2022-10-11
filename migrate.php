@@ -4,14 +4,26 @@ include_once './init.php';
 // Auth
 Utils::checkAuth();
 
-// Parameters
-$from = intval($_REQUEST['from']);
-$to = intval($_REQUEST['to']);
-
-// Get which migrations to run
+// Prep
 $files = [];
 $root = './migrations/';
 $dir = new DirectoryIterator($root);
+
+// Parameters
+$from = intval($_REQUEST['from'] ?? 0);
+$to = intval($_REQUEST['to'] ?? 0);
+if(!$from && !$to) {
+    $topVersion = 0;
+    foreach($dir as $file) {
+        $num = intval($file->getBasename('.sql'));
+        if($num > $topVersion) $topVersion = $num;
+    }
+    // Output result with latest version
+    Utils::outputJson((object) ['version'=>$topVersion]);
+}
+
+// Get which migrations to run
+
 foreach($dir as $file) {
     if($file->isFile()) {
         $num = intval($file->getBasename('.sql'));

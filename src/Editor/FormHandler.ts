@@ -1,6 +1,13 @@
 import Utils from '../ClassesStatic/Utils.js'
 import SectionHandler from './SectionHandler.js'
-import Data, {AuthData, DBData, GitVersion, LOCAL_STORAGE_AUTH_KEY, MigrationData} from '../ClassesStatic/Data.js'
+import Data, {
+    AuthData,
+    DBData,
+    GitVersion,
+    LOCAL_STORAGE_AUTH_KEY,
+    MigrationData,
+    MigrationVersion
+} from '../ClassesStatic/Data.js'
 import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../Classes/_Settings.js'
 import DB from '../ClassesStatic/DB.js'
 import SettingsHandler from './SettingsHandler.js'
@@ -229,23 +236,26 @@ export default class FormHandler {
      * @private
      */
     private static async migrateDB() {
-        // Get current widget version from the git master branch
-        const gitResponse = await fetch('git.php');
-        const gitJson = await gitResponse.json() as GitVersion|undefined
-        const widgetVersion = gitJson?.current ?? -1;
+        // Get highest possible version
+        const versionResponse = await fetch(
+            'migrate.php',
+            { headers: { Authorization: Utils.getAuth() } }
+        )
+        const migrationVersion = await versionResponse.json() as MigrationVersion
+        const highestPossibleVersion = migrationVersion.version
 
         // Get previous widget version stored on disk
         let versionData = (await Data.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
         let databaseVersion = versionData?.current ?? 0
 
         // Migrate database if accepted.
-        if(databaseVersion < widgetVersion) {
+        if(databaseVersion !== highestPossibleVersion && databaseVersion < highestPossibleVersion) {
             await SectionHandler.show('Waiting', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
-            const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${widgetVersion}?`)
+            const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${highestPossibleVersion}?`)
             if(doMigration) {
                 await SectionHandler.show('Loading', 'Database Migration...', 'Running database migration(s).')
                 const migrateResponse = await fetch(
-                    `migrate.php?from=${databaseVersion}&to=${widgetVersion}`,
+                    `migrate.php?from=${databaseVersion}&to=${highestPossibleVersion}`,
                     { headers: { Authorization: Utils.getAuth() } }
                 )
                 const migrateResult = await migrateResponse.json() as MigrationData
@@ -256,10 +266,10 @@ export default class FormHandler {
             }
         }
         // Update page with values.
-        const dbVersionP = document.querySelector('#dbversion strong')
-        if(dbVersionP) dbVersionP.innerHTML += versionData.current
-        const widgetVersionP = document.querySelector('#widgetVersion strong')
-        if(widgetVersionP) widgetVersionP.innerHTML += widgetVersion
+        const dbVersionTag = document.querySelector('#dbversion strong')
+        if(dbVersionTag) dbVersionTag.innerHTML = versionData.current.toString()
+        const migrationVersionTag = document.querySelector('#dbMigration strong')
+        if(migrationVersionTag) migrationVersionTag.innerHTML = highestPossibleVersion.toString()
     }
     // endregion
 }

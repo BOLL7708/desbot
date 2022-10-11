@@ -158,7 +158,6 @@ class DB {
         $result = $this->query($query);
         $output = new stdClass();
         if(is_array($result)) foreach($result as $row) {
-            error_log(json_encode($row));
             $group = $row['groupClass'];
             $count = $row['count'];
             $output->$group = $count;

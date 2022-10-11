@@ -193,7 +193,6 @@ class Utils {
         $result->hash = $hash;
         $result->ok = $ok;
 
-        error_log(json_encode($result));
         return $result;
     }
     public static function checkAuth(): void
