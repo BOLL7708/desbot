@@ -130,6 +130,15 @@ export default class FormHandler {
 
         // Done, show the site.
         await SectionHandler.show('Editor')
+        const classesAndCounts = await DB.loadSettingClasses()
+        const settingsCounts = document.querySelector('#settingsCounts') as HTMLParagraphElement
+        const ol = document.createElement('ul') as HTMLUListElement
+        for(const [group,count] of Object.entries(classesAndCounts)) {
+            const li = document.createElement('li') as HTMLLIElement
+            li.innerHTML = `${group}: <strong>${count}</strong>`
+            ol.appendChild(li)
+        }
+        settingsCounts.appendChild(ol)
     }
 
     // region Form Logic

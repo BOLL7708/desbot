@@ -5,4 +5,5 @@
     <p id="widgetVersion">Widget version: <strong></strong></p>
     <p id="signedInChannel">Signed in channel: <strong></strong></p>
     <p id="signedInChatbot">Signed in chatbot: <strong></strong></p>
+    <p id="settingsCounts">Registered settings:</p>
 </div>

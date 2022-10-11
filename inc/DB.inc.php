@@ -153,10 +153,17 @@ class DB {
         return $output;
     }
 
-    function getSettingsClasses(): array {
-        $query = "SELECT DISTINCT groupClass FROM settings;";
+    function getSettingsClassesWithCounts(): stdClass {
+        $query = "SELECT groupClass, COUNT(*) as count FROM settings GROUP BY groupClass;";
         $result = $this->query($query);
-        return is_array($result) ? array_map(function($row) { return $row['groupClass']; }, $result) : [];
+        $output = new stdClass();
+        if(is_array($result)) foreach($result as $row) {
+            error_log(json_encode($row));
+            $group = $row['groupClass'];
+            $count = $row['count'];
+            $output->$group = $count;
+        }
+        return $output;
     }
     // endregion
 

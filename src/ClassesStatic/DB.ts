@@ -128,7 +128,7 @@ export default class DB {
     /**
      * Load all available settings classes registered in the database.
      */
-    static async loadSettingClasses(): Promise<string[]> {
+    static async loadSettingClasses(): Promise<{[group:string]: number}> {
         const url = this.getSettingsUrl()
         const response = await fetch(url, {
             headers: await this.getAuthHeader()

@@ -37,7 +37,7 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if(!$groupClass) $output = $db->getSettingsClasses();
+        if(!$groupClass) $output = $db->getSettingsClassesWithCounts();
         else {
             $output = $db->getSettings(
                 $groupClass,
