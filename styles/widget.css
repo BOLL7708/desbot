@@ -3,3 +3,6 @@ body { font-family: sans-serif; }
     margin: 0.25em;
     text-shadow: 0 0 6px #000f;
 }
+form {
+    padding : 1em;
+}
