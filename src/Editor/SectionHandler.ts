@@ -2,6 +2,7 @@ import Utils from '../ClassesStatic/Utils.js'
 
 type TSection =
     'Loading'
+    | 'Waiting'
     | 'Register'
     | 'Login'
     | 'DBSetup'
@@ -15,6 +16,7 @@ type TSection =
 export default class SectionHandler {
     private static sectionElements: Record<TSection, HTMLDivElement | undefined> = {
         'Loading': SectionHandler.getSectionElement('Loading'),
+        'Waiting': SectionHandler.getSectionElement('Waiting'),
         'Register': SectionHandler.getSectionElement('Register'),
         'Login': SectionHandler.getSectionElement('Login'),
         'DBSetup': SectionHandler.getSectionElement('DBSetup'),
@@ -28,7 +30,7 @@ export default class SectionHandler {
 
     static init() {
         // Show loading
-        SectionHandler.show('Loading')
+        SectionHandler.show('Loading').then()
 
         // Unhide container
         const container = document.querySelector<HTMLDivElement>('#container')

@@ -28,6 +28,9 @@ $db = DB::get();
 $lastOk = $from;
 $finishedOk = true;
 $finishedCount = 0;
+if(count($files)) {
+    // TODO: Do MySQL dump backup here!
+}
 foreach($files as $number => $filePath) {
     $ok = $db->migrate($filePath);
     error_log("Migration from $from to $number was: $ok");

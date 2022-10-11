@@ -7,3 +7,22 @@ h2 {
     background-position: left;
     background-size: contain;
 }
+.loadingSpinner {
+    width: 4em;
+    height: 4em;
+    filter: invert();
+    animation: lds-hourglass 3s infinite;
+}
+@keyframes lds-hourglass {
+    0% {
+        transform: rotate(0);
+        animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+    }
+    50% {
+        transform: rotate(900deg);
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+    100% {
+        transform: rotate(1800deg);
+    }
+}

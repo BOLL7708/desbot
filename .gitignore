@@ -15,3 +15,6 @@ desktop.ini
 *.zip
 *.7z
 *.exe
+
+test.php
+src/Test.ts

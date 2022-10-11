@@ -106,7 +106,7 @@ export default class FormHandler {
         // Imports
         let importStatus = await DB.loadSetting(new SettingImportStatus(), 'Legacy', true)
         if(!importStatus || !importStatus.done) {
-            await SectionHandler.show('Loading', 'Waiting...', 'Confirm if you want to do the import or not.')
+            await SectionHandler.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
             const doImport = confirm('It is possible to import legacy settings, do you want do this import? Cancelling will mark it as done.')
             importStatus = new SettingImportStatus()
             importStatus.done = true
@@ -231,9 +231,10 @@ export default class FormHandler {
 
         // Migrate database if accepted.
         if(databaseVersion < widgetVersion) {
-            await SectionHandler.show('Loading', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
+            await SectionHandler.show('Waiting', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
             const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${widgetVersion}?`)
             if(doMigration) {
+                await SectionHandler.show('Loading', 'Database Migration...', 'Running database migration(s).')
                 const migrateResponse = await fetch(
                     `migrate.php?from=${databaseVersion}&to=${widgetVersion}`,
                     { headers: { Authorization: Utils.getAuth() } }
