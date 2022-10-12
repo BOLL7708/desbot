@@ -589,24 +589,29 @@ export default class ActionsCallbacks {
                 for(const key of allRewardKeys) {
                     const eventConfig = Utils.getEventConfig(key)
                     if(
-                        eventConfig?.options?.behavior == EBehavior.Accumulating
-                        && eventConfig?.options?.resetAccumulationOnCommand === true
+                        eventConfig?.options?.behavior === EBehavior.Accumulating
                     ) {
                         totalCount++
-                        const rewardSetup = eventConfig?.triggers?.reward
-                        if(Array.isArray(rewardSetup)) {
-                            // We check if the reward counter is at zero because then we should not update as it enables
-                            // the reward while it could have been disabled by profiles.
-                            // To update settings for the widget reward, we update it as any normal reward, using !update.
-                            const current = await DB.loadSetting(new SettingAccumulatingCounter(), key)
-                            if((current?.count ?? 0) > 0) {
-                                Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
-                                const reset = new SettingAccumulatingCounter()
-                                await DB.saveSetting(reset, key)
-                                await TwitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
-                                totalResetCount++
-                            } else {
-                                totalSkippedCount++
+                        if(eventConfig?.options?.resetAccumulationOnCommand === true) {
+                            const rewardSetup = eventConfig?.triggers?.reward
+                            if(Array.isArray(rewardSetup)) {
+                                // We check if the reward counter is at zero because then we should not update as it enables
+                                // the reward while it could have been disabled by profiles.
+                                // To update settings for the widget reward, we update it as any normal reward, using !update.
+                                const current = await DB.loadSetting(new SettingAccumulatingCounter(), key)
+                                if((current?.count ?? 0) > 0) {
+                                    Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
+                                    const reset = new SettingAccumulatingCounter()
+                                    await DB.saveSetting(reset, key)
+                                    const setup = Utils.clone(rewardSetup[0])
+                                    setup.title = await Utils.replaceTagsInText(setup.title, user)
+                                    setup.prompt = await Utils.replaceTagsInText(setup.prompt, user)
+                                    user.eventKey = key
+                                    await TwitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
+                                    totalResetCount++
+                                } else {
+                                    totalSkippedCount++
+                                }
                             }
                         }
                     }
