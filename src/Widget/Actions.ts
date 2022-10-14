@@ -124,11 +124,13 @@ export class ActionHandler {
                 // Load accumulating counter
                 counter = await DB.loadSetting(new SettingAccumulatingCounter(), this.key) ?? counter
                 counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
+                const goalCount = options.accumulationGoal ?? 0
+                const currentCount = counter.count ?? 0
 
                 // Switch to the next accumulating reward if it has more configs available
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
                 let rewardIndex = 0
-                if(rewardConfigs.length >= 3 && counter.count >= (options.accumulationGoal ?? 0)) {
+                if(rewardConfigs.length >= 3 && currentCount >= goalCount) {
                     // Final reward (when goal has been reached)
                     index = 1
                     rewardIndex = 2
@@ -144,6 +146,8 @@ export class ActionHandler {
                         await DB.saveSetting(counter, this.key)
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        const cost = newRewardConfigClone.cost ?? 0
+                        if((currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount // Make sure the last reward doesn't cost more points than the total left.
                         TwitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 }
