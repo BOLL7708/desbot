@@ -147,7 +147,8 @@ export class ActionHandler {
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
                         const cost = newRewardConfigClone.cost ?? 0
-                        if((currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount // Make sure the last reward doesn't cost more points than the total left.
+                        // Make sure the last reward doesn't cost more points than the total left.
+                        if(rewardIndex < 2 && (currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount
                         TwitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 }
