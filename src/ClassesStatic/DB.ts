@@ -112,17 +112,15 @@ export default class DB {
             // Convert plain object to class instance
             if (!Utils.isEmptyObject(result)) {
                 result = emptyInstance.__new(result)
-            } else {
-                result = emptyInstance.__new()
             }
             if (!this._settingsDictionaryStore.has(className)) {
                 const newDic: { [key: string]: T } = {}
                 this._settingsDictionaryStore.set(className, newDic)
             }
             const dictionary = this._settingsDictionaryStore.get(className)
-            if (dictionary) dictionary[key] = result
+            if (dictionary && !Utils.isEmptyObject(result)) dictionary[key] = result
         }
-        return result
+        return Utils.isEmptyObject(result) ? undefined : result
     }
 
     /**
