@@ -36,7 +36,6 @@ function Rename-InternalNames {
 
 Write-Output '', 'Make sure the needed folders exist'
 Add-DirIfMissing -Path '_configs'
-Add-DirIfMissing -Path '_settings'
 Add-DirIfMissing -Path '_assets'
 Add-DirIfMissing -Path 'src\_configs'
 Add-DirIfMissing -Path 'src\_data'
@@ -55,6 +54,7 @@ Rename-InternalNames -Path 'src\_configs\config.ts' -Name 'ControllerPresetsTemp
 Rename-InternalNames -Path 'src\_configs\config.ts' -Name 'GamesTemplate.' -NewName 'Games.'
 Rename-InternalNames -Path 'src\_configs\config.ts' -Name 'GamePresetsTemplate.' -NewName 'GamePresets.'
 Rename-InternalNames -Path 'src\_configs\config.ts' -Name 'PipePresetsTemplate' -NewName 'PipePresets'
+Rename-InternalNames -Path 'src\_configs\config.ts' -Name './presets.template.js' -NewName '../_data/presets.js'
 Rename-InternalNames -Path 'src\_configs\config.ts' -Name '.template.js' -NewName '.js'
 Rename-InternalNames -Path 'src\_configs\config+events.ts' -Name 'KeysTemplate.' -NewName 'Keys.'
 Rename-InternalNames -Path 'src\_configs\config+games.ts' -Name 'GamesTemplate.' -NewName 'Games.'

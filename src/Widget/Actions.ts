@@ -44,8 +44,11 @@ import {TKeys} from '../_data/!keys.js'
 import {
     SettingAccumulatingCounter, SettingCounterBase,
     SettingDictionaryEntry,
-    SettingIncrementingCounter, SettingTwitchTokens, SettingUserMute,
-    SettingUserName, SettingUserVoice
+    SettingIncrementingCounter,
+    SettingTwitchTokens,
+    SettingUserMute,
+    SettingUserName,
+    SettingUserVoice
 } from '../Classes/_Settings.js'
 import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 import DB from '../ClassesStatic/DB.js'
@@ -84,12 +87,10 @@ export class ActionHandler {
         const actionsEntries = Utils.ensureArray(event?.actionsEntries)
         let actionsMainCallback: IActionsMainCallback
 
-        const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
 
         let index: number|undefined = undefined
-        let counter: SettingIncrementingCounter|SettingAccumulatingCounter = new SettingCounterBase()
-        counter.count = 0
+        let counter: SettingIncrementingCounter|SettingAccumulatingCounter
         let rewardConfigs: ITwitchHelixRewardUpdate[] = []
         /*
             Here we handle the different types of behavior of the event.
@@ -102,7 +103,7 @@ export class ActionHandler {
                 break
             case EBehavior.Incrementing:
                 // Load incremental counter
-                counter = await DB.loadSetting(new SettingIncrementingCounter(), this.key) ?? counter
+                counter = await DB.loadSetting(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
 
                 // Switch to the next incremental reward if it has more configs available
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
@@ -122,7 +123,7 @@ export class ActionHandler {
                 break
             case EBehavior.Accumulating:
                 // Load accumulating counter
-                counter = await DB.loadSetting(new SettingAccumulatingCounter(), this.key) ?? counter
+                counter = await DB.loadSetting(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
                 counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
                 const goalCount = options.accumulationGoal ?? 0
                 const currentCount = counter.count ?? 0
