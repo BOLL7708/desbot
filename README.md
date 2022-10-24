@@ -1,11 +1,10 @@
 # Streaming Widget
-
+<!--
 ## Links
-
 * Check out the [user wiki][wiki] to see how to set this up.
 * Check out the [dev wiki][dev] if you want to contribute to the project.
 * Please post [issues][issues] if you bump into any kind of problem.
-
+-->
 ## What is it?
 This is a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
 
@@ -28,6 +27,15 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 10. Can trigger custom URIs for applications, or load a URL in the background to trigger webhooks.
 11. Load and post Steam game info, achievements to Twitch chat, Discord.
 12. Update the Twitch category from the currently running Steam game.
+
+## How to set it up?
+1. Install [XAMPP](https://www.apachefriends.org/download.html) with PHP 8.1 or higher, make sure to launch it manually and not run it as a service, as we need user privileges.
+2. Make sure GIT is installed and on the path.
+3. Have some means of compiling TypeScript.
+4. Clone the repo to a folder in `htdocs` of `xampp`.
+5. Run the `_first_run.sh` script.
+6. Open the URL to the widget in your browser and go from there.
+7. Then editing the configs is not covered here, but it will change soon enough to be part of the web experience.
 
 ## Who are using it?
 
