@@ -73,7 +73,7 @@ export default class Dictionary {
             // Matches using unicode character categories for letters and marks
             // https://unicode.org/reports/tr18/#General_Category_Property
             // https://www.regular-expressions.info/unicode.html
-            const match = wordKey.match(/([^\p{Letter}\p{Mark}]*)([\p{Letter}\p{Mark}]+)([^\p{Letter}\p{Mark}]*)/u)
+            const match = wordKey.match(/([^\p{Letter}\p{Mark}]*)([\p{Letter}\p{Mark}]+)([^\p{Letter}\p{Mark}]*.*)/u)
             if(match != null) {
                 startSymbol = match[1]
                 wordKey = match[2]
