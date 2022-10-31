@@ -10,6 +10,7 @@ import Pipe from '../Classes/Pipe.js'
 import TwitchPubsub from '../Classes/TwitchPubsub.js'
 import PhilipsHue from '../Classes/PhilipsHue.js'
 import GoogleTTS from '../Classes/GoogleTTS.js'
+import StreamDeckRelay from '../Classes/StreamDeckRelay.js'
 
 /**
  * Contains instances of various modules
@@ -23,7 +24,6 @@ export default class ModulesSingleton {
     }
 
     public twitch = new Twitch()
-    public twitchHelix = new TwitchHelix()
     public twitchTokens = new TwitchTokens()
     public twitchPubsub = new TwitchPubsub()
     public tts = new GoogleTTS()
@@ -34,4 +34,5 @@ export default class ModulesSingleton {
     public openvr2ws = new OpenVR2WS()
     public audioPlayer = new AudioPlayer()
     public sign = new Sign()
+    public streamDeckRelay = new StreamDeckRelay()
 }

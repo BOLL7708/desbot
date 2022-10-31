@@ -44,6 +44,10 @@ export interface IControllerConfig {
          * SuperScreenShotterVR connection, to take and receive SteamVR screenshots.
          */
         sssvr: boolean
+        /**
+         * Relay for Stream Deck etc.
+         */
+        sdrelay: boolean
     }
     
     /**

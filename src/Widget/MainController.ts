@@ -111,6 +111,7 @@ export default class MainController {
         if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
         if(Config.controller.websocketsUsed.obs) modules.obs.init()
         if(Config.controller.websocketsUsed.sssvr) modules.sssvr.init()
+        if(Config.controller.websocketsUsed.sdrelay) modules.streamDeckRelay.init()
     }
 
 

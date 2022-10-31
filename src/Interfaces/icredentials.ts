@@ -60,4 +60,9 @@ export interface ICredentialsConfig {
      * This allows clients connected to OpenVR2WS to send messages to each other.
      */
     OpenVR2WSRelayPassword: string
+
+    /**
+     * Relay password
+     */
+    StreamDeckRelayPassword: string
 }
