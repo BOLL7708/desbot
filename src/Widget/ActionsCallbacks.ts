@@ -604,10 +604,11 @@ export default class ActionsCallbacks {
                                     const reset = new SettingAccumulatingCounter()
                                     await DB.saveSetting(reset, key)
                                     const setup = Utils.clone(rewardSetup[0])
+                                    user.rewardCost = setup.cost ?? 0
+                                    user.eventKey = key
                                     setup.title = await Utils.replaceTagsInText(setup.title, user)
                                     setup.prompt = await Utils.replaceTagsInText(setup.prompt, user)
-                                    user.eventKey = key
-                                    await TwitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
+                                    await TwitchHelix.updateReward(await Utils.getRewardId(key), setup)
                                     totalResetCount++
                                 } else {
                                     totalSkippedCount++
