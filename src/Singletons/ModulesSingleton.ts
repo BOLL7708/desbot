@@ -11,6 +11,7 @@ import TwitchPubsub from '../Classes/TwitchPubsub.js'
 import PhilipsHue from '../Classes/PhilipsHue.js'
 import GoogleTTS from '../Classes/GoogleTTS.js'
 import StreamDeckRelay from '../Classes/StreamDeckRelay.js'
+import Relay from '../Classes/Relay.js'
 
 /**
  * Contains instances of various modules
@@ -34,5 +35,6 @@ export default class ModulesSingleton {
     public openvr2ws = new OpenVR2WS()
     public audioPlayer = new AudioPlayer()
     public sign = new Sign()
+    public relay = new Relay()
     public streamDeckRelay = new StreamDeckRelay()
 }

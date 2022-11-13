@@ -17,10 +17,11 @@ import MainController from './MainController.js'
 import Discord from '../ClassesStatic/Discord.js'
 import SteamStore from '../ClassesStatic/SteamStore.js'
 import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
-import {SettingTwitchCheer, SettingTwitchSub} from '../Classes/_Settings.js'
+import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../Classes/_Settings.js'
 import DB from '../ClassesStatic/DB.js'
 import ImageLoader from '../Classes/ImageLoader.js'
 import ImageEditor from '../Classes/ImageEditor.js'
+import {IRelayTempMessage} from '../Classes/Relay.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -439,13 +440,15 @@ export default class Callbacks {
             }
         })
 
-        modules.openvr2ws.setRelayCallback(async (user, key, data) => {
-            const relay = this._relays.get(key)
+        modules.relay.setOnMessageCallback(async (message) => {
+            const msg = message as IRelayTempMessage
+            const relay = this._relays.get(msg.key)
+            const user = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
             if(relay) {
-                Utils.log(`Callbacks: OpenVR2WS Relay callback found for ${key}: ${JSON.stringify(data)}`, Color.Green)
-                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, key, user, data))
+                Utils.log(`Callbacks: Relay callback found for ${msg.key}: ${JSON.stringify(msg.data)}`, Color.Green)
+                relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, msg.key, user?.userLogin, msg.data))
             } else {
-                Utils.log(`Callbacks: OpenVR2WS Relay callback for ${key} not found.`, Color.OrangeRed)
+                Utils.log(`Callbacks: OpenVR2WS Relay callback for ${msg.key} not found.`, Color.OrangeRed)
             }
         })
         // endregion
