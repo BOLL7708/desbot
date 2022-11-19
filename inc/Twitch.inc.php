@@ -18,8 +18,8 @@ class Twitch {
 
     static private function loadPage(string $url): string
     {
-        $config = Config::get();
-        $clientId = $config->twitchClientId;
+        $twitchClientData = DB::get()->getSettings('SettingTwitchClient', 'Main');
+        $clientId = $twitchClientData->Main->clientId;
 
         $tokenData = DB::get()->getSettings('SettingTwitchTokens', 'Channel');
         $accessToken = $tokenData->Channel->accessToken;
