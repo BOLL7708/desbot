@@ -56,6 +56,42 @@ export interface IObsSourceScreenshotConfig {
     signDurationMs: number
 }
 
+export interface IRequestResponse {
+    /**
+     * The requestType is a mirror of what was sent by the client.
+     */
+    requestType: string
+    /**
+     * The requestId is a mirror of what was sent by the client.
+     */
+    requestId: string
+    requestStatus: IRequestStatus
+    responseData?: any
+}
+export interface IRequestStatus {
+    /**
+     * result is true if the request resulted in RequestStatus::Success. False if otherwise.
+     */
+    result: boolean
+    /**
+     * code is a RequestStatus code.
+     */
+    code: number
+    /**
+     * comment may be provided by the server on errors to offer further details on why a request failed.
+     */
+    comment?: string
+}
+export interface IHelloResponse {
+    obsWebSocketVersion: string
+    rpcVersion: number
+    authentication?: IAuthentication
+}
+export interface IAuthentication {
+    challenge: string
+    salt: string
+}
+
 // Callbacks
 export interface ISceneChangeCallback {
     (sceneName: string): void
