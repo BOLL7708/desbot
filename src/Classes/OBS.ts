@@ -72,6 +72,11 @@ export default class OBS {
                 break
             case EWebSocketOpCode.RequestResponse: {
                 let message = data as IRequestResponse
+
+                if (!message.requestStatus.result) {
+                    console.error(`[${message.requestStatus.code}] ${message.requestId}: ${message.requestStatus.comment}`)
+                }
+
                 if (this._requestQueue.has(message.requestId)) {
                     let responseData = message.responseData
                     let requestData = this._requestQueue.get(message.requestId)
@@ -186,7 +191,7 @@ export default class OBS {
                 for (const src of Utils.ensureArray(config.sourceName)) {
                     let requestId = Utils.getNonce(`OBSHideSource`)
                     this._requestQueue.set(requestId, (data) => {
-                        this.setSceneItemEnabled(sceneName, data.responseData.sceneItemId, Utils.getNonce('SetSceneItemEnabled'), false)
+                        this.setSceneItemEnabled(sceneName, data.responseData.sceneItemId, Utils.getNonce('OBSHideSource'), false)
                     })
 
                     this.getSceneItemId(sceneName, src, requestId)
@@ -199,6 +204,8 @@ export default class OBS {
                 //     "filterName": config.filterName,
                 //     "filterEnabled": false
                 // }))
+                let requestId = Utils.getNonce(`OBSHideFilter`)
+                this.setSourceFilterEnabled(src, config.filterName, requestId, false)
             }
         }
     }
@@ -263,6 +270,22 @@ export default class OBS {
                     sceneName,
                     sceneItemId,
                     sceneItemEnabled
+                },
+            }
+        }
+        this._socket.send(JSON.stringify(request))
+    }
+
+    setSourceFilterEnabled(sourceName: string, filterName: string, id: string, filterEnabled: boolean = true) {
+        const request = {
+            op: EWebSocketOpCode.Request,
+            d: {
+                requestType: 'SetSourceFilterEnabled',
+                requestId: id,
+                requestData: {
+                    sourceName,
+                    filterName,
+                    filterEnabled
                 },
             }
         }
