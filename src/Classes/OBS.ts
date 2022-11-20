@@ -75,23 +75,14 @@ export default class OBS {
 
                 if (!message.requestStatus.result) {
                     console.error(`[${message.requestStatus.code}] ${message.requestId}: ${message.requestStatus.comment}`)
+                    this._requestQueue.delete(message.requestId)
                 }
 
-                if (this._requestQueue.has(message.requestId)) {
-                    let responseData = message.responseData
-                    let requestData = this._requestQueue.get(message.requestId)
+                let requestCallback = this._requestQueue.get(message.requestId)
+                if (requestCallback) {
                     this._requestQueue.delete(message.requestId)
 
-                    if (requestData === undefined) {
-                        console.log('OBS request response: something went wrong as there wasn\'t a function call.')
-                        return
-                    }
-
-                    requestData(message)
-
-                    // if (message.requestId.startsWith('OBSHideSource') && message.requestStatus.code == 100) {
-                    //     this.setSceneItemEnabled(requestData.sceneName, responseData.sceneItemId, Utils.getNonce('SetSceneItemEnabled'), requestData.sceneItemEnabled)
-                    // }
+                    requestCallback(message)
                 }
                 break
             }
@@ -150,11 +141,12 @@ export default class OBS {
             }
             for (const sceneName of config.sceneNames) {
                 for (const src of Utils.ensureArray(config.sourceName)) {
-                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
-                        "scene-name": sceneName,
-                        "item": src,
-                        "visible": true
-                    }))
+                    let requestId = Utils.getNonce(`OBSShowSource`)
+                    this._requestQueue.set(requestId, (data) => {
+                        this.setSceneItemEnabled(sceneName, data.responseData.sceneItemId, Utils.getNonce('OBSShowSource'))
+                    })
+
+                    this.getSceneItemId(sceneName, src, requestId)
                 }
             }
         } else if (config?.filterName != undefined) {
@@ -171,11 +163,8 @@ export default class OBS {
                 }
             }
             for (const src of Utils.ensureArray(config.sourceName)) {
-                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
-                    "sourceName": src,
-                    "filterName": config.filterName,
-                    "filterEnabled": true
-                }))
+                let requestId = Utils.getNonce(`OBSShowFilter`)
+                this.setSourceFilterEnabled(src, config.filterName, requestId)
             }
         }
         if (config?.durationMs != undefined && !ignoreDuration) {
@@ -199,11 +188,6 @@ export default class OBS {
             }
         } else if (config?.filterName) {
             for (const src of Utils.ensureArray(config.sourceName)) {
-                // this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
-                //     "sourceName": src,
-                //     "filterName": config.filterName,
-                //     "filterEnabled": false
-                // }))
                 let requestId = Utils.getNonce(`OBSHideFilter`)
                 this.setSourceFilterEnabled(src, config.filterName, requestId, false)
             }
