@@ -2,9 +2,17 @@ import WebSockets from './WebSockets.js'
 import {IActionUser, IObsAction} from '../Interfaces/iactions.js'
 import Utils from '../ClassesStatic/Utils.js'
 import Config from '../ClassesStatic/Config.js'
-import {IHelloResponse, IRequestResponse, ISceneChangeCallback, ISourceScreenshotCallback} from '../Interfaces/iobs.js'
+import {
+    IEvent,
+    IHelloResponse,
+    IRequestResponse,
+    ISceneChangeCallback,
+    ISourceScreenshotCallback
+} from '../Interfaces/iobs.js'
 import {TKeys} from '../_data/!keys.js'
 import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
+
+// API Reference: https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md
 
 export default class OBS {
     private _socket: WebSockets
@@ -12,7 +20,9 @@ export default class OBS {
     private _messageCounter: number = 10
     private _screenshotRequests: Map<string, IScreenshotRequestData> = new Map()
     private readonly _supportedRpcVersion: number = 1
-    private _requestQueue: Map<string, (data: IRequestResponse) => void> = new Map();
+    private _requestQueue: Map<string, (data: IRequestResponse) => void> = new Map()
+    private _sceneItems: Map<string, number> = new Map()
+    private _activeScene?: string
 
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
@@ -30,13 +40,11 @@ export default class OBS {
     }
 
     private onOpen(evt: Event) {
-        // this._socket.send(this.buildRequest("GetAuthRequired", '1', {}))
+
     }
 
     private async onMessage(evt: MessageEvent) {
         const rawData = JSON.parse(evt.data)
-        const id = rawData["message-id"]
-        const updateType = rawData['update-type']
         const error = rawData['error']
 
         const opcode: number = rawData["op"]
@@ -86,43 +94,48 @@ export default class OBS {
                 }
                 break
             }
-        }
+            case EWebSocketOpCode.Event: {
+                let message = data as IEvent
 
-        // switch (id) {
-        //     case '1':
-        //         Utils.sha256(Config.credentials.OBSPassword + data.salt).then(secret => {
-        //             Utils.sha256(secret + data.challenge).then(authResponse => {
-        //                 this._socket.send(this.buildRequest("Authenticate", '2', {auth: authResponse}))
-        //             })
-        //         })
-        //         break
-        //     case '2':
-        //         console.log(`OBS auth: ${data.status}`)
-        //         if (data.status != "ok") this._socket.disconnect()
-        //         break
-        //     default:
-        //         switch (updateType) {
-        //             case 'SwitchScenes':
-        //                 let sceneName: string = data['scene-name']
-        //                 this._sceneChangeCallback(sceneName)
-        //                 break
-        //             default:
-        //                 // Uncomment the below row to get all unhandled messages in the console.
-        //                 // console.log(evt.data)
-        //                 break
-        //         }
-        //
-        //         if (this._screenshotRequests.has(id)) {
-        //             const screenshotRequestData = this._screenshotRequests.get(id)
-        //             const img = data.img
-        //             if (screenshotRequestData != undefined && img != undefined) {
-        //                 this._sourceScreenshotCallback(img, screenshotRequestData, id)
-        //             }
-        //             this._screenshotRequests.delete(id)
-        //         }
-        //
-        //         break
-        // }
+                switch (message.eventType) {
+                    case 'SceneItemCreated': {
+                        let eventData = message.eventData as {
+                            sceneName: string
+                            sourceName: string
+                            sceneItemId: number
+                            sceneItemIndex: number
+                        }
+
+                        this._sceneItems.set(eventData.sourceName, eventData.sceneItemId)
+                        break
+                    }
+                    case 'SceneItemRemoved': {
+                        let eventData = message.eventData as {
+                            sceneName: string
+                            sourceName: string
+                            sceneItemId: number
+                        }
+
+                        this._sceneItems.delete(eventData.sourceName)
+                        break
+                    }
+                    case 'CurrentProgramSceneChanged': {
+                        let eventData = message.eventData as {
+                            sceneName: string
+                        }
+
+                        this._activeScene = eventData.sceneName
+                        this._sceneItems.clear()
+                        let sceneItems = await this.getSceneItemList(eventData.sceneName)
+                        for (let sceneItem of sceneItems) {
+                            this._sceneItems.set(sceneItem.sourceName, sceneItem.sceneItemId)
+                        }
+                        this._sceneChangeCallback(eventData.sceneName)
+                    }
+                }
+                break
+            }
+        }
     }
 
     show(config: IObsAction | undefined, ignoreDuration: boolean = false) {
@@ -141,12 +154,7 @@ export default class OBS {
             }
             for (const sceneName of config.sceneNames) {
                 for (const src of Utils.ensureArray(config.sourceName)) {
-                    let requestId = Utils.getNonce(`OBSShowSource`)
-                    this._requestQueue.set(requestId, (data) => {
-                        this.setSceneItemEnabled(sceneName, data.responseData.sceneItemId, Utils.getNonce('OBSShowSource'))
-                    })
-
-                    this.getSceneItemId(sceneName, src, requestId)
+                    this.setSceneItemEnabled(sceneName, src);
                 }
             }
         } else if (config?.filterName != undefined) {
@@ -178,12 +186,7 @@ export default class OBS {
         if (config?.sceneNames) {
             for (const sceneName of config.sceneNames) {
                 for (const src of Utils.ensureArray(config.sourceName)) {
-                    let requestId = Utils.getNonce(`OBSHideSource`)
-                    this._requestQueue.set(requestId, (data) => {
-                        this.setSceneItemEnabled(sceneName, data.responseData.sceneItemId, Utils.getNonce('OBSHideSource'), false)
-                    })
-
-                    this.getSceneItemId(sceneName, src, requestId)
+                    this.setSceneItemEnabled(sceneName, src, false);
                 }
             }
         } else if (config?.filterName) {
@@ -221,43 +224,32 @@ export default class OBS {
         const id = Utils.getNonce('OBSScreenshot')
         const user = requestData.userName.length > 0 ? `_${requestData.userName}` : ''
         this._screenshotRequests.set(id, requestData)
+
+        this._requestQueue.set(id, (data) => {
+            const img = data.responseData.imageData
+            if (img != undefined) {
+                this._sourceScreenshotCallback(img, requestData, id)
+            }
+        })
+
+        //TODO: Find a way to only take one screenshot
+
         setTimeout(async () => {
-            this._socket.send(
-                this.buildRequest("TakeSourceScreenshot", id, {
-                    "sourceName": sourceName,
-                    "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
-                    "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath + `${time}_${ms}${user}.${this._config.sourceScreenshotConfig.embedPictureFormat}`
-                })
-            )
+            this.getSourceScreenshot(sourceName, this._config.sourceScreenshotConfig.embedPictureFormat, id)
+
+            if (this._config.sourceScreenshotConfig.saveToFilePath) {
+                this.saveSourceScreenshot(sourceName, this._config.sourceScreenshotConfig.embedPictureFormat, this._config.sourceScreenshotConfig.saveToFilePath + `${time}_${ms}${user}.${this._config.sourceScreenshotConfig.embedPictureFormat}`, id)
+            }
         }, delaySeconds * 1000)
         return id
     }
 
-    buildRequest(type: string, id: string, options: object) {
-        const request: { [x: string]: string } = {
-            "request-type": type,
-            "message-id": `${id}`
-        }
-        for (const [key, value] of Object.entries(options)) {
-            request[key] = value
-        }
-        return JSON.stringify(request)
-    }
+    setSceneItemEnabled(sceneName: string, sourceName: string, enabled: boolean = true) {
+        let requestId = Utils.getNonce(`OBSHideSource`)
 
-    setSceneItemEnabled(sceneName: string, sceneItemId: number, id: string, sceneItemEnabled: boolean = true) {
-        const request = {
-            op: EWebSocketOpCode.Request,
-            d: {
-                requestType: 'SetSceneItemEnabled',
-                requestId: id,
-                requestData: {
-                    sceneName,
-                    sceneItemId,
-                    sceneItemEnabled
-                },
-            }
-        }
-        this._socket.send(JSON.stringify(request))
+        this.getSceneItemId(sceneName, sourceName).then(sceneItemId => {
+            this._setSceneItemEnabled(sceneName, sceneItemId, requestId, enabled)
+        })
     }
 
     setSourceFilterEnabled(sourceName: string, filterName: string, id: string, filterEnabled: boolean = true) {
@@ -276,19 +268,140 @@ export default class OBS {
         this._socket.send(JSON.stringify(request))
     }
 
-    getSceneItemId(sceneName: string, sourceName: string, id: string) {
+    getSceneItemId(sceneName: string, sourceName: string) { //TODO: Possibly cache all scenes items to avoid calls when using nested scenes.
+        return new Promise<number>((resolve, reject) => {
+            if (sceneName == this._activeScene && this._sceneItems.has(sourceName)) {
+                resolve(this._sceneItems.get(sourceName)!!)
+                return
+            }
+
+            let requestId = Utils.getNonce(`GetSceneItemId`)
+
+            this._requestQueue.set(requestId, (data) => {
+                if (data.responseData.sceneItemId) resolve(data.responseData.sceneItemId)
+                else reject('Specified scene item could not be found.')
+            })
+
+            const request = {
+                op: EWebSocketOpCode.Request,
+                d: {
+                    requestType: 'GetSceneItemId',
+                    requestId: requestId,
+                    requestData: {
+                        sceneName,
+                        sourceName
+                    },
+                }
+            }
+            this.send(request)
+        })
+    }
+
+    /**
+     * Saves a screenshot of a source to the filesystem.
+     * @param sourceName Name of the source to take a screenshot of
+     * @param imageFormat Image compression format to use
+     * @param imageFilePath Path to save the screenshot file to
+     * @param requestId The ID used to identify the related response
+     * @param imageWidth Width to scale the screenshot to (>= 8, <= 4096)
+     * @param imageHeight Height to scale the screenshot to (>= 8, <= 4096)
+     * @param imageCompressionQuality Compression quality to use. 0 for high compression, 100 for uncompressed (>= -1, <= 100)
+     */
+    saveSourceScreenshot(sourceName: string, imageFormat: string, imageFilePath: string, requestId: string, imageWidth?: number, imageHeight?: number, imageCompressionQuality: number = -1) {
         const request = {
             op: EWebSocketOpCode.Request,
             d: {
-                requestType: 'GetSceneItemId',
+                requestType: 'SaveSourceScreenshot',
+                requestId,
+                requestData: {
+                    sourceName,
+                    imageFormat,
+                    imageFilePath,
+                    imageWidth,
+                    imageHeight,
+                    imageCompressionQuality,
+                },
+            }
+        }
+        this.send(request)
+    }
+
+    /**
+     * Saves a screenshot of a source to the filesystem.
+     * @param sourceName Name of the source to take a screenshot of
+     * @param imageFormat Image compression format to use
+     * @param requestId The ID used to identify the related response
+     * @param imageWidth Width to scale the screenshot to (>= 8, <= 4096)
+     * @param imageHeight Height to scale the screenshot to (>= 8, <= 4096)
+     * @param imageCompressionQuality Compression quality to use. 0 for high compression, 100 for uncompressed (>= -1, <= 100)
+     */
+    getSourceScreenshot(sourceName: string, imageFormat: string, requestId: string, imageWidth?: number, imageHeight?: number, imageCompressionQuality: number = -1) {
+        const request = {
+            op: EWebSocketOpCode.Request,
+            d: {
+                requestType: 'GetSourceScreenshot',
+                requestId,
+                requestData: {
+                    sourceName,
+                    imageFormat,
+                    imageWidth,
+                    imageHeight,
+                    imageCompressionQuality,
+                },
+            }
+        }
+        this.send(request)
+    }
+
+    getSceneItemList(sceneName: string) {
+        return new Promise<Array<{
+            sceneName: string
+            sourceName: string
+            sceneItemId: number
+            sceneItemIndex: number
+        }>>((resolve) => {
+            let requestId = Utils.getNonce(`GetSceneItemList`)
+            this._requestQueue.set(requestId, (data) => {
+                resolve(data.responseData.sceneItems)
+            })
+
+            const request = {
+                op: EWebSocketOpCode.Request,
+                d: {
+                    requestType: 'GetSceneItemList',
+                    requestId: requestId,
+                    requestData: {
+                        sceneName,
+                    },
+                }
+            }
+            this.send(request)
+        })
+    }
+
+    private _setSceneItemEnabled(sceneName: string, sceneItemId: number, id: string, sceneItemEnabled: boolean = true) {
+        const request = {
+            op: EWebSocketOpCode.Request,
+            d: {
+                requestType: 'SetSceneItemEnabled',
                 requestId: id,
                 requestData: {
                     sceneName,
-                    sourceName
+                    sceneItemId,
+                    sceneItemEnabled
                 },
             }
         }
         this._socket.send(JSON.stringify(request))
+    }
+
+    private send(data: object) {
+        console.log(data)
+        this.sendRaw(JSON.stringify(data))
+    }
+
+    private sendRaw(message: string) {
+        this._socket.send(message)
     }
 
     private _sceneChangeCallback: ISceneChangeCallback = (sceneName) => {

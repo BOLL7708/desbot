@@ -56,6 +56,14 @@ export interface IObsSourceScreenshotConfig {
     signDurationMs: number
 }
 
+export interface IEvent {
+    eventType: string
+    /**
+     * eventIntent is the original intent required to be subscribed to in order to receive the event.
+     */
+    eventIntent: number
+    eventData?: any
+}
 export interface IRequestResponse {
     /**
      * The requestType is a mirror of what was sent by the client.
