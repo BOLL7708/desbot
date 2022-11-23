@@ -12,7 +12,7 @@ import {
     IPhilipsHueColorAction,
     IPhilipsHuePlugAction,
     IPipeAction,
-    IPressKeysAction,
+    IRunAction,
     IRewardStatesConfig,
     IScreenshotAction,
     ISignAction,
@@ -701,7 +701,7 @@ export class Actions {
         }
     }
 
-    private static buildKeysCallback(config: IPressKeysAction|undefined): IActionCallback|undefined {
+    private static buildKeysCallback(config: IRunAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎓',
             description: 'Callback that triggers an Exec action',

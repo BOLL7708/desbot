@@ -758,6 +758,11 @@ export default class Utils {
     static getAuth(): string {
         return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? ''
     }
+    static getAuthInit(additionalHeaders: HeadersInit = {}): RequestInit {
+        return {
+            headers: {Authorization: Utils.getAuth(), ...additionalHeaders}
+        }
+    }
 
     static getCurrentFolder(): string {
         const pathArray = window.location.pathname.split('/');

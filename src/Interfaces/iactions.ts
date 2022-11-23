@@ -3,10 +3,9 @@ import {EEventSource, ETTSFunction, ETTSType} from '../Widget/Enums.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from './iopenvr2ws.js'
 import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
 import {IPhilipsHueBulb} from './iphilipshue.js'
-import {IRunCommandConfig} from './iexec.js'
 import {ITwitchActionCommandConfig} from './itwitch.js'
 import {IPipeCustomMessage} from './ipipe.js'
-import IKeyBoolRecord from './i.js'
+import {IRunCommandConfig} from './iexec.js'
 
 export interface IActionCallback {
     tag: string
@@ -86,7 +85,7 @@ export interface IActions {
     /**
      * Optional: Execute a key command in a specific window.
      */
-    keys?: IPressKeysAction
+    keys?: IRunAction
 
     /**
      * Optional: Trigger a custom URI.
@@ -327,7 +326,7 @@ export interface IAudioAction {
 /**
  * Send key-presses to a window.
  */
-export interface IPressKeysAction {
+export interface IRunAction {
     /**
      * The title of the window to send the key press to.
      */
@@ -336,6 +335,10 @@ export interface IPressKeysAction {
      * A list of commands to execute.
      */
     commands: IRunCommandConfig[]
+    /**
+     * Type of execution
+     */
+    type: TRunType
     /**
      * Optional: Seconds before running the command if the optional reset value is provided.
      */
@@ -347,6 +350,9 @@ export interface IPressKeysAction {
      */
     postfixEnterStroke?: boolean
 }
+export type TRunType =
+    'keys'
+    | 'mouse'
 
 export interface ISpeechAction {
     entries: string|string[]

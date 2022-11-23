@@ -41,9 +41,7 @@ export default class Data {
         return response.ok
     }
     static async readData<T>(path: string): Promise<T|string|undefined> {
-        const response = await fetch(`data.php?path=${path}`, {
-            headers: {Authorization: Utils.getAuth()}
-        })
+        const response = await fetch(`data.php?path=${path}`, Utils.getAuthInit())
         if(!response.ok) {
             console.warn(`Could not read: ${path}`)
             return undefined

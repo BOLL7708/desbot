@@ -29,7 +29,6 @@ Config.credentials = <ICredentialsConfig> {
     OpenVR2WSPassword: '',
     GoogleTTSApiKey: '',
     PhilipsHueUsername: '',
-    PHPPassword: '',
     DiscordWebhooks: {
         'DiscordChat': 'The webhook URL you want to use for logging Twitch chat',
         'DiscordVRScreenshot': 'The webhook URL you want to use for VR screenshots',

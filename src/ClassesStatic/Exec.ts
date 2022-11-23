@@ -1,16 +1,18 @@
 import Utils from './Utils.js'
-import Config from './Config.js'
-import {IPressKeysAction} from '../Interfaces/iactions.js'
+import {IRunAction, TRunType} from '../Interfaces/iactions.js'
 
 export default class Exec {
-    static runKeyPresses(window: string, command: string, postfixEnterStroke: boolean = true) {  
+    static runKeyPresses(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {
         const windowb64 = Utils.encode(window)
         const commandb64 = Utils.encode(command)
-        const passwordB64 = Utils.encode(Config.credentials.PHPPassword)
-        fetch(`exec/run.php?window=${windowb64}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`, {headers: {password: passwordB64}})
+        Utils.getAuth()
+        fetch(
+            `run.php?window=${windowb64}&type=${type}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`,
+            Utils.getAuthInit()
+        ).then()
     }
 
-    static runKeyPressesFromPreset(preset: IPressKeysAction) {
+    static runKeyPressesFromPreset(preset: IRunAction) {
         // Store command strings for possible reset
         const commands: string[] = []
         
@@ -21,10 +23,10 @@ export default class Exec {
             commands[index] = command // Store command without value for possible reset
             index++
             return cmd.value != undefined ? `${command} ${cmd.value}` : command
-        }).join(preset.postfixEnterStroke ? '{ENTER}' : '')
+        }).join(preset.type == 'keys' && preset.postfixEnterStroke ? '{ENTER}' : '')
 
         // Execute command
-        this.runKeyPresses(preset.window, commandString, preset.postfixEnterStroke)
+        this.runKeyPresses(preset.window, preset.type, commandString, preset.postfixEnterStroke)
 
         // Reset if we should
         if(preset.duration !== undefined) {
@@ -35,14 +37,16 @@ export default class Exec {
                     const command = commands[index]
                     index++
                     return cmd.defaultValue != undefined ? `${command} ${cmd.defaultValue}` : command
-                }).join(preset.postfixEnterStroke ? '{ENTER}' : '')
-                this.runKeyPresses(preset.window, defaultCommandString, preset.postfixEnterStroke)
+                }).join(preset.type == 'keys' && preset.postfixEnterStroke ? '{ENTER}' : '')
+                this.runKeyPresses(preset.window, preset.type, defaultCommandString, preset.postfixEnterStroke)
             }, preset.duration*1000)
         }
     }
 
     static loadCustomURI(uri: string) {
-        const passwordB64 = Utils.encode(Config.credentials.PHPPassword)
-        fetch(`exec/uri.php?uri=${Utils.encode(uri)}`, {headers: {password: passwordB64}})
+        fetch(
+            `uri.php?uri=${Utils.encode(uri)}`,
+            Utils.getAuthInit()
+        ).then()
     }
 }
