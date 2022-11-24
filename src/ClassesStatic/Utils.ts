@@ -244,7 +244,7 @@ export default class Utils {
     }
 
     static getNonce(tag:string) {
-        return `${tag}-${Date.now()}`
+        return `${tag}-${Math.floor(Date.now() * Math.random())}`
     }
 
     static logWithBold(message:string, color:string) {
