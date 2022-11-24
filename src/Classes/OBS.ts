@@ -326,37 +326,14 @@ export default class OBS {
         })
     }
 
-    getSceneItemList(sceneName: string) {
-        return new Promise<Array<{
-            sceneName: string
-            sourceName: string
-            sceneItemId: number
-            sceneItemIndex: number
-        }>>((resolve) => {
-            let requestId = Utils.getNonce(`GetSceneItemList`)
-            this._requestQueue.set(requestId, (data) => {
-                resolve(data.responseData.sceneItems)
-            })
-
-            const request = {
-                op: EWebSocketOpCode.Request,
-                d: {
-                    requestType: 'GetSceneItemList',
-                    requestId: requestId,
-                    requestData: {
-                        sceneName,
-                    },
-                }
-            }
-            this.sendRequest({
-                requestType: 'GetSceneItemList',
-                requestId: requestId,
-                requestData: {
-                    sceneName,
-                },
-            })
-            this.send(request)
-        })
+    async getSceneItemList(sceneName: string): Promise<Array<{ sourceName: string, sceneItemId: number, sceneItemIndex: number }>> {
+        return (await this.sendRequest({
+            requestType: 'GetSceneItemList',
+            requestData: {
+                sceneName,
+            },
+        }).catch(() => {
+        }))!!.responseData.sceneItems
     }
 
     private send(data: object) {
@@ -380,7 +357,10 @@ export default class OBS {
 
             setTimeout(() => {
                 this._requestQueue.delete(data.requestId)
-                reject(`Request with ID ${data.requestId} has timed out after ${this._requestTimeout}ms`)
+                reject({
+                    reason: `Request with ID ${data.requestId} has timed out after ${this._requestTimeout}ms`,
+                    context: data
+                })
             }, this._requestTimeout)
 
             this._requestQueue.set(data.requestId, (response) => {
