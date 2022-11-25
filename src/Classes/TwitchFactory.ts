@@ -9,7 +9,7 @@ import {ITwitchPubsubEmote} from '../Interfaces/itwitch_pubsub.js'
 
 export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {
-        const re = /([\w]+)!?.*\.tmi\.twitch\.tv\s(.+)\s#([\w]+)\s:(.*)/g
+        const re = /(\w+)!?.*\.tmi\.twitch\.tv\s(.+)\s(\w+)\s:(.*)/g
         const matches: RegExpExecArray|null = re.exec(data)
         let matches2:RegExpExecArray|null = null
         let isAction = false
@@ -31,7 +31,7 @@ export default class TwitchFactory {
             data: data,
             username: (matches != null && 1 in matches) ? matches[1] : undefined,
             type: (matches != null && 2 in matches) ? matches[2] : undefined,
-            channel: (matches != null && 3 in matches) ? matches[3] : undefined,
+            channel: (matches != null && 3 in matches) ? matches[3].replace('#', '') : undefined,
             text: messageText,
             isAction: isAction
         }
@@ -70,6 +70,11 @@ export default class TwitchFactory {
             turbo: props.turbo,
             'user-id': props['user-id'],
             'user-type': props['user-type'],
+
+            // Whisper specific
+            '@badges': props['@badges'],
+            'message-id': props['message-id'],
+            'thread-id': props['thread-id'],
 
             // Thread
             'reply-parent-display-name': props['reply-parent-display-name'],

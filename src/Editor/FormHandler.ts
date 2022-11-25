@@ -90,9 +90,13 @@ export default class FormHandler {
             return SectionHandler.show('TwitchClient')
         }
 
+        // Twitch scopes
+        const scopesResponse = await fetch('twitch_scopes.json')
+        let scopes = await scopesResponse.json()
+        if(Array.isArray(scopes)) scopes = scopes.join(' ')
         // Twitch credentials channel
         const twitchChannelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel', true)
-        if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens)) {
+        if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens) || twitchChannelTokens.scopes !== scopes) {
             return SectionHandler.show('TwitchLoginChannel')
         } else {
             // Update value on page, as this restarts after auth this will happen when auth has been completed.
@@ -102,7 +106,7 @@ export default class FormHandler {
 
         // Twitch credentials chatbot
         const twitchChatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
-        if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens)) {
+        if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens) || twitchChatbotTokens.scopes !== scopes) {
             return SectionHandler.show('TwitchLoginChatbot')
         } else {
             // Update value on page, as this restarts after auth this will happen when auth has been completed.

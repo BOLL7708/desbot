@@ -3,7 +3,7 @@ import {
     ITwitchAnnouncement,
     ITwitchChatCallback, ITwitchChatCheerCallback, ITwitchChatMessageCallback,
     ITwitchCommandConfig,
-    ITwitchMessageData
+    ITwitchMessageData, ITwitchWhisperMessageCallback
 } from '../Interfaces/itwitch.js'
 import {Actions} from '../Widget/Actions.js'
 import Config from '../ClassesStatic/Config.js'
@@ -29,7 +29,7 @@ export default class Twitch{
             const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
             const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
             this._twitchChatIn.init(channelTokens?.userLogin, channelTokens?.userLogin)
-            this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin)
+            this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
             // Remote command channel
             const remoteChannel = Config.twitch.remoteCommandChannel
@@ -40,6 +40,9 @@ export default class Twitch{
         })
         this._twitchChatRemote.registerChatMessageCallback((message) => {
             this.onRemoteChatMessage(message)
+        })
+        this._twitchChatOut.registerWhisperMessageCallback((message) => {
+            this.onWhisperMessage(message)
         })
     }
 
@@ -104,6 +107,17 @@ export default class Twitch{
     private _allChatCallback: ITwitchChatMessageCallback = () => { console.warn('Twitch: Unhandled chat message (all)') }
     setAllChatCallback(callback: ITwitchChatMessageCallback) {
         this._allChatCallback = callback
+    }
+
+    private _whisperCallback: ITwitchWhisperMessageCallback = (messageCmd) => {
+        Utils.log(`Got whisper: ${messageCmd.message.text}`, Color.Orange, true, true)
+    }
+    setWhisperCallback(callback: ITwitchWhisperMessageCallback) {
+        this._whisperCallback = callback
+    }
+
+    private async onWhisperMessage(messageCmd: ITwitchMessageCmd) {
+        this._whisperCallback(messageCmd)
     }
 
     private async onChatMessage(messageCmd: ITwitchMessageCmd) {

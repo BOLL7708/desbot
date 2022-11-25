@@ -12,18 +12,7 @@ $code = $_REQUEST['code'] ?? '';
 $scope = $_REQUEST['scope'] ?? '';
 $state = $_REQUEST['state'] ?? '';
 $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
-$scopes = [
-    "bits:read",
-    "chat:read",
-    "chat:edit",
-    "whispers:read",
-    "whispers:edit",
-    "channel:read:redemptions",
-    "channel:read:subscriptions",
-    "channel:manage:redemptions",
-    "channel:manage:broadcast",
-    "channel:manage:raids"
-];
+$scopes = json_decode(file_get_contents("twitch_scopes.json")) ?? [];
 
 function getAuthUrl():string {
     global $scopes, $state;
@@ -75,7 +64,7 @@ if(!$gotAuthResponse) { ?>
                 'userLogin' => $userInfo->login,
                 'accessToken' => $json->access_token,
                 'refreshToken' => $json->refresh_token,
-                'scope' => implode(" ", $scopes)
+                'scopes' => implode(" ", $scopes)
             ]));
         }
     }

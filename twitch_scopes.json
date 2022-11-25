@@ -1,0 +1,13 @@
+[
+  "bits:read",
+  "chat:read",
+  "chat:edit",
+  "whispers:read",
+  "whispers:edit",
+  "channel:read:redemptions",
+  "channel:read:subscriptions",
+  "channel:manage:moderators",
+  "channel:manage:broadcast",
+  "channel:manage:redemptions",
+  "channel:manage:raids"
+]

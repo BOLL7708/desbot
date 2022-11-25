@@ -2,7 +2,7 @@ import WebSockets from './WebSockets.js'
 import Utils from '../ClassesStatic/Utils.js'
 import Config from '../ClassesStatic/Config.js'
 import TwitchFactory from './TwitchFactory.js'
-import {ITwitchChatMessageCallback} from '../Interfaces/itwitch.js'
+import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
 import DB from '../ClassesStatic/DB.js'
 import {SettingTwitchTokens} from './_Settings.js'
 import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
@@ -13,10 +13,12 @@ export default class TwitchChat {
     private _isConnected: boolean = false
     private _userName: string = ''
     private _channel: string = ''
-    init(userName?: string, channel?: string) {
+    private _listenToWhispers: boolean = false
+    init(userName?: string, channel?: string, listenToWhispers: boolean = false) {
         if(!userName || !channel) return console.error(`Twitch Chat: Cannot initiate without proper username (${userName}) and channel (${channel}).`)
         this._userName = userName
         this._channel = channel
+        this._listenToWhispers = listenToWhispers
         this._socket = new WebSockets(
             'wss://irc-ws.chat.twitch.tv:443',
             15,
@@ -29,9 +31,13 @@ export default class TwitchChat {
         this._socket.init();
     }
 
-    private _chatMessageCallback: ITwitchChatMessageCallback = (message) => { /* console.warn('Unhandled chat message callback') */ }
+    private _chatMessageCallback: ITwitchChatMessageCallback = (message) => {}
     registerChatMessageCallback(callback: ITwitchChatMessageCallback) {
         this._chatMessageCallback = callback
+    }
+    private _whisperMessageCallback: ITwitchWhisperMessageCallback = (message) => {}
+    registerWhisperMessageCallback(callback: ITwitchWhisperMessageCallback) {
+        this._whisperMessageCallback = callback
     }
 
     isConnected(): boolean {
@@ -56,13 +62,21 @@ export default class TwitchChat {
     private onMessage(evt: any) {
         let data:string|undefined = evt?.data
         if(data != undefined) {
-            // Utils.log(data, this.LOG_COLOR)
             if(data.indexOf('PING') == 0) return this._socket?.send('PONG :tmi.twitch.tv\r\n')
             let messageStrings = data.split("\r\n")
             messageStrings.forEach(str => {
                 if(str == null || str.length == 0) return
                 let message = TwitchFactory.buildMessageCmd(str)
-                this._chatMessageCallback(message)
+                switch(message.message.type) {
+                    case 'PRIVMSG':
+                        this._chatMessageCallback(message)
+                        break
+                    case 'WHISPER':
+                        if(this._listenToWhispers) this._whisperMessageCallback(message)
+                        break
+                    default:
+                        if(message.message.type) console.warn(`Unhandled: ${message.message.type}`)
+                }
             })
         }        
     }

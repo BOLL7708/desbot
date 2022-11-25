@@ -272,6 +272,9 @@ export interface ITwitchChatCallback { // In Twitch
 export interface ITwitchChatMessageCallback {
     (message: ITwitchMessageCmd): void
 }
+export interface ITwitchWhisperMessageCallback {
+    (message: ITwitchMessageCmd): void
+}
 export interface ITwitchCommandCallback {
     (user: IActionUser): void
 }

@@ -50,6 +50,11 @@ export interface ITwitchChatMessageProperties {
     'user-type'?: string
     bits?: string
 
+    // Whisper
+    '@badges'?: string
+    'message-id'?: string
+    'thread-id'?: string
+
     // Thread
     'reply-parent-display-name'?: string
     'reply-parent-msg-body'?: string
