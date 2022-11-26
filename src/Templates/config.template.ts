@@ -123,6 +123,22 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             'Initiating reset of accumulating events',
             'Finished resetting %reset out of %total accumulating events, skipping %skipped'
         ],
+        'Mod': [
+            '%targetNick made moderator',
+            '%targetNick could not be made moderator'
+        ],
+        'UnMod': [
+            '%targetNick removed from moderators',
+            '%targetNick could not be removed from moderators'
+        ],
+        'Vip': [
+            '%targetNick made V I P',
+            '%targetNick could not be made V I P'
+        ],
+        'UnVip': [
+            '%targetNick removed from V I Ps',
+            '%targetNick could not be removed from V I Ps'
+        ],
         'Quote': 'Quote by %targetOrUserTag added',
         'GameReset': 'Currently running Steam game has been reset.',
         'ChatOn': 'Chat enabled',

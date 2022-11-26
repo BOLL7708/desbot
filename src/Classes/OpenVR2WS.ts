@@ -111,15 +111,6 @@ export default class OpenVR2WS {
                     const overlayResult: IOpenVR2WSFindOverlayData = data.data
                     this._findOverlayCallback(overlayResult.key, overlayResult.handle)
                     break
-                case 'Relay':
-                    const relayData: IOpenVR2WSRelayData = data.data
-                    const relayPass = Config.credentials.OpenVR2WSRelayPassword
-                    if(relayPass.length > 0 && relayPass === relayData.password) {
-                        this._relayCallback(relayData.user, relayData.key, relayData.data)
-                    } else {
-                        Utils.log('OpenVR2WS: Relay password did not match!', Color.Red)
-                    }
-                    break
                 case 'MoveSpace':
                     const moveSpaceData: IOpenVR2WSGenericResponseData = data.data
                     if(!moveSpaceData?.success) {

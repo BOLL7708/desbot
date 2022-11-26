@@ -9,5 +9,6 @@
   "channel:manage:moderators",
   "channel:manage:broadcast",
   "channel:manage:redemptions",
-  "channel:manage:raids"
+  "channel:manage:raids",
+  "channel:manage:vips"
 ]

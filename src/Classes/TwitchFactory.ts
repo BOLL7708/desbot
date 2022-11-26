@@ -9,7 +9,7 @@ import {ITwitchPubsubEmote} from '../Interfaces/itwitch_pubsub.js'
 
 export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {
-        const re = /(\w+)!?.*\.tmi\.twitch\.tv\s(.+)\s(\w+)\s:(.*)/g
+        const re = /(\w+)!?.*\.tmi\.twitch\.tv\s(.+)\s#?(\w+)\s:(.*)/g
         const matches: RegExpExecArray|null = re.exec(data)
         let matches2:RegExpExecArray|null = null
         let isAction = false

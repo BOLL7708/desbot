@@ -6,7 +6,7 @@ import {
     ITwitchHelixChatColorResponse,
     ITwitchHelixClipResponse,
     ITwitchHelixGamesResponse,
-    ITwitchHelixGamesResponseData,
+    ITwitchHelixGamesResponseData, ITwitchHelixModeratorsResponse,
     ITwitchHelixRewardConfig,
     ITwitchHelixRewardResponse,
     ITwitchHelixRewardStates,
@@ -36,7 +36,7 @@ export default class TwitchHelix {
         headers.append('Client-Id', client?.clientId ?? '')
         return headers
     }
-    private static async getUserId(): Promise<number> {
+    private static async getBroadcasterUserId(): Promise<number> {
         const tokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
         return tokens?.userId ?? 0
     }
@@ -125,7 +125,7 @@ export default class TwitchHelix {
      * 3. If any reward is missing an ID, create it on Twitch.
      */
     static async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixRewardResponse> {
-        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getUserId()}`
+        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
@@ -146,7 +146,7 @@ export default class TwitchHelix {
     }
 
     static async getReward(rewardId: string):Promise<ITwitchHelixRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getUserId()}&only_manageable_rewards=true`
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         return await fetch(url, {headers: await this.getAuthHeaders()}).then(res => res.json())
     }
@@ -156,7 +156,7 @@ export default class TwitchHelix {
             console.warn("Tried to update reward but the ID is null")
             return new Promise<null>(resolve => resolve(null))
         }
-        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getUserId()}&id=${rewardId}`
+        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}&id=${rewardId}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
@@ -200,7 +200,7 @@ export default class TwitchHelix {
 
     static async getClips(count: number = 20, pagination?: string): Promise<ITwitchHelixClipResponse> {
         count = Math.min(100, Math.max(1, count))
-        let url = `${this._baseUrl}/clips/?broadcaster_id=${await this.getUserId()}&first=${count}`
+        let url = `${this._baseUrl}/clips/?broadcaster_id=${await this.getBroadcasterUserId()}&first=${count}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
@@ -240,7 +240,7 @@ export default class TwitchHelix {
 
     static async updateChannelInformation(channelInformation: ITwitchHelixChannelRequest):Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#modify-channel-information
-        const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${await this.getUserId()}`
+        const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${await this.getBroadcasterUserId()}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
@@ -270,7 +270,7 @@ export default class TwitchHelix {
             }
         }
 
-        const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${await this.getUserId()}&reward_id=${redemption.rewardId}&id=${redemptionId}`
+        const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${await this.getBroadcasterUserId()}&reward_id=${redemption.rewardId}&id=${redemptionId}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
@@ -288,7 +288,7 @@ export default class TwitchHelix {
 
     static async raidChannel(channelId: string): Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#start-a-raid
-        const url = `https://api.twitch.tv/helix/raids?from_broadcaster_id=${await this.getUserId()}&to_broadcaster_id=${channelId}`
+        const url = `https://api.twitch.tv/helix/raids?from_broadcaster_id=${await this.getBroadcasterUserId()}&to_broadcaster_id=${channelId}`
         const headers = await this.getAuthHeaders()
         const request = {
             method: 'POST',
@@ -299,7 +299,7 @@ export default class TwitchHelix {
     }
 
     static async cancelRaid(): Promise<boolean> {
-        const url = `https://api.twitch.tv/helix/raids?broadcaster_id=${await this.getUserId()}`
+        const url = `https://api.twitch.tv/helix/raids?broadcaster_id=${await this.getBroadcasterUserId()}`
         const headers = await this.getAuthHeaders()
         const request = {
             method: 'DELETE',
@@ -340,4 +340,46 @@ export default class TwitchHelix {
         Utils.log(`TwitchHelix: Color request could not get data for: ${userIdOrLogin}`, Color.DarkRed)
         return undefined
     }
+
+    // region Moderators
+    static async makeUserModerator(userId: number): Promise<boolean> {
+        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const request = {
+            method: 'POST',
+            headers: await this.getAuthHeaders()
+        }
+        const response = await fetch(url, request)
+        return response.ok
+    }
+    static async removeUserModerator(userId: number): Promise<boolean> {
+        const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const request = {
+            method: 'DELETE',
+            headers: await this.getAuthHeaders()
+        }
+        const response = await fetch(url, request)
+        return response.ok
+    }
+    // endregion
+
+    // region VIPs
+    static async makeUserVIP(userId: number): Promise<boolean> {
+        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const request = {
+            method: 'POST',
+            headers: await this.getAuthHeaders()
+        }
+        const response = await fetch(url, request)
+        return response.ok
+    }
+    static async removeUserVIP(userId: number): Promise<boolean> {
+        const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const request = {
+            method: 'DELETE',
+            headers: await this.getAuthHeaders()
+        }
+        const response = await fetch(url, request)
+        return response.ok
+    }
+    // endregion
 }

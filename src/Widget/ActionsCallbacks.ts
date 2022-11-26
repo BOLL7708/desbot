@@ -85,6 +85,61 @@ export default class ActionsCallbacks {
         },
         // endregion
 
+        // region Channel
+        'Mod': {
+            tag: 'Add mod',
+            description: 'Make a user channel moderator',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const result = await TwitchHelix.makeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const speechArr = Config.controller.speechReferences['Mod'] ?? ''
+                if(Array.isArray(speechArr)) {
+                    const speech = result ? speechArr[0] : speechArr[1]
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                }
+            }
+        },
+        'UnMod': {
+            tag: 'Remove mod',
+            description: 'Remove user from channel moderators',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const result = await TwitchHelix.removeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const speechArr = Config.controller.speechReferences['UnMod'] ?? ''
+                if(Array.isArray(speechArr)) {
+                    const speech = result ? speechArr[0] : speechArr[1]
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                }
+            }
+        },
+        'Vip': {
+            tag: 'Add VIP',
+            description: 'Make a user channel VIP',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const result = await TwitchHelix.makeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const speechArr = Config.controller.speechReferences['Vip'] ?? ''
+                if(Array.isArray(speechArr)) {
+                    const speech = result ? speechArr[0] : speechArr[1]
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                }
+            }
+        },
+        'UnVip': {
+            tag: 'Remove VIP',
+            description: 'Remove user from channel VIPs',
+            call: async (user) => {
+                const modules = ModulesSingleton.getInstance()
+                const result = await TwitchHelix.removeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const speechArr = Config.controller.speechReferences['UnVip'] ?? ''
+                if(Array.isArray(speechArr)) {
+                    const speech = result ? speechArr[0] : speechArr[1]
+                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                }
+            }
+        },
+        // endregion
+
         'Quote': {
             tag: 'Quote',
             description: 'Stores a new quote or posts a random quote to chat.',
