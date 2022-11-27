@@ -190,3 +190,15 @@ export interface ITwitchHelixChatColorResponse {
 export interface ITwitchHelixRewardStates {
     [key: string]: boolean
 }
+
+export interface ITwitchHelixRoleResponse {
+    data: ITwitchHelixRoleResponseData[],
+    pagination: {
+        cursor: string
+    }
+}
+export interface ITwitchHelixRoleResponseData {
+    user_id: string,
+    user_login: string,
+    user_name: string
+}

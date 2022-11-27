@@ -6,7 +6,7 @@ import {
     ITwitchHelixChatColorResponse,
     ITwitchHelixClipResponse,
     ITwitchHelixGamesResponse,
-    ITwitchHelixGamesResponseData, ITwitchHelixModeratorsResponse,
+    ITwitchHelixGamesResponseData, ITwitchHelixRoleResponse,
     ITwitchHelixRewardConfig,
     ITwitchHelixRewardResponse,
     ITwitchHelixRewardStates,
@@ -27,6 +27,8 @@ export default class TwitchHelix {
     static _gameCache: Map<number, ITwitchHelixGamesResponseData> = new Map()
     static _channelCache: Map<number, ITwitchHelixChannelResponseData> = new Map()
     static _userColorCache: Map<number, string> = new Map()
+    static _channelVIPCache: Map<number, boolean> = new Map()
+    static _channelModeratorCache: Map<number, boolean> = new Map()
 
     private static async getAuthHeaders(): Promise<Headers> {
         const tokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
@@ -342,6 +344,23 @@ export default class TwitchHelix {
     }
 
     // region Moderators
+    static async isUserModerator(userId: number, skipCache: boolean = false): Promise<boolean> {
+        if(!skipCache && this._channelModeratorCache.has(userId)) return this._channelModeratorCache.get(userId) ?? false
+        let url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}`
+        if(userId) url += `&user_id=${userId}`
+        const request = {
+            headers: await this.getAuthHeaders()
+        }
+        const response = await fetch(url, request)
+        if(response.ok) {
+            const result = await response.json() as unknown as ITwitchHelixRoleResponse
+            const hasRole = result.data.length == 1 && result.data[0].user_id == userId.toString()
+            this._channelModeratorCache.set(userId, hasRole)
+            return hasRole
+        } else {
+            return false
+        }
+    }
     static async makeUserModerator(userId: number): Promise<boolean> {
         const url = `https://api.twitch.tv/helix/moderation/moderators?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
@@ -349,6 +368,7 @@ export default class TwitchHelix {
             headers: await this.getAuthHeaders()
         }
         const response = await fetch(url, request)
+        if(response.ok) this._channelModeratorCache.set(userId, true)
         return response.ok
     }
     static async removeUserModerator(userId: number): Promise<boolean> {
@@ -358,11 +378,28 @@ export default class TwitchHelix {
             headers: await this.getAuthHeaders()
         }
         const response = await fetch(url, request)
+        if(response.ok) this._channelModeratorCache.set(userId, false)
         return response.ok
     }
     // endregion
 
     // region VIPs
+    static async isUserVIP(userId: number, skipCache: boolean = false): Promise<boolean> {
+        if(!skipCache && this._channelVIPCache.has(userId)) return this._channelVIPCache.get(userId) ?? false
+        let url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
+        const request = {
+            headers: await this.getAuthHeaders()
+        }
+        const response = await fetch(url, request)
+        if(response.ok) {
+            const result = await response.json() as unknown as ITwitchHelixRoleResponse
+            const hasRole = result.data.length == 1 && result.data[0].user_id == userId.toString()
+            this._channelVIPCache.set(userId, hasRole)
+            return hasRole
+        } else {
+            return false
+        }
+    }
     static async makeUserVIP(userId: number): Promise<boolean> {
         const url = `https://api.twitch.tv/helix/channels/vips?broadcaster_id=${await this.getBroadcasterUserId()}&user_id=${userId}`
         const request = {
@@ -370,6 +407,7 @@ export default class TwitchHelix {
             headers: await this.getAuthHeaders()
         }
         const response = await fetch(url, request)
+        if(response.ok) this._channelVIPCache.set(userId, true)
         return response.ok
     }
     static async removeUserVIP(userId: number): Promise<boolean> {
@@ -379,6 +417,7 @@ export default class TwitchHelix {
             headers: await this.getAuthHeaders()
         }
         const response = await fetch(url, request)
+        if(response.ok) this._channelVIPCache.set(userId, false)
         return response.ok
     }
     // endregion
