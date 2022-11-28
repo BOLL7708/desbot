@@ -570,6 +570,18 @@ Config.events = {
             }
         }
     },
+    'Mod' : {
+        triggers: { command: { entries: 'mod', permissions: { moderators: false } }}
+    },
+    'UnMod' : {
+        triggers: { command: { entries: 'unmod', permissions: { moderators: false } }}
+    },
+    'Vip' : {
+        triggers: { command: { entries: 'vip' }}
+    },
+    'UnVip' : {
+        triggers: { command: { entries: 'unvip' }}
+    },
 
     /*
     .######..##..##...####...##...##..#####...##......######...####..

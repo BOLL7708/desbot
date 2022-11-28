@@ -53,6 +53,10 @@ export type TKeysTemplate =
     | 'RemoteOff'
     | 'HelpToDiscord'
     | 'HelpToChat'
+    | 'Mod'
+    | 'UnMod'
+    | 'Vip'
+    | 'UnVip'
     
     // Dangerous WIP SteamVR settings commands
     | 'RefreshRate'
@@ -78,6 +82,7 @@ export type TKeysTemplate =
     
     // Discord
     | 'DiscordChat'
+    | 'DiscordWhisperCommands'
     | 'DiscordVRScreenshot'
     | 'DiscordOBSScreenshot'
 

@@ -532,3 +532,7 @@ Config.twitch = <ITwitchConfig> {
         // [GamesTemplate.A_GAME]: { 'YourReward': { multiTierMaxLevel: 5 } }
     }
 }
+Config.relay = {
+    port: 7788,
+    streamDeckChannel: 'streaming_widget'
+}

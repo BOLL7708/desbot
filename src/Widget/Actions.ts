@@ -12,7 +12,7 @@ import {
     IPhilipsHueColorAction,
     IPhilipsHuePlugAction,
     IPipeAction,
-    IRunAction,
+    IInputAction,
     IRewardStatesConfig,
     IScreenshotAction,
     ISignAction,
@@ -487,7 +487,7 @@ export class Actions {
             actionCallbacks.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.vrSetting))
             actionCallbacks.pushIfExists(this.buildOpenVR2WSMoveSpaceCallback(actions?.vrMoveSpace))
             actionCallbacks.pushIfExists(this.buildSignCallback(actions?.sign))
-            actionCallbacks.pushIfExists(this.buildKeysCallback(actions?.keys))
+            actionCallbacks.pushIfExists(this.buildKeysCallback(actions?.input))
             actionCallbacks.pushIfExists(this.buildURICallback(actions?.uri))
             actionCallbacks.pushIfExists(this.buildWebCallback(actions?.web))
             actionCallbacks.pushIfExists(this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS))
@@ -701,7 +701,7 @@ export class Actions {
         }
     }
 
-    private static buildKeysCallback(config: IRunAction|undefined): IActionCallback|undefined {
+    private static buildKeysCallback(config: IInputAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎓',
             description: 'Callback that triggers an Exec action',

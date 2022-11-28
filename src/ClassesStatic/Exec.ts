@@ -1,5 +1,5 @@
 import Utils from './Utils.js'
-import {IRunAction, TRunType} from '../Interfaces/iactions.js'
+import {IInputAction, TRunType} from '../Interfaces/iactions.js'
 
 export default class Exec {
     static runKeyPresses(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {
@@ -12,7 +12,7 @@ export default class Exec {
         ).then()
     }
 
-    static runKeyPressesFromPreset(preset: IRunAction) {
+    static runKeyPressesFromPreset(preset: IInputAction) {
         // Store command strings for possible reset
         const commands: string[] = []
         

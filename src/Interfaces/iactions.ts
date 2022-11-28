@@ -83,9 +83,9 @@ export interface IActions {
     sign?: ISignAction
 
     /**
-     * Optional: Execute a key command in a specific window.
+     * Optional: Execute a virtual input sequence in a specific desktop window.
      */
-    keys?: IRunAction
+    input?: IInputAction
 
     /**
      * Optional: Trigger a custom URI.
@@ -326,7 +326,7 @@ export interface IAudioAction {
 /**
  * Send key-presses to a window.
  */
-export interface IRunAction {
+export interface IInputAction {
     /**
      * The title of the window to send the key press to.
      */
