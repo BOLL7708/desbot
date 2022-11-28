@@ -16,6 +16,8 @@ import Utils from '../ClassesStatic/Utils.js'
 import {EEventSource} from '../Widget/Enums.js'
 import DB from '../ClassesStatic/DB.js'
 import {SettingTwitchTokens} from './_Settings.js'
+import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import Discord from '../ClassesStatic/Discord.js'
 
 export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
@@ -110,26 +112,35 @@ export default class Twitch{
     }
 
     private _whisperCallback: ITwitchWhisperMessageCallback = (messageCmd) => {
-        Utils.log(`Got whisper: ${messageCmd.message.text}`, Color.Orange, true, true)
+        // console.warn('Twitch: Unhandled whisper message')
+        // Utils.log(`Got whisper: ${messageCmd.message.text}`, Color.Orange, true, true)
+        // console.log(messageCmd)
     }
     setWhisperCallback(callback: ITwitchWhisperMessageCallback) {
         this._whisperCallback = callback
     }
 
     private async onWhisperMessage(messageCmd: ITwitchMessageCmd) {
+        await this.onChatMessage(messageCmd, true)
         this._whisperCallback(messageCmd)
     }
 
-    private async onChatMessage(messageCmd: ITwitchMessageCmd) {
+    private async onChatMessage(messageCmd: ITwitchMessageCmd, isWhisper: boolean = false) {
         const msg = messageCmd.message
         if(!msg) return
         let userName: string = msg.username?.toLowerCase() ?? ''
         if(userName.length == 0) return
+        let userId: number = parseInt(messageCmd.properties['user-id'] ?? '')
         let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
         const isBroadcaster = (messageCmd.properties?.badges ?? <string[]>[]).indexOf('broadcaster/1') > -1
-        const isModerator = messageCmd.properties?.mod == '1' && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
+            || userName === (await DB.loadSetting(new SettingTwitchTokens(), 'channel'))?.userLogin
+        const isModerator = (
+            messageCmd.properties?.mod == '1'
+            || (await TwitchHelix.isUserModerator(userId)) // Fallback
+        ) && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
+            || (await TwitchHelix.isUserVIP(userId)) // Fallback
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
 
         // Chat proxy
@@ -163,8 +174,8 @@ export default class Twitch{
         }
 
         // For logging
-        this._allChatCallback(messageCmd)
-        
+        if(!isWhisper) this._allChatCallback(messageCmd)
+
         // Rewards
         if(typeof messageCmd.properties['custom-reward-id'] === 'string') {
             console.log("Twitch Chat: Skipped as it's a reward.")
@@ -207,10 +218,22 @@ export default class Twitch{
                 user.input = textStr
                 user.inputWords = textStr.split(' ')
                 user.source = EEventSource.TwitchCommand
-                this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
+                if(!isWhisper || Config.twitch.allowWhisperCommands) {
+                    this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
+                }
+                if(isWhisper && Config.credentials.DiscordWebhooks['DiscordWhisperCommands']) {
+                    const userData = await TwitchHelix.getUserById(user.id)
+                    Discord.enqueueMessage(
+                        Config.credentials.DiscordWebhooks['DiscordWhisperCommands'],
+                        user.name,
+                        userData?.profile_image_url,
+                        '**Whisper Command**: '+Utils.escapeForDiscord(user.message)
+                    )
+                }
                 return
             }
         }
+        if(isWhisper) return
 
         const bits = Utils.toInt(messageCmd.properties?.bits, 0)
         const messageData:ITwitchMessageData = {

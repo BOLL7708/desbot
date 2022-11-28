@@ -464,9 +464,8 @@ Config.twitchChat = <ITwitchChatConfig> {
 ....##.....###..###..####....##.....######..##.....##
 */
 Config.twitch = <ITwitchConfig> {
-    channelName: 'ChannelName',
-    chatbotName: 'ChatbotName',
     commandPrefix: '!',
+    allowWhisperCommands: false,
     remoteCommandPrefix: '!',
     remoteCommandChannel: '',       
     remoteCommandAllowedUsers: ['AllowedUser1', 'AllowedUser2'],

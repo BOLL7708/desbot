@@ -14,6 +14,10 @@ export interface ITwitchConfig {
      */
     commandPrefix: string
     /**
+     * Will allow users with the right permissions to execute commands by whispering the chatbot.
+     */
+    allowWhisperCommands: boolean
+    /**
      * Prefix for triggering remote chat commands.
      */
     remoteCommandPrefix: string
