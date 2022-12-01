@@ -25,7 +25,9 @@ include_once('init.php');
 $path1= './_settings';
 $path2 = "$path1/steam_achievements";
 $files1 = scandir($path1);
-$files2 = scandir($path2);
+$files2 = [];
+if (is_dir($path2))
+    $files2 = scandir($path2);
 $files = [];
 foreach($files1 as $file) {
     $files[] = ["$path1/$file", $file];
