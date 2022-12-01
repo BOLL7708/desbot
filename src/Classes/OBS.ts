@@ -23,7 +23,7 @@ export default class OBS {
     private _requestQueue: Map<string, (data: IRequestResponse) => void> = new Map()
     private _sceneItems: Map<string, number> = new Map()
     private _activeScene?: string
-    private readonly _requestTimeout: number = 100
+    private readonly _requestTimeout: number = 1000
 
     constructor() {
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
