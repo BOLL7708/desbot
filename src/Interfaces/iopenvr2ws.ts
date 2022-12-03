@@ -65,6 +65,7 @@ export interface IOpenVR2WSMoveSpace {
 export interface IOpenVR2WSMessage {
     key: string
     data: any
+    nonce?: string
 }
 export interface IOpenVR2WSInputData {
     source: string
@@ -84,6 +85,26 @@ export interface IOpenVR2WSRelayData {
 export interface IOpenVR2WSGenericResponseData {
     message: string
     success: boolean
+    nonce: string
+}
+export interface IOpenVR2WSInputPoseResponseData {
+    Head?: IOpenVR2WSInputPoseResponseDataPose
+    LeftHand?: IOpenVR2WSInputPoseResponseDataPose
+    RightHand?: IOpenVR2WSInputPoseResponseDataPose
+}
+export interface IOpenVR2WSInputPoseResponseDataPose {
+    rotationMatrix: number[]
+    position: Vec3
+    velocity: Vec3
+    angularVelocity: Vec3
+    orientation: Vec3
+    isConnected: boolean
+    isTracking: boolean
+}
+export interface Vec3 {
+    x: number
+    y: number
+    z: number
 }
 export interface IOpenVR2WSRelay {
     key: TKeys
@@ -91,13 +112,14 @@ export interface IOpenVR2WSRelay {
 }
 export interface IOpenVRWSCommandMessage {
     key: string
-    value: string
+    value?: string
     value2?: string
     value3?: string
     value4?: string
     value5?: string
     value6?: string
     device?: number
+    nonce?: string
 }
 
 // Callbacks
@@ -107,12 +129,12 @@ export interface IOpenVR2WSStatusCallback {
 export interface IOpenVR2WSInputCallback {
     (key: string, data: IOpenVR2WSInputData): void
 }
+export interface IOpenVR2WSInputPoseCallback {
+    (pose: IOpenVR2WSInputPoseResponseData): void
+}
 export interface IOpenVR2WSAppIdCallback {
     (appId: string): void
 }
 export interface IOpenVR2WSFindOverlayCallback {
     (overlayKey: string, overlayHandle: number): void
-}
-export interface IOpenVR2WSRelayCallback {
-    (user: string, key: TKeys, data: string): void
 }

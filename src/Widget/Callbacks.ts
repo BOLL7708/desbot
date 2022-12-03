@@ -440,6 +440,11 @@ export default class Callbacks {
             }
         })
 
+        // TODO: Nothing should be using this so possibly redundant.
+        modules.openvr2ws.setInputPoseCallback((pose)=>{
+            console.warn('InputPoseCallback', pose)
+        })
+
         modules.relay.setOnMessageCallback(async (message) => {
             const msg = message as IRelayTempMessage
             const relay = this._relays.get(msg.key)

@@ -103,4 +103,32 @@ export default class WebSockets {
             self._onError(evt)
         }
     }
+
+    private _resolverQueue: Map<string, (result: any)=>void> = new Map()
+    private registerResolver(nonce: string, resolver: (result: any)=>void, timeoutMs: number) {
+        this._resolverQueue.set(nonce, resolver)
+        setTimeout(()=>{
+                const enqueuedResolver = this._resolverQueue.get(nonce)
+                if(enqueuedResolver) {
+                    enqueuedResolver(undefined)
+                    this._resolverQueue.delete(nonce)
+                }
+            },
+            timeoutMs
+        )
+    }
+    resolvePromise(nonce: string, result: any) {
+        const resolver = this._resolverQueue.get(nonce)
+        if(resolver) {
+            resolver(result)
+            this._resolverQueue.delete(nonce)
+        }
+    }
+    sendMessageWithPromise<T>(message: string, nonce: string, timeout: number = 1000): Promise<T|undefined> {
+        if(nonce.length == 0) console.warn('Message with promise registered with empty nonce!', message)
+        return new Promise((resolve)=>{
+            this.registerResolver(nonce, resolve, timeout)
+            this.send(message)
+        })
+    }
 }

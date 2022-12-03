@@ -1,9 +1,17 @@
 import {
     IOpenVR2WSAppIdCallback,
-    IOpenVR2WSFindOverlayCallback, IOpenVR2WSFindOverlayData, IOpenVR2WSGenericResponseData, IOpenVR2WSInputCallback,
+    IOpenVR2WSFindOverlayCallback,
+    IOpenVR2WSFindOverlayData,
+    IOpenVR2WSGenericResponseData,
+    IOpenVR2WSInputCallback,
     IOpenVR2WSInputData,
-    IOpenVR2WSMessage, IOpenVR2WSMoveSpace,
-    IOpenVR2WSRelayCallback, IOpenVR2WSRelayData, IOpenVR2WSSetting, IOpenVR2WSStatusCallback, IOpenVRWSCommandMessage
+    IOpenVR2WSInputPoseCallback,
+    IOpenVR2WSInputPoseResponseData,
+    IOpenVR2WSMessage,
+    IOpenVR2WSMoveSpace,
+    IOpenVR2WSSetting,
+    IOpenVR2WSStatusCallback,
+    IOpenVRWSCommandMessage
 } from '../Interfaces/iopenvr2ws.js'
 import Config from '../ClassesStatic/Config.js'
 import Color from '../ClassesStatic/Colors.js'
@@ -74,14 +82,19 @@ export default class OpenVR2WS {
         this._inputCallback = callback
     }
 
-    private _relayCallback: IOpenVR2WSRelayCallback = ()=>{ Utils.log('OpenVR2WS: Unhandled relay message', Color.Red) }
-    setRelayCallback(callback: IOpenVR2WSRelayCallback) {
-        this._relayCallback = callback
+    private _inputPoseCallback: IOpenVR2WSInputPoseCallback = (pose) => { console.log(pose) }
+    setInputPoseCallback(callback: IOpenVR2WSInputPoseCallback) {
+        this._inputPoseCallback = callback
     }
 
     public sendMessage(message: IOpenVRWSCommandMessage) {
         // console.log(JSON.stringify(message))
         this._socket.send(JSON.stringify(message));
+    }
+    public sendMessageWithPromise<T>(message: IOpenVRWSCommandMessage): Promise<T|undefined> {
+        return this._socket.sendMessageWithPromise<T>(
+            JSON.stringify(message), message.nonce ?? '', 1000
+        )
     }
 
     private onMessage(evt: MessageEvent) {
@@ -117,6 +130,13 @@ export default class OpenVR2WS {
                         Utils.log(`OpenVR2WS: ${data.key} failed with: ${moveSpaceData?.message}`, Color.DarkRed)
                     }
                     break
+                case 'InputPose':
+                    const inputPose: IOpenVR2WSInputPoseResponseData = data.data
+                    if(data.nonce) {
+                        this._socket.resolvePromise(data.nonce, inputPose)
+                    } else {
+                        this._inputPoseCallback(inputPose)
+                    }
                 default:
                     // console.log(data)
                     break
@@ -186,6 +206,15 @@ export default class OpenVR2WS {
                 this.sendMessage(message)
             }, config.duration*1000)
         }
+    }
+
+    public async requestInputPoseData(): Promise<IOpenVR2WSInputPoseResponseData|undefined> {
+        const nonce = Utils.getNonce('InputPose')
+        const message: IOpenVRWSCommandMessage = {
+            key: 'InputPose',
+            nonce: nonce
+        }
+        return this.sendMessageWithPromise<IOpenVR2WSInputPoseResponseData>(message)
     }
 
     /**
