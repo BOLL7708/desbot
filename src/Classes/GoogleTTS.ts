@@ -107,17 +107,28 @@ export default class GoogleTTS {
         const serial = ++this._count
         this._preloadQueue[serial] = null
         const blacklist = await DB.loadSetting(new SettingUserMute(), userId.toString())
-        if(blacklist?.active) return
+        if(blacklist?.active) {
+            console.warn(`GoogleTTS: User ${userId} was blacklisted so message skipped`, input)
+            return
+        }
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
-        if(input.trim().length == 0) return this.enqueueEmptyMessageSound(serial)
-        if(Utils.matchFirstChar(input, Config.controller.secretChatSymbols)) return // Will not even make empty message sound, so secret!
+        if(input.trim().length == 0) {
+            console.warn(`GoogleTTS: User ${userId} sent an empty message`, input)
+            return this.enqueueEmptyMessageSound(serial)
+        }
+
+        // Will not even make empty message sound, so secret!
+        if(Utils.matchFirstChar(input, Config.controller.secretChatSymbols)) {
+            console.warn(`GoogleTTS: User ${userId} sent a secret message`, input)
+            return
+        }
 
         const sentence = {text: input, userId: userId, type: type, meta: meta}
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${Config.credentials.GoogleTTSApiKey}`
         let text = sentence.text
         if(text == null || text.length == 0) {
             this.enqueueEmptyMessageSound(serial)
-            console.error("GoogleTTS: Sentence text was null or empty")
+            console.error(`GoogleTTS: Sentence text from ${userId} was null or empty`, input)
             return 
         }
         let voice = await DB.loadSetting(new SettingUserVoice(), userId.toString())
@@ -136,7 +147,7 @@ export default class GoogleTTS {
         )
         if(cleanText.length == 0) {
             this.enqueueEmptyMessageSound(serial)
-            console.warn("GoogleTTS: Clean text had zero length, skipping")
+            console.warn(`GoogleTTS: Clean text from ${userId} had zero length, skipping`, input)
             return
         }
 
@@ -170,8 +181,8 @@ export default class GoogleTTS {
             cleanText = `<speak>${cleanText}</speak>`
         }
 
-        let textVar:number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
-        return fetch(url, {
+        let textVar: number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
+        const response = await fetch(url, {
             method: 'post',
             body: JSON.stringify({
             input: {
@@ -192,9 +203,11 @@ export default class GoogleTTS {
                 "TIMEPOINT_TYPE_UNSPECIFIED"
             ]
           })
-        }).then((response) => response.json()).then(json => {
+        })
+        if(response.ok) {
+            const json = await response.json()
             if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
-                console.log(`GoogleTTS: Successfully got speech: [${json.audioContent.length}]`)
+                console.log(`GoogleTTS: Successfully got speech from ${userId}: [${json.audioContent.length}], will enqueue audio for playback.`, input)
                 this._preloadQueue[serial] = {
                     nonce: nonce,
                     srcEntries: `data:audio/ogg;base64,${json.audioContent}`
@@ -203,10 +216,12 @@ export default class GoogleTTS {
             } else {
                 delete this._preloadQueue[serial]
                 this._lastSpeaker = 0
-                console.error(`GoogleTTS: Failed to generate speech: [${json.status}], ${json.error}`)
+                console.error(`GoogleTTS: Failed to generate speech from ${userId}: [${json.status}], ${json.error}`, input)
                 this._callback?.call(this, nonce, AudioPlayer.STATUS_ERROR)
             }
-        })
+        } else {
+            console.error(`GoogleTTS: Failed to complete request for speech from ${userId}: [${response.status}], ${response.statusText}`, input)
+        }
     }
 
     enqueueSoundEffect(audio: IAudioAction|undefined) {
