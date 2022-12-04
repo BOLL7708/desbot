@@ -13,8 +13,6 @@ import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
 import DB from '../ClassesStatic/DB.js'
 
 export default class GoogleTTS {
-    static get PRELOAD_EMPTY_KEY() {return 'This request has not finished or failed yet.' } // Reference of a request still in progress.
-    // TODO: Split this up into a TTS master class, and separate voice integrations.
     private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
     private _audio: AudioPlayerInstance = new AudioPlayerInstance()
     private _voices: IGoogleVoice[] = [] // Cache
@@ -25,8 +23,9 @@ export default class GoogleTTS {
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`GoogleTTS: Played callback not set, ${nonce}->${status}`) }
     private _emptyMessageSound: IAudioAction|undefined
     private _count = 0
-    private _preloadQueue: Record<number, IAudioAction|string|null> = {} // Can be a string because we keep track on if it is in progress that way.
+    private _preloadQueue: {[key:number]: IAudioAction|null} = {} // Can be a string because we keep track on if it is in progress that way.
     private _preloadQueueLoopHandle: number = 0
+    private _preloadInfo: {[key:number]: string} = {}
     private _dequeueCount = 0
     private _dequeueMaxTries = 10
     private _dictionary = new Dictionary()
@@ -36,28 +35,36 @@ export default class GoogleTTS {
     }
 
     private checkForFinishedDownloads() {
-        let key = Utils.toInt(Object.keys(this._preloadQueue).shift(), -1) // Get oldest key
-        if(key != undefined && key >= 0) {
+        let key = Utils.toInt(Object.keys(this._preloadQueue).shift()) // Get the oldest key without removing it
+        if(key) {
             const entry = this._preloadQueue[key] // Get stored entry for key
-            if(entry !== GoogleTTS.PRELOAD_EMPTY_KEY) { // If not empty we have had a result
-                if(entry != null && typeof entry != 'string') { // If not empty and not a string we have a valid audio object
-                    // Presumed a successful result, transition queue
+            if(entry === null) { // We are still waiting for a result
+                this._dequeueCount++;
+                if (this._dequeueCount > this._dequeueMaxTries) {
+                    const info = this._preloadInfo[key]
+                    // The request for this TTS has timed out
                     delete this._preloadQueue[key]
+                    console.error(`GoogleTTS Request [${key}] timed out!`, this._dequeueCount, info)
+                    this._dequeueCount = 0;
+
+                    // TODO: Error sound?
+                    if(info) this.enqueueEmptyMessageSound(++this._count)
+                }
+            } else {
+                delete this._preloadQueue[key]
+                if(entry) { // If not undefined we have a valid audio object
+                    // Presumed a successful result, transition queue
                     this._audio.enqueueAudio(entry)
                 } else {
                     // The request has failed
-                    delete this._preloadQueue[key]
-                    Utils.log(`GoogleTTS: Request [${key}] failed, "${entry}"`, Color.DarkRed)
+                    const info = this._preloadInfo[key]
+                    console.error(`GoogleTTS: Request [${key}] failed!`, info)
+
+                    // TODO: Error sound?
+                    if(info) this.enqueueEmptyMessageSound(++this._count)
                 }
                 this._dequeueCount = 0
-            } else { // We are still waiting for this request to finish
-                this._dequeueCount++;
-                if(this._dequeueCount > this._dequeueMaxTries) {
-                    // The request for this TTS has timed out
-                    delete this._preloadQueue[key]
-                    this._dequeueCount = 0;
-                    Utils.log(`GoogleTTS Request [${key}] timed out. (${this._dequeueCount})`, Color.DarkRed)
-                }
+                delete this._preloadInfo[key]
             }
         }
     }
@@ -89,7 +96,7 @@ export default class GoogleTTS {
      * @param userId The id of the user speaking
      * @param type The type: TYPE_SAID, TYPE_ACTION, TYPE_ANNOUNCEMENT, TYPE_CHEER
      * @param nonce Unique value that will be provided in the done speaking callback
-     * @param meta Used to provide bit count for cheering messages (at least)
+     * @param meta Used to provide bit-count for cheering messages (at least)
      * @param clearRanges Used to clear out Twitch emojis from the text
      * @param skipDictionary Will skip replacing words in the text, enables dictionary additions to be read out properly.
      * @returns
@@ -106,38 +113,55 @@ export default class GoogleTTS {
         if(userId == 0) userId = (await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
         const serial = ++this._count
         this._preloadQueue[serial] = null
+
+        // Check blacklist
         const blacklist = await DB.loadSetting(new SettingUserMute(), userId.toString())
         if(blacklist?.active) {
-            console.warn(`GoogleTTS: User ${userId} was blacklisted so message skipped`, input)
+            console.warn(`GoogleTTS: User ${userId} blacklisted, skipped!`, input)
+            delete this._preloadQueue[serial]
             return
         }
+
+        // Randomize input
         if(Array.isArray(input)) input = Utils.randomFromArray<string>(input)
+
+        // Empty message sound
         if(input.trim().length == 0) {
-            console.warn(`GoogleTTS: User ${userId} sent an empty message`, input)
-            return this.enqueueEmptyMessageSound(serial)
+            console.warn(`GoogleTTS: User ${userId} sent empty message!`, input)
+            this.enqueueEmptyMessageSound(serial)
+            return
         }
 
         // Will not even make empty message sound, so secret!
         if(Utils.matchFirstChar(input, Config.controller.secretChatSymbols)) {
-            console.warn(`GoogleTTS: User ${userId} sent a secret message`, input)
+            console.warn(`GoogleTTS: User ${userId} sent secret message!`, input)
+            delete this._preloadQueue[serial]
             return
         }
 
         const sentence = {text: input, userId: userId, type: type, meta: meta}
         let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${Config.credentials.GoogleTTSApiKey}`
         let text = sentence.text
+
+        // Another empty check, I'm not sure why.
         if(text == null || text.length == 0) {
+            console.error(`GoogleTTS: User ${userId} text was null or empty!`, input)
             this.enqueueEmptyMessageSound(serial)
-            console.error(`GoogleTTS: Sentence text from ${userId} was null or empty`, input)
-            return 
+            return
         }
+
+        // Get voice
         let voice = await DB.loadSetting(new SettingUserVoice(), userId.toString())
         if(voice == null) {
             voice = await this.getDefaultVoice()
             await DB.saveSetting(voice, userId.toString())
         }
+
+        // Get username
         const userData = await TwitchHelix.getUserById(sentence.userId)
         let cleanName = await Utils.loadCleanName(userData?.id ?? sentence.userId)
+
+        // Clean input text
         const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
         let cleanText = await Utils.cleanText(
@@ -145,19 +169,24 @@ export default class GoogleTTS {
             cleanTextConfig,
             clearRanges,
         )
+
+        // Check if cleaned text is empty
         if(cleanText.length == 0) {
+            console.warn(`GoogleTTS: User ${userId} clean text empty, skipping!`, input)
             this.enqueueEmptyMessageSound(serial)
-            console.warn(`GoogleTTS: Clean text from ${userId} had zero length, skipping`, input)
             return
         }
 
-        if( // If announcement the dictionary can be skipped.
+        // If announcement the dictionary can be skipped.
+        if(
             type == ETTSType.Announcement
             && Config.google.dictionaryConfig.skipForAnnouncements
         ) skipDictionary = true
 
+        // Apply dictionary
         if(!skipDictionary) cleanText = this._dictionary.apply(cleanText)
 
+        // Build message depending on type
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = 0
         switch(sentence.type) {
             case ETTSType.Said:
@@ -180,54 +209,58 @@ export default class GoogleTTS {
         if(Config.google.dictionaryConfig.replaceWordsWithAudio) {
             cleanText = `<speak>${cleanText}</speak>`
         }
+        // console.log('GoogleTTS', cleanText)
 
+        // Fetch audio
         let textVar: number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
+        this._preloadInfo[serial] = `${userId} | ${cleanName} | ${input}`
+        // console.log('GoogleTTS', serial, this._preloadInfo[serial])
         const response = await fetch(url, {
             method: 'post',
             body: JSON.stringify({
-            input: {
-                ssml: cleanText
-            },
-            voice: {
-                languageCode: voice.languageCode,
-                name: voice.voiceName,
-                ssmlGender: voice.gender
-            },
-            audioConfig: {
-                audioEncoding: "OGG_OPUS",
-                speakingRate: Config.google.speakingRateOverride ?? 1.0 + textVar * 0.25, // Should probably make this a curve
-                pitch: textVar * 1.0,
-                volumeGainDb: 0.0
-            },
-            enableTimePointing: [
-                "TIMEPOINT_TYPE_UNSPECIFIED"
-            ]
-          })
+                input: {
+                    ssml: cleanText
+                },
+                voice: {
+                    languageCode: voice.languageCode,
+                    name: voice.voiceName,
+                    ssmlGender: voice.gender
+                },
+                audioConfig: {
+                    audioEncoding: "OGG_OPUS",
+                    speakingRate: Config.google.speakingRateOverride ?? 1.0 + textVar * 0.25, // Should probably make this a curve
+                    pitch: textVar * 1.0,
+                    volumeGainDb: 0.0
+                },
+                enableTimePointing: [
+                    "TIMEPOINT_TYPE_UNSPECIFIED"
+                ]
+            })
         })
         if(response.ok) {
             const json = await response.json()
-            if (typeof json.audioContent != 'undefined' && json.audioContent.length > 0) {
-                console.log(`GoogleTTS: Successfully got speech from ${userId}: [${json.audioContent.length}], will enqueue audio for playback.`, input)
+            if (typeof json?.audioContent === 'string' && json.audioContent.length > 0) {
                 this._preloadQueue[serial] = {
                     nonce: nonce,
-                    srcEntries: `data:audio/ogg;base64,${json.audioContent}`
+                    srcEntries: `data:audio/ogg;base64,${json.audioContent}`,
                 }
                 this._lastEnqueued = Date.now()
+                console.log(`GoogleTTS: User ${userId} speech OK: [${json.audioContent.length}], enqueued!`, input)
             } else {
-                delete this._preloadQueue[serial]
+                this.enqueueEmptyMessageSound(serial)
                 this._lastSpeaker = 0
-                console.error(`GoogleTTS: Failed to generate speech from ${userId}: [${json.status}], ${json.error}`, input)
                 this._callback?.call(this, nonce, AudioPlayer.STATUS_ERROR)
+                console.warn(`GoogleTTS: User ${userId} speech INVALID: [${json.status}], ${json.error}`, input)
             }
         } else {
-            console.error(`GoogleTTS: Failed to complete request for speech from ${userId}: [${response.status}], ${response.statusText}`, input)
+            this.enqueueEmptyMessageSound(serial)
+            console.error(`GoogleTTS: User ${userId} speech ERROR: [${response.status}], ${response.statusText}`, input)
         }
     }
 
     enqueueSoundEffect(audio: IAudioAction|undefined) {
         if(audio) {
-            const serial = ++this._count
-            this._preloadQueue[serial] = audio
+            this._preloadQueue[++this._count] = audio
         }
     }
 
@@ -320,7 +353,7 @@ export default class GoogleTTS {
                 console.log("Voices loaded!")
                 let voices: IGoogleVoice[] = json?.voices
                 if(voices != null) {
-                    voices = voices.filter(voice => voice.name.indexOf('Wavenet') > -1)
+                    voices = voices.filter(voice => voice.name.indexOf('Wavenet') > -1 || voice.name.indexOf('Neural') > -1)
                     this._voices = voices
                     this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(Config.google.randomizeVoiceLanguageFilter) == 0))
                     voices.forEach(voice => {
