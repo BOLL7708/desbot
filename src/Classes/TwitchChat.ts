@@ -1,6 +1,5 @@
 import WebSockets from './WebSockets.js'
 import Utils from '../ClassesStatic/Utils.js'
-import Config from '../ClassesStatic/Config.js'
 import TwitchFactory from './TwitchFactory.js'
 import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
 import DB from '../ClassesStatic/DB.js'
@@ -48,7 +47,7 @@ export default class TwitchChat {
         const userData = await TwitchHelix.getUserByLogin(this._userName)
         const tokens = await DB.loadSettingsArray(new SettingTwitchTokens())
         const tokenData = tokens?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
-        Utils.log(`Twitch chat connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
+        Utils.log(`TwitchChat: Connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
         this._socket?.send(`PASS oauth:${tokenData?.accessToken}`)
         this._socket?.send(`NICK ${this._userName}`)
         this._socket?.send('CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands') // Enables more info
@@ -57,7 +56,7 @@ export default class TwitchChat {
     }
     private onClose(evt: any) {
         this._isConnected = false
-        Utils.log(`Twitch chat disconnected: ${this._userName}`, this.LOG_COLOR, true, true)
+        Utils.log(`TwitchChat: Disconnected: ${this._userName}`, this.LOG_COLOR, true, true)
     }
     private onMessage(evt: any) {
         let data:string|undefined = evt?.data
@@ -67,6 +66,8 @@ export default class TwitchChat {
             messageStrings.forEach(str => {
                 if(str == null || str.length == 0) return
                 let message = TwitchFactory.buildMessageCmd(str)
+                // console.log('TwitchChat', 'DATA | ', message.message.data, 'TEXT | ', message.message.text)
+                // console.log('TwitchChat', message)
                 switch(message.message.type) {
                     case 'PRIVMSG':
                         this._chatMessageCallback(message)
@@ -75,7 +76,7 @@ export default class TwitchChat {
                         if(this._listenToWhispers) this._whisperMessageCallback(message)
                         break
                     default:
-                        if(message.message.type) console.warn(`Unhandled: ${message.message.type}`)
+                        if(message.message.type) console.warn(`TwitchChat: Unhandled: ${message.message.type}`)
                 }
             })
         }        
