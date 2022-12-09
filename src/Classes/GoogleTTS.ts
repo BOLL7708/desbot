@@ -215,17 +215,17 @@ export default class GoogleTTS {
         let textVar: number = ((cleanText.length-150)/500) // 500 is the max length message on Twitch
         this._preloadInfo[serial] = `${userId} | ${cleanName} | ${input}`
         // console.log('GoogleTTS', serial, this._preloadInfo[serial])
+        const voiceConfig: {[key: string]: string} = {}
+        voiceConfig['languageCode'] = voice.languageCode ?? 'en-US' // Needs to exist, then either voice NAME or GENDER
+        if(voice.voiceName.length > 0) voiceConfig['name'] = voice.voiceName
+        else voiceConfig['ssmlGender'] = (voice.gender.length > 0 ? voice.gender : ['male', 'female'].getRandom() ?? 'male')
         const response = await fetch(url, {
             method: 'post',
             body: JSON.stringify({
                 input: {
                     ssml: cleanText
                 },
-                voice: {
-                    languageCode: voice.languageCode,
-                    name: voice.voiceName,
-                    ssmlGender: voice.gender
-                },
+                voice: voiceConfig,
                 audioConfig: {
                     audioEncoding: "OGG_OPUS",
                     speakingRate: Config.google.speakingRateOverride ?? 1.0 + textVar * 0.25, // Should probably make this a curve
@@ -310,13 +310,14 @@ export default class GoogleTTS {
             }
             
             // Match incoming full voice name
-            let re = new RegExp(/([a-z]+)-([a-z]+)-(\w+)-([a-z])/)
+            let re = new RegExp(/([a-zA-Z]+)-([a-zA-Z]+)-(\w+)-([a-zA-Z])/)
             const matches = setting.match(re)
             if(matches != null) {
                 if(this._voices.find(v => v.name.toLowerCase() == matches[0])) {
                     if(voice.voiceName.toLowerCase() != matches[0]) {
                         voice.voiceName = matches[0]
-                        voice.languageCode = `${matches[1]}-${matches[2]}`
+                        voice.languageCode = `${matches[1]}-${matches[2]}` // This is always needed
+                        voice.gender = '' // This can be a mismatch and prevent synthesizing
                         changed = true
                         Utils.log(`GoogleTTS: Matched voice name: ${setting}`, Color.BlueViolet)
                         return
