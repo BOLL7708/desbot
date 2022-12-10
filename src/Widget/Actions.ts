@@ -958,7 +958,7 @@ export class Actions {
                     case ETTSFunction.SetUserDisabled: {
                         if (!targetId) break
                         const setting = new SettingUserMute()
-                        setting.active = false
+                        setting.active = true
                         setting.reason = userInputRest
                         await DB.saveSetting(setting, targetId.toString())
                         break
