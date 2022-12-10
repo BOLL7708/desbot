@@ -5,28 +5,28 @@ import {
     IDiscordResponseHeaders,
     IDiscordWebookPayload
 } from '../Interfaces/idiscord.js'
-import Color from './Colors.js'
+import Color from './ColorConstants.js'
 
-export default class Discord {
+export default class DiscordUtils {
     private static _rateLimits: Record<string, IDiscordRateLimit> = {} // Bucket, limit?
     private static _rateLimitBuckets: Record<string, string> = {} // Url, Bucket
     private static _messageQueues: Record<string, IDiscordQueue[]> = {} // URL, Payloads
     private static _messageIntervalHandle = setInterval(async ()=>{
-        for(const [key, value] of Object.entries(Discord._messageQueues)) {
+        for(const [key, value] of Object.entries(DiscordUtils._messageQueues)) {
             if(value.length > 0) {
-                const bucketName = Discord._rateLimitBuckets[key] ?? null
-                const rateLimit = Discord._rateLimits[bucketName] ?? null
+                const bucketName = DiscordUtils._rateLimitBuckets[key] ?? null
+                const rateLimit = DiscordUtils._rateLimits[bucketName] ?? null
                 const now = Date.now()
                 if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
                     const item = value.shift()
-                    const result = await Discord.send(key, item?.formData ?? new FormData())
+                    const result = await DiscordUtils.send(key, item?.formData ?? new FormData())
                     if(item?.callback) item.callback(result)
                 } else {
                     Utils.log(`Discord: Waiting for rate limit (${rateLimit.remaining}) to reset (${rateLimit.resetTimestamp-now}ms)`, Color.Gray)
                 }
             } else {
                 // Remove queue if empty
-                if(Discord._messageQueues.hasOwnProperty(key)) delete Discord._messageQueues[key]
+                if(DiscordUtils._messageQueues.hasOwnProperty(key)) delete DiscordUtils._messageQueues[key]
             }
         }
     }, 500)

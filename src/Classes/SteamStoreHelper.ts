@@ -1,7 +1,7 @@
 import {ISteamStoreGameData, ISteamStoreGameResponse} from '../Interfaces/isteam_store.js'
 import Utils from './Utils.js'
 
-export default class SteamStore {
+export default class SteamStoreHelper {
     static _gameCache: Map<number, ISteamStoreGameData> = new Map()
     static async getGameMeta(appId: string):Promise<ISteamStoreGameData|undefined> {
         const id = Utils.numberFromAppId(appId)

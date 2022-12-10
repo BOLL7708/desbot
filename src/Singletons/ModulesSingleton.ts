@@ -1,6 +1,6 @@
 import TwitchTokens from '../Classes/TwitchTokens.js'
 import OBS from '../Classes/OBS.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
 import Twitch from '../Classes/Twitch.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
 import AudioPlayer from '../Classes/AudioPlayer.js'

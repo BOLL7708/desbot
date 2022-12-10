@@ -1,14 +1,14 @@
-import TwitchHelix from './TwitchHelix.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
 import Utils from './Utils.js'
 import Config from './Config.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../Interfaces/idiscord.js'
-import DB from './DB.js'
-import {SettingChannelTrophyStat} from '../Classes/_Settings.js'
-import Color from './Colors.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {SettingChannelTrophyStat} from './SettingObjects.js'
+import Color from './ColorConstants.js'
 
-export default class ChannelTrophy {
+export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
-        const stats = await DB.loadSettingsDictionary(new SettingChannelTrophyStat(), true) ?? {}
+        const stats = await DataBaseHelper.loadSettingsDictionary(new SettingChannelTrophyStat(), true) ?? {}
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
 
@@ -19,8 +19,8 @@ export default class ChannelTrophy {
         return numberOfStreams
     }
 
-    static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelix, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
-        const stats = await DB.loadSettingsDictionary(new SettingChannelTrophyStat(), true) ?? {}
+    static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelixHelper, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
+        const stats = await DataBaseHelper.loadSettingsDictionary(new SettingChannelTrophyStat(), true) ?? {}
 
         /* GENERATE DATA */
 
@@ -193,11 +193,11 @@ export default class ChannelTrophy {
 
         // Get helix stuff
         async function getName(userId: number):Promise<string> {
-            const user = await TwitchHelix.getUserById(userId)
+            const user = await TwitchHelixHelper.getUserById(userId)
             return user?.display_name ?? ''
         }
         async function getImage(userId: number):Promise<string> {
-            const user = await TwitchHelix.getUserById(userId)
+            const user = await TwitchHelixHelper.getUserById(userId)
             return user?.profile_image_url ?? ''
         }
 
@@ -270,10 +270,6 @@ export default class ChannelTrophy {
         return embeds
     }
 
-	static _funnyNumbers: Record<number, IChannelTrophyFunnyNumber> = {
-		// List funny numbers here that we should give attention
-	}
-	
 	static detectFunnyNumber(n: number, userId: number = -1): IChannelTrophyFunnyNumber|null {
         const result: IChannelTrophyFunnyNumber = {
             number: n,

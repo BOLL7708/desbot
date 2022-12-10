@@ -1,4 +1,4 @@
-export default class ImageLoader {
+export default class ImageHelper {
     // TODO: Maybe limit cache to 100 images or something? To avoid memory issues.
     static _imageCache: Map<string, string> = new Map()
 
@@ -19,7 +19,7 @@ export default class ImageLoader {
         const urlb64 = btoa(url)
         const cache = this._imageCache.get(urlb64)
         if(cache) {
-            console.log('ImageLoader: Returning cached')
+            console.log('ImageHelper: Returning cached')
             return new Promise<string>((resolve) => { 
                 resolve(cache) 
             })
@@ -34,9 +34,9 @@ export default class ImageLoader {
                     const headerIndex = imageb64.indexOf(',')
                     const header = imageb64.substring(0, headerIndex)
                     if(!this.isImage(header)) {
-                        reject(new Error('ImageLoader: Not an image'))
+                        reject(new Error('ImageHelper: Not an image'))
                     } else {
-                        ImageLoader._imageCache.set(urlb64,  imageb64)
+                        ImageHelper._imageCache.set(urlb64,  imageb64)
                         resolve(imageb64)
                     }
                 }

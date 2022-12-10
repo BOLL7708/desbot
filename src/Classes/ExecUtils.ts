@@ -1,7 +1,7 @@
 import Utils from './Utils.js'
 import {IInputAction, TRunType} from '../Interfaces/iactions.js'
 
-export default class Exec {
+export default class ExecUtils {
     static runKeyPresses(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {
         const windowb64 = Utils.encode(window)
         const commandb64 = Utils.encode(command)

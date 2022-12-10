@@ -1,6 +1,6 @@
 import {TKeys} from '../_data/!keys.js'
 import {ICommandPermissions} from './itwitch.js'
-import {IChannelTrophyFunnyNumberTexts} from '../ClassesStatic/ChannelTrophy.js'
+import {IChannelTrophyFunnyNumberTexts} from '../Classes/ChannelTrophyUtils.js'
 
 /**
  * These are the settings for `MainController`, the main class that connects all the different modules together.
@@ -17,7 +17,7 @@ export interface IControllerConfig {
     gameDefaults: { [key: string]: IControllerDefaults }
 
     /**
-     * Turn WebSockets intergrations entirely on or off
+     * Turn WebSockets integration entirely on or off
      */
     websocketsUsed: {
         /**

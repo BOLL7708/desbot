@@ -1,10 +1,10 @@
 import WebSockets from './WebSockets.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from './Utils.js'
 import TwitchFactory from './TwitchFactory.js'
 import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
-import DB from '../ClassesStatic/DB.js'
-import {SettingTwitchTokens} from './_Settings.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {SettingTwitchTokens} from './SettingObjects.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
@@ -44,8 +44,8 @@ export default class TwitchChat {
     }
 
     private async onOpen(evt: any) {
-        const userData = await TwitchHelix.getUserByLogin(this._userName)
-        const tokens = await DB.loadSettingsArray(new SettingTwitchTokens())
+        const userData = await TwitchHelixHelper.getUserByLogin(this._userName)
+        const tokens = await DataBaseHelper.loadSettingsArray(new SettingTwitchTokens())
         const tokenData = tokens?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
         Utils.log(`TwitchChat: Connected: ${this._userName} to #${this._channel}`, this.LOG_COLOR, true, true)
         this._socket?.send(`PASS oauth:${tokenData?.accessToken}`)

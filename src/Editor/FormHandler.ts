@@ -1,17 +1,17 @@
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from '../Classes/Utils.js'
 import SectionHandler from './SectionHandler.js'
-import Data, {
+import DataUtils, {
     AuthData,
     DBData,
     GitVersion,
     LOCAL_STORAGE_AUTH_KEY,
     MigrationData,
     MigrationVersion
-} from '../ClassesStatic/Data.js'
-import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../Classes/_Settings.js'
-import DB from '../ClassesStatic/DB.js'
+} from '../Classes/DataUtils.js'
+import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../Classes/SettingObjects.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
 import SettingsHandler from './SettingsHandler.js'
-import Auth from '../ClassesStatic/Auth.js'
+import AuthUtils from '../Classes/AuthUtils.js'
 
 type TForm =
     'Register'
@@ -51,24 +51,24 @@ export default class FormHandler {
 
     static async setup() {
         // Decide what to show first depending on if we have a password stored.
-        const authData = await Data.readData<AuthData>('auth.php')
+        const authData = await DataUtils.readData<AuthData>('auth.php')
 
         // No auth data on disk, we need to register a password.
         if(!authData) return SectionHandler.show('Register')
 
         const localAuth = Utils.getAuth()
         // No password saved in the browser client, we need to log in.
-        if(localAuth.length == 0 || !await Auth.checkIfAuthed()) return SectionHandler.show('Login')
+        if(localAuth.length == 0 || !await AuthUtils.checkIfAuthed()) return SectionHandler.show('Login')
 
         // No database data stored on disk, we need to register that.
-        const dbData = await Data.readData<DBData>('db.php')
+        const dbData = await DataUtils.readData<DBData>('db.php')
         if(!dbData) return SectionHandler.show('DBSetup')
 
         // Database migration
         await FormHandler.migrateDB()
 
         // Twitch client info
-        const twitchClient = await DB.loadSetting(new SettingTwitchClient(), 'Main', true)
+        const twitchClient = await DataBaseHelper.loadSetting(new SettingTwitchClient(), 'Main', true)
         if(!twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
             const form = FormHandler.formElements['TwitchClient']
@@ -95,7 +95,7 @@ export default class FormHandler {
         let scopes = await scopesResponse.json()
         if(Array.isArray(scopes)) scopes = scopes.join(' ')
         // Twitch credentials channel
-        const twitchChannelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel', true)
+        const twitchChannelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel', true)
         if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens) || twitchChannelTokens.scopes !== scopes) {
             return SectionHandler.show('TwitchLoginChannel')
         } else {
@@ -105,7 +105,7 @@ export default class FormHandler {
         }
 
         // Twitch credentials chatbot
-        const twitchChatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
+        const twitchChatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
         if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens) || twitchChatbotTokens.scopes !== scopes) {
             return SectionHandler.show('TwitchLoginChatbot')
         } else {
@@ -115,7 +115,7 @@ export default class FormHandler {
         }
 
         // Imports
-        let importStatus = await DB.loadSetting(new SettingImportStatus(), 'Legacy', true)
+        let importStatus = await DataBaseHelper.loadSetting(new SettingImportStatus(), 'Legacy', true)
         if(!importStatus || !importStatus.done) {
             await SectionHandler.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
             const doImport = confirm('It is possible to import legacy settings, do you want do this import? Cancelling will mark it as done.')
@@ -132,7 +132,7 @@ export default class FormHandler {
                 alert('Result:\n'+importArr.join('\n'))
             }
             // To avoid asking every time, we mark this as done regardless if it was done or not.
-            await DB.saveSetting(importStatus, 'Legacy')
+            await DataBaseHelper.saveSetting(importStatus, 'Legacy')
         }
 
         // Temporary stop for showing the settings browser, before we have a menu.
@@ -141,7 +141,7 @@ export default class FormHandler {
 
         // Done, show the site.
         await SectionHandler.show('Editor')
-        const classesAndCounts = await DB.loadSettingClasses()
+        const classesAndCounts = await DataBaseHelper.loadSettingClasses()
         const settingsCounts = document.querySelector('#settingsCounts') as HTMLParagraphElement
         const ol = document.createElement('ul') as HTMLUListElement
         for(const [group,count] of Object.entries(classesAndCounts)) {
@@ -159,7 +159,7 @@ export default class FormHandler {
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
         else {
-            const ok = await Data.writeData('auth.php', inputData)
+            const ok = await DataUtils.writeData('auth.php', inputData)
             if(ok) {
                 FormHandler.storeAuth(password)
                 FormHandler.setup().then()
@@ -179,9 +179,9 @@ export default class FormHandler {
     static async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
         const inputData = FormHandler.getFormInputData(event.target, new DBData())
-        const ok = await Data.writeData('db.php', inputData)
+        const ok = await DataUtils.writeData('db.php', inputData)
         if(ok) {
-            const dbOk = await DB.testConnection()
+            const dbOk = await DataBaseHelper.testConnection()
             if(dbOk) FormHandler.setup().then()
             else alert('Could not connect to the database')
         } else alert('Could not store database settings on disk.')
@@ -190,9 +190,9 @@ export default class FormHandler {
         event.preventDefault()
         await SectionHandler.show('Loading', 'Saving...', '')
         const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
-        const ok = await DB.saveSetting(inputData, 'Main')
+        const ok = await DataBaseHelper.saveSetting(inputData, 'Main')
         if(ok) FormHandler.setup().then()
-        else alert('Could not store Twitch Client settings in DB.')
+        else alert('Could not store Twitch Client settings in DataBaseHelper.')
     }
     static async submitTwitchLogin(event: SubmitEvent) {
         event.preventDefault()
@@ -201,7 +201,7 @@ export default class FormHandler {
         (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
             if(userId.length == 0) {
                 const reset = confirm('Could not retrieve Twitch tokens, do you want to reset the Twitch Client settings?')
-                if(reset) await DB.deleteSetting(new SettingTwitchClient(), 'Main')
+                if(reset) await DataBaseHelper.deleteSetting(new SettingTwitchClient(), 'Main')
             }
             await FormHandler.setup()
         }
@@ -249,7 +249,7 @@ export default class FormHandler {
         const highestPossibleVersion = migrationVersion.version
 
         // Get previous widget version stored on disk
-        let versionData = (await Data.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
+        let versionData = (await DataUtils.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
         let databaseVersion = versionData?.current ?? 0
 
         // Migrate database if accepted.
@@ -265,7 +265,7 @@ export default class FormHandler {
                 const migrateResult = await migrateResponse.json() as MigrationData
                 alert(`Database migrations done: ${migrateResult.count}, reached version: ${migrateResult.id}.`)
                 versionData = {current: migrateResult.id}
-                const ok = await Data.writeData('version.json', versionData).then()
+                const ok = await DataUtils.writeData('version.json', versionData).then()
                 if(!ok) alert('Could not store new database version on disk.')
             }
         }

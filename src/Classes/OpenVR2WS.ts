@@ -13,10 +13,10 @@ import {
     IOpenVR2WSStatusCallback,
     IOpenVRWSCommandMessage
 } from '../Interfaces/iopenvr2ws.js'
-import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/Colors.js'
+import Config from './Config.js'
+import Color from './ColorConstants.js'
 import WebSockets from './WebSockets.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from './Utils.js'
 
 export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }

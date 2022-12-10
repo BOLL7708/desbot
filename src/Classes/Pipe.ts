@@ -1,14 +1,14 @@
 import {IActionUser, IPipeAction} from '../Interfaces/iactions.js'
 import ImageEditor from './ImageEditor.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
-import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/Colors.js'
+import Config from './Config.js'
+import Color from './ColorConstants.js'
 import {IPipeBasicMessage, IPipeCustomMessage} from '../Interfaces/ipipe.js'
 import TwitchFactory from './TwitchFactory.js'
 import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
 import WebSockets from './WebSockets.js'
-import Utils from '../ClassesStatic/Utils.js'
-import ImageLoader from './ImageLoader.js'
+import Utils from './Utils.js'
+import ImageHelper from './ImageHelper.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 
 export default class Pipe {
@@ -73,7 +73,7 @@ export default class Pipe {
         // Build message
         let done = false
         const imageDataUrl = profileUrl != undefined
-            ? await ImageLoader.getDataUrl(profileUrl, true)
+            ? await ImageHelper.getDataUrl(profileUrl, true)
             : null
         const preset = Utils.clone(Config.twitchChat.pipe)
         if(!preset) return Utils.log("Pipe: No preset found for chat messages", Color.Red)
@@ -104,7 +104,7 @@ export default class Pipe {
                 : maxCanvasWidth
             imageEditor.initiateEmptyCanvas(
                 actualCanvasWidth,
-                Config.pipe.customChatMessageConfig.top 
+                Config.pipe.customChatMessageConfig.top
 					+ textResult.pixelHeight
 					+ margin * 2
             )
@@ -114,7 +114,7 @@ export default class Pipe {
                     w: isOneRow ? textResult.firstRowWidth + margin * 2 : Config.pipe.customChatMessageConfig.width,
                     h: size
                 }, 
-                Config.pipe.customChatMessageConfig.cornerRadius, 
+                Config.pipe.customChatMessageConfig.cornerRadius,
                 Color.Gray,
                 {
                     width: 16,
@@ -205,7 +205,7 @@ export default class Pipe {
             for(const imagePath of Utils.ensureArray(preset.imagePathEntries)) {
                 const stateKey = preset.config.customProperties?.anchorType ?? 0
                 states.pipeLastImageFileNamePerAnchor.set(stateKey, imagePath.split('/').pop() ?? '')
-                imageB64arr.push(await ImageLoader.getDataUrl(imagePath))
+                imageB64arr.push(await ImageHelper.getDataUrl(imagePath))
             }
         } else if (preset.imageDataEntries) {
             imageB64arr = Utils.ensureArray(preset.imageDataEntries)

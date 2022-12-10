@@ -1,6 +1,6 @@
 import WebSockets from './WebSockets.js'
 import {IActionUser} from '../Interfaces/iactions.js'
-import Config from '../ClassesStatic/Config.js'
+import Config from './Config.js'
 import {ISSSVRCallback, ISSSVRRequest, ISSSVRResponse} from '../Interfaces/isssvr.js'
 import {IScreenshotConfig, IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import {TKeys} from '../_data/!keys.js'

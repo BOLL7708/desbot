@@ -1,4 +1,4 @@
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from '../Classes/Utils.js'
 
 type TSection =
     'Loading'

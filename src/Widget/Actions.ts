@@ -24,20 +24,20 @@ import {
 import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from '../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSFunction, ETTSType} from './Enums.js'
 import IKeyBoolRecord from '../Interfaces/i.js'
-import Exec from '../ClassesStatic/Exec.js'
+import ExecUtils from '../Classes/ExecUtils.js'
 import Callbacks from './Callbacks.js'
 import {
     ITwitchPubsubCheerMessage,
     ITwitchPubsubRewardMessage,
     ITwitchPubsubSubscriptionMessage
 } from '../Interfaces/itwitch_pubsub.js'
-import Color from '../ClassesStatic/Colors.js'
+import Color from '../Classes/ColorConstants.js'
 import {EBehavior, IEvent} from '../Interfaces/ievents.js'
-import Config from '../ClassesStatic/Config.js'
+import Config from '../Classes/Config.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Discord from '../ClassesStatic/Discord.js'
+import DiscordUtils from '../Classes/DiscordUtils.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from '../Classes/Utils.js'
 import {ITwitchHelixRewardUpdate} from '../Interfaces/itwitch_helix.js'
 import ActionsCallbacks from './ActionsCallbacks.js'
 import {TKeys} from '../_data/!keys.js'
@@ -49,10 +49,10 @@ import {
     SettingUserMute,
     SettingUserName,
     SettingUserVoice
-} from '../Classes/_Settings.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
-import DB from '../ClassesStatic/DB.js'
-import Data from '../ClassesStatic/Data.js'
+} from '../Classes/SettingObjects.js'
+import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import DataUtils from '../Classes/DataUtils.js'
 import {IDictionaryEntry} from '../Classes/Dictionary.js'
 
 export class ActionHandler {
@@ -103,7 +103,7 @@ export class ActionHandler {
                 break
             case EBehavior.Incrementing:
                 // Load incremental counter
-                counter = await DB.loadSetting(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
+                counter = await DataBaseHelper.loadSetting(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
 
                 // Switch to the next incremental reward if it has more configs available
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
@@ -113,8 +113,8 @@ export class ActionHandler {
                         ? { ...rewardConfigs[0], ...rewardConfigs[counter.count] }
                         : rewardConfigs[counter.count]
                     if (newRewardConfig) {
-                        await DB.saveSetting(counter, this.key)
-                        TwitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
+                        await DataBaseHelper.saveSetting(counter, this.key)
+                        TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
                     }
                 }
                 // Register index and build callback for this step of the sequence
@@ -123,7 +123,7 @@ export class ActionHandler {
                 break
             case EBehavior.Accumulating:
                 // Load accumulating counter
-                counter = await DB.loadSetting(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
+                counter = await DataBaseHelper.loadSetting(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
                 counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
                 const goalCount = options.accumulationGoal ?? 0
                 const currentCount = counter.count ?? 0
@@ -144,13 +144,13 @@ export class ActionHandler {
                         ? Utils.clone({ ...rewardConfigs[0], ...rewardConfigs[rewardIndex] })
                         : Utils.clone(rewardConfigs[rewardIndex])
                     if (newRewardConfigClone) {
-                        await DB.saveSetting(counter, this.key)
+                        await DataBaseHelper.saveSetting(counter, this.key)
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
                         const cost = newRewardConfigClone.cost ?? 0
                         // Make sure the last reward doesn't cost more points than the total left.
                         if(rewardIndex < 2 && (currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount
-                        TwitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                        TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 }
                 // Register index and build callback for this step of the sequence
@@ -189,9 +189,9 @@ export class ActionHandler {
                         const newRewardConfigClone = Utils.clone(rewardConfigs[0])
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        if (newRewardConfigClone) TwitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                        if (newRewardConfigClone) TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
-                    TwitchHelix.toggleRewards({[this.key]: true}).then()
+                    TwitchHelixHelper.toggleRewards({[this.key]: true}).then()
                 }, (options.multiTierTimeout ?? 30)*1000)
 
                 // Store new counter value
@@ -210,10 +210,10 @@ export class ActionHandler {
                     if (newRewardConfigClone) {
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        TwitchHelix.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                        TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 } else if(options.multiTierDisableWhenMaxed) {
-                    TwitchHelix.toggleRewards({[this.key]: false}).then()
+                    TwitchHelixHelper.toggleRewards({[this.key]: false}).then()
                 }
 
                 // Register index and build callback for this step of the sequence
@@ -241,7 +241,7 @@ export class Actions {
         }
     }
 
-    // region User Data Builders
+    // region User DataUtils Builders
     public static async buildUserDataFromRedemptionMessage(key: TKeys, message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
         const id = message?.data?.redemption?.user?.id ?? ''
@@ -255,7 +255,7 @@ export class Actions {
             input: input,
             inputWords: input.split(' '),
             message: await Utils.cleanText(message?.data?.redemption?.user_input),
-            color: await TwitchHelix.getUserColor(id) ?? '',
+            color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
@@ -268,7 +268,7 @@ export class Actions {
     }
     public static async buildUserDataFromCheerMessage(key: TKeys, message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
-        const user = await TwitchHelix.getUserByLogin(message?.data?.user_name ?? '')
+        const user = await TwitchHelixHelper.getUserByLogin(message?.data?.user_name ?? '')
         const id = user?.id ?? ''
         const input = message?.data?.chat_message ?? ''
         return {
@@ -280,7 +280,7 @@ export class Actions {
             input: input,
             inputWords: input.split(' '),
             message: await Utils.cleanText(message?.data?.chat_message),
-            color: await TwitchHelix.getUserColor(id) ?? '',
+            color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
@@ -292,7 +292,7 @@ export class Actions {
     }
     public static async buildUserDataFromSubscriptionMessage(key: TKeys, message?: ITwitchPubsubSubscriptionMessage): Promise<IActionUser> {
         const modules = ModulesSingleton.getInstance()
-        const user = await TwitchHelix.getUserByLogin(message?.user_name ?? '')
+        const user = await TwitchHelixHelper.getUserByLogin(message?.user_name ?? '')
         const id = user?.id ?? ''
         const input = message?.sub_message.message ?? ''
         return {
@@ -304,7 +304,7 @@ export class Actions {
             input: input,
             inputWords: input.split(' '),
             message: await Utils.cleanText(message?.sub_message.message),
-            color: await TwitchHelix.getUserColor(id) ?? '',
+            color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
@@ -320,8 +320,8 @@ export class Actions {
      */
     public static async buildEmptyUserData(source: EEventSource, key: TKeys, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         // TODO: Make this use the user ID instead of username?
-        const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
-        const user = await TwitchHelix.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
+        const channelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const user = await TwitchHelixHelper.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
         const input = userInput ?? ''
         return {
             source: source,
@@ -332,7 +332,7 @@ export class Actions {
             input: input,
             inputWords: input.split(' '),
             message: await Utils.cleanText(userMessage ?? userInput),
-            color: await TwitchHelix.getUserColor(user?.id ?? '') ?? '',
+            color: await TwitchHelixHelper.getUserColor(user?.id ?? '') ?? '',
             isBroadcaster: true,
             isModerator: false,
             isVIP: false,
@@ -613,9 +613,9 @@ export class Actions {
                 }
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {
-                        const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+                        const chatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot')
                         const voiceOfUserTagged = await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? '', user)
-                        const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelix.getUserByLogin(voiceOfUserTagged) : undefined
+                        const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelixHelper.getUserByLogin(voiceOfUserTagged) : undefined
                         const voiceUserId = parseInt(voiceUser?.id ?? '')
                         await modules.tts.enqueueSpeakSentence(
                             ttsStr,
@@ -688,7 +688,7 @@ export class Actions {
             description: 'Callback that triggers a Sign action',
             call: (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
-                TwitchHelix.getUserById(user.id).then(async userData => {
+                TwitchHelixHelper.getUserById(user.id).then(async userData => {
                     const modules = ModulesSingleton.getInstance()
                     const clonedConfig = Utils.clone(config)
                     clonedConfig.title = await Utils.replaceTagsInText(clonedConfig.title ?? '', user)
@@ -704,9 +704,9 @@ export class Actions {
     private static buildKeysCallback(config: IInputAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎓',
-            description: 'Callback that triggers an Exec action',
+            description: 'Callback that triggers an ExecUtils action',
             call: async () => {
-                Exec.runKeyPressesFromPreset(config)
+                ExecUtils.runKeyPressesFromPreset(config)
             }
         } 
     }
@@ -718,7 +718,7 @@ export class Actions {
             call: async (user: IActionUser, index?: number) => {
                 const entries = Utils.ensureArray(config.entries).getAsType(index)
                 for(const entry of entries) {
-                    Exec.loadCustomURI(await Utils.replaceTagsInText(entry, user))
+                    ExecUtils.loadCustomURI(await Utils.replaceTagsInText(entry, user))
                 }
             }
         }
@@ -777,13 +777,13 @@ export class Actions {
     private static buildDiscordMessageCallback(config: IEntriesAction|undefined, key: TKeys): IActionCallback|undefined {
         if(config) return {
             tag: '💬',
-            description: 'Callback that triggers a Discord message action',
+            description: 'Callback that triggers a DiscordUtils message action',
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
-                const userData = await TwitchHelix.getUserById(user.id)
+                const userData = await TwitchHelixHelper.getUserById(user.id)
                 const entries = Utils.ensureArray(config.entries).getAsType(index)
                 for(const entry of entries ) {
-                    Discord.enqueueMessage(
+                    DiscordUtils.enqueueMessage(
                         Config.credentials.DiscordWebhooks[key] ?? '',
                         user.name,
                         userData?.profile_image_url,
@@ -832,9 +832,9 @@ export class Actions {
             description: 'Callback that triggers a Label action',
             call: async (user: IActionUser) => {
                 if(config.append) {
-                    await Data.appendText(config.fileName, await Utils.replaceTagsInText(config.text, user))
+                    await DataUtils.appendText(config.fileName, await Utils.replaceTagsInText(config.text, user))
                 } else {
-                    await Data.writeText(config.fileName, await Utils.replaceTagsInText(config.text, user))
+                    await DataUtils.writeText(config.fileName, await Utils.replaceTagsInText(config.text, user))
                 }
             }
         }
@@ -896,8 +896,8 @@ export class Actions {
                     }
                 }
                 // Toggle the rewards on Twitch
-                await TwitchHelix.toggleRewards(rewardStates)
-                await TwitchHelix.toggleRewards(rewardToggles)
+                await TwitchHelixHelper.toggleRewards(rewardStates)
+                await TwitchHelixHelper.toggleRewards(rewardToggles)
             }
         }
     }
@@ -952,7 +952,7 @@ export class Actions {
                         const setting = new SettingUserMute()
                         setting.active = false
                         setting.reason = userInputRest
-                        await DB.saveSetting(setting, targetId.toString())
+                        await DataBaseHelper.saveSetting(setting, targetId.toString())
                         break
                     }
                     case ETTSFunction.SetUserDisabled: {
@@ -960,7 +960,7 @@ export class Actions {
                         const setting = new SettingUserMute()
                         setting.active = true
                         setting.reason = userInputRest
-                        await DB.saveSetting(setting, targetId.toString())
+                        await DataBaseHelper.saveSetting(setting, targetId.toString())
                         break
                     }
                     case ETTSFunction.SetUserNick: {
@@ -972,7 +972,7 @@ export class Actions {
                         const newNick = userInputNoTags
 
                         // Cancel if the user does not actually exist on Twitch
-                        const userData = await TwitchHelix.getUserById(id)
+                        const userData = await TwitchHelixHelper.getUserById(id)
                         if(!userData) return Utils.log(`TTS Nick: User with ID:${id} does not exist.`, Color.Red)
 
                         if(
@@ -989,7 +989,7 @@ export class Actions {
                             setting.shortName = newNick
                             setting.editorUserId = id
                             setting.datetime = Utils.getISOTimestamp()
-                            await DB.saveSetting(setting, id.toString())
+                            await DataBaseHelper.saveSetting(setting, id.toString())
                         } else {
                             // We do nothing
                             states.textTagCache.lastTTSSetNickLogin = ''
@@ -998,9 +998,9 @@ export class Actions {
                         break
                     }
                     case ETTSFunction.GetUserNick: {
-                        const userData = await TwitchHelix.getUserById(targetOrUserId)
+                        const userData = await TwitchHelixHelper.getUserById(targetOrUserId)
                         if(userData && userData.login.length) {
-                            const currentName = await DB.loadSetting(new SettingUserName(), userData.id)
+                            const currentName = await DataBaseHelper.loadSetting(new SettingUserName(), userData.id)
                             if(currentName) {
                                 states.textTagCache.lastTTSSetNickLogin = userData.display_name
                                 states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
@@ -1017,7 +1017,7 @@ export class Actions {
                             id = user.id
                         }
                         const isClearingNickOfOther = user.id !== id
-                        const userData = await TwitchHelix.getUserById(id)
+                        const userData = await TwitchHelixHelper.getUserById(id)
                         if (
                             userData && (canSetThingsForOthers || (isClearingNickOfOther == canSetThingsForOthers))
                         ) {
@@ -1029,7 +1029,7 @@ export class Actions {
                             setting.shortName = cleanName
                             setting.editorUserId = user.id
                             setting.datetime = Utils.getISOTimestamp()
-                            await DB.saveSetting(setting, id.toString())
+                            await DataBaseHelper.saveSetting(setting, id.toString())
                         }
                         break
                     }
@@ -1053,7 +1053,7 @@ export class Actions {
                         word = ['+', '-'].includes(firstChar) ? word.substring(1) : word
                         const substitute = Utils.cleanSetting(userInputRest).toLowerCase()
 
-                        let entry = await DB.loadSetting(new SettingDictionaryEntry(), word)
+                        let entry = await DataBaseHelper.loadSetting(new SettingDictionaryEntry(), word)
                         if(!entry) {
                             entry = new SettingDictionaryEntry()
                             entry.substitute = ''
@@ -1080,15 +1080,15 @@ export class Actions {
                         if(word.length && substitute.length) {
                             const setting = new SettingDictionaryEntry()
                             setting.substitute = entry.substitute
-                            await DB.saveSetting(setting, word)
+                            await DataBaseHelper.saveSetting(setting, word)
                         }
                         // Clearing a word by setting it to itself
                         else if(word.length) {
                             entry.substitute = word
                             states.textTagCache.lastDictionarySubstitute = word
-                            await DB.saveSetting(entry, word)
+                            await DataBaseHelper.saveSetting(entry, word)
                         }
-                        const fullDictionary = await DB.loadSettingsDictionary(new SettingDictionaryEntry())
+                        const fullDictionary = await DataBaseHelper.loadSettingsDictionary(new SettingDictionaryEntry())
                         if(fullDictionary) {
                             const dictionaryEntries = Object.entries(fullDictionary).map((pair)=>{
                                 return { original: pair[0], substitute: pair[1].substitute } as IDictionaryEntry
@@ -1101,7 +1101,7 @@ export class Actions {
                     }
                     case ETTSFunction.GetDictionaryEntry: {
                         const word = userInputHead.trim().toLowerCase()
-                        const entry = await DB.loadSetting(new SettingDictionaryEntry(), word)
+                        const entry = await DataBaseHelper.loadSetting(new SettingDictionaryEntry(), word)
                         if (entry) {
                             states.textTagCache.lastDictionaryWord = word
                             states.textTagCache.lastDictionarySubstitute = entry.substitute
@@ -1116,7 +1116,7 @@ export class Actions {
                         if (!id || user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
                             id = user.id
                         }
-                        const setting = await DB.loadSetting(new SettingUserVoice(), id.toString())
+                        const setting = await DataBaseHelper.loadSetting(new SettingUserVoice(), id.toString())
                         let gender = ''
                         // Use input for a specific gender
                         if (inputLowerCase.includes('f')) gender = 'female'

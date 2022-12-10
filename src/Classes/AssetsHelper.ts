@@ -3,7 +3,7 @@ import Utils from './Utils.js'
 /**
  * Gets filled with all the filepaths from the `_assets` folder, to be referenced in configs.
  */
-export default class AssetFiles {
+export default class AssetsHelper {
     /**
      * Filled by PHP in widget.php
      */

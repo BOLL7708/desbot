@@ -443,7 +443,7 @@ export interface IPipeAction {
      */
     durationMs: number
     /**
-     * Config for the custom notification, which can be generated with the Editor that comes with OpenVRNotificationPipe. 
+     * Config for the custom notification, which can be generated with the Editor that comes with OpenVRNotificationPipe.
      * You can copy the config as JS and paste it in a preset for easy referencing in the config.
      */
     config: IPipeCustomMessage

@@ -1,21 +1,21 @@
 import {IEvent} from '../Interfaces/ievents.js'
 import {ActionHandler, Actions} from './Actions.js'
-import Config from '../ClassesStatic/Config.js'
+import Config from '../Classes/Config.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
-import Color from '../ClassesStatic/Colors.js'
+import Color from '../Classes/ColorConstants.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import {TKeys} from '../_data/!keys.js'
 import {ITwitchHelixChannelRequest} from '../Interfaces/itwitch_helix.js'
-import SteamWebApi from '../ClassesStatic/SteamWebApi.js'
+import SteamWebHelper from '../Classes/SteamWebHelper.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import {ISteamWebApiSettingAchievement} from '../Interfaces/isteam_webapi.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from '../Classes/Utils.js'
 import {EEventSource} from './Enums.js'
-import Discord from '../ClassesStatic/Discord.js'
-import SteamStore from '../ClassesStatic/SteamStore.js'
-import DB from '../ClassesStatic/DB.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
-import {SettingSteamAchievements} from '../Classes/_Settings.js'
+import DiscordUtils from '../Classes/DiscordUtils.js'
+import SteamStoreHelper from '../Classes/SteamStoreHelper.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
+import {SettingSteamAchievements} from '../Classes/SettingObjects.js'
 
 export default class Functions {
     /*
@@ -52,9 +52,9 @@ export default class Functions {
             states.lastSteamAppId = appId
             
 			// Load achievements before we update the ID for everything else, so we don't overwrite them by accident. (2022-10-01: Not sure if this is still needed)
-            await DB.loadSetting(new SettingSteamAchievements(), appId)
-            await SteamWebApi.getGameSchema(appId)
-            await SteamWebApi.getGlobalAchievementStats(appId)
+            await DataBaseHelper.loadSetting(new SettingSteamAchievements(), appId)
+            await SteamWebHelper.getGameSchema(appId)
+            await SteamWebHelper.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
 
 			/**
@@ -110,7 +110,7 @@ export default class Functions {
                         Utils.log(`Updating reward for event "${key}" to be in line with options.`, Color.DarkOliveGreen)
                         rewardConfigClone.title = await Utils.replaceTagsInText(rewardConfigClone.title, await Actions.buildEmptyUserData(EEventSource.Updated, key))
                         rewardConfigClone.prompt = await Utils.replaceTagsInText(rewardConfigClone.prompt, await Actions.buildEmptyUserData(EEventSource.Updated, key))
-                        TwitchHelix.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
+                        TwitchHelixHelper.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
                     }
                 }
             }
@@ -191,7 +191,7 @@ export default class Functions {
                 Utils.logWithBold(`Updating Game Reward: <${key}:${rewardId}>`, Color.Purple)
 
                 // Update game rewards on Twitch
-                TwitchHelix.updateReward(rewardId, {
+                TwitchHelixHelper.updateReward(rewardId, {
                     ...defaultRewardConfig,
                     ...rewardConfig,
                     ...{is_enabled: true}
@@ -211,7 +211,7 @@ export default class Functions {
 
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
-        TwitchHelix.toggleRewards(profileToUse).then()
+        TwitchHelixHelper.toggleRewards(profileToUse).then()
 
         // endregion
 
@@ -227,8 +227,8 @@ export default class Functions {
 
         // Show game in sign
         if(appId.length > 0) {
-            const gameData = await SteamStore.getGameMeta(appId)
-            const price = SteamStore.getPrice(gameData)
+            const gameData = await SteamStoreHelper.getGameMeta(appId)
+            const price = SteamStoreHelper.getPrice(gameData)
             const name = gameData?.name ?? 'N/A'
             modules.sign.enqueueSign({
                 title: 'Current Game',
@@ -240,30 +240,30 @@ export default class Functions {
 
         // Update category on Twitch
         if(appId.length > 0 && states.updateTwitchGameCategory) {
-            const gameData = await SteamStore.getGameMeta(appId)
+            const gameData = await SteamStoreHelper.getGameMeta(appId)
             let gameName = gameData?.name ?? ''
             if(Config.twitch.gameTitleToCategoryOverride[gameName]) {
                 gameName = Config.twitch.gameTitleToCategoryOverride[gameName]
             }
-            let twitchGameData = await TwitchHelix.searchForGame(gameName)
+            let twitchGameData = await TwitchHelixHelper.searchForGame(gameName)
             if(twitchGameData == null && typeof gameData?.name == 'string') {
                 let nameParts = gameData.name.split(' ')
                 if(nameParts.length >= 2) {
                     // This is to also match games that are "name VR" on Steam but "name" on Twitch
                     // so we effectively trim off VR and see if we get a match.
                     nameParts.pop()
-                    twitchGameData = await TwitchHelix.searchForGame(nameParts.join(' '))
+                    twitchGameData = await TwitchHelixHelper.searchForGame(nameParts.join(' '))
                 }
             }
             if(twitchGameData == null) {
                 // If still no Twitch match, we load a possible default category.
-                twitchGameData = await TwitchHelix.searchForGame(Config.twitch.defaultGameCategory)
+                twitchGameData = await TwitchHelixHelper.searchForGame(Config.twitch.defaultGameCategory)
             }
             if(twitchGameData != undefined) {
                 const request: ITwitchHelixChannelRequest = {
                     game_id: twitchGameData.id
                 }
-                const response = await TwitchHelix.updateChannelInformation(request)
+                const response = await TwitchHelixHelper.updateChannelInformation(request)
                 const speech = Config.controller.speechReferences['CallbackAppID'] ?? []
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
@@ -280,7 +280,7 @@ export default class Functions {
 
     // region Steam Web API
     public static async loadPlayerSummary() {
-        const summary = await SteamWebApi.getPlayerSummary()
+        const summary = await SteamWebHelper.getPlayerSummary()
         const id = Utils.toInt(summary?.gameid)
         Utils.log(`Steam player summary loaded, game ID: ${id}`, Color.Gray)
         if(!isNaN(id) && id > 0) await Functions.appIdCallback(`steam.app.${id}`, false)
@@ -294,11 +294,11 @@ export default class Functions {
         const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
         if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
-            const steamAchievements = await DB.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
+            const steamAchievements = await DataBaseHelper.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
             const doneAchievements = steamAchievements.achieved.length
 
             // Remote
-            const achievements = await SteamWebApi.getAchievements(lastSteamAppId) ?? []
+            const achievements = await SteamWebHelper.getAchievements(lastSteamAppId) ?? []
             let countNew = 0
             for(const achievement of achievements) {
                 // Check if the state has changed since last stored
@@ -314,31 +314,31 @@ export default class Functions {
                     if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
                         Utils.log(`New achievement unlocked! ${achievement.apiname}`, Color.Green, true, true)
                         const key = achievement.apiname
-                        const profileTag = await SteamWebApi.getProfileTag()
-                        const gameMeta = await SteamStore.getGameMeta(lastSteamAppId)
-                        const gameSchema = await SteamWebApi.getGameSchema(lastSteamAppId)
-                        const globalAchievementStat = (await SteamWebApi.getGlobalAchievementStats(lastSteamAppId))?.find(s => s.name == key)
+                        const profileTag = await SteamWebHelper.getProfileTag()
+                        const gameMeta = await SteamStoreHelper.getGameMeta(lastSteamAppId)
+                        const gameSchema = await SteamWebHelper.getGameSchema(lastSteamAppId)
+                        const globalAchievementStat = (await SteamWebHelper.getGlobalAchievementStats(lastSteamAppId))?.find(s => s.name == key)
                         const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
                         const totalAchievements = achievements.length
                         const progressStr = `${doneAchievements+countNew}/${totalAchievements}`
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
-                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks['CallbackAchievement'] ?? '', {
+                        DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['CallbackAchievement'] ?? '', {
                             username: gameMeta?.name ?? 'N/A',
                             avatar_url: gameMeta?.header_image ?? '',
                             embeds: [
                                 {
                                     title: achievementDetails?.displayName ?? key,
                                     description: achievementDetails?.description ?? '',
-                                    url: SteamStore.getAchievementsURL(lastSteamAppId, profileTag),
+                                    url: SteamStoreHelper.getAchievementsURL(lastSteamAppId, profileTag),
                                     thumbnail: {
                                         url: achievementDetails?.icon ?? ''
                                     },
                                     timestamp: new Date(achievement.unlocktime*1000).toISOString(),
                                     footer: {
                                         text: Utils.replaceTags(
-                                            Config.steam.achievementSettings.discordFooter, 
+                                            Config.steam.achievementSettings.discordFooter,
                                             {
                                                 progress: progressStr, 
                                                 rate: globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
@@ -352,7 +352,7 @@ export default class Functions {
                         // Twitch chat
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             Utils.replaceTags(
-                                Config.steam.achievementSettings.twitchChatMessage, 
+                                Config.steam.achievementSettings.twitchChatMessage,
                                 {
                                     progress: progressStr, 
                                     name: achievementDetails?.displayName ?? key, 
@@ -366,7 +366,7 @@ export default class Functions {
             }
             if(steamAchievements.achieved.length > doneAchievements) {
                 console.log("Save Achievements", steamAchievements, lastSteamAppId)
-                await DB.saveSetting(steamAchievements, lastSteamAppId) // Update states in DB
+                await DataBaseHelper.saveSetting(steamAchievements, lastSteamAppId) // Update states in DataBaseHelper
             }
             this._isLoadingAchievements = false
         } else {

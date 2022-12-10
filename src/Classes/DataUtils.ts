@@ -1,6 +1,6 @@
 import Utils from './Utils.js'
 
-export default class Data {
+export default class DataUtils {
     static async writeData(path: string, data: any): Promise<boolean> {
         const response = await fetch(`data.php?path=${path}`,
             {

@@ -14,13 +14,13 @@ import {
     ITwitchHelixUsersResponse,
     ITwitchHelixUsersResponseData
 } from '../Interfaces/itwitch_helix.js'
-import Color from './Colors.js'
+import Color from './ColorConstants.js'
 import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
-import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Classes/_Settings.js'
-import DB from './DB.js'
+import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from './SettingObjects.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
-export default class TwitchHelix {
+export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
     static _userCache: Map<number, ITwitchHelixUsersResponseData> = new Map()
     static _userNameToId: Map<string, number> = new Map()
@@ -31,15 +31,15 @@ export default class TwitchHelix {
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
     private static async getAuthHeaders(): Promise<Headers> {
-        const tokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
-        const client = await DB.loadSetting(new SettingTwitchClient(), 'Main')
+        const tokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const client = await DataBaseHelper.loadSetting(new SettingTwitchClient(), 'Main')
         const headers = new Headers()
         headers.append('Authorization', `Bearer ${tokens?.accessToken}`)
         headers.append('Client-Id', client?.clientId ?? '')
         return headers
     }
     private static async getBroadcasterUserId(): Promise<number> {
-        const tokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const tokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
         return tokens?.userId ?? 0
     }
 

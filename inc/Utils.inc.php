@@ -67,7 +67,7 @@ class Utils {
     }
 
     static function printJSAssetFiles() {
-        echo 'AssetFiles._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES);
+        echo 'AssetsHelper._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES);
     }
     
     static function decode(string $b64url) {

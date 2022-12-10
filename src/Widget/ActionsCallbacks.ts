@@ -1,30 +1,30 @@
 import {IActionsCallbackStack, IActionUser} from '../Interfaces/iactions.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Config from '../ClassesStatic/Config.js'
+import Config from '../Classes/Config.js'
 import Functions from './Functions.js'
-import Utils from '../ClassesStatic/Utils.js'
-import SteamStore from '../ClassesStatic/SteamStore.js'
-import Color from '../ClassesStatic/Colors.js'
+import Utils from '../Classes/Utils.js'
+import SteamStoreHelper from '../Classes/SteamStoreHelper.js'
+import Color from '../Classes/ColorConstants.js'
 import {ETTSType} from './Enums.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
 import {EBehavior, IEvent} from '../Interfaces/ievents.js'
-import ChannelTrophy from '../ClassesStatic/ChannelTrophy.js'
-import Discord from '../ClassesStatic/Discord.js'
+import ChannelTrophyUtils from '../Classes/ChannelTrophyUtils.js'
+import DiscordUtils from '../Classes/DiscordUtils.js'
 import {ITwitchHelixClipResponseData} from '../Interfaces/itwitch_helix.js'
 import {TKeys} from '../_data/!keys.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
+import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
 import {
     SettingAccumulatingCounter,
     SettingChannelTrophyStat,
     SettingIncrementingCounter,
-    SettingStreamQuote, SettingTwitchClip,
+    SettingStreamQuote,
+    SettingTwitchClip,
     SettingTwitchRedemption,
-    SettingTwitchReward, SettingTwitchTokens
-} from '../Classes/_Settings.js'
-import DB from '../ClassesStatic/DB.js'
-import Data from '../ClassesStatic/Data.js'
-import TwitchTokens from '../Classes/TwitchTokens.js'
+    SettingTwitchTokens
+} from '../Classes/SettingObjects.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import DataUtils from '../Classes/DataUtils.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -91,7 +91,7 @@ export default class ActionsCallbacks {
             description: 'Make a user channel moderator',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelix.makeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.makeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['Mod'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -104,7 +104,7 @@ export default class ActionsCallbacks {
             description: 'Remove user from channel moderators',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelix.removeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.removeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['UnMod'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -117,7 +117,7 @@ export default class ActionsCallbacks {
             description: 'Make a user channel VIP',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelix.makeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.makeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['Vip'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -130,7 +130,7 @@ export default class ActionsCallbacks {
             description: 'Remove user from channel VIPs',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelix.removeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.removeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['UnVip'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
@@ -150,16 +150,16 @@ export default class ActionsCallbacks {
                 if(user.input.length > 0 && (possibleUserTag.length > 0 || quote.length > 0)) {
                     // Get login or use channel name
                     const isTag = possibleUserTag.includes('@')
-                    const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
+                    const channelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
                     const userLogin = isTag
                         ? Utils.cleanUserName(possibleUserTag)
                         : channelTokens?.userLogin ?? ''
-                    const userData = await TwitchHelix.getUserByLogin(userLogin)
+                    const userData = await TwitchHelixHelper.getUserByLogin(userLogin)
                     if(!isTag) {
                         quote = user.input // Use the full input
                         user.input = `@${userLogin} ${user.input}` // To make text tags work.
                     }
-                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId?.toString() ?? '')
+                    const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId?.toString() ?? '')
 
                     // Save quote to settings
                     if(userData) {
@@ -169,7 +169,7 @@ export default class ActionsCallbacks {
                         quoteSetting.quoteeUserId = parseInt(userData?.id ?? '')
                         quoteSetting.datetime = Utils.getISOTimestamp()
                         quoteSetting.game = gameData?.name ?? ''
-                        await DB.saveSetting(quoteSetting)
+                        await DataBaseHelper.saveSetting(quoteSetting)
                         const speech = Config.controller.speechReferences['Quote'] ?? ''
                         modules.tts.enqueueSpeakSentence(
                             await Utils.replaceTagsInText(
@@ -181,11 +181,11 @@ export default class ActionsCallbacks {
                     } else Utils.log(`Could not find user: ${possibleUserTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
-                    const quotes = await DB.loadSettingsArray(new SettingStreamQuote())
+                    const quotes = await DataBaseHelper.loadSettingsArray(new SettingStreamQuote())
                     const quote = Utils.randomFromArray(quotes)
                     if(quote) {
                         const date = new Date(quote.datetime)
-                        const userData = await TwitchHelix.getUserById(quote.quoteeUserId)
+                        const userData = await TwitchHelixHelper.getUserById(quote.quoteeUserId)
                         const speech = Config.controller.chatReferences['Quote'] ?? ''
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             await Utils.replaceTagsInText(
@@ -245,7 +245,7 @@ export default class ActionsCallbacks {
                     const forMinutes = parseInt(parts[2])
                     const intervalMs = 10000 // 10s
                     const steps = forMinutes*60*1000/intervalMs
-                    const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+                    const chatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot')
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) {
                         // Fail to start interval
                         modules.tts.enqueueSpeakSentence(
@@ -279,13 +279,13 @@ export default class ActionsCallbacks {
                                     setting: OpenVR2WS.SETTING_WORLD_SCALE,
                                     value: currentScale/100.0
                                 })
-                                Data.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
+                                DataUtils.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
                                     modules.tts.enqueueSpeakSentence(speech[2])
                                     clearInterval(states.scaleIntervalHandle)
                                     setTimeout(async ()=>{
-                                        await Data.writeText(fileName, '')
+                                        await DataUtils.writeText(fileName, '')
                                         // TODO: Enable the right scale rewards again? Maybe
                                     }, intervalMs)
                                 }
@@ -301,7 +301,7 @@ export default class ActionsCallbacks {
                         const speech = Config.controller.speechReferences['Scale'] ?? ''
                         clearInterval(states.scaleIntervalHandle)
                         states.scaleIntervalHandle = -1
-                        await Data.writeText(fileName, '')
+                        await DataUtils.writeText(fileName, '')
                         modules.tts.enqueueSpeakSentence(speech[4]).then()
                     }
                     const value = Math.max(10, Math.min(1000, scale || 100))
@@ -393,7 +393,7 @@ export default class ActionsCallbacks {
                         const configClone = Utils.clone(config)
                         configClone.title = await Utils.replaceTagsInText(configClone.title, user)
                         configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, user)
-                        const response = await TwitchHelix.updateReward(pair.id, configClone)
+                        const response = await TwitchHelixHelper.updateReward(pair.id, configClone)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id
                             Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
@@ -401,7 +401,7 @@ export default class ActionsCallbacks {
                             // If update was successful, also reset incremental setting as the reward should have been reset.
                             if(Array.isArray(rewardSetup)) {
                                 const reset = new SettingIncrementingCounter()
-                                await DB.saveSetting(reset, pair.key)
+                                await DataBaseHelper.saveSetting(reset, pair.key)
                             }
                             // TODO: Also reset accumulating counters here?!
                         } else {
@@ -443,11 +443,11 @@ export default class ActionsCallbacks {
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DB.loadSettingsDictionary(new SettingTwitchRedemption())
+                const redemptions = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchRedemption())
                 const userName = Utils.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
-                const userData = await TwitchHelix.getUserByLogin(userName)
+                const userData = await TwitchHelixHelper.getUserByLogin(userName)
                 const userRedemptions = Object.entries(redemptions ?? {}).filter(
                     redemption => (redemption[0] == userData?.id ?? '') && (redemption[1].status == 'UNFULFILLED')
                 )
@@ -460,9 +460,9 @@ export default class ActionsCallbacks {
                     const lastRedemption = lastRedemptionPair[1]
                     if(lastRedemption) {
                         lastRedemption.status = 'CANCELED'
-                        const result = await TwitchHelix.updateRedemption(key, lastRedemption)
+                        const result = await TwitchHelixHelper.updateRedemption(key, lastRedemption)
                         if(result) {
-                            await DB.saveSetting(lastRedemption, key)
+                            await DataBaseHelper.saveSetting(lastRedemption, key)
                             modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
                             modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[1], {targetTag: userTag}))
@@ -476,7 +476,7 @@ export default class ActionsCallbacks {
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DB.loadSettingsDictionary(new SettingTwitchRedemption()) ?? {}
+                const redemptions = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchRedemption()) ?? {}
                 const speech = Config.controller.speechReferences['ClearRedemptions'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
                 let totalClearable = 0
@@ -486,16 +486,16 @@ export default class ActionsCallbacks {
                         totalClearable++
                         const redemptionClone = Utils.clone(redemption)
                         redemptionClone.status = 'FULFILLED'
-                        const result = await TwitchHelix.updateRedemption(key, redemptionClone)
+                        const result = await TwitchHelixHelper.updateRedemption(key, redemptionClone)
                         if(result) {
-                            await DB.deleteSetting(new SettingTwitchRedemption(), key)
+                            await DataBaseHelper.deleteSetting(new SettingTwitchRedemption(), key)
                             totalCleared++
                         } else if (result === null) { // Not found, so should be deleted.
-                            await DB.deleteSetting(new SettingTwitchRedemption(), key)
+                            await DataBaseHelper.deleteSetting(new SettingTwitchRedemption(), key)
                         }
                     } else {
                         // It has a good state already, clear from list.
-                        await DB.deleteSetting(new SettingTwitchRedemption(), key)
+                        await DataBaseHelper.deleteSetting(new SettingTwitchRedemption(), key)
                     }
                 }
 
@@ -522,20 +522,20 @@ export default class ActionsCallbacks {
                 const setting = new SettingChannelTrophyStat()
                 setting.userId = user.id
                 setting.index = user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream
-                const settingsUpdated = await DB.saveSetting(setting, cost.toString())
-                if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward: ChannelTrophy', Color.Red)
+                const settingsUpdated = await DataBaseHelper.saveSetting(setting, cost.toString())
+                if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward', Color.Red)
 
-                const userData = await TwitchHelix.getUserById(user.id)
-                if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward: ChannelTrophy', Color.Red)
+                const userData = await TwitchHelixHelper.getUserById(user.id)
+                if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward', Color.Red)
 
                 // Update reward
                 const rewardId = await Utils.getRewardId('ChannelTrophy')
-                const rewardData = await TwitchHelix.getReward(rewardId ?? '')
+                const rewardData = await TwitchHelixHelper.getReward(rewardId ?? '')
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
 
                     // Do TTS
-                    const funnyNumberConfig = ChannelTrophy.detectFunnyNumber(cost)
+                    const funnyNumberConfig = ChannelTrophyUtils.detectFunnyNumber(cost)
                     if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
                         modules.tts.enqueueSpeakSentence(
                             await Utils.replaceTagsInText(
@@ -545,7 +545,7 @@ export default class ActionsCallbacks {
                         ).then()
                     }
                     // Update label in overlay
-                    const labelUpdated = await Data.writeText(
+                    const labelUpdated = await DataUtils.writeText(
                         'trophy_label.txt', // TODO: Save as a constant or something?
                         await Utils.replaceTagsInText(
                             Config.controller.channelTrophySettings.label,
@@ -560,7 +560,7 @@ export default class ActionsCallbacks {
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
                     if(config != undefined) {
                         const newCost = cost+1;
-                        const updatedReward = await TwitchHelix.updateReward(rewardId, {
+                        const updatedReward = await TwitchHelixHelper.updateReward(rewardId, {
                             title: await Utils.replaceTagsInText(
                                 Config.controller.channelTrophySettings.rewardTitle,
                                 user
@@ -609,12 +609,12 @@ export default class ActionsCallbacks {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the widget reward, we update it as any normal reward, using !update.
-                            const current = await DB.loadSetting(new SettingIncrementingCounter(), key)
+                            const current = await DataBaseHelper.loadSetting(new SettingIncrementingCounter(), key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                                 const reset = new SettingIncrementingCounter()
-                                await DB.saveSetting(reset, key)
-                                await TwitchHelix.updateReward(await Utils.getRewardId(key), rewardSetup[0])
+                                await DataBaseHelper.saveSetting(reset, key)
+                                await TwitchHelixHelper.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
                             } else {
                                 totalSkippedCount++
@@ -653,17 +653,17 @@ export default class ActionsCallbacks {
                                 // We check if the reward counter is at zero because then we should not update as it enables
                                 // the reward while it could have been disabled by profiles.
                                 // To update settings for the widget reward, we update it as any normal reward, using !update.
-                                const current = await DB.loadSetting(new SettingAccumulatingCounter(), key)
+                                const current = await DataBaseHelper.loadSetting(new SettingAccumulatingCounter(), key)
                                 if((current?.count ?? 0) > 0) {
                                     Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
                                     const reset = new SettingAccumulatingCounter()
-                                    await DB.saveSetting(reset, key)
+                                    await DataBaseHelper.saveSetting(reset, key)
                                     const setup = Utils.clone(rewardSetup[0])
                                     user.rewardCost = setup.cost ?? 0
                                     user.eventKey = key
                                     setup.title = await Utils.replaceTagsInText(setup.title, user)
                                     setup.prompt = await Utils.replaceTagsInText(setup.prompt, user)
-                                    await TwitchHelix.updateReward(await Utils.getRewardId(key), setup)
+                                    await TwitchHelixHelper.updateReward(await Utils.getRewardId(key), setup)
                                     totalResetCount++
                                 } else {
                                     totalSkippedCount++
@@ -693,17 +693,17 @@ export default class ActionsCallbacks {
 
         'ChannelTrophyStats': {
             tag: 'ChannelTrophyStats',
-            description: 'Posts the last Channel Trophy stats to Discord.',
+            description: 'Posts the last Channel Trophy stats to DiscordUtils.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const speech = Config.controller.speechReferences['ChannelTrophyStats'] ?? []
-                const numberOfStreams = await ChannelTrophy.getNumberOfStreams()
+                const numberOfStreams = await ChannelTrophyUtils.getNumberOfStreams()
                 const streamNumber = Utils.toInt(user.input)
                 if(user.input == "all") {
                     modules.tts.enqueueSpeakSentence(speech[0]).then()
                     for(let i=0; i<numberOfStreams; i++) {
-                        const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(TwitchHelix, i)
-                        Discord.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
+                        const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper, i)
+                        DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
                             content: Utils.numberToDiscordEmote(i+1, true),
                             embeds: embeds
                         })
@@ -711,8 +711,8 @@ export default class ActionsCallbacks {
                     modules.tts.enqueueSpeakSentence(speech[1]).then()
                 } else if (!isNaN(streamNumber)) {
                     modules.tts.enqueueSpeakSentence(speech[2]).then()
-                    const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(TwitchHelix, streamNumber-1)
-                    Discord.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
+                    const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper, streamNumber-1)
+                    DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
                         embeds: embeds
                     }, (success) => {
@@ -721,8 +721,8 @@ export default class ActionsCallbacks {
 
                 } else {
                     modules.tts.enqueueSpeakSentence(speech[2]).then()
-                    const embeds = await ChannelTrophy.createStatisticsEmbedsForDiscord(TwitchHelix)
-                    Discord.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
+                    const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper)
+                    DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
                         embeds: embeds
                     }, (success) => {
@@ -785,7 +785,7 @@ export default class ActionsCallbacks {
 
                     let helpTitle = (event.triggers.command?.helpTitle) ?? ''
                     if(helpTitle.length > 0) {
-                        Discord.enqueuePayload(url, {content: messageText})
+                        DiscordUtils.enqueuePayload(url, {content: messageText})
                         messageText = ''
                         helpTitle = `__${helpTitle}__\n`
                     }
@@ -797,14 +797,14 @@ export default class ActionsCallbacks {
                     if(entries && helpText) {
                         const text = `${helpTitle}\`!${Utils.ensureArray(entries).join('|')}${helpInput}\` - ${helpText}`
                         if((messageText.length + text.length) > 2000) {
-                            Discord.enqueuePayload(url, {content: messageText})
+                            DiscordUtils.enqueuePayload(url, {content: messageText})
                             messageText = ''
                         }
                         if(messageText.length > 0) messageText += '\n'
                         messageText += text
                     }
                 }
-                Discord.enqueuePayload(url, {content: messageText})
+                DiscordUtils.enqueuePayload(url, {content: messageText})
             }
         },
         'HelpToChat': {
@@ -834,7 +834,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const pageCount = 20
                 let lastCount = pageCount
-                const oldClips = await DB.loadSettingsDictionary(new SettingTwitchClip())
+                const oldClips = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchClip())
                 const speech = Config.controller.speechReferences['Clips'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
 
@@ -843,7 +843,7 @@ export default class ActionsCallbacks {
                 let pagination: string = ''
                 let i = 0
                 while(i == 0 || (pagination.length > 0)) {
-                    const clipsResponse = await TwitchHelix.getClips(pageCount, pagination)
+                    const clipsResponse = await TwitchHelixHelper.getClips(pageCount, pagination)
                     allClips.push(...clipsResponse.data)
                     lastCount = clipsResponse.data.length
                     pagination = clipsResponse.pagination?.cursor ?? ''
@@ -867,12 +867,12 @@ export default class ActionsCallbacks {
                     )
                 ).then()
 
-                // Post to Discord
+                // Post to DiscordUtils
                 let count = oldClipIds.length
                 for(const clip of sortedClips) {
-                    let user = await TwitchHelix.getUserById(parseInt(clip.creator_id))
-                    let game = await TwitchHelix.getGameById(parseInt(clip.game_id))
-                    Discord.enqueuePayload(Config.credentials.DiscordWebhooks['Clips'] ?? '', {
+                    let user = await TwitchHelixHelper.getUserById(parseInt(clip.creator_id))
+                    let game = await TwitchHelixHelper.getGameById(parseInt(clip.game_id))
+                    DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['Clips'] ?? '', {
                         username: user?.display_name ?? '[Deleted User]',
                         avatar_url: user?.profile_image_url ?? '',
                         content: [
@@ -884,7 +884,7 @@ export default class ActionsCallbacks {
                             `**Link**: ${clip.url}`
                         ].join("\n")
                     }, (success)=>{
-                        if(success) DB.saveSetting(new SettingTwitchClip(), clip.id)
+                        if(success) DataBaseHelper.saveSetting(new SettingTwitchClip(), clip.id)
                     })
                 }
                 modules.tts.enqueueSpeakSentence(
@@ -908,10 +908,10 @@ export default class ActionsCallbacks {
                     ?? ''
                 if(channel.includes('https://')) channel = channel.split('/').pop() ?? ''
                 Utils.log(`Command Raid: ${user.input} -> ${channel}`, Color.Blue, true, true)
-                const channelData = await TwitchHelix.getChannelByName(channel)
+                const channelData = await TwitchHelixHelper.getChannelByName(channel)
                 const chat = Config.controller.chatReferences['Raid']
                 if(channelData) {
-                    TwitchHelix.raidChannel(channelData.broadcaster_id).then()
+                    TwitchHelixHelper.raidChannel(channelData.broadcaster_id).then()
                     if(chat) {
                         if(chat[0] && chat[0].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[0], user))
                         if(chat[1] && chat[1].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[1], user))
@@ -927,7 +927,7 @@ export default class ActionsCallbacks {
             description: 'Cancels the currently active raid.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelix.cancelRaid()
+                const result = await TwitchHelixHelper.cancelRaid()
                 const chat = Config.controller.chatReferences['Unraid']
                 if(chat) {
                     if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chat[0])

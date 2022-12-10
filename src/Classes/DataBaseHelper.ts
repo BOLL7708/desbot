@@ -1,10 +1,9 @@
-import {LOCAL_STORAGE_AUTH_KEY} from './Data.js'
+import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import Utils from './Utils.js'
-import Color from './Colors.js'
-import SettingBaseObject from '../Classes/_Settings.js'
-import ModulesSingleton from '../Singletons/ModulesSingleton.js'
+import Color from './ColorConstants.js'
+import BaseDataObject from './BaseDataObject.js'
 
-export default class DB {
+export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
     private static LOG_BAD_COLOR: string = Color.DarkRed
 
@@ -28,7 +27,7 @@ export default class DB {
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadSettingsDictionary<T>(emptyInstance: T&SettingBaseObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
+    static async loadSettingsDictionary<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
@@ -58,7 +57,7 @@ export default class DB {
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadSettingsArray<T>(emptyInstance: T&SettingBaseObject, ignoreCache: boolean = false): Promise<T[]|undefined> {
+    static async loadSettingsArray<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T[]|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadArray')) return undefined
 
@@ -90,7 +89,7 @@ export default class DB {
      * @param key The key for the row to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadSetting<T>(emptyInstance: T&SettingBaseObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
+    static async loadSetting<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
@@ -139,7 +138,7 @@ export default class DB {
      * @param setting Instance of the class to save.
      * @param key Optional key for the setting to save, will upsert if key is set, else insert.
      */
-    static async saveSetting<T>(setting: T&SettingBaseObject, key?: string): Promise<boolean> {
+    static async saveSetting<T>(setting: T&BaseDataObject, key?: string): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
@@ -177,7 +176,7 @@ export default class DB {
      * @param emptyInstance Instance of the class to delete.
      * @param key The key for the row to delete. // TODO: Could do this optional to delete a whole group, but that is scary... wait with adding until we need it.
      */
-    static async deleteSetting<T>(emptyInstance: T&SettingBaseObject|string, key: string): Promise<boolean> {
+    static async deleteSetting<T>(emptyInstance: T&BaseDataObject|string, key: string): Promise<boolean> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'deleteSingle')) return false
 

@@ -1,6 +1,6 @@
-import Utils from '../ClassesStatic/Utils.js'
-import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/Colors.js'
+import Utils from './Utils.js'
+import Config from './Config.js'
+import Color from './ColorConstants.js'
 import {IPhilipsHuePlugAction} from '../Interfaces/iactions.js'
 
 export default class PhilipsHue {

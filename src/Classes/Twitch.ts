@@ -6,18 +6,18 @@ import {
     ITwitchMessageData, ITwitchWhisperMessageCallback
 } from '../Interfaces/itwitch.js'
 import {Actions} from '../Widget/Actions.js'
-import Config from '../ClassesStatic/Config.js'
+import Config from './Config.js'
 import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
-import Color from '../ClassesStatic/Colors.js'
+import Color from './ColorConstants.js'
 import TwitchChat from './TwitchChat.js'
 import TwitchFactory from './TwitchFactory.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from './Utils.js'
 import {EEventSource} from '../Widget/Enums.js'
-import DB from '../ClassesStatic/DB.js'
-import {SettingTwitchTokens} from './_Settings.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
-import Discord from '../ClassesStatic/Discord.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {SettingTwitchTokens} from './SettingObjects.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
+import DiscordUtils from './DiscordUtils.js'
 
 export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
@@ -28,8 +28,8 @@ export default class Twitch{
     async init(initChat: boolean = true) {
         if(initChat) {
             // In/out for chat in the main channel
-            const channelTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
-            const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+            const channelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+            const chatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot')
             this._twitchChatIn.init(channelTokens?.userLogin, channelTokens?.userLogin)
             this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
@@ -134,13 +134,13 @@ export default class Twitch{
         let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
         const isBroadcaster = (messageCmd.properties?.badges ?? <string[]>[]).indexOf('broadcaster/1') > -1
-            || userName === (await DB.loadSetting(new SettingTwitchTokens(), 'channel'))?.userLogin
+            || userName === (await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'channel'))?.userLogin
         const isModerator = (
             messageCmd.properties?.mod == '1'
-            || (await TwitchHelix.isUserModerator(userId)) // Fallback
+            || (await TwitchHelixHelper.isUserModerator(userId)) // Fallback
         ) && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
-            || (await TwitchHelix.isUserVIP(userId)) // Fallback
+            || (await TwitchHelixHelper.isUserVIP(userId)) // Fallback
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
 
         // Chat proxy
@@ -184,7 +184,7 @@ export default class Twitch{
 
         // Commands
         if(text && text.indexOf(Config.twitch.commandPrefix) == 0) {
-            const chatbotTokens = await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+            const chatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot')
             if(user.login.toLowerCase() == chatbotTokens?.userLogin) {
                 Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${chatbotTokens?.userLogin})`, this.LOG_COLOR_COMMAND)
                 return
@@ -222,8 +222,8 @@ export default class Twitch{
                     this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 }
                 if(isWhisper && Config.credentials.DiscordWebhooks['DiscordWhisperCommands']) {
-                    const userData = await TwitchHelix.getUserById(user.id)
-                    Discord.enqueueMessage(
+                    const userData = await TwitchHelixHelper.getUserById(user.id)
+                    DiscordUtils.enqueueMessage(
                         Config.credentials.DiscordWebhooks['DiscordWhisperCommands'],
                         user.name,
                         userData?.profile_image_url,

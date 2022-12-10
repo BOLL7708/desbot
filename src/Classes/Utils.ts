@@ -3,21 +3,21 @@ import StatesSingleton from '../Singletons/StatesSingleton.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import {TKeys} from '../_data/!keys.js'
 import {IActionUser, ITextTags} from '../Interfaces/iactions.js'
-import SteamStore from './SteamStore.js'
+import SteamStoreHelper from './SteamStoreHelper.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {ICleanTextConfig} from '../Interfaces/iutils.js'
 import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
-import {LOCAL_STORAGE_AUTH_KEY} from './Data.js'
-import DB from './DB.js'
-import TwitchHelix from './TwitchHelix.js'
+import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {
     SettingAccumulatingCounter,
     SettingTwitchCheer, SettingTwitchReward,
     SettingTwitchSub,
     SettingUserName,
     SettingUserVoice
-} from '../Classes/_Settings.js'
-import {ITwitchHelixUsersResponseData} from '../interfaces/itwitch_helix.js'
+} from './SettingObjects.js'
+import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -29,21 +29,21 @@ export default class Utils {
         let userData: ITwitchHelixUsersResponseData|undefined
         if(typeof userIdOrName === 'string') {
             userData = isNaN(parseInt(userIdOrName))
-                ? await TwitchHelix.getUserByLogin(userIdOrName)
-                : await TwitchHelix.getUserById(userIdOrName)
+                ? await TwitchHelixHelper.getUserByLogin(userIdOrName)
+                : await TwitchHelixHelper.getUserById(userIdOrName)
         } else {
-            userData = await TwitchHelix.getUserById(userIdOrName)
+            userData = await TwitchHelixHelper.getUserById(userIdOrName)
         }
         const userId = userData?.id ?? ''
         const userName = userData?.login ?? ''
-        let cleanNameSetting = await DB.loadSetting(new SettingUserName(), userId)
+        let cleanNameSetting = await DataBaseHelper.loadSetting(new SettingUserName(), userId)
         let cleanName = cleanNameSetting?.shortName ?? userName
         if(!cleanName) {
             cleanName = this.cleanName(userName)
             const cleanNameSetting = new SettingUserName()
             cleanNameSetting.shortName = cleanName
             cleanNameSetting.datetime = Utils.getISOTimestamp()
-            await DB.saveSetting(cleanNameSetting, userId)
+            await DataBaseHelper.saveSetting(cleanNameSetting, userId)
         }
         return cleanName
     }
@@ -299,11 +299,11 @@ export default class Utils {
         // Game tags
         if(text.includes('%game')) {
             if(states.lastSteamAppId) {
-                const steamGameMeta = await SteamStore.getGameMeta(states.lastSteamAppId)
+                const steamGameMeta = await SteamStoreHelper.getGameMeta(states.lastSteamAppId)
                 tags.gameId = states.lastSteamAppId ?? 'N/A'
-                tags.gameLink = SteamStore.getStoreURL(states.lastSteamAppId)
+                tags.gameLink = SteamStoreHelper.getStoreURL(states.lastSteamAppId)
                 if(steamGameMeta) {
-                    tags.gamePrice = SteamStore.getPrice(steamGameMeta)
+                    tags.gamePrice = SteamStoreHelper.getPrice(steamGameMeta)
                     tags.gameName = steamGameMeta.name ?? 'N/A'
                     tags.gameInfo = steamGameMeta.short_description ?? 'N/A'
                     tags.gameDeveloper = steamGameMeta.developers?.join(', ') ?? 'N/A'
@@ -322,9 +322,9 @@ export default class Utils {
             let userLogin = this.getFirstUserTagInText(userData?.input ?? '') ?? link
 
             // If we have a possible login, get the user data, if they exist
-            const channelData = await TwitchHelix.getChannelByName(userLogin)
+            const channelData = await TwitchHelixHelper.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await DB.loadSetting(new SettingUserVoice(), channelData.broadcaster_id)
+                const voice = await DataBaseHelper.loadSetting(new SettingUserVoice(), channelData.broadcaster_id)
                 tags.targetId = channelData.broadcaster_id
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
@@ -333,7 +333,7 @@ export default class Utils {
                 tags.targetGame = channelData.game_name
                 tags.targetTitle = channelData.title
                 tags.targetLink = `https://twitch.tv/${channelData.broadcaster_login}`
-                tags.targetColor = await TwitchHelix.getUserColor(channelData.broadcaster_id) ?? ''
+                tags.targetColor = await TwitchHelixHelper.getUserColor(channelData.broadcaster_id) ?? ''
                 tags.targetVoice = this.getVoiceString(voice)
             }
         }
@@ -353,15 +353,15 @@ export default class Utils {
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
         const userIdStr = userData?.id?.toString() ?? ''
-        const subs = await DB.loadSetting(new SettingTwitchSub(), userIdStr)
-        const cheers = await DB.loadSetting(new SettingTwitchCheer(), userIdStr)
-        const voice = await DB.loadSetting(new SettingUserVoice(), userIdStr)
+        const subs = await DataBaseHelper.loadSetting(new SettingTwitchSub(), userIdStr)
+        const cheers = await DataBaseHelper.loadSetting(new SettingTwitchCheer(), userIdStr)
+        const voice = await DataBaseHelper.loadSetting(new SettingUserVoice(), userIdStr)
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
-        const eventCount = (await DB.loadSetting(new SettingAccumulatingCounter(), userData?.eventKey ?? ''))?.count ?? 0
+        const eventCount = (await DataBaseHelper.loadSetting(new SettingAccumulatingCounter(), userData?.eventKey ?? ''))?.count ?? 0
         const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
 
         const userBits = (userData?.bits ?? 0) > 0
@@ -784,7 +784,7 @@ export default class Utils {
     }
 
     static async getRewardPairs(): Promise<IRewardData[]> {
-        const rewards = await DB.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
+        const rewards = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
         const rewardPairs: IRewardData[] = []
         for(const [id, obj] of Object.entries(rewards) as [string, SettingTwitchReward][]) {
             rewardPairs.push({key: obj.key as TKeys, id: id})

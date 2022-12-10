@@ -1,8 +1,8 @@
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from './Utils.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
-import Color from '../ClassesStatic/Colors.js'
+import Color from './ColorConstants.js'
 import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from '../Interfaces/iimage_editor.js'
-import ImageLoader from './ImageLoader.js'
+import ImageHelper from './ImageHelper.js'
 
 export default class ImageEditor {
     private _canvas: HTMLCanvasElement
@@ -19,13 +19,13 @@ export default class ImageEditor {
     // region Init
 
     /**
-     * Will load an image URL and cache the result using ImageLoader.
-     * Do not call this inside ImageLoader, as it could cause an infinite loop.
+     * Will load an image URL and cache the result using ImageHelper.
+     * Do not call this inside ImageHelper, as it could cause an infinite loop.
      * @param url
      * @returns Promise with boolean if image was successfully loaded
      */
     async loadUrl(url: string):Promise<boolean> {
-        const imageData = await ImageLoader.getDataUrl(url)
+        const imageData = await ImageHelper.getDataUrl(url)
         if(imageData == null) return false
         return this.loadDataUrl(imageData)
     }
@@ -323,7 +323,7 @@ export default class ImageEditor {
             // Draw
             if (word.emoteUrl != undefined) {
                 // Emote
-                const imageData = await ImageLoader.getDataUrl(`${word.emoteUrl}/${emoteRes}`)
+                const imageData = await ImageHelper.getDataUrl(`${word.emoteUrl}/${emoteRes}`)
                 const img = await Utils.makeImage(imageData) // TODO: Make this cached?
                 if(img) this._textCtx.drawImage(img, wordPosX, wordPosY, word.widthPx, word.widthPx)
                 else console.warn(`ImageEditor: Failed to load emote ${word.emoteUrl}`)

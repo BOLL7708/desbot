@@ -1,5 +1,5 @@
-import Data from './Data.js'
-import TwitchHelix from './TwitchHelix.js'
+import DataUtils from './DataUtils.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
 
 export default class LogWriter {
     // TODO: Extend console with new functions that take color and style as arguments.
@@ -8,7 +8,7 @@ export default class LogWriter {
 
     public static async init() {
         // Clear the log
-        await Data.writeText(this._fileName, '')
+        await DataUtils.writeText(this._fileName, '')
         this.override()
     }
 
@@ -72,6 +72,6 @@ export default class LogWriter {
     }
 
     private static async write(message: string) {
-        await Data.appendText(this._fileName, message)
+        await DataUtils.appendText(this._fileName, message)
     }
 }

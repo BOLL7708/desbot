@@ -1,4 +1,4 @@
-import Config from '../ClassesStatic/Config.js'
+import Config from '../Classes/Config.js'
 import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js'
 
 /**

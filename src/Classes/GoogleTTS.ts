@@ -1,16 +1,16 @@
 import Dictionary, {IDictionaryEntry} from './Dictionary.js'
 import {ETTSType} from '../Widget/Enums.js'
-import Config from '../ClassesStatic/Config.js'
-import Color from '../ClassesStatic/Colors.js'
+import Config from './Config.js'
+import Color from './ColorConstants.js'
 import AudioPlayer, {AudioPlayerInstance} from './AudioPlayer.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
 import {IGoogleVoice} from '../Interfaces/igoogle.js'
 import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {IAudioPlayedCallback} from '../Interfaces/iaudioplayer.js'
-import Utils from '../ClassesStatic/Utils.js'
-import {SettingTwitchTokens, SettingUserMute, SettingUserVoice} from './_Settings.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
-import DB from '../ClassesStatic/DB.js'
+import Utils from './Utils.js'
+import {SettingTwitchTokens, SettingUserMute, SettingUserVoice} from './SettingObjects.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
 export default class GoogleTTS {
     private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
@@ -110,12 +110,12 @@ export default class GoogleTTS {
         clearRanges: ITwitchEmotePosition[]=[],
         skipDictionary: boolean = false
     ) {
-        if(userId == 0) userId = (await DB.loadSetting(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
+        if(userId == 0) userId = (await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
         const serial = ++this._count
         this._preloadQueue[serial] = null
 
         // Check blacklist
-        const blacklist = await DB.loadSetting(new SettingUserMute(), userId.toString())
+        const blacklist = await DataBaseHelper.loadSetting(new SettingUserMute(), userId.toString())
         if(blacklist?.active) {
             console.warn(`GoogleTTS: User ${userId} blacklisted, skipped!`, input)
             delete this._preloadQueue[serial]
@@ -151,14 +151,14 @@ export default class GoogleTTS {
         }
 
         // Get voice
-        let voice = await DB.loadSetting(new SettingUserVoice(), userId.toString())
+        let voice = await DataBaseHelper.loadSetting(new SettingUserVoice(), userId.toString())
         if(voice == null) {
             voice = await this.getDefaultVoice()
-            await DB.saveSetting(voice, userId.toString())
+            await DataBaseHelper.saveSetting(voice, userId.toString())
         }
 
         // Get username
-        const userData = await TwitchHelix.getUserById(sentence.userId)
+        const userData = await TwitchHelixHelper.getUserById(sentence.userId)
         let cleanName = await Utils.loadCleanName(userData?.id ?? sentence.userId)
 
         // Clean input text
@@ -266,7 +266,7 @@ export default class GoogleTTS {
 
     async setVoiceForUser(userId: number, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let loadedVoice = await DB.loadSetting(new SettingUserVoice(), userId.toString())
+        let loadedVoice = await DataBaseHelper.loadSetting(new SettingUserVoice(), userId.toString())
         const defaultVoice = await this.getDefaultVoice()
         let voice = defaultVoice
         if(loadedVoice != null) voice = loadedVoice
@@ -342,7 +342,7 @@ export default class GoogleTTS {
                 return
             }
         })
-        let success = await DB.saveSetting(voice, userId.toString())
+        let success = await DataBaseHelper.saveSetting(voice, userId.toString())
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
         return voice.voiceName
     }

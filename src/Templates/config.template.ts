@@ -1,4 +1,4 @@
-import Config from '../ClassesStatic/Config.js'
+import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'

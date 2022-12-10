@@ -21,7 +21,7 @@ export interface IPipeConfig {
      * 
      * Make sure you have also set the Pipe config for this:
      * ```
-     * Config.twitchChat.pipe: { 
+     * Config.twitchChat.pipe: {
      *         durationMs: 5000, config: PipePresets.YOUR_PRESET
      *     }
      * }

@@ -1,5 +1,5 @@
-import Utils from '../ClassesStatic/Utils.js'
-import Config from '../ClassesStatic/Config.js'
+import Utils from './Utils.js'
+import Config from './Config.js'
 import {IGoogleAudio} from '../Interfaces/igoogle.js'
 
 export default class Dictionary {

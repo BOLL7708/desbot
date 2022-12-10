@@ -1,9 +1,9 @@
 import {IOpenVR2WSRelay} from '../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './Enums.js'
 import {Actions} from './Actions.js'
-import Config from '../ClassesStatic/Config.js'
+import Config from '../Classes/Config.js'
 import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
-import Color from '../ClassesStatic/Colors.js'
+import Color from '../Classes/ColorConstants.js'
 import AudioPlayer from '../Classes/AudioPlayer.js'
 import Functions from './Functions.js'
 import {TKeys} from '../_data/!keys.js'
@@ -12,14 +12,14 @@ import TwitchFactory from '../Classes/TwitchFactory.js'
 import {IPipeCustomMessage} from '../Interfaces/ipipe.js'
 import {ITwitchPubsubRewardMessage} from '../Interfaces/itwitch_pubsub.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from '../Classes/Utils.js'
 import MainController from './MainController.js'
-import Discord from '../ClassesStatic/Discord.js'
-import SteamStore from '../ClassesStatic/SteamStore.js'
-import TwitchHelix from '../ClassesStatic/TwitchHelix.js'
-import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../Classes/_Settings.js'
-import DB from '../ClassesStatic/DB.js'
-import ImageLoader from '../Classes/ImageLoader.js'
+import DiscordUtils from '../Classes/DiscordUtils.js'
+import SteamStoreHelper from '../Classes/SteamStoreHelper.js'
+import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
+import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../Classes/SettingObjects.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import ImageHelper from '../Classes/ImageHelper.js'
 import ImageEditor from '../Classes/ImageEditor.js'
 import {IRelayTempMessage} from '../Classes/Relay.js'
 
@@ -55,7 +55,7 @@ export default class Callbacks {
                 await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 
                 // Pipe to VR (basic)
-                const user = await TwitchHelix.getUserById(userData.id)
+                const user = await TwitchHelixHelper.getUserById(userData.id)
                 await modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -73,7 +73,7 @@ export default class Callbacks {
             )
 
             // Pipe to VR (basic)
-            const user = await TwitchHelix.getUserById(userData.id)
+            const user = await TwitchHelixHelper.getUserById(userData.id)
             await modules.pipe.sendBasicObj(messageData, userData, user)
         })
 
@@ -110,7 +110,7 @@ export default class Callbacks {
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
-                const user = await TwitchHelix.getUserById(userData.id)
+                const user = await TwitchHelixHelper.getUserById(userData.id)
                 await modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
@@ -121,7 +121,7 @@ export default class Callbacks {
             const bits = Utils.toInt(message?.properties?.bits, 0)
             
             // Discord
-            const user = await TwitchHelix.getUserById(Utils.toInt(message.properties['user-id']))
+            const user = await TwitchHelixHelper.getUserById(Utils.toInt(message.properties['user-id']))
             let text = message?.message?.text
             if(text == null || text.length == 0) return
 
@@ -140,7 +140,7 @@ export default class Callbacks {
             // TODO: Reference Jeppe's twitch logger for the other messages! :D
             
             if(states.logChatToDiscord) {
-                Discord.enqueueMessage(
+                DiscordUtils.enqueueMessage(
                     Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
                     user?.display_name,
                     user?.profile_image_url,
@@ -157,7 +157,7 @@ export default class Callbacks {
             const redemption = message?.data?.redemption
             if(!redemption) return console.warn('Reward redemption empty', message)
 
-            const user = await TwitchHelix.getUserById(parseInt(redemption.user.id))
+            const user = await TwitchHelixHelper.getUserById(parseInt(redemption.user.id))
             const rewardPairs = await Utils.getRewardPairs()
             const rewardPair = rewardPairs.find((pair) => { return pair.id === redemption.reward.id })
 
@@ -167,7 +167,7 @@ export default class Callbacks {
             let description = `${Config.discord.prefixReward}**${redemption.reward.title}${amountStr}** (${redemption.reward.cost})`
             if(redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(redemption.user_input))}`
             if(states.logChatToDiscord) {
-                Discord.enqueueMessage(
+                DiscordUtils.enqueueMessage(
                     Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
                     user?.display_name,
                     user?.profile_image_url,
@@ -178,7 +178,7 @@ export default class Callbacks {
             const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[key]
             const ignoreWebhook = !!Config.events[key]?.options?.rewardIgnoreAutomaticDiscordPosting
             if(rewardSpecificWebhook && !ignoreWebhook) {
-                Discord.enqueueMessage(
+                DiscordUtils.enqueueMessage(
                     rewardSpecificWebhook,
                     user?.display_name,
                     user?.profile_image_url,
@@ -192,7 +192,7 @@ export default class Callbacks {
                 modules.pipe.sendBasic(
                     redemption.user_input, 
                     user?.display_name, 
-                    await TwitchHelix.getUserColor(parseInt(redemption.user.id)) ?? Color.White,
+                    await TwitchHelixHelper.getUserColor(parseInt(redemption.user.id)) ?? Color.White,
                     user?.profile_image_url
                 ).then()
             }
@@ -212,7 +212,7 @@ export default class Callbacks {
             const subSetting = new SettingTwitchSub()
             subSetting.totalMonths = message.cumulative_months ?? 0
             subSetting.streakMonths = message.streak_months ?? 0
-            await DB.saveSetting(subSetting, message.user_id)
+            await DataBaseHelper.saveSetting(subSetting, message.user_id)
 
             // Announce sub
             if(sub) {
@@ -231,7 +231,7 @@ export default class Callbacks {
             const cheerSetting = new SettingTwitchCheer()
             cheerSetting.totalBits = message.data.total_bits_used
             cheerSetting.lastBits = message.data.bits_used
-            await DB.saveSetting(cheerSetting, message.data.user_id)
+            await DataBaseHelper.saveSetting(cheerSetting, message.data.user_id)
 
             // Announce cheer
             const bits = message.data.bits_used ?? 0
@@ -269,7 +269,7 @@ export default class Callbacks {
                             tas[0].text = `${responseData.width}x${responseData.height}`
                         }
                         if(requestData != null && tas && tas.length > 1) {
-                            const userData = await TwitchHelix.getUserById(requestData.userId)
+                            const userData = await TwitchHelixHelper.getUserById(requestData.userId)
                             const title = requestData.userInput
                                 ? `"${requestData.userInput}"\n${userData?.display_name ?? ''}`
                                 : userData?.display_name ?? ''
@@ -285,7 +285,7 @@ export default class Callbacks {
 
             // Post screenshot to Sign and Discord
             if(requestData) { // A screenshot from a reward
-                const userData = await TwitchHelix.getUserById(requestData.userId)
+                const userData = await TwitchHelixHelper.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
 
                 // Sign
@@ -298,19 +298,19 @@ export default class Callbacks {
 
                 // Discord
                 if(discordCfg) {
-                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                    const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
                     const description = requestData.userInput
                     const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                     const authorIconUrl = userData?.profile_image_url ?? ''
                     const color = Utils.hexToDecColor(
-                        await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                        await TwitchHelixHelper.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                     )
                     const descriptionText = description?.trim().length > 0
                         ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
                         : Config.screenshots.callback.discordRewardInstantTitle
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
-                    Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                    DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
                 }
             } else { // A manually taken screenshot
                 // Sign
@@ -323,11 +323,11 @@ export default class Callbacks {
 
                 // Discord
                 if(discordCfg) {
-                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                    const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
                     const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
-                    Discord.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
+                    DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
                 }
             }
         })
@@ -340,7 +340,7 @@ export default class Callbacks {
             if(nonceCallback) nonceCallback()
 
             if(requestData != null) {
-                const userData = await TwitchHelix.getUserById(requestData.userId)
+                const userData = await TwitchHelixHelper.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
 
                 // Sign
@@ -357,19 +357,19 @@ export default class Callbacks {
 
                 // Discord
                 if(discordCfg) {
-                    const gameData = await SteamStore.getGameMeta(states.lastSteamAppId ?? '')
+                    const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
                     const description = requestData.userInput
                     const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                     const authorIconUrl = userData?.profile_image_url ?? ''
                     const color = Utils.hexToDecColor(
-                        await TwitchHelix.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                        await TwitchHelixHelper.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
                     )
                     const descriptionText = description?.trim().length > 0
                         ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
                         : Config.obs.sourceScreenshotConfig.discordDescription
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
-                    Discord.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                    DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
                 }
             }
         })
@@ -436,7 +436,7 @@ export default class Callbacks {
                 rewardsToToggle.map(rewardKey => {
                     rewards[rewardKey] = state
                 })
-                TwitchHelix.toggleRewards(rewards)
+                TwitchHelixHelper.toggleRewards(rewards)
             }
         })
 
@@ -448,7 +448,7 @@ export default class Callbacks {
         modules.relay.setOnMessageCallback(async (message) => {
             const msg = message as IRelayTempMessage
             const relay = this._relays.get(msg.key)
-            const user = await DB.loadSetting(new SettingTwitchTokens(), 'Channel')
+            const user = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
             if(relay) {
                 Utils.log(`Callbacks: Relay callback found for ${msg.key}: ${JSON.stringify(msg.data)}`, Color.Green)
                 relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, msg.key, user?.userLogin, msg.data))

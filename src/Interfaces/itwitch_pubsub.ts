@@ -23,7 +23,7 @@ export interface ITwitchPubsubMessage {
     }
 }
 
-// Seconary message payloads
+// Secondary message payloads
 export interface ITwitchPubsubRewardMessage {
     type: string
     data: {

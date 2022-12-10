@@ -1,31 +1,34 @@
-import Config from '../ClassesStatic/Config.js'
-import LogWriter from '../ClassesStatic/Log.js'
+import Config from '../Classes/Config.js'
+import LogWriter from '../Classes/LogHelper.js'
 import Callbacks from './Callbacks.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Utils from '../ClassesStatic/Utils.js'
+import Utils from '../Classes/Utils.js'
 import {Actions} from './Actions.js'
-import Color from '../ClassesStatic/Colors.js'
+import Color from '../Classes/ColorConstants.js'
 import Rewards from './Rewards.js'
 import Functions from './Functions.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
-import DB from '../ClassesStatic/DB.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
 import {
     SettingAccumulatingCounter,
-    SettingDictionaryEntry, SettingIncrementingCounter, SettingStreamQuote, SettingTwitchClip,
+    SettingDictionaryEntry,
+    SettingIncrementingCounter,
+    SettingStreamQuote,
+    SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchReward,
     SettingTwitchTokens,
     SettingUserMute,
     SettingUserName,
     SettingUserVoice
-} from '../Classes/_Settings.js'
+} from '../Classes/SettingObjects.js'
 import {IDictionaryEntry} from '../Classes/Dictionary.js'
-import Auth from '../ClassesStatic/Auth.js'
+import AuthUtils from '../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
 
 export default class MainController {
     public static async init() {
-        const authed = await Auth.checkIfAuthed()
+        const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()
             return
@@ -40,17 +43,17 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
-        await DB.loadSettingsDictionary(new SettingUserMute())
-        await DB.loadSettingsDictionary(new SettingUserName())
-        await DB.loadSettingsDictionary(new SettingUserVoice())
-        await DB.loadSettingsDictionary(new SettingTwitchTokens())
-        await DB.loadSettingsDictionary(new SettingTwitchReward())
-        await DB.loadSettingsDictionary(new SettingTwitchRedemption())
-        const dictionarySettings = await DB.loadSettingsDictionary(new SettingDictionaryEntry())
-        await DB.loadSettingsDictionary(new SettingTwitchClip())
-        await DB.loadSettingsDictionary(new SettingIncrementingCounter())
-        await DB.loadSettingsDictionary(new SettingAccumulatingCounter())
-        await DB.loadSettingsArray(new SettingStreamQuote())
+        await DataBaseHelper.loadSettingsDictionary(new SettingUserMute())
+        await DataBaseHelper.loadSettingsDictionary(new SettingUserName())
+        await DataBaseHelper.loadSettingsDictionary(new SettingUserVoice())
+        await DataBaseHelper.loadSettingsDictionary(new SettingTwitchTokens())
+        await DataBaseHelper.loadSettingsDictionary(new SettingTwitchReward())
+        await DataBaseHelper.loadSettingsDictionary(new SettingTwitchRedemption())
+        const dictionarySettings = await DataBaseHelper.loadSettingsDictionary(new SettingDictionaryEntry())
+        await DataBaseHelper.loadSettingsDictionary(new SettingTwitchClip())
+        await DataBaseHelper.loadSettingsDictionary(new SettingIncrementingCounter())
+        await DataBaseHelper.loadSettingsDictionary(new SettingAccumulatingCounter())
+        await DataBaseHelper.loadSettingsArray(new SettingStreamQuote())
 
         const modules = ModulesSingleton.getInstance()
         if(dictionarySettings) {
@@ -128,7 +131,7 @@ export default class MainController {
     public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()
         if(
-            Config.steam.playerSummaryIntervalMs 
+            Config.steam.playerSummaryIntervalMs
             && states.steamPlayerSummaryIntervalHandle == -1 
             && !ModulesSingleton.getInstance().openvr2ws.isConnected
         ) {
