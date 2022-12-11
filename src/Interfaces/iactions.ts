@@ -1,5 +1,5 @@
 import {TKeys} from '../_data/!keys.js'
-import {EEventSource, ETTSFunction, ETTSType} from '../Widget/Enums.js'
+import {EEventSource, ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from './iopenvr2ws.js'
 import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
 import {IPhilipsHueBulb} from './iphilipshue.js'

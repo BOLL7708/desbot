@@ -1,6 +1,6 @@
-import Color from '../Classes/ColorConstants.js'
-import Utils from '../Classes/Utils.js'
-import {LOCAL_STORAGE_AUTH_KEY} from '../Classes/DataUtils.js'
+import Color from '../../Classes/ColorConstants.js'
+import Utils from '../../Classes/Utils.js'
+import {LOCAL_STORAGE_AUTH_KEY} from '../../Classes/DataUtils.js'
 
 export default class PasswordForm {
     static spawn() {

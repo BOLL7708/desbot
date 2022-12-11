@@ -15,7 +15,7 @@ include_once('init.php');
             <?php Utils::printJSAssetFiles()?>
         </script>
         <?php Utils::printJSIncludesAndConfigs()?>
-        <script type="module" src="./dist/Widget.js"></script>
+        <script type="module" src="./dist/Pages/Widget/WidgetEmbed.js"></script>
 
         <!-- DOM Elements -->
         <div id="container"></div>

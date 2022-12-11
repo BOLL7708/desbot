@@ -1,14 +1,14 @@
-import Config from '../Classes/Config.js'
-import LogWriter from '../Classes/LogHelper.js'
+import Config from '../../Classes/Config.js'
+import LogWriter from '../../Classes/LogHelper.js'
 import Callbacks from './Callbacks.js'
-import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Utils from '../Classes/Utils.js'
+import StatesSingleton from '../../Singletons/StatesSingleton.js'
+import Utils from '../../Classes/Utils.js'
 import {Actions} from './Actions.js'
-import Color from '../Classes/ColorConstants.js'
+import Color from '../../Classes/ColorConstants.js'
 import Rewards from './Rewards.js'
 import Functions from './Functions.js'
-import ModulesSingleton from '../Singletons/ModulesSingleton.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {
     SettingAccumulatingCounter,
     SettingDictionaryEntry,
@@ -21,9 +21,9 @@ import {
     SettingUserMute,
     SettingUserName,
     SettingUserVoice
-} from '../Classes/SettingObjects.js'
-import {IDictionaryEntry} from '../Classes/Dictionary.js'
-import AuthUtils from '../Classes/AuthUtils.js'
+} from '../../Classes/SettingObjects.js'
+import {IDictionaryEntry} from '../../Classes/Dictionary.js'
+import AuthUtils from '../../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
 
 export default class MainController {

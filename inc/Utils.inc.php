@@ -202,4 +202,19 @@ class Utils {
         if(!$auth->hash) Utils::exitWithError('no hash to compare password to', 9002, 401);
         if(!$auth->ok) Utils::exitWithError('password did not match', 9003, 401);
     }
+
+    /*
+     * Gets the lowercase string name sans extension for the currently running script.
+     */
+    public static function getScriptFileName(): string {
+        $path = $_SERVER['SCRIPT_NAME'] ?? '';
+        error_log($path);
+        $pathArr = explode('/', $path);
+        $fileNameExt = array_pop($pathArr) ?? '';
+        error_log($fileNameExt);
+        $fileNameArr = explode('.', $fileNameExt);
+        $fileName = array_shift($fileNameArr) ?? '';
+        error_log($fileName);
+        return strtolower($fileName);
+    }
 }

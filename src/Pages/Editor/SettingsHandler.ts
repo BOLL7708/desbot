@@ -1,6 +1,6 @@
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import SectionHandler from './SectionHandler.js'
-import {SettingDictionaryEntry} from '../Classes/SettingObjects.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import SetupSectionHandler from '../Setup/SetupSectionHandler.js'
+import {SettingDictionaryEntry} from '../../Classes/SettingObjects.js'
 
 export default class SettingsHandler {
     private static listDiv: HTMLDivElement|undefined
@@ -8,7 +8,7 @@ export default class SettingsHandler {
     public static async init() {
         /*
         const settingsClasses = await DataBaseHelper.loadSettingClasses()
-        const div = SectionHandler.get('SettingsBrowser')
+        const div = SetupSectionHandler.get('SettingsBrowser')
         SettingsHandler.listDiv = document.createElement('div')
         for(const clazz of settingsClasses) {
             const li = document.createElement('li')

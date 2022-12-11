@@ -1,5 +1,5 @@
-import Utils from '../Classes/Utils.js'
-import SectionHandler from './SectionHandler.js'
+import Utils from '../../Classes/Utils.js'
+import SetupSectionHandler from './SetupSectionHandler.js'
 import DataUtils, {
     AuthData,
     DBData,
@@ -7,11 +7,10 @@ import DataUtils, {
     LOCAL_STORAGE_AUTH_KEY,
     MigrationData,
     MigrationVersion
-} from '../Classes/DataUtils.js'
-import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../Classes/SettingObjects.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import SettingsHandler from './SettingsHandler.js'
-import AuthUtils from '../Classes/AuthUtils.js'
+} from '../../Classes/DataUtils.js'
+import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../../Classes/SettingObjects.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import AuthUtils from '../../Classes/AuthUtils.js'
 
 type TForm =
     'Register'
@@ -21,32 +20,32 @@ type TForm =
     | 'TwitchLoginChannel'
     | 'TwitchLoginChatbot'
 
-export default class FormHandler {
+export default class SetupFormHandler {
     // region Values
     private static formElements: Record<TForm, HTMLFormElement|undefined> = {
-        'Register': FormHandler.getFormElement('Register'),
-        'Login': FormHandler.getFormElement('Login'),
-        'DBSetup': FormHandler.getFormElement('DBSetup'),
-        'TwitchClient': FormHandler.getFormElement('TwitchClient'),
-        'TwitchLoginChannel': FormHandler.getFormElement('TwitchLoginChannel'),
-        'TwitchLoginChatbot': FormHandler.getFormElement('TwitchLoginChatbot')
+        'Register': SetupFormHandler.getFormElement('Register'),
+        'Login': SetupFormHandler.getFormElement('Login'),
+        'DBSetup': SetupFormHandler.getFormElement('DBSetup'),
+        'TwitchClient': SetupFormHandler.getFormElement('TwitchClient'),
+        'TwitchLoginChannel': SetupFormHandler.getFormElement('TwitchLoginChannel'),
+        'TwitchLoginChatbot': SetupFormHandler.getFormElement('TwitchLoginChatbot')
     }
     private static formSubmits: Record<TForm, any> = {
-        'Register': FormHandler.submitRegister,
-        'Login': FormHandler.submitLogin,
-        'DBSetup': FormHandler.submitDBSetup,
-        'TwitchClient': FormHandler.submitTwitchClient,
-        'TwitchLoginChannel': FormHandler.submitTwitchLogin,
-        'TwitchLoginChatbot': FormHandler.submitTwitchLogin
+        'Register': SetupFormHandler.submitRegister,
+        'Login': SetupFormHandler.submitLogin,
+        'DBSetup': SetupFormHandler.submitDBSetup,
+        'TwitchClient': SetupFormHandler.submitTwitchClient,
+        'TwitchLoginChannel': SetupFormHandler.submitTwitchLogin,
+        'TwitchLoginChatbot': SetupFormHandler.submitTwitchLogin
     }
     // endregion
 
     static async init() {
         // Attach form handlers
-        for(const [name, form] of Object.entries(FormHandler.formElements) as [TForm, HTMLFormElement|null][]) {
+        for(const [name, form] of Object.entries(SetupFormHandler.formElements) as [TForm, HTMLFormElement|null][]) {
             if(form) form.onsubmit = this.formSubmits[name]
         }
-        FormHandler.setup().then()
+        SetupFormHandler.setup().then()
     }
 
     static async setup() {
@@ -54,24 +53,24 @@ export default class FormHandler {
         const authData = await DataUtils.readData<AuthData>('auth.php')
 
         // No auth data on disk, we need to register a password.
-        if(!authData) return SectionHandler.show('Register')
+        if(!authData) return SetupSectionHandler.show('Register')
 
         const localAuth = Utils.getAuth()
         // No password saved in the browser client, we need to log in.
-        if(localAuth.length == 0 || !await AuthUtils.checkIfAuthed()) return SectionHandler.show('Login')
+        if(localAuth.length == 0 || !await AuthUtils.checkIfAuthed()) return SetupSectionHandler.show('Login')
 
         // No database data stored on disk, we need to register that.
         const dbData = await DataUtils.readData<DBData>('db.php')
-        if(!dbData) return SectionHandler.show('DBSetup')
+        if(!dbData) return SetupSectionHandler.show('DBSetup')
 
         // Database migration
-        await FormHandler.migrateDB()
+        await SetupFormHandler.migrateDB()
 
         // Twitch client info
         const twitchClient = await DataBaseHelper.loadSetting(new SettingTwitchClient(), 'Main', true)
         if(!twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
-            const form = FormHandler.formElements['TwitchClient']
+            const form = SetupFormHandler.formElements['TwitchClient']
             if (twitchClient && !Utils.isEmptyObject(twitchClient)) {
                 const clientId = form?.querySelector<HTMLInputElement>('[name="clientId"]')
                 if (clientId) clientId.value = Utils.ensureValue<SettingTwitchClient>(twitchClient)?.clientId ?? ''
@@ -87,7 +86,7 @@ export default class FormHandler {
             }
 
             // Show form
-            return SectionHandler.show('TwitchClient')
+            return SetupSectionHandler.show('TwitchClient')
         }
 
         // Twitch scopes
@@ -97,7 +96,7 @@ export default class FormHandler {
         // Twitch credentials channel
         const twitchChannelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel', true)
         if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens) || twitchChannelTokens.scopes !== scopes) {
-            return SectionHandler.show('TwitchLoginChannel')
+            return SetupSectionHandler.show('TwitchLoginChannel')
         } else {
             // Update value on page, as this restarts after auth this will happen when auth has been completed.
             const signedInChannelP = document.querySelector('#signedInChannel strong')
@@ -107,7 +106,7 @@ export default class FormHandler {
         // Twitch credentials chatbot
         const twitchChatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
         if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens) || twitchChatbotTokens.scopes !== scopes) {
-            return SectionHandler.show('TwitchLoginChatbot')
+            return SetupSectionHandler.show('TwitchLoginChatbot')
         } else {
             // Update value on page, as this restarts after auth this will happen when auth has been completed.
             const signedInChatbotP = document.querySelector('#signedInChatbot strong')
@@ -117,12 +116,12 @@ export default class FormHandler {
         // Imports
         let importStatus = await DataBaseHelper.loadSetting(new SettingImportStatus(), 'Legacy', true)
         if(!importStatus || !importStatus.done) {
-            await SectionHandler.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
+            await SetupSectionHandler.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
             const doImport = confirm('It is possible to import legacy settings, do you want do this import? Cancelling will mark it as done.')
             importStatus = new SettingImportStatus()
             importStatus.done = true
             if(doImport) {
-                await SectionHandler.show('Loading', 'Importing...', 'This can take several minutes, please wait while all your old settings are being imported.')
+                await SetupSectionHandler.show('Loading', 'Importing...', 'This can take several minutes, please wait while all your old settings are being imported.')
                 const importResponse = await fetch('import_settings.php')
                 const importDictionary = importResponse.ok ? await importResponse.json() as { [key:string]: number } : { 'Nothing to import.': 0 }
                 const importArr: string[] = [];
@@ -137,10 +136,12 @@ export default class FormHandler {
 
         // Temporary stop for showing the settings browser, before we have a menu.
         // await SettingsHandler.init()
-        // return SectionHandler.show('SettingsBrowser')
+        // return SetupSectionHandler.show('SettingsBrowser')
 
         // Done, show the site.
-        await SectionHandler.show('Editor')
+        window.location.href = './editor.php'
+        /*
+        await SetupSectionHandler.show('Editor')
         const classesAndCounts = await DataBaseHelper.loadSettingClasses()
         const settingsCounts = document.querySelector('#settingsCounts') as HTMLParagraphElement
         const ol = document.createElement('ul') as HTMLUListElement
@@ -150,19 +151,20 @@ export default class FormHandler {
             ol.appendChild(li)
         }
         settingsCounts.appendChild(ol)
+        */
     }
 
     // region Form Logic
     static async submitRegister(event: SubmitEvent) {
         event.preventDefault()
-        const inputData = FormHandler.getFormInputData(event.target, new PasswordInput())
+        const inputData = SetupFormHandler.getFormInputData(event.target, new PasswordInput())
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
         else {
             const ok = await DataUtils.writeData('auth.php', inputData)
             if(ok) {
-                FormHandler.storeAuth(password)
-                FormHandler.setup().then()
+                SetupFormHandler.storeAuth(password)
+                SetupFormHandler.setup().then()
             } else {
                 alert('Could not store password on disk')
             }
@@ -170,40 +172,40 @@ export default class FormHandler {
     }
     static async submitLogin(event: SubmitEvent) {
         event.preventDefault()
-        const inputData = FormHandler.getFormInputData(event.target, new PasswordInput())
+        const inputData = SetupFormHandler.getFormInputData(event.target, new PasswordInput())
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
-        else FormHandler.storeAuth(password)
-        FormHandler.setup().then()
+        else SetupFormHandler.storeAuth(password)
+        SetupFormHandler.setup().then()
     }
     static async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
-        const inputData = FormHandler.getFormInputData(event.target, new DBData())
+        const inputData = SetupFormHandler.getFormInputData(event.target, new DBData())
         const ok = await DataUtils.writeData('db.php', inputData)
         if(ok) {
             const dbOk = await DataBaseHelper.testConnection()
-            if(dbOk) FormHandler.setup().then()
+            if(dbOk) SetupFormHandler.setup().then()
             else alert('Could not connect to the database')
         } else alert('Could not store database settings on disk.')
     }
     static async submitTwitchClient(event: SubmitEvent) {
         event.preventDefault()
-        await SectionHandler.show('Loading', 'Saving...', '')
-        const inputData = FormHandler.getFormInputData(event.target, new SettingTwitchClient())
+        await SetupSectionHandler.show('Loading', 'Saving...', '')
+        const inputData = SetupFormHandler.getFormInputData(event.target, new SettingTwitchClient())
         const ok = await DataBaseHelper.saveSetting(inputData, 'Main')
-        if(ok) FormHandler.setup().then()
+        if(ok) SetupFormHandler.setup().then()
         else alert('Could not store Twitch Client settings in DataBaseHelper.')
     }
     static async submitTwitchLogin(event: SubmitEvent) {
         event.preventDefault()
-        await SectionHandler.show('Loading', 'Authenticating...', 'Waiting for a return from Twitch, reload page to restart.')
-        const inputData = FormHandler.getFormInputData(event.target, new StateInput());
+        await SetupSectionHandler.show('Loading', 'Authenticating...', 'Waiting for a return from Twitch, reload page to restart.')
+        const inputData = SetupFormHandler.getFormInputData(event.target, new StateInput());
         (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
             if(userId.length == 0) {
                 const reset = confirm('Could not retrieve Twitch tokens, do you want to reset the Twitch Client settings?')
                 if(reset) await DataBaseHelper.deleteSetting(new SettingTwitchClient(), 'Main')
             }
-            await FormHandler.setup()
+            await SetupFormHandler.setup()
         }
         window.open(`twitch_auth.php?state=${inputData.state}`, 'StreamingWidgetTwitchAuthAuxiliaryWindow')
     }
@@ -254,10 +256,10 @@ export default class FormHandler {
 
         // Migrate database if accepted.
         if(databaseVersion !== highestPossibleVersion && databaseVersion < highestPossibleVersion) {
-            await SectionHandler.show('Waiting', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
+            await SetupSectionHandler.show('Waiting', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
             const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${highestPossibleVersion}?`)
             if(doMigration) {
-                await SectionHandler.show('Loading', 'Database Migration...', 'Running database migration(s).')
+                await SetupSectionHandler.show('Loading', 'Database Migration...', 'Running database migration(s).')
                 const migrateResponse = await fetch(
                     `migrate.php?from=${databaseVersion}&to=${highestPossibleVersion}`,
                     { headers: { Authorization: Utils.getAuth() } }

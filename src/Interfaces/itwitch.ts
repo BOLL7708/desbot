@@ -3,7 +3,7 @@ import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
 import {ITwitchEmote, ITwitchMessageCmd} from './itwitch_chat.js'
 import {TKeys} from '../_data/!keys.js'
 import {IEventOptions} from './ievents.js'
-import {ActionHandler} from '../Widget/Actions.js'
+import {ActionHandler} from '../Pages/Widget/Actions.js'
 
 /**
  * Settings for various Twitch functions, like chat and rewards.

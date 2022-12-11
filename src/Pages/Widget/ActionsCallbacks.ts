@@ -1,19 +1,19 @@
-import {IActionsCallbackStack, IActionUser} from '../Interfaces/iactions.js'
-import ModulesSingleton from '../Singletons/ModulesSingleton.js'
-import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Config from '../Classes/Config.js'
+import {IActionsCallbackStack, IActionUser} from '../../Interfaces/iactions.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import StatesSingleton from '../../Singletons/StatesSingleton.js'
+import Config from '../../Classes/Config.js'
 import Functions from './Functions.js'
-import Utils from '../Classes/Utils.js'
-import SteamStoreHelper from '../Classes/SteamStoreHelper.js'
-import Color from '../Classes/ColorConstants.js'
+import Utils from '../../Classes/Utils.js'
+import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
+import Color from '../../Classes/ColorConstants.js'
 import {ETTSType} from './Enums.js'
-import OpenVR2WS from '../Classes/OpenVR2WS.js'
-import {EBehavior, IEvent} from '../Interfaces/ievents.js'
-import ChannelTrophyUtils from '../Classes/ChannelTrophyUtils.js'
-import DiscordUtils from '../Classes/DiscordUtils.js'
-import {ITwitchHelixClipResponseData} from '../Interfaces/itwitch_helix.js'
+import OpenVR2WS from '../../Classes/OpenVR2WS.js'
+import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
+import ChannelTrophyUtils from '../../Classes/ChannelTrophyUtils.js'
+import DiscordUtils from '../../Classes/DiscordUtils.js'
+import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
 import {TKeys} from '../_data/!keys.js'
-import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {
     SettingAccumulatingCounter,
     SettingChannelTrophyStat,
@@ -22,9 +22,9 @@ import {
     SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchTokens
-} from '../Classes/SettingObjects.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import DataUtils from '../Classes/DataUtils.js'
+} from '../../Classes/SettingObjects.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import DataUtils from '../../Classes/DataUtils.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {

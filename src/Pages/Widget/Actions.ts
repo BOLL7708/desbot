@@ -1,4 +1,4 @@
-import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from '../Interfaces/itwitch.js'
+import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from '../../Interfaces/itwitch.js'
 import {
     IActionCallback,
     IActions,
@@ -20,25 +20,25 @@ import {
     ISystemAction,
     ITTSAction,
     IWhisperAction
-} from '../Interfaces/iactions.js'
-import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from '../Interfaces/iopenvr2ws.js'
+} from '../../Interfaces/iactions.js'
+import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSFunction, ETTSType} from './Enums.js'
-import IKeyBoolRecord from '../Interfaces/i.js'
-import ExecUtils from '../Classes/ExecUtils.js'
+import IKeyBoolRecord from '../../Interfaces/i.js'
+import ExecUtils from '../../Classes/ExecUtils.js'
 import Callbacks from './Callbacks.js'
 import {
     ITwitchPubsubCheerMessage,
     ITwitchPubsubRewardMessage,
     ITwitchPubsubSubscriptionMessage
-} from '../Interfaces/itwitch_pubsub.js'
-import Color from '../Classes/ColorConstants.js'
-import {EBehavior, IEvent} from '../Interfaces/ievents.js'
-import Config from '../Classes/Config.js'
-import StatesSingleton from '../Singletons/StatesSingleton.js'
-import DiscordUtils from '../Classes/DiscordUtils.js'
-import ModulesSingleton from '../Singletons/ModulesSingleton.js'
-import Utils from '../Classes/Utils.js'
-import {ITwitchHelixRewardUpdate} from '../Interfaces/itwitch_helix.js'
+} from '../../Interfaces/itwitch_pubsub.js'
+import Color from '../../Classes/ColorConstants.js'
+import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
+import Config from '../../Classes/Config.js'
+import StatesSingleton from '../../Singletons/StatesSingleton.js'
+import DiscordUtils from '../../Classes/DiscordUtils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import Utils from '../../Classes/Utils.js'
+import {ITwitchHelixRewardUpdate} from '../../Interfaces/itwitch_helix.js'
 import ActionsCallbacks from './ActionsCallbacks.js'
 import {TKeys} from '../_data/!keys.js'
 import {
@@ -49,11 +49,11 @@ import {
     SettingUserMute,
     SettingUserName,
     SettingUserVoice
-} from '../Classes/SettingObjects.js'
-import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import DataUtils from '../Classes/DataUtils.js'
-import {IDictionaryEntry} from '../Classes/Dictionary.js'
+} from '../../Classes/SettingObjects.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import DataUtils from '../../Classes/DataUtils.js'
+import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 
 export class ActionHandler {
     constructor(

@@ -1,13 +1,13 @@
-import Config from '../Classes/Config.js'
-import ModulesSingleton from '../Singletons/ModulesSingleton.js'
-import StatesSingleton from '../Singletons/StatesSingleton.js'
-import Utils from '../Classes/Utils.js'
-import {ITwitchHelixRewardConfig} from '../Interfaces/itwitch_helix.js'
+import Config from '../../Classes/Config.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import StatesSingleton from '../../Singletons/StatesSingleton.js'
+import Utils from '../../Classes/Utils.js'
+import {ITwitchHelixRewardConfig} from '../../Interfaces/itwitch_helix.js'
 import {Actions} from './Actions.js'
 import {EEventSource} from './Enums.js'
-import {SettingTwitchReward} from '../Classes/SettingObjects.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import TwitchHelixHelper from '../Classes/TwitchHelixHelper.js'
+import {SettingTwitchReward} from '../../Classes/SettingObjects.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 
 export default class Rewards {
     public static async init() {

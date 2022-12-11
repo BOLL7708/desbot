@@ -5,7 +5,7 @@ import {
     ITwitchCommandConfig,
     ITwitchMessageData, ITwitchWhisperMessageCallback
 } from '../Interfaces/itwitch.js'
-import {Actions} from '../Widget/Actions.js'
+import {Actions} from '../Pages/Widget/Actions.js'
 import Config from './Config.js'
 import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
 import Color from './ColorConstants.js'
@@ -13,7 +13,7 @@ import TwitchChat from './TwitchChat.js'
 import TwitchFactory from './TwitchFactory.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import Utils from './Utils.js'
-import {EEventSource} from '../Widget/Enums.js'
+import {EEventSource} from '../Pages/Widget/Enums.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchTokens} from './SettingObjects.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'

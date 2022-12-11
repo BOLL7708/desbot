@@ -1,5 +1,5 @@
 import {TKeys} from '../_data/!keys.js'
-import {ActionHandler} from '../Widget/Actions.js'
+import {ActionHandler} from '../Pages/Widget/Actions.js'
 
 /**
  * Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS

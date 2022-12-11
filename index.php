@@ -1,17 +1,11 @@
 <?php
 include_once './init.php';
+PageUtils::printTop();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Streaming Widget Editor</title>
-        <link rel="icon" type="image/x-icon" href="./media/sw_logo.ico" />
-        <link rel="stylesheet" href="./styles/index.css"/>
-    </head>
-    <body>
-        <div id="container" style="display:none;">
-            <?php Utils::includeFolder('./inc/sections')?>
+        <div id="content" style="display:none;">
+            <?php Utils::includeFolder('./inc/embeds/setup')?>
         </div>
-        <script type="module" src="./dist/Index.js"></script>
-    </body>
-</html>
+        <script type="module" src="./dist/Pages/Setup/SetupEmbed.js"></script>
+<?php
+PageUtils::printBottom();
+?>

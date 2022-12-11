@@ -763,6 +763,9 @@ export default class Utils {
             headers: {Authorization: Utils.getAuth(), ...additionalHeaders}
         }
     }
+    static clearAuth(): void {
+        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder())
+    }
 
     static getCurrentFolder(): string {
         const pathArray = window.location.pathname.split('/');

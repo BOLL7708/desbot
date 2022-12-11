@@ -1,5 +1,5 @@
 import Dictionary, {IDictionaryEntry} from './Dictionary.js'
-import {ETTSType} from '../Widget/Enums.js'
+import {ETTSType} from '../Pages/Widget/Enums.js'
 import Config from './Config.js'
 import Color from './ColorConstants.js'
 import AudioPlayer, {AudioPlayerInstance} from './AudioPlayer.js'

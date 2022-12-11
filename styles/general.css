@@ -1,0 +1,79 @@
+html, body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+/* Container */
+#container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* Top Bar */
+#menu-bar {
+    box-sizing: border-box;
+    background-color: #f0f0f0;
+    padding: 0.5em;
+    border-bottom: 2px solid #808080;
+}
+#menu-bar ul {
+    background-image: url('../media/sw_logo.svg');
+    background-position: center left;
+    background-repeat: no-repeat;
+    background-size: 32px;
+    vertical-align: middle;
+    height: 100%;
+
+    list-style-type: none;
+    margin: 0;
+    padding: 0 0 0 48px;
+    overflow: hidden;
+}
+#menu-bar li {
+    float: left;
+}
+#menu-bar li a {
+    color: black;
+    font-weight: bold;
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    margin: 0.25em;
+    padding: 0.25em 0.5em;
+    border-radius: 0.5em;
+}
+
+#menu-bar li a:hover {
+    background-color: #d0d0d0;
+}
+
+/* Page Container */
+#page-container {
+    display: flex;
+    flex: 1;
+}
+
+/* Side Bar */
+#side-bar {
+    flex: 0 0 20vw;
+    box-sizing: border-box;
+    padding: 0.5em;
+    overflow: auto;
+    background-color: #e0e0e0;
+    border-right: 2px solid #808080;
+}
+#side-bar li a:hover {
+    background-color: #c0c0c0;
+}
+
+
+/* Content */
+#content {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 0.5em;
+    overflow: auto;
+}

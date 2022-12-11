@@ -9,7 +9,7 @@ import {
     ITwitchPubsubSubscriptionCallback,
     ITwitchPubsubSubscriptionMessage
 } from '../Interfaces/itwitch_pubsub.js'
-import {Actions} from '../Widget/Actions.js'
+import {Actions} from '../Pages/Widget/Actions.js'
 import Config from './Config.js'
 import Color from './ColorConstants.js'
 import WebSockets from './WebSockets.js'
