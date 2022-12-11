@@ -40,7 +40,6 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import {ITwitchHelixRewardUpdate} from '../../Interfaces/itwitch_helix.js'
 import ActionsCallbacks from './ActionsCallbacks.js'
-import {TKeys} from '../_data/!keys.js'
 import {
     SettingAccumulatingCounter, SettingCounterBase,
     SettingDictionaryEntry,
@@ -54,6 +53,7 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataUtils from '../../Classes/DataUtils.js'
 import {IDictionaryEntry} from '../../Classes/Dictionary.js'
+import {TKeys} from '../../_data/!keys.js'
 
 export class ActionHandler {
     constructor(

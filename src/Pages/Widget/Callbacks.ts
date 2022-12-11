@@ -6,7 +6,6 @@ import {ITwitchMessageCmd} from '../../Interfaces/itwitch_chat.js'
 import Color from '../../Classes/ColorConstants.js'
 import AudioPlayer from '../../Classes/AudioPlayer.js'
 import Functions from './Functions.js'
-import {TKeys} from '../_data/!keys.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchFactory from '../../Classes/TwitchFactory.js'
 import {IPipeCustomMessage} from '../../Interfaces/ipipe.js'
@@ -19,9 +18,9 @@ import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Classes/SettingObjects.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import ImageHelper from '../../Classes/ImageHelper.js'
 import ImageEditor from '../../Classes/ImageEditor.js'
 import {IRelayTempMessage} from '../../Classes/Relay.js'
+import {TKeys} from '../../_data/!keys.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()

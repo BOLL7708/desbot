@@ -12,7 +12,6 @@ import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
 import ChannelTrophyUtils from '../../Classes/ChannelTrophyUtils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
 import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
-import {TKeys} from '../_data/!keys.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {
     SettingAccumulatingCounter,
@@ -25,6 +24,7 @@ import {
 } from '../../Classes/SettingObjects.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataUtils from '../../Classes/DataUtils.js'
+import {TKeys} from '../../_data/!keys.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
