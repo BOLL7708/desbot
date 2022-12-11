@@ -1,7 +1,5 @@
-import SetupSectionHandler from './SetupSectionHandler.js'
 import SetupFormHandler from './SetupFormHandler.js'
 
-SetupSectionHandler.init()
 setTimeout(()=>{
-    SetupFormHandler.init().then()
+    const handler = new SetupFormHandler()
 }, 250) // Artificial loading time...

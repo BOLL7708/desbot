@@ -3,13 +3,11 @@ import Utils from '../Classes/Utils.js'
 export default class TopBar {
     static attachSignOutClick() {
         const a = document.querySelector('#topBarSignOutLink') as HTMLLinkElement
-        a.onclick = (e) => {
-            signOut()
+        if(a) {
+            a.onclick = signOut
+            a.ontouchstart = signOut
         }
-        a.ontouchstart = (e) => {
-            signOut()
-        }
-        function signOut() {
+        function signOut(e: Event) {
             Utils.clearAuth()
         }
     }
