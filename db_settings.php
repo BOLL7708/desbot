@@ -18,6 +18,7 @@ if($method === 'head') {
 $groupClass = $_GET['class'] ?? $_GET['groupClass'] ?? null;
 if($method !== 'get' && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
 $groupKey = $_GET['key'] ?? $_GET['groupKey'] ?? null;
+$noGroupKey = boolval($_GET['nokey'] ?? $_GET['noGroupKey'] ?? '');
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 
 // Execute
@@ -39,14 +40,12 @@ switch($method) {
     default: // GET, etc
         if(!$groupClass) $output = $db->getSettingsClassesWithCounts();
         else {
-            $output = $db->getSettings(
-                $groupClass,
-                $groupKey
-            );
-            if($groupKey) {
+            if($noGroupKey) $output = $db->getSettingsArr($groupClass);
+            elseif($groupKey) {
+                $output = $db->getSetting($groupClass, $groupKey);
                 $array = is_object($output) ? get_object_vars($output) : $output;
                 $output = array_pop($array);
-            }
+            } else $output = $db->getSettingsDic($groupClass);
         }
         break;
 }

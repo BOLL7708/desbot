@@ -67,7 +67,7 @@ export default class DataBaseHelper {
         }
 
         // DB
-        let url = this.getSettingsUrl(className)
+        let url = this.getSettingsUrl(className, undefined, true)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
@@ -205,13 +205,15 @@ export default class DataBaseHelper {
      * Returns the relative path to the settings file
      * @param groupClass Main category to load.
      * @param groupKey Specific item to fetch.
+     * @param noGroupKey Load items that have on key.
      * @returns
      */
-    private static getSettingsUrl(groupClass?: string, groupKey?: string): string {
+    private static getSettingsUrl(groupClass: string|undefined = undefined, groupKey: string|undefined = undefined, noGroupKey: boolean = false): string {
         let url = './db_settings.php'
         const params: string[] = []
         if(groupClass) params.push(`groupClass=${groupClass}`)
         if(groupKey) params.push(`groupKey=${groupKey}`)
+        params.push(`noGroupKey=${noGroupKey?1:0}`)
         if(params.length > 0) url += '?' + params.join('&')
         return url
     }

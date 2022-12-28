@@ -120,35 +120,52 @@ class DB {
             [$groupClass, $groupKey]);
     }
 
+    function getSetting(string $groupClass, string $groupKey) {
+        return $this->getSettings($groupClass, $groupKey);
+    }
+    function getSettingsDic(string $groupClass): stdClass {
+        return $this->getSettings($groupClass);
+    }
+    function getSettingsArr(string $groupClass): array {
+        return $this->getSettings($groupClass, null, true);
+    }
+
     /**
-     * Get settings
+     * Get settings, either a dictionary keyed on groupKey, an array of rows with no groupKey, or a single item matched on groupKey.
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
-     * @return stdClass|array
+     * @param bool $rowsWithNoKeys Set to true to return array of entries with no key.
+     * @return stdClass|array|null
      */
-    function getSettings(
-        string      $groupClass,
-        string|null $groupKey = null)
-    : stdClass|array {
-        $query = "SELECT * FROM settings WHERE groupClass = ?";
+    private function getSettings(
+        string $groupClass,
+        string|null $groupKey = null,
+        bool $rowsWithNoKeys = false
+    ) : stdClass|array|null {
+        $query = 'SELECT * FROM settings WHERE groupClass = ?';
         $params = [$groupClass];
-        if($groupKey) {
-            $query .= " AND groupKey = ?;";
+        if($rowsWithNoKeys) {
+            $query .= ' AND groupKey IS NULL;';
+        } elseif($groupKey) {
+            $query .= ' AND groupKey = ?;';
             $params[] = $groupKey;
         }
         $result = $this->query($query, $params);
 
-        $output = new stdClass();
+        $output = null;
         if(is_array($result)) {
-            $rowIndex = 0;
-            foreach($result as $row) {
-                $groupKey = $row['groupKey'];
-                $index = empty($groupKey)
-                    ? $rowIndex++
-                    : $groupKey;
-                $output->$index = json_decode($row['dataJson']);
+            if ($rowsWithNoKeys) {
+                $output = [];
+                foreach($result as $row) {
+                    $output[] = json_decode($row['dataJson']);
+                }
+            } else {
+                $output = new stdClass();
+                foreach($result as $row) {
+                    $groupKey = $row['groupKey'];
+                    $output->$groupKey = json_decode($row['dataJson']);
+                }
             }
-            if($rowIndex > 0 && $rowIndex == count(array_keys((array) $output))) $output = get_object_vars($output); // Remove keys if it's only numbered.
         }
         return $output;
     }
@@ -190,12 +207,16 @@ class DB {
 
     public function output(bool|array|stdClass|null $output): void
     {
-        header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(
-            is_bool($output)
-                ? ['result'=>$output]
-                : ($output ?? (object)[])
-        );
+        if($output === null) {
+            http_response_code(404);
+        } else {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode(
+                is_bool($output)
+                    ? ['result'=>$output]
+                    : ($output ?? (object)[])
+            );
+        }
     }
     // endregion
 }
