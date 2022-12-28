@@ -135,24 +135,8 @@ export default class SetupFormHandler {
             await DataBaseHelper.saveSetting(importStatus, 'Legacy')
         }
 
-        // Temporary stop for showing the settings browser, before we have a menu.
-        // await SettingsHandler.init()
-        // return SetupSectionHandler.show('SettingsBrowser')
-
-        // Done, show the site.
-        window.location.href = './editor.php'
-        /*
-        await SetupSectionHandler.show('Editor')
-        const classesAndCounts = await DataBaseHelper.loadSettingClasses()
-        const settingsCounts = document.querySelector('#settingsCounts') as HTMLParagraphElement
-        const ol = document.createElement('ul') as HTMLUListElement
-        for(const [group,count] of Object.entries(classesAndCounts)) {
-            const li = document.createElement('li') as HTMLLIElement
-            li.innerHTML = `${group}: <strong>${count}</strong>`
-            ol.appendChild(li)
-        }
-        settingsCounts.appendChild(ol)
-        */
+        // Done, show the dashboard.
+        window.location.href = 'dashboard.php'
     }
 
     // region Form Logic

@@ -804,6 +804,14 @@ export default class Utils {
             setTimeout(resolve, delayMs)
         })
     }
+
+    /**
+     * Only works with a-z
+     * @param str
+     */
+    static splitOnCaps(str: string): string[] {
+        return str.split(/(?=[A-Z])/)
+    }
 }
 
 interface IRewardData {

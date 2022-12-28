@@ -38,7 +38,8 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if(!$groupClass) $output = $db->getSettingsClassesWithCounts();
+        if(!$groupClass) $output = $db->getSettingsClassesWithCounts(); // All
+        elseif(str_contains($groupClass, '*')) $output = $db->getSettingsClassesWithCounts($groupClass); // Filtered
         else {
             if($noGroupKey) $output = $db->getSettingsArr($groupClass);
             elseif($groupKey) {

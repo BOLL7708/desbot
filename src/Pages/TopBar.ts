@@ -1,8 +1,8 @@
 import Utils from '../Classes/Utils.js'
 
 export default class TopBar {
-    static attachSignOutClick() {
-        const a = document.querySelector('#topBarSignOutLink') as HTMLLinkElement
+    static attachSignOutClick(query: string) {
+        const a = document.querySelector(query) as HTMLLinkElement
         if(a) {
             a.onclick = signOut
             a.ontouchstart = signOut

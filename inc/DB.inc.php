@@ -170,8 +170,12 @@ class DB {
         return $output;
     }
 
-    function getSettingsClassesWithCounts(): stdClass {
-        $query = "SELECT groupClass, COUNT(*) as count FROM settings GROUP BY groupClass;";
+    function getSettingsClassesWithCounts(string $like = ''): stdClass {
+        $where = strlen($like) > 0
+            ? "WHERE groupClass LIKE '".(str_replace('*', '%', $like))."'"
+            : '';
+        $query = "SELECT groupClass, COUNT(*) as count FROM settings $where GROUP BY groupClass;";
+        error_log($query);
         $result = $this->query($query);
         $output = new stdClass();
         if(is_array($result)) foreach($result as $row) {
@@ -208,7 +212,7 @@ class DB {
     public function output(bool|array|stdClass|null $output): void
     {
         if($output === null) {
-            http_response_code(404);
+            exit(); // Empty response instead of a 404 as that could show an error in the console which will scare some end users.
         } else {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode(

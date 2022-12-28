@@ -21,6 +21,14 @@ export default class DataBaseHelper {
     }
 
     // region Settings
+    static async loadFromDatabase(className: string, key: string|undefined = undefined, noKey: boolean = false): Promise<any|undefined> {
+        let url = this.getSettingsUrl(className, key, noKey)
+        const response = await fetch(url, {
+            headers: await this.getAuthHeader()
+        })
+        const responseText = await response.text()
+        return responseText.length > 0 ? JSON.parse(responseText) : undefined;
+    }
 
     /**
      * Load a dictionary of settings from the database, this will retain keys.
@@ -37,11 +45,8 @@ export default class DataBaseHelper {
         }
 
         // DB
-        let url = this.getSettingsUrl(className)
-        const response = await fetch(url, {
-            headers: await this.getAuthHeader()
-        })
-        const result = response.ok ? await response.json() as { [key: string]: T } : undefined;
+        const jsonResult = await this.loadFromDatabase(className)
+        const result = jsonResult ? jsonResult as { [key: string]: T } : undefined
         if(result) {
             // Convert plain objects to class instances and cache them
             for(const [key, setting] of Object.entries(result)) {
@@ -71,7 +76,8 @@ export default class DataBaseHelper {
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
-        let result = response.ok ? await response.json() as T[]|{ [key:string]: T }: undefined
+        const jsonResult = await this.loadFromDatabase(className, undefined, true)
+        let result = jsonResult ? jsonResult as T[]|{ [key:string]: T }: undefined
         if(result && !Array.isArray(result)) result = Object.values(result) as T[]
         if(result) {
             // Convert plain objects to class instances and cache them
@@ -102,11 +108,8 @@ export default class DataBaseHelper {
         }
 
         // DB
-        let url = this.getSettingsUrl(className, key)
-        const response = await fetch(url, {
-            headers: await this.getAuthHeader()
-        })
-        let result: T | undefined = response.ok ? await response.json() as T : undefined
+        const jsonResult = await this.loadFromDatabase(className, key)
+        let result: T|undefined = jsonResult ? jsonResult as T : undefined
         if (result) {
             // Convert plain object to class instance
             if (!Utils.isEmptyObject(result)) {
@@ -125,8 +128,8 @@ export default class DataBaseHelper {
     /**
      * Load all available settings classes registered in the database.
      */
-    static async loadSettingClasses(): Promise<{[group:string]: number}> {
-        const url = this.getSettingsUrl()
+    static async loadClasses(like: string): Promise<{[group:string]: number}> {
+        const url = this.getSettingsUrl(like)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
