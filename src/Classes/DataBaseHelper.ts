@@ -7,8 +7,7 @@ export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
     private static LOG_BAD_COLOR: string = Color.DarkRed
 
-    private static _settingsDictionaryStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed settings in memory before saving to disk
-    private static _settingsArrayStore: Map<string, any[]> = new Map() // Used for storing a list of settings in memory before saving to disk
+    private static _settingsStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed settings in memory before saving to disk
 
     static async testConnection(): Promise<boolean> {
         const response = await fetch(this.getSettingsUrl(), {
@@ -21,8 +20,8 @@ export default class DataBaseHelper {
     }
 
     // region Settings
-    static async loadFromDatabase(className: string, key: string|undefined = undefined, noKey: boolean = false): Promise<any|undefined> {
-        let url = this.getSettingsUrl(className, key, noKey)
+    static async loadFromDatabase(className: string, key: string|undefined = undefined): Promise<any|undefined> {
+        let url = this.getSettingsUrl(className, key)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
@@ -35,13 +34,13 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadSettingsDictionary<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
+    static async loadSettings<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
         // Cache
-        if(!ignoreCache && this._settingsDictionaryStore.has(className)) {
-            return this._settingsDictionaryStore.get(className) as { [key: string]: T }
+        if(!ignoreCache && this._settingsStore.has(className)) {
+            return this._settingsStore.get(className) as { [key: string]: T }
         }
 
         // DB
@@ -52,39 +51,7 @@ export default class DataBaseHelper {
             for(const [key, setting] of Object.entries(result)) {
                 result[key] = emptyInstance.__new(setting)
             }
-            this._settingsDictionaryStore.set(className, result)
-        }
-        return result
-    }
-
-    /**
-     * Loads an array of settings from the database, this will throw away keys.
-     * @param emptyInstance Instance of the class to load.
-     * @param ignoreCache Will not use the in-memory cache.
-     */
-    static async loadSettingsArray<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T[]|undefined> {
-        const className = emptyInstance.constructor.name
-        if(this.checkAndReportClassError(className, 'loadArray')) return undefined
-
-        // Cache
-        if(!ignoreCache && this._settingsArrayStore.has(className)) {
-            return this._settingsArrayStore.get(className) as T[]
-        }
-
-        // DB
-        let url = this.getSettingsUrl(className, undefined, true)
-        const response = await fetch(url, {
-            headers: await this.getAuthHeader()
-        })
-        const jsonResult = await this.loadFromDatabase(className, undefined, true)
-        let result = jsonResult ? jsonResult as T[]|{ [key:string]: T }: undefined
-        if(result && !Array.isArray(result)) result = Object.values(result) as T[]
-        if(result) {
-            // Convert plain objects to class instances and cache them
-            for(let i=0; i<result.length; i++) {
-                result[i] = emptyInstance.__new(result[i])
-            }
-            this._settingsArrayStore.set(className, result)
+            this._settingsStore.set(className, result)
         }
         return result
     }
@@ -100,8 +67,8 @@ export default class DataBaseHelper {
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
         // Cache
-        if (!ignoreCache && this._settingsDictionaryStore.has(className)) {
-            const dictionary = this._settingsDictionaryStore.get(className) as { [key: string]: T }
+        if (!ignoreCache && this._settingsStore.has(className)) {
+            const dictionary = this._settingsStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
                 return dictionary[key]
             }
@@ -115,11 +82,11 @@ export default class DataBaseHelper {
             if (!Utils.isEmptyObject(result)) {
                 result = emptyInstance.__new(result)
             }
-            if (!this._settingsDictionaryStore.has(className)) {
+            if (!this._settingsStore.has(className)) {
                 const newDic: { [key: string]: T } = {}
-                this._settingsDictionaryStore.set(className, newDic)
+                this._settingsStore.set(className, newDic)
             }
-            const dictionary = this._settingsDictionaryStore.get(className)
+            const dictionary = this._settingsStore.get(className)
             if (dictionary && !Utils.isEmptyObject(result)) dictionary[key] = result
         }
         return Utils.isEmptyObject(result) ? undefined : result
@@ -155,14 +122,14 @@ export default class DataBaseHelper {
 
         // Cache
         if(response.ok) {
+            if(!key) {
+                const jsonData = await response.json()
+                key = jsonData.groupKey
+            }
             if(key) {
-                if(!this._settingsDictionaryStore.has(className)) this._settingsDictionaryStore.set(className, {})
-                const dictionary = this._settingsDictionaryStore.get(className)
+                if(!this._settingsStore.has(className)) this._settingsStore.set(className, {})
+                const dictionary = this._settingsStore.get(className)
                 if(dictionary) dictionary[key] = setting
-            } else {
-                if(!this._settingsArrayStore.has(className)) this._settingsArrayStore.set(className, [])
-                const arr = this._settingsArrayStore.get(className)
-                if(arr) arr.push(setting)
             }
         }
 
@@ -192,7 +159,7 @@ export default class DataBaseHelper {
 
         // Cache
         if(response.ok) {
-            const dictionary = this._settingsDictionaryStore.get(className)
+            const dictionary = this._settingsStore.get(className)
             if(dictionary) delete dictionary[key]
         }
 
@@ -208,15 +175,13 @@ export default class DataBaseHelper {
      * Returns the relative path to the settings file
      * @param groupClass Main category to load.
      * @param groupKey Specific item to fetch.
-     * @param noGroupKey Load items that have on key.
      * @returns
      */
-    private static getSettingsUrl(groupClass: string|undefined = undefined, groupKey: string|undefined = undefined, noGroupKey: boolean = false): string {
+    private static getSettingsUrl(groupClass: string|undefined = undefined, groupKey: string|undefined = undefined): string {
         let url = './db_settings.php'
         const params: string[] = []
         if(groupClass) params.push(`groupClass=${groupClass}`)
         if(groupKey) params.push(`groupKey=${groupKey}`)
-        params.push(`noGroupKey=${noGroupKey?1:0}`)
         if(params.length > 0) url += '?' + params.join('&')
         return url
     }

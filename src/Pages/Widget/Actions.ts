@@ -1088,7 +1088,7 @@ export class Actions {
                             states.textTagCache.lastDictionarySubstitute = word
                             await DataBaseHelper.saveSetting(entry, word)
                         }
-                        const fullDictionary = await DataBaseHelper.loadSettingsDictionary(new SettingDictionaryEntry())
+                        const fullDictionary = await DataBaseHelper.loadSettings(new SettingDictionaryEntry())
                         if(fullDictionary) {
                             const dictionaryEntries = Object.entries(fullDictionary).map((pair)=>{
                                 return { original: pair[0], substitute: pair[1].substitute } as IDictionaryEntry

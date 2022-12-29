@@ -18,18 +18,18 @@ if($method === 'head') {
 $groupClass = $_GET['class'] ?? $_GET['groupClass'] ?? null;
 if($method !== 'get' && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
 $groupKey = $_GET['key'] ?? $_GET['groupKey'] ?? null;
-$noGroupKey = boolval($_GET['nokey'] ?? $_GET['noGroupKey'] ?? '');
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 
 // Execute
 $output = null;
 switch($method) {
     case 'post':
-        $output = $db->saveSetting(
+        $result = $db->saveSetting(
             $groupClass,
             $groupKey,
             $dataJson
         );
+        $output = $result ? ['result'=>true, 'groupKey'=>$result] : $result;
         break;
     case 'delete':
         $output = $db->deleteSetting(
@@ -41,12 +41,11 @@ switch($method) {
         if(!$groupClass) $output = $db->getSettingsClassesWithCounts(); // All
         elseif(str_contains($groupClass, '*')) $output = $db->getSettingsClassesWithCounts($groupClass); // Filtered
         else {
-            if($noGroupKey) $output = $db->getSettingsArr($groupClass);
-            elseif($groupKey) {
-                $output = $db->getSetting($groupClass, $groupKey);
+            if($groupKey) {
+                $output = $db->getSettings($groupClass, $groupKey);
                 $array = is_object($output) ? get_object_vars($output) : $output;
                 $output = array_pop($array);
-            } else $output = $db->getSettingsDic($groupClass);
+            } else $output = $db->getSettings($groupClass);
         }
         break;
 }

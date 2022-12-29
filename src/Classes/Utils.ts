@@ -787,7 +787,7 @@ export default class Utils {
     }
 
     static async getRewardPairs(): Promise<IRewardData[]> {
-        const rewards = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
+        const rewards = await DataBaseHelper.loadSettings(new SettingTwitchReward()) ?? {}
         const rewardPairs: IRewardData[] = []
         for(const [id, obj] of Object.entries(rewards) as [string, SettingTwitchReward][]) {
             rewardPairs.push({key: obj.key as TKeys, id: id})

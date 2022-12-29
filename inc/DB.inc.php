@@ -91,18 +91,20 @@ class DB {
      * @param string $groupClass
      * @param string|null $groupKey
      * @param string $dataJson
-     * @return bool If saving was successful or not.
+     * @return string|bool The inserted/updated key or false if failed.
      */
     function saveSetting(
         string      $groupClass,
         string|null $groupKey,
         string      $dataJson
-    ): bool {
-        return $this->query("
-            INSERT INTO settings (groupClass, groupKey, dataJson) VALUES (?, ?, ?)
+    ): string|bool {
+        $uuid = $this->getUUID();
+        $result = $this->query("
+            INSERT INTO settings (groupClass, groupKey, dataJson) VALUES (?, IFNULL(?, ?), ?)
             ON DUPLICATE KEY
             UPDATE dataJson = ?;
-        ", [$groupClass, $groupKey, $dataJson, $dataJson]);
+        ", [$groupClass, $groupKey, $uuid, $dataJson, $dataJson]);
+        return $result ? ($groupKey ?? $uuid) : false;
     }
 
     /**
@@ -120,33 +122,19 @@ class DB {
             [$groupClass, $groupKey]);
     }
 
-    function getSetting(string $groupClass, string $groupKey) {
-        return $this->getSettings($groupClass, $groupKey);
-    }
-    function getSettingsDic(string $groupClass): stdClass {
-        return $this->getSettings($groupClass);
-    }
-    function getSettingsArr(string $groupClass): array {
-        return $this->getSettings($groupClass, null, true);
-    }
-
     /**
      * Get settings, either a dictionary keyed on groupKey, an array of rows with no groupKey, or a single item matched on groupKey.
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
-     * @param bool $rowsWithNoKeys Set to true to return array of entries with no key.
      * @return stdClass|array|null
      */
-    private function getSettings(
+    function getSettings(
         string $groupClass,
-        string|null $groupKey = null,
-        bool $rowsWithNoKeys = false
+        string|null $groupKey = null
     ) : stdClass|array|null {
         $query = 'SELECT * FROM settings WHERE groupClass = ?';
         $params = [$groupClass];
-        if($rowsWithNoKeys) {
-            $query .= ' AND groupKey IS NULL;';
-        } elseif($groupKey) {
+        if($groupKey) {
             $query .= ' AND groupKey = ?;';
             $params[] = $groupKey;
         }
@@ -154,17 +142,10 @@ class DB {
 
         $output = null;
         if(is_array($result)) {
-            if ($rowsWithNoKeys) {
-                $output = [];
-                foreach($result as $row) {
-                    $output[] = json_decode($row['dataJson']);
-                }
-            } else {
-                $output = new stdClass();
-                foreach($result as $row) {
-                    $groupKey = $row['groupKey'];
-                    $output->$groupKey = json_decode($row['dataJson']);
-                }
+            $output = new stdClass();
+            foreach($result as $row) {
+                $groupKey = $row['groupKey'];
+                $output->$groupKey = json_decode($row['dataJson']);
             }
         }
         return $output;
@@ -198,6 +179,11 @@ class DB {
 
 
     // region Helper Functions
+    private function getUUID(): string|null {
+        $result = $this->query('SELECT UUID() uuid;');
+        return is_array($result) ? array_pop($result)['uuid'] : null;
+    }
+
     private function getParamTypes(array $values): string {
         $result = [];
         foreach($values as $value) {

@@ -181,8 +181,8 @@ export default class ActionsCallbacks {
                     } else Utils.log(`Could not find user: ${possibleUserTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
-                    const quotes = await DataBaseHelper.loadSettingsArray(new SettingStreamQuote())
-                    const quote = Utils.randomFromArray(quotes)
+                    const quotes = await DataBaseHelper.loadSettings(new SettingStreamQuote()) ?? {}
+                    const quote = Utils.randomFromArray(Object.values(quotes))
                     if(quote) {
                         const date = new Date(quote.datetime)
                         const userData = await TwitchHelixHelper.getUserById(quote.quoteeUserId)
@@ -443,7 +443,7 @@ export default class ActionsCallbacks {
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchRedemption())
+                const redemptions = await DataBaseHelper.loadSettings(new SettingTwitchRedemption())
                 const userName = Utils.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
@@ -476,7 +476,7 @@ export default class ActionsCallbacks {
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchRedemption()) ?? {}
+                const redemptions = await DataBaseHelper.loadSettings(new SettingTwitchRedemption()) ?? {}
                 const speech = Config.controller.speechReferences['ClearRedemptions'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
                 let totalClearable = 0
@@ -834,7 +834,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const pageCount = 20
                 let lastCount = pageCount
-                const oldClips = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchClip())
+                const oldClips = await DataBaseHelper.loadSettings(new SettingTwitchClip())
                 const speech = Config.controller.speechReferences['Clips'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
 

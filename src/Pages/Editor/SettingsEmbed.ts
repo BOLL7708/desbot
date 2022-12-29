@@ -1,8 +1,8 @@
 import AuthUtils from '../../Classes/AuthUtils.js'
-import EditorSettingsHandler from './EditorSettingsHandler.js'
+import EditorHandler from './EditorHandler.js'
 
 (async ()=>{
     const authed = await AuthUtils.checkIfAuthed()
     if(!authed) window.location.href = './index.php'
-    const handler = new EditorSettingsHandler()
+    const handler = new EditorHandler('Setting*')
 })().then()

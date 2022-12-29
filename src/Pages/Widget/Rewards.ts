@@ -24,7 +24,7 @@ export default class Rewards {
         const states = StatesSingleton.getInstance()
 
         // Load reward IDs from settings
-        const storedRewards = await DataBaseHelper.loadSettingsDictionary(new SettingTwitchReward()) ?? {}
+        const storedRewards = await DataBaseHelper.loadSettings(new SettingTwitchReward()) ?? {}
 
         // Create missing rewards if any
         const allRewardKeys = Utils.getAllEventKeys(true)

@@ -1,21 +1,21 @@
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
 
-export default class EditorSettingsHandler {
-    private listDiv: HTMLDivElement|undefined
-
-    public constructor() {
+export default class EditorHandler {
+    private readonly _likeFilter: string|undefined
+    public constructor(like: string) {
+        this._likeFilter = like
         this.updateSideMenu().then()
     }
 
     private _sideMenuDiv: HTMLDivElement|undefined
-    private async updateSideMenu() {
+    async updateSideMenu() {
         if(!this._sideMenuDiv) {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
-        const classesAndCounts = await DataBaseHelper.loadClasses('Setting*')
+        const classesAndCounts = await DataBaseHelper.loadClasses(this._likeFilter ?? '')
         const title = document.createElement('h3') as HTMLHeadingElement
-        title.innerHTML = 'Settings'
+        title.innerHTML = 'List' // TODO: Customizable?
         this._sideMenuDiv.appendChild(title)
         for(const [group,count] of Object.entries(classesAndCounts)) {
             const link = document.createElement('span') as HTMLSpanElement
@@ -26,6 +26,7 @@ export default class EditorSettingsHandler {
             a.onclick = (event: Event) => {
                 if(event.cancelable) event.preventDefault()
                 console.log(`Load index for setting class: ${group}`)
+                this.showListOfItems(group).then()
             }
             link.appendChild(a)
             link.appendChild(document.createElement('br') as HTMLBRElement)
@@ -44,5 +45,7 @@ export default class EditorSettingsHandler {
         //  require a class instance to return something usable. I might have to rethink this
         //  database helper class, to have specific calls for converting to classes or not.
         // const items = await DataBaseHelper.loadSettingsDictionary()
+        const items = await DataBaseHelper.loadFromDatabase(group)
+        console.log(items)
     }
 }
