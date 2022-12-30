@@ -79,9 +79,34 @@ class DB {
     }
 
     function migrate(string $filePath): bool {
-        $query = file_get_contents($filePath);
-        if(empty($query)) return false;
-        return $this->query($query);
+        $lines = file( $filePath );
+        $validLines = [];
+        $success = false;
+        foreach ( $lines as $line ) {
+            // Check for comments
+            $splitOnComment = explode('-- ', trim($line));
+            $actualStr = trim(array_shift($splitOnComment)) ?? '';
+            if(empty($actualStr) || str_starts_with($actualStr, '--')) continue; // Skip empty or commented lines
+
+            // Check for statement ends
+            if(str_contains($actualStr, ';')) {
+                // If we have a split on semicolon, use the first part as end of the current statement.
+                $statementsArr = explode(';', $actualStr);
+                $tail = trim(array_pop($statementsArr));
+                foreach($statementsArr as $l) {
+                    $validLines[] = "$l;";
+                    $query = implode(PHP_EOL, $validLines);
+                    $validLines = [];
+                    $success = !!$this->query($query); // Submit current
+                    if(!$success) return false;
+                }
+                $validLines = empty($tail) ? [] : [$tail]; // Start on the remainder if not empty
+            } else {
+                $validLines[] = $actualStr;
+            }
+        }
+        if(empty($lines)) return false;
+        return $success;
     }
     // endregion
 
