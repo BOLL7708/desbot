@@ -1,5 +1,4 @@
 <?php
-
 class Twitch {
     static private string $_baseUrl = 'https://api.twitch.tv/helix';
     static private array $_userCache = [];

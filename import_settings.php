@@ -1,4 +1,6 @@
 <?php
+ini_set('display_errors', 0);
+
 // Map file names to classes as that is what we're using in the database.
 $classMap = [
     'channel_trophy_stats'=>'SettingChannelTrophyStat',

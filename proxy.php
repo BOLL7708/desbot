@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 0);
 $url = $_REQUEST['url'] ?? null;
 if($url != null) {
 	$ch = curl_init();
