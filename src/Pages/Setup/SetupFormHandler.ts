@@ -118,18 +118,19 @@ export default class SetupFormHandler {
         let importStatus = await DataBaseHelper.loadSetting(new SettingImportStatus(), 'Legacy', true)
         if(!importStatus || !importStatus.done) {
             await this._sections.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
-            const doImport = confirm('It is possible to import legacy settings, do you want do this import? Cancelling will mark it as done.')
+            const doImport = confirm('It is possible to import legacy settings from the _settings folder, do you want do this import? Cancelling will mark it as done.')
             importStatus = new SettingImportStatus()
             importStatus.done = true
             if(doImport) {
                 await this._sections.show('Loading', 'Importing...', 'This can take several minutes, please wait while all your old settings are being imported.')
                 const importResponse = await fetch('import_settings.php')
-                const importDictionary = importResponse.ok ? await importResponse.json() as { [key:string]: number } : { 'Nothing to import.': 0 }
+                const importDictionary = importResponse.ok ? await importResponse.json() as { [key:string]: number } : { 'Failed to import.': -1 }
                 const importArr: string[] = [];
                 for(const [str, num] of Object.entries(importDictionary)) {
-                    importArr.push(` ${str} - ${num}`)
+                    importArr.push(` ${str} => ${num}`)
                 }
-                alert('Result:\n'+importArr.join('\n'))
+                if(importArr.length == 0) alert('Nothing to import, either the _settings folder does not exist, or is empty.')
+                else alert('Result:\n'+importArr.join('\n'))
             }
             // To avoid asking every time, we mark this as done regardless if it was done or not.
             await DataBaseHelper.saveSetting(importStatus, 'Legacy')
