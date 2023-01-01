@@ -167,4 +167,8 @@ function saveSettingAndBuildOutput($class, $key, $setting, &$output) {
     }
 }
 
+if(array_keys($output) == 0) {
+    $output[] = 'Did not find folder: "./_settings/", or it was empty.';
+}
+
 Utils::outputJson($output);
