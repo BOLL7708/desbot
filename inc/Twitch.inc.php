@@ -32,6 +32,10 @@ class Twitch {
                 ]
             ]]
         );
-        return file_get_contents($url, false, $context);
+        try {
+            return file_get_contents($url, false, $context);
+        } catch(Exception $e) {
+            return '';
+        }
     }
 }
