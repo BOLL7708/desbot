@@ -451,7 +451,7 @@ Config.twitchChat = <ITwitchChatConfig> {
         srcEntries: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
         volume: 0.5
     },
-    speech: '%userName said: %userInput'
+    speech: '%userNick said: %userInput'
 }
 
 /*

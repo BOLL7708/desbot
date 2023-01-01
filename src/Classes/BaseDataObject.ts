@@ -29,7 +29,7 @@ export default abstract class BaseDataObject {
      */
     public __new<T>(props?: T): T&BaseDataObject {
         const obj = Object.create(this) as T&BaseDataObject // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
-        obj.__apply(props)
+        if(props) obj.__apply(props)
         return obj
     }
 }

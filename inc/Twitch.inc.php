@@ -10,7 +10,7 @@ class Twitch {
             return self::$_userCache[$login];
         }
         $jsonStr = self::loadPage(self::$_baseUrl."/users/?login=$login");
-        $json = json_decode($jsonStr);
+        $json = $jsonStr ? json_decode($jsonStr) : null;
         $id = intval($json?->data[0]?->id ?? '');
         self::$_userCache[$login] = $id;
         return $id;
