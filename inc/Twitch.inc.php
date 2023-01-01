@@ -1,5 +1,4 @@
 <?php
-
 class Twitch {
     static private string $_baseUrl = 'https://api.twitch.tv/helix';
     static private array $_userCache = [];
@@ -32,10 +31,6 @@ class Twitch {
                 ]
             ]]
         );
-        try {
-            return file_get_contents($url, false, $context);
-        } catch(Exception $e) {
-            return '';
-        }
+        return file_get_contents($url, false, $context);
     }
 }
