@@ -1,0 +1,2 @@
+-- Update any saved redirect URI to have the new file name of the landing page.
+UPDATE `settings` SET `dataJson`=REPLACE(`dataJson`, 'login.php', 'twitch_auth.php') WHERE `groupClass`='SettingTwitchClient' AND `groupKey`='Main';
