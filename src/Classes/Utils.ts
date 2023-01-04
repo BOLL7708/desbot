@@ -812,6 +812,12 @@ export default class Utils {
     static splitOnCaps(str: string): string[] {
         return str.split(/(?=[A-Z])/)
     }
+
+    static camelToTitle(str: string, removeHead: boolean = true): string {
+        const arr = this.splitOnCaps(str)
+        if(removeHead) return arr.splice(1).join(' ')
+        else return arr.join(' ')
+    }
 }
 
 interface IRewardData {

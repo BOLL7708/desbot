@@ -20,13 +20,34 @@ export default class DataBaseHelper {
     }
 
     // region Settings
-    static async loadFromDatabase(className: string, key: string|undefined = undefined): Promise<any|undefined> {
-        let url = this.getSettingsUrl(className, key)
+    static async loadFromDatabase(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
+        let url = this.getSettingsUrl(groupClass, groupKey)
         const response = await fetch(url, {
             headers: await this.getAuthHeader()
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
+    }
+    static async saveToDatabase(jsonStr: string, groupClass: string, groupKey: string|undefined): Promise<string|undefined> {
+        let url = this.getSettingsUrl(groupClass, groupKey)
+        const response = await fetch(url, {
+            headers: await this.getAuthHeader(true),
+            method: 'POST',
+            body: jsonStr
+        })
+        if(!groupKey && response.ok) {
+            const jsonData = await response.json()
+            groupKey = jsonData.groupKey
+        }
+        return response.ok ? groupKey : undefined
+    }
+    static async deleteFromDatabase(groupClass: string, groupKey: string): Promise<boolean> {
+        let url = this.getSettingsUrl(groupClass, groupKey)
+        const response = await fetch(url, {
+            headers: await this.getAuthHeader(true),
+            method: 'DELETE'
+        })
+        return response.ok
     }
 
     /**
@@ -113,32 +134,21 @@ export default class DataBaseHelper {
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
         // DB
-        let url = this.getSettingsUrl(className, key)
-        const response = await fetch(url, {
-            headers: await this.getAuthHeader(true),
-            method: 'POST',
-            body: JSON.stringify(setting)
-        })
+        key = await this.saveToDatabase(JSON.stringify(setting), className, key)
 
         // Cache
-        if(response.ok) {
-            if(!key) {
-                const jsonData = await response.json()
-                key = jsonData.groupKey
-            }
-            if(key) {
-                if(!this._settingsStore.has(className)) this._settingsStore.set(className, {})
-                const dictionary = this._settingsStore.get(className)
-                if(dictionary) dictionary[key] = setting
-            }
+        if(key) {
+            if(!this._settingsStore.has(className)) this._settingsStore.set(className, {})
+            const dictionary = this._settingsStore.get(className)
+            if(dictionary) dictionary[key] = setting
         }
 
         // Result
         Utils.log(
-            response.ok ? `Wrote '${className}' to DB` : `Failed to write '${className}' to DB`,
-            response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
+            key ? `Wrote '${className}' to DB` : `Failed to write '${className}' to DB`,
+            key ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
         )
-        return response.ok
+        return !!key
     }
 
     /**
@@ -151,24 +161,20 @@ export default class DataBaseHelper {
         if(this.checkAndReportClassError(className, 'deleteSingle')) return false
 
         // DB
-        let url = this.getSettingsUrl(className, key)
-        const response = await fetch(url, {
-            headers: await this.getAuthHeader(true),
-            method: 'DELETE'
-        })
+        const ok = await this.deleteFromDatabase(className, key)
 
         // Cache
-        if(response.ok) {
+        if(ok) {
             const dictionary = this._settingsStore.get(className)
             if(dictionary) delete dictionary[key]
         }
 
         // Result
         Utils.log(
-            response.ok ? `Deleted '${className}:${key}' from DB` : `Failed to delete '${className}:${key}' from DB`,
-            response.ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
+            ok ? `Deleted '${className}:${key}' from DB` : `Failed to delete '${className}:${key}' from DB`,
+            ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
         )
-        return response.ok
+        return ok
     }
 
     /**

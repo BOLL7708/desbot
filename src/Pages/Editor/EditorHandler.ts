@@ -1,5 +1,6 @@
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
+import JsonEditor from './JsonEditor.js'
 
 export default class EditorHandler {
     private readonly _likeFilter: string|undefined
@@ -19,33 +20,98 @@ export default class EditorHandler {
         this._sideMenuDiv.appendChild(title)
         for(const [group,count] of Object.entries(classesAndCounts)) {
             const link = document.createElement('span') as HTMLSpanElement
-            const name = Utils.splitOnCaps(group).splice(1).join(' ')
+            const name = Utils.camelToTitle(group)
             const a = document.createElement('a') as HTMLAnchorElement
             a.href = '#'
             a.innerHTML = `${name}</a>: <strong>${count}</strong>`
             a.onclick = (event: Event) => {
                 if(event.cancelable) event.preventDefault()
-                console.log(`Load index for setting class: ${group}`)
                 this.showListOfItems(group).then()
             }
             link.appendChild(a)
             link.appendChild(document.createElement('br') as HTMLBRElement)
             this._sideMenuDiv.appendChild(link)
-
-            // TODO: Do not try to instantiate classes, just use the JSON directly to
-            //  spawn an editor with associated fields.
-
-            // TODO: Make sure loading an array of data only loads entries WITHOUT a groupKey
-            //  Make sure loading a dictionary of data only loads entries WITH a groupKey
         }
     }
 
+    private _contentDiv: HTMLDivElement|undefined
     private async showListOfItems(group: string) {
-        // TODO: We cannot load the settings here on group alone, as the current functions
-        //  require a class instance to return something usable. I might have to rethink this
-        //  database helper class, to have specific calls for converting to classes or not.
-        // const items = await DataBaseHelper.loadSettingsDictionary()
+        if(!this._contentDiv) {
+            this._contentDiv = document.querySelector('#content') as HTMLDivElement
+        }
+        this._contentDiv.innerHTML = ''
+
+        // Title
+        const title = document.createElement('h2') as HTMLHeadingElement
+        title.innerHTML = Utils.camelToTitle(group)
+
+        // Dropdown & editor
         const items = await DataBaseHelper.loadFromDatabase(group)
-        console.log(items)
+        const dropdown = document.createElement('select') as HTMLSelectElement
+        dropdown.id = 'dropdown'
+        const dropdownLabel = document.createElement('label') as HTMLLabelElement
+        dropdownLabel.htmlFor = dropdown.id
+        dropdownLabel.innerText = 'Entries: '
+        if(this._contentDiv && items) {
+            for(const key of Object.keys(items)) {
+                const option = document.createElement('option') as HTMLOptionElement
+                option.innerText = key
+                option.value = key
+                dropdown.appendChild(option)
+            }
+        }
+
+        const editorContainer = document.createElement('div') as HTMLDivElement
+        editorContainer.id = 'editor-container'
+        const editor = new JsonEditor()
+        let currentKey = ''
+        const dropdownOnChange = (event: Event|undefined)=>{
+            currentKey = dropdown.value
+            editorContainer.innerHTML = ''
+            if(currentKey.length > 0) {
+                editorContainer.appendChild(editor.build(currentKey, items[currentKey]))
+            }
+        }
+        dropdown.onchange = dropdownOnChange
+        dropdownOnChange(undefined)
+
+        // Delete button
+        const editorDeleteButton = document.createElement('button') as HTMLButtonElement
+        editorDeleteButton.classList.add('editor-button', 'delete-button')
+        editorDeleteButton.innerHTML = 'Delete'
+        editorDeleteButton.onclick = async(event)=>{
+            const doDelete = confirm(`Do you want to delete ${group}:${currentKey}?`)
+            if(doDelete) {
+                const ok = await DataBaseHelper.deleteFromDatabase(group, currentKey)
+                if(ok) {
+                    alert(`Deletion of ${group}:${currentKey} was successful.`)
+                    await this.showListOfItems(group)
+                } else {
+                    alert(`Deletion of ${group}:${currentKey} failed.`)
+                }
+            }
+        }
+
+        // Save button
+        const editorSaveButton = document.createElement('button') as HTMLButtonElement
+        editorSaveButton.classList.add('editor-button', 'save-button')
+        editorSaveButton.innerHTML = 'Save'
+        editorSaveButton.onclick = async(event)=>{
+            const data = editor.getData()
+            const ok = await DataBaseHelper.saveToDatabase(JSON.stringify(data), group, currentKey)
+            if(ok) {
+                items[currentKey] = data
+                dropdownOnChange(undefined)
+            }
+            else alert(`Failed to save ${group}:${currentKey}`)
+        }
+
+        this._contentDiv.appendChild(title)
+        this._contentDiv.appendChild(dropdownLabel)
+        this._contentDiv.appendChild(dropdown)
+        this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
+        this._contentDiv.appendChild(editorContainer)
+        this._contentDiv.appendChild(editorDeleteButton)
+        this._contentDiv.appendChild(editorSaveButton)
     }
 }

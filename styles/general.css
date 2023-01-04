@@ -69,11 +69,18 @@ html, body {
     background-color: #c0c0c0;
 }
 
-
 /* Content */
 #content {
     flex: 1;
     box-sizing: border-box;
     padding: 0.5em;
     overflow: auto;
+}
+
+input, select, button {
+    border-radius: 0.5em;
+    font-size: 100%;
+    padding: 0.25em;
+    border-color: #808080;
+    border-style: solid;
 }
