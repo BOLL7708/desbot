@@ -1,5 +1,28 @@
 import {TTwitchRedemptionStatus} from '../Interfaces/itwitch_pubsub.js'
-import BaseDataObject from './BaseDataObject.js'
+import BaseDataObject, {BaseDataObjectMap} from './BaseDataObject.js'
+
+export default class SettingsObjects extends BaseDataObjectMap {
+    constructor() {
+        super()
+        this.addInstance(new SettingUserVoice())
+        this.addInstance(new SettingUserName())
+        this.addInstance(new SettingUserMute())
+        this.addInstance(new SettingDictionaryEntry())
+        this.addInstance(new SettingTwitchReward())
+        this.addInstance(new SettingChannelTrophyStat())
+        this.addInstance(new SettingTwitchSub())
+        this.addInstance(new SettingTwitchCheer())
+        this.addInstance(new SettingTwitchClip())
+        this.addInstance(new SettingStreamQuote())
+        this.addInstance(new SettingTwitchRedemption())
+        this.addInstance(new SettingAccumulatingCounter())
+        this.addInstance(new SettingIncrementingCounter())
+        this.addInstance(new SettingTwitchClient())
+        this.addInstance(new SettingTwitchTokens())
+        this.addInstance(new SettingImportStatus())
+        this.addInstance(new SettingSteamAchievements())
+    }
+}
 
 // Settings
 export class SettingUserVoice extends BaseDataObject {

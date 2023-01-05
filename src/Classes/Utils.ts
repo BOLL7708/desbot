@@ -620,7 +620,7 @@ export default class Utils {
      * @returns The cloned data
      */
     static clone<Type>(data: Type): Type {
-        return JSON.parse(JSON.stringify(data))
+        return JSON.parse(JSON.stringify(data)) as Type
     }
 
     /**

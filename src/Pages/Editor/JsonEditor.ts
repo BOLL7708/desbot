@@ -3,24 +3,19 @@ import Utils from '../../Classes/Utils.js'
 export default class JsonEditor {
     private _data: any
     private _originalData: any
-    constructor(json?: string) {
-        if(json) {
-            this._data = JSON.parse(json)
-            this._originalData = JSON.parse(json)
-        }
-    }
+    constructor() {}
 
-    build(key: string, data?: any): HTMLElement {
+    build(key: string, data: object): HTMLElement {
         if(data) {
             this._data = Utils.clone(data)
             this._originalData = Utils.clone(data)
         }
         const root = this.buildUL()
-        this.stepData(root, data, [key])
+        this.stepData(root, this._data, [key])
         return root
     }
 
-    private stepData(root: HTMLElement, data: any, path: any[]) {
+    private stepData(root: HTMLElement, data: any, path: (string|number)[]) {
         const type = typeof data
         const thisKey = path[path.length-1] ?? 'root'
         switch(type) {
