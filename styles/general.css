@@ -84,3 +84,6 @@ input, select, button {
     border-color: #808080;
     border-style: solid;
 }
+label {
+    padding: 0.25em;
+}

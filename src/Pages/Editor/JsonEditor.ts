@@ -152,9 +152,9 @@ export default class JsonEditor {
             // If we're on the last depth, act on it
             if(i == path.length-1) {
                 // Not same as the stored one
-                if(current[path[i]] !== value) {
+                if(current[path[i]] != value) {
                     current[path[i]] = value
-                    if(currentOriginal[path[i]] === value) {
+                    if(currentOriginal[path[i]] == value) {
                         // Same as original value
                         label.style.backgroundColor = 'transparent'
                     } else {
@@ -165,6 +165,7 @@ export default class JsonEditor {
             } else {
                 // Continue to navigate down into the data structure
                 current = current[path[i]]
+                currentOriginal = currentOriginal[path[i]]
             }
         }
     }
