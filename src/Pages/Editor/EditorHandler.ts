@@ -22,10 +22,18 @@ export default class EditorHandler {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
         const classesAndCounts = await DataBaseHelper.loadClasses(this._likeFilter ?? '')
+        for(const className of this._classMap.getNames()) {
+            if(!classesAndCounts.hasOwnProperty(className)) {
+                // Add missing classes so they can still be edited
+                classesAndCounts[className] = 0
+            }
+        }
+
+        this._sideMenuDiv.innerHTML = ''
         const title = document.createElement('h3') as HTMLHeadingElement
         title.innerHTML = 'List' // TODO: Customizable?
         this._sideMenuDiv.appendChild(title)
-        for(const [group,count] of Object.entries(classesAndCounts)) {
+        for(const [group,count] of Object.entries(classesAndCounts).sort()) {
             const link = document.createElement('span') as HTMLSpanElement
             const name = Utils.camelToTitle(group)
             const a = document.createElement('a') as HTMLAnchorElement
@@ -94,7 +102,8 @@ export default class EditorHandler {
                 const ok = await DataBaseHelper.deleteFromDatabase(group, currentKey)
                 if(ok) {
                     alert(`Deletion of ${group}:${currentKey} was successful.`)
-                    await this.showListOfItems(group)
+                    this.updateSideMenu().then()
+                    this.showListOfItems(group).then()
                 } else {
                     alert(`Deletion of ${group}:${currentKey} failed.`)
                 }
@@ -110,9 +119,11 @@ export default class EditorHandler {
             const ok = await DataBaseHelper.saveToDatabase(JSON.stringify(data), group, currentKey)
             if(ok) {
                 items[currentKey] = data
-                await this.showListOfItems(group, currentKey)
+                this.updateSideMenu().then()
+                this.showListOfItems(group, currentKey).then()
+            } else {
+                alert(`Failed to save ${group}:${currentKey}`)
             }
-            else alert(`Failed to save ${group}:${currentKey}`)
         }
 
         this._contentDiv.appendChild(title)

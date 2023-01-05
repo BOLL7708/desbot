@@ -45,7 +45,7 @@ export default class JsonEditor {
                         }
                     } else if(data.constructor == Object) {
                         newRoot.innerHTML += ' {}'
-                        for(const key of Object.keys(data)) {
+                        for(const key of Object.keys(data).sort()) {
                             const newPath = this.clone(path)
                             newPath.push(key)
                             this.stepData(newUL, data[key], newPath)

@@ -55,4 +55,7 @@ export class BaseDataObjectMap {
         } else console.warn(`Class instance does not exist: ${className}`)
         return undefined
     }
+    public getNames(): string[] {
+        return Array.from(this._instanceMap.keys())
+    }
 }
