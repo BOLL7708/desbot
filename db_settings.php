@@ -15,21 +15,27 @@ if($method === 'head') {
 }
 
 // Parameters
-$groupClass = $_GET['class'] ?? $_GET['groupClass'] ?? null;
+$headers = getallheaders();
+$groupClass = $headers['X-Group-Class'] ?? $headers['x-group-class'] ?? null;
 if($method !== 'get' && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
-$groupKey = $_GET['key'] ?? $_GET['groupKey'] ?? null;
+$groupKey = $headers['X-Group-Key'] ?? $headers['x-group-key'] ?? null;
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
+$newGroupKey = $headers['X-New-Group-Key'] ?? $headers['x-new-group-key'] ?? null;
 
 // Execute
 $output = null;
 switch($method) {
     case 'post':
+        $updatedKey = false;
+        if($groupKey !== null && $newGroupKey !== null) {
+            $updatedKey = $db->updateKey($groupClass, $groupKey, $newGroupKey);
+        }
         $result = $db->saveSetting(
             $groupClass,
-            $groupKey,
+            $updatedKey ? $newGroupKey : $groupKey,
             $dataJson
         );
-        $output = $result ? ['result'=>true, 'groupKey'=>$result] : $result;
+        $output = $result !== false ? ['result'=>true, 'groupKey'=>$result] : $result;
         break;
     case 'delete':
         $output = $db->deleteSetting(

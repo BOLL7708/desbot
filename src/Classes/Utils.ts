@@ -824,3 +824,12 @@ interface IRewardData {
     key: TKeys
     id: string
 }
+
+// Tip from the TS Discord, ended up not using it, possibly useful later?
+export type TJson =
+    | boolean
+    | number
+    | string
+    | null
+    | readonly TJson[]
+    | { readonly [key: string]: TJson }

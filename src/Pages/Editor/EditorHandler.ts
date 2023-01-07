@@ -116,16 +116,15 @@ export default class EditorHandler {
         editorSaveButton.innerHTML = 'Save'
         editorSaveButton.onclick = async(event)=>{
             const data = editor.getData()
-            const ok = await DataBaseHelper.saveToDatabase(JSON.stringify(data), group, currentKey)
-            if(ok) {
-                items[currentKey] = data
+            const newKey = editor.getKey()
+            const key = await DataBaseHelper.saveToDatabase(JSON.stringify(data), group, currentKey, newKey)
+            if(key) {
                 this.updateSideMenu().then()
-                this.showListOfItems(group, currentKey).then()
+                this.showListOfItems(group, key).then()
             } else {
-                alert(`Failed to save ${group}:${currentKey}`)
+                alert(`Failed to save ${group}:${currentKey}|${newKey}`)
             }
         }
-
         this._contentDiv.appendChild(title)
         this._contentDiv.appendChild(dropdownLabel)
         this._contentDiv.appendChild(dropdown)

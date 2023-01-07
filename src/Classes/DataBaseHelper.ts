@@ -21,30 +21,48 @@ export default class DataBaseHelper {
 
     // region Settings
     static async loadFromDatabase(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
-        let url = this.getSettingsUrl(groupClass, groupKey)
+        let url = this.getSettingsUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader()
+            headers: await this.getAuthHeader(groupClass, groupKey)
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
     }
-    static async saveToDatabase(jsonStr: string, groupClass: string, groupKey: string|undefined): Promise<string|undefined> {
-        let url = this.getSettingsUrl(groupClass, groupKey)
+
+    /**
+     * Save to database
+     * @param jsonStr Data to store.
+     * @param groupClass Main category to load.
+     * @param groupKey Specific item to fetch.
+     * @param newGroupKey New key to replace old with.
+     */
+    static async saveToDatabase(
+        jsonStr: string,
+        groupClass: string,
+        groupKey: string|undefined,
+        newGroupKey: string|undefined = undefined
+    ): Promise<string|undefined> {
+        const extras: { [key: string]: string } = {}
+        if(newGroupKey && groupKey != newGroupKey) {
+            extras['X-New-Group-Key'] = newGroupKey
+        }
+
+        let url = this.getSettingsUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader(true),
+            headers: await this.getAuthHeader(groupClass, groupKey, true, extras),
             method: 'POST',
             body: jsonStr
         })
-        if(!groupKey && response.ok) {
+        if(response.ok) {
             const jsonData = await response.json()
             groupKey = jsonData.groupKey
         }
         return response.ok ? groupKey : undefined
     }
     static async deleteFromDatabase(groupClass: string, groupKey: string): Promise<boolean> {
-        let url = this.getSettingsUrl(groupClass, groupKey)
+        let url = this.getSettingsUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader(true),
+            headers: await this.getAuthHeader(groupClass, groupKey, true),
             method: 'DELETE'
         })
         return response.ok
@@ -70,7 +88,7 @@ export default class DataBaseHelper {
         if(result) {
             // Convert plain objects to class instances and cache them
             for(const [key, setting] of Object.entries(result)) {
-                result[key] = emptyInstance.__new(setting)
+                result[key] = emptyInstance.__new(setting as T&object)
             }
             this._settingsStore.set(className, result)
         }
@@ -101,7 +119,7 @@ export default class DataBaseHelper {
         if (result) {
             // Convert plain object to class instance
             if (!Utils.isEmptyObject(result)) {
-                result = emptyInstance.__new(result)
+                result = emptyInstance.__new(result as T&object)
             }
             if (!this._settingsStore.has(className)) {
                 const newDic: { [key: string]: T } = {}
@@ -117,9 +135,9 @@ export default class DataBaseHelper {
      * Load all available settings classes registered in the database.
      */
     static async loadClasses(like: string): Promise<{[group:string]: number}> {
-        const url = this.getSettingsUrl(like)
+        const url = this.getSettingsUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader()
+            headers: await this.getAuthHeader(like)
         })
         return response.ok ? await response.json() : []
     }
@@ -128,13 +146,14 @@ export default class DataBaseHelper {
      * Save a setting to the database.
      * @param setting Instance of the class to save.
      * @param key Optional key for the setting to save, will upsert if key is set, else insert.
+     * @param newKey
      */
-    static async saveSetting<T>(setting: T&BaseDataObject, key?: string): Promise<boolean> {
+    static async saveSetting<T>(setting: T&BaseDataObject, key?: string, newKey?: string): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
         // DB
-        key = await this.saveToDatabase(JSON.stringify(setting), className, key)
+        key = await this.saveToDatabase(JSON.stringify(setting), className, key, newKey)
 
         // Cache
         if(key) {
@@ -179,17 +198,10 @@ export default class DataBaseHelper {
 
     /**
      * Returns the relative path to the settings file
-     * @param groupClass Main category to load.
-     * @param groupKey Specific item to fetch.
-     * @returns
+     * @returns string
      */
-    private static getSettingsUrl(groupClass: string|undefined = undefined, groupKey: string|undefined = undefined): string {
-        let url = './db_settings.php'
-        const params: string[] = []
-        if(groupClass) params.push(`groupClass=${groupClass}`)
-        if(groupKey) params.push(`groupKey=${groupKey}`)
-        if(params.length > 0) url += '?' + params.join('&')
-        return url
+    private static getSettingsUrl(): string {
+        return './db_settings.php'
     }
 
     // endregion
@@ -198,13 +210,28 @@ export default class DataBaseHelper {
 
     /**
      * Get authorization header with optional JSON content type.
+     * @param groupClass
+     * @param groupKey
      * @param addJsonHeader
+     * @param extras
      * @private
      */
-    private static async getAuthHeader(addJsonHeader: boolean = false): Promise<HeadersInit> {
+    private static async getAuthHeader(
+        groupClass: string|undefined = undefined,
+        groupKey: string|undefined = undefined,
+        addJsonHeader: boolean = false,
+        extras: {[key:string]:string} = {}
+    ): Promise<HeadersInit> {
         const headers = new Headers()
         headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
+        if(groupClass !== undefined) headers.set('X-Group-Class', groupClass)
+        if(groupKey !== undefined) headers.set('X-Group-Key', groupKey)
         if (addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
+        if (Object.keys(extras).length > 0) {
+            for(const [key, value] of Object.entries(extras)) {
+                headers.set(key, value)
+            }
+        }
         return headers
     }
 

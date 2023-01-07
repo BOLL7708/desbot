@@ -112,6 +112,18 @@ class DB {
 
     // region Settings
     /**
+     * Update the groupKey for a specific row.
+     * @param string $groupClass
+     * @param string $groupKey
+     * @param string $newGroupKey
+     * @return bool
+     */
+    function updateKey(string $groupClass, string $groupKey, string $newGroupKey): bool {
+        $newKeyAlreadyExists = !!$this->query("SELECT groupKey FROM settings WHERE groupClass = ? AND groupKey = ? LIMIT 1;", [$groupClass, $newGroupKey]);
+        return !$newKeyAlreadyExists && !!$this->query("UPDATE settings SET groupKey = ? WHERE groupClass = ? AND groupKey = ?;", [$newGroupKey, $groupClass, $groupKey]);
+    }
+
+    /**
      * Save a setting, use subcategory and key if you want to be able to update it too.
      * @param string $groupClass
      * @param string|null $groupKey
