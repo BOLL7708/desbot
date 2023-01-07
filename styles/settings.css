@@ -8,6 +8,13 @@
 .editor-button {
     padding: 0.5em 2em;
 }
+.new-button {
+    margin-left: 1em;
+    background-color: lightgoldenrodyellow;
+}
+.new-button:hover {
+    background-color: gold;
+}
 .delete-button {
     margin-right: 10em;
     background-color: pink;

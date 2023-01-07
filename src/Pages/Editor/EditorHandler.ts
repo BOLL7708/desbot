@@ -2,7 +2,7 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
 import SettingsObjects from '../../Classes/SettingObjects.js'
-import {BaseDataObjectMap} from '../../Classes/BaseDataObject.js'
+import BaseDataObject, {BaseDataObjectMap} from '../../Classes/BaseDataObject.js'
 
 export default class EditorHandler {
     private readonly _likeFilter: string
@@ -81,31 +81,46 @@ export default class EditorHandler {
         editorContainer.id = 'editor-container'
         const editor = new JsonEditor()
         let currentKey = selectKey
-        const updateEditor = (event: Event|undefined)=>{
-            currentKey = dropdown.value
+        const updateEditor = (event: Event|undefined, clear: boolean = false)=>{
             editorContainer.innerHTML = ''
-            if(currentKey.length > 0) {
-                const instance = this._classMap.getInstance(group, items[currentKey]) ?? items[currentKey]
-                if(instance) editorContainer.appendChild(editor.build(currentKey, instance))
+            let instance: BaseDataObject|undefined = undefined
+            if(clear) {
+                currentKey = ''
+                instance = this._classMap.getInstance(group, {})
+                editorSaveButton.innerHTML = '✨ Save New'
+            } else {
+                currentKey = dropdown.value
+                if(currentKey.length > 0) {
+                    instance = this._classMap.getInstance(group, items[currentKey]) ?? items[currentKey]
+                }
+                editorSaveButton.innerHTML = '💾 Save'
             }
+            if(instance) editorContainer.appendChild(editor.build(currentKey, instance))
         }
         dropdown.onchange = updateEditor
-        updateEditor(undefined)
+
+        // New button
+        const editorNewButton = document.createElement('button') as HTMLButtonElement
+        editorNewButton.classList.add('editor-button', 'new-button')
+        editorNewButton.innerHTML = '✨ New'
+        editorNewButton.onclick = async (event)=>{
+            updateEditor(undefined, true)
+        }
 
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('editor-button', 'delete-button')
-        editorDeleteButton.innerHTML = 'Delete'
+        editorDeleteButton.innerHTML = '🔥 Delete'
         editorDeleteButton.onclick = async(event)=>{
-            const doDelete = confirm(`Do you want to delete ${group}:${currentKey}?`)
+            const doDelete = confirm(`Do you want to delete ${group} : ${currentKey}?`)
             if(doDelete) {
                 const ok = await DataBaseHelper.deleteFromDatabase(group, currentKey)
                 if(ok) {
-                    alert(`Deletion of ${group}:${currentKey} was successful.`)
+                    // alert(`Deletion of ${group} : ${currentKey} was successful.`)
                     this.updateSideMenu().then()
                     this.showListOfItems(group).then()
                 } else {
-                    alert(`Deletion of ${group}:${currentKey} failed.`)
+                    alert(`Deletion of ${group} : ${currentKey} failed.`)
                 }
             }
         }
@@ -113,7 +128,7 @@ export default class EditorHandler {
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
         editorSaveButton.classList.add('editor-button', 'save-button')
-        editorSaveButton.innerHTML = 'Save'
+        editorSaveButton.innerHTML = '💾 Save'
         editorSaveButton.onclick = async(event)=>{
             const data = editor.getData()
             const newKey = editor.getKey()
@@ -125,9 +140,12 @@ export default class EditorHandler {
                 alert(`Failed to save ${group}:${currentKey}|${newKey}`)
             }
         }
+
+        updateEditor(undefined)
         this._contentDiv.appendChild(title)
         this._contentDiv.appendChild(dropdownLabel)
         this._contentDiv.appendChild(dropdown)
+        this._contentDiv.appendChild(editorNewButton)
         this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)
