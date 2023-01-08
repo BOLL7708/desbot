@@ -40,7 +40,7 @@ export default class Functions {
 		// Init
 		const modules = ModulesSingleton.getInstance()
 		const states = StatesSingleton.getInstance()
-		states.lastSteamAppIsVR = isVr
+		states.lastSteamAppIsVR = isVr // TODO: Had deleted this before, possibly for 2D streaming, is this faulty and should be moved?
 
         // region Controller Options Toggling
 

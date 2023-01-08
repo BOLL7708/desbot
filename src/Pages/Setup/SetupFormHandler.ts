@@ -97,6 +97,7 @@ export default class SetupFormHandler {
         // Twitch credentials channel
         const twitchChannelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel', true)
         if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens) || twitchChannelTokens.scopes !== scopes) {
+            console.log('We need to login Channel Twitch account', twitchChannelTokens)
             return this._sections.show('TwitchLoginChannel')
         } else {
             // Update value on page, as this restarts after auth this will happen when auth has been completed.
@@ -107,6 +108,7 @@ export default class SetupFormHandler {
         // Twitch credentials chatbot
         const twitchChatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
         if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens) || twitchChatbotTokens.scopes !== scopes) {
+            console.log('We need to login Chatbot Twitch account', twitchChatbotTokens)
             return this._sections.show('TwitchLoginChatbot')
         } else {
             // Update value on page, as this restarts after auth this will happen when auth has been completed.
