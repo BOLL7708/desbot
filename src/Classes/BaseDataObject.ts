@@ -41,6 +41,15 @@ export default abstract class BaseDataObject {
 
 export class BaseDataObjectMap {
     private _instanceMap = new Map<string, BaseDataObject>()
+
+    /*
+     * TODO: This is supposed to store a reference to properties deep in the class
+     *  that should be arrays or dictionaries of other classes.
+     *  When there is a match when building the editor, it should spawn a way to add
+     *  new entries to this array or dictionary, and a way to edit dictionary keys.
+     */
+    private _subInstanceMap = new Map<string, BaseDataObject>()
+
     protected addInstance<T>(obj: BaseDataObject) {
         console.log(`Adding class: ${obj.constructor.name}`)
         this._instanceMap.set(obj.constructor.name, obj)
@@ -57,5 +66,22 @@ export class BaseDataObjectMap {
     }
     public getNames(): string[] {
         return Array.from(this._instanceMap.keys())
+    }
+    public addSubInstance<T>(path: string, obj: BaseDataObject) {
+        /*
+         * TODO: Might have to reconsider how to save this reference to where a
+         *  sub-class exists. Maybe make a separate method to build the path-name
+         *  from a class instance? We also need something that can take the path
+         *  array used in the editor to match against these... (string|number)[]
+         */
+        this._subInstanceMap.set(obj.constructor.name+path, obj)
+    }
+    public matchSubInstance(path: (string|number)[]): BaseDataObject|undefined {
+        /*
+         * TODO: Figure out how to use the incoming path data to match a path key
+         *  for sub-classes. This to know where to add buttons for adding/editing
+         *  said sub-classes in a class.
+         */
+        return undefined
     }
 }

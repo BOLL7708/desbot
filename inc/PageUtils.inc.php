@@ -15,6 +15,13 @@ class PageUtils {
         <title>Streaming Widget: <?=ucfirst($scriptFile)?>></title>
         <link rel="icon" type="image/x-icon" href="./media/sw_logo.ico" />
         <link rel="stylesheet" href="./styles/general.css"/>
+        <link rel="stylesheet" href="./styles/editor.css"/>
+        <?php
+            $filePath = "./styles/<?=$scriptFile?>.css";
+            if(file_exists($filePath)) {
+                echo '<link rel="stylesheet" href="'.$filePath.'">';
+            }
+        ?>
         <link rel="stylesheet" href="./styles/<?=$scriptFile?>.css"/>
     </head>
     <body>

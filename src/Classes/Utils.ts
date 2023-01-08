@@ -810,7 +810,7 @@ export default class Utils {
      * @param str
      */
     static splitOnCaps(str: string): string[] {
-        return str.split(/(?=[A-Z])/)
+        return str.split(/(?=[A-Z][a-z])/)
     }
 
     static camelToTitle(str: string, removeHead: boolean = true): string {

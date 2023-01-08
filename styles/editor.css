@@ -1,0 +1,30 @@
+#editor-container ul {
+    list-style-type: none;
+    padding-left: 1em;
+}
+#content li {
+    margin: 0.2em;
+}
+.editor-button {
+    padding: 0.5em 2em;
+}
+.new-button {
+    margin-left: 1em;
+    background-color: lightgoldenrodyellow;
+}
+.new-button:hover {
+    background-color: gold;
+}
+.delete-button {
+    margin-right: 10em;
+    background-color: pink;
+}
+.delete-button:hover {
+    background-color: hotpink;
+}
+.save-button {
+    background-color: lightgreen;
+}
+.save-button:hover {
+    background-color: limegreen;
+}

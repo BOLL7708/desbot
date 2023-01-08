@@ -4,10 +4,10 @@ PageUtils::printTop();
 ?>
         <div id="content">
             <h2>Config</h2>
-            <p>The idea is for this page to be able to edit any config that is in the database.</p>
+            <p>Access any of the configs stored in the database from the list to the left.</p>
             <?php Utils::includeFolder('./inc/embeds/editor')?>
         </div>
-        <!--<script type="module" src="./dist/Pages/Editor/EditorEmbed.js"></script>-->
+        <script type="module" src="./dist/Pages/Editor/ConfigEmbed.js"></script>
 <?php
 PageUtils::printBottom();
 ?>
