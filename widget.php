@@ -1,5 +1,6 @@
 <?php
 include_once('init.php');
+$debug = boolval($_REQUEST['debug'] ?? '0');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,13 +19,15 @@ include_once('init.php');
         <script type="module" src="./dist/Pages/Widget/WidgetEmbed.js"></script>
         <script type="module">
             // This is used for testing new features directly in the console, can be removed if need be.
-            await import('./dist/Classes/SettingObjects.js').then(m => window.SettingObjects = new m.default())
-            await import('./dist/Classes/ConfigObjects.js').then(m => window.ConfigObjects = new m.default())
+            if(<?=$debug?'true':'false';?>) {
+                await import('./dist/Classes/SettingObjects.js').then(m => window.SettingObjects = new m.default())
+                await import('./dist/Classes/ConfigObjects.js').then(m => window.ConfigObjects = new m.default())
 
-            await import('./dist/Classes/TwitchHelixHelper.js').then(m => window.TwitchHelixHelper = m.default)
-            await import('./dist/Classes/AssetsHelper.js').then(m => window.AssetsHelper = m.default)
-            await import('./dist/Classes/SteamStoreHelper.js').then(m => window.SteamStoreHelper = m.default)
-            await import('./dist/Classes/SteamWebHelper.js').then(m => window.SteamWebHelper = m.default)
+                await import('./dist/Classes/TwitchHelixHelper.js').then(m => window.TwitchHelixHelper = m.default)
+                await import('./dist/Classes/AssetsHelper.js').then(m => window.AssetsHelper = m.default)
+                await import('./dist/Classes/SteamStoreHelper.js').then(m => window.SteamStoreHelper = m.default)
+                await import('./dist/Classes/SteamWebHelper.js').then(m => window.SteamWebHelper = m.default)
+            }
         </script>
         <!-- DOM Elements -->
         <div id="container"></div>

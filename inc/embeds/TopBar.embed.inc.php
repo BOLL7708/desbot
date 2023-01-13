@@ -9,6 +9,7 @@
         <li><a href="config.php">🧩 Config</a></li>
         <li><a href="dashboard.php">🚦 Dashboard</a></li>
         <li><a href="widget.php" target="_blank">🎭 Widget (new tab)</a></li>
+        <li><a href="widget.php?debug=1" target="_blank">🚧 Widget (+debug)</a></li>
         <li><a href="index.php" id="topBarSignOutLink">🔥 Sign out</a></li>
         <?php } ?>
     </ul>
