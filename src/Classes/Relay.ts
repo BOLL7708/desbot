@@ -23,7 +23,8 @@ export default class Relay {
         this._socket._onError = this.onError.bind(this)
     }
     init() {
-        this._socket.init()
+        if(Config.controller.websocketsUsed.relay) this._socket.init()
+        else Utils.log('Relay: Will not init websockets as it is disabled in the config.', this._logColor)
     }
     setOnMessageCallback(callback: IOnRelayMessageCallback) {
         this._onMessageCallback = callback

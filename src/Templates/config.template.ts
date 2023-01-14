@@ -70,7 +70,9 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         obs: true,
         openvr2ws: false,
         pipe: false,
-        sssvr: false
+        relay: false,
+        sssvr: false,
+        sdrelay: false
     },
     commandPermissionsDefault: {
         streamer: true,

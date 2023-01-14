@@ -41,6 +41,10 @@ export interface IControllerConfig {
          */
         pipe: boolean
         /**
+         * WSRelay connection, used for remote control.
+         */
+        relay: boolean
+        /**
          * SuperScreenShotterVR connection, to take and receive SteamVR screenshots.
          */
         sssvr: boolean
