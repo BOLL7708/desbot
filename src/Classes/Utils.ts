@@ -48,13 +48,23 @@ export default class Utils {
         return cleanName
     }
 
-    static cleanName(name:string):string {
+    static cleanName(name:string): string {
+        // Check if the name is a binary string and try to convert it to something reasonable.
+        const binaryRegExp = new RegExp(/^[0-1]+$/)
+        if(binaryRegExp.test(name)) {
+            const hex = this.binaryToHexText(name)
+            const ascii = this.binaryAsciiToText(name)
+            const usernameCharsRegExp = new RegExp(/^[a-zA-Z0-9_]+$/)
+            if(ascii !== undefined && usernameCharsRegExp.test(ascii)) name = ascii
+            else if(hex !== undefined && usernameCharsRegExp.test(hex)) name = hex
+        }
+
         // Split on _ and keep the longest word
         let nameArr = name.toLowerCase().split('_') // Split on _
         let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b) // Reduce to longest word
         
         // Remove big number groups (len: 2+)
-        namePart = namePart.replace(/[0-9]{2,}/g, '') 
+        namePart = namePart.replace(/[0-9]{2,}/g, '')
         
         // Replace single digits with letters
         let numToChar:{[key: number]: string} = {
@@ -817,6 +827,42 @@ export default class Utils {
         const arr = this.splitOnCaps(str)
         if(removeHead) return arr.splice(1).join(' ')
         else return arr.join(' ')
+    }
+
+    /**
+     * Will return the converted ASCII text if valid, else undefined.
+     * @param binary
+     */
+    static binaryAsciiToText(binary: string): string|undefined {
+        if(binary.length%8 !== 0) return
+        const groups = binary.match(/.{8}/g)
+        if(!groups) return
+        let result = ""
+        for(const group of groups) {
+            const asciiCode = parseInt(group,2)
+            if(isNaN(asciiCode)) return
+            const char = String.fromCharCode(asciiCode)
+            if(char.length == 0) return
+            result += char
+        }
+        return result
+    }
+
+    /**
+     * Will return the converted HEX code as string if valid, else undefined.
+     * @param binary
+     */
+    static binaryToHexText(binary: string): string|undefined {
+        if(binary.length%4 !== 0) return
+        const groups = binary.match(/.{4}/g)
+        if(!groups) return
+        let result = ""
+        for(const group of groups) {
+            const num = parseInt(group , 2)
+            if(isNaN(num) || num < 0 || num > 15) return
+            result += num.toString(16)
+        }
+        return result
     }
 }
 

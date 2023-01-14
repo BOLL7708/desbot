@@ -20,13 +20,16 @@ $debug = boolval($_REQUEST['debug'] ?? '0');
         <script type="module">
             // This is used for testing new features directly in the console, can be removed if need be.
             if(<?=$debug?'true':'false';?>) {
+                // Instances
                 await import('./dist/Classes/SettingObjects.js').then(m => window.SettingObjects = new m.default())
                 await import('./dist/Classes/ConfigObjects.js').then(m => window.ConfigObjects = new m.default())
 
+                // Static classes
                 await import('./dist/Classes/TwitchHelixHelper.js').then(m => window.TwitchHelixHelper = m.default)
                 await import('./dist/Classes/AssetsHelper.js').then(m => window.AssetsHelper = m.default)
                 await import('./dist/Classes/SteamStoreHelper.js').then(m => window.SteamStoreHelper = m.default)
                 await import('./dist/Classes/SteamWebHelper.js').then(m => window.SteamWebHelper = m.default)
+                await import('./dist/Classes/Utils.js').then(m => window.Utils = m.default)
             }
         </script>
         <!-- DOM Elements -->
