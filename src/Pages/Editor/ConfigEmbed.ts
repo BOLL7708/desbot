@@ -6,5 +6,5 @@ import ConfigObjects from '../../Classes/ConfigObjects.js'
 (async ()=>{
     const authed = await AuthUtils.checkIfAuthed()
     if(!authed) window.location.href = './index.php'
-    const handler = new EditorHandler('Config*', new ConfigObjects())
+    const handler = new EditorHandler('Config*', new ConfigObjects(), true)
 })().then()

@@ -7,12 +7,15 @@ import BaseDataObject, {BaseDataObjectMap} from '../../Classes/BaseDataObject.js
 export default class EditorHandler {
     private readonly _likeFilter: string
     private readonly _classMap: BaseDataObjectMap
+    private readonly _forceMainKey: boolean
     public constructor(
         like: string,
         classMap: BaseDataObjectMap,
+        forceMainKey: boolean = false
     ) {
         this._likeFilter = like
         this._classMap = classMap
+        this._forceMainKey = forceMainKey
         this.updateSideMenu().then()
     }
 
@@ -29,10 +32,9 @@ export default class EditorHandler {
             }
         }
 
-        this._sideMenuDiv.innerHTML = ''
         const title = document.createElement('h3') as HTMLHeadingElement
         title.innerHTML = 'List' // TODO: Customizable?
-        this._sideMenuDiv.appendChild(title)
+        this._sideMenuDiv.replaceChildren(title)
         for(const [group,count] of Object.entries(classesAndCounts).sort()) {
             const link = document.createElement('span') as HTMLSpanElement
             const name = Utils.camelToTitle(group)
@@ -54,63 +56,72 @@ export default class EditorHandler {
         if(!this._contentDiv) {
             this._contentDiv = document.querySelector('#content') as HTMLDivElement
         }
-        this._contentDiv.innerHTML = ''
 
         // Title
         const title = document.createElement('h2') as HTMLHeadingElement
         title.innerHTML = Utils.camelToTitle(group)
 
         // Dropdown & editor
-        const items = await DataBaseHelper.loadFromDatabase(group)
-        const dropdown = document.createElement('select') as HTMLSelectElement
-        dropdown.id = 'dropdown'
-        const dropdownLabel = document.createElement('label') as HTMLLabelElement
-        dropdownLabel.htmlFor = dropdown.id
-        dropdownLabel.innerText = 'Entries: '
-        if(this._contentDiv && items) {
-            for(const key of Object.keys(items)) {
-                const option = document.createElement('option') as HTMLOptionElement
-                option.innerText = key
-                option.value = key
-                if(selectKey == key) option.selected = true
-                dropdown.appendChild(option)
-            }
-        }
-
         const editorContainer = document.createElement('div') as HTMLDivElement
         editorContainer.id = 'editor-container'
         const editor = new JsonEditor()
         let currentKey = selectKey
-        const updateEditor = (event: Event|undefined, clear: boolean = false)=>{
-            editorContainer.innerHTML = ''
+
+        const dropdown = document.createElement('select') as HTMLSelectElement
+        const dropdownLabel = document.createElement('label') as HTMLLabelElement
+        const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false)=>{
             let instance: BaseDataObject|undefined = undefined
             if(clear) {
-                currentKey = ''
+                currentKey = this._forceMainKey ? 'Main' : ''
                 instance = this._classMap.getInstance(group, {})
-                editorSaveButton.innerHTML = '✨ Save New'
+                if(!this._forceMainKey) editorSaveButton.innerHTML =  '✨ Save New'
             } else {
-                currentKey = dropdown.value
+                currentKey = this._forceMainKey ? 'Main' : dropdown.value
                 if(currentKey.length > 0) {
-                    instance = this._classMap.getInstance(group, items[currentKey]) ?? items[currentKey]
+                    instance = this._classMap.getInstance(group, items[currentKey]) ?? items[currentKey] // The ?? alternative are for test settings that has no class
+                } else {
+                    instance = this._classMap.getInstance(group, {})
                 }
                 editorSaveButton.innerHTML = '💾 Save'
             }
-            if(instance) editorContainer.appendChild(editor.build(currentKey, instance))
+            if(instance) editorContainer.replaceChildren(editor.build(currentKey, instance, markAsDirty, this._forceMainKey))
         }
-        dropdown.onchange = updateEditor
 
-        // New button
-        const editorNewButton = document.createElement('button') as HTMLButtonElement
-        editorNewButton.classList.add('editor-button', 'new-button')
-        editorNewButton.innerHTML = '✨ New'
-        editorNewButton.onclick = async (event)=>{
+        const items = await DataBaseHelper.loadFromDatabase(group)
+        if(this._forceMainKey) {
+            dropdown.style.display = 'none'
+            dropdownLabel.style.display = 'none'
             updateEditor(undefined, true)
+        } else {
+            dropdown.id = 'dropdown'
+            dropdownLabel.htmlFor = dropdown.id
+            dropdownLabel.innerText = 'Entries: '
+            if(this._contentDiv && items) {
+                for(const key of Object.keys(items)) {
+                    const option = document.createElement('option') as HTMLOptionElement
+                    option.innerText = key
+                    option.value = key
+                    if(selectKey == key) option.selected = true
+                    dropdown.appendChild(option)
+                }
+            }
+            // dropdown.onblur = updateEditor
+            dropdown.onclose = updateEditor
+            dropdown.onchange = updateEditor
+        }
+
+        // New or reset button
+        const editorNewOrResetButton = document.createElement('button') as HTMLButtonElement
+        editorNewOrResetButton.classList.add('editor-button', this._forceMainKey ? 'reset-button' : 'new-button')
+        editorNewOrResetButton.innerHTML = this._forceMainKey ? '🧼 Reset to defaults' : '✨ New'
+        editorNewOrResetButton.onclick = async (event)=>{
+            updateEditor(undefined, true, this._forceMainKey)
         }
 
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('editor-button', 'delete-button')
-        editorDeleteButton.innerHTML = '🔥 Delete'
+        editorDeleteButton.innerHTML = '💥 Delete'
         editorDeleteButton.onclick = async(event)=>{
             const doDelete = confirm(`Do you want to delete ${group} : ${currentKey}?`)
             if(doDelete) {
@@ -142,10 +153,10 @@ export default class EditorHandler {
         }
 
         updateEditor(undefined)
-        this._contentDiv.appendChild(title)
-        this._contentDiv.appendChild(dropdownLabel)
+        this._contentDiv.replaceChildren(title)
+        if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
         this._contentDiv.appendChild(dropdown)
-        this._contentDiv.appendChild(editorNewButton)
+        this._contentDiv.appendChild(editorNewOrResetButton)
         this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)

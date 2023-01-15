@@ -6,14 +6,27 @@
     margin: 0.2em;
 }
 .editor-button {
-    padding: 0.5em 2em;
+    padding: 0.25em 1em;
+    font-weight: bold;
+    color: rgba(0,0,0,0.66);
+}
+.editor-button:hover {
+    color: black;
+}
+.new-button, .reset-button {
+    margin-left: 1em;
 }
 .new-button {
-    margin-left: 1em;
     background-color: lightgoldenrodyellow;
 }
 .new-button:hover {
     background-color: gold;
+}
+.reset-button {
+    background-color: lightgray;
+}
+.reset-button:hover {
+    background-color: darkgray;
 }
 .delete-button {
     margin-right: 10em;

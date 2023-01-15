@@ -1,42 +1,62 @@
 import Utils from '../../Classes/Utils.js'
 
 export default class JsonEditor {
+    readonly _highlightColor = 'pink'
     private _key: string = ''
     private _originalKey: string = ''
     private _data: any
     private _originalData: any
+    private _inputs: HTMLInputElement[] = []
+    private _labels: HTMLLabelElement[] = []
+    private _hideKey: boolean = false
     constructor() {}
 
-    build(key: string, data: object): HTMLElement {
+    build(key: string, data: object, dirty: boolean = false, hideKey: boolean = false): HTMLElement {
         this._key = key
         this._originalKey = key
+        this._hideKey = hideKey
         if(data) {
             this._data = Utils.clone(data)
             this._originalData = Utils.clone(data)
         }
         const root = this.buildUL()
-        this.stepData(root, this._data, ['<strong>Key</strong>'], key)
+        this._inputs = []
+        this._labels = []
+        this.stepData(root, this._data, ['Key'], key, true)
+        if(dirty) this.highlightLabels()
         return root
     }
 
-    private stepData(root: HTMLElement, data: any, path: (string|number)[], groupKey: string|undefined = undefined) {
+    private highlightLabels() {
+        for(const label of this._labels) {
+            label.style.backgroundColor = this._highlightColor
+        }
+    }
+
+    private stepData(
+        root: HTMLElement,
+        data: any,
+        path: (string|number)[],
+        groupKey: string|undefined = undefined,
+        isRoot: boolean = false
+    ) {
         const type = typeof data
         const thisKey = path[path.length-1] ?? 'root'
         switch(type) {
             case 'string':
-                this.buildField(root, EJsonEditorFieldType.String, data, path)
+                this.buildField(root, EJsonEditorFieldType.String, data, path, isRoot)
                 break
             case 'number':
-                this.buildField(root, EJsonEditorFieldType.Number, data, path)
+                this.buildField(root, EJsonEditorFieldType.Number, data, path, isRoot)
                 break
             case 'boolean':
-                this.buildField(root, EJsonEditorFieldType.Boolean, data, path)
+                this.buildField(root, EJsonEditorFieldType.Boolean, data, path, isRoot)
                 break
             case 'object':
                 if(data === null) {
                     // TODO: Should this be included to be able to add some kind of
                     //  reference to something not set yet, like a sub structure?
-                    this.buildField(root, EJsonEditorFieldType.Null, data, path)
+                    this.buildField(root, EJsonEditorFieldType.Null, data, path, isRoot)
                 } else {
                     const newRoot = this.buildLI('')
                     const newUL = this.buildUL()
@@ -49,7 +69,7 @@ export default class JsonEditor {
                         }
                     } else if(data.constructor == Object) {
                         if(path.length == 1) { // Root object generates a key field
-                            this.buildField(root, EJsonEditorFieldType.String, `${groupKey ?? ''}`, path)
+                            this.buildField(root, EJsonEditorFieldType.String, `${groupKey ?? ''}`, path, isRoot)
                         } else {
                             newRoot.innerHTML += `<strong>${thisKey} {}</strong>`
                         }
@@ -81,14 +101,16 @@ export default class JsonEditor {
         root: HTMLElement,
         type: EJsonEditorFieldType,
         value: string|number|boolean|null,
-        path:(string|number)[]
+        path:(string|number)[],
+        isRoot: boolean
     ) {
         const key = path[path.length-1] ?? ''
-        const pathStr = JSON.stringify(path)
+        const pathStr = path.join('.')
 
         // Label
         const label = document.createElement('label') as HTMLLabelElement
-        label.innerHTML = `${key}: `
+        this._labels.push(label)
+        label.innerHTML = isRoot ? `<strong>${key}</strong>: ` : `${key}: `
         label.htmlFor = pathStr
 
         // Item
@@ -97,7 +119,9 @@ export default class JsonEditor {
 
         // Input
         const input = document.createElement('input') as HTMLInputElement
+        this._inputs.push(input)
         input.id = pathStr
+        if(isRoot && this._hideKey) input.disabled = true
 
         let skip = false
         let update = (event: Event) => {}
@@ -151,7 +175,6 @@ export default class JsonEditor {
     private updateValue(value: string|number|boolean, path: (string | number)[], label: HTMLLabelElement) {
         let current: any = this._data
         let currentOriginal: any = this._originalData
-        const highlightColor = 'pink'
         if(path.length == 1) {
             if(value == this._originalKey) {
                 // Same as original value
@@ -159,7 +182,7 @@ export default class JsonEditor {
             } else {
                 // New value
                 this._key = `${value}`
-                label.style.backgroundColor = highlightColor
+                label.style.backgroundColor = this._highlightColor
             }
         } else {
             for(let i = 1; i<path.length; i++) {
@@ -167,13 +190,13 @@ export default class JsonEditor {
                 if(i == path.length-1) {
                     // Not same as the stored one
                     if(current[path[i]] != value) {
-                        current[path[i]] = value
+                        current[path[i]] = value // Actual update in the JSON structure
                         if(currentOriginal[path[i]] == value) {
                             // Same as original value
                             label.style.backgroundColor = 'transparent'
                         } else {
                             // New value
-                            label.style.backgroundColor = highlightColor
+                            label.style.backgroundColor = this._highlightColor
                         }
                     }
                 } else {

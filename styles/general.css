@@ -87,3 +87,7 @@ input, select, button {
 label {
     padding: 0.25em;
 }
+input:disabled {
+    border-color: silver;
+    background-color: whitesmoke;
+}
