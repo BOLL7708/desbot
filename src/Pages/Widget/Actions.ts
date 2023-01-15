@@ -103,7 +103,7 @@ export class ActionHandler {
                 break
             case EBehavior.Incrementing:
                 // Load incremental counter
-                counter = await DataBaseHelper.loadSetting(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
+                counter = await DataBaseHelper.load(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
 
                 // Switch to the next incremental reward if it has more configs available
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
@@ -113,7 +113,7 @@ export class ActionHandler {
                         ? { ...rewardConfigs[0], ...rewardConfigs[counter.count] }
                         : rewardConfigs[counter.count]
                     if (newRewardConfig) {
-                        await DataBaseHelper.saveSetting(counter, this.key)
+                        await DataBaseHelper.save(counter, this.key)
                         TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
                     }
                 }
@@ -123,7 +123,7 @@ export class ActionHandler {
                 break
             case EBehavior.Accumulating:
                 // Load accumulating counter
-                counter = await DataBaseHelper.loadSetting(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
+                counter = await DataBaseHelper.load(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
                 counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
                 const goalCount = options.accumulationGoal ?? 0
                 const currentCount = counter.count ?? 0
@@ -144,7 +144,7 @@ export class ActionHandler {
                         ? Utils.clone({ ...rewardConfigs[0], ...rewardConfigs[rewardIndex] })
                         : Utils.clone(rewardConfigs[rewardIndex])
                     if (newRewardConfigClone) {
-                        await DataBaseHelper.saveSetting(counter, this.key)
+                        await DataBaseHelper.save(counter, this.key)
                         newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
                         const cost = newRewardConfigClone.cost ?? 0
@@ -320,7 +320,7 @@ export class Actions {
      */
     public static async buildEmptyUserData(source: EEventSource, key: TKeys, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         // TODO: Make this use the user ID instead of username?
-        const channelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         const user = await TwitchHelixHelper.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
         const input = userInput ?? ''
         return {
@@ -613,7 +613,7 @@ export class Actions {
                 }
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {
-                        const chatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+                        const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
                         const voiceOfUserTagged = await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? '', user)
                         const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelixHelper.getUserByLogin(voiceOfUserTagged) : undefined
                         const voiceUserId = parseInt(voiceUser?.id ?? '')
@@ -952,7 +952,7 @@ export class Actions {
                         const setting = new SettingUserMute()
                         setting.active = false
                         setting.reason = userInputRest
-                        await DataBaseHelper.saveSetting(setting, targetId.toString())
+                        await DataBaseHelper.save(setting, targetId.toString())
                         break
                     }
                     case ETTSFunction.SetUserDisabled: {
@@ -960,7 +960,7 @@ export class Actions {
                         const setting = new SettingUserMute()
                         setting.active = true
                         setting.reason = userInputRest
-                        await DataBaseHelper.saveSetting(setting, targetId.toString())
+                        await DataBaseHelper.save(setting, targetId.toString())
                         break
                     }
                     case ETTSFunction.SetUserNick: {
@@ -989,7 +989,7 @@ export class Actions {
                             setting.shortName = newNick
                             setting.editorUserId = id
                             setting.datetime = Utils.getISOTimestamp()
-                            await DataBaseHelper.saveSetting(setting, id.toString())
+                            await DataBaseHelper.save(setting, id.toString())
                         } else {
                             // We do nothing
                             states.textTagCache.lastTTSSetNickLogin = ''
@@ -1000,7 +1000,7 @@ export class Actions {
                     case ETTSFunction.GetUserNick: {
                         const userData = await TwitchHelixHelper.getUserById(targetOrUserId)
                         if(userData && userData.login.length) {
-                            const currentName = await DataBaseHelper.loadSetting(new SettingUserName(), userData.id)
+                            const currentName = await DataBaseHelper.load(new SettingUserName(), userData.id)
                             if(currentName) {
                                 states.textTagCache.lastTTSSetNickLogin = userData.display_name
                                 states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
@@ -1029,7 +1029,7 @@ export class Actions {
                             setting.shortName = cleanName
                             setting.editorUserId = user.id
                             setting.datetime = Utils.getISOTimestamp()
-                            await DataBaseHelper.saveSetting(setting, id.toString())
+                            await DataBaseHelper.save(setting, id.toString())
                         }
                         break
                     }
@@ -1053,7 +1053,7 @@ export class Actions {
                         word = ['+', '-'].includes(firstChar) ? word.substring(1) : word
                         const substitute = Utils.cleanSetting(userInputRest).toLowerCase()
 
-                        let entry = await DataBaseHelper.loadSetting(new SettingDictionaryEntry(), word)
+                        let entry = await DataBaseHelper.load(new SettingDictionaryEntry(), word)
                         if(!entry) {
                             entry = new SettingDictionaryEntry()
                             entry.substitute = ''
@@ -1080,15 +1080,15 @@ export class Actions {
                         if(word.length && substitute.length) {
                             const setting = new SettingDictionaryEntry()
                             setting.substitute = entry.substitute
-                            await DataBaseHelper.saveSetting(setting, word)
+                            await DataBaseHelper.save(setting, word)
                         }
                         // Clearing a word by setting it to itself
                         else if(word.length) {
                             entry.substitute = word
                             states.textTagCache.lastDictionarySubstitute = word
-                            await DataBaseHelper.saveSetting(entry, word)
+                            await DataBaseHelper.save(entry, word)
                         }
-                        const fullDictionary = await DataBaseHelper.loadSettings(new SettingDictionaryEntry())
+                        const fullDictionary = await DataBaseHelper.loadAll(new SettingDictionaryEntry())
                         if(fullDictionary) {
                             const dictionaryEntries = Object.entries(fullDictionary).map((pair)=>{
                                 return { original: pair[0], substitute: pair[1].substitute } as IDictionaryEntry
@@ -1101,7 +1101,7 @@ export class Actions {
                     }
                     case ETTSFunction.GetDictionaryEntry: {
                         const word = userInputHead.trim().toLowerCase()
-                        const entry = await DataBaseHelper.loadSetting(new SettingDictionaryEntry(), word)
+                        const entry = await DataBaseHelper.load(new SettingDictionaryEntry(), word)
                         if (entry) {
                             states.textTagCache.lastDictionaryWord = word
                             states.textTagCache.lastDictionarySubstitute = entry.substitute
@@ -1116,7 +1116,7 @@ export class Actions {
                         if (!id || user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
                             id = user.id
                         }
-                        const setting = await DataBaseHelper.loadSetting(new SettingUserVoice(), id.toString())
+                        const setting = await DataBaseHelper.load(new SettingUserVoice(), id.toString())
                         let gender = ''
                         // Use input for a specific gender
                         if (inputLowerCase.includes('f')) gender = 'female'

@@ -51,7 +51,7 @@ export default class Functions {
             states.lastSteamAppId = appId
             
 			// Load achievements before we update the ID for everything else, so we don't overwrite them by accident. (2022-10-01: Not sure if this is still needed)
-            await DataBaseHelper.loadSetting(new SettingSteamAchievements(), appId)
+            await DataBaseHelper.load(new SettingSteamAchievements(), appId)
             await SteamWebHelper.getGameSchema(appId)
             await SteamWebHelper.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
@@ -293,7 +293,7 @@ export default class Functions {
         const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
         if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
-            const steamAchievements = await DataBaseHelper.loadSetting(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
+            const steamAchievements = await DataBaseHelper.load(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
             const doneAchievements = steamAchievements.achieved.length
 
             // Remote
@@ -365,7 +365,7 @@ export default class Functions {
             }
             if(steamAchievements.achieved.length > doneAchievements) {
                 console.log("Save Achievements", steamAchievements, lastSteamAppId)
-                await DataBaseHelper.saveSetting(steamAchievements, lastSteamAppId) // Update states in DataBaseHelper
+                await DataBaseHelper.save(steamAchievements, lastSteamAppId) // Update states in DataBaseHelper
             }
             this._isLoadingAchievements = false
         } else {

@@ -211,7 +211,7 @@ export default class Callbacks {
             const subSetting = new SettingTwitchSub()
             subSetting.totalMonths = message.cumulative_months ?? 0
             subSetting.streakMonths = message.streak_months ?? 0
-            await DataBaseHelper.saveSetting(subSetting, message.user_id)
+            await DataBaseHelper.save(subSetting, message.user_id)
 
             // Announce sub
             if(sub) {
@@ -230,7 +230,7 @@ export default class Callbacks {
             const cheerSetting = new SettingTwitchCheer()
             cheerSetting.totalBits = message.data.total_bits_used
             cheerSetting.lastBits = message.data.bits_used
-            await DataBaseHelper.saveSetting(cheerSetting, message.data.user_id)
+            await DataBaseHelper.save(cheerSetting, message.data.user_id)
 
             // Announce cheer
             const bits = message.data.bits_used ?? 0
@@ -447,7 +447,7 @@ export default class Callbacks {
         modules.relay.setOnMessageCallback(async (message) => {
             const msg = message as IRelayTempMessage
             const relay = this._relays.get(msg.key)
-            const user = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+            const user = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
             if(relay) {
                 Utils.log(`Callbacks: Relay callback found for ${msg.key}: ${JSON.stringify(msg.data)}`, Color.Green)
                 relay.handler?.call(await Actions.buildEmptyUserData(EEventSource.Relay, msg.key, user?.userLogin, msg.data))

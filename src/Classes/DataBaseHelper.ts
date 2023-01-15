@@ -7,10 +7,10 @@ export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
     private static LOG_BAD_COLOR: string = Color.DarkRed
 
-    private static _settingsStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed settings in memory before saving to disk
+    private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed settings in memory before saving to disk
 
     static async testConnection(): Promise<boolean> {
-        const response = await fetch(this.getSettingsUrl(), {
+        const response = await fetch(this.getUrl(), {
             method: 'HEAD',
             headers: {
                 Authorization: Utils.getAuth()
@@ -20,10 +20,10 @@ export default class DataBaseHelper {
     }
 
     // region Settings
-    static async loadFromDatabase(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
-        let url = this.getSettingsUrl()
+    static async loadJson(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
+        let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader(groupClass, groupKey)
+            headers: await this.getHeader(groupClass, groupKey)
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
@@ -36,7 +36,7 @@ export default class DataBaseHelper {
      * @param groupKey Specific item to fetch.
      * @param newGroupKey New key to replace old with.
      */
-    static async saveToDatabase(
+    static async saveJson(
         jsonStr: string,
         groupClass: string,
         groupKey: string|undefined,
@@ -47,9 +47,9 @@ export default class DataBaseHelper {
             extras['X-New-Group-Key'] = newGroupKey
         }
 
-        let url = this.getSettingsUrl()
+        let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader(groupClass, groupKey, true, extras),
+            headers: await this.getHeader(groupClass, groupKey, true, extras),
             method: 'POST',
             body: jsonStr
         })
@@ -59,10 +59,10 @@ export default class DataBaseHelper {
         }
         return response.ok ? groupKey : undefined
     }
-    static async deleteFromDatabase(groupClass: string, groupKey: string): Promise<boolean> {
-        let url = this.getSettingsUrl()
+    static async deleteJson(groupClass: string, groupKey: string): Promise<boolean> {
+        let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader(groupClass, groupKey, true),
+            headers: await this.getHeader(groupClass, groupKey, true),
             method: 'DELETE'
         })
         return response.ok
@@ -73,59 +73,68 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadSettings<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
+    static async loadAll<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
         // Cache
-        if(!ignoreCache && this._settingsStore.has(className)) {
-            return this._settingsStore.get(className) as { [key: string]: T }
+        if(!ignoreCache && this._dataStore.has(className)) {
+            return this._dataStore.get(className) as { [key: string]: T }
         }
 
         // DB
-        const jsonResult = await this.loadFromDatabase(className)
+        const jsonResult = await this.loadJson(className)
         const result = jsonResult ? jsonResult as { [key: string]: T } : undefined
         if(result) {
             // Convert plain objects to class instances and cache them
             for(const [key, setting] of Object.entries(result)) {
                 result[key] = emptyInstance.__new(setting as T&object)
             }
-            this._settingsStore.set(className, result)
+            this._dataStore.set(className, result)
         }
         return result
     }
 
     /**
-     * Load one specific setting from the database, is using dictionary cache.
+     * Load a main blob from the database, or cache if it exists.
+     * @param emptyInstance Instance of the class to load.
+     * @param ignoreCache Will not use the in-memory cache.
+     */
+    static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T|undefined> {
+        return this.load(emptyInstance, 'Main', ignoreCache)
+    }
+
+    /**
+     * Load one specific blob from the database, or cache if it exists.
      * @param emptyInstance Instance of the class to load.
      * @param key The key for the row to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadSetting<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
+    static async load<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
         // Cache
-        if (!ignoreCache && this._settingsStore.has(className)) {
-            const dictionary = this._settingsStore.get(className) as { [key: string]: T }
+        if (!ignoreCache && this._dataStore.has(className)) {
+            const dictionary = this._dataStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
                 return dictionary[key]
             }
         }
 
         // DB
-        const jsonResult = await this.loadFromDatabase(className, key)
+        const jsonResult = await this.loadJson(className, key)
         let result: T|undefined = jsonResult ? jsonResult as T : undefined
         if (result) {
             // Convert plain object to class instance
             if (!Utils.isEmptyObject(result)) {
                 result = emptyInstance.__new(result as T&object)
             }
-            if (!this._settingsStore.has(className)) {
+            if (!this._dataStore.has(className)) {
                 const newDic: { [key: string]: T } = {}
-                this._settingsStore.set(className, newDic)
+                this._dataStore.set(className, newDic)
             }
-            const dictionary = this._settingsStore.get(className)
+            const dictionary = this._dataStore.get(className)
             if (dictionary && !Utils.isEmptyObject(result)) dictionary[key] = result
         }
         return Utils.isEmptyObject(result) ? undefined : result
@@ -135,9 +144,9 @@ export default class DataBaseHelper {
      * Load all available settings classes registered in the database.
      */
     static async loadClasses(like: string): Promise<{[group:string]: number}> {
-        const url = this.getSettingsUrl()
+        const url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getAuthHeader(like)
+            headers: await this.getHeader(like)
         })
         return response.ok ? await response.json() : []
     }
@@ -148,17 +157,17 @@ export default class DataBaseHelper {
      * @param key Optional key for the setting to save, will upsert if key is set, else insert.
      * @param newKey
      */
-    static async saveSetting<T>(setting: T&BaseDataObject, key?: string, newKey?: string): Promise<boolean> {
+    static async save<T>(setting: T&BaseDataObject, key?: string, newKey?: string): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
         // DB
-        key = await this.saveToDatabase(JSON.stringify(setting), className, key, newKey)
+        key = await this.saveJson(JSON.stringify(setting), className, key, newKey)
 
         // Cache
         if(key) {
-            if(!this._settingsStore.has(className)) this._settingsStore.set(className, {})
-            const dictionary = this._settingsStore.get(className)
+            if(!this._dataStore.has(className)) this._dataStore.set(className, {})
+            const dictionary = this._dataStore.get(className)
             if(dictionary) dictionary[key] = setting
         }
 
@@ -175,16 +184,16 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to delete.
      * @param key The key for the row to delete. // TODO: Could do this optional to delete a whole group, but that is scary... wait with adding until we need it.
      */
-    static async deleteSetting<T>(emptyInstance: T&BaseDataObject|string, key: string): Promise<boolean> {
+    static async delete<T>(emptyInstance: T&BaseDataObject|string, key: string): Promise<boolean> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'deleteSingle')) return false
 
         // DB
-        const ok = await this.deleteFromDatabase(className, key)
+        const ok = await this.deleteJson(className, key)
 
         // Cache
         if(ok) {
-            const dictionary = this._settingsStore.get(className)
+            const dictionary = this._dataStore.get(className)
             if(dictionary) delete dictionary[key]
         }
 
@@ -197,10 +206,10 @@ export default class DataBaseHelper {
     }
 
     /**
-     * Returns the relative path to the settings file
+     * Returns the relative path to the PHP file, this used to have functionality.
      * @returns string
      */
-    private static getSettingsUrl(): string {
+    private static getUrl(): string {
         return './db_settings.php'
     }
 
@@ -216,7 +225,7 @@ export default class DataBaseHelper {
      * @param extras
      * @private
      */
-    private static async getAuthHeader(
+    private static async getHeader(
         groupClass: string|undefined = undefined,
         groupKey: string|undefined = undefined,
         addJsonHeader: boolean = false,
@@ -226,8 +235,8 @@ export default class DataBaseHelper {
         headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
         if(groupClass !== undefined) headers.set('X-Group-Class', groupClass)
         if(groupKey !== undefined) headers.set('X-Group-Key', groupKey)
-        if (addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
-        if (Object.keys(extras).length > 0) {
+        if(addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
+        if(Object.keys(extras).length > 0) {
             for(const [key, value] of Object.entries(extras)) {
                 headers.set(key, value)
             }

@@ -68,7 +68,7 @@ export default class SetupFormHandler {
         await this.migrateDB()
 
         // Twitch client info
-        const twitchClient = await DataBaseHelper.loadSetting(new SettingTwitchClient(), 'Main', true)
+        const twitchClient = await DataBaseHelper.load(new SettingTwitchClient(), 'Main', true)
         if(!twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
             const form = this._formElements['TwitchClient']
@@ -95,7 +95,7 @@ export default class SetupFormHandler {
         let scopes = await scopesResponse.json()
         if(Array.isArray(scopes)) scopes = scopes.join(' ')
         // Twitch credentials channel
-        const twitchChannelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel', true)
+        const twitchChannelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel', true)
         if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens) || twitchChannelTokens.scopes !== scopes) {
             console.log('We need to login Channel Twitch account', twitchChannelTokens)
             return this._sections.show('TwitchLoginChannel')
@@ -106,7 +106,7 @@ export default class SetupFormHandler {
         }
 
         // Twitch credentials chatbot
-        const twitchChatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot', true)
+        const twitchChatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot', true)
         if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens) || twitchChatbotTokens.scopes !== scopes) {
             console.log('We need to login Chatbot Twitch account', twitchChatbotTokens)
             return this._sections.show('TwitchLoginChatbot')
@@ -117,7 +117,7 @@ export default class SetupFormHandler {
         }
 
         // Imports
-        let importStatus = await DataBaseHelper.loadSetting(new SettingImportStatus(), 'Legacy', true)
+        let importStatus = await DataBaseHelper.load(new SettingImportStatus(), 'Legacy', true)
         if(!importStatus || !importStatus.done) {
             await this._sections.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
             const doImport = confirm('It is possible to import legacy settings from the _settings folder, do you want do this import? Cancelling will mark it as done.')
@@ -135,7 +135,7 @@ export default class SetupFormHandler {
                 else alert('Result:\n'+importArr.join('\n'))
             }
             // To avoid asking every time, we mark this as done regardless if it was done or not.
-            await DataBaseHelper.saveSetting(importStatus, 'Legacy')
+            await DataBaseHelper.save(importStatus, 'Legacy')
         }
 
         // Done, show the dashboard.
@@ -180,7 +180,7 @@ export default class SetupFormHandler {
         event.preventDefault()
         await this._sections.show('Loading', 'Saving...', '')
         const inputData = this.getFormInputData(event.target, new SettingTwitchClient())
-        const ok = await DataBaseHelper.saveSetting(inputData, 'Main')
+        const ok = await DataBaseHelper.save(inputData, 'Main')
         if(ok) this.setup().then()
         else alert('Could not store Twitch Client settings in DataBaseHelper.')
     }
@@ -191,7 +191,7 @@ export default class SetupFormHandler {
         (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
             if(userId.length == 0) {
                 const reset = confirm('Could not retrieve Twitch tokens, do you want to reset the Twitch Client settings?')
-                if(reset) await DataBaseHelper.deleteSetting(new SettingTwitchClient(), 'Main')
+                if(reset) await DataBaseHelper.delete(new SettingTwitchClient(), 'Main')
             }
             await this.setup()
         }

@@ -45,7 +45,7 @@ export default class TwitchChat {
 
     private async onOpen(evt: any) {
         const userData = await TwitchHelixHelper.getUserByLogin(this._userName)
-        const tokens = await DataBaseHelper.loadSettings(new SettingTwitchTokens())
+        const tokens = await DataBaseHelper.loadAll(new SettingTwitchTokens())
         const tokenData = tokens
             ? Object.values(tokens)?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
             : undefined

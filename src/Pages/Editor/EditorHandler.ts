@@ -78,7 +78,7 @@ export default class EditorHandler {
             } else {
                 currentKey = this._forceMainKey ? 'Main' : dropdown.value
                 if(currentKey.length > 0) {
-                    instance = this._classMap.getInstance(group, items[currentKey]) ?? items[currentKey] // The ?? alternative are for test settings that has no class
+                    instance = this._classMap.getInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
                 } else {
                     instance = this._classMap.getInstance(group, {})
                 }
@@ -87,7 +87,7 @@ export default class EditorHandler {
             if(instance) editorContainer.replaceChildren(editor.build(currentKey, instance, markAsDirty, this._forceMainKey))
         }
 
-        const items = await DataBaseHelper.loadFromDatabase(group)
+        const items = await DataBaseHelper.loadJson(group)
         if(this._forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
@@ -125,7 +125,7 @@ export default class EditorHandler {
         editorDeleteButton.onclick = async(event)=>{
             const doDelete = confirm(`Do you want to delete ${group} : ${currentKey}?`)
             if(doDelete) {
-                const ok = await DataBaseHelper.deleteFromDatabase(group, currentKey)
+                const ok = await DataBaseHelper.deleteJson(group, currentKey)
                 if(ok) {
                     // alert(`Deletion of ${group} : ${currentKey} was successful.`)
                     this.updateSideMenu().then()
@@ -143,7 +143,7 @@ export default class EditorHandler {
         editorSaveButton.onclick = async(event)=>{
             const data = editor.getData()
             const newKey = editor.getKey()
-            const key = await DataBaseHelper.saveToDatabase(JSON.stringify(data), group, currentKey, newKey)
+            const key = await DataBaseHelper.saveJson(JSON.stringify(data), group, currentKey, newKey)
             if(key) {
                 this.updateSideMenu().then()
                 this.showListOfItems(group, key).then()

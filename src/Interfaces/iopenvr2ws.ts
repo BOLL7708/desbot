@@ -2,16 +2,6 @@ import {TKeys} from '../_data/!keys.js'
 import {ActionHandler} from '../Pages/Widget/Actions.js'
 
 /**
- * Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS
- */
-export interface IOpenVR2WSConfig {
-    /**
-     * The port that is set in the OpenVR2WS application.
-     */
-    port: number
-}
-
-/**
  * Change SteamVR setting.
  */
 export interface IOpenVR2WSSetting {

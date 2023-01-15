@@ -43,17 +43,17 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
-        await DataBaseHelper.loadSettings(new SettingUserMute())
-        await DataBaseHelper.loadSettings(new SettingUserName())
-        await DataBaseHelper.loadSettings(new SettingUserVoice())
-        await DataBaseHelper.loadSettings(new SettingTwitchTokens())
-        await DataBaseHelper.loadSettings(new SettingTwitchReward())
-        await DataBaseHelper.loadSettings(new SettingTwitchRedemption())
-        const dictionarySettings = await DataBaseHelper.loadSettings(new SettingDictionaryEntry())
-        await DataBaseHelper.loadSettings(new SettingTwitchClip())
-        await DataBaseHelper.loadSettings(new SettingIncrementingCounter())
-        await DataBaseHelper.loadSettings(new SettingAccumulatingCounter())
-        await DataBaseHelper.loadSettings(new SettingStreamQuote())
+        await DataBaseHelper.loadAll(new SettingUserMute())
+        await DataBaseHelper.loadAll(new SettingUserName())
+        await DataBaseHelper.loadAll(new SettingUserVoice())
+        await DataBaseHelper.loadAll(new SettingTwitchTokens())
+        await DataBaseHelper.loadAll(new SettingTwitchReward())
+        await DataBaseHelper.loadAll(new SettingTwitchRedemption())
+        const dictionarySettings = await DataBaseHelper.loadAll(new SettingDictionaryEntry())
+        await DataBaseHelper.loadAll(new SettingTwitchClip())
+        await DataBaseHelper.loadAll(new SettingIncrementingCounter())
+        await DataBaseHelper.loadAll(new SettingAccumulatingCounter())
+        await DataBaseHelper.loadAll(new SettingStreamQuote())
 
         const modules = ModulesSingleton.getInstance()
         if(dictionarySettings) {

@@ -110,12 +110,12 @@ export default class GoogleTTS {
         clearRanges: ITwitchEmotePosition[]=[],
         skipDictionary: boolean = false
     ) {
-        if(userId == 0) userId = (await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
+        if(userId == 0) userId = (await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
         const serial = ++this._count
         this._preloadQueue[serial] = null
 
         // Check blacklist
-        const blacklist = await DataBaseHelper.loadSetting(new SettingUserMute(), userId.toString())
+        const blacklist = await DataBaseHelper.load(new SettingUserMute(), userId.toString())
         if(blacklist?.active) {
             console.warn(`GoogleTTS: User ${userId} blacklisted, skipped!`, input)
             delete this._preloadQueue[serial]
@@ -151,10 +151,10 @@ export default class GoogleTTS {
         }
 
         // Get voice
-        let voice = await DataBaseHelper.loadSetting(new SettingUserVoice(), userId.toString())
+        let voice = await DataBaseHelper.load(new SettingUserVoice(), userId.toString())
         if(voice == null) {
             voice = await this.getDefaultVoice()
-            await DataBaseHelper.saveSetting(voice, userId.toString())
+            await DataBaseHelper.save(voice, userId.toString())
         }
 
         // Get username
@@ -266,7 +266,7 @@ export default class GoogleTTS {
 
     async setVoiceForUser(userId: number, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let loadedVoice = await DataBaseHelper.loadSetting(new SettingUserVoice(), userId.toString())
+        let loadedVoice = await DataBaseHelper.load(new SettingUserVoice(), userId.toString())
         const defaultVoice = await this.getDefaultVoice()
         let voice = defaultVoice
         if(loadedVoice != null) voice = loadedVoice
@@ -342,7 +342,7 @@ export default class GoogleTTS {
                 return
             }
         })
-        let success = await DataBaseHelper.saveSetting(voice, userId.toString())
+        let success = await DataBaseHelper.save(voice, userId.toString())
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
         return voice.voiceName
     }

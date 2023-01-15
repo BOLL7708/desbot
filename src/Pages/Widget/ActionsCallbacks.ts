@@ -150,7 +150,7 @@ export default class ActionsCallbacks {
                 if(user.input.length > 0 && (possibleUserTag.length > 0 || quote.length > 0)) {
                     // Get login or use channel name
                     const isTag = possibleUserTag.includes('@')
-                    const channelTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+                    const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
                     const userLogin = isTag
                         ? Utils.cleanUserName(possibleUserTag)
                         : channelTokens?.userLogin ?? ''
@@ -169,7 +169,7 @@ export default class ActionsCallbacks {
                         quoteSetting.quoteeUserId = parseInt(userData?.id ?? '')
                         quoteSetting.datetime = Utils.getISOTimestamp()
                         quoteSetting.game = gameData?.name ?? ''
-                        await DataBaseHelper.saveSetting(quoteSetting)
+                        await DataBaseHelper.save(quoteSetting)
                         const speech = Config.controller.speechReferences['Quote'] ?? ''
                         modules.tts.enqueueSpeakSentence(
                             await Utils.replaceTagsInText(
@@ -181,7 +181,7 @@ export default class ActionsCallbacks {
                     } else Utils.log(`Could not find user: ${possibleUserTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
-                    const quotes = await DataBaseHelper.loadSettings(new SettingStreamQuote()) ?? {}
+                    const quotes = await DataBaseHelper.loadAll(new SettingStreamQuote()) ?? {}
                     const quote = Utils.randomFromArray(Object.values(quotes))
                     if(quote) {
                         const date = new Date(quote.datetime)
@@ -245,7 +245,7 @@ export default class ActionsCallbacks {
                     const forMinutes = parseInt(parts[2])
                     const intervalMs = 10000 // 10s
                     const steps = forMinutes*60*1000/intervalMs
-                    const chatbotTokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Chatbot')
+                    const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) {
                         // Fail to start interval
                         modules.tts.enqueueSpeakSentence(
@@ -401,7 +401,7 @@ export default class ActionsCallbacks {
                             // If update was successful, also reset incremental setting as the reward should have been reset.
                             if(Array.isArray(rewardSetup)) {
                                 const reset = new SettingIncrementingCounter()
-                                await DataBaseHelper.saveSetting(reset, pair.key)
+                                await DataBaseHelper.save(reset, pair.key)
                             }
                             // TODO: Also reset accumulating counters here?!
                         } else {
@@ -443,7 +443,7 @@ export default class ActionsCallbacks {
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DataBaseHelper.loadSettings(new SettingTwitchRedemption())
+                const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption())
                 const userName = Utils.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
@@ -462,7 +462,7 @@ export default class ActionsCallbacks {
                         lastRedemption.status = 'CANCELED'
                         const result = await TwitchHelixHelper.updateRedemption(key, lastRedemption)
                         if(result) {
-                            await DataBaseHelper.saveSetting(lastRedemption, key)
+                            await DataBaseHelper.save(lastRedemption, key)
                             modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
                             modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[1], {targetTag: userTag}))
@@ -476,7 +476,7 @@ export default class ActionsCallbacks {
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DataBaseHelper.loadSettings(new SettingTwitchRedemption()) ?? {}
+                const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {}
                 const speech = Config.controller.speechReferences['ClearRedemptions'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
                 let totalClearable = 0
@@ -488,14 +488,14 @@ export default class ActionsCallbacks {
                         redemptionClone.status = 'FULFILLED'
                         const result = await TwitchHelixHelper.updateRedemption(key, redemptionClone)
                         if(result) {
-                            await DataBaseHelper.deleteSetting(new SettingTwitchRedemption(), key)
+                            await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
                             totalCleared++
                         } else if (result === null) { // Not found, so should be deleted.
-                            await DataBaseHelper.deleteSetting(new SettingTwitchRedemption(), key)
+                            await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
                         }
                     } else {
                         // It has a good state already, clear from list.
-                        await DataBaseHelper.deleteSetting(new SettingTwitchRedemption(), key)
+                        await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
                     }
                 }
 
@@ -522,7 +522,7 @@ export default class ActionsCallbacks {
                 const setting = new SettingChannelTrophyStat()
                 setting.userId = user.id
                 setting.index = user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream
-                const settingsUpdated = await DataBaseHelper.saveSetting(setting, cost.toString())
+                const settingsUpdated = await DataBaseHelper.save(setting, cost.toString())
                 if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward', Color.Red)
 
                 const userData = await TwitchHelixHelper.getUserById(user.id)
@@ -609,11 +609,11 @@ export default class ActionsCallbacks {
                             // We check if the reward counter is at zero because then we should not update as it enables
                             // the reward while it could have been disabled by profiles.
                             // To update settings for the widget reward, we update it as any normal reward, using !update.
-                            const current = await DataBaseHelper.loadSetting(new SettingIncrementingCounter(), key)
+                            const current = await DataBaseHelper.load(new SettingIncrementingCounter(), key)
                             if((current?.count ?? 0) > 0) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                                 const reset = new SettingIncrementingCounter()
-                                await DataBaseHelper.saveSetting(reset, key)
+                                await DataBaseHelper.save(reset, key)
                                 await TwitchHelixHelper.updateReward(await Utils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
                             } else {
@@ -653,11 +653,11 @@ export default class ActionsCallbacks {
                                 // We check if the reward counter is at zero because then we should not update as it enables
                                 // the reward while it could have been disabled by profiles.
                                 // To update settings for the widget reward, we update it as any normal reward, using !update.
-                                const current = await DataBaseHelper.loadSetting(new SettingAccumulatingCounter(), key)
+                                const current = await DataBaseHelper.load(new SettingAccumulatingCounter(), key)
                                 if((current?.count ?? 0) > 0) {
                                     Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
                                     const reset = new SettingAccumulatingCounter()
-                                    await DataBaseHelper.saveSetting(reset, key)
+                                    await DataBaseHelper.save(reset, key)
                                     const setup = Utils.clone(rewardSetup[0])
                                     user.rewardCost = setup.cost ?? 0
                                     user.eventKey = key
@@ -834,7 +834,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const pageCount = 20
                 let lastCount = pageCount
-                const oldClips = await DataBaseHelper.loadSettings(new SettingTwitchClip())
+                const oldClips = await DataBaseHelper.loadAll(new SettingTwitchClip())
                 const speech = Config.controller.speechReferences['Clips'] ?? []
                 modules.tts.enqueueSpeakSentence(speech[0]).then()
 
@@ -884,7 +884,7 @@ export default class ActionsCallbacks {
                             `**Link**: ${clip.url}`
                         ].join("\n")
                     }, (success)=>{
-                        if(success) DataBaseHelper.saveSetting(new SettingTwitchClip(), clip.id)
+                        if(success) DataBaseHelper.save(new SettingTwitchClip(), clip.id)
                     })
                 }
                 modules.tts.enqueueSpeakSentence(

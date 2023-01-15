@@ -31,15 +31,15 @@ export default class TwitchHelixHelper {
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
     private static async getAuthHeaders(): Promise<Headers> {
-        const tokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
-        const client = await DataBaseHelper.loadSetting(new SettingTwitchClient(), 'Main')
+        const tokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
+        const client = await DataBaseHelper.load(new SettingTwitchClient(), 'Main')
         const headers = new Headers()
         headers.append('Authorization', `Bearer ${tokens?.accessToken}`)
         headers.append('Client-Id', client?.clientId ?? '')
         return headers
     }
     private static async getBroadcasterUserId(): Promise<number> {
-        const tokens = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const tokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         return tokens?.userId ?? 0
     }
 

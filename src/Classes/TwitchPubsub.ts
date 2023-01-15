@@ -64,7 +64,7 @@ export default class TwitchPubsub {
     }
 
     private async onOpen(evt:any) {
-        const tokenData = await DataBaseHelper.loadSetting(new SettingTwitchTokens(), 'Channel')
+        const tokenData = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         const userId = tokenData?.userId ?? 0
         let payload = {
             type: "LISTEN",
@@ -107,7 +107,7 @@ export default class TwitchPubsub {
                                     redemptionStatus.time = redemption.redeemed_at
                                     redemptionStatus.status = redemption.status
                                     redemptionStatus.cost = redemption.reward?.cost
-                                    await DataBaseHelper.saveSetting(redemptionStatus, redemption.id)
+                                    await DataBaseHelper.save(redemptionStatus, redemption.id)
                                 }
                                 Utils.log(`Reward redeemed! (${id})`, this.LOG_COLOR)
                                 if(id !== null) this._onRewardCallback(id, rewardMessage)

@@ -1,7 +1,6 @@
 import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'
 import {IPhilipsHueConfig} from '../Interfaces/iphilipshue.js'
-import {IOpenVR2WSConfig} from '../Interfaces/iopenvr2ws.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IEventsConfig} from '../Interfaces/ievents.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
@@ -42,7 +41,6 @@ export default class Config {
     static screenshots: IScreenshotConfig
     static discord: IDiscordConfig
     static philipshue: IPhilipsHueConfig
-    static openvr2ws: IOpenVR2WSConfig
     static audioplayer: IAudioPlayerConfig
     static sign: ISignConfig
     static twitchChat: ITwitchChatConfig

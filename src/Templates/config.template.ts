@@ -3,7 +3,6 @@ import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'
 import {IPhilipsHueConfig} from '../Interfaces/iphilipshue.js'
-import {IOpenVR2WSConfig} from '../Interfaces/iopenvr2ws.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
@@ -380,19 +379,6 @@ Config.discord = <IDiscordConfig> {
 Config.philipshue = <IPhilipsHueConfig> { // Control Philips Hue lights
     serverPath: 'http://a-local-IP',
     lightsIds: [] // IDs of lights to affect with the color rewards
-}
-
-/*
-..#######..########..########.##....##.##.....##.########...#######..##......##..######.
-.##.....##.##.....##.##.......###...##.##.....##.##.....##.##.....##.##..##..##.##....##
-.##.....##.##.....##.##.......####..##.##.....##.##.....##........##.##..##..##.##......
-.##.....##.########..######...##.##.##.##.....##.########...#######..##..##..##..######.
-.##.....##.##........##.......##..####..##...##..##...##...##........##..##..##.......##
-.##.....##.##........##.......##...###...##.##...##....##..##........##..##..##.##....##
-..#######..##........########.##....##....###....##.....##.#########..###..###...######.
-*/
-Config.openvr2ws = <IOpenVR2WSConfig> {
-    port: 7708
 }
 
 /*

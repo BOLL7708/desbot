@@ -17,6 +17,8 @@ import Config from './Config.js'
 import Color from './ColorConstants.js'
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigOpenVR2WS} from './ConfigObjects.js'
 
 export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }
@@ -31,27 +33,27 @@ export default class OpenVR2WS {
 
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }
 
-    private _socket: WebSockets
+    private _socket: WebSockets|undefined = undefined
     private _resetLoopHandle: number = 0
     private _resetSettingMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
     private _resetSettingTimers: Map<string, number> = new Map()
     private _currentAppId?: string // Updated every time an ID is received
     public isConnected: boolean = false
     
-    constructor() {
-        const port = Config.openvr2ws.port
+    constructor() {}
+
+    async init() { // Init function as we want to set the callbacks before the first messages arrive.
+        const config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
+        const port = config?.port ?? new ConfigOpenVR2WS().port
         this._socket = new WebSockets(
             `ws://localhost:${port}`,
             10,
             false
         )
         this._socket._onMessage = this.onMessage.bind(this),
-        this._socket._onOpen = this.onOpen.bind(this)
+            this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onClose = this.onClose.bind(this)
         this._socket._onError = this.onError.bind(this)
-    }
-
-    init() { // Init function as we want to set the callbacks before the first messages arrive.
         this._socket.init();
         this.startResetLoop()
     }
@@ -89,12 +91,12 @@ export default class OpenVR2WS {
 
     public sendMessage(message: IOpenVRWSCommandMessage) {
         // console.log(JSON.stringify(message))
-        this._socket.send(JSON.stringify(message));
+        this._socket?.send(JSON.stringify(message));
     }
     public sendMessageWithPromise<T>(message: IOpenVRWSCommandMessage): Promise<T|undefined> {
-        return this._socket.sendMessageWithPromise<T>(
+        return this._socket?.sendMessageWithPromise<T>(
             JSON.stringify(message), message.nonce ?? '', 1000
-        )
+        ) ?? Promise<T|undefined>.resolve(undefined)
     }
 
     private onMessage(evt: MessageEvent) {
@@ -133,7 +135,7 @@ export default class OpenVR2WS {
                 case 'InputPose':
                     const inputPose: IOpenVR2WSInputPoseResponseData = data.data
                     if(data.nonce) {
-                        this._socket.resolvePromise(data.nonce, inputPose)
+                        this._socket?.resolvePromise(data.nonce, inputPose)
                     } else {
                         this._inputPoseCallback(inputPose)
                     }
@@ -145,13 +147,13 @@ export default class OpenVR2WS {
     }
 
     private onOpen(evt: any) {
-        if(this._statusCallback && this.isConnected !== true) {
+        if(this._statusCallback && !this.isConnected) {
             this.isConnected = true
             this._statusCallback(true)
         }
     }
     private onClose(evt: any) {
-        if(this._statusCallback && this.isConnected !== false) {
+        if(this._statusCallback && this.isConnected) {
             this.isConnected = false
             this._statusCallback(false)
         }

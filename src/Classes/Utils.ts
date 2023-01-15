@@ -36,14 +36,14 @@ export default class Utils {
         }
         const userId = userData?.id ?? ''
         const userName = userData?.login ?? ''
-        let cleanNameSetting = await DataBaseHelper.loadSetting(new SettingUserName(), userId)
+        let cleanNameSetting = await DataBaseHelper.load(new SettingUserName(), userId)
         let cleanName = cleanNameSetting?.shortName ?? userName
         if(!cleanName) {
             cleanName = this.cleanName(userName)
             const cleanNameSetting = new SettingUserName()
             cleanNameSetting.shortName = cleanName
             cleanNameSetting.datetime = Utils.getISOTimestamp()
-            await DataBaseHelper.saveSetting(cleanNameSetting, userId)
+            await DataBaseHelper.save(cleanNameSetting, userId)
         }
         return cleanName
     }
@@ -334,7 +334,7 @@ export default class Utils {
             // If we have a possible login, get the user data, if they exist
             const channelData = await TwitchHelixHelper.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await DataBaseHelper.loadSetting(new SettingUserVoice(), channelData.broadcaster_id)
+                const voice = await DataBaseHelper.load(new SettingUserVoice(), channelData.broadcaster_id)
                 tags.targetId = channelData.broadcaster_id
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
@@ -363,15 +363,15 @@ export default class Utils {
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
         const userIdStr = userData?.id?.toString() ?? ''
-        const subs = await DataBaseHelper.loadSetting(new SettingTwitchSub(), userIdStr)
-        const cheers = await DataBaseHelper.loadSetting(new SettingTwitchCheer(), userIdStr)
-        const voice = await DataBaseHelper.loadSetting(new SettingUserVoice(), userIdStr)
+        const subs = await DataBaseHelper.load(new SettingTwitchSub(), userIdStr)
+        const cheers = await DataBaseHelper.load(new SettingTwitchCheer(), userIdStr)
+        const voice = await DataBaseHelper.load(new SettingUserVoice(), userIdStr)
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
         const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
         const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
-        const eventCount = (await DataBaseHelper.loadSetting(new SettingAccumulatingCounter(), userData?.eventKey ?? ''))?.count ?? 0
+        const eventCount = (await DataBaseHelper.load(new SettingAccumulatingCounter(), userData?.eventKey ?? ''))?.count ?? 0
         const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
 
         const userBits = (userData?.bits ?? 0) > 0
@@ -797,7 +797,7 @@ export default class Utils {
     }
 
     static async getRewardPairs(): Promise<IRewardData[]> {
-        const rewards = await DataBaseHelper.loadSettings(new SettingTwitchReward()) ?? {}
+        const rewards = await DataBaseHelper.loadAll(new SettingTwitchReward()) ?? {}
         const rewardPairs: IRewardData[] = []
         for(const [id, obj] of Object.entries(rewards) as [string, SettingTwitchReward][]) {
             rewardPairs.push({key: obj.key as TKeys, id: id})

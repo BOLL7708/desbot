@@ -24,7 +24,7 @@ export default class Rewards {
         const states = StatesSingleton.getInstance()
 
         // Load reward IDs from settings
-        const storedRewards = await DataBaseHelper.loadSettings(new SettingTwitchReward()) ?? {}
+        const storedRewards = await DataBaseHelper.loadAll(new SettingTwitchReward()) ?? {}
 
         // Create missing rewards if any
         const allRewardKeys = Utils.getAllEventKeys(true)
@@ -39,7 +39,7 @@ export default class Rewards {
                 if(reward && reward.data && reward.data.length > 0) {
                     const newReward = new SettingTwitchReward()
                     newReward.key = key
-                    await DataBaseHelper.saveSetting(newReward, reward.data[0].id)
+                    await DataBaseHelper.save(newReward, reward.data[0].id)
                 }
             } else {
                 console.warn(`Reward ${key} is missing a setup.`)

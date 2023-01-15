@@ -12,6 +12,7 @@ export default class ConfigObjects extends BaseDataObjectMap {
     constructor() {
         super()
         // this.addInstance(new ConfigExample())
+        this.addInstance(new ConfigOpenVR2WS())
     }
 }
 
@@ -31,4 +32,14 @@ export class ConfigExample extends BaseDataObject {
 
 export class ConfigExampleSub {
     public subClassValue: string = ''
+}
+
+/**
+ * Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS.
+ */
+export class ConfigOpenVR2WS extends BaseDataObject {
+    /**
+     * The port that is set in the OpenVR2WS application.
+     */
+    port: number = 7708
 }
