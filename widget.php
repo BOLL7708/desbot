@@ -23,6 +23,7 @@ $debug = boolval($_REQUEST['debug'] ?? '0');
                 // Instances
                 await import('./dist/Classes/SettingObjects.js').then(m => window.SettingObjects = new m.default())
                 await import('./dist/Classes/ConfigObjects.js').then(m => window.ConfigObjects = new m.default())
+                await import('./dist/Classes/PhilipsHue.js').then(m => window.PhilipsHue = new m.default())
 
                 // Static classes
                 await import('./dist/Classes/TwitchHelixHelper.js').then(m => window.TwitchHelixHelper = m.default)

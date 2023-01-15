@@ -15,47 +15,69 @@ export default class PhilipsHue {
             // console.table(data)
         })
     }
-    setLightState(id:number, x:number, y:number) {
+    async setLightState(id:number, x:number, y:number): Promise<boolean> {
         const url = `${this._baseUrl}/lights/${id}/state`
         const body = {
             on: true,
             bri: 255,
             xy: [x,y] // Maybe use hue instead? This works though.
         }
-        fetch(url, {
+        const response = await fetch(url, {
             method: 'PUT',
             body: JSON.stringify(body)
         })
-        .then(response => response.json())
-        .then(data => {
+        if(response.ok) {
+            const result = await response.json()
+            let state = true
+            for(const r of result) { if(r?.success === undefined) state = false }
             Utils.log(`PhilipsHue: Set light ${id} to x:${x} y:${y}`, Color.Green)
-        })
-        .catch(error => {
-            Utils.log(`PhilipsHue: Error setting light ${id} to x:${x} y:${y}: ${error}`, Color.Red)
-        })
+            return state
+        } else {
+            Utils.log(`PhilipsHue: Error setting light ${id} to x:${x} y:${y}: ${response.statusText}`, Color.Red)
+            return false
+        }
     }
 
     runPlugConfig(config: IPhilipsHuePlugAction) {
-        this.setPlugState(config.id, config.triggerState)
+        // TODO: Use the response from the set function to see if we should retry.
+        //  Possibly also use the get state to make sure it worked.
+        this.setPlugState(config.id, config.triggerState).then()
         if(config.duration != undefined) {
             setTimeout(() => {
-                this.setPlugState(config.id, config.originalState)
+                this.setPlugState(config.id, config.originalState).then()
             }, config.duration*1000)
         }
     }
-    setPlugState(id: number, state: boolean) {
+    async getPlugState(id: number): Promise<boolean> {
+        const url = `${this._baseUrl}/lights/${id}`
+        const response = await fetch(url)
+        if(response.ok) {
+            const result = await response.json()
+            let state = true
+            for(const r of result) { if(r?.success === undefined) state = false }
+            Utils.log(`PhilipsHue: Get state for plug ${id}: ${state}`, Color.Green)
+            return state
+        } else {
+            Utils.log(`PhilipsHue: Error getting state for plug ${id}: ${response.statusText}`, Color.Red)
+            return false
+        }
+    }
+    async setPlugState(id: number, state: boolean): Promise<boolean> {
         const url = `${this._baseUrl}/lights/${id}/state`
         const body = {on: state}
-        fetch(url, {
+        const response = await fetch(url, {
             method: 'PUT',
             body: JSON.stringify(body)
         })
-        .then(response => response.json())
-        .then(data => {
+        if(response.ok) {
+            const result = await response.json()
+            let state = true
+            for(const r of result) { if(r?.success === undefined) state = false }
             Utils.log(`PhilipsHue: Attempted to set plug ${id} to ${state}`, Color.Green)
-        })
-        .catch(error => {
-            Utils.log(`PhilipsHue: Error setting plug ${id} to ${state}: ${error}`, Color.Red)
-        })
+            return state
+        } else {
+            Utils.log(`PhilipsHue: Error setting plug ${id} to ${state}: ${response.statusText}`, Color.Red)
+            return false
+        }
     }
 }
