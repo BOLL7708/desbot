@@ -21,6 +21,7 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ImageEditor from '../../Classes/ImageEditor.js'
 import {IRelayTempMessage} from '../../Classes/Relay.js'
 import {TKeys} from '../../_data/!keys.js'
+import {ConfigDiscord} from '../../Classes/ConfigObjects.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -131,8 +132,9 @@ export default class Callbacks {
             // Label messages with bits
             let label = ''
             if(!isNaN(bits) && bits > 0) {
+                const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
                 const unit = bits == 1 ? 'bit' : 'bits'
-                label = `${Config.discord.prefixCheer}**Cheered ${bits} ${unit}**: `
+                label = `${discordConfig.prefixCheer}**Cheered ${bits} ${unit}**: `
             }
             
             // TODO: Add more things like sub messages? Need to check that from raw logs.
@@ -163,7 +165,8 @@ export default class Callbacks {
             // Discord
             const amount = redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
-            let description = `${Config.discord.prefixReward}**${redemption.reward.title}${amountStr}** (${redemption.reward.cost})`
+            const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
+            let description = `${discordConfig.prefixReward}**${redemption.reward.title}${amountStr}** (${redemption.reward.cost})`
             if(redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(redemption.user_input))}`
             if(states.logChatToDiscord) {
                 DiscordUtils.enqueueMessage(
@@ -281,6 +284,7 @@ export default class Callbacks {
 
             const discordCfg = Config.credentials.DiscordWebhooks['DiscordVRScreenshot'] ?? ''
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
+            const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
             // Post screenshot to Sign and Discord
             if(requestData) { // A screenshot from a reward
@@ -303,7 +307,7 @@ export default class Callbacks {
                     const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                     const authorIconUrl = userData?.profile_image_url ?? ''
                     const color = Utils.hexToDecColor(
-                        await TwitchHelixHelper.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                        await TwitchHelixHelper.getUserColor(requestData.userId) ?? discordConfig.screenshotEmbedColorRemote
                     )
                     const descriptionText = description?.trim().length > 0
                         ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
@@ -324,7 +328,7 @@ export default class Callbacks {
                 if(discordCfg) {
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
-                    const color = Utils.hexToDecColor(Config.discord.manualScreenshotEmbedColor)
+                    const color = Utils.hexToDecColor(discordConfig.screenshotEmbedColorManual)
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
                     DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
                 }
@@ -336,6 +340,7 @@ export default class Callbacks {
             const discordCfg = Config.credentials.DiscordWebhooks['DiscordOBSScreenshot'] ?? ''
             const dataUrl = Utils.b64ToDataUrl(b64data)
             const nonceCallback = states.nonceCallbacks.get(nonce)
+            const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
             if(nonceCallback) nonceCallback()
 
             if(requestData != null) {
@@ -362,7 +367,7 @@ export default class Callbacks {
                     const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                     const authorIconUrl = userData?.profile_image_url ?? ''
                     const color = Utils.hexToDecColor(
-                        await TwitchHelixHelper.getUserColor(requestData.userId) ?? Config.discord.remoteScreenshotEmbedColor
+                        await TwitchHelixHelper.getUserColor(requestData.userId) ?? discordConfig.screenshotEmbedColorRemote
                     )
                     const descriptionText = description?.trim().length > 0
                         ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})

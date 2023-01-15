@@ -7,7 +7,6 @@ import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
 import {ISignConfig} from '../Interfaces/isign.js'
-import {IDiscordConfig} from '../Interfaces/idiscord.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {ISteamConfig} from '../Interfaces/isteam.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
@@ -39,7 +38,6 @@ export default class Config {
     static obs: IObsConfig
     static pipe: IPipeConfig
     static screenshots: IScreenshotConfig
-    static discord: IDiscordConfig
     static philipshue: IPhilipsHueConfig
     static audioplayer: IAudioPlayerConfig
     static sign: ISignConfig

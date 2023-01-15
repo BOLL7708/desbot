@@ -44,9 +44,8 @@ export default class OpenVR2WS {
 
     async init() { // Init function as we want to set the callbacks before the first messages arrive.
         const config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
-        const port = config?.port ?? new ConfigOpenVR2WS().port
         this._socket = new WebSockets(
-            `ws://localhost:${port}`,
+            `ws://localhost:${config.port}`,
             10,
             false
         )

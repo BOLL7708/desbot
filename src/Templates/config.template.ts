@@ -7,7 +7,6 @@ import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
 import {ISignConfig} from '../Interfaces/isign.js'
-import {IDiscordConfig} from '../Interfaces/idiscord.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {ISteamConfig} from '../Interfaces/isteam.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
@@ -349,22 +348,6 @@ Config.screenshots = <IScreenshotConfig> {
             // srcEntries: '_assets/yoursound.wav',
         }
     }
-}
-
-/*
-.########..####..######...######...#######..########..########.
-.##.....##..##..##....##.##....##.##.....##.##.....##.##.....##
-.##.....##..##..##.......##.......##.....##.##.....##.##.....##
-.##.....##..##...######..##.......##.....##.########..##.....##
-.##.....##..##........##.##.......##.....##.##...##...##.....##
-.##.....##..##..##....##.##....##.##.....##.##....##..##.....##
-.########..####..######...######...#######..##.....##.########.
-*/
-Config.discord = <IDiscordConfig> {
-    remoteScreenshotEmbedColor: '#000000',
-    manualScreenshotEmbedColor: '#FFFFFF',
-    prefixCheer: '*Cheer*: ',
-    prefixReward: '*Reward*: '
 }
 
 /*

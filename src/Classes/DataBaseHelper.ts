@@ -100,8 +100,8 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T|undefined> {
-        return this.load(emptyInstance, 'Main', ignoreCache)
+    static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T> {
+        return await this.load(emptyInstance, 'Main', ignoreCache) ?? emptyInstance
     }
 
     /**
