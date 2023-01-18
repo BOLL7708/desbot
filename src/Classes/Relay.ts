@@ -3,10 +3,12 @@ import Config from './Config.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import {TKeys} from '../_data/!keys.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigRelay} from './ConfigObjects.js'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen
-    private readonly _socket: WebSockets
+    private _socket: WebSockets|undefined = undefined
     private _authorized: boolean = false
     private readonly _prefix = ':::'
     private readonly _channel: string
@@ -16,13 +18,14 @@ export default class Relay {
         this._channel = channel ?? ''
         this._password = password ?? ''
         if(onMessageCallback) this._onMessageCallback = onMessageCallback
-        this._socket = new WebSockets(`ws://localhost:${Config.relay.port}`, 10, true)
+    }
+    async init() {
+        const configRelay = await DataBaseHelper.loadMain(new ConfigRelay())
+        this._socket = new WebSockets(`ws://localhost:${configRelay.port}`, 10, true)
         this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onClose = this.onClose.bind(this)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
-    }
-    init() {
         if(Config.controller.websocketsUsed.relay) this._socket.init()
         else Utils.log('Relay: Will not init websockets as it is disabled in the config.', this._logColor)
     }
@@ -34,7 +37,7 @@ export default class Relay {
     private onOpen(evt: Event) {
         if(this._channel.length > 0) {
             Utils.log(`Relay: Connected, joining #${this._channel}...`, this._logColor)
-            this._socket.send(`${this._prefix}CHANNEL:${this._channel}`)
+            this._socket?.send(`${this._prefix}CHANNEL:${this._channel}`)
         }
         else Utils.log(`Relay: Entered general channel, ready for use!`, this._logColor, true)
     }
@@ -51,7 +54,7 @@ export default class Relay {
                         if(code >= 10 && code < 20) { // Connected to channel
                             if(this._password.length > 0) {
                                 Utils.log(`Relay: Entered #${this._channel}, doing authorization...`, this._logColor)
-                                this._socket.send(`${this._prefix}PASSWORD:${this._password}`)
+                                this._socket?.send(`${this._prefix}PASSWORD:${this._password}`)
                             } else {
                                 Utils.log(`Relay: Entered #${this._channel}, ready for use!`, this._logColor, true)
                             }
@@ -63,7 +66,7 @@ export default class Relay {
                     case 'ERROR':
                         console.warn("Relay: Error", messageArr)
                         this._authorized = false
-                        this._socket.disconnect() // Just start the flow over, hope for the best!
+                        this._socket?.disconnect() // Just start the flow over, hope for the best!
                         break
                     default: console.error(messageArr)
                 }
@@ -90,11 +93,6 @@ export default class Relay {
     private onClose(event: Event) {
         this._authorized = false
     }
-}
-
-export interface IRelayConfig {
-    port: number
-    streamDeckChannel: string
 }
 
 export interface IOnRelayMessageCallback {

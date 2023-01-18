@@ -1,11 +1,10 @@
 import Utils from './Utils.js'
-import Config from './Config.js'
 import Color from './ColorConstants.js'
-import {ISignConfig} from '../Interfaces/isign.js'
 import {ISignAction} from '../Interfaces/iactions.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigSign} from './ConfigObjects.js'
 
 export default class Sign {
-    private _config: ISignConfig = Config.sign
     private _div: HTMLDivElement
     private _img: HTMLImageElement
     private _title: HTMLParagraphElement
@@ -13,9 +12,20 @@ export default class Sign {
     private _queue: ISignAction[] = []
     private _queueLoopHandle: number = 0
     private _isVisible: boolean = false
+    private _config: ConfigSign = new ConfigSign()
 
     constructor() {
         this._div = document.createElement('div')
+        this._title = document.createElement('p')
+        this._subtitle = document.createElement('p')
+        this._img = new Image()
+        document.body.appendChild(this._div)
+        this.init().then()
+        this.startQueueLoop()
+    }
+
+    private async init() {
+        this._config = await DataBaseHelper.loadMain(new ConfigSign())
         this._div.className = 'sign'
         this._div.style.width = `${this._config.width}px`
         this._div.style.height = `${this._config.height}px`
@@ -29,21 +39,13 @@ export default class Sign {
         this._div.style.textAlign = 'center'
         this._div.style.padding = '0 5px'
         this._div.style.boxSizing = 'border-box'
-        
-        this._title = document.createElement('p')
         this._title.style.fontWeight = 'bold'
-        this._img = new Image()
         this._img.style.width = '100%'
         this._img.style.borderRadius = '5px'
         this._img.style.boxShadow = '0 3px 3px 3px #0003'
-        this._subtitle = document.createElement('p')
-        
         this._div.appendChild(this._title)
         this._div.appendChild(this._img)
         this._div.appendChild(this._subtitle)
-
-        document.body.appendChild(this._div)
-        this.startQueueLoop()
     }
 
     private setVisible(visible: boolean) {

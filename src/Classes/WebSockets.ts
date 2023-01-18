@@ -126,7 +126,7 @@ export default class WebSockets {
     }
     sendMessageWithPromise<T>(message: string, nonce: string, timeout: number = 1000): Promise<T|undefined> {
         if(nonce.length == 0) console.warn('Message with promise registered with empty nonce!', message)
-        return new Promise((resolve)=>{
+        return new Promise((resolve, reject)=>{
             this.registerResolver(nonce, resolve, timeout)
             this.send(message)
         })

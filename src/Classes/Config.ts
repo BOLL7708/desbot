@@ -6,12 +6,10 @@ import {IEventsConfig} from '../Interfaces/ievents.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
-import {ISignConfig} from '../Interfaces/isign.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {ISteamConfig} from '../Interfaces/isteam.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
-import {IRelayConfig} from './Relay.js'
 
 /**
  * This is the static container that holds all configuration values.
@@ -40,8 +38,6 @@ export default class Config {
     static screenshots: IScreenshotConfig
     static philipshue: IPhilipsHueConfig
     static audioplayer: IAudioPlayerConfig
-    static sign: ISignConfig
     static twitchChat: ITwitchChatConfig
     static twitch: ITwitchConfig
-    static relay: IRelayConfig
 }

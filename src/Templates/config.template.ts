@@ -6,7 +6,6 @@ import {IPhilipsHueConfig} from '../Interfaces/iphilipshue.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
-import {ISignConfig} from '../Interfaces/isign.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {ISteamConfig} from '../Interfaces/isteam.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
@@ -385,26 +384,6 @@ Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
 }
 
 /*
-..######..####..######...##....##
-.##....##..##..##....##..###...##
-.##........##..##........####..##
-..######...##..##...####.##.##.##
-.......##..##..##....##..##..####
-.##....##..##..##....##..##...###
-..######..####..######...##....##
-*/
-Config.sign = <ISignConfig> {
-    enabled: true,
-    width: 200,
-    height: 300,
-    transitionDurationMs: 500,
-    fontFamily: 'sans-serif',
-    fontColor: 'white',
-    fontSize: '150%',
-    direction: 'left'
-}
-
-/*
 .########.##......##.####.########..######..##.....##.....######..##.....##....###....########
 ....##....##..##..##..##.....##....##....##.##.....##....##....##.##.....##...##.##......##...
 ....##....##..##..##..##.....##....##.......##.....##....##.......##.....##..##...##.....##...
@@ -502,8 +481,4 @@ Config.twitch = <ITwitchConfig> {
     eventOptionsPerGame: {
         // [GamesTemplate.A_GAME]: { 'YourReward': { multiTierMaxLevel: 5 } }
     }
-}
-Config.relay = {
-    port: 7788,
-    streamDeckChannel: 'streaming_widget'
 }

@@ -49,11 +49,11 @@ export default class OpenVR2WS {
             10,
             false
         )
-        this._socket._onMessage = this.onMessage.bind(this),
-            this._socket._onOpen = this.onOpen.bind(this)
+        this._socket._onMessage = this.onMessage.bind(this)
+        this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onClose = this.onClose.bind(this)
         this._socket._onError = this.onError.bind(this)
-        this._socket.init();
+        this._socket.init()
         this.startResetLoop()
     }
 
@@ -92,10 +92,10 @@ export default class OpenVR2WS {
         // console.log(JSON.stringify(message))
         this._socket?.send(JSON.stringify(message));
     }
-    public sendMessageWithPromise<T>(message: IOpenVRWSCommandMessage): Promise<T|undefined> {
+    public sendMessageWithPromise<T>(message: IOpenVRWSCommandMessage): Promise<T|undefined>|undefined {
         return this._socket?.sendMessageWithPromise<T>(
             JSON.stringify(message), message.nonce ?? '', 1000
-        ) ?? Promise<T|undefined>.resolve(undefined)
+        )
     }
 
     private onMessage(evt: MessageEvent) {
