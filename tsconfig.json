@@ -1,12 +1,18 @@
 {
-    "compilerOptions": {
-        "target": "es2019",
-        "watch": true,
-        "lib": ["dom", "es2019", "dom.iterable"],
-        "outDir": "dist",
-        "rootDir": "src",
-        "sourceMap": true,
-        "strict": true
-    },
-    "include": ["./src/**/*"]
+  "compilerOptions": {
+    "target": "es2019",
+    "watch": true,
+    "lib": [
+      "dom",
+      "es2019",
+      "dom.iterable"
+    ],
+    "outDir": "dist",
+    "rootDir": "src",
+    "sourceMap": true,
+    "strict": true
+  },
+  "include": [
+    "./src/**/*"
+  ]
 }

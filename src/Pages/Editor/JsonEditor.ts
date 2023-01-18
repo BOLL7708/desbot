@@ -6,12 +6,13 @@ export default class JsonEditor {
     private _originalKey: string = ''
     private _data: any
     private _originalData: any
+    private _docs: { [key:string]: string }|undefined = undefined
     private _inputs: HTMLInputElement[] = []
     private _labels: HTMLLabelElement[] = []
     private _hideKey: boolean = false
     constructor() {}
 
-    build(key: string, data: object, dirty: boolean = false, hideKey: boolean = false): HTMLElement {
+    build(key: string, data: object, docs: {[key:string]: string}|undefined, dirty: boolean = false, hideKey: boolean = false): HTMLElement {
         this._key = key
         this._originalKey = key
         this._hideKey = hideKey
@@ -19,6 +20,7 @@ export default class JsonEditor {
             this._data = Utils.clone(data)
             this._originalData = Utils.clone(data)
         }
+        this._docs = docs
         const root = this.buildUL()
         this._inputs = []
         this._labels = []
@@ -115,6 +117,9 @@ export default class JsonEditor {
 
         // Item
         const li = document.createElement('li') as HTMLLIElement
+        const docStr = this._docs ? this._docs[key] ?? '' : ''
+        let docLabel = (path.length == 2 && docStr.length > 0) ? ' 💬' : ''
+        if(docLabel.length > 0) li.title = docStr
         li.appendChild(label)
 
         // Input
@@ -164,6 +169,11 @@ export default class JsonEditor {
             input.onchange = update
             input.onblur = update
             li.appendChild(input)
+        }
+        if(docLabel.length > 0) {
+            const span = document.createElement('span') as HTMLSpanElement
+            span.innerHTML = docLabel
+            li.appendChild(span)
         }
         root.appendChild(li)
     }

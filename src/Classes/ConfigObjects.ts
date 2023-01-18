@@ -13,7 +13,12 @@ export default class ConfigObjects extends BaseDataObjectMap {
         super()
         // this.addInstance(new ConfigExample())
         this.addInstance(new ConfigOpenVR2WS())
-        this.addInstance(new ConfigDiscord())
+        this.addInstance(new ConfigDiscord(), {
+            prefixReward: 'Prefix added to reward messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
+            prefixCheer: 'Prefix added to cheer messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
+            screenshotEmbedColorRemote: 'Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.\n\nNote: This has to be a hex color to work with Discord.',
+            screenshotEmbedColorManual: 'Embed highlight color for manual screenshots.\n\nNote: This has to be a hex color to work with Discord.'
+        })
     }
 }
 
@@ -51,31 +56,8 @@ export class ConfigOpenVR2WS extends BaseDataObject {
  *  Maybe get all keys off a class, make that a new type, and fill a help dictionary?
  */
 export class ConfigDiscord extends BaseDataObject {
-    /**
-     * Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.
-     *
-     * Note: This has to be a hex color to work with Discord.
-     */
     screenshotEmbedColorRemote: string = '#000000'
-
-    /**
-     * Embed highlight color for manual screenshots.
-     *
-     * Note: This has to be a hex color to work with Discord.
-     */
     screenshotEmbedColorManual: string = '#FFFFFF'
-
-    /**
-     * Prefix added to cheer messages in the log.
-     *
-     * Note: This prefix should include a trailing space if you want it to be separated from the message.
-     */
     prefixCheer: string = '*Cheer*: '
-
-    /**
-     * Prefix added to reward messages in the log.
-     *
-     * Note: This prefix should include a trailing space if you want it to be separated from the message.
-     */
     prefixReward: string = '*Reward*: '
 }

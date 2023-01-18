@@ -84,7 +84,10 @@ export default class EditorHandler {
                 }
                 editorSaveButton.innerHTML = '💾 Save'
             }
-            if(instance) editorContainer.replaceChildren(editor.build(currentKey, instance, markAsDirty, this._forceMainKey))
+            if(instance) {
+                const documentation = this._classMap.getDocumentation(group)
+                editorContainer.replaceChildren(editor.build(currentKey, instance, documentation, markAsDirty, this._forceMainKey))
+            }
         }
 
         const items = await DataBaseHelper.loadJson(group)

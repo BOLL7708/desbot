@@ -39,8 +39,12 @@ export default abstract class BaseDataObject {
     }
 }
 
+// Types
+type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
+
 export class BaseDataObjectMap {
     private _instanceMap = new Map<string, BaseDataObject>()
+    private _documentationMap = new Map<string, { [key: string]: string }>()
 
     /*
      * TODO: This is supposed to store a reference to properties deep in the class
@@ -50,11 +54,20 @@ export class BaseDataObjectMap {
      */
     private _subInstanceMap = new Map<string, BaseDataObject>()
 
-    protected addInstance<T>(obj: BaseDataObject) {
-        console.log(`Adding class: ${obj.constructor.name}`)
-        this._instanceMap.set(obj.constructor.name, obj)
+    protected addInstance<T>(
+        obj: T&BaseDataObject,
+        docs: Partial<Record<TNoFunctions<T>, string>>|undefined = undefined
+    ) {
+        const className = obj.constructor.name
+        this._instanceMap.set(className, obj)
+        if(docs) {
+            this._documentationMap.set(
+                className,
+                docs as { [key:string]: string } // Partial somehow forced me to cast
+            )
+        }
     }
-    public getInstance(className: string, props: object|undefined): BaseDataObject|undefined {
+    public getInstance(className: string, props: object|undefined = undefined): BaseDataObject|undefined {
         console.log(`Loading instance ${className}...`)
         if(this._instanceMap.has(className)) {
             const instance = this._instanceMap.get(className)
@@ -67,6 +80,10 @@ export class BaseDataObjectMap {
     public getNames(): string[] {
         return Array.from(this._instanceMap.keys())
     }
+    public getDocumentation(className: string): { [key:string]: string }|undefined {
+        return this._documentationMap.get(className)
+    }
+
     public addSubInstance<T>(path: string, obj: BaseDataObject) {
         /*
          * TODO: Might have to reconsider how to save this reference to where a
