@@ -17,20 +17,20 @@ export default class ConfigObjects extends BaseDataObjectMap {
             port: 'The port that is set in the OpenVR2WS application.'
         })
         this.addInstance(new ConfigDiscord(), {
-            prefixReward: 'Prefix added to reward messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
             prefixCheer: 'Prefix added to cheer messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
-            screenshotEmbedColorRemote: 'Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.\n\nNote: This has to be a hex color to work with Discord.',
-            screenshotEmbedColorManual: 'Embed highlight color for manual screenshots.\n\nNote: This has to be a hex color to work with Discord.'
+            prefixReward: 'Prefix added to reward messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
+            screenshotEmbedColorManual: 'Embed highlight color for manual screenshots.\n\nNote: This has to be a hex color to work with Discord.',
+            screenshotEmbedColorRemote: 'Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.\n\nNote: This has to be a hex color to work with Discord.'
         })
         this.addInstance(new ConfigSign(), {
+            direction: 'From which side the Sign appears: `left, right, top, bottom`',
             enabled: 'Set if the Sign is enabled at all.',
-            width: 'The full width of the sign pop-in.',
-            height: 'The full height of the sign pop-in.',
-            transitionDurationMs: 'Amount of time it takes for the Sign to appear, in milliseconds.',
-            fontFamily: 'Font family of the titles in the Sign, can be any font that exists on the system.',
             fontColor: 'Font color of the titles in the Sign, can be an HTML color or a hex value.',
+            fontFamily: 'Font family of the titles in the Sign, can be any font that exists on the system.',
             fontSize: 'Font size of the titles in the Sign, in pixels.',
-            direction: 'From which side the Sign appears: `left, right, top, bottom`'
+            sizeHeight: 'The full height of the sign pop-in.',
+            sizeWidth: 'The full width of the sign pop-in.',
+            transitionDurationMs: 'Amount of time it takes for the Sign to appear, in milliseconds.'
         })
         this.addInstance(new ConfigRelay(), {
             port: 'The port that is set in the WSRelay application.',
@@ -68,24 +68,24 @@ export class ConfigOpenVR2WS extends BaseDataObject {
  * Settings for sending things to Discord channels.
  */
 export class ConfigDiscord extends BaseDataObject {
-    screenshotEmbedColorRemote: string = '#000000'
-    screenshotEmbedColorManual: string = '#FFFFFF'
     prefixCheer: string = '*Cheer*: '
     prefixReward: string = '*Reward*: '
+    screenshotEmbedColorManual: string = '#FFFFFF'
+    screenshotEmbedColorRemote: string = '#000000'
 }
 
 /**
  * The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.
  */
 export class ConfigSign extends BaseDataObject {
-    enabled: boolean = true
-    width: number = 240
-    height: number = 300
-    transitionDurationMs: number = 500
-    fontFamily: string = 'Arial'
-    fontColor: string = '#FFFFFF'
-    fontSize: string = '150%'
     direction: string = 'left'
+    enabled: boolean = true
+    fontColor: string = '#FFFFFF'
+    fontFamily: string = 'Arial'
+    fontSize: string = '150%'
+    sizeHeight: number = 300
+    sizeWidth: number = 240
+    transitionDurationMs: number = 500
 }
 
 /**

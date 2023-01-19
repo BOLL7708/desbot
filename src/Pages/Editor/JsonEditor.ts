@@ -117,9 +117,6 @@ export default class JsonEditor {
 
         // Item
         const li = document.createElement('li') as HTMLLIElement
-        const docStr = this._docs ? this._docs[key] ?? '' : ''
-        let docLabel = (path.length == 2 && docStr.length > 0) ? ' 💬' : ''
-        if(docLabel.length > 0) li.title = docStr
         li.appendChild(label)
 
         // Input
@@ -170,9 +167,12 @@ export default class JsonEditor {
             input.onblur = update
             li.appendChild(input)
         }
+        const docStr = this._docs ? this._docs[key] ?? '' : ''
+        let docLabel = (path.length == 2 && docStr.length > 0) ? ' 💬' : ''
         if(docLabel.length > 0) {
             const span = document.createElement('span') as HTMLSpanElement
             span.innerHTML = docLabel
+            span.title = docStr
             li.appendChild(span)
         }
         root.appendChild(li)

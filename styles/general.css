@@ -80,9 +80,14 @@ html, body {
 input, select, button {
     border-radius: 0.5em;
     font-size: 100%;
-    padding: 0.25em;
+    margin: 0.25em;
     border-color: #808080;
     border-style: solid;
+}
+input[type="checkbox"] {
+    scale: 150%;
+    padding: 0.25em;
+    accent-color: #404040;
 }
 label {
     padding: 0.25em;

@@ -1,18 +1,23 @@
 import Relay from './Relay.js'
-import Config from './Config.js'
+import Config from '../Classes/Config.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigRelay} from './ConfigObjects.js'
 
 export default class StreamDeckRelay {
     private _relay: Relay|undefined
     constructor() {}
-    public init() {
+    public async init() {
         if(!this._relay) {
+            const config = await DataBaseHelper.loadMain(new ConfigRelay())
             this._relay = new Relay(
-                Config.relay.streamDeckChannel,
+                config.streamDeckChannel,
                 Config.credentials.StreamDeckRelayPassword,
-                (message)=>{
+                (rawMessage)=>{
+                    const message = rawMessage as IStreamDeckMessage
                     console.log(message)
+                    this.handleMessage(message).then()
                 })
-            this._relay.init()
+            this._relay.init().then()
         }
     }
 }

@@ -27,8 +27,8 @@ export default class Sign {
     private async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigSign())
         this._div.className = 'sign'
-        this._div.style.width = `${this._config.width}px`
-        this._div.style.height = `${this._config.height}px`
+        this._div.style.width = `${this._config.sizeWidth}px`
+        this._div.style.height = `${this._config.sizeHeight}px`
         this._div.style.background = 'transparent'
         this._div.style.position = 'absolute'
         this.setVisible(false) // Hidden
@@ -50,8 +50,8 @@ export default class Sign {
 
     private setVisible(visible: boolean) {
         this._config.direction = this._config.direction.toLowerCase()
-        const offsetX = visible ? '0' : `-${this._config.width}px`
-        const offsetY = visible ? '0' : `-${this._config.height}px`
+        const offsetX = visible ? '0' : `-${this._config.sizeWidth}px`
+        const offsetY = visible ? '0' : `-${this._config.sizeHeight}px`
         switch(this._config.direction) {
             case 'right': this._div.style.right = offsetX; break
             case 'left': this._div.style.left = offsetX; break
