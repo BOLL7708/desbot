@@ -1,3 +1,5 @@
+import {IStringDictionary} from '../Interfaces/igeneral.js'
+
 export default abstract class BaseDataObject {
     /**
      * Submit any object to get mapped to this class instance.
@@ -41,10 +43,13 @@ export default abstract class BaseDataObject {
 
 // Types
 type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
+type TArrayTypes = 'number'|'boolean'|'string'|string
 
 export class BaseDataObjectMap {
     private _instanceMap = new Map<string, BaseDataObject>()
-    private _documentationMap = new Map<string, { [key: string]: string }>()
+    private _descriptionMap = new Map<string, string>()
+    private _documentationMap = new Map<string, IStringDictionary>()
+    private _arrayTypesMap = new Map<string, IStringDictionary>()
 
     /*
      * TODO: This is supposed to store a reference to properties deep in the class
@@ -55,16 +60,23 @@ export class BaseDataObjectMap {
     private _subInstanceMap = new Map<string, BaseDataObject>()
 
     protected addInstance<T>(
-        obj: T&BaseDataObject,
-        docs: Partial<Record<TNoFunctions<T>, string>>|undefined = undefined
+        instance: T&BaseDataObject,
+        description: string|undefined = undefined,
+        docs: Partial<Record<TNoFunctions<T>, string>>|undefined = undefined,
+        arrayTypes: Partial<Record<TNoFunctions<T>, TArrayTypes>>|undefined = undefined
     ) {
-        const className = obj.constructor.name
-        this._instanceMap.set(className, obj)
+        const className = instance.constructor.name
+        this._instanceMap.set(className, instance)
+        if(description) {
+            this._descriptionMap.set(className, description)
+        }
         if(docs) {
-            this._documentationMap.set(
-                className,
-                docs as { [key:string]: string } // Partial somehow forced me to cast
-            )
+            // When adding Partial to the input we are forced to cast it for some reason.
+            this._documentationMap.set(className, docs as IStringDictionary)
+        }
+        if(arrayTypes) {
+            // Still more casting.
+            this._arrayTypesMap.set(className, arrayTypes as IStringDictionary)
         }
     }
     public getInstance(className: string, props: object|undefined = undefined): BaseDataObject|undefined {
@@ -80,8 +92,14 @@ export class BaseDataObjectMap {
     public getNames(): string[] {
         return Array.from(this._instanceMap.keys())
     }
+    public getDescription(className: string): string|undefined {
+        return this._descriptionMap.get(className)
+    }
     public getDocumentation(className: string): { [key:string]: string }|undefined {
         return this._documentationMap.get(className)
+    }
+    public getArrayTypes(className: string): { [key:string]: string }|undefined {
+        return this._arrayTypesMap.get(className)
     }
 
     public addSubInstance<T>(path: string, obj: BaseDataObject) {

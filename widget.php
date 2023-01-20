@@ -21,6 +21,8 @@ $debug = boolval($_REQUEST['debug'] ?? '0');
             // This is used for testing new features directly in the console, can be removed if need be.
             if(<?=$debug?'true':'false';?>) {
                 // Instances
+                await import('./dist/Classes/SettingObjects.js').then(m => window.settingObjects = new m.default())
+                await import('./dist/Classes/ConfigObjects.js').then(m => window.configObjects = new m.default())
                 await import('./dist/Singletons/ModulesSingleton.js').then(m => window.modulesSingleton = new m.default())
                 await import('./dist/Singletons/StatesSingleton.js').then(m => window.statesSingleton = new m.default())
 

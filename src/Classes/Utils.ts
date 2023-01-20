@@ -823,10 +823,13 @@ export default class Utils {
         return str.split(/(?=[A-Z][a-z])/)
     }
 
-    static camelToTitle(str: string, removeHead: boolean = true): string {
+    static camelToTitle(str: string, removeHead: boolean = false): string {
         const arr = this.splitOnCaps(str)
         if(removeHead) return arr.splice(1).join(' ')
-        else return arr.join(' ')
+        else return arr.map((s)=>{return this.capitalize(s)}).join(' ')
+    }
+    static capitalize(str: string): string {
+        return str[0].toUpperCase()+str.slice(1)
     }
 
     /**

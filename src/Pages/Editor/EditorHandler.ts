@@ -37,7 +37,7 @@ export default class EditorHandler {
         this._sideMenuDiv.replaceChildren(title)
         for(const [group,count] of Object.entries(classesAndCounts).sort()) {
             const link = document.createElement('span') as HTMLSpanElement
-            const name = Utils.camelToTitle(group)
+            const name = Utils.camelToTitle(group, true)
             const a = document.createElement('a') as HTMLAnchorElement
             a.href = '#'
             a.innerHTML = `${name}</a>: <strong>${count}</strong>`
@@ -59,7 +59,11 @@ export default class EditorHandler {
 
         // Title
         const title = document.createElement('h2') as HTMLHeadingElement
-        title.innerHTML = Utils.camelToTitle(group)
+        title.innerHTML = Utils.camelToTitle(group, true)
+
+        // Description
+        const description = document.createElement('p') as HTMLParagraphElement
+        description.innerHTML = this._classMap.getDescription(group) ?? 'No description.'
 
         // Dropdown & editor
         const editorContainer = document.createElement('div') as HTMLDivElement
@@ -86,7 +90,8 @@ export default class EditorHandler {
             }
             if(instance) {
                 const documentation = this._classMap.getDocumentation(group)
-                editorContainer.replaceChildren(editor.build(currentKey, instance, documentation, markAsDirty, this._forceMainKey))
+                const arrayTypes = this._classMap.getArrayTypes(group)
+                editorContainer.replaceChildren(editor.build(currentKey, instance, documentation, arrayTypes, markAsDirty, this._forceMainKey))
             }
         }
 
@@ -157,6 +162,7 @@ export default class EditorHandler {
 
         updateEditor(undefined)
         this._contentDiv.replaceChildren(title)
+        this._contentDiv.appendChild(description)
         if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
         this._contentDiv.appendChild(dropdown)
         this._contentDiv.appendChild(editorNewOrResetButton)

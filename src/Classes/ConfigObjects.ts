@@ -1,5 +1,6 @@
 import BaseDataObject, {BaseDataObjectMap} from './BaseDataObject.js'
 import Config from './Config.js'
+import PhilipsHue from './PhilipsHue.js'
 
 /*
  * TODO: For config classes to make sense, we should flatten them as much as possible.
@@ -13,29 +14,56 @@ export default class ConfigObjects extends BaseDataObjectMap {
     constructor() {
         super()
         // this.addInstance(new ConfigExample())
-        this.addInstance(new ConfigOpenVR2WS(), {
-            port: 'The port that is set in the OpenVR2WS application.'
-        })
-        this.addInstance(new ConfigDiscord(), {
-            prefixCheer: 'Prefix added to cheer messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
-            prefixReward: 'Prefix added to reward messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
-            screenshotEmbedColorManual: 'Embed highlight color for manual screenshots.\n\nNote: This has to be a hex color to work with Discord.',
-            screenshotEmbedColorRemote: 'Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.\n\nNote: This has to be a hex color to work with Discord.'
-        })
-        this.addInstance(new ConfigSign(), {
-            direction: 'From which side the Sign appears: `left, right, top, bottom`',
-            enabled: 'Set if the Sign is enabled at all.',
-            fontColor: 'Font color of the titles in the Sign, can be an HTML color or a hex value.',
-            fontFamily: 'Font family of the titles in the Sign, can be any font that exists on the system.',
-            fontSize: 'Font size of the titles in the Sign, in pixels.',
-            sizeHeight: 'The full height of the sign pop-in.',
-            sizeWidth: 'The full width of the sign pop-in.',
-            transitionDurationMs: 'Amount of time it takes for the Sign to appear, in milliseconds.'
-        })
-        this.addInstance(new ConfigRelay(), {
-            port: 'The port that is set in the WSRelay application.',
-            streamDeckChannel: 'The channel to use for the Stream Deck plugin. (WIP)'
-        })
+        this.addInstance(
+            new ConfigOpenVR2WS(),
+            'Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS.',
+            {
+                port: 'The port that is set in the OpenVR2WS application.'
+            }
+        )
+        this.addInstance(
+            new ConfigDiscord(),
+            'Settings for sending things to Discord channels.',
+            {
+                prefixCheer: 'Prefix added to cheer messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
+                prefixReward: 'Prefix added to reward messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
+                screenshotEmbedColorManual: 'Embed highlight color for manual screenshots.\n\nNote: This has to be a hex color to work with Discord.',
+                screenshotEmbedColorRemote: 'Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.\n\nNote: This has to be a hex color to work with Discord.'
+            }
+        )
+        this.addInstance(
+            new ConfigSign(),
+            'The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.',
+            {
+                direction: 'From which side the Sign appears: `left, right, top, bottom`',
+                enabled: 'Set if the Sign is enabled at all.',
+                fontColor: 'Font color of the titles in the Sign, can be an HTML color or a hex value.',
+                fontFamily: 'Font family of the titles in the Sign, can be any font that exists on the system.',
+                fontSize: 'Font size of the titles in the Sign, in pixels.',
+                sizeHeight: 'The full height of the sign pop-in.',
+                sizeWidth: 'The full width of the sign pop-in.',
+                transitionDurationMs: 'Amount of time it takes for the Sign to appear, in milliseconds.'
+            }
+        )
+        this.addInstance(
+            new ConfigRelay(),
+            'Settings to connect to the WSRelay accessory application.',
+            {
+                port: 'The port that is set in the WSRelay application.',
+                streamDeckChannel: 'The channel to use for the Stream Deck plugin. (WIP)'
+            }
+        )
+        this.addInstance(
+            new ConfigPhilipsHue(),
+            'Control Philips Hue lights or sockets',
+            {
+                lightsIds: 'The light numbers of all the lights you want to control.',
+                serverPath: 'Local IP address of the Philips Hue bridge, start with the protocol: `http://`'
+            },
+            {
+                lightsIds: 'number'
+            }
+        )
     }
 }
 
@@ -57,16 +85,10 @@ export class ConfigExampleSub {
     public subClassValue: string = ''
 }
 
-/**
- * Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS.
- */
 export class ConfigOpenVR2WS extends BaseDataObject {
     port: number = 7708
 }
 
-/**
- * Settings for sending things to Discord channels.
- */
 export class ConfigDiscord extends BaseDataObject {
     prefixCheer: string = '*Cheer*: '
     prefixReward: string = '*Reward*: '
@@ -74,9 +96,6 @@ export class ConfigDiscord extends BaseDataObject {
     screenshotEmbedColorRemote: string = '#000000'
 }
 
-/**
- * The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.
- */
 export class ConfigSign extends BaseDataObject {
     direction: string = 'left'
     enabled: boolean = true
@@ -88,10 +107,12 @@ export class ConfigSign extends BaseDataObject {
     transitionDurationMs: number = 500
 }
 
-/**
- * Settings to connect to the WSRelay accessory application.
- */
 export class ConfigRelay extends BaseDataObject {
     port: number = 7788
     streamDeckChannel: string = 'streaming_widget'
+}
+
+export class ConfigPhilipsHue extends BaseDataObject {
+    serverPath: string = 'http://'
+    lightsIds: number[] = []
 }
