@@ -558,7 +558,7 @@ export class Actions {
                 const colors = Utils.ensureArray(config.entries).getAsType(index)
                 const color = colors.pop() // No reason to set more than one color at the same time for the same bulb.
                 for(const bulb of config.bulbs) {
-                    if(color) modules.hue.setLightState(bulb, color.x, color.y)
+                    if(color) modules.hue.setLightState(bulb, color.x, color.y).then()
                 }
             }
         }

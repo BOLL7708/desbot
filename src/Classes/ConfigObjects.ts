@@ -1,6 +1,7 @@
 import BaseDataObject, {BaseDataObjectMap} from './BaseDataObject.js'
 import Config from './Config.js'
 import PhilipsHue from './PhilipsHue.js'
+import {IStringDictionary} from '../Interfaces/igeneral.js'
 
 /*
  * TODO: For config classes to make sense, we should flatten them as much as possible.
@@ -55,13 +56,27 @@ export default class ConfigObjects extends BaseDataObjectMap {
         )
         this.addInstance(
             new ConfigPhilipsHue(),
-            'Control Philips Hue lights or sockets',
+            'Control Philips Hue lights or sockets.',
             {
-                lightsIds: 'The light numbers of all the lights you want to control.',
-                serverPath: 'Local IP address of the Philips Hue bridge, start with the protocol: `http://`'
+                serverPath: 'Local IP address of the Philips Hue bridge, start with the protocol: http://'
+            }
+        )
+        this.addInstance(
+            new ConfigExample(),
+            'Test config for deeper structures.',
+            {
+                singleValue: 'Hello!',
+                arrayOfStrings: 'Just strings derp.',
+                arrayOfArraysOfStrings: 'This will go boom...',
+                dictionaryOfStrings: 'Just strings with keys',
+                arrayOfSubClasses: 'A cake!',
+                dictionaryWithSubClasses: 'Oh my...'
             },
             {
-                lightsIds: 'number'
+                arrayOfStrings: 'string',
+                arrayOfArraysOfStrings: 'string',
+                dictionaryOfStrings: 'string',
+                arrayOfSubClasses: new ConfigExampleSub().constructor.name
             }
         )
     }
@@ -69,15 +84,25 @@ export default class ConfigObjects extends BaseDataObjectMap {
 
 export class ConfigExample extends BaseDataObject {
     public singleValue: string = ''
-    // TODO: Needs to add interface to add elements to array
+    public arrayOfStrings: string[] = [
+        'one', 'two', 'three'
+    ]
+    public arrayOfArraysOfStrings: string[][] = [
+        ['hello', 'there'],
+        ['and', 'another']
+    ]
+    public dictionaryOfStrings: IStringDictionary = {
+        hello: 'Testing!',
+        bye: 'More tests'
+    }
     public arrayOfSubClasses: ConfigExampleSub[] = [
         new ConfigExampleSub(),
         new ConfigExampleSub()
     ]
     // TODO: Needs to add interface to add elements to dictionary
     public dictionaryWithSubClasses: { [key:string]: ConfigExampleSub } = {
-        ['dictionaryEntry1']: new ConfigExampleSub(),
-        ['dictionaryEntry2']: new ConfigExampleSub()
+        dictionaryEntry1: new ConfigExampleSub(),
+        dictionaryEntry2: new ConfigExampleSub()
     }
 }
 
@@ -114,5 +139,4 @@ export class ConfigRelay extends BaseDataObject {
 
 export class ConfigPhilipsHue extends BaseDataObject {
     serverPath: string = 'http://'
-    lightsIds: number[] = []
 }

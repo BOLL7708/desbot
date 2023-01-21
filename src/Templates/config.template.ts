@@ -2,7 +2,6 @@ import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'
-import {IPhilipsHueConfig} from '../Interfaces/iphilipshue.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
@@ -347,20 +346,6 @@ Config.screenshots = <IScreenshotConfig> {
             // srcEntries: '_assets/yoursound.wav',
         }
     }
-}
-
-/*
-.########..##.....##.####.##.......####.########...######..##.....##.##.....##.########
-.##.....##.##.....##..##..##........##..##.....##.##....##.##.....##.##.....##.##......
-.##.....##.##.....##..##..##........##..##.....##.##.......##.....##.##.....##.##......
-.########..#########..##..##........##..########...######..#########.##.....##.######..
-.##........##.....##..##..##........##..##..............##.##.....##.##.....##.##......
-.##........##.....##..##..##........##..##........##....##.##.....##.##.....##.##......
-.##........##.....##.####.########.####.##.........######..##.....##..#######..########
-*/
-Config.philipshue = <IPhilipsHueConfig> { // Control Philips Hue lights
-    serverPath: 'http://a-local-IP',
-    lightsIds: [] // IDs of lights to affect with the color rewards
 }
 
 /*

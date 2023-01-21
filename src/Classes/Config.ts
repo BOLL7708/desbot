@@ -1,6 +1,5 @@
 import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'
-import {IPhilipsHueConfig} from '../Interfaces/iphilipshue.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IEventsConfig} from '../Interfaces/ievents.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
@@ -36,7 +35,6 @@ export default class Config {
     static obs: IObsConfig
     static pipe: IPipeConfig
     static screenshots: IScreenshotConfig
-    static philipshue: IPhilipsHueConfig
     static audioplayer: IAudioPlayerConfig
     static twitchChat: ITwitchChatConfig
     static twitch: ITwitchConfig

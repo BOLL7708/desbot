@@ -2,12 +2,18 @@ import Utils from './Utils.js'
 import Config from './Config.js'
 import Color from './ColorConstants.js'
 import {IPhilipsHuePlugAction} from '../Interfaces/iactions.js'
+import {ConfigPhilipsHue} from './ConfigObjects.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
 export default class PhilipsHue {
-    private _config = Config.philipshue
+    private _config = new ConfigPhilipsHue()
     private _baseUrl = `${this._config.serverPath}/api/${Config.credentials.PhilipsHueUsername}`
     constructor() {
         if(this._baseUrl.length > 0) this.loadLights()
+        this.init().then()
+    }
+    private async init() {
+        this._config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
     }
     private loadLights() { // Not used for anything except checking states
         const url = `${this._baseUrl}/lights`

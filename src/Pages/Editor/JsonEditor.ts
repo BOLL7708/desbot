@@ -69,7 +69,6 @@ export default class JsonEditor {
         origin: EOrigin = EOrigin.Unknown
     ) {
         const type = typeof data
-        const thisKey = path[path.length-1] ?? 'root'
         switch(type) {
             case 'string':
                 this.buildField(root, EJsonEditorFieldType.String, data, path, origin)
@@ -82,27 +81,12 @@ export default class JsonEditor {
                 break
             case 'object':
                 if(data === null) {
-                    // TODO: Should this be included to be able to add some kind of
-                    //  reference to something not set yet, like a sub structure?
+                    // Exist to show that something is broken as we don't support the null type.
                     this.buildField(root, EJsonEditorFieldType.Null, data, path, origin)
-                } else {
-                    if(Array.isArray(data)) this.buildArrayField(root, data, path, origin)
-                    else if(data.constructor == Object) {
-                        const newRoot = this.buildLI('')
-                        const newUL = this.buildUL()
-                        if(path.length == 1) { // Root object generates a key field
-                            this.buildField(root, EJsonEditorFieldType.String, `${key ?? ''}`, path, EOrigin.Object)
-                        } else {
-                            newRoot.innerHTML += `<strong>${thisKey} {}</strong>`
-                        }
-                        for(const key of Object.keys(data).sort()) {
-                            const newPath = this.clone(path)
-                            newPath.push(key)
-                            this.stepData(newUL, data[key], newPath)
-                        }
-                        newRoot.appendChild(newUL)
-                        root.appendChild(newRoot)
-                    }
+                } else if(Array.isArray(data)) {
+                    this.buildArrayField(root, data, path, origin)
+                } else if(data.constructor == Object) {
+                    this.buildObjectField(root, data, path, key, origin)
                 }
                 break
             default:
@@ -223,7 +207,7 @@ export default class JsonEditor {
 
         newRoot.innerHTML += `<strong>${Utils.camelToTitle(key.toString())}</strong> (Array)`
         const pathKey = path[path.length-1]
-        const arrayType = this._arrayTypes ? this._arrayTypes[pathKey] : ''
+        const arrayType = this._arrayTypes ? this._arrayTypes[pathKey] ?? '' : ''
         if(path.length == 2 && arrayType.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
@@ -245,6 +229,30 @@ export default class JsonEditor {
             const newPath = this.clone(path)
             newPath.push(i)
             this.stepData(newUL, data[i], newPath, undefined, EOrigin.Array)
+        }
+        newRoot.appendChild(newUL)
+        root.appendChild(newRoot)
+    }
+
+    private buildObjectField(
+        root: HTMLElement,
+        data: any,
+        path:(string|number)[],
+        objectKey: string|undefined,
+        origin: EOrigin
+    ) {
+        const thisKey = path[path.length-1] ?? 'root'
+        const newRoot = this.buildLI('')
+        const newUL = this.buildUL()
+        if(path.length == 1) { // Root object generates a key field
+            this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, path, EOrigin.Object)
+        } else {
+            newRoot.innerHTML += `<strong>${Utils.camelToTitle(thisKey.toString())}</strong> (Object)`
+        }
+        for(const key of Object.keys(data).sort()) {
+            const newPath = this.clone(path)
+            newPath.push(key)
+            this.stepData(newUL, data[key], newPath)
         }
         newRoot.appendChild(newUL)
         root.appendChild(newRoot)

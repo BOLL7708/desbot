@@ -1,17 +1,3 @@
-/**
- * Control Philips Hue lights or sockets
- */
-export interface IPhilipsHueConfig {
-    /**
-     * Local IP address of the Philips Hue bridge, start with the protocol: `http://`
-     */
-    serverPath: string
-    /**
-     * The light numbers of all the lights you want to control.
-     */
-    lightsIds: number[]
-}
-
 export interface IPhilipsHueBulb {
     x: number
     y: number
