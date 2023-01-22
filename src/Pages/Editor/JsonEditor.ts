@@ -15,8 +15,8 @@ export default class JsonEditor {
     private _documentation: IStringDictionary|undefined = undefined
     private _arrayTypes: IStringDictionary|undefined = undefined
     private _root: HTMLUListElement|undefined = undefined
-    private _inputs: HTMLInputElement[] = []
-    private _labels: HTMLLabelElement[] = []
+    private _inputs: HTMLSpanElement[] = []
+    private _labels: HTMLSpanElement[] = []
     private _hideKey: boolean = false
 
     private readonly _labelUnchangedColor = 'transparent'
@@ -115,10 +115,10 @@ export default class JsonEditor {
         const isRoot = path.length == 1
 
         // Label
-        const label = document.createElement('label') as HTMLLabelElement
+        const label = document.createElement('span') as HTMLSpanElement
+        label.classList.add('input-label')
         this._labels.push(label)
         label.innerHTML = isRoot ? `<strong>${key}</strong>: ` : `${Utils.camelToTitle(key.toString())}: `
-        label.htmlFor = pathStr
         this.handleValue(value, path, label ,true) // Will colorize label
 
         // Item
@@ -126,51 +126,96 @@ export default class JsonEditor {
         li.appendChild(label)
 
         // Input
-        const input = document.createElement('input') as HTMLInputElement
-        this._inputs.push(input)
-        input.id = pathStr
-        if(isRoot && this._hideKey) input.disabled = true
-
         let skip = false
-        let update = (event: Event) => {}
+        let handle = (event: Event) => {}
+        let input: HTMLSpanElement = document.createElement('code') as HTMLSpanElement
+        input.onpaste = (event)=>{
+            event.preventDefault()
+            let text = event.clipboardData?.getData('text/plain') ?? ''
+            switch(type) {
+                case EJsonEditorFieldType.String:
+                    text = text.replace(/\n/g, '\\n').replace(/\r/g, '')
+                    break
+                case EJsonEditorFieldType.Number:
+                    let num = parseFloat(text)
+                    if(isNaN(num)) num = 0
+                    if(input.innerHTML.indexOf('.') > -1) {
+                        num = Math.round(num)
+                    }
+                    text = `${num}`
+                    break
+            }
+            document.execCommand('insertText', false, text) // No good substitute yet.
+        }
 
         switch (type) {
             case EJsonEditorFieldType.String:
-                input.value = `${value}`
-                input.type = 'text'
-                input.size = 32
-                update = (event) => {
-                    this.handleValue(input.value, path, label)
+                input.contentEditable = 'true'
+                input.innerHTML = Utils.escapeHTML(`${value}`)
+                input.onkeydown = (event)=>{
+                    if (event.key === 'Enter') {
+                        event.preventDefault()
+                    }
+                }
+                handle = (event) => {
+                    this.handleValue(Utils.unescapeHTML(input.innerHTML), path, label)
                 }
                 break
             case EJsonEditorFieldType.Boolean:
-                input.type = 'checkbox'
-                input.checked = value as boolean
-                update = (event) => {
-                    this.handleValue(input.checked, path, label)
+                const on = '✅ true'
+                const off = '❌ false'
+                input.style.userSelect = 'none'
+                input.tabIndex = 0
+                input.innerHTML = (value as boolean) ? on : off
+                label.onclick = input.onclick = input.onkeydown = (event: KeyboardEvent|MouseEvent)=>{
+                    if(event instanceof KeyboardEvent) {
+                        const validKeys = [' ', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+                        if(validKeys.indexOf(event.key) == -1) return console.log(`"${key}"`)
+                    }
+                    input.innerHTML = (input.innerHTML == on) ? off : on
+                    this.handleValue(input.innerHTML == on, path, label)
                 }
+                handle = (event) => {}
                 break
             case EJsonEditorFieldType.Number:
-                input.value = `${value}`
-                input.type = 'number'
-                input.size = 8
-                update = (event)=>{
-                    this.handleValue(parseFloat(input.value), path, label)
+                input.contentEditable = 'true'
+                input.innerHTML = `${value}`
+                input.onkeydown = (event)=>{
+                    const validKeys = ['Delete', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+                    const key = event.key
+                    const isDigit = !isNaN(parseInt(key))
+                    const isValidPeriod = key == '.' && input.innerHTML.indexOf('.') == -1
+                    const isValidKey = validKeys.indexOf(key) != -1
+                    const isHoldingModifierKey = event.altKey || event.shiftKey || event.ctrlKey
+                    if (
+                        !isDigit
+                        && !isValidPeriod
+                        && !isValidKey
+                        && !isHoldingModifierKey
+                    ) {
+                        event.preventDefault()
+                    }
+                }
+                handle = (event)=>{
+                    this.handleValue(parseFloat(input.innerHTML), path, label)
                 }
                 break
             case EJsonEditorFieldType.Null:
-                input.size = 4
-                input.disabled = true
-                input.value = 'NULL'
+                input.innerHTML = 'NULL'
                 break
             default:
                 skip = true
         }
         if(!skip) {
-            input.onkeydown = update
-            input.onkeyup = update
-            input.onchange = update
-            input.onblur = update
+            if(isRoot && this._hideKey) {
+                input.contentEditable = 'false'
+                input.classList.add('disabled')
+                input.onclick = ()=>{}
+            }
+            input.id = pathStr
+            this._inputs.push(input)
+            input.oninput = handle
+
             li.appendChild(input)
         }
         if(origin == EOrigin.Array) {
@@ -184,6 +229,12 @@ export default class JsonEditor {
             }
             li.appendChild(button)
         }
+
+        label.onclick = (event)=>{
+            input.click()
+            input.focus()
+        }
+
         const docStr = this._documentation ? this._documentation[key] ?? '' : ''
         let docLabel = (path.length == 2 && docStr.length > 0) ? ' 💬' : ''
         if(docLabel.length > 0) {

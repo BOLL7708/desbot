@@ -867,6 +867,22 @@ export default class Utils {
         }
         return result
     }
+    static escapeHTML(html: string): string {
+        return html
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '\\n') // Seems we cannot escape just \ as it's part of \n
+            .replace(/\t/g, '\\t')
+    }
+    static unescapeHTML(html: string): string {
+        return html
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/\\n/g, '\n')
+            .replace(/\\t/g, '\t')
+    }
 }
 
 interface IRewardData {

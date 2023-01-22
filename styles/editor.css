@@ -3,7 +3,7 @@
     padding-left: 1em;
 }
 #content li {
-    margin: 0.2em;
+
 }
 .editor-button {
     padding: 0.25em 1em;
@@ -40,4 +40,28 @@
 }
 .save-button:hover {
     background-color: limegreen;
+}
+span[contenteditable], code[contenteditable] {
+    color: black;
+    padding: 4px;
+    border: 1px solid lightgray;
+    border-radius: 6px;
+}
+span[contenteditable]:hover, code[contenteditable]:hover {
+    border: 1px solid gray;
+}
+span[contenteditable]:focus, code[contenteditable]:focus {
+    background-color: lightgoldenrodyellow;
+}
+span.disabled, code.disabled {
+    border-color: gray;
+    color: gray;
+    background-color: lightgray;
+}
+.input-root {
+    padding: 6px;
+}
+.input-label {
+    line-height: 200%;
+    user-select: none;
 }
