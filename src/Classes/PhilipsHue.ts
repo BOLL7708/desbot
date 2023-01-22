@@ -7,13 +7,14 @@ import DataBaseHelper from './DataBaseHelper.js'
 
 export default class PhilipsHue {
     private _config = new ConfigPhilipsHue()
-    private _baseUrl = `${this._config.serverPath}/api/${Config.credentials.PhilipsHueUsername}`
+    private _baseUrl = ''
     constructor() {
         if(this._baseUrl.length > 0) this.loadLights()
         this.init().then()
     }
     private async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
+        this._baseUrl = `${this._config.serverPath}/api/${Config.credentials.PhilipsHueUsername}`
     }
     private loadLights() { // Not used for anything except checking states
         const url = `${this._baseUrl}/lights`

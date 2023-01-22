@@ -1,6 +1,4 @@
 import BaseDataObject, {BaseDataObjectMap} from './BaseDataObject.js'
-import Config from './Config.js'
-import PhilipsHue from './PhilipsHue.js'
 import {IStringDictionary} from '../Interfaces/igeneral.js'
 
 /*
