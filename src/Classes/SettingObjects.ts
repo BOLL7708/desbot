@@ -20,7 +20,7 @@ export default class SettingsObjects extends BaseDataObjectMap {
         this.addInstance(new SettingTwitchClient())
         this.addInstance(new SettingTwitchTokens())
         this.addInstance(new SettingImportStatus())
-        this.addInstance(new SettingSteamAchievements())
+        this.addInstance(new SettingSteamAchievements(), undefined, undefined, {achieved: 'string'})
     }
 }
 

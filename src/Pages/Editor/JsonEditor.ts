@@ -1,5 +1,6 @@
 import Utils from '../../Classes/Utils.js'
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
+import {BaseDataObjectMap} from '../../Classes/BaseDataObject.js'
 
 enum EOrigin {
     Unknown,
@@ -8,6 +9,7 @@ enum EOrigin {
 }
 
 export default class JsonEditor {
+    private _classMap: BaseDataObjectMap = new BaseDataObjectMap()
     private _key: string = ''
     private _originalKey: string = ''
     private _data: any
@@ -24,6 +26,7 @@ export default class JsonEditor {
     constructor() {}
 
     build(
+        classMap: BaseDataObjectMap,
         key: string,
         data: object,
         documentation: IStringDictionary|undefined,
@@ -33,6 +36,7 @@ export default class JsonEditor {
         isRebuild: boolean = false
     ): HTMLElement {
         if(!isRebuild) {
+            this._classMap = classMap
             this._key = key
             this._originalKey = key
             this._hideKey = hideKey
@@ -52,7 +56,16 @@ export default class JsonEditor {
         return this._root
     }
     private rebuild() {
-        this.build(this._key, this._data, this._documentation, this._arrayTypes, false, this._hideKey, true)
+        this.build(
+            this._classMap,
+            this._key,
+            this._data,
+            this._documentation,
+            this._arrayTypes,
+            false,
+            this._hideKey,
+            true
+        )
     }
 
     private highlightLabels() {
@@ -219,18 +232,8 @@ export default class JsonEditor {
 
             li.appendChild(input)
         }
-        if(origin == EOrigin.Array) {
-            const button = document.createElement('button') as HTMLButtonElement
-            button.innerHTML = '💥'
-            button.title = 'Remove item from array'
-            button.classList.add('delete-button')
-            button.onclick = (event)=>{
-                this.handleValue(null,  path, label)
-                this.rebuild()
-            }
-            li.appendChild(button)
-        }
 
+        this.appendRemoveButton(origin, path, label, li)
         label.onclick = (event)=>{
             input.click()
             input.focus()
@@ -249,9 +252,10 @@ export default class JsonEditor {
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
 
-        newRoot.innerHTML += `<strong>${Utils.camelToTitle(key.toString())}</strong> (Array)`
-        const pathKey = path[path.length-1]
+		const pathKey = path[path.length-1]
         const arrayType = this._arrayTypes ? this._arrayTypes[pathKey] ?? '' : ''
+        const arrayTypeStr = arrayType.length == 0 ? 'N/A' : arrayType
+        newRoot.innerHTML += `<strong>${Utils.camelToTitle(key.toString())}</strong> (Array of <code>${arrayTypeStr}</code>)`
         if(path.length == 2 && arrayType.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
@@ -262,13 +266,17 @@ export default class JsonEditor {
                     case 'number': data.push(0); break
                     case 'boolean': data.push(false); break
                     case 'string': data.push(''); break
-                    default: console.warn('Unhandled arrayType:', arrayType)
+                    default:
+                        const instance = this._classMap.getInstance(arrayType, undefined, true)
+                        if(instance) data.push(Utils.clone(instance)) // For some reason this would do nothing unless cloned.
+                        else console.warn('Unhandled arrayType:', arrayType)
                 }
                 this.handleValue(data, path, newRoot)
                 this.rebuild()
             }
             newRoot.appendChild(newButton)
         }
+        this.appendRemoveButton(origin, path, undefined, newRoot)
         this.appendDocumentationIcon(key, path, newRoot)
         for(let i=0; i<data.length; i++) {
             const newPath = this.clone(path)
@@ -294,6 +302,7 @@ export default class JsonEditor {
         } else {
             newRoot.innerHTML += `<strong>${Utils.camelToTitle(thisKey.toString())}</strong> (Object)`
         }
+        this.appendRemoveButton(origin, path, undefined, newRoot)
         this.appendDocumentationIcon(thisKey, path, newRoot)
         for(const key of Object.keys(data).sort()) {
             const newPath = this.clone(path)
@@ -302,6 +311,20 @@ export default class JsonEditor {
         }
         newRoot.appendChild(newUL)
         root.appendChild(newRoot)
+    }
+
+    private appendRemoveButton(origin: EOrigin, path: (string | number)[], label: HTMLElement|undefined, element: HTMLElement) {
+        if(origin == EOrigin.Array) {
+            const button = document.createElement('button') as HTMLButtonElement
+            button.innerHTML = '💥'
+            button.title = 'Remove item from array'
+            button.classList.add('delete-button')
+            button.onclick = (event)=>{
+                this.handleValue(null,  path, label)
+                this.rebuild()
+            }
+            element.appendChild(button)
+        }
     }
 
     private appendDocumentationIcon(keyValue: string|number, path: (string|number)[], element: HTMLElement) {
@@ -330,7 +353,7 @@ export default class JsonEditor {
     private handleValue(
         value: string|number|boolean|string[]|number[]|boolean[]|null,
         path: (string | number)[],
-        label: HTMLElement,
+        label: HTMLElement|undefined = undefined,
         checkModified: boolean = false
     ) {
         let current: any = this._data
@@ -338,11 +361,11 @@ export default class JsonEditor {
         if(path.length == 1) {
             if(value == this._originalKey) {
                 // Same as original value
-                label.style.backgroundColor = this._labelUnchangedColor
+                if(label) label.style.backgroundColor = this._labelUnchangedColor
             } else {
                 // New value
                 this._key = `${value}`
-                label.style.backgroundColor = this._labelChangedColor
+                if(label) label.style.backgroundColor = this._labelChangedColor
             }
         } else {
             for(let i = 1; i<path.length; i++) {
@@ -364,12 +387,12 @@ export default class JsonEditor {
                     // Not same as the stored one, or just checked if modified
                     if(current[path[i]] != value || checkModified) {
                         if(!checkModified) current[path[i]] = value // Actual update in the JSON structure
-                        if(currentOriginal[path[i]] == value) {
+                        if(currentOriginal && currentOriginal[path[i]] == value) {
                             // Same as original value
-                            label.style.backgroundColor = this._labelUnchangedColor
+                            if(label) label.style.backgroundColor = this._labelUnchangedColor
                         } else {
                             // New value
-                            label.style.backgroundColor = this._labelChangedColor
+                            if(label) label.style.backgroundColor = this._labelChangedColor
                         }
                     }
                 } else {

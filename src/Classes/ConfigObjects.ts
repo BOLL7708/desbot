@@ -79,6 +79,15 @@ export default class ConfigObjects extends BaseDataObjectMap {
                 arrayOfSubClasses: new ConfigExampleSub().constructor.name
             }
         )
+        this.addInstance(
+            new ConfigExampleSub(),
+            undefined,
+            {
+                subClassValue: 'Just a subclass value yeah?'
+            },
+            {},
+            true
+        )
     }
 }
 
@@ -106,7 +115,7 @@ export class ConfigExample extends BaseDataObject {
     }
 }
 
-export class ConfigExampleSub {
+export class ConfigExampleSub extends BaseDataObject {
     public subClassValue: string = ''
 }
 

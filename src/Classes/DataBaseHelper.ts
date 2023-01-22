@@ -2,6 +2,7 @@ import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import BaseDataObject from './BaseDataObject.js'
+import EditorHandler from '../Pages/Editor/EditorHandler.js'
 
 export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
@@ -101,7 +102,7 @@ export default class DataBaseHelper {
      * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T> {
-        return await this.load(emptyInstance, 'Main', ignoreCache) ?? emptyInstance
+        return await this.load(emptyInstance, EditorHandler.MainKey, ignoreCache) ?? emptyInstance
     }
 
     /**

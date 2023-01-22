@@ -8,6 +8,12 @@ export default class EditorHandler {
     private readonly _likeFilter: string
     private readonly _classMap: BaseDataObjectMap
     private readonly _forceMainKey: boolean
+
+    private readonly _labelSaveButton = '💾 Save (ctrl+s)'
+    private readonly _labelSaveNewButton = '✨ Save New (ctrl+s)'
+    private readonly _labelDeleteButton = '💥 Delete'
+    
+    static readonly MainKey = 'Main'
     public constructor(
         like: string,
         classMap: BaseDataObjectMap,
@@ -17,6 +23,13 @@ export default class EditorHandler {
         this._classMap = classMap
         this._forceMainKey = forceMainKey
         this.updateSideMenu().then()
+
+        window.onkeydown = (event)=>{
+            if(event.key == 's' && event.ctrlKey) {
+                if(event.cancelable) event.preventDefault()
+                this._editorSaveButton?.click()
+            }
+        }
     }
 
     private _sideMenuDiv: HTMLDivElement|undefined
@@ -52,6 +65,8 @@ export default class EditorHandler {
     }
 
     private _contentDiv: HTMLDivElement|undefined
+    private _editor: JsonEditor|undefined
+    private _editorSaveButton: HTMLButtonElement|undefined
     private async showListOfItems(group: string, selectKey: string = '') {
         if(!this._contentDiv) {
             this._contentDiv = document.querySelector('#content') as HTMLDivElement
@@ -68,7 +83,7 @@ export default class EditorHandler {
         // Dropdown & editor
         const editorContainer = document.createElement('div') as HTMLDivElement
         editorContainer.id = 'editor-container'
-        const editor = new JsonEditor()
+        this._editor = new JsonEditor()
         let currentKey = selectKey
 
         const dropdown = document.createElement('select') as HTMLSelectElement
@@ -76,22 +91,22 @@ export default class EditorHandler {
         const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false)=>{
             let instance: BaseDataObject|undefined = undefined
             if(clear) {
-                currentKey = this._forceMainKey ? 'Main' : ''
+                currentKey = this._forceMainKey ? EditorHandler.MainKey : ''
                 instance = this._classMap.getInstance(group, {})
-                if(!this._forceMainKey) editorSaveButton.innerHTML =  '✨ Save New'
+                if(!this._forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
             } else {
-                currentKey = this._forceMainKey ? 'Main' : dropdown.value
+                currentKey = this._forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(currentKey.length > 0) {
                     instance = this._classMap.getInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
                 } else {
                     instance = this._classMap.getInstance(group, {})
                 }
-                editorSaveButton.innerHTML = '💾 Save'
+                editorSaveButton.innerHTML = this._labelSaveButton
             }
             if(instance) {
                 const documentation = this._classMap.getDocumentation(group)
                 const arrayTypes = this._classMap.getArrayTypes(group)
-                editorContainer.replaceChildren(editor.build(currentKey, instance, documentation, arrayTypes, markAsDirty, this._forceMainKey))
+                editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, documentation, arrayTypes, markAsDirty, this._forceMainKey) ?? '')
             }
         }
 
@@ -129,7 +144,7 @@ export default class EditorHandler {
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('editor-button', 'delete-button')
-        editorDeleteButton.innerHTML = '💥 Delete'
+        editorDeleteButton.innerHTML = this._labelDeleteButton
         editorDeleteButton.onclick = async(event)=>{
             const doDelete = confirm(`Do you want to delete ${group} : ${currentKey}?`)
             if(doDelete) {
@@ -147,18 +162,11 @@ export default class EditorHandler {
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
         editorSaveButton.classList.add('editor-button', 'save-button')
-        editorSaveButton.innerHTML = '💾 Save'
-        editorSaveButton.onclick = async(event)=>{
-            const data = editor.getData()
-            const newKey = editor.getKey()
-            const key = await DataBaseHelper.saveJson(JSON.stringify(data), group, currentKey, newKey)
-            if(key) {
-                this.updateSideMenu().then()
-                this.showListOfItems(group, key).then()
-            } else {
-                alert(`Failed to save ${group}:${currentKey}|${newKey}`)
-            }
+        editorSaveButton.innerHTML = this._labelSaveButton
+        editorSaveButton.onclick = (event)=>{
+            this.saveData(currentKey, group).then()
         }
+        this._editorSaveButton = editorSaveButton
 
         updateEditor(undefined)
         this._contentDiv.replaceChildren(title)
@@ -170,5 +178,19 @@ export default class EditorHandler {
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)
         this._contentDiv.appendChild(editorSaveButton)
+    }
+
+    private async saveData(groupKey: string, groupClass: string) {
+        if(this._editor) {
+            const data = this._editor.getData()
+            const newGroupKey = this._editor.getKey()
+            const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey)
+            if(resultingGroupKey) {
+                this.updateSideMenu().then()
+                this.showListOfItems(groupClass, resultingGroupKey).then()
+            } else {
+                alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
+            }
+        }
     }
 }
