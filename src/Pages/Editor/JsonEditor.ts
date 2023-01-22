@@ -197,7 +197,8 @@ export default class JsonEditor {
                     }
                 }
                 handle = (event)=>{
-                    this.handleValue(parseFloat(input.innerHTML), path, label)
+                    const num = parseFloat(input.innerHTML)
+                    this.handleValue(isNaN(num) ? 0 : num, path, label)
                 }
                 break
             case EJsonEditorFieldType.Null:
@@ -234,15 +235,7 @@ export default class JsonEditor {
             input.click()
             input.focus()
         }
-
-        const docStr = this._documentation ? this._documentation[key] ?? '' : ''
-        let docLabel = (path.length == 2 && docStr.length > 0) ? ' 💬' : ''
-        if(docLabel.length > 0) {
-            const span = document.createElement('span') as HTMLSpanElement
-            span.innerHTML = docLabel
-            span.title = docStr
-            li.appendChild(span)
-        }
+        this.appendDocumentationIcon(key, path, li)
         root.appendChild(li)
     }
 
@@ -276,6 +269,7 @@ export default class JsonEditor {
             }
             newRoot.appendChild(newButton)
         }
+        this.appendDocumentationIcon(key, path, newRoot)
         for(let i=0; i<data.length; i++) {
             const newPath = this.clone(path)
             newPath.push(i)
@@ -300,6 +294,7 @@ export default class JsonEditor {
         } else {
             newRoot.innerHTML += `<strong>${Utils.camelToTitle(thisKey.toString())}</strong> (Object)`
         }
+        this.appendDocumentationIcon(thisKey, path, newRoot)
         for(const key of Object.keys(data).sort()) {
             const newPath = this.clone(path)
             newPath.push(key)
@@ -307,6 +302,17 @@ export default class JsonEditor {
         }
         newRoot.appendChild(newUL)
         root.appendChild(newRoot)
+    }
+
+    private appendDocumentationIcon(keyValue: string|number, path: (string|number)[], element: HTMLElement) {
+        const key = keyValue.toString()
+        const docStr = this._documentation ? this._documentation[key] ?? '' : ''
+        if(path.length == 2 && docStr.length > 0) {
+            const span = document.createElement('span') as HTMLSpanElement
+            span.innerHTML = ' 💬'
+            span.title = docStr
+            element.appendChild(span)
+        }
     }
 
     private clone<T>(value: T): T {
