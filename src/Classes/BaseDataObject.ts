@@ -1,6 +1,4 @@
 import {IStringDictionary} from '../Interfaces/igeneral.js'
-import ConfigObjects from './ConfigObjects.js'
-import SettingObjects from './SettingObjects.js'
 import Utils from './Utils.js'
 
 export default abstract class BaseDataObject {
@@ -22,7 +20,7 @@ export default abstract class BaseDataObject {
                 || prototype.hasOwnProperty(name) // The `__new()` call returns an instance with the original class as prototype, which is why we also check it.
             ) {
                 // We cast to `any` in here to be able to set the props at all.
-                const types = classMap?.getArrayTypes(this.constructor.name) ?? {}
+                const types = classMap?.getListTypes(this.constructor.name) ?? {}
                 const subClassInstanceName = types[name]
                 if(classMap && classMap.hasInstance(subClassInstanceName, true)) {
                     if(Array.isArray(prop)) {
@@ -86,7 +84,7 @@ export class BaseDataObjectMap {
     private _instanceMap = new Map<string, BaseDataObject>()
     private _descriptionMap = new Map<string, string>()
     private _documentationMap = new Map<string, IStringDictionary>()
-    private _arrayTypesMap = new Map<string, IStringDictionary>()
+    private _listTypesMap = new Map<string, IStringDictionary>()
     private _subInstanceMap = new Map<string, BaseDataObject>()
 
     constructor() {
@@ -97,7 +95,7 @@ export class BaseDataObjectMap {
         instance: T&BaseDataObject,
         description: string|undefined = undefined,
         docs: Partial<Record<TNoFunctions<T>, string>>|undefined = undefined,
-        arrayTypes: Partial<Record<TNoFunctions<T>, TArrayTypes>>|undefined = undefined,
+        listTypes: Partial<Record<TNoFunctions<T>, TArrayTypes>>|undefined = undefined,
         isSubClass: boolean = false
     ) {
         const className = instance.constructor.name
@@ -111,9 +109,9 @@ export class BaseDataObjectMap {
             // When adding Partial to the input we are forced to cast it for some reason.
             this._documentationMap.set(className, docs as IStringDictionary)
         }
-        if(arrayTypes) {
+        if(listTypes) {
             // Still more casting.
-            this._arrayTypesMap.set(className, arrayTypes as IStringDictionary)
+            this._listTypesMap.set(className, listTypes as IStringDictionary)
         }
     }
 
@@ -155,8 +153,8 @@ export class BaseDataObjectMap {
     public getDocumentation(className: string): { [key:string]: string }|undefined {
         return this._documentationMap.get(className)
     }
-    public getArrayTypes(className: string): { [key:string]: string }|undefined {
-        return this._arrayTypesMap.get(className)
+    public getListTypes(className: string): { [key:string]: string }|undefined {
+        return this._listTypesMap.get(className)
     }
 
     public matchSubInstance(path: (string|number)[]): BaseDataObject|undefined {

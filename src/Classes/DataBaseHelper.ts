@@ -8,7 +8,7 @@ export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
     private static LOG_BAD_COLOR: string = Color.DarkRed
 
-    private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed settings in memory before saving to disk
+    private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     static async testConnection(): Promise<boolean> {
         const response = await fetch(this.getUrl(), {
@@ -20,7 +20,7 @@ export default class DataBaseHelper {
         return response.ok
     }
 
-    // region Settings
+    // region Json Store
     static async loadJson(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
         let url = this.getUrl()
         const response = await fetch(url, {
@@ -70,7 +70,7 @@ export default class DataBaseHelper {
     }
 
     /**
-     * Load a dictionary of settings from the database, this will retain keys.
+     * Load a dictionary of entries from the database, this will retain keys.
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
@@ -211,7 +211,7 @@ export default class DataBaseHelper {
      * @returns string
      */
     private static getUrl(): string {
-        return './db_settings.php'
+        return './db.php'
     }
 
     // endregion

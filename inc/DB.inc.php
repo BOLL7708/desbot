@@ -110,7 +110,7 @@ class DB {
     }
     // endregion
 
-    // region Settings
+    // region Json Store
     /**
      * Update the groupKey for a specific row.
      * @param string $groupClass
@@ -119,33 +119,33 @@ class DB {
      * @return bool
      */
     function updateKey(string $groupClass, string $groupKey, string $newGroupKey): bool {
-        $newKeyAlreadyExists = !!$this->query("SELECT groupKey FROM settings WHERE groupClass = ? AND groupKey = ? LIMIT 1;", [$groupClass, $newGroupKey]);
-        return !$newKeyAlreadyExists && !!$this->query("UPDATE settings SET groupKey = ? WHERE groupClass = ? AND groupKey = ?;", [$newGroupKey, $groupClass, $groupKey]);
+        $newKeyAlreadyExists = !!$this->query("SELECT group_key FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $newGroupKey]);
+        return !$newKeyAlreadyExists && !!$this->query("UPDATE json_store SET group_key = ? WHERE group_class = ? AND group_key = ?;", [$newGroupKey, $groupClass, $groupKey]);
     }
 
     /**
-     * Save a setting, use subcategory and key if you want to be able to update it too.
+     * Save an entry, use subcategory and key if you want to be able to update it too.
      * @param string $groupClass
      * @param string|null $groupKey
      * @param string $dataJson
      * @return string|bool The inserted/updated key or false if failed.
      */
-    function saveSetting(
+    function saveEntry(
         string      $groupClass,
         string|null $groupKey,
         string      $dataJson
     ): string|bool {
         $uuid = $this->getUUID();
         $result = $this->query("
-            INSERT INTO settings (groupClass, groupKey, dataJson) VALUES (?, IFNULL(?, ?), ?)
+            INSERT INTO json_store (group_class, group_key, data_json) VALUES (?, IFNULL(?, ?), ?)
             ON DUPLICATE KEY
-            UPDATE dataJson = ?;
+            UPDATE data_json = ?;
         ", [$groupClass, $groupKey, $uuid, $dataJson, $dataJson]);
         return $result ? ($groupKey ?? $uuid) : false;
     }
 
     /**
-     * Will delete one specific setting
+     * Will delete one specific entry
      * @param string $groupClass
      * @param string $groupKey
      * @return bool
@@ -155,24 +155,24 @@ class DB {
         string $groupKey
     ): bool {
         return $this->query(
-            "DELETE FROM settings WHERE groupClass = ? AND groupKey = ?;",
+            "DELETE FROM json_store WHERE group_class = ? AND group_key = ?;",
             [$groupClass, $groupKey]);
     }
 
     /**
-     * Get settings, either a dictionary keyed on groupKey, an array of rows with no groupKey, or a single item matched on groupKey.
+     * Get entries, either a dictionary keyed on groupKey, an array of rows with no groupKey, or a single entry matched on groupKey.
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
      * @return stdClass|array|null
      */
-    function getSettings(
+    function getEntries(
         string $groupClass,
         string|null $groupKey = null
     ) : stdClass|array|null {
-        $query = 'SELECT * FROM settings WHERE groupClass = ?';
+        $query = 'SELECT * FROM json_store WHERE group_class = ?';
         $params = [$groupClass];
         if($groupKey) {
-            $query .= ' AND groupKey = ?;';
+            $query .= ' AND group_key = ?;';
             $params[] = $groupKey;
         }
         $result = $this->query($query, $params);
@@ -181,39 +181,29 @@ class DB {
         if(is_array($result)) {
             $output = new stdClass();
             foreach($result as $row) {
-                $groupKey = $row['groupKey'];
-                $output->$groupKey = json_decode($row['dataJson']);
+                $groupKey = $row['group_key'];
+                $output->$groupKey = json_decode($row['data_json']);
             }
         }
         return $output;
     }
 
-    function getSettingsClassesWithCounts(string $like = ''): stdClass {
+    function getClassesWithCounts(string $like = ''): stdClass {
         $where = strlen($like) > 0
-            ? "WHERE groupClass LIKE '".(str_replace('*', '%', $like))."'"
+            ? "WHERE group_class LIKE '".(str_replace('*', '%', $like))."'"
             : '';
-        $query = "SELECT groupClass, COUNT(*) as count FROM settings $where GROUP BY groupClass;";
+        $query = "SELECT group_class, COUNT(*) as count FROM json_store $where GROUP BY group_class;";
         error_log($query);
         $result = $this->query($query);
         $output = new stdClass();
         if(is_array($result)) foreach($result as $row) {
-            $group = $row['groupClass'];
+            $group = $row['group_class'];
             $count = $row['count'];
             $output->$group = $count;
         }
         return $output;
     }
     // endregion
-
-
-
-    // region Configs
-    function saveConfig() {
-
-    }
-    // endregion
-
-
 
     // region Helper Functions
     private function getUUID(): string|null {

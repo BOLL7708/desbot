@@ -1,7 +1,6 @@
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
-import SettingsObjects from '../../Classes/SettingObjects.js'
 import BaseDataObject, {BaseDataObjectMap} from '../../Classes/BaseDataObject.js'
 
 export default class EditorHandler {
@@ -12,7 +11,7 @@ export default class EditorHandler {
     private readonly _labelSaveButton = '💾 Save (ctrl+s)'
     private readonly _labelSaveNewButton = '✨ Save New (ctrl+s)'
     private readonly _labelDeleteButton = '💥 Delete'
-    
+
     static readonly MainKey = 'Main'
     public constructor(
         like: string,
@@ -105,7 +104,7 @@ export default class EditorHandler {
             }
             if(instance) {
                 const documentation = this._classMap.getDocumentation(group)
-                const arrayTypes = this._classMap.getArrayTypes(group)
+                const arrayTypes = this._classMap.getListTypes(group)
                 editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, documentation, arrayTypes, markAsDirty, this._forceMainKey) ?? '')
             }
         }

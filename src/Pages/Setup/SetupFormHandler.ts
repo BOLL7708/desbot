@@ -174,7 +174,7 @@ export default class SetupFormHandler {
             const dbOk = await DataBaseHelper.testConnection()
             if(dbOk) this.setup().then()
             else alert('Could not connect to the database')
-        } else alert('Could not store database settings on disk.')
+        } else alert('Could not store database entry on disk.')
     }
     async submitTwitchClient(event: SubmitEvent) {
         event.preventDefault()
@@ -182,7 +182,7 @@ export default class SetupFormHandler {
         const inputData = this.getFormInputData(event.target, new SettingTwitchClient())
         const ok = await DataBaseHelper.save(inputData, 'Main')
         if(ok) this.setup().then()
-        else alert('Could not store Twitch Client settings in DataBaseHelper.')
+        else alert('Could not store Twitch Client entry in DataBaseHelper.')
     }
     async submitTwitchLogin(event: SubmitEvent) {
         event.preventDefault()

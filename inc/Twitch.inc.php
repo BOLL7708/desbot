@@ -17,10 +17,10 @@ class Twitch {
 
     static private function loadPage(string $url): string
     {
-        $twitchClientData = DB::get()->getSettings('SettingTwitchClient', 'Main');
+        $twitchClientData = DB::get()->getEntries('SettingTwitchClient', 'Main');
         $clientId = $twitchClientData->Main->clientId;
 
-        $tokenData = DB::get()->getSettings('SettingTwitchTokens', 'Channel');
+        $tokenData = DB::get()->getEntries('SettingTwitchTokens', 'Channel');
         $accessToken = $tokenData->Channel->accessToken;
         if(empty($accessToken)) exit;
         $context = stream_context_create(

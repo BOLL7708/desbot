@@ -17,7 +17,7 @@ $scopes = json_decode(file_get_contents("twitch_scopes.json")) ?? [];
 function getAuthUrl():string {
     global $scopes, $state;
     $db = DB::get();
-    $twitchClient = $db->getSettings('SettingTwitchClient', 'Main');
+    $twitchClient = $db->getEntries('SettingTwitchClient', 'Main');
     $config = $twitchClient->Main;
     $url = 'https://id.twitch.tv/oauth2/authorize';
     $url .= "?client_id=$config->clientId";
@@ -40,7 +40,7 @@ if(!$gotAuthResponse) { ?>
      * We got a response so we are retrieving tokens.
      */
     $db = DB::get();
-    $twitchClient = $db->getSettings('SettingTwitchClient', 'Main');
+    $twitchClient = $db->getEntries('SettingTwitchClient', 'Main');
     $config = $twitchClient->Main;
     $result = Utils::postForm('https://id.twitch.tv/oauth2/token', [
         'client_id' => $config->clientId,
@@ -59,7 +59,7 @@ if(!$gotAuthResponse) { ?>
         ]));
         $userInfo = $userInfoArr->data[0] ?? (object) [];
         if($userInfo) {
-            $success = $db->saveSetting('SettingTwitchTokens', $state, json_encode([
+            $success = $db->saveEntry('SettingTwitchTokens', $state, json_encode([
                 'userId' => intval($userInfo->id),
                 'userLogin' => $userInfo->login,
                 'accessToken' => $json->access_token,

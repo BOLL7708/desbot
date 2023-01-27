@@ -157,7 +157,7 @@ foreach($files as $file) {
 }
 function saveSettingAndBuildOutput($class, $key, $setting, &$output) {
     $db = DB::get();
-    $result = $db->saveSetting($class, $key, json_encode($setting));
+    $result = $db->saveEntry($class, $key, json_encode($setting));
     $classOkay = "$class(OKAY)";
     $classFail = "$class(FAIL)";
     if($result) {

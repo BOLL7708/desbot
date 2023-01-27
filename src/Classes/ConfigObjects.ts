@@ -90,7 +90,8 @@ export default class ConfigObjects extends BaseDataObjectMap {
 }
 
 export class ConfigExample extends BaseDataObject {
-    public singleValue: string = ''
+    public singleInstance = new ConfigExampleSub()
+    public singleValue = ''
     public arrayOfStrings: string[] = [
         'one', 'two', 'three'
     ]

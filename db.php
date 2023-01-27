@@ -30,7 +30,7 @@ switch($method) {
         if($groupKey !== null && $newGroupKey !== null) {
             $updatedKey = $db->updateKey($groupClass, $groupKey, $newGroupKey);
         }
-        $result = $db->saveSetting(
+        $result = $db->saveEntry(
             $groupClass,
             $updatedKey ? $newGroupKey : $groupKey,
             $dataJson
@@ -44,14 +44,14 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if(!$groupClass) $output = $db->getSettingsClassesWithCounts(); // All
-        elseif(str_contains($groupClass, '*')) $output = $db->getSettingsClassesWithCounts($groupClass); // Filtered
+        if(!$groupClass) $output = $db->getClassesWithCounts(); // All
+        elseif(str_contains($groupClass, '*')) $output = $db->getClassesWithCounts($groupClass); // Filtered
         else {
             if($groupKey) {
-                $output = $db->getSettings($groupClass, $groupKey);
+                $output = $db->getEntries($groupClass, $groupKey);
                 $array = is_object($output) ? get_object_vars($output) : $output;
                 $output = array_pop($array);
-            } else $output = $db->getSettings($groupClass);
+            } else $output = $db->getEntries($groupClass);
         }
         break;
 }
