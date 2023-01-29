@@ -130,18 +130,38 @@ export default class EditorHandler {
             dropdown.onchange = updateEditor
         }
 
-        // New or reset button
-        const editorNewOrResetButton = document.createElement('button') as HTMLButtonElement
-        editorNewOrResetButton.classList.add('editor-button', this._forceMainKey ? 'reset-button' : 'new-button')
-        editorNewOrResetButton.innerHTML = this._forceMainKey ? '🧼 Reset to defaults' : '✨ New'
-        editorNewOrResetButton.onclick = async (event)=>{
+        // New button
+        const editorNewButton = document.createElement('button') as HTMLButtonElement
+        editorNewButton.classList.add('editor-button', 'new-button')
+        editorNewButton.innerHTML = '✨ New'
+        editorNewButton.title = 'And new entry'
+        editorNewButton.onclick = async (event)=>{
+            updateEditor(undefined, true)
+        }
+
+        // Reset button
+        const editorResetButton = document.createElement('button') as HTMLButtonElement
+        editorResetButton.classList.add('editor-button', 'reset-button')
+        editorResetButton.innerHTML = '🧼 Reset'
+        editorResetButton.title = 'Reset to default values'
+        editorResetButton.onclick = async (event)=>{
             updateEditor(undefined, true, this._forceMainKey)
+        }
+
+        // Reload button
+        const editorReloadButton = document.createElement('button') as HTMLButtonElement
+        editorReloadButton.classList.add('editor-button', 'reload-button')
+        editorReloadButton.innerHTML = '💫 Reload'
+        editorReloadButton.title = 'Reload stored values'
+        editorReloadButton.onclick = async (event)=>{
+            updateEditor(undefined)
         }
 
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('editor-button', 'delete-button')
         editorDeleteButton.innerHTML = this._labelDeleteButton
+        editorDeleteButton.tabIndex = -1
         editorDeleteButton.onclick = async(event)=>{
             const doDelete = confirm(`Do you want to delete ${group} : ${currentKey}?`)
             if(doDelete) {
@@ -170,7 +190,9 @@ export default class EditorHandler {
         this._contentDiv.appendChild(description)
         if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
         this._contentDiv.appendChild(dropdown)
-        this._contentDiv.appendChild(editorNewOrResetButton)
+        if(this._forceMainKey) this._contentDiv.appendChild(editorResetButton)
+        else this._contentDiv.appendChild(editorNewButton)
+        this._contentDiv.appendChild(editorReloadButton)
         this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)

@@ -176,8 +176,8 @@ export default class JsonEditor {
                 }
                 break
             case EJsonEditorFieldType.Boolean:
-                const on = '✅ true'
-                const off = '❌ false'
+                const on = '✅ True'
+                const off = '❌ False'
                 input.style.userSelect = 'none'
                 input.tabIndex = 0
                 input.innerHTML = (value as boolean) ? on : off
@@ -195,7 +195,7 @@ export default class JsonEditor {
                 input.contentEditable = 'true'
                 input.innerHTML = `${value}`
                 input.onkeydown = (event)=>{
-                    const validKeys = ['Delete', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+                    const validKeys = ['Delete', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'ArrowLeft', 'Tab']
                     const key = event.key
                     const isDigit = !isNaN(parseInt(key))
                     const isValidPeriod = key == '.' && input.innerHTML.indexOf('.') == -1
@@ -331,6 +331,7 @@ export default class JsonEditor {
             button.innerHTML = '💥'
             button.title = 'Remove item'
             button.classList.add('delete-button')
+            button.tabIndex = -1
             button.onclick = (event)=>{
                 this.handleValue(null,  path, label)
                 this.rebuild()

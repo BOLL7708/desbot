@@ -31,6 +31,12 @@ code {
 .reset-button:hover {
     background-color: darkgray;
 }
+.reload-button {
+    background-color: lightblue;
+}
+.reload-button:hover {
+    background-color: deepskyblue;
+}
 .delete-button {
     margin-right: 10em;
     background-color: pink;

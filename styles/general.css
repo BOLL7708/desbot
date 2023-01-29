@@ -81,8 +81,9 @@ input, select, button {
     border-radius: 0.5em;
     font-size: 100%;
     margin: 0.25em;
-    border-color: #808080;
+    border-color: #00000040;
     border-style: solid;
+    box-sizing: border-box;
 }
 input[type="checkbox"] {
     scale: 150%;
