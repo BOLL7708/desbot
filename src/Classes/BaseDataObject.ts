@@ -20,7 +20,7 @@ export default abstract class BaseDataObject {
                 || prototype.hasOwnProperty(name) // The `__new()` call returns an instance with the original class as prototype, which is why we also check it.
             ) {
                 // We cast to `any` in here to be able to set the props at all.
-                const types = classMap?.getListTypes(this.constructor.name) ?? {}
+                const types = classMap?.getMeta(this.constructor.name)?.types ?? {}
                 const subClassInstanceName = types[name]
                 if(classMap && classMap.hasInstance(subClassInstanceName, true)) {
                     if(Array.isArray(prop)) {
@@ -33,8 +33,8 @@ export default abstract class BaseDataObject {
                     } else if (typeof prop == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
-                        for(const [k, v] of prop) {
-                            newProp[k] = classMap.getInstance(subClassInstanceName, v, true)
+                        for(const [k, v] of Object.entries(prop)) {
+                            newProp[k] = classMap.getInstance(subClassInstanceName, v as object|undefined, true)
                         }
                         (this as any)[name] = newProp
                     }
@@ -65,6 +65,10 @@ export default abstract class BaseDataObject {
         return obj
     }
 
+    /**
+     * Gets the map of related class instances, this is built when extending the BaseDataObjectMap as part of the constructor.
+     * @private
+     */
     private getClassMap(): BaseDataObjectMap|undefined {
         const className = this.constructor.name
         const classClass = Utils.splitOnCaps(className).shift() ?? ''
@@ -72,47 +76,51 @@ export default abstract class BaseDataObject {
     }
 }
 
+export class BaseDataObjectMeta {
+    public description: string = ''
+    public documentation: IStringDictionary = {}
+    public types: IStringDictionary = {}
+    constructor(description?: string, documentation?: IStringDictionary, types?: IStringDictionary) {
+        if(description) this.description = description
+        if(documentation) this.documentation = documentation
+        if(types) this.types = types
+    }
+}
+
+
 // Types
 type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
-type TArrayTypes = 'number'|'boolean'|'string'|string
+type TTypes = 'number'|'boolean'|'string'|string
 
-
-
-export class BaseDataObjectMap {
+export abstract class BaseDataObjectMap {
     static MapReferences: { [key: string]: BaseDataObjectMap } = {}
 
     private _instanceMap = new Map<string, BaseDataObject>()
-    private _descriptionMap = new Map<string, string>()
-    private _documentationMap = new Map<string, IStringDictionary>()
-    private _listTypesMap = new Map<string, IStringDictionary>()
     private _subInstanceMap = new Map<string, BaseDataObject>()
+    private _metaMap = new Map<string, BaseDataObjectMeta>()
 
-    constructor() {
+    protected constructor() {
+        // Store a reference to this instance in the static property on the abstract class (it somehow works)
         BaseDataObjectMap.MapReferences[this.constructor.name] = this
     }
 
     protected addInstance<T>(
         instance: T&BaseDataObject,
         description: string|undefined = undefined,
-        docs: Partial<Record<TNoFunctions<T>, string>>|undefined = undefined,
-        listTypes: Partial<Record<TNoFunctions<T>, TArrayTypes>>|undefined = undefined,
+        documentation: Partial<Record<TNoFunctions<T>, string>> = {},
+        types: Partial<Record<TNoFunctions<T>, TTypes>> = {},
         isSubClass: boolean = false
     ) {
         const className = instance.constructor.name
         const map = isSubClass ? this._subInstanceMap : this._instanceMap
         map.set(className, instance)
 
-        if(description) {
-            this._descriptionMap.set(className, description)
-        }
-        if(docs) {
-            // When adding Partial to the input we are forced to cast it for some reason.
-            this._documentationMap.set(className, docs as IStringDictionary)
-        }
-        if(listTypes) {
-            // Still more casting.
-            this._listTypesMap.set(className, listTypes as IStringDictionary)
-        }
+        const meta = new BaseDataObjectMeta(
+            description,
+            documentation as IStringDictionary,
+            types as IStringDictionary
+        )
+        this._metaMap.set(className, meta)
     }
 
     /**
@@ -147,22 +155,14 @@ export class BaseDataObjectMap {
     public getNames(): string[] {
         return Array.from(this._instanceMap.keys())
     }
-    public getDescription(className: string): string|undefined {
-        return this._descriptionMap.get(className)
-    }
-    public getDocumentation(className: string): { [key:string]: string }|undefined {
-        return this._documentationMap.get(className)
-    }
-    public getListTypes(className: string): { [key:string]: string }|undefined {
-        return this._listTypesMap.get(className)
-    }
 
-    public matchSubInstance(path: (string|number)[]): BaseDataObject|undefined {
-        /*
-         * TODO: Figure out how to use the incoming path data to match a path key
-         *  for sub-classes. This to know where to add buttons for adding/editing
-         *  said sub-classes in a class.
-         */
-        return undefined
+    public getMeta(className: string): BaseDataObjectMeta|undefined {
+        return this._metaMap.get(className)
+    }
+}
+
+export class EmptyDataObjectMap extends BaseDataObjectMap {
+    constructor() {
+        super()
     }
 }

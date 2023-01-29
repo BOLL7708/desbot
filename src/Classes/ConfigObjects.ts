@@ -74,7 +74,8 @@ export default class ConfigObjects extends BaseDataObjectMap {
                 arrayOfStrings: 'string',
                 arrayOfArraysOfStrings: 'string',
                 dictionaryOfStrings: 'string',
-                arrayOfSubClasses: new ConfigExampleSub().constructor.name
+                arrayOfSubClasses: new ConfigExampleSub().constructor.name,
+                dictionaryWithSubClasses: new ConfigExampleSub().constructor.name
             }
         )
         this.addInstance(

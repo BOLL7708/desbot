@@ -77,7 +77,7 @@ export default class EditorHandler {
 
         // Description
         const description = document.createElement('p') as HTMLParagraphElement
-        description.innerHTML = this._classMap.getDescription(group) ?? 'No description.'
+        description.innerHTML = this._classMap.getMeta(group)?.description ?? 'No description.'
 
         // Dropdown & editor
         const editorContainer = document.createElement('div') as HTMLDivElement
@@ -103,9 +103,9 @@ export default class EditorHandler {
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
             if(instance) {
-                const documentation = this._classMap.getDocumentation(group)
-                const arrayTypes = this._classMap.getListTypes(group)
-                editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, documentation, arrayTypes, markAsDirty, this._forceMainKey) ?? '')
+                const documentation = this._classMap.getMeta(group)?.documentation
+                const types = this._classMap.getMeta(group)?.types
+                editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, documentation, types, markAsDirty, this._forceMainKey) ?? '')
             }
         }
 

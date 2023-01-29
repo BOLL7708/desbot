@@ -1,6 +1,6 @@
 import Utils from '../../Classes/Utils.js'
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
-import {BaseDataObjectMap} from '../../Classes/BaseDataObject.js'
+import {BaseDataObjectMap, EmptyDataObjectMap} from '../../Classes/BaseDataObject.js'
 
 enum EOrigin {
     Unknown,
@@ -9,7 +9,7 @@ enum EOrigin {
 }
 
 export default class JsonEditor {
-    private _classMap: BaseDataObjectMap = new BaseDataObjectMap()
+    private _classMap: BaseDataObjectMap = new EmptyDataObjectMap()
     private _key: string = ''
     private _originalKey: string = ''
     private _data: any
