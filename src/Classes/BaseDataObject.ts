@@ -22,6 +22,7 @@ export default abstract class BaseDataObject {
                 // We cast to `any` in here to be able to set the props at all.
                 const types = classMap?.getMeta(this.constructor.name)?.types ?? {}
                 const subClassInstanceName = types[name]
+                const subClassInstanceType = (this as any)[name]?.constructor.name ?? (prototype as any)[name]?.constructor.name
                 if(classMap && classMap.hasInstance(subClassInstanceName, true)) {
                     if(Array.isArray(prop)) {
                         // It is an array of subclasses, instantiate.
@@ -39,8 +40,13 @@ export default abstract class BaseDataObject {
                         (this as any)[name] = newProp
                     }
                 } else {
-                    // It is a basic value, just set it.
-                    (this as any)[name] = prop
+                    if(classMap && classMap.hasInstance(subClassInstanceType, true)) {
+                        // It is a single instance class
+                        (this as any)[name] = classMap.getInstance(subClassInstanceType, prop, true)
+                    } else {
+                        // It is a basic value, just set it.
+                        (this as any)[name] = prop
+                    }
                 }
             }
         }
@@ -65,6 +71,10 @@ export default abstract class BaseDataObject {
         return obj
     }
 
+    public __clone() {
+        return this.__new(Utils.clone(this))
+    }
+
     /**
      * Gets the map of related class instances, this is built when extending the BaseDataObjectMap as part of the constructor.
      * @private
@@ -77,9 +87,9 @@ export default abstract class BaseDataObject {
 }
 
 export class BaseDataObjectMeta {
-    public description: string = ''
-    public documentation: IStringDictionary = {}
-    public types: IStringDictionary = {}
+    public description: string|undefined
+    public documentation: IStringDictionary|undefined
+    public types: IStringDictionary|undefined
     constructor(description?: string, documentation?: IStringDictionary, types?: IStringDictionary) {
         if(description) this.description = description
         if(documentation) this.documentation = documentation
@@ -107,8 +117,8 @@ export abstract class BaseDataObjectMap {
     protected addInstance<T>(
         instance: T&BaseDataObject,
         description: string|undefined = undefined,
-        documentation: Partial<Record<TNoFunctions<T>, string>> = {},
-        types: Partial<Record<TNoFunctions<T>, TTypes>> = {},
+        documentation?: Partial<Record<TNoFunctions<T>, string>>,
+        types?: Partial<Record<TNoFunctions<T>, TTypes>>,
         isSubClass: boolean = false
     ) {
         const className = instance.constructor.name
@@ -117,8 +127,8 @@ export abstract class BaseDataObjectMap {
 
         const meta = new BaseDataObjectMeta(
             description,
-            documentation as IStringDictionary,
-            types as IStringDictionary
+            documentation as IStringDictionary|undefined,
+            types as IStringDictionary|undefined
         )
         this._metaMap.set(className, meta)
     }
@@ -161,6 +171,7 @@ export abstract class BaseDataObjectMap {
     }
 }
 
+export class EmptyDataObject extends BaseDataObject {}
 export class EmptyDataObjectMap extends BaseDataObjectMap {
     constructor() {
         super()

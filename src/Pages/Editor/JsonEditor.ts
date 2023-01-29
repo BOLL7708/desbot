@@ -1,21 +1,25 @@
 import Utils from '../../Classes/Utils.js'
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
-import {BaseDataObjectMap, EmptyDataObjectMap} from '../../Classes/BaseDataObject.js'
+import BaseDataObject, {
+    BaseDataObjectMap,
+    BaseDataObjectMeta,
+    EmptyDataObject,
+    EmptyDataObjectMap
+} from '../../Classes/BaseDataObject.js'
 
 enum EOrigin {
     Unknown,
-    Array,
-    Object
+    List,
+    Single
 }
 
 export default class JsonEditor {
     private _classMap: BaseDataObjectMap = new EmptyDataObjectMap()
     private _key: string = ''
     private _originalKey: string = ''
-    private _data: any
-    private _originalData: any
-    private _documentation: IStringDictionary|undefined = undefined
-    private _arrayTypes: IStringDictionary|undefined = undefined
+    private _instance: object&BaseDataObject = new EmptyDataObject()
+    private _originalInstance: object&BaseDataObject = new EmptyDataObject()
+    private _originalInstanceType: string|undefined
     private _root: HTMLUListElement|undefined = undefined
     private _inputs: HTMLSpanElement[] = []
     private _labels: HTMLSpanElement[] = []
@@ -28,9 +32,7 @@ export default class JsonEditor {
     build(
         classMap: BaseDataObjectMap,
         key: string,
-        data: object,
-        documentation: IStringDictionary|undefined,
-        arrayTypes: IStringDictionary|undefined,
+        instance: object&BaseDataObject,
         dirty: boolean = false,
         hideKey: boolean = false,
         isRebuild: boolean = false
@@ -40,18 +42,19 @@ export default class JsonEditor {
             this._key = key
             this._originalKey = key
             this._hideKey = hideKey
-            if(data) {
-                this._data = Utils.clone(data)
-                this._originalData = Utils.clone(data)
+            if(instance) {
+                this._instance = instance.__clone()
+                this._originalInstance = instance.__clone();
             }
-            this._documentation = documentation
-            this._arrayTypes = arrayTypes
+            this._originalInstanceType = instance.constructor.name
         }
+
         if(!this._root) this._root = this.buildUL()
         else this._root.replaceChildren()
         this._inputs = []
         this._labels = []
-        this.stepData(this._root, this._data, ['Key'], key, EOrigin.Unknown)
+        const instanceMeta = this._classMap.getMeta(this._originalInstanceType ?? '')
+        this.stepData(this._root, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
         if(dirty) this.highlightLabels()
         return this._root
     }
@@ -59,9 +62,7 @@ export default class JsonEditor {
         this.build(
             this._classMap,
             this._key,
-            this._data,
-            this._documentation,
-            this._arrayTypes,
+            this._instance,
             false,
             this._hideKey,
             true
@@ -76,7 +77,8 @@ export default class JsonEditor {
 
     private stepData(
         root: HTMLElement,
-        data: any,
+        data: string|number|boolean|object,
+        instanceMeta: BaseDataObjectMeta|undefined,
         path: (string|number)[],
         key: string|undefined = undefined,
         origin: EOrigin = EOrigin.Unknown
@@ -84,22 +86,20 @@ export default class JsonEditor {
         const type = typeof data
         switch(type) {
             case 'string':
-                this.buildField(root, EJsonEditorFieldType.String, data, path, origin)
+                this.buildField(root, EJsonEditorFieldType.String, data, instanceMeta, path, origin)
                 break
             case 'number':
-                this.buildField(root, EJsonEditorFieldType.Number, data, path, origin)
+                this.buildField(root, EJsonEditorFieldType.Number, data, instanceMeta, path, origin)
                 break
             case 'boolean':
-                this.buildField(root, EJsonEditorFieldType.Boolean, data, path, origin)
+                this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin)
                 break
             case 'object':
                 if(data === null) {
                     // Exist to show that something is broken as we don't support the null type.
-                    this.buildField(root, EJsonEditorFieldType.Null, data, path, origin)
-                } else if(Array.isArray(data)) {
-                    this.buildArrayField(root, data, path, origin)
-                } else if(data.constructor == Object) {
-                    this.buildObjectField(root, data, path, key, origin)
+                    this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin)
+                } else {
+                    this.buildFields(root, data as object, instanceMeta, path, key, origin)
                 }
                 break
             default:
@@ -119,7 +119,8 @@ export default class JsonEditor {
     private buildField(
         root: HTMLElement,
         type: EJsonEditorFieldType,
-        value: string|number|boolean|null,
+        value: string|number|boolean|object,
+        instanceMeta: BaseDataObjectMeta|undefined,
         path:(string|number)[],
         origin: EOrigin
     ) {
@@ -238,86 +239,97 @@ export default class JsonEditor {
             input.click()
             input.focus()
         }
-        this.appendDocumentationIcon(key, path, li)
+        this.appendDocumentationIcon(key, instanceMeta, path, li)
         root.appendChild(li)
     }
 
-    private buildArrayField(
+    private buildFields(
         root: HTMLElement,
-        data: any[],
+        instance: object,
+        instanceMeta: BaseDataObjectMeta|undefined,
         path:(string|number)[],
+        objectKey: string|undefined,
         origin: EOrigin
     ) {
-        const key = path[path.length-1] ?? ''
+        const pathKey = path[path.length-1] ?? 'root'
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
 
-		const pathKey = path[path.length-1]
-        const arrayType = this._arrayTypes ? this._arrayTypes[pathKey] ?? '' : ''
-        const arrayTypeStr = arrayType.length == 0 ? 'N/A' : arrayType
-        newRoot.innerHTML += `<strong>${Utils.camelToTitle(key.toString())}</strong> (Array of <code>${arrayTypeStr}</code>)`
-        if(path.length == 2 && arrayType.length > 0) {
+        const type = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
+        const typeStr = type.length == 0 ? '' : ` (<code>${type}</code>)`
+        const instanceType = instance.constructor.name
+
+        if(path.length == 1) { // Root object generates a key field
+            this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single)
+        } else {
+            newRoot.innerHTML += `<strong>${Utils.camelToTitle(pathKey.toString())}</strong>${typeStr}`
+        }
+
+        if(type.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
-            newButton.title = 'Add new item to array'
+            newButton.title = 'Add new item'
             newButton.classList.add('inline-button', 'new-button')
             newButton.onclick = (event)=>{
-                switch(arrayType) {
-                    case 'number': data.push(0); break
-                    case 'boolean': data.push(false); break
-                    case 'string': data.push(''); break
-                    default:
-                        const instance = this._classMap.getInstance(arrayType, undefined, true)
-                        if(instance) data.push(Utils.clone(instance)) // For some reason this would do nothing unless cloned.
-                        else console.warn('Unhandled arrayType:', arrayType)
+                if(Array.isArray(instance)) {
+                    switch(type) {
+                        case 'number': instance.push(0); break
+                        case 'boolean': instance.push(false); break
+                        case 'string': instance.push(''); break
+                        default:
+                            const newInstance = this._classMap.getInstance(type, undefined, true)
+                            if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
+                            else console.warn('Unhandled type:', type)
+                    }
+                } else {
+                    switch(type) {
+                        case 'number': (instance as any)['new'] = 0; break
+                        case 'boolean': (instance as any)['new'] = false; break
+                        case 'string': (instance as any)['new'] = ''; break
+                        default:
+                            const newInstance = this._classMap.getInstance(type, undefined, true)
+                            if(newInstance) (instance as any)['new'] = newInstance.__clone()
+                            else console.warn('Unhandled type:', type)
+                    }
                 }
-                this.handleValue(data, path, newRoot)
+                this.handleValue(instance, path, newRoot)
                 this.rebuild()
             }
             newRoot.appendChild(newButton)
         }
         this.appendRemoveButton(origin, path, undefined, newRoot)
-        this.appendDocumentationIcon(key, path, newRoot)
-        for(let i=0; i<data.length; i++) {
-            const newPath = this.clone(path)
-            newPath.push(i)
-            this.stepData(newUL, data[i], newPath, undefined, EOrigin.Array)
-        }
-        newRoot.appendChild(newUL)
-        root.appendChild(newRoot)
-    }
+        this.appendDocumentationIcon(pathKey, instanceMeta, path, newRoot)
 
-    private buildObjectField(
-        root: HTMLElement,
-        data: any,
-        path:(string|number)[],
-        objectKey: string|undefined,
-        origin: EOrigin
-    ) {
-        const thisKey = path[path.length-1] ?? 'root'
-        const newRoot = this.buildLI('')
-        const newUL = this.buildUL()
-        if(path.length == 1) { // Root object generates a key field
-            this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, path, EOrigin.Object)
-        } else {
-            newRoot.innerHTML += `<strong>${Utils.camelToTitle(thisKey.toString())}</strong> (Object)`
+        // Get new instance meta if we are going deeper.
+        let newInstanceMeta = instanceMeta
+        if(type && this._classMap.hasInstance(type, true)) { // For lists
+            newInstanceMeta = this._classMap.getMeta(type) ?? instanceMeta
+        } else if (instanceType && this._classMap.hasInstance(instanceType, true)) { // For single class instances
+            newInstanceMeta = this._classMap.getMeta(instanceType) ?? instanceMeta
         }
-        this.appendRemoveButton(origin, path, undefined, newRoot)
-        this.appendDocumentationIcon(thisKey, path, newRoot)
-        for(const key of Object.keys(data).sort()) {
-            const newPath = this.clone(path)
-            newPath.push(key)
-            this.stepData(newUL, data[key], newPath)
+        const newOrigin = type ? EOrigin.List : EOrigin.Single
+        if(Array.isArray(instance)) {
+            for(let i=0; i<instance.length; i++) {
+                const newPath = this.clone(path)
+                newPath.push(i)
+                this.stepData(newUL, instance[i], newInstanceMeta, newPath, undefined, newOrigin)
+            }
+        } else {
+            for(const key of Object.keys(instance).sort()) {
+                const newPath = this.clone(path)
+                newPath.push(key)
+                this.stepData(newUL, (instance as any)[key], newInstanceMeta, newPath, undefined, newOrigin)
+            }
         }
         newRoot.appendChild(newUL)
         root.appendChild(newRoot)
     }
 
     private appendRemoveButton(origin: EOrigin, path: (string | number)[], label: HTMLElement|undefined, element: HTMLElement) {
-        if(origin == EOrigin.Array) {
+        if(origin == EOrigin.List) {
             const button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '💥'
-            button.title = 'Remove item from array'
+            button.title = 'Remove item'
             button.classList.add('delete-button')
             button.onclick = (event)=>{
                 this.handleValue(null,  path, label)
@@ -327,10 +339,10 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(keyValue: string|number, path: (string|number)[], element: HTMLElement) {
+    private appendDocumentationIcon(keyValue: string|number, instanceMeta: BaseDataObjectMeta|undefined, path: (string|number)[], element: HTMLElement) {
         const key = keyValue.toString()
-        const docStr = this._documentation ? this._documentation[key] ?? '' : ''
-        if(path.length == 2 && docStr.length > 0) {
+        const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
+        if(docStr.length > 0) {
             const span = document.createElement('span') as HTMLSpanElement
             span.innerHTML = ' 💬'
             span.title = docStr
@@ -351,13 +363,13 @@ export default class JsonEditor {
      * @private
      */
     private handleValue(
-        value: string|number|boolean|string[]|number[]|boolean[]|null,
+        value: string|number|boolean|object|null,
         path: (string | number)[],
         label: HTMLElement|undefined = undefined,
         checkModified: boolean = false
     ) {
-        let current: any = this._data
-        let currentOriginal: any = this._originalData
+        let current: any = this._instance
+        let currentOriginal: any = this._originalInstance
         if(path.length == 1) {
             if(value == this._originalKey) {
                 // Same as original value
@@ -376,18 +388,18 @@ export default class JsonEditor {
                     if(Array.isArray(current[p1]) && typeof p2 == 'number') {
                         (current[p1] as []).splice(p2, 1)
                     } else {
-                        // TODO: Untested
-                        delete current[p1]
+                        delete current[p1][p2]
                     }
                     return
                 }
 
                 // If we're on the last depth, act on it
+                const currentOriginalValue = currentOriginal && currentOriginal.hasOwnProperty(path[i]) ? currentOriginal[path[i]] : undefined
                 if(i == path.length-1) {
                     // Not same as the stored one, or just checked if modified
                     if(current[path[i]] != value || checkModified) {
                         if(!checkModified) current[path[i]] = value // Actual update in the JSON structure
-                        if(currentOriginal && currentOriginal[path[i]] == value) {
+                        if(currentOriginalValue == value) {
                             // Same as original value
                             if(label) label.style.backgroundColor = this._labelUnchangedColor
                         } else {
@@ -398,14 +410,14 @@ export default class JsonEditor {
                 } else {
                     // Continue to navigate down into the data structure
                     current = current[path[i]]
-                    currentOriginal = currentOriginal[path[i]]
+                    currentOriginal = currentOriginalValue
                 }
             }
         }
     }
 
     getData(): any {
-        return this._data
+        return this._instance
     }
     getKey(): string {
         return this._key
@@ -415,7 +427,5 @@ enum EJsonEditorFieldType {
     String,
     Boolean,
     Number,
-    Array,
-    Dictionary,
     Null
 }

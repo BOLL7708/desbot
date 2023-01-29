@@ -1,7 +1,7 @@
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
-import BaseDataObject, {BaseDataObjectMap} from '../../Classes/BaseDataObject.js'
+import BaseDataObject, {BaseDataObjectMap, BaseDataObjectMeta} from '../../Classes/BaseDataObject.js'
 
 export default class EditorHandler {
     private readonly _likeFilter: string
@@ -103,9 +103,7 @@ export default class EditorHandler {
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
             if(instance) {
-                const documentation = this._classMap.getMeta(group)?.documentation
-                const types = this._classMap.getMeta(group)?.types
-                editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, documentation, types, markAsDirty, this._forceMainKey) ?? '')
+                editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, markAsDirty, this._forceMainKey) ?? '')
             }
         }
 

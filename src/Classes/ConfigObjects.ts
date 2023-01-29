@@ -65,14 +65,13 @@ export default class ConfigObjects extends BaseDataObjectMap {
             {
                 singleValue: 'Hello!',
                 arrayOfStrings: 'Just strings derp.',
-                arrayOfArraysOfStrings: 'This will go boom...',
                 dictionaryOfStrings: 'Just strings with keys',
                 arrayOfSubClasses: 'A cake!',
-                dictionaryWithSubClasses: 'Oh my...'
+                dictionaryWithSubClasses: 'Oh my...',
+                singleInstance: 'A single instance yeah!',
             },
             {
                 arrayOfStrings: 'string',
-                arrayOfArraysOfStrings: 'string',
                 dictionaryOfStrings: 'string',
                 arrayOfSubClasses: new ConfigExampleSub().constructor.name,
                 dictionaryWithSubClasses: new ConfigExampleSub().constructor.name
@@ -80,11 +79,14 @@ export default class ConfigObjects extends BaseDataObjectMap {
         )
         this.addInstance(
             new ConfigExampleSub(),
-            undefined,
+            'Sub class as a test',
             {
-                subClassValue: 'Just a subclass value yeah?'
+                subClassValue: 'Just a subclass value yeah?',
+                subClassArray: 'An array of numbers yo!'
             },
-            {},
+            {
+                subClassArray: 'number'
+            },
             true
         )
     }
@@ -95,10 +97,6 @@ export class ConfigExample extends BaseDataObject {
     public singleValue = ''
     public arrayOfStrings: string[] = [
         'one', 'two', 'three'
-    ]
-    public arrayOfArraysOfStrings: string[][] = [
-        ['hello', 'there'],
-        ['and', 'another']
     ]
     public dictionaryOfStrings: IStringDictionary = {
         hello: 'Testing!',
@@ -116,7 +114,8 @@ export class ConfigExample extends BaseDataObject {
 }
 
 export class ConfigExampleSub extends BaseDataObject {
-    public subClassValue: string = ''
+    public subClassValue: string = 'A value'
+    public subClassArray: number[] = [1,2,3]
 }
 
 export class ConfigOpenVR2WS extends BaseDataObject {
