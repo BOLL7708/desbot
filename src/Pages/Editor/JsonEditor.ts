@@ -9,7 +9,8 @@ import BaseDataObject, {
 
 enum EOrigin {
     Unknown,
-    List,
+    ListArray,
+    ListDictionary,
     Single
 }
 
@@ -21,7 +22,6 @@ export default class JsonEditor {
     private _originalInstance: object&BaseDataObject = new EmptyDataObject()
     private _originalInstanceType: string|undefined
     private _root: HTMLUListElement|undefined = undefined
-    private _inputs: HTMLSpanElement[] = []
     private _labels: HTMLSpanElement[] = []
     private _hideKey: boolean = false
 
@@ -51,7 +51,6 @@ export default class JsonEditor {
 
         if(!this._root) this._root = this.buildUL()
         else this._root.replaceChildren()
-        this._inputs = []
         this._labels = []
         const instanceMeta = this._classMap.getMeta(this._originalInstanceType ?? '')
         this.stepData(this._root, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
@@ -129,14 +128,33 @@ export default class JsonEditor {
         const isRoot = path.length == 1
 
         // Label
-        const label = document.createElement('span') as HTMLSpanElement
+        let keyInput: HTMLSpanElement|undefined
+        const label: HTMLSpanElement = document.createElement('span') as HTMLSpanElement
+        if(origin == EOrigin.ListDictionary) {
+            label.innerHTML = ' : '
+            keyInput = document.createElement('code') as HTMLSpanElement
+            keyInput.contentEditable = 'false'
+            keyInput.innerHTML = key.toString()
+        } else {
+            label.innerHTML = isRoot ? `<strong>${key}</strong>: ` : `${Utils.camelToTitle(key.toString())}: `
+            label.onclick = (event)=>{
+                input.click()
+                input.focus()
+            }
+        }
         label.classList.add('input-label')
         this._labels.push(label)
-        label.innerHTML = isRoot ? `<strong>${key}</strong>: ` : `${Utils.camelToTitle(key.toString())}: `
+
         this.handleValue(value, path, label ,true) // Will colorize label
 
-        // Item
         const li = document.createElement('li') as HTMLLIElement
+
+        // Optional editable key
+        if(keyInput) {
+            li.appendChild(keyInput)
+        }
+
+        // Item
         li.appendChild(label)
 
         // Input
@@ -221,6 +239,13 @@ export default class JsonEditor {
             default:
                 skip = true
         }
+
+        if(keyInput) {
+            keyInput.onclick = (event)=>{
+                this.promptForKey(path)
+            }
+        }
+
         if(!skip) {
             if(isRoot && this._hideKey) {
                 input.contentEditable = 'false'
@@ -228,21 +253,27 @@ export default class JsonEditor {
                 input.onclick = ()=>{}
             }
             input.id = pathStr
-            this._inputs.push(input)
             input.oninput = handle
 
             li.appendChild(input)
         }
 
         this.appendRemoveButton(origin, path, label, li)
-        label.onclick = (event)=>{
-            input.click()
-            input.focus()
-        }
         this.appendDocumentationIcon(key, instanceMeta, path, li)
         root.appendChild(li)
     }
 
+    private promptForKey(path: (string|number)[]) {
+        const oldKey = Utils.clone(path).pop() ?? ''
+        const newKey = prompt(`Provide new key for "${path.join('.')}"`, oldKey.toString())
+        if(newKey && newKey.length > 0) {
+            this.handleKey(Utils.unescapeHTML(newKey), path)
+        }
+    }
+
+    /*
+    TODO: Need the ability to edit the keys for dictionaries.
+     */
     private buildFields(
         root: HTMLElement,
         instance: object,
@@ -262,8 +293,26 @@ export default class JsonEditor {
         if(path.length == 1) { // Root object generates a key field
             this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single)
         } else {
-            newRoot.innerHTML += `<strong>${Utils.camelToTitle(pathKey.toString())}</strong>${typeStr}`
+            if(origin == EOrigin.ListDictionary) {
+                const keyInput = document.createElement('code') as HTMLSpanElement
+                keyInput.contentEditable = 'false'
+                keyInput.innerHTML = pathKey.toString()
+                keyInput.onclick = (event)=>{
+                    this.promptForKey(path)
+                }
+                newRoot.appendChild(keyInput)
+            } else {
+                const strongSpan = document.createElement('strong') as HTMLSpanElement
+                strongSpan.innerHTML = Utils.camelToTitle(pathKey.toString())
+                newRoot.appendChild(strongSpan)
+            }
         }
+        if(typeStr.length > 0) {
+            const typeSpan = document.createElement('span') as HTMLSpanElement
+            typeSpan.innerHTML = typeStr
+            newRoot.appendChild(typeSpan)
+        }
+
 
         if(type.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
@@ -281,19 +330,25 @@ export default class JsonEditor {
                             if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
                             else console.warn('Unhandled type:', type)
                     }
+                    this.handleValue(instance, path, newRoot)
+                    this.rebuild()
                 } else {
-                    switch(type) {
-                        case 'number': (instance as any)['new'] = 0; break
-                        case 'boolean': (instance as any)['new'] = false; break
-                        case 'string': (instance as any)['new'] = ''; break
-                        default:
-                            const newInstance = this._classMap.getInstance(type, undefined, true)
-                            if(newInstance) (instance as any)['new'] = newInstance.__clone()
-                            else console.warn('Unhandled type:', type)
+                    const newKey = prompt('Provide a key for the new entry')
+                    if(newKey && newKey.length > 0) {
+                        switch(type) {
+                            case 'number': (instance as any)[newKey] = 0; break
+                            case 'boolean': (instance as any)[newKey] = false; break
+                            case 'string': (instance as any)[newKey] = ''; break
+                            default:
+                                const newInstance = this._classMap.getInstance(type, undefined, true)
+                                if(newInstance) (instance as any)[newKey] = newInstance.__clone()
+                                else console.warn('Unhandled type:', type)
+                        }
+                        this.handleValue(instance, path, newRoot)
+                        this.rebuild()
                     }
                 }
-                this.handleValue(instance, path, newRoot)
-                this.rebuild()
+
             }
             newRoot.appendChild(newButton)
         }
@@ -307,14 +362,15 @@ export default class JsonEditor {
         } else if (instanceType && this._classMap.hasInstance(instanceType, true)) { // For single class instances
             newInstanceMeta = this._classMap.getMeta(instanceType) ?? instanceMeta
         }
-        const newOrigin = type ? EOrigin.List : EOrigin.Single
         if(Array.isArray(instance)) {
+            const newOrigin = type ? EOrigin.ListArray : EOrigin.Single
             for(let i=0; i<instance.length; i++) {
                 const newPath = this.clone(path)
                 newPath.push(i)
                 this.stepData(newUL, instance[i], newInstanceMeta, newPath, undefined, newOrigin)
             }
         } else {
+            const newOrigin = type ? EOrigin.ListDictionary : EOrigin.Single
             for(const key of Object.keys(instance).sort()) {
                 const newPath = this.clone(path)
                 newPath.push(key)
@@ -326,7 +382,7 @@ export default class JsonEditor {
     }
 
     private appendRemoveButton(origin: EOrigin, path: (string | number)[], label: HTMLElement|undefined, element: HTMLElement) {
-        if(origin == EOrigin.List) {
+        if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
             const button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '💥'
             button.title = 'Remove item'
@@ -383,13 +439,12 @@ export default class JsonEditor {
         } else {
             for(let i = 1; i<path.length; i++) {
                 // Will remove the value from the JSON structure
-                if(value === null && i == path.length-2) {
-                    const p1 = path[i]
-                    const p2 = path[i+1]
-                    if(Array.isArray(current[p1]) && typeof p2 == 'number') {
-                        (current[p1] as []).splice(p2, 1)
+                if(value === null && i == path.length-1) {
+                    const p = path[i]
+                    if(Array.isArray(current) && typeof p == 'number') {
+                        (current as []).splice(p, 1)
                     } else {
-                        delete current[p1][p2]
+                        delete current[p]
                     }
                     return
                 }
@@ -413,6 +468,26 @@ export default class JsonEditor {
                     current = current[path[i]]
                     currentOriginal = currentOriginalValue
                 }
+            }
+        }
+    }
+
+    private handleKey(
+        keyValue: string,
+        path: (string|number)[],
+    ) {
+        let current: any = this._instance
+        for (let i = 1; i < path.length; i++) {
+            // Will change the key for a property
+            if (i == path.length - 1) {
+                const p = path[i]
+                const contents = Utils.clone(current[p])
+                delete current[p]
+                current[keyValue] = contents
+                this.rebuild()
+            } else {
+                // Continue to navigate down into the data structure
+                current = current[path[i]]
             }
         }
     }

@@ -829,7 +829,7 @@ export default class Utils {
         else return arr.map((s)=>{return this.capitalize(s)}).join(' ')
     }
     static capitalize(str: string): string {
-        return str[0].toUpperCase()+str.slice(1)
+        return str.length > 0 ? str[0].toUpperCase()+str.slice(1) : str
     }
 
     /**
