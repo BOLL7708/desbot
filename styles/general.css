@@ -49,6 +49,9 @@ html, body {
 #menu-bar li a:hover {
     background-color: #d0d0d0;
 }
+.menu-bar-current, .menu-bar-current:hover {
+    background-color: #fff !important;
+}
 
 /* Page Container */
 #page-container {
@@ -65,7 +68,14 @@ html, body {
     background-color: #e0e0e0;
     border-right: 2px solid #808080;
 }
-#side-bar li a:hover {
+#side-bar a {
+    color: #404040;
+    border-radius: 4px;
+    padding: 2px 6px;
+    line-height: 133%;
+    text-decoration: none;
+}
+#side-bar a:hover {
     background-color: #c0c0c0;
 }
 
