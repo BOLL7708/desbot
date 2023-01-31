@@ -23,26 +23,26 @@ export default abstract class BaseDataObject {
                 const types = classMap?.getMeta(this.constructor.name)?.types ?? {}
                 const subClassInstanceName = types[name]
                 const subClassInstanceType = (this as any)[name]?.constructor.name ?? (prototype as any)[name]?.constructor.name
-                if(classMap && classMap.hasInstance(subClassInstanceName, true)) {
+                if(classMap && classMap.hasSubInstance(subClassInstanceName)) {
                     if(Array.isArray(prop)) {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
                         for(const v of prop) {
-                            newProp.push(classMap.getInstance(subClassInstanceName, v, true))
+                            newProp.push(classMap.getSubInstance(subClassInstanceName, v))
                         }
                         (this as any)[name] = newProp
                     } else if (typeof prop == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
                         for(const [k, v] of Object.entries(prop)) {
-                            newProp[k] = classMap.getInstance(subClassInstanceName, v as object|undefined, true)
+                            newProp[k] = classMap.getSubInstance(subClassInstanceName, v as object|undefined)
                         }
                         (this as any)[name] = newProp
                     }
                 } else {
-                    if(classMap && classMap.hasInstance(subClassInstanceType, true)) {
+                    if(classMap && classMap.hasSubInstance(subClassInstanceType)) {
                         // It is a single instance class
-                        (this as any)[name] = classMap.getInstance(subClassInstanceType, prop, true)
+                        (this as any)[name] = classMap.getSubInstance(subClassInstanceType, prop)
                     } else {
                         // It is a basic value, just set it.
                         (this as any)[name] = prop
@@ -114,7 +114,7 @@ export abstract class BaseDataObjectMap {
         BaseDataObjectMap.MapReferences[this.constructor.name] = this
     }
 
-    protected addInstance<T>(
+    private addInstance<T>(
         instance: T&BaseDataObject,
         description: string|undefined = undefined,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
@@ -132,6 +132,21 @@ export abstract class BaseDataObjectMap {
         )
         this._metaMap.set(className, meta)
     }
+    protected addMainInstance<T>(
+        instance: T&BaseDataObject,
+        description: string|undefined = undefined,
+        documentation?: Partial<Record<TNoFunctions<T>, string>>,
+        types?: Partial<Record<TNoFunctions<T>, TTypes>>
+    ) {
+        this.addInstance(instance, description, documentation, types)
+    }
+    protected addSubInstance<T>(
+        instance: T&BaseDataObject,
+        documentation?: Partial<Record<TNoFunctions<T>, string>>,
+        types?: Partial<Record<TNoFunctions<T>, TTypes>>
+    ) {
+        this.addInstance(instance, undefined, documentation, types, true)
+    }
 
     /**
      * Get an instance from referencing the class name.
@@ -139,7 +154,7 @@ export abstract class BaseDataObjectMap {
      * @param props
      * @param isSubClass
      */
-    public getInstance(
+    private getInstance(
         className: string|undefined,
         props: object|undefined = undefined,
         isSubClass: boolean = false
@@ -155,12 +170,28 @@ export abstract class BaseDataObjectMap {
         } else console.warn(`Class instance does not exist: ${className}`)
         return undefined
     }
-    public hasInstance(
+    public getMainInstance(
         className: string|undefined,
-        isSubClass: boolean = false
+        props: object|undefined = undefined
+    ): BaseDataObject|undefined {
+        return this.getInstance(className, props)
+    }
+    public getSubInstance(
+        className: string|undefined,
+        props: object|undefined = undefined
+    ): BaseDataObject|undefined {
+        return this.getInstance(className, props, true)
+    }
+
+    public hasMainInstance(
+        className: string|undefined
     ): boolean {
-        const map = isSubClass ? this._subInstanceMap : this._instanceMap
-        return className ? map.has(className) : false
+        return className ? this._instanceMap.has(className) : false
+    }
+    public hasSubInstance(
+        className: string|undefined
+    ): boolean {
+        return className ? this._subInstanceMap.has(className) : false
     }
     public getNames(): string[] {
         return Array.from(this._instanceMap.keys())

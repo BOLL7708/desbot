@@ -13,14 +13,14 @@ export default class ConfigObjects extends BaseDataObjectMap {
     constructor() {
         super()
         // this.addInstance(new ConfigExample())
-        this.addInstance(
+        this.addMainInstance(
             new ConfigOpenVR2WS(),
             'Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS.',
             {
                 port: 'The port that is set in the OpenVR2WS application.'
             }
         )
-        this.addInstance(
+        this.addMainInstance(
             new ConfigDiscord(),
             'Settings for sending things to Discord channels.',
             {
@@ -30,7 +30,7 @@ export default class ConfigObjects extends BaseDataObjectMap {
                 screenshotEmbedColorRemote: 'Default embed highlight color for redeemed screenshots, will use the user color instead if they have spoken at least once.\n\nNote: This has to be a hex color to work with Discord.'
             }
         )
-        this.addInstance(
+        this.addMainInstance(
             new ConfigSign(),
             'The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.',
             {
@@ -44,7 +44,7 @@ export default class ConfigObjects extends BaseDataObjectMap {
                 transitionDurationMs: 'Amount of time it takes for the Sign to appear, in milliseconds.'
             }
         )
-        this.addInstance(
+        this.addMainInstance(
             new ConfigRelay(),
             'Settings to connect to the WSRelay accessory application.',
             {
@@ -52,14 +52,14 @@ export default class ConfigObjects extends BaseDataObjectMap {
                 streamDeckChannel: 'The channel to use for the Stream Deck plugin. (WIP)'
             }
         )
-        this.addInstance(
+        this.addMainInstance(
             new ConfigPhilipsHue(),
             'Control Philips Hue lights or sockets.',
             {
                 serverPath: 'Local IP address of the Philips Hue bridge, start with the protocol: http://'
             }
         )
-        this.addInstance(
+        this.addMainInstance(
             new ConfigExample(),
             'Test config for deeper structures.',
             {
@@ -77,17 +77,63 @@ export default class ConfigObjects extends BaseDataObjectMap {
                 dictionaryWithSubClasses: new ConfigExampleSub().constructor.name
             }
         )
-        this.addInstance(
+        this.addSubInstance(
             new ConfigExampleSub(),
-            'Sub class as a test',
             {
                 subClassValue: 'Just a subclass value yeah?',
                 subClassArray: 'An array of numbers yo!'
             },
             {
                 subClassArray: 'number'
+            }
+        )
+        this.addMainInstance(
+            new ConfigTTS(),
+            'These are settings for the Google Text-to-Speech API.',
+            {
+                speakerTimeoutMs: 'This is the amount of time between two utterances that can pass before a person\'s name will be said again.',
+                randomizeVoice: 'Turn this on to give new users a random voice.',
+                randomizeVoiceLanguageFilter: 'Random voices will be selected fom this pattern, it is matched from the start of the voice name.\nIt will default to only randomize among non-standard voices, to get the best sounding ones. See examples:\n* "en-" for English\n* "en-GB-" for English (Great Britain)\n* "en-US-Wavenet-F" for English (United States) with a specific Voice Model',
+                defaultVoice: 'This will be used if randomization is turned off, it\'s a voice name from Google\'s list of [TTS voices](https://cloud.google.com/text-to-speech/docs/voices).',
+                speakingRateOverride: 'Normally speech is faster the longer it is, this sets it to one fixed speed. 1.0 = 100% speed.\n\nNote: Extreme values will distort the voice output.',
+                skipSaid: 'Will skip the "user" and "said" text in "[user] said [text]" so it\'s only the clean text.',
+                cleanTextConfig: 'Configuration for cleaning the text before it is spoken.',
+                dictionaryConfig: 'Configuration for the dictionary that replaces words.'
             },
-            true
+            {}
+        )
+        this.addSubInstance(
+            new ConfigCleanText(),
+            {
+                removeBitEmotes: 'Removes [word][number] in Twitch cher messages.',
+                keepCase: 'Retains case during the transformations.',
+                replaceUserTags: 'Will replace @username tags with cleaned/stored usernames.',
+                removeParentheses: 'Remove text surrounded in parentheses or brackets: (like this).',
+                reduceRepeatedCharacters: 'Will reduce anything with more repeated characters to only two.\n\nExample: loooool -> lool',
+                replaceBigNumbers: 'Will replace numbers larger than a set number of digits.',
+                replaceBigNumbersWith: 'Will replace the number with this text.',
+                replaceBigNumbersWithDigits: 'The least amount of digits a number should have to be replaced.',
+                replaceLinks: 'Replace web links.',
+                replaceLinksWith: 'Will replace the link with this text.',
+                removeUnicodeEmojis: 'Removes unicode emojis characters.'
+            },
+            {}
+        )
+        this.addSubInstance(
+            new ConfigTTSDictionary(),
+            {
+                skipForAnnouncements: 'Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.',
+                replaceWordsWithAudio: 'This will convert the text to SSML, and replace words set in wordToAudioConfig.\nDue to how the TTS system works, these audio files needs to be hosted on a secure public host.',
+                wordToAudioConfig: 'Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.\n\nThe key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"'
+            },
+            {
+                wordToAudioConfig: new ConfigTTSDictionaryWordAudio().constructor.name
+            }
+        )
+        this.addSubInstance(
+            new ConfigTTSDictionaryWordAudio(),
+            {},
+            {},
         )
     }
 }
@@ -147,4 +193,36 @@ export class ConfigRelay extends BaseDataObject {
 
 export class ConfigPhilipsHue extends BaseDataObject {
     serverPath: string = 'http://'
+}
+
+export class ConfigTTS extends BaseDataObject {
+    speakerTimeoutMs: number = 10000
+    randomizeVoice: boolean = true
+    randomizeVoiceLanguageFilter: string = 'en-'
+    defaultVoice: string = 'en-gb-wavenet-d'
+    speakingRateOverride: number = -1
+    skipSaid: boolean = false
+    cleanTextConfig = new ConfigCleanText()
+    dictionaryConfig = new ConfigTTSDictionary()
+}
+export class ConfigCleanText extends BaseDataObject {
+    removeBitEmotes: boolean = false
+    keepCase: boolean = false
+    replaceUserTags: boolean = true
+    removeParentheses: boolean = true
+    reduceRepeatedCharacters: boolean = true
+    replaceBigNumbers: boolean = true
+    replaceBigNumbersWith: string = '"big number"'
+    replaceBigNumbersWithDigits: number = 7
+    replaceLinks: boolean = true
+    replaceLinksWith: string = '"link"'
+    removeUnicodeEmojis: boolean = true
+}
+export class ConfigTTSDictionary extends BaseDataObject {
+    skipForAnnouncements: boolean = true
+    replaceWordsWithAudio: boolean = true
+    wordToAudioConfig: { [key:string]: ConfigTTSDictionaryWordAudio } = {}
+}
+export class ConfigTTSDictionaryWordAudio extends BaseDataObject {
+    src: string[] = []
 }

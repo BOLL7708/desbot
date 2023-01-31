@@ -326,7 +326,7 @@ export default class JsonEditor {
                         case 'boolean': instance.push(false); break
                         case 'string': instance.push(''); break
                         default:
-                            const newInstance = this._classMap.getInstance(type, undefined, true)
+                            const newInstance = this._classMap.getSubInstance(type, undefined)
                             if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
                             else console.warn('Unhandled type:', type)
                     }
@@ -340,7 +340,7 @@ export default class JsonEditor {
                             case 'boolean': (instance as any)[newKey] = false; break
                             case 'string': (instance as any)[newKey] = ''; break
                             default:
-                                const newInstance = this._classMap.getInstance(type, undefined, true)
+                                const newInstance = this._classMap.getSubInstance(type, undefined)
                                 if(newInstance) (instance as any)[newKey] = newInstance.__clone()
                                 else console.warn('Unhandled type:', type)
                         }
@@ -357,9 +357,9 @@ export default class JsonEditor {
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = instanceMeta
-        if(type && this._classMap.hasInstance(type, true)) { // For lists
+        if(type && this._classMap.hasSubInstance(type)) { // For lists
             newInstanceMeta = this._classMap.getMeta(type) ?? instanceMeta
-        } else if (instanceType && this._classMap.hasInstance(instanceType, true)) { // For single class instances
+        } else if (instanceType && this._classMap.hasSubInstance(instanceType)) { // For single class instances
             newInstanceMeta = this._classMap.getMeta(instanceType) ?? instanceMeta
         }
         if(Array.isArray(instance)) {

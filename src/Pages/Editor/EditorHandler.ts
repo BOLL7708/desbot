@@ -91,14 +91,14 @@ export default class EditorHandler {
             let instance: BaseDataObject|undefined = undefined
             if(clear) {
                 currentKey = this._forceMainKey ? EditorHandler.MainKey : ''
-                instance = this._classMap.getInstance(group, {})
+                instance = this._classMap.getMainInstance(group, {})
                 if(!this._forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
             } else {
                 currentKey = this._forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(currentKey.length > 0) {
-                    instance = this._classMap.getInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
+                    instance = this._classMap.getMainInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
                 } else {
-                    instance = this._classMap.getInstance(group, {})
+                    instance = this._classMap.getMainInstance(group, {})
                 }
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
