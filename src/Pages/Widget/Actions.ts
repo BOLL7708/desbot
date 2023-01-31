@@ -1061,7 +1061,7 @@ export class Actions {
                             entry.datetime = Utils.getISOTimestamp()
                         }
                         const entries = entry.substitute.split(',')
-                        entries.splice(entries.indexOf(word), 1)
+                        // entries.splice(entries.indexOf(word), 1) // TODO: Not sure why this existed... it broke anyway and disabled the + option.
                         switch (firstChar) {
                             case '+':
                                 entries.push(substitute)

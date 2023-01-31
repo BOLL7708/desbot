@@ -1,8 +1,9 @@
 <?php
 function printMenuItem(string $thisScript, string $file, string $label, string $title, bool $blank=false): void {
     $newScript = explode('.', $file)[0];
-    $isCurrent = $thisScript == $newScript ? ' class="menu-bar-current"' : '';
-    echo "<li><a href=\"$file\" title=\"$title\"$isCurrent>$label</a></li>";
+    $isCurrent = $thisScript == $newScript ? 'class="menu-bar-current"' : '';
+    $openInBlank = $blank ? 'target="_blank"' : '';
+    echo "<li><a href=\"$file\" title=\"$title\" $isCurrent $openInBlank>$label</a></li>";
 }
 ?>
 <div id="menu-bar">
