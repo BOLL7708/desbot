@@ -169,7 +169,7 @@ export default class GoogleTTS {
         let cleanName = await Utils.loadCleanName(userData?.id ?? sentence.userId)
 
         // Clean input text
-        const cleanTextConfig = this._config.cleanTextConfig.__clone()
+        const cleanTextConfig = Utils.clone(this._config.cleanTextConfig) // TODO: Apparently not a class instance as no __clone available?
         cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
         let cleanText = await Utils.cleanText(
             text, 
