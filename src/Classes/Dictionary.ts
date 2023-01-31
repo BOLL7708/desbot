@@ -1,6 +1,8 @@
 import Utils from './Utils.js'
 import Config from './Config.js'
 import {IGoogleAudio} from '../Interfaces/igoogle.js'
+import {ConfigSpeech} from './ConfigObjects.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
 export default class Dictionary {
     private static SSMLEscapeSymbols: { [x:string]: string } = {
@@ -12,13 +14,21 @@ export default class Dictionary {
     }
     private static SSMLRegex = new RegExp(Object.keys(Dictionary.SSMLEscapeSymbols).join('|'), 'gi')
 
+    private _config = new ConfigSpeech()
     private _dictionary: Map<string, string> = new Map()
     private _audioDictionary: Map<string, number> = new Map()
     private _audioConfigs: IGoogleAudio[] = []
 
     constructor() {
+        this.init().then()
+    }
+
+    private async init() {
+        // Load config
+        this._config = await DataBaseHelper.loadMain(new ConfigSpeech())
+
         // Build audio dictionary from Config
-        for(const [word, config] of Object.entries(Config.google.dictionaryConfig.wordToAudioConfig)) {
+        for(const [word, config] of Object.entries(this._config.dictionaryConfig.wordToAudioConfig)) {
             this._audioConfigs.push(config)
             const configIndex = this._audioConfigs.length - 1
             for(const w of word.split('|')) {
@@ -49,7 +59,7 @@ export default class Dictionary {
      * @returns The modified text.
      */
     public apply(text: string): string {
-        const injectAudio = Config.google.dictionaryConfig.replaceWordsWithAudio
+        const injectAudio = this._config.dictionaryConfig.replaceWordsWithAudio
 
         // Add spaces after groups of symbols before word character, to make sure words are split up on space.
         let adjustedText = text.replace(

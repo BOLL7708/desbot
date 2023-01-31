@@ -1,6 +1,6 @@
-import {ICleanTextConfig} from './iutils.js'
 import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from './iimage_editor.js'
 import {TKeys} from '../_data/!keys.js'
+import {ConfigCleanText} from '../Classes/ConfigObjects.js'
 
 /**
  * In-VR-overlays and notifications with [OpenVRNotificationPipe](https://github.com/BOLL7708/OpenVRNotificationPipe)
@@ -52,7 +52,7 @@ export interface IPipeConfig {
     /**
      * Configuration for cleaning the text before it is piped.
      */
-     cleanTextConfig: ICleanTextConfig
+     cleanTextConfig: ConfigCleanText
 }
 
 export interface IPipeCustomMessageConfig {

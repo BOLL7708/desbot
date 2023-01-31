@@ -1,4 +1,3 @@
-import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IEventsConfig} from '../Interfaces/ievents.js'
@@ -30,7 +29,6 @@ export default class Config {
     static controller: IControllerConfig
     static events: IEventsConfig
     static eventsForGames: {[game: string]: IEventsConfig}
-    static google: IGoogleConfig
     static steam: ISteamConfig
     static obs: IObsConfig
     static pipe: IPipeConfig

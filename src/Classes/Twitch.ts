@@ -162,7 +162,7 @@ export default class Twitch{
             name: messageCmd.properties?.["display-name"] ?? userName,
             input: '',
             inputWords: [],
-            message: await Utils.cleanText(messageCmd.message.text, Config.google.cleanTextConfig, TwitchFactory.getEmotePositions(messageCmd.properties.emotes ?? [])),
+            message: await Utils.cleanText(messageCmd.message.text, undefined, TwitchFactory.getEmotePositions(messageCmd.properties.emotes ?? [])),
             color: messageCmd.properties?.color ?? '',
             isModerator: isModerator,
             isVIP: isVIP,

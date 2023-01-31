@@ -88,7 +88,7 @@ export default class ConfigObjects extends BaseDataObjectMap {
             }
         )
         this.addMainInstance(
-            new ConfigTTS(),
+            new ConfigSpeech(),
             'These are settings for the Google Text-to-Speech API.',
             {
                 speakerTimeoutMs: 'This is the amount of time between two utterances that can pass before a person\'s name will be said again.',
@@ -120,18 +120,18 @@ export default class ConfigObjects extends BaseDataObjectMap {
             {}
         )
         this.addSubInstance(
-            new ConfigTTSDictionary(),
+            new ConfigSpeechDictionary(),
             {
                 skipForAnnouncements: 'Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.',
                 replaceWordsWithAudio: 'This will convert the text to SSML, and replace words set in wordToAudioConfig.\nDue to how the TTS system works, these audio files needs to be hosted on a secure public host.',
                 wordToAudioConfig: 'Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.\n\nThe key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"'
             },
             {
-                wordToAudioConfig: new ConfigTTSDictionaryWordAudio().constructor.name
+                wordToAudioConfig: new ConfigSpeechWordToAudio().constructor.name
             }
         )
         this.addSubInstance(
-            new ConfigTTSDictionaryWordAudio(),
+            new ConfigSpeechWordToAudio(),
             {},
             {},
         )
@@ -195,7 +195,7 @@ export class ConfigPhilipsHue extends BaseDataObject {
     serverPath: string = 'http://'
 }
 
-export class ConfigTTS extends BaseDataObject {
+export class ConfigSpeech extends BaseDataObject {
     speakerTimeoutMs: number = 10000
     randomizeVoice: boolean = true
     randomizeVoiceLanguageFilter: string = 'en-'
@@ -203,7 +203,7 @@ export class ConfigTTS extends BaseDataObject {
     speakingRateOverride: number = -1
     skipSaid: boolean = false
     cleanTextConfig = new ConfigCleanText()
-    dictionaryConfig = new ConfigTTSDictionary()
+    dictionaryConfig = new ConfigSpeechDictionary()
 }
 export class ConfigCleanText extends BaseDataObject {
     removeBitEmotes: boolean = false
@@ -218,11 +218,11 @@ export class ConfigCleanText extends BaseDataObject {
     replaceLinksWith: string = '"link"'
     removeUnicodeEmojis: boolean = true
 }
-export class ConfigTTSDictionary extends BaseDataObject {
+export class ConfigSpeechDictionary extends BaseDataObject {
     skipForAnnouncements: boolean = true
     replaceWordsWithAudio: boolean = true
-    wordToAudioConfig: { [key:string]: ConfigTTSDictionaryWordAudio } = {}
+    wordToAudioConfig: { [key:string]: ConfigSpeechWordToAudio } = {}
 }
-export class ConfigTTSDictionaryWordAudio extends BaseDataObject {
+export class ConfigSpeechWordToAudio extends BaseDataObject {
     src: string[] = []
 }

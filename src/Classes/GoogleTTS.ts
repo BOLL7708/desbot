@@ -11,9 +11,11 @@ import Utils from './Utils.js'
 import {SettingTwitchTokens, SettingUserMute, SettingUserVoice} from './SettingObjects.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigSpeech} from './ConfigObjects.js'
 
 export default class GoogleTTS {
-    private _speakerTimeoutMs: number = Config.google.speakerTimeoutMs
+    private _config = new ConfigSpeech()
+    private _speakerTimeoutMs: number = 0
     private _audio: AudioPlayerInstance = new AudioPlayerInstance()
     private _voices: IGoogleVoice[] = [] // Cache
     private _randomVoices: IGoogleVoice[] = [] // Cache for randomizing starter voice
@@ -32,6 +34,11 @@ export default class GoogleTTS {
 
     constructor() {
         this._preloadQueueLoopHandle = setInterval(this.checkForFinishedDownloads.bind(this), 250)
+        this.init().then()
+    }
+    private async init() {
+        this._config = await DataBaseHelper.loadMain(new ConfigSpeech())
+        this._speakerTimeoutMs = this._config.speakerTimeoutMs
     }
 
     private checkForFinishedDownloads() {
@@ -162,7 +169,7 @@ export default class GoogleTTS {
         let cleanName = await Utils.loadCleanName(userData?.id ?? sentence.userId)
 
         // Clean input text
-        const cleanTextConfig = Utils.clone(Config.google.cleanTextConfig)
+        const cleanTextConfig = this._config.cleanTextConfig.__clone()
         cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
         let cleanText = await Utils.cleanText(
             text, 
@@ -180,7 +187,7 @@ export default class GoogleTTS {
         // If announcement the dictionary can be skipped.
         if(
             type == ETTSType.Announcement
-            && Config.google.dictionaryConfig.skipForAnnouncements
+            && this._config.dictionaryConfig.skipForAnnouncements
         ) skipDictionary = true
 
         // Apply dictionary
@@ -191,7 +198,7 @@ export default class GoogleTTS {
         switch(sentence.type) {
             case ETTSType.Said:
                 const speech = Config.twitchChat.speech ?? '%userNick said: %userInput'
-                cleanText = (this._lastSpeaker == sentence.userId || Config.google.skipSaid)
+                cleanText = (this._lastSpeaker == sentence.userId || this._config.skipSaid)
                     ? cleanText 
                     : Utils.replaceTags(speech, {userNick: cleanName, userInput: cleanText})
                 break
@@ -206,7 +213,7 @@ export default class GoogleTTS {
         this._lastSpeaker = sentence.userId
 
         // Surround in speak tags to make the SSML parse if we have used audio tags.
-        if(Config.google.dictionaryConfig.replaceWordsWithAudio) {
+        if(this._config.dictionaryConfig.replaceWordsWithAudio) {
             cleanText = `<speak>${cleanText}</speak>`
         }
         // console.log('GoogleTTS', cleanText)
@@ -228,7 +235,7 @@ export default class GoogleTTS {
                 voice: voiceConfig,
                 audioConfig: {
                     audioEncoding: "OGG_OPUS",
-                    speakingRate: Config.google.speakingRateOverride ?? 1.0 + textVar * 0.25, // Should probably make this a curve
+                    speakingRate: this._config.speakingRateOverride <= 0 ? (1.0 + textVar * 0.25) : this._config.speakingRateOverride, // Should probably make this a curve
                     pitch: textVar * 1.0,
                     volumeGainDb: 0.0
                 },
@@ -356,7 +363,7 @@ export default class GoogleTTS {
                 if(voices != null) {
                     voices = voices.filter(voice => voice.name.indexOf('Wavenet') > -1 || voice.name.indexOf('Neural') > -1)
                     this._voices = voices
-                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(Config.google.randomizeVoiceLanguageFilter) == 0))
+                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0))
                     voices.forEach(voice => {
                         voice.languageCodes.forEach(code => {
                             code = code.toLowerCase()
@@ -372,11 +379,11 @@ export default class GoogleTTS {
 
     private async getDefaultVoice():Promise<SettingUserVoice> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == Config.google.defaultVoice)
+        let defaultVoice = this._voices.find(voice => voice.name.toLowerCase() == this._config.defaultVoice)
         let randomVoice: IGoogleVoice|undefined = this._randomVoices.length > 0
             ? this._randomVoices[Math.floor(Math.random()*this._randomVoices.length)]
             : undefined
-        return Config.google.randomizeVoice && randomVoice != null
+        return this._config.randomizeVoice && randomVoice != null
             ? this.buildVoice(randomVoice)
             : this.buildVoice(defaultVoice)
     }

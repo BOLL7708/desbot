@@ -1,6 +1,5 @@
 import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
-import {IGoogleConfig} from '../Interfaces/igoogle.js'
 import {IPipeConfig} from '../Interfaces/ipipe.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
@@ -185,44 +184,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
                 label: "Trippy Channel Trophy: %entry" 
             }
             */
-        }
-    }
-}
-
-/*
-..######....#######...#######...######...##.......########
-.##....##..##.....##.##.....##.##....##..##.......##......
-.##........##.....##.##.....##.##........##.......##......
-.##...####.##.....##.##.....##.##...####.##.......######..
-.##....##..##.....##.##.....##.##....##..##.......##......
-.##....##..##.....##.##.....##.##....##..##.......##......
-..######....#######...#######...######...########.########
-*/
-Config.google = <IGoogleConfig> {
-    speakerTimeoutMs: 5000,
-    randomizeVoice: false,
-    randomizeVoiceLanguageFilter: 'en-',
-    defaultVoice: '',
-    speakingRateOverride: undefined,
-    skipSaid: false,
-    cleanTextConfig: {
-        removeBitEmotes: false,
-        keepCase: false,
-        replaceUserTags: true,
-        removeParentheses: true,
-        reduceRepeatedCharacters: true,
-        replaceBigNumbers: true,
-        replaceBigNumbersWith: '"big number"',
-        replaceBigNumbersWithDigits: 7,
-        replaceLinks: true,
-        replaceLinksWith: '"link"',
-        removeUnicodeEmojis: true
-    },
-    dictionaryConfig: {
-        skipForAnnouncements: true,
-        replaceWordsWithAudio: true,
-        wordToAudioConfig: {
-            // 'word|otherword|morewords': { src: 'https://yourhost.com/audiofiles/youraudio.wav' }
         }
     }
 }

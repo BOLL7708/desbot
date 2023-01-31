@@ -5,19 +5,20 @@ import {TKeys} from '../_data/!keys.js'
 import {IActionUser, ITextTags} from '../Interfaces/iactions.js'
 import SteamStoreHelper from './SteamStoreHelper.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
-import {ICleanTextConfig} from '../Interfaces/iutils.js'
 import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {
     SettingAccumulatingCounter,
-    SettingTwitchCheer, SettingTwitchReward,
+    SettingTwitchCheer,
+    SettingTwitchReward,
     SettingTwitchSub,
     SettingUserName,
     SettingUserVoice
 } from './SettingObjects.js'
 import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
+import {ConfigCleanText, ConfigSpeech} from './ConfigObjects.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -85,11 +86,14 @@ export default class Utils {
         return result.length > 0 ? result : name
     }
 
-    static async cleanText(textInput:string|undefined, config?: ICleanTextConfig, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
+    static async cleanText(textInput:string|undefined, config?: ConfigCleanText, clearRanges:ITwitchEmotePosition[]=[]):Promise<string> {
         if(textInput == undefined || textInput.length == 0) return ''
         let text = textInput ?? ''
 
-        if(!config) config = Config.google.cleanTextConfig
+        if(!config) {
+            const ttsConfig = await DataBaseHelper.loadMain(new ConfigSpeech())
+            config = ttsConfig.cleanTextConfig
+        }
         if(!config?.keepCase) text = text.toLowerCase()
 
         // Remove Twitch emojis
