@@ -133,7 +133,9 @@ export default class ConfigObjects extends BaseDataObjectMap {
         this.addSubInstance(
             new ConfigSpeechWordToAudio(),
             {},
-            {},
+            {
+                src: 'string'
+            },
         )
     }
 }
