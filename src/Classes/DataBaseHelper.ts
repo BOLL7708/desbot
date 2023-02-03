@@ -1,7 +1,7 @@
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
-import BaseDataObject from './BaseDataObject.js'
+import BaseDataObject from '../Objects/BaseDataObject.js'
 import EditorHandler from '../Pages/Editor/EditorHandler.js'
 
 export default class DataBaseHelper {
@@ -69,6 +69,20 @@ export default class DataBaseHelper {
         return response.ok
     }
 
+    // TODO: This should uh... list all the IDs for a group? Also a label field, yeah.
+    static async loadJsonList(groupClass: string): Promise<any|undefined> {
+        let url = this.getUrl()
+        const response = await fetch(url, {
+            headers: await this.getHeader(groupClass, undefined, false, {
+
+            })
+        })
+        const responseText = await response.text()
+        return responseText.length > 0 ? JSON.parse(responseText) : undefined;
+    }
+    // endregion
+
+    // region Instance Functions
     /**
      * Load a dictionary of entries from the database, this will retain keys.
      * @param emptyInstance Instance of the class to load.
@@ -147,7 +161,7 @@ export default class DataBaseHelper {
     static async loadClasses(like: string): Promise<{[group:string]: number}> {
         const url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader(like)
+            headers: await this.getHeader(like+'*')
         })
         return response.ok ? await response.json() : []
     }

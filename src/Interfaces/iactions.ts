@@ -3,9 +3,9 @@ import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from './iopenvr2ws.js'
 import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
 import {IPhilipsHueBulb} from './iphilipshue.js'
 import {ITwitchActionCommandConfig} from './itwitch.js'
-import {IPipeCustomMessage} from './ipipe.js'
 import {IRunCommandConfig} from './iexec.js'
 import {EEventSource, ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
+import {PresetPipeCustom} from '../Objects/Preset/Pipe.js'
 
 export interface IActionCallback {
     tag: string
@@ -446,7 +446,7 @@ export interface IPipeAction {
      * Config for the custom notification, which can be generated with the Editor that comes with OpenVRNotificationPipe.
      * You can copy the config as JS and paste it in a preset for easy referencing in the config.
      */
-    config: IPipeCustomMessage
+    config: PresetPipeCustom
     /**
      * If your custom notification includes text areas, this is where you add the texts that are to be used for it.
      */

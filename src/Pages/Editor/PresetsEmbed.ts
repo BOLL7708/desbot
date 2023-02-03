@@ -4,5 +4,5 @@ import EditorHandler from './EditorHandler.js'
 (async ()=>{
     const authed = await AuthUtils.checkIfAuthed()
     if(!authed) window.location.href = './index.php'
-    const handler = new EditorHandler('Setting')
+    const handler = new EditorHandler('Preset')
 })().then()

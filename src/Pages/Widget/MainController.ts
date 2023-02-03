@@ -9,25 +9,24 @@ import Rewards from './Rewards.js'
 import Functions from './Functions.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import {
-    SettingAccumulatingCounter,
-    SettingDictionaryEntry,
-    SettingIncrementingCounter,
-    SettingStreamQuote,
-    SettingTwitchClip,
-    SettingTwitchRedemption,
-    SettingTwitchReward,
-    SettingTwitchTokens,
-    SettingUserMute,
-    SettingUserName,
-    SettingUserVoice
-} from '../../Classes/SettingObjects.js'
 import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
+import {SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
+import {
+    SettingTwitchClip,
+    SettingTwitchRedemption,
+    SettingTwitchReward,
+    SettingTwitchTokens
+} from '../../Objects/Setting/Twitch.js'
+import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
+import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
+import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
+import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
 
 export default class MainController {
     public static async init() {
+        ImportDataObjectClasses.init()
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()

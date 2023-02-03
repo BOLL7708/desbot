@@ -1,11 +1,7 @@
 import Utils from '../../Classes/Utils.js'
-import {IStringDictionary} from '../../Interfaces/igeneral.js'
-import BaseDataObject, {
-    BaseDataObjectMap,
-    BaseDataObjectMeta,
-    EmptyDataObject,
-    EmptyDataObjectMap
-} from '../../Classes/BaseDataObject.js'
+import BaseDataObject, {EmptyDataObject,} from '../../Objects/BaseDataObject.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import DataObjectMap, {DataObjectMeta} from '../../Objects/DataObjectMap.js'
 
 enum EOrigin {
     Unknown,
@@ -15,7 +11,6 @@ enum EOrigin {
 }
 
 export default class JsonEditor {
-    private _classMap: BaseDataObjectMap = new EmptyDataObjectMap()
     private _key: string = ''
     private _originalKey: string = ''
     private _instance: object&BaseDataObject = new EmptyDataObject()
@@ -30,7 +25,6 @@ export default class JsonEditor {
     constructor() {}
 
     build(
-        classMap: BaseDataObjectMap,
         key: string,
         instance: object&BaseDataObject,
         dirty: boolean = false,
@@ -38,7 +32,6 @@ export default class JsonEditor {
         isRebuild: boolean = false
     ): HTMLElement {
         if(!isRebuild) {
-            this._classMap = classMap
             this._key = key
             this._originalKey = key
             this._hideKey = hideKey
@@ -52,14 +45,13 @@ export default class JsonEditor {
         if(!this._root) this._root = this.buildUL()
         else this._root.replaceChildren()
         this._labels = []
-        const instanceMeta = this._classMap.getMeta(this._originalInstanceType ?? '')
+        const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
         this.stepData(this._root, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
         if(dirty) this.highlightLabels()
         return this._root
     }
     private rebuild() {
         this.build(
-            this._classMap,
             this._key,
             this._instance,
             false,
@@ -77,7 +69,7 @@ export default class JsonEditor {
     private stepData(
         root: HTMLElement,
         data: string|number|boolean|object,
-        instanceMeta: BaseDataObjectMeta|undefined,
+        instanceMeta: DataObjectMeta|undefined,
         path: (string|number)[],
         key: string|undefined = undefined,
         origin: EOrigin = EOrigin.Unknown
@@ -115,17 +107,32 @@ export default class JsonEditor {
         return li
     }
 
-    private buildField(
+    private async buildField(
         root: HTMLElement,
         type: EJsonEditorFieldType,
         value: string|number|boolean|object,
-        instanceMeta: BaseDataObjectMeta|undefined,
+        instanceMeta: DataObjectMeta|undefined,
         path:(string|number)[],
         origin: EOrigin
     ) {
         const key = path[path.length-1] ?? ''
+        const previousKey = path[path.length-2] ?? ''
         const pathStr = path.join('.')
         const isRoot = path.length == 1
+
+        // Sort out type values for ID references
+        const parentType = instanceMeta?.types ? instanceMeta.types[previousKey] ?? '' : ''
+        const parentTypeArr = parentType.split('|')
+        const parentTypeClass = parentTypeArr.shift() ?? ''
+        let isIdList = false
+        let idLabelField = ''
+        for(const t of parentTypeArr) {
+            if(t == 'id') isIdList = true
+            else {
+                const [k, v] = t.split('=')
+                if(k == 'label') idLabelField = v
+            }
+        }
 
         // Label
         let keyInput: HTMLSpanElement|undefined
@@ -258,6 +265,20 @@ export default class JsonEditor {
             li.appendChild(input)
         }
 
+        if(isIdList) {
+            console.log(isIdList, idLabelField, parentTypeClass)
+            input.contentEditable = 'false'
+            input.classList.add('disabled')
+            input.onclick = ()=>{}
+            input.onchange = handle
+
+            const select = document.createElement('select') as HTMLSelectElement
+            const items = await DataBaseHelper.loadJson(parentTypeClass)
+            for(const [k, v] of items) {
+                // select.add()
+            }
+        }
+
         this.appendRemoveButton(origin, path, label, li)
         this.appendDocumentationIcon(key, instanceMeta, path, li)
         root.appendChild(li)
@@ -271,13 +292,10 @@ export default class JsonEditor {
         }
     }
 
-    /*
-    TODO: Need the ability to edit the keys for dictionaries.
-     */
     private buildFields(
         root: HTMLElement,
         instance: object,
-        instanceMeta: BaseDataObjectMeta|undefined,
+        instanceMeta: DataObjectMeta|undefined,
         path:(string|number)[],
         objectKey: string|undefined,
         origin: EOrigin
@@ -293,6 +311,7 @@ export default class JsonEditor {
         if(path.length == 1) { // Root object generates a key field
             this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single)
         } else {
+            // A dictionary has editable keys
             if(origin == EOrigin.ListDictionary) {
                 const keyInput = document.createElement('code') as HTMLSpanElement
                 keyInput.contentEditable = 'false'
@@ -301,7 +320,9 @@ export default class JsonEditor {
                     this.promptForKey(path)
                 }
                 newRoot.appendChild(keyInput)
-            } else {
+            }
+            // An array has a fixed index
+            else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
                 strongSpan.innerHTML = Utils.camelToTitle(pathKey.toString())
                 newRoot.appendChild(strongSpan)
@@ -313,22 +334,28 @@ export default class JsonEditor {
             newRoot.appendChild(typeSpan)
         }
 
-
         if(type.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
             newButton.title = 'Add new item'
             newButton.classList.add('inline-button', 'new-button')
             newButton.onclick = (event)=>{
+                const typeArr = type.split('|')
+                const shouldBeIdList = typeArr.indexOf('id') != -1
+                const justType = typeArr.shift()
                 if(Array.isArray(instance)) {
                     switch(type) {
                         case 'number': instance.push(0); break
                         case 'boolean': instance.push(false); break
                         case 'string': instance.push(''); break
                         default:
-                            const newInstance = this._classMap.getSubInstance(type, undefined)
+                            if(shouldBeIdList) {
+                                instance.push(0)
+                                break
+                            }
+                            const newInstance = DataObjectMap.getSubInstance(justType, undefined)
                             if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
-                            else console.warn('Unhandled type:', type)
+                            else console.warn('Unhandled type:', justType)
                     }
                     this.handleValue(instance, path, newRoot)
                     this.rebuild()
@@ -340,9 +367,13 @@ export default class JsonEditor {
                             case 'boolean': (instance as any)[newKey] = false; break
                             case 'string': (instance as any)[newKey] = ''; break
                             default:
-                                const newInstance = this._classMap.getSubInstance(type, undefined)
+                                if(shouldBeIdList) {
+                                    (instance as any)[newKey] = 0
+                                    break
+                                }
+                                const newInstance = DataObjectMap.getSubInstance(justType, undefined)
                                 if(newInstance) (instance as any)[newKey] = newInstance.__clone()
-                                else console.warn('Unhandled type:', type)
+                                else console.warn('Unhandled type:', justType)
                         }
                         this.handleValue(instance, path, newRoot)
                         this.rebuild()
@@ -357,10 +388,10 @@ export default class JsonEditor {
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = instanceMeta
-        if(type && this._classMap.hasSubInstance(type)) { // For lists
-            newInstanceMeta = this._classMap.getMeta(type) ?? instanceMeta
-        } else if (instanceType && this._classMap.hasSubInstance(instanceType)) { // For single class instances
-            newInstanceMeta = this._classMap.getMeta(instanceType) ?? instanceMeta
+        if(type && DataObjectMap.hasSubInstance(type)) { // For lists
+            newInstanceMeta = DataObjectMap.getMeta(type) ?? instanceMeta
+        } else if (instanceType && DataObjectMap.hasSubInstance(instanceType)) { // For single class instances
+            newInstanceMeta = DataObjectMap.getMeta(instanceType) ?? instanceMeta
         }
         if(Array.isArray(instance)) {
             const newOrigin = type ? EOrigin.ListArray : EOrigin.Single
@@ -396,7 +427,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(keyValue: string|number, instanceMeta: BaseDataObjectMeta|undefined, path: (string|number)[], element: HTMLElement) {
+    private appendDocumentationIcon(keyValue: string|number, instanceMeta: DataObjectMeta|undefined, path: (string|number)[], element: HTMLElement) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0) {

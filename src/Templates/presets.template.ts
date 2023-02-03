@@ -1,5 +1,3 @@
-import {IPipeCustomMessage} from '../Interfaces/ipipe.js'
-
 /*
  * This is a premade file with examples of how to make preset objects.
  * It is useful if you want to reuse the same config values in multiple places.
@@ -7,6 +5,8 @@ import {IPipeCustomMessage} from '../Interfaces/ipipe.js'
  * You can create any additional container for presets here, and the name and contents is up to you.
  * The ones provided are examples that were deemed useful.
  */
+
+import {PresetPipeCustom, PresetPipeCustomProperties} from '../Objects/Preset/Pipe.js'
 
 /**
  * Override presets for the default controller options per game, usage:
@@ -53,7 +53,7 @@ export class GamePresetsTemplate {
  * through the application itself, click the `Example` link in OpenVRNotificationPipe.
  */ 
 export class PipePresetsTemplate {
-    static readonly PIPE_DOT: IPipeCustomMessage = {
+    static readonly PIPE_DOT: PresetPipeCustom&any = {
         customProperties: {
             enabled: true,
             attachToAnchor: true,
@@ -64,7 +64,7 @@ export class PipePresetsTemplate {
             pitchDeg: -30,
         }
     }
-    static readonly PIPE_CHAT: IPipeCustomMessage = {
+    static readonly PIPE_CHAT: PresetPipeCustom&any = {
         customProperties: {
             enabled: true,
             ignoreAnchorPitch: true,
@@ -90,7 +90,7 @@ export class PipePresetsTemplate {
             }]
         }
     }
-    static readonly PIPE_SCREENSHOT: IPipeCustomMessage = {
+    static readonly PIPE_SCREENSHOT: PresetPipeCustom&any = {
         customProperties: {
             enabled: true,
             ignoreAnchorPitch: true,

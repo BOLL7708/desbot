@@ -1,9 +1,12 @@
 import {IActionUser} from '../Interfaces/iactions.js'
 import {
     ITwitchAnnouncement,
-    ITwitchChatCallback, ITwitchChatCheerCallback, ITwitchChatMessageCallback,
+    ITwitchChatCallback,
+    ITwitchChatCheerCallback,
+    ITwitchChatMessageCallback,
     ITwitchCommandConfig,
-    ITwitchMessageData, ITwitchWhisperMessageCallback
+    ITwitchMessageData,
+    ITwitchWhisperMessageCallback
 } from '../Interfaces/itwitch.js'
 import {Actions} from '../Pages/Widget/Actions.js'
 import Config from './Config.js'
@@ -15,9 +18,9 @@ import StatesSingleton from '../Singletons/StatesSingleton.js'
 import Utils from './Utils.js'
 import {EEventSource} from '../Pages/Widget/Enums.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {SettingTwitchTokens} from './SettingObjects.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DiscordUtils from './DiscordUtils.js'
+import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 
 export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()

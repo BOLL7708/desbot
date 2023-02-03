@@ -1,11 +1,12 @@
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
-import BaseDataObject, {BaseDataObjectMap, BaseDataObjectMeta} from '../../Classes/BaseDataObject.js'
+import BaseDataObject from '../../Objects/BaseDataObject.js'
+import DataObjectMap from '../../Objects/DataObjectMap.js'
+import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
 
 export default class EditorHandler {
     private readonly _likeFilter: string
-    private readonly _classMap: BaseDataObjectMap
     private readonly _forceMainKey: boolean
 
     private readonly _labelSaveButton = '💾 Save (ctrl+s)'
@@ -15,11 +16,10 @@ export default class EditorHandler {
     static readonly MainKey = 'Main'
     public constructor(
         like: string,
-        classMap: BaseDataObjectMap,
         forceMainKey: boolean = false
     ) {
+        ImportDataObjectClasses.init()
         this._likeFilter = like
-        this._classMap = classMap
         this._forceMainKey = forceMainKey
         this.updateSideMenu().then()
 
@@ -37,7 +37,7 @@ export default class EditorHandler {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
         const classesAndCounts = await DataBaseHelper.loadClasses(this._likeFilter ?? '')
-        for(const className of this._classMap.getNames()) {
+        for(const className of DataObjectMap.getNames(this._likeFilter ?? '')) {
             if(!classesAndCounts.hasOwnProperty(className)) {
                 // Add missing classes so they can still be edited
                 classesAndCounts[className] = 0
@@ -77,7 +77,7 @@ export default class EditorHandler {
 
         // Description
         const description = document.createElement('p') as HTMLParagraphElement
-        description.innerHTML = this._classMap.getMeta(group)?.description ?? 'No description.'
+        description.innerHTML = DataObjectMap.getMeta(group)?.description ?? 'No description.'
 
         // Dropdown & editor
         const editorContainer = document.createElement('div') as HTMLDivElement
@@ -91,19 +91,19 @@ export default class EditorHandler {
             let instance: BaseDataObject|undefined = undefined
             if(clear) {
                 currentKey = this._forceMainKey ? EditorHandler.MainKey : ''
-                instance = this._classMap.getMainInstance(group, {})
+                instance = DataObjectMap.getMainInstance(group, {})
                 if(!this._forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
             } else {
                 currentKey = this._forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(currentKey.length > 0) {
-                    instance = this._classMap.getMainInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
+                    instance = DataObjectMap.getMainInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
                 } else {
-                    instance = this._classMap.getMainInstance(group, {})
+                    instance = DataObjectMap.getMainInstance(group, {})
                 }
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
             if(instance) {
-                editorContainer.replaceChildren(this._editor?.build(this._classMap, currentKey, instance, markAsDirty, this._forceMainKey) ?? '')
+                editorContainer.replaceChildren(this._editor?.build(currentKey, instance, markAsDirty, this._forceMainKey) ?? '')
             }
         }
 

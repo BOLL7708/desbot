@@ -18,7 +18,7 @@ import Color from './ColorConstants.js'
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigOpenVR2WS} from './ConfigObjects.js'
+import {ConfigOpenVR2WS} from '../Objects/Config/OpenVR2WS.js'
 
 export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }

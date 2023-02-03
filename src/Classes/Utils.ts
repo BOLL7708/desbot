@@ -9,16 +9,12 @@ import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
-import {
-    SettingAccumulatingCounter,
-    SettingTwitchCheer,
-    SettingTwitchReward,
-    SettingTwitchSub,
-    SettingUserName,
-    SettingUserVoice
-} from './SettingObjects.js'
 import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
-import {ConfigCleanText, ConfigSpeech} from './ConfigObjects.js'
+import {ConfigCleanText} from '../Objects/Config/CleanText.js'
+import {ConfigSpeech} from '../Objects/Config/Speech.js'
+import {SettingUserName, SettingUserVoice} from '../Objects/Setting/User.js'
+import {SettingTwitchCheer, SettingTwitchReward, SettingTwitchSub} from '../Objects/Setting/Twitch.js'
+import {SettingAccumulatingCounter} from '../Objects/Setting/Counters.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {

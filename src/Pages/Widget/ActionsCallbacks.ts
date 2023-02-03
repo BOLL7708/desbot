@@ -13,18 +13,13 @@ import ChannelTrophyUtils from '../../Classes/ChannelTrophyUtils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
 import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {
-    SettingAccumulatingCounter,
-    SettingChannelTrophyStat,
-    SettingIncrementingCounter,
-    SettingStreamQuote,
-    SettingTwitchClip,
-    SettingTwitchRedemption,
-    SettingTwitchTokens
-} from '../../Classes/SettingObjects.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataUtils from '../../Classes/DataUtils.js'
 import {TKeys} from '../../_data/!keys.js'
+import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
+import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
+import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
+import {SettingChannelTrophyStat} from '../../Objects/Setting/Channel.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {

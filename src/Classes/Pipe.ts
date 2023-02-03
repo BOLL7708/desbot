@@ -3,13 +3,13 @@ import ImageEditor from './ImageEditor.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
 import Config from './Config.js'
 import Color from './ColorConstants.js'
-import {IPipeBasicMessage, IPipeCustomMessage} from '../Interfaces/ipipe.js'
 import TwitchFactory from './TwitchFactory.js'
 import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import ImageHelper from './ImageHelper.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
+import {PresetPipeBasic, PresetPipeCustom} from '../Objects/Preset/Pipe.js'
 
 export default class Pipe {
     private _socket:WebSockets
@@ -29,7 +29,7 @@ export default class Pipe {
     }
 
     setOverlayTitle(title: string) {
-        this._socket.send(JSON.stringify(<IPipeBasicMessage>{
+        this._socket.send(JSON.stringify(<PresetPipeBasic>{
             basicTitle: title,
             basicMessage: "Initializing Notification Pipe for Streaming Widget"
         }))
@@ -179,13 +179,13 @@ export default class Pipe {
         if(!done) { // SteamVR notification
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(imageDataUrl != null) {
-                this._socket.send(JSON.stringify(<IPipeBasicMessage>{
+                this._socket.send(JSON.stringify(<PresetPipeBasic>{
                     basicTitle: "",
                     basicMessage: text,
                     imageData: Utils.removeImageHeader(imageDataUrl)
                 }))
             } else {
-                this._socket.send(JSON.stringify(<IPipeBasicMessage>{
+                this._socket.send(JSON.stringify(<PresetPipeBasic>{
                     basicTitle: "",
                     basicMessage: text,
                 }))
@@ -193,7 +193,7 @@ export default class Pipe {
         }
     }
 
-    sendCustom(message: IPipeCustomMessage) {
+    sendCustom(message: PresetPipeCustom) {
         this._socket.send(JSON.stringify(message))
     }
 

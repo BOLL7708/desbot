@@ -1,5 +1,4 @@
 import {ITwitchCheer, ITwitchReward} from '../Interfaces/itwitch.js'
-import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {
     ITwitchPubsubCheerCallback,
     ITwitchPubsubCheerMessage,
@@ -10,12 +9,11 @@ import {
     ITwitchPubsubSubscriptionMessage
 } from '../Interfaces/itwitch_pubsub.js'
 import {Actions} from '../Pages/Widget/Actions.js'
-import Config from './Config.js'
 import Color from './ColorConstants.js'
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
-import {SettingTwitchRedemption, SettingTwitchTokens} from './SettingObjects.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import {SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 
 export default class TwitchPubsub {
     private LOG_COLOR: string = 'teal'

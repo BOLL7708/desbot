@@ -8,10 +8,11 @@ import {IGoogleVoice} from '../Interfaces/igoogle.js'
 import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {IAudioPlayedCallback} from '../Interfaces/iaudioplayer.js'
 import Utils from './Utils.js'
-import {SettingTwitchTokens, SettingUserMute, SettingUserVoice} from './SettingObjects.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigSpeech} from './ConfigObjects.js'
+import {ConfigSpeech} from '../Objects/Config/Speech.js'
+import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
+import {SettingUserMute, SettingUserVoice} from '../Objects/Setting/User.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()

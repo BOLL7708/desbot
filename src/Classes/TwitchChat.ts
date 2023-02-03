@@ -3,8 +3,8 @@ import Utils from './Utils.js'
 import TwitchFactory from './TwitchFactory.js'
 import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {SettingTwitchTokens} from './SettingObjects.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
+import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'

@@ -8,7 +8,6 @@ import AudioPlayer from '../../Classes/AudioPlayer.js'
 import Functions from './Functions.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchFactory from '../../Classes/TwitchFactory.js'
-import {IPipeCustomMessage} from '../../Interfaces/ipipe.js'
 import {ITwitchPubsubRewardMessage} from '../../Interfaces/itwitch_pubsub.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import Utils from '../../Classes/Utils.js'
@@ -16,12 +15,13 @@ import MainController from './MainController.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Classes/SettingObjects.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ImageEditor from '../../Classes/ImageEditor.js'
 import {IRelayTempMessage} from '../../Classes/Relay.js'
 import {TKeys} from '../../_data/!keys.js'
-import {ConfigDiscord} from '../../Classes/ConfigObjects.js'
+import {ConfigDiscord} from '../../Objects/Config/Discord.js'
+import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
+import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -262,7 +262,7 @@ export default class Callbacks {
             ) {
                 const preset = Config.screenshots.callback.pipeMessagePreset
                 if(preset != undefined) {
-                    const configClone: IPipeCustomMessage = Utils.clone(preset.config)
+                    const configClone: PresetPipeCustom = Utils.clone(preset.config)
                     configClone.imageData = responseData.image
                     if(configClone.customProperties) {
                         configClone.customProperties.durationMs = preset.durationMs

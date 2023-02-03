@@ -7,12 +7,12 @@ import {
     IActionUser,
     IAudioAction,
     IEntriesAction,
+    IInputAction,
     ILabelAction,
     IObsAction,
     IPhilipsHueColorAction,
     IPhilipsHuePlugAction,
     IPipeAction,
-    IInputAction,
     IRewardStatesConfig,
     IScreenshotAction,
     ISignAction,
@@ -40,20 +40,15 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import {ITwitchHelixRewardUpdate} from '../../Interfaces/itwitch_helix.js'
 import ActionsCallbacks from './ActionsCallbacks.js'
-import {
-    SettingAccumulatingCounter, SettingCounterBase,
-    SettingDictionaryEntry,
-    SettingIncrementingCounter,
-    SettingTwitchTokens,
-    SettingUserMute,
-    SettingUserName,
-    SettingUserVoice
-} from '../../Classes/SettingObjects.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataUtils from '../../Classes/DataUtils.js'
 import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 import {TKeys} from '../../_data/!keys.js'
+import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
+import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
+import {SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
+import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 
 export class ActionHandler {
     constructor(

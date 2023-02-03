@@ -8,9 +8,10 @@ import DataUtils, {
     MigrationData,
     MigrationVersion
 } from '../../Classes/DataUtils.js'
-import {SettingImportStatus, SettingTwitchClient, SettingTwitchTokens} from '../../Classes/SettingObjects.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
+import {SettingTwitchClient, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
+import {SettingImportStatus} from '../../Objects/Setting/Import.js'
 
 type TForm =
     'Register'

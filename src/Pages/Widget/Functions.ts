@@ -13,8 +13,8 @@ import DiscordUtils from '../../Classes/DiscordUtils.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {SettingSteamAchievements} from '../../Classes/SettingObjects.js'
 import {TKeys} from '../../_data/!keys.js'
+import {SettingSteamAchievements} from '../../Objects/Setting/Steam.js'
 
 export default class Functions {
     /*

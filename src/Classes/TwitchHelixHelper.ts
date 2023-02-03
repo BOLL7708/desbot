@@ -6,19 +6,20 @@ import {
     ITwitchHelixChatColorResponse,
     ITwitchHelixClipResponse,
     ITwitchHelixGamesResponse,
-    ITwitchHelixGamesResponseData, ITwitchHelixRoleResponse,
+    ITwitchHelixGamesResponseData,
     ITwitchHelixRewardConfig,
     ITwitchHelixRewardResponse,
     ITwitchHelixRewardStates,
     ITwitchHelixRewardUpdate,
+    ITwitchHelixRoleResponse,
     ITwitchHelixUsersResponse,
     ITwitchHelixUsersResponseData
 } from '../Interfaces/itwitch_helix.js'
 import Color from './ColorConstants.js'
 import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
-import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from './SettingObjects.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'

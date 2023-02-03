@@ -4,7 +4,7 @@ import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigRelay} from './ConfigObjects.js'
+import {ConfigRelay} from '../Objects/Config/Relay.js'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen
