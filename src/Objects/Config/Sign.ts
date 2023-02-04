@@ -12,7 +12,7 @@ export class ConfigSign extends BaseDataObject {
     transitionDurationMs: number = 500
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigSign(),
     'The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.',
     {

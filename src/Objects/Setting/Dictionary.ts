@@ -7,4 +7,4 @@ export class SettingDictionaryEntry extends BaseDataObject {
     datetime: string = ''
 }
 
-DataObjectMap.addMainInstance(new SettingDictionaryEntry())
+DataObjectMap.addRootInstance(new SettingDictionaryEntry())

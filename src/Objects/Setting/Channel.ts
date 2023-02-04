@@ -6,4 +6,4 @@ export class SettingChannelTrophyStat extends BaseDataObject {
     index: number = 0
 }
 
-DataObjectMap.addMainInstance(new SettingChannelTrophyStat())
+DataObjectMap.addRootInstance(new SettingChannelTrophyStat())

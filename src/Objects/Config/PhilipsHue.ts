@@ -5,7 +5,7 @@ export class ConfigPhilipsHue extends BaseDataObject {
     serverPath: string = 'http://'
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigPhilipsHue(),
     'Control Philips Hue lights or sockets.',
     {

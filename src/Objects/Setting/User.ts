@@ -16,6 +16,6 @@ export class SettingUserMute extends BaseDataObject {
     reason: string = ''
 }
 
-DataObjectMap.addMainInstance(new SettingUserVoice())
-DataObjectMap.addMainInstance(new SettingUserName())
-DataObjectMap.addMainInstance(new SettingUserMute())
+DataObjectMap.addRootInstance(new SettingUserVoice())
+DataObjectMap.addRootInstance(new SettingUserName())
+DataObjectMap.addRootInstance(new SettingUserMute())

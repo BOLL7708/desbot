@@ -32,7 +32,7 @@ export class ConfigPipeCustomMessageAvatar extends BaseDataObject {
     outlines: ConfigImageEditorOutline[] = []
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigPipe(),
     'In-VR-overlays and notifications with <a href="https://github.com/BOLL7708/OpenVRNotificationPipe">OpenVRNotificationPipe</a>',
     {

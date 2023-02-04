@@ -45,26 +45,26 @@ export default abstract class BaseDataObject {
                 const types = DataObjectMap.getMeta(this.constructor.name)?.types ?? {}
                 const subClassInstanceName = types[name]
                 const subClassInstanceType = (this as any)[name]?.constructor.name ?? (prototype as any)[name]?.constructor.name
-                if(DataObjectMap.hasSubInstance(subClassInstanceName)) {
+                if(DataObjectMap.hasInstance(subClassInstanceName)) {
                     if(Array.isArray(prop)) {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
                         for(const v of prop) {
-                            newProp.push(DataObjectMap.getSubInstance(subClassInstanceName, v))
+                            newProp.push(DataObjectMap.getInstance(subClassInstanceName, v))
                         }
                         (this as any)[name] = newProp
                     } else if (typeof prop == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
                         for(const [k, v] of Object.entries(prop)) {
-                            newProp[k] = DataObjectMap.getSubInstance(subClassInstanceName, v as object|undefined)
+                            newProp[k] = DataObjectMap.getInstance(subClassInstanceName, v as object|undefined)
                         }
                         (this as any)[name] = newProp
                     }
                 } else {
-                    if(DataObjectMap.hasSubInstance(subClassInstanceType)) {
+                    if(DataObjectMap.hasInstance(subClassInstanceType)) {
                         // It is a single instance class
-                        (this as any)[name] = DataObjectMap.getSubInstance(subClassInstanceType, prop)
+                        (this as any)[name] = DataObjectMap.getInstance(subClassInstanceType, prop)
                     } else {
                         // It is a basic value, just set it.
                         (this as any)[name] = prop

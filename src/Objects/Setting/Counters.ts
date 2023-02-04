@@ -7,5 +7,5 @@ export class SettingCounterBase extends BaseDataObject {
 export class SettingAccumulatingCounter extends SettingCounterBase {}
 export class SettingIncrementingCounter extends SettingCounterBase {}
 
-DataObjectMap.addMainInstance(new SettingAccumulatingCounter())
-DataObjectMap.addMainInstance(new SettingIncrementingCounter())
+DataObjectMap.addRootInstance(new SettingAccumulatingCounter())
+DataObjectMap.addRootInstance(new SettingIncrementingCounter())

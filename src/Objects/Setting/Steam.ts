@@ -5,7 +5,7 @@ export class SettingSteamAchievements extends BaseDataObject {
     achieved: string[] = []
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new SettingSteamAchievements(),
     undefined,
     undefined,

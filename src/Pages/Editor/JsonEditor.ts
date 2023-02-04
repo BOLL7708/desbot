@@ -274,9 +274,10 @@ export default class JsonEditor {
 
             const select = document.createElement('select') as HTMLSelectElement
             const items = await DataBaseHelper.loadJson(parentTypeClass)
-            for(const [k, v] of items) {
+            // for(const [k, v] of (items ?? {})) {
                 // select.add()
-            }
+            // }
+            li.appendChild(select)
         }
 
         this.appendRemoveButton(origin, path, label, li)
@@ -353,7 +354,7 @@ export default class JsonEditor {
                                 instance.push(0)
                                 break
                             }
-                            const newInstance = DataObjectMap.getSubInstance(justType, undefined)
+                            const newInstance = DataObjectMap.getInstance(justType, undefined)
                             if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
                             else console.warn('Unhandled type:', justType)
                     }
@@ -371,7 +372,7 @@ export default class JsonEditor {
                                     (instance as any)[newKey] = 0
                                     break
                                 }
-                                const newInstance = DataObjectMap.getSubInstance(justType, undefined)
+                                const newInstance = DataObjectMap.getInstance(justType, undefined)
                                 if(newInstance) (instance as any)[newKey] = newInstance.__clone()
                                 else console.warn('Unhandled type:', justType)
                         }
@@ -388,9 +389,9 @@ export default class JsonEditor {
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = instanceMeta
-        if(type && DataObjectMap.hasSubInstance(type)) { // For lists
+        if(type && DataObjectMap.hasInstance(type)) { // For lists
             newInstanceMeta = DataObjectMap.getMeta(type) ?? instanceMeta
-        } else if (instanceType && DataObjectMap.hasSubInstance(instanceType)) { // For single class instances
+        } else if (instanceType && DataObjectMap.hasInstance(instanceType)) { // For single class instances
             newInstanceMeta = DataObjectMap.getMeta(instanceType) ?? instanceMeta
         }
         if(Array.isArray(instance)) {
@@ -432,6 +433,7 @@ export default class JsonEditor {
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0) {
             const span = document.createElement('span') as HTMLSpanElement
+            span.classList.add('documentation-icon')
             span.innerHTML = ' 💬'
             span.title = docStr
             element.appendChild(span)

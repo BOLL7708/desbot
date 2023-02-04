@@ -6,7 +6,7 @@ export class ConfigRelay extends BaseDataObject {
     streamDeckChannel: string = 'streaming_widget'
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigRelay(),
     'Settings to connect to the WSRelay accessory application.',
     {

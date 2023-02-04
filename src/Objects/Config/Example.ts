@@ -31,7 +31,7 @@ export class ConfigExampleSub extends BaseDataObject {
     public subClassArray: number[] = [1,2,3]
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigExample(),
     'Test config for deeper structures.',
     {

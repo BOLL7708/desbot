@@ -21,7 +21,7 @@ export class ConfigSpeechWordToAudio extends BaseDataObject {
     src: string[] = []
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigSpeech(),
     'These are settings for the Google Text-to-Speech API.',
     {

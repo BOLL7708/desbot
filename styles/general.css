@@ -95,6 +95,9 @@ input, select, button {
     border-style: solid;
     box-sizing: border-box;
 }
+select {
+    padding: 0.25em;
+}
 input[type="checkbox"] {
     scale: 150%;
     padding: 0.25em;
@@ -106,4 +109,7 @@ label {
 input:disabled {
     border-color: silver;
     background-color: whitesmoke;
+}
+span, input, a, button {
+    transition: background-color 0.1s, opacity 0.1s;
 }

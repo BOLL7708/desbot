@@ -9,4 +9,4 @@ export class SettingStreamQuote extends BaseDataObject {
     game: string = ''
 }
 
-DataObjectMap.addMainInstance(new SettingStreamQuote())
+DataObjectMap.addRootInstance(new SettingStreamQuote())

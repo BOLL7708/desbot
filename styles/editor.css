@@ -75,3 +75,11 @@ span.disabled, code.disabled {
     line-height: 200%;
     user-select: none;
 }
+.documentation-icon {
+    padding: 0.125em;
+    cursor: help;
+    opacity: 0.33;
+}
+.documentation-icon:hover {
+    opacity: 1;
+}

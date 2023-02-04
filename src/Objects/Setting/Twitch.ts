@@ -35,10 +35,10 @@ export class SettingTwitchRedemption extends BaseDataObject {
     cost: number = 0
 }
 
-DataObjectMap.addMainInstance(new SettingTwitchClient())
-DataObjectMap.addMainInstance(new SettingTwitchTokens())
-DataObjectMap.addMainInstance(new SettingTwitchReward())
-DataObjectMap.addMainInstance(new SettingTwitchSub())
-DataObjectMap.addMainInstance(new SettingTwitchCheer())
-DataObjectMap.addMainInstance(new SettingTwitchClip())
-DataObjectMap.addMainInstance(new SettingTwitchRedemption())
+DataObjectMap.addRootInstance(new SettingTwitchClient())
+DataObjectMap.addRootInstance(new SettingTwitchTokens())
+DataObjectMap.addRootInstance(new SettingTwitchReward())
+DataObjectMap.addRootInstance(new SettingTwitchSub())
+DataObjectMap.addRootInstance(new SettingTwitchCheer())
+DataObjectMap.addRootInstance(new SettingTwitchClip())
+DataObjectMap.addRootInstance(new SettingTwitchRedemption())

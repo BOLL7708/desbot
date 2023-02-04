@@ -8,7 +8,7 @@ export class ConfigDiscord extends BaseDataObject {
     screenshotEmbedColorRemote: string = '#000000'
 }
 
-DataObjectMap.addMainInstance(
+DataObjectMap.addRootInstance(
     new ConfigDiscord(),
     'Settings for sending things to Discord channels.',
     {
