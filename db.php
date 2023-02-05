@@ -14,17 +14,22 @@ if($method === 'head') {
     exit;
 }
 
+function getHeaderValue(string $field): string|null {
+    $headers = getallheaders();
+    return $headers[$field] ?? $headers[strtolower($field)] ?? null;
+}
+
 // Parameters
-$headers = getallheaders();
-$groupClass = $headers['X-Group-Class'] ?? $headers['x-group-class'] ?? null;
+$groupClass = getHeaderValue('X-Group-Class');
 if($method !== 'get' && !$groupClass) {
     Utils::exitWithError('X-Group-Class is required in header when not using GET', 2004);
 }
-$groupKey = $headers['X-Group-Key'] ?? $headers['x-group-key'] ?? null;
+$groupKey = getHeaderValue('X-Group-Key');
+$rowIds = array_filter(explode(',', getHeaderValue('X-Row-Ids') ?? ''));
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
-$newGroupKey = $headers['X-New-Group-Key'] ?? $headers['x-new-group-key'] ?? null;
-$getRowIds = !!($headers['X-Row-Ids'] ?? $headers['x-row-ids'] ?? null);
-$getRowIdLabel = $headers['X-Row-Id-Label'] ?? $headers['x-row-id-label'] ?? null;
+$newGroupKey = getHeaderValue('X-New-Group-Key');
+$rowIdList = !!getHeaderValue('X-Row-Id-List');
+$rowIdLabel = getHeaderValue('X-Row-Id-Label');
 
 // Execute
 $output = null;
@@ -48,18 +53,26 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if($getRowIds) {
-            $output = $db->getRowIdsWithLabels($groupClass, $getRowIdLabel); // Only row IDs and labels
+        if($rowIdList) {
+            // Only row IDs with labels
+            $output = $db->getRowIdsWithLabels($groupClass, $rowIdLabel);
+        }
+        elseif($rowIds && count($rowIds) > 0) {
+            // Entries based on IDs
+            $output = $db->getEntriesByIds($rowIds);
         }
         elseif(!$groupClass || str_contains($groupClass, '*')) {
-            $output = $db->getClassesWithCounts($groupClass); // All when null, else filtered
+            // Only classes with counts
+            $output = $db->getClassesWithCounts($groupClass);
         }
-        else {
-            if($groupKey) {
-                $output = $db->getEntries($groupClass, $groupKey);
-                $array = is_object($output) ? get_object_vars($output) : $output;
-                $output = array_pop($array);
-            } else $output = $db->getEntries($groupClass);
+        elseif($groupKey) {
+            // Single entry based on key
+            $output = $db->getEntries($groupClass, $groupKey);
+            $array = is_object($output) ? get_object_vars($output) : $output;
+            $output = array_pop($array);
+        } else {
+            // All entries for a group
+            $output = $db->getEntries($groupClass);
         }
         break;
 }

@@ -169,20 +169,38 @@ class DB {
         string $groupClass,
         string|null $groupKey = null
     ) : stdClass|array|null {
-        $query = 'SELECT * FROM json_store WHERE group_class = ?';
+        $query = 'SELECT group_key, data_json FROM json_store WHERE group_class = ?';
         $params = [$groupClass];
         if($groupKey) {
             $query .= ' AND group_key = ?;';
             $params[] = $groupKey;
         }
         $result = $this->query($query, $params);
-
         $output = null;
         if(is_array($result)) {
             $output = new stdClass();
             foreach($result as $row) {
                 $groupKey = $row['group_key'];
                 $output->$groupKey = json_decode($row['data_json']);
+            }
+        }
+        return $output;
+    }
+    public function getEntriesByIds(array $rowIds) : stdClass|null {
+        $count = count($rowIds);
+        $items = array_fill(0, $count, '?');
+        $params = implode(',', $items);
+        $query = "SELECT row_id, group_class, data_json FROM json_store WHERE row_id IN ($params);";
+        $result = $this->query($query, $rowIds);
+        $output = null;
+        if(is_array($result)) {
+            $output = new stdClass();
+            foreach($result as $row) {
+                $id = $row['row_id'];
+                $rowData = new stdClass();
+                $rowData->class = $row['group_class'];
+                $rowData->data = json_decode($row['data_json']);
+                $output->$id = $rowData;
             }
         }
         return $output;

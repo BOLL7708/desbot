@@ -6,29 +6,17 @@ import {PresetPipeBasic, PresetPipeCustom} from '../Preset/Pipe.js'
 export class ConfigExample extends BaseDataObject {
     public singleInstance = new ConfigExampleSub()
     public singleValue = ''
-    public arrayOfStrings: string[] = [
-        'one', 'two', 'three'
-    ]
-    public dictionaryOfStrings: IStringDictionary = {
-        hello: 'Testing!',
-        bye: 'More tests'
-    }
-    public arrayOfSubClasses: ConfigExampleSub[] = [
-        new ConfigExampleSub(),
-        new ConfigExampleSub()
-    ]
-    // TODO: Needs to add interface to add elements to dictionary
-    public dictionaryWithSubClasses: { [key:string]: ConfigExampleSub } = {
-        dictionaryEntry1: new ConfigExampleSub(),
-        dictionaryEntry2: new ConfigExampleSub()
-    }
+    public arrayOfStrings: string[] = []
+    public dictionaryOfStrings: IStringDictionary = {}
+    public arrayOfSubClasses: ConfigExampleSub[] = []
+    public dictionaryWithSubClasses: { [key:string]: ConfigExampleSub } = {}
     public arrayOfIds: number[] = []
     public dictionaryOfIds: { [key:string]: number } = {}
 }
 export class ConfigExampleSub extends BaseDataObject {
-    public label: string = 'A Label!'
-    public subClassValue: string = 'A value'
-    public subClassArray: number[] = [1,2,3]
+    public label: string = ''
+    public subClassValue: string = ''
+    public subClassArray: number[] = []
 }
 
 DataObjectMap.addRootInstance(
@@ -50,7 +38,7 @@ DataObjectMap.addRootInstance(
         arrayOfSubClasses: ConfigExampleSub.ref(),
         dictionaryWithSubClasses: ConfigExampleSub.ref(),
         arrayOfIds: PresetPipeBasic.refIdLabel('basicTitle'),
-        dictionaryOfIds: PresetPipeCustom.refId()
+        dictionaryOfIds: PresetPipeCustom.refId(),
     }
 )
 DataObjectMap.addSubInstance(

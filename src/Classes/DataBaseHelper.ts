@@ -25,7 +25,7 @@ export default class DataBaseHelper {
     static async loadJson(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
         let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader(groupClass, groupKey)
+            headers: await this.getHeader({groupClass, groupKey})
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
@@ -44,14 +44,13 @@ export default class DataBaseHelper {
         groupKey: string|undefined,
         newGroupKey: string|undefined = undefined
     ): Promise<string|undefined> {
-        const extras: { [key: string]: string } = {}
+        const options: IDataBaseHelperHeaders = {groupClass, groupKey, addJsonHeader: true}
         if(newGroupKey && groupKey != newGroupKey) {
-            extras['X-New-Group-Key'] = newGroupKey
+            options['newGroupKey'] = newGroupKey
         }
-
         let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader(groupClass, groupKey, true, extras),
+            headers: await this.getHeader(options),
             method: 'POST',
             body: jsonStr
         })
@@ -64,22 +63,10 @@ export default class DataBaseHelper {
     static async deleteJson(groupClass: string, groupKey: string): Promise<boolean> {
         let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader(groupClass, groupKey, true),
+            headers: await this.getHeader({groupClass, groupKey, addJsonHeader: true}),
             method: 'DELETE'
         })
         return response.ok
-    }
-
-    // TODO: This should uh... list all the IDs for a group? Also a label field, yeah.
-    static async loadJsonList(groupClass: string): Promise<any|undefined> {
-        let url = this.getUrl()
-        const response = await fetch(url, {
-            headers: await this.getHeader(groupClass, undefined, false, {
-
-            })
-        })
-        const responseText = await response.text()
-        return responseText.length > 0 ? JSON.parse(responseText) : undefined;
     }
     // endregion
 
@@ -162,7 +149,7 @@ export default class DataBaseHelper {
     static async loadClasses(like: string): Promise<{[group:string]: number}> {
         const url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader(like+'*')
+            headers: await this.getHeader({groupClass: like+'*'})
         })
         return response.ok ? await response.json() : {}
     }
@@ -170,13 +157,14 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDs(groupClass: string, label: string): Promise<{[id:string]: string}> {
+    static async loadIDs(groupClass: string, rowIdLabel: string): Promise<{[id:string]: string}> {
         if(this._idStore.has(groupClass)) return this._idStore.get(groupClass) ?? {}
         const url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader(groupClass, undefined, false, {
-                'X-Row-Ids': '1',
-                'X-Row-Id-Label': label
+            headers: await this.getHeader({
+                groupClass,
+                rowIdList: true,
+                rowIdLabel
             })
         })
         const json = response.ok ? await response.json() : {}
@@ -252,29 +240,20 @@ export default class DataBaseHelper {
 
     /**
      * Get authorization header with optional JSON content type.
-     * @param groupClass
-     * @param groupKey
-     * @param addJsonHeader
-     * @param extras
+     * @param options
      * @private
      */
-    private static async getHeader(
-        groupClass: string|undefined = undefined,
-        groupKey: string|undefined = undefined,
-        addJsonHeader: boolean = false,
-        extras: {[key:string]:string} = {}
+    private static async getHeader(options: IDataBaseHelperHeaders
+
     ): Promise<HeadersInit> {
         const headers = new Headers()
         headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
-        if(groupClass !== undefined) headers.set('X-Group-Class', groupClass)
-        if(groupKey !== undefined) headers.set('X-Group-Key', groupKey)
-        if(addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
-        if(Object.keys(extras).length > 0) {
-            for(const [key, value] of Object.entries(extras)) {
-                console.log('Add to headers: ', key, `"${value}"`)
-                headers.set(key, value)
-            }
-        }
+        if(options.groupClass !== undefined) headers.set('X-Group-Class', options.groupClass)
+        if(options.groupKey !== undefined) headers.set('X-Group-Key', options.groupKey)
+        if(options.addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
+        if(options.rowIds !== undefined) headers.set('X-Row-Ids', options.rowIds.toString())
+        if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
+        if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
         return headers
     }
 
@@ -288,4 +267,14 @@ export default class DataBaseHelper {
     }
 
     // endregion
+}
+
+interface IDataBaseHelperHeaders {
+    groupClass?: string
+    groupKey?: string
+    newGroupKey?: string
+    rowIds?: number|string
+    rowIdList?: boolean
+    rowIdLabel?: string
+    addJsonHeader?: boolean
 }
