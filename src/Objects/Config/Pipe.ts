@@ -5,7 +5,7 @@ import DataObjectMap from '../DataObjectMap.js'
 import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ImageEditor.js'
 
 export class ConfigPipe extends BaseDataObject {
-    port: number = 0
+    port: number = 8807
     showRewardsWithKeys: TKeys[] = []
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()
@@ -15,11 +15,11 @@ export class ConfigPipe extends BaseDataObject {
 }
 
 export class ConfigPipeCustomMessage extends BaseDataObject {
-    width: number = 0
-    top: number = 0
-    margin: number = 0
-    cornerRadius: number = 0
-    textMaxHeight: number = 0
+    width: number = 1024
+    top: number = 128
+    margin: number = 32
+    cornerRadius: number = 24
+    textMaxHeight: number = 256
     font = new ConfigImageEditorFontSettings()
 }
 export class ConfigPipeCustomMessageName extends BaseDataObject {
@@ -27,7 +27,7 @@ export class ConfigPipeCustomMessageName extends BaseDataObject {
     font = new ConfigImageEditorFontSettings()
 }
 export class ConfigPipeCustomMessageAvatar extends BaseDataObject {
-    cornerRadius: number = 0
+    cornerRadius: number = 24
     rect = new ConfigImageEditorRect()
     outlines: ConfigImageEditorOutline[] = []
 }

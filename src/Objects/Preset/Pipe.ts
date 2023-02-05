@@ -3,7 +3,7 @@ import DataObjectMap from '../DataObjectMap.js'
 
 export class PresetPipeBasic extends BaseDataObject {
     imageData: string = ''
-    basicTitle: string = ''
+    basicTitle: string = 'OpenVRNotificationPipe'
     basicMessage: string = ''
 }
 export class PresetPipeCustom extends BaseDataObject {
@@ -19,16 +19,16 @@ export class PresetPipeCustomProperties extends BaseDataObject {
     enabled: boolean = true
     nonce: string = ''
     anchorType: number = 1
-    attachToAnchor: boolean = true
+    attachToAnchor: boolean = false
     ignoreAnchorYaw: boolean = false
     ignoreAnchorPitch: boolean = false
     ignoreAnchorRoll: boolean = false
     overlayChannel: number = 0
     animationHz: number = -1
-    durationMs: number = 0
+    durationMs: number = 5000
     opacityPer: number = 1
     widthM: number = 1
-    zDistanceM: number = 0
+    zDistanceM: number = 1
     yDistanceM: number = 0
     xDistanceM: number = 0
     yawDeg: number = 0
@@ -36,7 +36,10 @@ export class PresetPipeCustomProperties extends BaseDataObject {
     rollDeg: number = 0
     follow = new PresetPipeCustomFollow()
     animations: PresetPipeCustomAnimation[] = []
-    transitions: PresetPipeCustomTransition[] = []
+    transitions: PresetPipeCustomTransition[] = [
+        new PresetPipeCustomTransition(),
+        new PresetPipeCustomTransition()
+    ]
     textAreas: PresetPipeCustomTextArea[] = []
 }
 
@@ -44,18 +47,18 @@ export class PresetPipeCustomProperties extends BaseDataObject {
  * Follow
  */
 export class PresetPipeCustomFollow extends BaseDataObject {
-    enabled: boolean = true
-    triggerAngle: number = 0
-    durationMs: number = 1000
-    tweenType: number = 1
+    enabled: boolean = false
+    triggerAngle: number = 65
+    durationMs: number = 250
+    tweenType: number = 5
 }
 
 export class PresetPipeCustomAnimation extends BaseDataObject {
-    property: number = 1
-    amplitude: number = 0
-    frequency: number = -1
+    property: number = 0
+    amplitude: number = 1
+    frequency: number = 1
     phase: number = 0
-    waveform: number = 1
+    waveform: number = 0
     flipWaveform: boolean = false
 }
 
@@ -64,7 +67,7 @@ export class PresetPipeCustomAnimation extends BaseDataObject {
  * A value is transitioned from, then we display the image, then to
  */
 export class PresetPipeCustomTransition extends BaseDataObject {
-    scalePer: number = 0
+    scalePer: number = 1
     opacityPer: number = 0
     zDistanceM: number = 0
     yDistanceM: number = 0
@@ -72,8 +75,8 @@ export class PresetPipeCustomTransition extends BaseDataObject {
     yawDeg: number = 0
     pitchDeg: number = 0
     rollDeg: number = 0
-    durationMs: number = 0
-    tweenType: number = 0
+    durationMs: number = 250
+    tweenType: number = 5
 }
 
 /**
@@ -83,9 +86,9 @@ export class PresetPipeCustomTextArea extends BaseDataObject {
     text: string = ''
     xPositionPx: number = 0
     yPositionPx: number = 0
-    widthPx: number = 0
-    heightPx: number = 0
-    fontSizePt: number = 0
+    widthPx: number = 100
+    heightPx: number = 100
+    fontSizePt: number = 10
     fontFamily: string = ''
     fontColor: string = ''
     horizontalAlignment: number = 0
@@ -127,16 +130,40 @@ DataObjectMap.addSubInstance(
         rollDeg: 'Spin angle in degrees',
         follow: 'Follow settings',
         animations: 'Animation settings',
-        transitions: 'Include one transition object for same in/out, two for different in/out.',
+        transitions: 'Entry 0 is the in-transition, entry 1 is the out transition.', // TODO: Should probably move this to separate properties, a breaking change in the pipe though.
         textAreas: 'Define any number of text areas to be displayed on the image.'
     },
     {
         animations: PresetPipeCustomAnimation.ref(),
-        transitions: PresetPipeCustomTransition.ref(),
         textAreas: PresetPipeCustomTextArea.ref()
     }
 )
-DataObjectMap.addSubInstance(new PresetPipeCustomFollow())
-DataObjectMap.addSubInstance(new PresetPipeCustomAnimation())
-DataObjectMap.addSubInstance(new PresetPipeCustomTransition())
-DataObjectMap.addSubInstance(new PresetPipeCustomTextArea())
+DataObjectMap.addSubInstance(
+    new PresetPipeCustomFollow(),
+    {
+        triggerAngle: 'Triggering cone angle',
+    }
+)
+DataObjectMap.addSubInstance(
+    new PresetPipeCustomAnimation(),
+    {
+        property: '0: None (disabled)\n1: Yaw\n2: Pitch\n3: Roll\n4: Z\n5: Y\n6: X\n7: Scale\n8: Opacity',
+        phase: '0: Sine\n1: Cosine\n2: Negative Sine\n3: Negative Cosine',
+        waveform: '0: PhaseBased'
+    }
+)
+DataObjectMap.addSubInstance(
+    new PresetPipeCustomTransition(),
+    {
+        zDistanceM: 'Translational offset',
+        yDistanceM: 'Translational offset',
+        xDistanceM: 'Translational offset',
+    }
+)
+DataObjectMap.addSubInstance(
+    new PresetPipeCustomTextArea(),
+    {
+        horizontalAlignment: '0: Left\n1: Center\n2: Right',
+        verticalAlignment: '0: Left\n1: Center\n2: Right'
+    }
+)

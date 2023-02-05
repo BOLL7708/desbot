@@ -1,7 +1,7 @@
 import Utils from '../../Classes/Utils.js'
 import BaseDataObject, {EmptyDataObject,} from '../../Objects/BaseDataObject.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import DataObjectMap, {DataObjectMeta} from '../../Objects/DataObjectMap.js'
+import DataObjectMap, {DataObjectEntry} from '../../Objects/DataObjectMap.js'
 
 enum EOrigin {
     Unknown,
@@ -69,7 +69,7 @@ export default class JsonEditor {
     private stepData(
         root: HTMLElement,
         data: string|number|boolean|object,
-        instanceMeta: DataObjectMeta|undefined,
+        instanceMeta: DataObjectEntry|undefined,
         path: (string|number)[],
         key: string|undefined = undefined,
         origin: EOrigin = EOrigin.Unknown
@@ -111,7 +111,7 @@ export default class JsonEditor {
         root: HTMLElement,
         type: EJsonEditorFieldType,
         value: string|number|boolean|object,
-        instanceMeta: DataObjectMeta|undefined,
+        instanceMeta: DataObjectEntry|undefined,
         path:(string|number)[],
         origin: EOrigin
     ) {
@@ -296,7 +296,7 @@ export default class JsonEditor {
     private buildFields(
         root: HTMLElement,
         instance: object,
-        instanceMeta: DataObjectMeta|undefined,
+        instanceMeta: DataObjectEntry|undefined,
         path:(string|number)[],
         objectKey: string|undefined,
         origin: EOrigin
@@ -428,7 +428,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(keyValue: string|number, instanceMeta: DataObjectMeta|undefined, path: (string|number)[], element: HTMLElement) {
+    private appendDocumentationIcon(keyValue: string|number, instanceMeta: DataObjectEntry|undefined, path: (string|number)[], element: HTMLElement) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0) {

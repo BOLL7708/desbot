@@ -6,8 +6,7 @@ type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[key
 type TTypes = 'number'|'boolean'|'string'|string
 
 export default class DataObjectMap {
-    private static _instanceMap = new Map<string, BaseDataObject>()
-    private static _metaMap = new Map<string, DataObjectMeta>()
+    private static _map = new Map<string, DataObjectEntry>()
     private static addInstance<T>(
         isRoot: boolean = false,
         instance: T&BaseDataObject,
@@ -16,15 +15,14 @@ export default class DataObjectMap {
         types?: Partial<Record<TNoFunctions<T>, TTypes>>
     ) {
         const className = instance.constructor.name
-        this._instanceMap.set(className, instance)
-
-        const meta = new DataObjectMeta(
+        const meta = new DataObjectEntry(
+            instance,
             isRoot,
             description,
             documentation as IStringDictionary|undefined,
             types as IStringDictionary|undefined
         )
-        this._metaMap.set(className, meta)
+        this._map.set(className, meta)
     }
     public static addRootInstance<T>(
         instance: T&BaseDataObject,
@@ -53,8 +51,8 @@ export default class DataObjectMap {
     ): BaseDataObject|undefined {
         const invalidClassNames = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return
-        if(className && this._instanceMap.has(className)) {
-            const instance = this._instanceMap.get(className)
+        if(className && this._map.has(className)) {
+            const instance = this._map.get(className)?.instance
             if(instance) {
                 return instance.__new(props)
             } else console.warn(`Class instance was invalid: ${className}`)
@@ -65,11 +63,11 @@ export default class DataObjectMap {
     public static hasInstance(
         className: string|undefined
     ): boolean {
-        return className ? this._instanceMap.has(className) : false
+        return className ? this._map.has(className) : false
     }
 
     public static getNames(likeFilter?: string, onlyRootNames: boolean = true): string[] {
-        let names = Array.from(this._instanceMap.keys())
+        let names = Array.from(this._map.keys())
         // Apply filter on matching string
         if(likeFilter) names = names.filter((name)=>{
             return name.startsWith(likeFilter)
@@ -77,23 +75,25 @@ export default class DataObjectMap {
 
         // Apply filter on being a root object
         if(onlyRootNames) names = names.filter((name)=>{
-            return this._metaMap.get(name)?.isRoot ?? false
+            return this._map.get(name)?.isRoot ?? false
         })
 
         return names
     }
 
-    public static getMeta(className: string): DataObjectMeta|undefined {
-        return this._metaMap.get(className)
+    public static getMeta(className: string): DataObjectEntry|undefined {
+        return this._map.get(className)
     }
 }
 
-export class DataObjectMeta {
-    public isRoot: boolean = false
+export class DataObjectEntry {
+    public instance: BaseDataObject
+    public isRoot: boolean
     public description: string|undefined
     public documentation: IStringDictionary|undefined
     public types: IStringDictionary|undefined
-    constructor(isRoot: boolean, description?: string, documentation?: IStringDictionary, types?: IStringDictionary) {
+    constructor(instance: BaseDataObject, isRoot: boolean, description?: string, documentation?: IStringDictionary, types?: IStringDictionary) {
+        this.instance = instance
         this.isRoot = isRoot
         if(description) this.description = description
         if(documentation) this.documentation = documentation
