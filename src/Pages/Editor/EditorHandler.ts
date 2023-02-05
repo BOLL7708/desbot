@@ -185,6 +185,27 @@ export default class EditorHandler {
         }
         this._editorSaveButton = editorSaveButton
 
+        // Export button
+        const editorExportButton = document.createElement('button') as HTMLButtonElement
+        editorExportButton.classList.add('editor-button', 'export-button')
+        editorExportButton.innerHTML = '📤 Export'
+        editorExportButton.title = 'Export current editor data as JSON to the system clipboard.'
+        editorExportButton.onclick = async (event)=>{
+            const result = await Utils.writeToClipboard(this._editor?.getData())
+            if(!result) alert('Unable to export, clipboard was not updated.')
+        }
+
+        // Import button
+        const editorImportButton = document.createElement('button') as HTMLButtonElement
+        editorImportButton.classList.add('editor-button', 'import-button')
+        editorImportButton.innerHTML = '📥 Import'
+        editorImportButton.title = 'Import the current system clipboard JSON data into the editor.'
+        editorImportButton.onclick = async (event)=>{
+            const result = await Utils.readFromClipboard(true)
+            if(!result) alert('Unable to import, clipboard unavailable or contains invalid JSON data.')
+            else this._editor?.setData(result)
+        }
+
         updateEditor(undefined)
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
@@ -197,6 +218,9 @@ export default class EditorHandler {
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)
         this._contentDiv.appendChild(editorSaveButton)
+        this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
+        this._contentDiv.appendChild(editorExportButton)
+        this._contentDiv.appendChild(editorImportButton)
     }
 
     private async saveData(groupKey: string, groupClass: string) {

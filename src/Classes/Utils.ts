@@ -883,6 +883,26 @@ export default class Utils {
             .replace(/\\n/g, '\n')
             .replace(/\\t/g, '\t')
     }
+
+    static async writeToClipboard(data: any|undefined): Promise<boolean> {
+        if(data === undefined) return false
+        const value = typeof data == 'string' ? data : JSON.stringify(data)
+        try {
+            await navigator.clipboard.writeText(value);
+            return true
+        } catch (err) {
+            return false
+        }
+    }
+
+    static async readFromClipboard(parseJson: boolean = false): Promise<any|undefined> {
+        try {
+            const data = await navigator.clipboard.readText();
+            return parseJson ? JSON.parse(data) : data;
+        } catch (err) {
+            return undefined
+        }
+    }
 }
 
 interface IRewardData {

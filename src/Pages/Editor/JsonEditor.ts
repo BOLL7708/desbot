@@ -528,6 +528,10 @@ export default class JsonEditor {
     getData(): any {
         return this._instance
     }
+    setData(data: any): any {
+        this._instance = data
+        this.rebuild()
+    }
     getKey(): string {
         return this._key
     }

@@ -111,5 +111,8 @@ input:disabled {
     background-color: whitesmoke;
 }
 span, input, a, button {
-    transition: background-color 0.1s, opacity 0.1s;
+    transition:
+            background-color 0.1s,
+            opacity 0.1s,
+            color 0.1s;
 }

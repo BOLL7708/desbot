@@ -13,9 +13,11 @@ code {
     padding: 0.25em 1em;
     font-weight: bold;
     color: rgba(0,0,0,0.66);
+    background-color: #eee;
 }
 .editor-button:hover {
     color: black;
+    background-color: #bbb;
 }
 .new-button, .reset-button {
     margin-left: 1em;
