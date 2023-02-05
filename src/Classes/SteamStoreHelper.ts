@@ -8,7 +8,7 @@ export default class SteamStoreHelper {
         if(!isNaN(id)) {
             if(this._gameCache.has(id)) return this._gameCache.get(id)
             const encodedUrl = btoa(`https://store.steampowered.com/api/appdetails?appids=${id}`)
-            const response: ISteamStoreGameResponse = await fetch(`./proxy.php?url=${encodedUrl}`)
+            const response: ISteamStoreGameResponse = await fetch(`_proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
                 const data = response[id]?.data

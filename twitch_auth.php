@@ -2,7 +2,7 @@
 <html lang="en">
 <body>
 <?php
-include_once('./init.php');
+include_once('_init.php');
 
 // Error TODO: Do something with these later?
 $missing = $_REQUEST['missing'] ?? '';
@@ -12,7 +12,7 @@ $code = $_REQUEST['code'] ?? '';
 $scope = $_REQUEST['scope'] ?? '';
 $state = $_REQUEST['state'] ?? '';
 $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
-$scopes = json_decode(file_get_contents("twitch_scopes.json")) ?? [];
+$scopes = json_decode(file_get_contents("_twitch_scopes.json")) ?? [];
 
 function getAuthUrl():string {
     global $scopes, $state;

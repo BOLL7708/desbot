@@ -231,7 +231,7 @@ export default class DataBaseHelper {
      * @returns string
      */
     private static getUrl(): string {
-        return './db.php'
+        return '_db.php'
     }
 
     // endregion

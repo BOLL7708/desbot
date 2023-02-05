@@ -1,5 +1,5 @@
 <?php
-include_once('./init.php');
+include_once('_init.php');
 
 // Incoming path to which file we want to write or read
 $path = $_REQUEST['path'] ?? $_REQUEST['p'] ?? '';

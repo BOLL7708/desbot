@@ -21,7 +21,7 @@ export default class SteamWebHelper {
             return undefined
         }
         const encodedUrl = this.getEncodedUrl('ISteamUser/GetPlayerSummaries/v0002')
-        const response: ISteamWebApiPlayerSummaries = await fetch(`./proxy.php?url=${encodedUrl}`)
+        const response: ISteamWebApiPlayerSummaries = await fetch(`_proxy.php?url=${encodedUrl}`)
             .then(response => response.json())
         if(response != null) {
             const player = response.response.players[0] ?? null
@@ -49,7 +49,7 @@ export default class SteamWebHelper {
         const id = Utils.numberFromAppId(appId)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetPlayerAchievements/v0001', id)
-            const response = await fetch(`./proxy.php?url=${encodedUrl}`)
+            const response = await fetch(`_proxy.php?url=${encodedUrl}`)
             let json: ISteamWebApiPlayerAchievements|undefined = undefined
             try {
                 json = await response.json()
@@ -75,7 +75,7 @@ export default class SteamWebHelper {
         if(this._gameSchemas.has(id)) return this._gameSchemas.get(id)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetSchemaForGame/v0002/', id)
-            const response: ISteamWebApiGameSchema = await fetch(`./proxy.php?url=${encodedUrl}`)
+            const response: ISteamWebApiGameSchema = await fetch(`_proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
                 this._gameSchemas.set(id,  response)
@@ -97,7 +97,7 @@ export default class SteamWebHelper {
         if(this._globalAchievementStats.has(id)) return this._globalAchievementStats.get(id)
         if(!isNaN(id)) {
             const encodedUrl = this.getEncodedUrl('ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/', id)
-            const response: IStreamWebApiGlobalAchievementStats = await fetch(`./proxy.php?url=${encodedUrl}`)
+            const response: IStreamWebApiGlobalAchievementStats = await fetch(`_proxy.php?url=${encodedUrl}`)
                 .then(response => response.json())
             if(response != null) {
                 const achievements = response.achievementpercentages?.achievements ?? []

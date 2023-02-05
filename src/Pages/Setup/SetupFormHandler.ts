@@ -92,7 +92,7 @@ export default class SetupFormHandler {
         }
 
         // Twitch scopes
-        const scopesResponse = await fetch('twitch_scopes.json')
+        const scopesResponse = await fetch('_twitch_scopes.json')
         let scopes = await scopesResponse.json()
         if(Array.isArray(scopes)) scopes = scopes.join(' ')
         // Twitch credentials channel
@@ -126,7 +126,7 @@ export default class SetupFormHandler {
             importStatus.done = true
             if(doImport) {
                 await this._sections.show('Loading', 'Importing...', 'This can take several minutes, please wait while all your old settings are being imported.')
-                const importResponse = await fetch('import_settings.php')
+                const importResponse = await fetch('_import_settings.php')
                 const importDictionary = importResponse.ok ? await importResponse.json() as { [key:string]: number } : { 'Failed to import.': -1 }
                 const importArr: string[] = [];
                 for(const [str, num] of Object.entries(importDictionary)) {
@@ -233,7 +233,7 @@ export default class SetupFormHandler {
     private async migrateDB() {
         // Get highest possible version
         const versionResponse = await fetch(
-            'migrate.php',
+            '_migrate.php',
             { headers: { Authorization: Utils.getAuth() } }
         )
         const migrationVersion = await versionResponse.json() as MigrationVersion
@@ -250,7 +250,7 @@ export default class SetupFormHandler {
             if(doMigration) {
                 await this._sections.show('Loading', 'Database Migration...', 'Running database migration(s).')
                 const migrateResponse = await fetch(
-                    `migrate.php?from=${databaseVersion}&to=${highestPossibleVersion}`,
+                    `_migrate.php?from=${databaseVersion}&to=${highestPossibleVersion}`,
                     { headers: { Authorization: Utils.getAuth() } }
                 )
                 const migrateResult = await migrateResponse.json() as MigrationData

@@ -1,6 +1,6 @@
 <?php
 ini_set('display_errors', 0);
-include_once './init.php';
+include_once '_init.php';
 
 // Auth
 Utils::checkAuth();

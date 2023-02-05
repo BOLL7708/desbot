@@ -2,7 +2,7 @@ import Utils from './Utils.js'
 
 export default class DataUtils {
     static async writeData(path: string, data: any): Promise<boolean> {
-        const response = await fetch(`data.php?path=${path}`,
+        const response = await fetch(`_data.php?path=${path}`,
             {
                 method: 'POST',
                 headers: {
@@ -15,7 +15,7 @@ export default class DataUtils {
         return response.ok
     }
     static async writeText(path: string, text: string): Promise<boolean> {
-        const response = await fetch(`data.php?path=${path}`,
+        const response = await fetch(`_data.php?path=${path}`,
             {
                 method: 'POST',
                 headers: {
@@ -28,7 +28,7 @@ export default class DataUtils {
         return response.ok
     }
     static async appendText(path: string, text: string): Promise<boolean> {
-        const response = await fetch(`data.php?path=${path}`,
+        const response = await fetch(`_data.php?path=${path}`,
             {
                 method: 'PUT',
                 headers: {
@@ -41,7 +41,7 @@ export default class DataUtils {
         return response.ok
     }
     static async readData<T>(path: string): Promise<T|string|undefined> {
-        const response = await fetch(`data.php?path=${path}`, Utils.getAuthInit())
+        const response = await fetch(`_data.php?path=${path}`, Utils.getAuthInit())
         if(!response.ok) {
             console.warn(`Could not read: ${path}`)
             return undefined

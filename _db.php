@@ -1,6 +1,6 @@
 <?php
 // Init
-include_once './init.php';
+include_once '_init.php';
 $db = DB::get();
 
 // Auth

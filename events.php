@@ -1,5 +1,5 @@
 <?php
-include_once './init.php';
+include_once '_init.php';
 PageUtils::printTop();
 ?>
         <div id="content">

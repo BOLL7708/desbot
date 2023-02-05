@@ -7,7 +7,7 @@ export default class ExecUtils {
         const commandb64 = Utils.encode(command)
         Utils.getAuth()
         fetch(
-            `run.php?window=${windowb64}&type=${type}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`,
+            `_run.php?window=${windowb64}&type=${type}&command=${commandb64}&enter=${postfixEnterStroke ? 1 : 0}`,
             Utils.getAuthInit()
         ).then()
     }
@@ -45,7 +45,7 @@ export default class ExecUtils {
 
     static loadCustomURI(uri: string) {
         fetch(
-            `uri.php?uri=${Utils.encode(uri)}`,
+            `_uri.php?uri=${Utils.encode(uri)}`,
             Utils.getAuthInit()
         ).then()
     }

@@ -21,7 +21,7 @@ $classMap = [
 ];
 
 // Includes
-include_once('init.php');
+include_once('_init.php');
 
 // Go through settings files
 $path1= './_settings';
