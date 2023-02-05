@@ -9,6 +9,7 @@ export default class DataBaseHelper {
     private static LOG_BAD_COLOR: string = Color.DarkRed
 
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
+    private static _idStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
 
     static async testConnection(): Promise<boolean> {
         const response = await fetch(this.getUrl(), {
@@ -156,14 +157,31 @@ export default class DataBaseHelper {
     }
 
     /**
-     * Load all available settings classes registered in the database.
+     * Load all available group classes registered in the database.
      */
     static async loadClasses(like: string): Promise<{[group:string]: number}> {
         const url = this.getUrl()
         const response = await fetch(url, {
             headers: await this.getHeader(like+'*')
         })
-        return response.ok ? await response.json() : []
+        return response.ok ? await response.json() : {}
+    }
+
+    /**
+     * Load all available IDs for a group class registered in the database.
+     */
+    static async loadIDs(groupClass: string, label: string): Promise<{[id:string]: string}> {
+        if(this._idStore.has(groupClass)) return this._idStore.get(groupClass) ?? {}
+        const url = this.getUrl()
+        const response = await fetch(url, {
+            headers: await this.getHeader(groupClass, undefined, false, {
+                'X-Row-Ids': '1',
+                'X-Row-Id-Label': label
+            })
+        })
+        const json = response.ok ? await response.json() : {}
+        this._idStore.set(groupClass, json)
+        return json
     }
 
     /**
@@ -253,6 +271,7 @@ export default class DataBaseHelper {
         if(addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
         if(Object.keys(extras).length > 0) {
             for(const [key, value] of Object.entries(extras)) {
+                console.log('Add to headers: ', key, `"${value}"`)
                 headers.set(key, value)
             }
         }

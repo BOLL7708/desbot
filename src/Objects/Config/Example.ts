@@ -49,7 +49,7 @@ DataObjectMap.addRootInstance(
         dictionaryOfStrings: 'string',
         arrayOfSubClasses: ConfigExampleSub.ref(),
         dictionaryWithSubClasses: ConfigExampleSub.ref(),
-        arrayOfIds: PresetPipeBasic.refIdLabel('label'),
+        arrayOfIds: PresetPipeBasic.refIdLabel('basicTitle'),
         dictionaryOfIds: PresetPipeCustom.refId()
     }
 )

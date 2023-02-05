@@ -266,17 +266,33 @@ export default class JsonEditor {
         }
 
         if(isIdList) {
-            console.log(isIdList, idLabelField, parentTypeClass)
             input.contentEditable = 'false'
             input.classList.add('disabled')
-            input.onclick = ()=>{}
-            input.onchange = handle
-
             const select = document.createElement('select') as HTMLSelectElement
-            const items = await DataBaseHelper.loadJson(parentTypeClass)
-            // for(const [k, v] of (items ?? {})) {
-                // select.add()
-            // }
+            const items = await DataBaseHelper.loadIDs(parentTypeClass, idLabelField)
+            let firstValue = '0'
+            let hasUpdatedFirstValue = false
+            let hasSetInitialValue = false
+            for(const [id, label] of Object.entries(items ?? {})) {
+                if(!hasUpdatedFirstValue) {
+                    firstValue = id.toString()
+                    hasUpdatedFirstValue = true
+                }
+                const option = document.createElement('option') as HTMLOptionElement
+                option.value = id
+                option.innerHTML = label && label.length > 0 ? label : id
+                if(id.toString() == value.toString()) {
+                    option.selected = true
+                    input.innerHTML = id.toString()
+                    hasSetInitialValue = true
+                }
+                select.add(option)
+            }
+            if(!hasSetInitialValue) input.innerHTML = firstValue
+            select.oninput = (event) => {
+                input.innerHTML = select.value
+                handle(event)
+            }
             li.appendChild(select)
         }
 
@@ -306,11 +322,10 @@ export default class JsonEditor {
         const newUL = this.buildUL()
 
         const type = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
-        const typeStr = type.length == 0 ? '' : ` (<code>${type}</code>)`
         const instanceType = instance.constructor.name
 
         if(path.length == 1) { // Root object generates a key field
-            this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single)
+            this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single).then()
         } else {
             // A dictionary has editable keys
             if(origin == EOrigin.ListDictionary) {
@@ -326,13 +341,12 @@ export default class JsonEditor {
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
                 strongSpan.innerHTML = Utils.camelToTitle(pathKey.toString())
+                if(type.length > 0) {
+                    const typeStr = type.split('|').shift()
+                    strongSpan.title = `Type: ${typeStr}`
+                }
                 newRoot.appendChild(strongSpan)
             }
-        }
-        if(typeStr.length > 0) {
-            const typeSpan = document.createElement('span') as HTMLSpanElement
-            typeSpan.innerHTML = typeStr
-            newRoot.appendChild(typeSpan)
         }
 
         if(type.length > 0) {

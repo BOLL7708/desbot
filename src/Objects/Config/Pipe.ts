@@ -6,7 +6,7 @@ import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEdit
 
 export class ConfigPipe extends BaseDataObject {
     port: number = 8807
-    showRewardsWithKeys: TKeys[] = []
+    showRewardsWithKeys: TKeys[] = [] // TODO: Switch to IDs later.
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()
     customChatNameConfig = new ConfigPipeCustomMessageName()
