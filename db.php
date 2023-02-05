@@ -17,10 +17,14 @@ if($method === 'head') {
 // Parameters
 $headers = getallheaders();
 $groupClass = $headers['X-Group-Class'] ?? $headers['x-group-class'] ?? null;
-if($method !== 'get' && !$groupClass) Utils::exitWithError('group class was not supplied in request', 2004);
+if($method !== 'get' && !$groupClass) {
+    Utils::exitWithError('X-Group-Class is required in header when not using GET', 2004);
+}
 $groupKey = $headers['X-Group-Key'] ?? $headers['x-group-key'] ?? null;
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 $newGroupKey = $headers['X-New-Group-Key'] ?? $headers['x-new-group-key'] ?? null;
+$getRowIds = !!($headers['X-Row-Ids'] ?? $headers['x-row-ids'] ?? null);
+$getRowIdLabel = $headers['X-Row-Id-Label'] ?? $headers['x-row-id-label'] ?? null;
 
 // Execute
 $output = null;
@@ -44,8 +48,12 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if(!$groupClass) $output = $db->getClassesWithCounts(); // All
-        elseif(str_contains($groupClass, '*')) $output = $db->getClassesWithCounts($groupClass); // Filtered
+        if($getRowIds) {
+            $output = $db->getRowIdsWithLabels($groupClass, $getRowIdLabel); // Only row IDs and labels
+        }
+        elseif(!$groupClass || str_contains($groupClass, '*')) {
+            $output = $db->getClassesWithCounts($groupClass); // All when null, else filtered
+        }
         else {
             if($groupKey) {
                 $output = $db->getEntries($groupClass, $groupKey);

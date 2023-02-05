@@ -188,18 +188,41 @@ class DB {
         return $output;
     }
 
-    function getClassesWithCounts(string $like = ''): stdClass {
-        $where = strlen($like) > 0
-            ? "WHERE group_class LIKE '".(str_replace('*', '%', $like))."'"
-            : '';
+    function getClassesWithCounts(string|null $like = null): stdClass {
+        $where = '';
+        $params = [];
+        if($like && strlen($like) > 0) {
+            $params[] = str_replace('*', '%', $like);
+            $where = 'WHERE group_class LIKE ?';
+        }
         $query = "SELECT group_class, COUNT(*) as count FROM json_store $where GROUP BY group_class;";
-        error_log($query);
-        $result = $this->query($query);
+        $result = $this->query($query, $params);
         $output = new stdClass();
         if(is_array($result)) foreach($result as $row) {
             $group = $row['group_class'];
             $count = $row['count'];
             $output->$group = $count;
+        }
+        return $output;
+    }
+    public function getRowIdsWithLabels(string|null $like, string|null $label): stdClass {
+        $where = '';
+        $params = [];
+        if($like && strlen($like) > 0) {
+            $params[] = str_replace('*', '%', $like);
+            $where = 'WHERE group_class LIKE ?';
+        }
+        if($label && strlen($label) > 0) {
+            array_unshift($params, "$.$label");
+            $result = $this->query("SELECT row_id as id, JSON_VALUE(data_json, ?) as label FROM json_store $where;", $params);
+        } else {
+            $result = $this->query("SELECT row_id as id, group_key as label FROM json_store $where;", $params);
+        }
+        $output = new stdClass();
+        if(is_array($result)) foreach($result as $row) {
+            $label = $row['label'];
+            $id = $row['id'];
+            $output->$id = $label;
         }
         return $output;
     }
