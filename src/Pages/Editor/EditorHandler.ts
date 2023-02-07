@@ -6,27 +6,44 @@ import DataObjectMap from '../../Objects/DataObjectMap.js'
 import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
 
 export default class EditorHandler {
-    private readonly _likeFilter: string
-    private readonly _forceMainKey: boolean
+    private _state = new EditorPageState()
 
     private readonly _labelSaveButton = '💾 Save (ctrl+s)'
     private readonly _labelSaveNewButton = '✨ Save New (ctrl+s)'
     private readonly _labelDeleteButton = '💥 Delete'
 
     static readonly MainKey = 'Main'
-    public constructor(
-        like: string,
-        forceMainKey: boolean = false
-    ) {
+    public constructor() {
         ImportDataObjectClasses.init()
-        this._likeFilter = like
-        this._forceMainKey = forceMainKey
+
+        const queryString = window.location.search
+        const urlParams = new URLSearchParams(queryString)
+        if(urlParams.has('k')) this._state.groupKey = decodeURIComponent(urlParams.get('k') ?? '')
+        if(urlParams.has('c')) this._state.groupClass = decodeURIComponent(urlParams.get('c') ?? '')
+        let group = urlParams.get('g') ?? this._state.groupClass.substring(0,1).toLowerCase()
+        switch(group) {
+            case 's': this._state.likeFilter = 'Setting'; break
+            case 'c': this._state.likeFilter = 'Config'; this._state.forceMainKey = true; break
+            case 'p': this._state.likeFilter = 'Preset'; break
+            case 'e': this._state.likeFilter = 'Event'; break
+            default: group = ''
+        }
+        this._state.group = group
+
         this.updateSideMenu().then()
+        if(this._state.groupClass.length > 0) this.showListOfItems(this._state.groupClass, this._state.groupKey).then()
 
         window.onkeydown = (event)=>{
             if(event.key == 's' && event.ctrlKey) {
                 if(event.cancelable) event.preventDefault()
                 this._editorSaveButton?.click()
+            }
+        }
+        window.onpopstate = (event)=>{
+            if(event.state) {
+                this._state = event.state
+                this.updateSideMenu().then()
+                this.showListOfItems(this._state.groupClass, this._state.groupKey, true).then()
             }
         }
     }
@@ -36,8 +53,8 @@ export default class EditorHandler {
         if(!this._sideMenuDiv) {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
-        const classesAndCounts = await DataBaseHelper.loadClasses(this._likeFilter ?? '')
-        for(const className of DataObjectMap.getNames(this._likeFilter ?? '')) {
+        const classesAndCounts = await DataBaseHelper.loadClasses(this._state.likeFilter)
+        for(const className of DataObjectMap.getNames(this._state.likeFilter)) {
             if(!classesAndCounts.hasOwnProperty(className)) {
                 // Add missing classes so they can still be edited
                 classesAndCounts[className] = 0
@@ -66,7 +83,13 @@ export default class EditorHandler {
     private _contentDiv: HTMLDivElement|undefined
     private _editor: JsonEditor|undefined
     private _editorSaveButton: HTMLButtonElement|undefined
-    private async showListOfItems(group: string, selectKey: string = '') {
+    private async showListOfItems(group: string, selectKey: string = '', skipHistory: boolean = false) {
+        this._state.groupClass = group
+        this._state.groupKey = selectKey
+        if(!skipHistory) {
+            this.updateHistory()
+        }
+
         if(!this._contentDiv) {
             this._contentDiv = document.querySelector('#content') as HTMLDivElement
         }
@@ -87,14 +110,14 @@ export default class EditorHandler {
 
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
-        const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false)=>{
+        const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false, skipHistory: boolean = false)=>{
             let instance: BaseDataObject|undefined = undefined
             if(clear) {
-                currentKey = this._forceMainKey ? EditorHandler.MainKey : ''
+                currentKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
                 instance = DataObjectMap.getInstance(group, {})
-                if(!this._forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
+                if(!this._state.forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
             } else {
-                currentKey = this._forceMainKey ? EditorHandler.MainKey : dropdown.value
+                currentKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(currentKey.length > 0) {
                     instance = DataObjectMap.getInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
                 } else {
@@ -103,15 +126,19 @@ export default class EditorHandler {
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
             if(instance) {
-                editorContainer.replaceChildren(this._editor?.build(currentKey, instance, markAsDirty, this._forceMainKey) ?? '')
+                this._state.groupKey = currentKey
+                if(!skipHistory) {
+                    this.updateHistory()
+                }
+                editorContainer.replaceChildren(this._editor?.build(currentKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
             }
         }
 
         const items = await DataBaseHelper.loadJson(group)
-        if(this._forceMainKey) {
+        if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
-            updateEditor(undefined, true)
+            updateEditor(undefined, true, false, skipHistory)
         } else {
             dropdown.id = 'dropdown'
             dropdownLabel.htmlFor = dropdown.id
@@ -145,7 +172,7 @@ export default class EditorHandler {
         editorResetButton.innerHTML = '🧼 Reset'
         editorResetButton.title = 'Reset to default values'
         editorResetButton.onclick = async (event)=>{
-            updateEditor(undefined, true, this._forceMainKey)
+            updateEditor(undefined, true, this._state.forceMainKey)
         }
 
         // Reload button
@@ -206,12 +233,12 @@ export default class EditorHandler {
             else this._editor?.setData(result)
         }
 
-        updateEditor(undefined)
+        updateEditor(undefined, false, false, skipHistory)
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
         if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
         this._contentDiv.appendChild(dropdown)
-        if(this._forceMainKey) this._contentDiv.appendChild(editorResetButton)
+        if(this._state.forceMainKey) this._contentDiv.appendChild(editorResetButton)
         else this._contentDiv.appendChild(editorNewButton)
         this._contentDiv.appendChild(editorReloadButton)
         this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
@@ -236,4 +263,25 @@ export default class EditorHandler {
             }
         }
     }
+
+    private updateHistory(replace: boolean = false) {
+        const queryParams = window.location.search
+        const urlSearch = new URLSearchParams(queryParams)
+        let group = urlSearch.get('g') ?? ''
+        if(group.length == 0) group = this._state.groupClass.substring(0,1).toLowerCase()
+        const newUrl = `?g=${group}&c=${encodeURIComponent(this._state.groupClass)}&k=${encodeURIComponent(this._state.groupKey)}`
+        if(replace) {
+            history.replaceState(Utils.clone(this._state), '', newUrl)
+        } else {
+            history.pushState(Utils.clone(this._state), '', newUrl)
+        }
+    }
+}
+
+class EditorPageState {
+    group: string = ''
+    likeFilter: string = ''
+    forceMainKey: boolean = false
+    groupClass: string = ''
+    groupKey: string = ''
 }
