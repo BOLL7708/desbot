@@ -19,9 +19,16 @@ export default class JsonEditor {
     private _root: HTMLUListElement|undefined = undefined
     private _labels: HTMLSpanElement[] = []
     private _hideKey: boolean = false
+    private _dirty: boolean = false
 
     private readonly _labelUnchangedColor = 'transparent'
     private readonly _labelChangedColor = 'pink'
+
+    private _modifiedStatusListener: IJsonEditorModifiedStatusListener = (modified:boolean)=>{}
+    setModifiedStatusListener(listener: IJsonEditorModifiedStatusListener) {
+        this._modifiedStatusListener = listener
+    }
+
     constructor() {}
 
     build(
@@ -517,7 +524,9 @@ export default class JsonEditor {
                 }
             }
         }
+        this.checkIfModified()
     }
+
 
     private handleKey(
         keyValue: string,
@@ -537,6 +546,20 @@ export default class JsonEditor {
                 current = current[path[i]]
             }
         }
+        this.checkIfModified()
+    }
+
+    /**
+     * Will check if the data or key has been modified, and run the listener if the state has changed.
+     */
+    checkIfModified() {
+        const dirty =
+            JSON.stringify(this._instance) != JSON.stringify(this._originalInstance)
+            || this._key != this._originalKey
+        if(dirty != this._dirty) {
+            this._modifiedStatusListener(dirty)
+            this._dirty = dirty
+        }
     }
 
     getData(): any {
@@ -555,4 +578,8 @@ enum EJsonEditorFieldType {
     Boolean,
     Number,
     Null
+}
+
+interface IJsonEditorModifiedStatusListener {
+    (modified:boolean):void
 }

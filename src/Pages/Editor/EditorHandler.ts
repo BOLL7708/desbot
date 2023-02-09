@@ -11,11 +11,11 @@ export default class EditorHandler {
     private readonly _labelSaveButton = '💾 Save (ctrl+s)'
     private readonly _labelSaveNewButton = '✨ Save New (ctrl+s)'
     private readonly _labelDeleteButton = '💥 Delete'
+    private _unsavedChanges: boolean = false
 
     static readonly MainKey = 'Main'
     public constructor() {
         ImportDataObjectClasses.init()
-
         const queryString = window.location.search
         const urlParams = new URLSearchParams(queryString)
         if(urlParams.has('k')) this._state.groupKey = decodeURIComponent(urlParams.get('k') ?? '')
@@ -84,6 +84,7 @@ export default class EditorHandler {
     private _editor: JsonEditor|undefined
     private _editorSaveButton: HTMLButtonElement|undefined
     private async showListOfItems(group: string, selectKey: string = '', skipHistory: boolean = false) {
+        if(!this.promptNavigateAway()) return
         this._state.groupClass = group
         this._state.groupKey = selectKey
         if(!skipHistory) {
@@ -106,11 +107,13 @@ export default class EditorHandler {
         const editorContainer = document.createElement('div') as HTMLDivElement
         editorContainer.id = 'editor-container'
         this._editor = new JsonEditor()
+        this._editor.setModifiedStatusListener(this.updateModifiedState.bind(this))
         let currentKey = selectKey
 
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
-        const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false, skipHistory: boolean = false)=>{
+        const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false, skipHistory: boolean = false, forceNavigation: boolean = false): boolean =>{
+            if(!forceNavigation && !this.promptNavigateAway()) return false
             let instance: BaseDataObject|undefined = undefined
             if(clear) {
                 currentKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
@@ -132,6 +135,7 @@ export default class EditorHandler {
                 }
                 editorContainer.replaceChildren(this._editor?.build(currentKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
             }
+            return true
         }
 
         const items = await DataBaseHelper.loadJson(group)
@@ -181,7 +185,7 @@ export default class EditorHandler {
         editorReloadButton.innerHTML = '💫 Reload'
         editorReloadButton.title = 'Reload stored values'
         editorReloadButton.onclick = async (event)=>{
-            updateEditor(undefined)
+            updateEditor(undefined, false, false, false, true)
         }
 
         // Delete button
@@ -258,6 +262,7 @@ export default class EditorHandler {
             if(resultingGroupKey) {
                 this.updateSideMenu().then()
                 this.showListOfItems(groupClass, resultingGroupKey).then()
+                this.updateModifiedState(false)
             } else {
                 alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
             }
@@ -275,6 +280,24 @@ export default class EditorHandler {
         } else {
             history.pushState(Utils.clone(this._state), '', newUrl)
         }
+    }
+
+    private updateModifiedState(modified: boolean) {
+        this._unsavedChanges = Utils.clone(modified)
+        if(modified) {
+            window.onbeforeunload = (event)=>{
+                event.preventDefault()
+                return event.returnValue = ''
+            }
+        } else {
+            window.onbeforeunload = null
+        }
+     }
+
+    private promptNavigateAway(): boolean {
+        return this._unsavedChanges
+            ? confirm('You will lose your unsaved changes if you continue.')
+            : true
     }
 }
 
