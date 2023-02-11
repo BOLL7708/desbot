@@ -15,12 +15,24 @@ export default class EditorHandler {
 
     static readonly MainKey = 'Main'
     public constructor() {
+        this.init().then()
+    }
+    private async init() {
         ImportDataObjectClasses.init()
         const queryString = window.location.search
         const urlParams = new URLSearchParams(queryString)
+
+        const rowId = urlParams.get('id') ?? undefined
+        let rowItem = await DataBaseHelper.loadById(rowId)
+        if(rowItem) {
+            this._state.groupKey = rowItem.key
+            this._state.groupClass = rowItem.class
+        }
         if(urlParams.has('k')) this._state.groupKey = decodeURIComponent(urlParams.get('k') ?? '')
         if(urlParams.has('c')) this._state.groupClass = decodeURIComponent(urlParams.get('c') ?? '')
+        if(urlParams.has('n')) this._state.newItem = !!urlParams.get('n')
         let group = urlParams.get('g') ?? this._state.groupClass.substring(0,1).toLowerCase()
+
         switch(group) {
             case 's': this._state.likeFilter = 'Setting'; break
             case 'c': this._state.likeFilter = 'Config'; this._state.forceMainKey = true; break
@@ -108,32 +120,39 @@ export default class EditorHandler {
         editorContainer.id = 'editor-container'
         this._editor = new JsonEditor()
         this._editor.setModifiedStatusListener(this.updateModifiedState.bind(this))
-        let currentKey = selectKey
 
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
-        const updateEditor = (event: Event|undefined, clear: boolean = false, markAsDirty: boolean = false, skipHistory: boolean = false, forceNavigation: boolean = false): boolean =>{
+        const updateEditor = (
+            event: Event|undefined,
+            clear: boolean = false,
+            markAsDirty: boolean = false,
+            skipHistory: boolean = false,
+            forceNavigation: boolean = false
+        ): boolean =>{
             if(!forceNavigation && !this.promptNavigateAway()) return false
+            this._state.newItem = false // Reset it as we only need that to affect the initial load.
             let instance: BaseDataObject|undefined = undefined
+            let resultingKey = selectKey
             if(clear) {
-                currentKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
+                resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
                 instance = DataObjectMap.getInstance(group, {})
                 if(!this._state.forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
             } else {
-                currentKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
-                if(currentKey.length > 0) {
-                    instance = DataObjectMap.getInstance(group, items[currentKey] ?? {}) ?? items[currentKey] // The last ?? is for test settings that has no class.
+                resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
+                if(resultingKey.length > 0) {
+                    instance = DataObjectMap.getInstance(group, items[resultingKey] ?? {}) ?? items[resultingKey] // The last ?? is for test settings that has no class.
                 } else {
                     instance = DataObjectMap.getInstance(group, {})
                 }
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
             if(instance) {
-                this._state.groupKey = currentKey
+                this._state.groupKey = resultingKey
                 if(!skipHistory) {
                     this.updateHistory()
                 }
-                editorContainer.replaceChildren(this._editor?.build(currentKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
+                editorContainer.replaceChildren(this._editor?.build(resultingKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
             }
             return true
         }
@@ -185,7 +204,7 @@ export default class EditorHandler {
         editorReloadButton.innerHTML = '💫 Reload'
         editorReloadButton.title = 'Reload stored values'
         editorReloadButton.onclick = async (event)=>{
-            updateEditor(undefined, false, false, false, true)
+            updateEditor(undefined)
         }
 
         // Delete button
@@ -194,15 +213,15 @@ export default class EditorHandler {
         editorDeleteButton.innerHTML = this._labelDeleteButton
         editorDeleteButton.tabIndex = -1
         editorDeleteButton.onclick = async(event)=>{
-            const doDelete = confirm(`Do you want to delete ${group} : ${currentKey}?`)
+            const doDelete = confirm(`Do you want to delete ${group} : ${this._state.groupKey}?`)
             if(doDelete) {
-                const ok = await DataBaseHelper.deleteJson(group, currentKey)
+                const ok = await DataBaseHelper.deleteJson(group, this._state.groupKey)
                 if(ok) {
-                    // alert(`Deletion of ${group} : ${currentKey} was successful.`)
+                    DataBaseHelper.clearIDs(group) // To make reference lists reload to remove the deleted entry.
                     this.updateSideMenu().then()
                     this.showListOfItems(group).then()
                 } else {
-                    alert(`Deletion of ${group} : ${currentKey} failed.`)
+                    alert(`Deletion of ${group} : ${this._state.groupKey} failed.`)
                 }
             }
         }
@@ -212,7 +231,7 @@ export default class EditorHandler {
         editorSaveButton.classList.add('editor-button', 'save-button')
         editorSaveButton.innerHTML = this._labelSaveButton
         editorSaveButton.onclick = (event)=>{
-            this.saveData(currentKey, group).then()
+            this.saveData(this._state.groupKey, group).then()
         }
         this._editorSaveButton = editorSaveButton
 
@@ -237,7 +256,7 @@ export default class EditorHandler {
             else this._editor?.setData(result)
         }
 
-        updateEditor(undefined, false, false, skipHistory)
+        updateEditor(undefined, this._state.newItem, false, skipHistory, )
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
         if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
@@ -260,9 +279,10 @@ export default class EditorHandler {
             const newGroupKey = this._editor.getKey()
             const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey)
             if(resultingGroupKey) {
+                if(newGroupKey) DataBaseHelper.clearIDs(groupClass) // To make reference lists reload with the new/updated item.
                 this.updateSideMenu().then()
-                this.showListOfItems(groupClass, resultingGroupKey).then()
                 this.updateModifiedState(false)
+                this.showListOfItems(groupClass, resultingGroupKey).then()
             } else {
                 alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
             }
@@ -271,11 +291,15 @@ export default class EditorHandler {
 
     private updateHistory(replace: boolean = false) {
         const queryParams = window.location.search
-        const urlSearch = new URLSearchParams(queryParams)
-        let group = urlSearch.get('g') ?? ''
+        const urlParams = new URLSearchParams(queryParams)
+        const groupKey = decodeURIComponent(urlParams.get('k') ?? '')
+        const groupClass = decodeURIComponent(urlParams.get('c') ?? '')
+        const rowId = urlParams.get('id') ?? undefined
+        let group = urlParams.get('g') ?? ''
         if(group.length == 0) group = this._state.groupClass.substring(0,1).toLowerCase()
         const newUrl = `?g=${group}&c=${encodeURIComponent(this._state.groupClass)}&k=${encodeURIComponent(this._state.groupKey)}`
-        if(replace) {
+        // We replace the current history if forced, or we have the same item as before to avoid duplicate history, or if came from an ID which will be overridden by default.
+        if(replace || (this._state.groupClass == groupClass && this._state.groupKey == groupKey) || rowId) {
             history.replaceState(Utils.clone(this._state), '', newUrl)
         } else {
             history.pushState(Utils.clone(this._state), '', newUrl)
@@ -307,4 +331,5 @@ class EditorPageState {
     forceMainKey: boolean = false
     groupClass: string = ''
     groupKey: string = ''
+    newItem: boolean = false
 }

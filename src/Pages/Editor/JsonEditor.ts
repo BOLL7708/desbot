@@ -129,17 +129,7 @@ export default class JsonEditor {
 
         // Sort out type values for ID references
         const parentType = instanceMeta?.types ? instanceMeta.types[previousKey] ?? '' : ''
-        const parentTypeArr = parentType.split('|')
-        const parentTypeClass = parentTypeArr.shift() ?? ''
-        let isIdList = false
-        let idLabelField = ''
-        for(const t of parentTypeArr) {
-            if(t == 'id') isIdList = true
-            else {
-                const [k, v] = t.split('=')
-                if(k == 'label') idLabelField = v
-            }
-        }
+        const parentValues = JsonEditor.parseType(parentType)
 
         // Label
         let keyInput: HTMLSpanElement|undefined
@@ -158,13 +148,11 @@ export default class JsonEditor {
         }
         label.classList.add('input-label')
         this._labels.push(label)
-
         this.handleValue(value, path, label ,true) // Will colorize label
 
         const li = document.createElement('li') as HTMLLIElement
-
-        // Optional editable key
         if(keyInput) {
+        // Optional editable key
             li.appendChild(keyInput)
         }
 
@@ -272,11 +260,12 @@ export default class JsonEditor {
             li.appendChild(input)
         }
 
-        if(isIdList) {
+        // This is where we differentiate on if we're in a list of IDs or not
+        if(parentValues.isIdList) {
             input.contentEditable = 'false'
             input.classList.add('disabled')
             const select = document.createElement('select') as HTMLSelectElement
-            const items = await DataBaseHelper.loadIDs(parentTypeClass, idLabelField)
+            const items = await DataBaseHelper.loadIDs(parentValues.class, parentValues.idLabelField)
             let firstValue = '0'
             let hasUpdatedFirstValue = false
             let hasSetInitialValue = false
@@ -300,11 +289,20 @@ export default class JsonEditor {
                 input.innerHTML = select.value
                 handle(event)
             }
+            const editButton = document.createElement('button') as HTMLButtonElement
+            editButton.innerHTML = '📝'
+            editButton.title = 'Edit the referenced item.'
+            editButton.classList.add('inline-button')
+            editButton.onclick = (event)=>{
+                const link = `editor.php?id=${select.value}`
+                window.location.replace(link)
+            }
             li.appendChild(select)
+            li.appendChild(editButton)
         }
 
-        this.appendRemoveButton(origin, path, label, li)
-        this.appendDocumentationIcon(key, instanceMeta, path, li)
+        this.appendRemoveButton(li, origin, path, label)
+        this.appendDocumentationIcon(li, key, instanceMeta, path)
         root.appendChild(li)
     }
 
@@ -329,6 +327,7 @@ export default class JsonEditor {
         const newUL = this.buildUL()
 
         const type = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
+        const typeValues = JsonEditor.parseType(type)
         const instanceType = instance.constructor.name
 
         if(path.length == 1) { // Root object generates a key field
@@ -348,10 +347,7 @@ export default class JsonEditor {
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
                 strongSpan.innerHTML = Utils.camelToTitle(pathKey.toString())
-                if(type.length > 0) {
-                    const typeStr = type.split('|').shift()
-                    strongSpan.title = `Type: ${typeStr}`
-                }
+                if(typeValues.class) strongSpan.title = `Type: ${typeValues.class}`
                 newRoot.appendChild(strongSpan)
             }
         }
@@ -405,8 +401,9 @@ export default class JsonEditor {
             }
             newRoot.appendChild(newButton)
         }
-        this.appendRemoveButton(origin, path, undefined, newRoot)
-        this.appendDocumentationIcon(pathKey, instanceMeta, path, newRoot)
+        this.appendRemoveButton(newRoot, origin, path, undefined)
+        this.appendNewReferenceItemButton(newRoot, typeValues)
+        this.appendDocumentationIcon(newRoot, pathKey, instanceMeta, path)
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = instanceMeta
@@ -434,12 +431,26 @@ export default class JsonEditor {
         root.appendChild(newRoot)
     }
 
-    private appendRemoveButton(origin: EOrigin, path: (string | number)[], label: HTMLElement|undefined, element: HTMLElement) {
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IJsonEditorTypeValues) {
+        if(typeValues.class && typeValues.isIdList) {
+            const button = document.createElement('button') as HTMLButtonElement
+            button.innerHTML = '👶'
+            button.title = 'Create new item of this type'
+            button.classList.add('inline-button')
+            button.tabIndex = -1
+            button.onclick = (event)=>{
+                window.location.replace(`?c=${typeValues.class}&n=1`)
+            }
+            element.appendChild(button)
+        }
+    }
+
+    private appendRemoveButton(element: HTMLElement, origin: EOrigin, path: (string | number)[], label: HTMLElement|undefined) {
         if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
             const button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '💥'
             button.title = 'Remove item'
-            button.classList.add('delete-button')
+            button.classList.add('inline-button', 'delete-button')
             button.tabIndex = -1
             button.onclick = (event)=>{
                 this.handleValue(null,  path, label)
@@ -449,7 +460,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(keyValue: string|number, instanceMeta: DataObjectEntry|undefined, path: (string|number)[], element: HTMLElement) {
+    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: DataObjectEntry|undefined, path: (string|number)[]) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0) {
@@ -572,6 +583,23 @@ export default class JsonEditor {
     getKey(): string {
         return this._key
     }
+
+    static parseType(type: string): IJsonEditorTypeValues {
+        const typeArr = type.split('|')
+        const typeValues: IJsonEditorTypeValues = {
+            class: typeArr.shift() ?? '',
+            isIdList: false,
+            idLabelField: ''
+        }
+        for(const t of typeArr) {
+            if(t == 'id') typeValues.isIdList = true
+            else {
+                const [k, v] = t.split('=')
+                if(k == 'label') typeValues.idLabelField = v
+            }
+        }
+        return typeValues
+    }
 }
 enum EJsonEditorFieldType {
     String,
@@ -582,4 +610,10 @@ enum EJsonEditorFieldType {
 
 interface IJsonEditorModifiedStatusListener {
     (modified:boolean):void
+}
+
+interface IJsonEditorTypeValues {
+    class: string
+    isIdList: boolean
+    idLabelField: string
 }

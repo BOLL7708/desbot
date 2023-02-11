@@ -15,7 +15,11 @@ code {
     color: rgba(0,0,0,0.66);
     background-color: #eee;
 }
-.editor-button:hover {
+.inline-button {
+    color: rgba(0,0,0,0.66);
+    background-color: #eee;
+}
+.editor-button:hover, .inline-button:hover {
     color: black;
     background-color: #bbb;
 }
@@ -29,10 +33,10 @@ code {
     background-color: gold;
 }
 .reset-button {
-    background-color: lightgray;
+    background-color: pink;
 }
 .reset-button:hover {
-    background-color: darkgray;
+    background-color: hotpink;
 }
 .reload-button {
     background-color: lightblue;
@@ -51,6 +55,12 @@ code {
     background-color: lightgreen;
 }
 .save-button:hover {
+    background-color: limegreen;
+}
+.edit-button {
+    background-color: mediumpurple;
+}
+.edit-button:hover {
     background-color: limegreen;
 }
 span[contenteditable], code[contenteditable] {

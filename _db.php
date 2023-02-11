@@ -36,15 +36,19 @@ $output = null;
 switch($method) {
     case 'post':
         $updatedKey = false;
-        if($groupKey !== null && $newGroupKey !== null) {
+        if($groupKey !== null && $newGroupKey !== null) { // Edit key
             $updatedKey = $db->updateKey($groupClass, $groupKey, $newGroupKey);
+            $groupKey = $newGroupKey;
         }
-        $result = $db->saveEntry(
+        if($groupKey === null && $newGroupKey !== null) { // New key
+            $groupKey = $newGroupKey;
+        }
+        $result = $db->saveEntry( // Insert or update data
             $groupClass,
-            $updatedKey ? $newGroupKey : $groupKey,
+            $groupKey,
             $dataJson
         );
-        $output = $result !== false ? ['result'=>true, 'groupKey'=>$result] : $result;
+        $output = $result !== false ? ['result'=>true, 'groupKey'=>$result] : false;
         break;
     case 'delete':
         $output = $db->deleteSetting(

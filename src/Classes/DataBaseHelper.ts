@@ -143,6 +143,17 @@ export default class DataBaseHelper {
         return Utils.isEmptyObject(result) ? undefined : result
     }
 
+    static async loadById(rowId?: string): Promise<IDataBaseItem|undefined> {
+        if(!rowId) return undefined
+        let url = this.getUrl()
+        const response = await fetch(url, {
+            headers: await this.getHeader({rowIds: rowId})
+        })
+        const responseText = await response.text()
+        const result = responseText.length > 0 ? JSON.parse(responseText) : undefined;
+        return result ? result[rowId] : undefined
+    }
+
     /**
      * Load all available group classes registered in the database.
      */
@@ -170,6 +181,18 @@ export default class DataBaseHelper {
         const json = response.ok ? await response.json() : {}
         this._idStore.set(groupClass, json)
         return json
+    }
+
+    /**
+     * Clears the cache of IDs loaded for a class or all classes so they will be reloaded.
+     * @param groupClass
+     */
+    static clearIDs(groupClass?: string) {
+        if(groupClass) {
+            if(this._idStore.has(groupClass)) this._idStore.delete(groupClass)
+        } else {
+            this._idStore.clear()
+        }
     }
 
     /**
@@ -250,6 +273,7 @@ export default class DataBaseHelper {
         headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
         if(options.groupClass !== undefined) headers.set('X-Group-Class', options.groupClass)
         if(options.groupKey !== undefined) headers.set('X-Group-Key', options.groupKey)
+        if(options.newGroupKey !== undefined) headers.set('X-New-Group-Key', options.newGroupKey)
         if(options.addJsonHeader) headers.set('Content-Type', 'application/json; charset=utf-8')
         if(options.rowIds !== undefined) headers.set('X-Row-Ids', options.rowIds.toString())
         if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
@@ -277,4 +301,10 @@ interface IDataBaseHelperHeaders {
     rowIdList?: boolean
     rowIdLabel?: string
     addJsonHeader?: boolean
+}
+
+interface IDataBaseItem {
+    class: string,
+    key: string,
+    data: any
 }

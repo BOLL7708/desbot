@@ -190,7 +190,7 @@ class DB {
         $count = count($rowIds);
         $items = array_fill(0, $count, '?');
         $params = implode(',', $items);
-        $query = "SELECT row_id, group_class, data_json FROM json_store WHERE row_id IN ($params);";
+        $query = "SELECT row_id, group_class, group_key, data_json FROM json_store WHERE row_id IN ($params);";
         $result = $this->query($query, $rowIds);
         $output = null;
         if(is_array($result)) {
@@ -199,6 +199,7 @@ class DB {
                 $id = $row['row_id'];
                 $rowData = new stdClass();
                 $rowData->class = $row['group_class'];
+                $rowData->key = $row['group_key'];
                 $rowData->data = json_decode($row['data_json']);
                 $output->$id = $rowData;
             }

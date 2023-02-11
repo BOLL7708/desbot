@@ -38,7 +38,7 @@ DataObjectMap.addRootInstance(
         arrayOfSubClasses: ConfigExampleSub.ref(),
         dictionaryWithSubClasses: ConfigExampleSub.ref(),
         arrayOfIds: PresetPipeBasic.refIdLabel('basicTitle'),
-        dictionaryOfIds: PresetPipeCustom.refId(),
+        dictionaryOfIds: PresetPipeCustom.refId()
     }
 )
 DataObjectMap.addSubInstance(
