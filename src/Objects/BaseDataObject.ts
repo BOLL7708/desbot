@@ -67,7 +67,19 @@ export default abstract class BaseDataObject {
                         (this as any)[name] = DataObjectMap.getInstance(subClassInstanceType, prop)
                     } else {
                         // It is a basic value, just set it.
-                        (this as any)[name] = prop
+                        const expectedType = typeof (this as any)[name]
+                        const actualType = typeof prop
+                        let correctedProp = prop
+                        console.log(name, prop, expectedType, actualType)
+                        if(expectedType !== actualType) {
+                            switch(expectedType) {
+                                case 'string': correctedProp = prop.toString(); break;
+                                case 'number': correctedProp = parseFloat(prop.toString()); break;
+                                case 'boolean': correctedProp = Utils.toBool(prop); break;
+                                default: console.warn(`Unhandled field type in BaseDataObject.__apply for prop [${name}] in [${this.constructor?.name}]: ${expectedType}`)
+                            }
+                        }
+                        (this as any)[name] = correctedProp
                     }
                 }
             }

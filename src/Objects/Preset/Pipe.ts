@@ -135,7 +135,8 @@ DataObjectMap.addSubInstance(
     },
     {
         animations: PresetPipeCustomAnimation.ref(),
-        textAreas: PresetPipeCustomTextArea.ref()
+        textAreas: PresetPipeCustomTextArea.ref(),
+        transitions: PresetPipeCustomTransition.ref() // This is needed or else types won't be converted after an import as they are unknown.
     }
 )
 DataObjectMap.addSubInstance(

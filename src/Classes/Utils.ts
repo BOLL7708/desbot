@@ -652,6 +652,21 @@ export default class Utils {
     }
 
     /**
+     * Returns the deducted boolean value for a string, provided default or false if no match.
+     * @param boolStr
+     * @param defaultValue
+     */
+    static toBool(boolStr: string|undefined, defaultValue: boolean = false): boolean {
+        if(boolStr === undefined || boolStr.length == 0) return defaultValue
+        const firstChar: string = boolStr.toLowerCase()[0]
+        const trueIsh: string[] = ['t', 'y', '1']
+        const falseIsh: string[] = ['f', 'n', '0']
+        if(trueIsh.includes(firstChar)) return true
+        if(falseIsh.includes(firstChar)) return false
+        return defaultValue
+    }
+
+    /**
      * Get all event keys
      * @param onlyRewards
      * @returns
