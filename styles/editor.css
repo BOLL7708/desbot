@@ -6,9 +6,16 @@ code {
     padding-left: 1em;
 }
 #content li {
-    border-left: 3px solid #f0f0f0;
-    padding-left: 2px;
+    border-radius: 6px;
+    padding-left: 6px;
 }
+#content li:nth-child(odd) {
+    background: rgba(0,0,0,0.04);
+}
+#content li:nth-child(even) {
+    background: transparent;
+}
+
 .editor-button {
     padding: 0.25em 1em;
     font-weight: bold;
@@ -87,9 +94,9 @@ span[contenteditable]:focus, code[contenteditable]:focus {
     background-color: lightgoldenrodyellow;
 }
 span.disabled, code.disabled {
-    border-color: gray;
-    color: gray;
-    background-color: lightgray;
+    border-color: lightgray;
+    color: #888;
+    background-color: #eee;
 }
 .input-root {
     padding: 6px;
@@ -110,9 +117,19 @@ span.disabled, code.disabled {
     cursor: grabbing;
     border-radius: 6px;
     padding: 4px 12px;
+    margin-right: 6px;
     color: rgba(0,0,0,0.66);
 }
 .drag-icon:hover {
     color: black;
     background-color: #ccc;
+}
+.boolean-input {
+    cursor: pointer;
+    padding: 3px;
+    border: 1px solid lightgray;
+    border-radius: 6px;
+}
+.boolean-input:hover {
+    border: 1px solid gray;
 }

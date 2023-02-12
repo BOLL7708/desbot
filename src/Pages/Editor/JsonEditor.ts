@@ -48,6 +48,7 @@ export default class JsonEditor {
             }
             this._originalInstanceType = instance.constructor.name
         }
+        this._modifiedStatusListener(dirty)
 
         if(!this._root) this._root = this.buildUL()
         else this._root.replaceChildren()
@@ -206,6 +207,7 @@ export default class JsonEditor {
                 input.style.userSelect = 'none'
                 input.tabIndex = 0
                 input.innerHTML = (value as boolean) ? on : off
+                input.classList.add('boolean-input')
                 label.onclick = input.onclick = input.onkeydown = (event: KeyboardEvent|MouseEvent)=>{
                     if(event instanceof KeyboardEvent) {
                         const validKeys = [' ', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
@@ -362,55 +364,7 @@ export default class JsonEditor {
         }
 
         // Add new item button if we have a type defined
-        if(type.length > 0) {
-            const newButton = document.createElement('button') as HTMLButtonElement
-            newButton.innerHTML = '✨'
-            newButton.title = 'Add new item'
-            newButton.classList.add('inline-button', 'new-button')
-            newButton.onclick = (event)=>{
-                const typeArr = type.split('|')
-                const shouldBeIdList = typeArr.indexOf('id') != -1
-                const justType = typeArr.shift()
-                if(Array.isArray(instance)) {
-                    switch(type) {
-                        case 'number': instance.push(0); break
-                        case 'boolean': instance.push(false); break
-                        case 'string': instance.push(''); break
-                        default:
-                            if(shouldBeIdList) {
-                                instance.push(0)
-                                break
-                            }
-                            const newInstance = DataObjectMap.getInstance(justType, undefined)
-                            if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
-                            else console.warn('Unhandled type:', justType)
-                    }
-                    this.handleValue(instance, path, newRoot)
-                    this.rebuild()
-                } else {
-                    const newKey = prompt('Provide a key for the new entry')
-                    if(newKey && newKey.length > 0) {
-                        switch(type) {
-                            case 'number': (instance as any)[newKey] = 0; break
-                            case 'boolean': (instance as any)[newKey] = false; break
-                            case 'string': (instance as any)[newKey] = ''; break
-                            default:
-                                if(shouldBeIdList) {
-                                    (instance as any)[newKey] = 0
-                                    break
-                                }
-                                const newInstance = DataObjectMap.getInstance(justType, undefined)
-                                if(newInstance) (instance as any)[newKey] = newInstance.__clone()
-                                else console.warn('Unhandled type:', justType)
-                        }
-                        this.handleValue(instance, path, newRoot)
-                        this.rebuild()
-                    }
-                }
-
-            }
-            newRoot.appendChild(newButton)
-        }
+        this.appendAddButton(newRoot, typeValues, instance, path)
         this.appendRemoveButton(newRoot, origin, path, undefined)
         this.appendNewReferenceItemButton(newRoot, typeValues)
         this.appendDocumentationIcon(newRoot, pathKey, instanceMeta)
@@ -657,6 +611,7 @@ export default class JsonEditor {
     static parseType(type: string): IJsonEditorTypeValues {
         const typeArr = type.split('|')
         const typeValues: IJsonEditorTypeValues = {
+            original: type,
             class: typeArr.shift() ?? '',
             isIdList: false,
             idLabelField: ''
@@ -669,6 +624,54 @@ export default class JsonEditor {
             }
         }
         return typeValues
+    }
+
+    private appendAddButton(newRoot: HTMLLIElement, typeValues: IJsonEditorTypeValues, instance: object, path: IJsonEditorPath) {
+        if(typeValues.class.length > 0) {
+            const newButton = document.createElement('button') as HTMLButtonElement
+            newButton.innerHTML = '✨'
+            newButton.title = 'Add new item'
+            newButton.classList.add('inline-button', 'new-button')
+            newButton.onclick = (event)=>{
+                if(Array.isArray(instance)) {
+                    switch(typeValues.original) {
+                        case 'number': instance.push(0); break
+                        case 'boolean': instance.push(false); break
+                        case 'string': instance.push(''); break
+                        default:
+                            if(typeValues.isIdList) {
+                                instance.push(0)
+                                break
+                            }
+                            const newInstance = DataObjectMap.getInstance(typeValues.class, undefined)
+                            if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
+                            else console.warn('Unhandled type:', typeValues.class)
+                    }
+                    this.handleValue(instance, path, newRoot)
+                    this.rebuild()
+                } else {
+                    const newKey = prompt('Provide a key for the new entry')
+                    if(newKey && newKey.length > 0) {
+                        switch(typeValues.original) {
+                            case 'number': (instance as any)[newKey] = 0; break
+                            case 'boolean': (instance as any)[newKey] = false; break
+                            case 'string': (instance as any)[newKey] = ''; break
+                            default:
+                                if(typeValues.isIdList) {
+                                    (instance as any)[newKey] = 0
+                                    break
+                                }
+                                const newInstance = DataObjectMap.getInstance(typeValues.class, undefined)
+                                if(newInstance) (instance as any)[newKey] = newInstance.__clone()
+                                else console.warn('Unhandled type:', typeValues.class)
+                        }
+                        this.handleValue(instance, path, newRoot)
+                        this.rebuild()
+                    }
+                }
+            }
+            newRoot.appendChild(newButton)
+        }
     }
 }
 enum EJsonEditorFieldType {
@@ -685,6 +688,7 @@ interface IJsonEditorModifiedStatusListener {
 }
 
 interface IJsonEditorTypeValues {
+    original: string
     class: string
     isIdList: boolean
     idLabelField: string

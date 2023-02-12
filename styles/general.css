@@ -43,7 +43,7 @@ html, body {
     text-decoration: none;
     margin: 0.25em;
     padding: 0.25em 0.5em;
-    border-radius: 0.5em;
+    border-radius: 6px;
 }
 
 #menu-bar li a:hover {
@@ -70,7 +70,7 @@ html, body {
 }
 #side-bar a {
     color: #404040;
-    border-radius: 4px;
+    border-radius: 6px;
     padding: 2px 6px;
     line-height: 133%;
     text-decoration: none;
@@ -88,7 +88,7 @@ html, body {
 }
 
 input, select, button {
-    border-radius: 0.5em;
+    border-radius: 6px;
     font-size: 100%;
     margin: 0.25em;
     border-color: #00000040;
@@ -97,6 +97,7 @@ input, select, button {
 }
 select {
     padding: 0.25em;
+    background-color: rgba(255,255,255,0.5);
 }
 input[type="checkbox"] {
     scale: 150%;
@@ -106,13 +107,13 @@ input[type="checkbox"] {
 label {
     padding: 0.25em;
 }
-input:disabled {
-    border-color: silver;
-    background-color: whitesmoke;
-}
 span, input, a, button {
     transition:
             background-color 0.1s,
             opacity 0.1s,
+            border 0.1s,
             color 0.1s;
+}
+code {
+    background-color: rgba(255,255,255,0.5);
 }
