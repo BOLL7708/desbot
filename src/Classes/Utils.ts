@@ -903,6 +903,17 @@ export default class Utils {
             return undefined
         }
     }
+
+    static moveInArray<T>(arr: T[], fromIndex: number, toIndex: number): T[] {
+        const newIndex = Math.max(0, Math.min(arr.length-1, toIndex))
+        const [item] = arr.splice(fromIndex, 1)
+        if(item) arr.splice(newIndex, 0, item)
+        return arr
+    }
+    static moveStepsInArray<T>(arr: T[], fromIndex: number, steps: number): T[] {
+        if (steps == 0 || arr.length == 0) return arr
+        return this.moveInArray(arr, fromIndex, fromIndex+steps)
+    }
 }
 
 interface IRewardData {

@@ -77,25 +77,25 @@ export default class JsonEditor {
         root: HTMLElement,
         data: string|number|boolean|object,
         instanceMeta: DataObjectEntry|undefined,
-        path: (string|number)[],
+        path: IJsonEditorPath,
         key: string|undefined = undefined,
         origin: EOrigin = EOrigin.Unknown
     ) {
         const type = typeof data
         switch(type) {
             case 'string':
-                this.buildField(root, EJsonEditorFieldType.String, data, instanceMeta, path, origin)
+                this.buildField(root, EJsonEditorFieldType.String, data, instanceMeta, path, origin).then()
                 break
             case 'number':
-                this.buildField(root, EJsonEditorFieldType.Number, data, instanceMeta, path, origin)
+                this.buildField(root, EJsonEditorFieldType.Number, data, instanceMeta, path, origin).then()
                 break
             case 'boolean':
-                this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin)
+                this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin).then()
                 break
             case 'object':
                 if(data === null) {
                     // Exist to show that something is broken as we don't support the null type.
-                    this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin)
+                    this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin).then()
                 } else {
                     this.buildFields(root, data as object, instanceMeta, path, key, origin)
                 }
@@ -119,7 +119,7 @@ export default class JsonEditor {
         type: EJsonEditorFieldType,
         value: string|number|boolean|object,
         instanceMeta: DataObjectEntry|undefined,
-        path:(string|number)[],
+        path: IJsonEditorPath,
         origin: EOrigin
     ) {
         const key = path[path.length-1] ?? ''
@@ -140,7 +140,11 @@ export default class JsonEditor {
             keyInput.contentEditable = 'false'
             keyInput.innerHTML = key.toString()
         } else {
-            label.innerHTML = isRoot ? `<strong>${key}</strong>: ` : `${Utils.camelToTitle(key.toString())}: `
+            label.innerHTML = isRoot
+                ? `<strong>${key}</strong>: `
+                : origin == EOrigin.ListArray
+                    ? `${key}: `
+                    : `${Utils.camelToTitle(key.toString())}: `
             label.onclick = (event)=>{
                 input.click()
                 input.focus()
@@ -151,6 +155,7 @@ export default class JsonEditor {
         this.handleValue(value, path, label ,true) // Will colorize label
 
         const li = document.createElement('li') as HTMLLIElement
+        this.appendMoveButtons(li, origin, path)
         if(keyInput) {
         // Optional editable key
             li.appendChild(keyInput)
@@ -302,11 +307,11 @@ export default class JsonEditor {
         }
 
         this.appendRemoveButton(li, origin, path, label)
-        this.appendDocumentationIcon(li, key, instanceMeta, path)
+        this.appendDocumentationIcon(li, key, instanceMeta)
         root.appendChild(li)
     }
 
-    private promptForKey(path: (string|number)[]) {
+    private promptForKey(path: IJsonEditorPath) {
         const oldKey = Utils.clone(path).pop() ?? ''
         const newKey = prompt(`Provide new key for "${path.join('.')}"`, oldKey.toString())
         if(newKey && newKey.length > 0) {
@@ -318,7 +323,7 @@ export default class JsonEditor {
         root: HTMLElement,
         instance: object,
         instanceMeta: DataObjectEntry|undefined,
-        path:(string|number)[],
+        path: IJsonEditorPath,
         objectKey: string|undefined,
         origin: EOrigin
     ) {
@@ -329,6 +334,8 @@ export default class JsonEditor {
         const type = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
         const typeValues = JsonEditor.parseType(type)
         const instanceType = instance.constructor.name
+
+        this.appendMoveButtons(newRoot, origin, path)
 
         if(path.length == 1) { // Root object generates a key field
             this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single).then()
@@ -346,12 +353,15 @@ export default class JsonEditor {
             // An array has a fixed index
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
-                strongSpan.innerHTML = Utils.camelToTitle(pathKey.toString())
+                strongSpan.innerHTML = origin == EOrigin.ListArray
+                    ? `${pathKey}`
+                    : Utils.camelToTitle(pathKey.toString())
                 if(typeValues.class) strongSpan.title = `Type: ${typeValues.class}`
                 newRoot.appendChild(strongSpan)
             }
         }
 
+        // Add new item button if we have a type defined
         if(type.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
@@ -403,7 +413,7 @@ export default class JsonEditor {
         }
         this.appendRemoveButton(newRoot, origin, path, undefined)
         this.appendNewReferenceItemButton(newRoot, typeValues)
-        this.appendDocumentationIcon(newRoot, pathKey, instanceMeta, path)
+        this.appendDocumentationIcon(newRoot, pathKey, instanceMeta)
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = instanceMeta
@@ -430,7 +440,28 @@ export default class JsonEditor {
         newRoot.appendChild(newUL)
         root.appendChild(newRoot)
     }
-
+    // region Buttons
+    private appendMoveButtons(element: HTMLElement, origin: EOrigin, path: (string | number)[]) {
+        if(origin == EOrigin.ListArray) {
+            const buttonUp = document.createElement('button') as HTMLButtonElement
+            buttonUp.innerHTML = '🔺'
+            buttonUp.title = 'Move item up in array.'
+            buttonUp.classList.add('icon-button')
+            buttonUp.tabIndex = -1
+            buttonUp.onclick = (event)=>{
+                this.handleArrayMove(path, -1)
+            }
+            const buttonDown = document.createElement('button') as HTMLButtonElement
+            buttonDown.innerHTML = '🔻'
+            buttonDown.title = 'Move item down in array.'
+            buttonDown.classList.add('icon-button')
+            buttonDown.tabIndex = -1
+            buttonDown.onclick = (event)=>{
+                this.handleArrayMove(path, 1)
+            }
+            element.append(buttonUp, buttonDown)
+        }
+    }
     private appendNewReferenceItemButton(element: HTMLElement, typeValues: IJsonEditorTypeValues) {
         if(typeValues.class && typeValues.isIdList) {
             const button = document.createElement('button') as HTMLButtonElement
@@ -445,7 +476,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendRemoveButton(element: HTMLElement, origin: EOrigin, path: (string | number)[], label: HTMLElement|undefined) {
+    private appendRemoveButton(element: HTMLElement, origin: EOrigin, path: IJsonEditorPath, label: HTMLElement|undefined) {
         if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
             const button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '💥'
@@ -460,7 +491,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: DataObjectEntry|undefined, path: (string|number)[]) {
+    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: DataObjectEntry|undefined) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0) {
@@ -471,6 +502,7 @@ export default class JsonEditor {
             element.appendChild(span)
         }
     }
+    // endregion
 
     private clone<T>(value: T): T {
         return JSON.parse(JSON.stringify(value)) as T
@@ -538,10 +570,36 @@ export default class JsonEditor {
         this.checkIfModified()
     }
 
+    private handleArrayMove(
+        path: IJsonEditorPath,
+        direction: number
+    ) {
+        let index = path[path.length-1]
+        if(typeof index === 'string') index = parseInt(index)
+        console.log(index)
+        let current: any = this._instance
+        for (let i = 1; i < path.length; i++) {
+            // Will change the order of an array
+            if (i == path.length - 2) {
+                const p = path[i]
+                const contents = Utils.clone(current[p])
+                if(Array.isArray(contents)) {
+                    Utils.moveStepsInArray(contents, index, direction)
+                }
+                console.log(contents)
+                current[p] = contents
+                this.rebuild()
+            } else {
+                // Continue to navigate down into the data structure
+                current = current[path[i]]
+            }
+        }
+        this.checkIfModified()
+    }
 
     private handleKey(
         keyValue: string,
-        path: (string|number)[],
+        path: IJsonEditorPath,
     ) {
         let current: any = this._instance
         for (let i = 1; i < path.length; i++) {
@@ -607,6 +665,8 @@ enum EJsonEditorFieldType {
     Number,
     Null
 }
+
+interface IJsonEditorPath extends Array<string|number> {}
 
 interface IJsonEditorModifiedStatusListener {
     (modified:boolean):void
