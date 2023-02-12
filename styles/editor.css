@@ -106,3 +106,13 @@ span.disabled, code.disabled {
 .documentation-icon:hover {
     opacity: 1;
 }
+.drag-icon {
+    cursor: grabbing;
+    border-radius: 6px;
+    padding: 4px 12px;
+    color: rgba(0,0,0,0.66);
+}
+.drag-icon:hover {
+    color: black;
+    background-color: #ccc;
+}

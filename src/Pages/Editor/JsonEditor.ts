@@ -155,7 +155,7 @@ export default class JsonEditor {
         this.handleValue(value, path, label ,true) // Will colorize label
 
         const li = document.createElement('li') as HTMLLIElement
-        this.appendMoveButtons(li, origin, path)
+        this.appendDragButton(li, origin, path)
         if(keyInput) {
         // Optional editable key
             li.appendChild(keyInput)
@@ -335,7 +335,7 @@ export default class JsonEditor {
         const typeValues = JsonEditor.parseType(type)
         const instanceType = instance.constructor.name
 
-        this.appendMoveButtons(newRoot, origin, path)
+        this.appendDragButton(newRoot, origin, path)
 
         if(path.length == 1) { // Root object generates a key field
             this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single).then()
@@ -441,25 +441,37 @@ export default class JsonEditor {
         root.appendChild(newRoot)
     }
     // region Buttons
-    private appendMoveButtons(element: HTMLElement, origin: EOrigin, path: (string | number)[]) {
+    private appendDragButton(element: HTMLElement, origin: EOrigin, path: (string | number)[]) {
         if(origin == EOrigin.ListArray) {
-            const buttonUp = document.createElement('button') as HTMLButtonElement
-            buttonUp.innerHTML = '🔺'
-            buttonUp.title = 'Move item up in array.'
-            buttonUp.classList.add('icon-button')
-            buttonUp.tabIndex = -1
-            buttonUp.onclick = (event)=>{
-                this.handleArrayMove(path, -1)
+            const span = document.createElement('span') as HTMLSpanElement
+            span.innerHTML = '🤚'
+            span.title = 'Drag & drop in array'
+            span.classList.add('drag-icon')
+            span.draggable = true
+            span.ondragstart = (event)=>{
+                span.style.cursor = 'grabbing'
+                if(event.dataTransfer) {
+                    event.dataTransfer.setData('application/json', JSON.stringify(path))
+                    event.dataTransfer.effectAllowed = 'move'
+                }
             }
-            const buttonDown = document.createElement('button') as HTMLButtonElement
-            buttonDown.innerHTML = '🔻'
-            buttonDown.title = 'Move item down in array.'
-            buttonDown.classList.add('icon-button')
-            buttonDown.tabIndex = -1
-            buttonDown.onclick = (event)=>{
-                this.handleArrayMove(path, 1)
+            span.ondragenter = (event)=>{
+                if(event.dataTransfer) event.dataTransfer.dropEffect = 'move'
             }
-            element.append(buttonUp, buttonDown)
+            span.ondragover = (event)=>{
+                event.preventDefault() // Apparently we need to do this to allow for the drop to happen.
+            }
+            span.ondragend = (event)=>{
+                span.style.cursor = 'grabbing'
+            }
+            span.ondrop = (event)=>{
+                const data = event.dataTransfer?.getData('application/json')
+                if(data) {
+                    const fromPath = JSON.parse(data) as IJsonEditorPath
+                    this.handleArrayMove(fromPath, path)
+                }
+            }
+            element.appendChild(span)
         }
     }
     private appendNewReferenceItemButton(element: HTMLElement, typeValues: IJsonEditorTypeValues) {
@@ -571,27 +583,27 @@ export default class JsonEditor {
     }
 
     private handleArrayMove(
-        path: IJsonEditorPath,
-        direction: number
+        fromPath: IJsonEditorPath,
+        toPath: IJsonEditorPath
     ) {
-        let index = path[path.length-1]
-        if(typeof index === 'string') index = parseInt(index)
-        console.log(index)
+        let fromIndex = fromPath[fromPath.length-1]
+        if(typeof fromIndex === 'string') fromIndex = parseInt(fromIndex)
+        let toIndex = toPath[toPath.length-1]
+        if(typeof toIndex === 'string') toIndex = parseInt(toIndex)
         let current: any = this._instance
-        for (let i = 1; i < path.length; i++) {
+        for (let i = 1; i < fromPath.length; i++) {
             // Will change the order of an array
-            if (i == path.length - 2) {
-                const p = path[i]
+            if (i == fromPath.length - 2) {
+                const p = fromPath[i]
                 const contents = Utils.clone(current[p])
                 if(Array.isArray(contents)) {
-                    Utils.moveStepsInArray(contents, index, direction)
+                    Utils.moveInArray(contents, fromIndex, toIndex)
                 }
-                console.log(contents)
                 current[p] = contents
                 this.rebuild()
             } else {
                 // Continue to navigate down into the data structure
-                current = current[path[i]]
+                current = current[fromPath[i]]
             }
         }
         this.checkIfModified()
