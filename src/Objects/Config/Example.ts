@@ -9,9 +9,9 @@ export class ConfigExample extends BaseDataObject {
     public arrayOfStrings: string[] = []
     public dictionaryOfStrings: IStringDictionary = {}
     public arrayOfSubClasses: ConfigExampleSub[] = []
-    public dictionaryWithSubClasses: { [key:string]: ConfigExampleSub } = {}
-    public arrayOfIds: number[] = []
-    public dictionaryOfIds: { [key:string]: number } = {}
+    public dictionaryWithSubClasses: {[key:string]: ConfigExampleSub} = {}
+    public arrayOfIds: number[]|PresetPipeBasic[] = []
+    public dictionaryOfIds: {[key:string]: number}|{[key:string]: PresetPipeCustom} = {}
 }
 export class ConfigExampleSub extends BaseDataObject {
     public label: string = ''

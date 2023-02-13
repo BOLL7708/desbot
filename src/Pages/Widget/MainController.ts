@@ -26,7 +26,8 @@ import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
 
 export default class MainController {
     public static async init() {
-        ImportDataObjectClasses.init() // TODO: Might be entirely redundant as we reference the actual classes in the widget code, but for now it might be an idea. Otherwise for the editor.
+        DataBaseHelper.setFillReferences(true)
+        ImportDataObjectClasses.init()
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()

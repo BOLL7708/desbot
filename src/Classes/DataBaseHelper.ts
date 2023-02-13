@@ -10,6 +10,7 @@ export default class DataBaseHelper {
 
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
     private static _idStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
+    private static _fillReferences: boolean = false
 
     static async testConnection(): Promise<boolean> {
         const response = await fetch(this.getUrl(), {
@@ -19,6 +20,9 @@ export default class DataBaseHelper {
             }
         })
         return response.ok
+    }
+    static setFillReferences(fill: boolean) {
+        this._fillReferences = fill
     }
 
     // region Json Store
@@ -91,7 +95,7 @@ export default class DataBaseHelper {
         if(result) {
             // Convert plain objects to class instances and cache them
             for(const [key, setting] of Object.entries(result)) {
-                result[key] = emptyInstance.__new(setting as T&object)
+                result[key] = await emptyInstance.__new(setting as T&object, this._fillReferences)
             }
             this._dataStore.set(className, result)
         }
@@ -131,7 +135,7 @@ export default class DataBaseHelper {
         if (result) {
             // Convert plain object to class instance
             if (!Utils.isEmptyObject(result)) {
-                result = emptyInstance.__new(result as T&object)
+                result = await emptyInstance.__new(result as T&object, this._fillReferences)
             }
             if (!this._dataStore.has(className)) {
                 const newDic: { [key: string]: T } = {}

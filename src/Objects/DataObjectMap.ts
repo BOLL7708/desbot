@@ -44,17 +44,19 @@ export default class DataObjectMap {
      * Get an instance from referencing the class name.
      * @param className
      * @param props
+     * @param fillReferences
      */
-    public static getInstance(
+    public static async getInstance(
         className: string|undefined,
-        props: object|undefined = undefined
-    ): BaseDataObject|undefined {
+        props: object|undefined = undefined,
+        fillReferences: boolean = false
+    ): Promise<BaseDataObject|undefined> {
         const invalidClassNames = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return
         if(className && this._map.has(className)) {
             const instance = this._map.get(className)?.instance
             if(instance) {
-                return instance.__new(props)
+                return await instance.__new(props, fillReferences)
             } else console.warn(`Class instance was invalid: ${className}`)
         } else console.warn(`Class instance does not exist: ${className}`)
         return undefined

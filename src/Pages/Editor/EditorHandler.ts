@@ -123,27 +123,27 @@ export default class EditorHandler {
 
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
-        const updateEditor = (
+        const updateEditor = async(
             event: Event|undefined,
             clear: boolean = false,
             markAsDirty: boolean = false,
             skipHistory: boolean = false,
             forceNavigation: boolean = false
-        ): boolean =>{
+        ): Promise<boolean> =>{
             if(!forceNavigation && !this.promptNavigateAway()) return false
             this._state.newItem = false // Reset it as we only need that to affect the initial load.
             let instance: BaseDataObject|undefined = undefined
             let resultingKey = selectKey
             if(clear) {
                 resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
-                instance = DataObjectMap.getInstance(group, {})
+                instance = await DataObjectMap.getInstance(group, {})
                 if(!this._state.forceMainKey) editorSaveButton.innerHTML = this._labelSaveNewButton
             } else {
                 resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(resultingKey.length > 0) {
-                    instance = DataObjectMap.getInstance(group, items[resultingKey] ?? {}) ?? items[resultingKey] // The last ?? is for test settings that has no class.
+                    instance = await DataObjectMap.getInstance(group, items[resultingKey] ?? {}) ?? items[resultingKey] // The last ?? is for test settings that has no class.
                 } else {
-                    instance = DataObjectMap.getInstance(group, {})
+                    instance = await DataObjectMap.getInstance(group, {})
                 }
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
@@ -152,7 +152,7 @@ export default class EditorHandler {
                 if(!skipHistory) {
                     this.updateHistory()
                 }
-                editorContainer.replaceChildren(this._editor?.build(resultingKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
+                editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
             }
             return true
         }
@@ -161,7 +161,7 @@ export default class EditorHandler {
         if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
-            updateEditor(undefined, true, false, skipHistory)
+            updateEditor(undefined, true, false, skipHistory).then()
         } else {
             dropdown.id = 'dropdown'
             dropdownLabel.htmlFor = dropdown.id
@@ -186,7 +186,7 @@ export default class EditorHandler {
         editorNewButton.innerHTML = '✨ New'
         editorNewButton.title = 'And new entry'
         editorNewButton.onclick = async (event)=>{
-            updateEditor(undefined, true)
+            updateEditor(undefined, true).then()
         }
 
         // Reset button
@@ -195,7 +195,7 @@ export default class EditorHandler {
         editorResetButton.innerHTML = '🧼 Reset'
         editorResetButton.title = 'Reset to default values'
         editorResetButton.onclick = async (event)=>{
-            updateEditor(undefined, true, this._state.forceMainKey)
+            updateEditor(undefined, true, this._state.forceMainKey).then()
         }
 
         // Reload button
@@ -204,7 +204,7 @@ export default class EditorHandler {
         editorReloadButton.innerHTML = '💫 Reload'
         editorReloadButton.title = 'Reload stored values'
         editorReloadButton.onclick = async (event)=>{
-            updateEditor(undefined)
+            updateEditor(undefined).then()
         }
 
         // Delete button
@@ -256,7 +256,7 @@ export default class EditorHandler {
             else this._editor?.setData(result)
         }
 
-        updateEditor(undefined, this._state.newItem, false, skipHistory, )
+        updateEditor(undefined, this._state.newItem, false, skipHistory).then()
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
         if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
@@ -307,6 +307,7 @@ export default class EditorHandler {
     }
 
     private updateModifiedState(modified: boolean) {
+        console.log(`Modified state: ${modified ? 'MODOFIED' : 'unmodified'}`)
         this._unsavedChanges = Utils.clone(modified)
         if(modified) {
             window.onbeforeunload = (event)=>{

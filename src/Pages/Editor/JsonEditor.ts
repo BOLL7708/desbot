@@ -1,5 +1,5 @@
 import Utils from '../../Classes/Utils.js'
-import BaseDataObject, {EmptyDataObject,} from '../../Objects/BaseDataObject.js'
+import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataObjectMap, {DataObjectEntry} from '../../Objects/DataObjectMap.js'
 
@@ -31,20 +31,20 @@ export default class JsonEditor {
 
     constructor() {}
 
-    build(
+    async build(
         key: string,
         instance: object&BaseDataObject,
         dirty: boolean = false,
         hideKey: boolean = false,
         isRebuild: boolean = false
-    ): HTMLElement {
+    ): Promise<HTMLElement> {
         if(!isRebuild) {
             this._key = key
             this._originalKey = key
             this._hideKey = hideKey
             if(instance) {
-                this._instance = instance.__clone()
-                this._originalInstance = instance.__clone();
+                this._instance = await instance.__clone()
+                this._originalInstance = await instance.__clone();
             }
             this._originalInstanceType = instance.constructor.name
         }
@@ -65,7 +65,7 @@ export default class JsonEditor {
             false,
             this._hideKey,
             true
-        )
+        ).then()
     }
 
     private highlightLabels() {
@@ -80,25 +80,26 @@ export default class JsonEditor {
         instanceMeta: DataObjectEntry|undefined,
         path: IJsonEditorPath,
         key: string|undefined = undefined,
-        origin: EOrigin = EOrigin.Unknown
+        origin: EOrigin = EOrigin.Unknown,
+        originListCount: number = 1
     ) {
         const type = typeof data
         switch(type) {
             case 'string':
-                this.buildField(root, EJsonEditorFieldType.String, data, instanceMeta, path, origin).then()
+                this.buildField(root, EJsonEditorFieldType.String, data, instanceMeta, path, origin, originListCount).then()
                 break
             case 'number':
-                this.buildField(root, EJsonEditorFieldType.Number, data, instanceMeta, path, origin).then()
+                this.buildField(root, EJsonEditorFieldType.Number, data, instanceMeta, path, origin, originListCount).then()
                 break
             case 'boolean':
-                this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin).then()
+                this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin, originListCount).then()
                 break
             case 'object':
                 if(data === null) {
                     // Exist to show that something is broken as we don't support the null type.
-                    this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin).then()
+                    this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin, originListCount).then()
                 } else {
-                    this.buildFields(root, data as object, instanceMeta, path, key, origin)
+                    this.buildFields(root, data as object, instanceMeta, path, key, origin, originListCount)
                 }
                 break
             default:
@@ -121,7 +122,8 @@ export default class JsonEditor {
         value: string|number|boolean|object,
         instanceMeta: DataObjectEntry|undefined,
         path: IJsonEditorPath,
-        origin: EOrigin
+        origin: EOrigin,
+        originListCount: number = 1
     ) {
         const key = path[path.length-1] ?? ''
         const previousKey = path[path.length-2] ?? ''
@@ -130,7 +132,7 @@ export default class JsonEditor {
 
         // Sort out type values for ID references
         const parentType = instanceMeta?.types ? instanceMeta.types[previousKey] ?? '' : ''
-        const parentValues = JsonEditor.parseType(parentType)
+        const parentValues = BaseDataObject.parseRef(parentType)
 
         // Label
         let keyInput: HTMLSpanElement|undefined
@@ -156,7 +158,7 @@ export default class JsonEditor {
         this.handleValue(value, path, label ,true) // Will colorize label
 
         const li = document.createElement('li') as HTMLLIElement
-        this.appendDragButton(li, origin, path)
+        if(originListCount > 1) this.appendDragButton(li, origin, path)
         if(keyInput) {
         // Optional editable key
             li.appendChild(keyInput)
@@ -327,17 +329,18 @@ export default class JsonEditor {
         instanceMeta: DataObjectEntry|undefined,
         path: IJsonEditorPath,
         objectKey: string|undefined,
-        origin: EOrigin
+        origin: EOrigin,
+        originListCount: number = 1
     ) {
         const pathKey = path[path.length-1] ?? 'root'
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
 
         const type = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
-        const typeValues = JsonEditor.parseType(type)
+        const typeValues = BaseDataObject.parseRef(type)
         const instanceType = instance.constructor.name
 
-        this.appendDragButton(newRoot, origin, path)
+        if(originListCount > 1) this.appendDragButton(newRoot, origin, path)
 
         if(path.length == 1) { // Root object generates a key field
             this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single).then()
@@ -381,7 +384,7 @@ export default class JsonEditor {
             for(let i=0; i<instance.length; i++) {
                 const newPath = this.clone(path)
                 newPath.push(i)
-                this.stepData(newUL, instance[i], newInstanceMeta, newPath, undefined, newOrigin)
+                this.stepData(newUL, instance[i], newInstanceMeta, newPath, undefined, newOrigin, instance.length)
             }
         } else {
             const newOrigin = type ? EOrigin.ListDictionary : EOrigin.Single
@@ -428,7 +431,7 @@ export default class JsonEditor {
             element.appendChild(span)
         }
     }
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IJsonEditorTypeValues) {
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues) {
         if(typeValues.class && typeValues.isIdList) {
             const button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '👶'
@@ -608,31 +611,13 @@ export default class JsonEditor {
         return this._key
     }
 
-    static parseType(type: string): IJsonEditorTypeValues {
-        const typeArr = type.split('|')
-        const typeValues: IJsonEditorTypeValues = {
-            original: type,
-            class: typeArr.shift() ?? '',
-            isIdList: false,
-            idLabelField: ''
-        }
-        for(const t of typeArr) {
-            if(t == 'id') typeValues.isIdList = true
-            else {
-                const [k, v] = t.split('=')
-                if(k == 'label') typeValues.idLabelField = v
-            }
-        }
-        return typeValues
-    }
-
-    private appendAddButton(newRoot: HTMLLIElement, typeValues: IJsonEditorTypeValues, instance: object, path: IJsonEditorPath) {
+    private appendAddButton(newRoot: HTMLLIElement, typeValues: IBaseDataObjectRefValues, instance: object, path: IJsonEditorPath) {
         if(typeValues.class.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
             newButton.title = 'Add new item'
             newButton.classList.add('inline-button', 'new-button')
-            newButton.onclick = (event)=>{
+            newButton.onclick = async (event)=>{
                 if(Array.isArray(instance)) {
                     switch(typeValues.original) {
                         case 'number': instance.push(0); break
@@ -643,8 +628,8 @@ export default class JsonEditor {
                                 instance.push(0)
                                 break
                             }
-                            const newInstance = DataObjectMap.getInstance(typeValues.class, undefined)
-                            if(newInstance) instance.push(newInstance.__clone()) // For some reason this would do nothing unless cloned.
+                            const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
+                            if(newInstance) instance.push(await newInstance.__clone()) // For some reason this would do nothing unless cloned.
                             else console.warn('Unhandled type:', typeValues.class)
                     }
                     this.handleValue(instance, path, newRoot)
@@ -661,8 +646,8 @@ export default class JsonEditor {
                                     (instance as any)[newKey] = 0
                                     break
                                 }
-                                const newInstance = DataObjectMap.getInstance(typeValues.class, undefined)
-                                if(newInstance) (instance as any)[newKey] = newInstance.__clone()
+                                const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
+                                if(newInstance) (instance as any)[newKey] = await newInstance.__clone()
                                 else console.warn('Unhandled type:', typeValues.class)
                         }
                         this.handleValue(instance, path, newRoot)
@@ -684,12 +669,5 @@ enum EJsonEditorFieldType {
 interface IJsonEditorPath extends Array<string|number> {}
 
 interface IJsonEditorModifiedStatusListener {
-    (modified:boolean):void
-}
-
-interface IJsonEditorTypeValues {
-    original: string
-    class: string
-    isIdList: boolean
-    idLabelField: string
+    (modified: boolean): void
 }
