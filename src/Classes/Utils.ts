@@ -922,7 +922,7 @@ export default class Utils {
     static moveInArray<T>(arr: T[], fromIndex: number, toIndex: number): T[] {
         const newIndex = Math.max(0, Math.min(arr.length-1, toIndex))
         const [item] = arr.splice(fromIndex, 1)
-        if(item) arr.splice(newIndex, 0, item)
+        if(item !== undefined) arr.splice(newIndex, 0, item)
         return arr
     }
     static moveStepsInArray<T>(arr: T[], fromIndex: number, steps: number): T[] {

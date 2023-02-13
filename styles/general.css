@@ -112,7 +112,8 @@ span, input, a, button {
             background-color 0.1s,
             opacity 0.1s,
             border 0.1s,
-            color 0.1s;
+            color 0.1s,
+            filter 0.1s;
 }
 code {
     background-color: rgba(255,255,255,0.5);

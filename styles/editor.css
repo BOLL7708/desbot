@@ -19,12 +19,14 @@ code {
 .editor-button {
     padding: 0.25em 1em;
     font-weight: bold;
-    color: rgba(0,0,0,0.66);
+    color: rgba(0,0,0,0.50);
     background-color: #eee;
 }
 .inline-button {
     color: rgba(0,0,0,0.66);
-    background-color: #eee;
+    background-color: transparent !important;
+    border: 2px solid transparent;
+    filter: saturate(0.5);
 }
 .icon-button {
     background-color: transparent;
@@ -35,7 +37,9 @@ code {
 }
 .editor-button:hover, .inline-button:hover {
     color: black;
-    background-color: #bbb;
+    background-color: #ccc !important;
+    border-color: rgba(0,0,0,0.25);
+    filter: saturate(1);
 }
 .icon-button:hover {
     color: black;
@@ -48,38 +52,37 @@ code {
     background-color: lightgoldenrodyellow;
 }
 .new-button:hover {
-    background-color: gold;
+    background-color: gold !important;
 }
 .reset-button {
     background-color: pink;
 }
 .reset-button:hover {
-    background-color: hotpink;
+    background-color: hotpink !important;
 }
 .reload-button {
     background-color: lightblue;
 }
 .reload-button:hover {
-    background-color: deepskyblue;
+    background-color: deepskyblue !important;
 }
 .delete-button {
-    margin-right: 10em;
     background-color: pink;
 }
 .delete-button:hover {
-    background-color: hotpink;
+    background-color: hotpink !important;
 }
 .save-button {
     background-color: lightgreen;
 }
 .save-button:hover {
-    background-color: limegreen;
+    background-color: limegreen !important;
 }
 .edit-button {
     background-color: mediumpurple;
 }
 .edit-button:hover {
-    background-color: limegreen;
+    background-color: limegreen !important;
 }
 span[contenteditable], code[contenteditable] {
     color: black;
@@ -119,10 +122,14 @@ span.disabled, code.disabled {
     padding: 4px 12px;
     margin-right: 6px;
     color: rgba(0,0,0,0.66);
+    border: 2px solid transparent;
+    filter: saturate(0.5);
 }
 .drag-icon:hover {
     color: black;
     background-color: #ccc;
+    border-color: rgba(0,0,0,0.25);
+    filter: saturate(1);
 }
 .boolean-input {
     cursor: pointer;

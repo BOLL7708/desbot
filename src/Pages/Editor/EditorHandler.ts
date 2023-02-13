@@ -210,6 +210,7 @@ export default class EditorHandler {
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('editor-button', 'delete-button')
+        editorDeleteButton.style.marginRight = '10em'
         editorDeleteButton.innerHTML = this._labelDeleteButton
         editorDeleteButton.tabIndex = -1
         editorDeleteButton.onclick = async(event)=>{
