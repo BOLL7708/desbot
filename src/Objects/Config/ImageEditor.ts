@@ -48,7 +48,7 @@ DataObjectMap.addSubInstance(
 DataObjectMap.addSubInstance(
     new ConfigImageEditorOutline(),
     {
-        color: 'A HTML color, can be a text representation or a hex value.',
+        color: 'A HTML color, can be a text representation or a hex value. Leave empty to use Twitch user color if available.',
         width: 'The width of the outline in pixels.'
     }
 )

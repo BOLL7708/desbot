@@ -1,6 +1,5 @@
 import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
-import {IPipeConfig} from '../Interfaces/ipipe.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
@@ -8,7 +7,6 @@ import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {ISteamConfig} from '../Interfaces/isteam.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
-import {PipePresetsTemplate} from './presets.template.js'
 
 /*
 ..######..########..########.########..########.##....##.########.####....###....##........######.
@@ -233,54 +231,6 @@ Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-web
 }
 
 /*
-.########..####.########..########
-.##.....##..##..##.....##.##......
-.##.....##..##..##.....##.##......
-.########...##..########..######..
-.##.........##..##........##......
-.##.........##..##........##......
-.##........####.##........########
-*/
-Config.pipe = <IPipeConfig> {
-    port: 8077,
-    showRewardsWithKeys: [
-        'Speak'
-    ],
-    useCustomChatNotification: false,
-    customChatMessageConfig: {
-        width: 500,
-        top: 120,
-        margin: 0,
-        cornerRadius: 0,
-        textMaxHeight: 240,
-        font: { size: 32, family: 'Arial', color: '#ddd', lineSpacing: 1.05 }
-    },
-    customChatNameConfig: {
-        rect: { x: 100, y: 100, w: 400, h: 100 },
-        font: { size: 32, family: 'Arial Black', outlines: [
-            { color: 'white', width: 8 },
-            { color: 'black', width: 4 }
-        ] }
-    },
-    customChatAvatarConfig: {
-        cornerRadius: 0,
-        rect: { x: 0, y: 0, w: 100, h: 100 }
-    },
-    cleanTextConfig: {
-        removeBitEmotes: false,
-        keepCase: true,
-        replaceUserTags: false,
-        removeParentheses: true,
-        reduceRepeatedCharacters: true,
-        replaceBigNumbers: false,
-        replaceLinks: true,
-        replaceLinksWith: 'link',
-        removeUnicodeEmojis: false
-    }
-}
-
-
-/*
 ..######...######..########..########.########.##....##..######..##.....##..#######..########
 .##....##.##....##.##.....##.##.......##.......###...##.##....##.##.....##.##.....##....##...
 .##.......##.......##.....##.##.......##.......####..##.##.......##.....##.##.....##....##...
@@ -302,7 +252,10 @@ Config.screenshots = <IScreenshotConfig> {
         pipeEnabledForRewards: [
             'Unknown' // Your screenshot reward key
         ],
-        pipeMessagePreset: PipePresetsTemplate.PIPE_SCREENSHOT,
+        pipeMessagePreset:  {
+            durationMs: 5000,
+            configRef: 'database_group_key' // TODO: Is a DB reference to PresetPipeCustom
+        },
         soundEffectForOBSScreenshots: {
             // srcEntries: '_assets/yoursound.wav',
         }
@@ -341,7 +294,7 @@ Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
 Config.twitchChat = <ITwitchChatConfig> {
     pipe: {
         durationMs: 5000,
-        config: PipePresetsTemplate.PIPE_CHAT
+        configRef: 'database_group_key'
     },
     audio: {
         srcEntries: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',

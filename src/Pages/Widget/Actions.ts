@@ -49,6 +49,7 @@ import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Obje
 import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
 import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
+import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 
 export class ActionHandler {
     constructor(
@@ -634,6 +635,7 @@ export class Actions {
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
                 const configClone = Utils.clone(config)
+                configClone.config = await DataBaseHelper.load(new PresetPipeCustom(), config.configRef)
 
                 // Need to reference the original config arrays here as the __type is dropped in the clone process.
                 configClone.imagePathEntries = Utils.ensureArray(config.imagePathEntries).getAsType(index)
@@ -642,8 +644,7 @@ export class Actions {
                 // Replace tags in texts.
                 configClone.texts = await Utils.replaceTagsInTextArray(configClone.texts, user)
                 configClone.imagePathEntries = await Utils.replaceTagsInTextArray(configClone.imagePathEntries, user)
-                if(configClone.config.customProperties) {
-                    configClone.config.customProperties.textAreas = Utils.clone(Utils.ensureArray(config.config.customProperties?.textAreas))
+                if(configClone.config?.customProperties) {
                     for(const textArea of configClone.config.customProperties.textAreas) {
                         textArea.text = await Utils.replaceTagsInText(textArea.text, user)
                     }

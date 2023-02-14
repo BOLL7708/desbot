@@ -9,33 +9,39 @@ import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import ImageHelper from './ImageHelper.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import {PresetPipeBasic, PresetPipeCustom} from '../Objects/Preset/Pipe.js'
+import {PresetPipeBasic, PresetPipeCustom, PresetPipeCustomTransition} from '../Objects/Preset/Pipe.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigPipe} from '../Objects/Config/Pipe.js'
+import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ImageEditor.js'
 
 export default class Pipe {
-    private _socket:WebSockets
-    constructor() {
-        this._socket = new WebSockets(`ws://localhost:${Config.pipe.port}`, 10, true)
+    private _config: ConfigPipe = new ConfigPipe()
+    private _socket?: WebSockets = undefined
+    constructor() {}
+    async init() {
+        this._config = await DataBaseHelper.loadMain(new ConfigPipe())
+        this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
-    }
-    init() {
         this._socket.init()
     }
     private onMessage(evt: MessageEvent) {
-        console.log(evt.data)
+        const data = JSON.parse(evt.data)
+        if(this._socket && data) this._socket.resolvePromise(data['nonce'], data)
+        else console.warn('Unhandled Pipe response', data)
     }
     private onError(evt: Event) {
         // console.table(evt)
     }
 
     setOverlayTitle(title: string) {
-        this._socket.send(JSON.stringify(<PresetPipeBasic>{
+        this._socket?.send(JSON.stringify(<PresetPipeBasic>{
             basicTitle: title,
             basicMessage: "Initializing Notification Pipe for Streaming Widget"
         }))
     }
 
-    async sendBasicObj(
+    sendBasicObj(
         messageData: ITwitchMessageData,
         userData: IActionUser,
         helixUser?: ITwitchHelixUsersResponseData
@@ -46,7 +52,7 @@ export default class Pipe {
             userData.color,
             helixUser?.profile_image_url ?? '',
             messageData
-        )
+        ).then()
     }
     
     async sendBasic(
@@ -59,7 +65,7 @@ export default class Pipe {
         // Skip if supposed to be skipped
         if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
-        const cleanTextConfig = Utils.clone(Config.pipe.cleanTextConfig)
+        const cleanTextConfig = Utils.clone(this._config.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = hasBits
         const cleanText = await Utils.cleanText(
             message,
@@ -68,7 +74,7 @@ export default class Pipe {
         )
         
         // TODO: Maybe we should also skip if there are only punctuation?
-        if(cleanText.length == 0 && !Config.pipe.useCustomChatNotification) return console.warn("Pipe: Clean text had zero length, skipping")
+        if(cleanText.length == 0 && !this._config.useCustomChatNotification) return console.warn("Pipe: Clean text had zero length, skipping")
         
         // Build message
         let done = false
@@ -77,8 +83,9 @@ export default class Pipe {
             : null
         const preset = Utils.clone(Config.twitchChat.pipe)
         if(!preset) return Utils.log("Pipe: No preset found for chat messages", Color.Red)
+        preset.config = Utils.clone(await DataBaseHelper.load(new PresetPipeCustom(), preset.configRef))
         if(
-            Config.pipe.useCustomChatNotification
+            this._config.useCustomChatNotification
         ) { // Custom notification
             
             // Setup
@@ -86,40 +93,40 @@ export default class Pipe {
             
             // Prepare message
             const customMessageData: ITwitchMessageData = messageData ?? {text: message, bits: 0, isAction: false, emotes: []}
-            const margin = Config.pipe.customChatMessageConfig.margin
-            const textRect = {
-                x: margin,
-                y: Config.pipe.customChatMessageConfig.top + margin,
-                w: Config.pipe.customChatMessageConfig.width - margin * 2,
-                h: Config.pipe.customChatMessageConfig.textMaxHeight
-            }
-            const textResult = await imageEditor.buildTwitchText(customMessageData, textRect, Config.pipe.customChatMessageConfig.font)
+            const margin = this._config.customChatMessageConfig.margin
+            const textRect = new ConfigImageEditorRect()
+            textRect.x = margin
+            textRect.y = this._config.customChatMessageConfig.top + margin
+            textRect.w = this._config.customChatMessageConfig.width - margin * 2
+            textRect.h = this._config.customChatMessageConfig.textMaxHeight
+            const textResult = await imageEditor.buildTwitchText(customMessageData, textRect, this._config.customChatMessageConfig.font)
             const isOneRow = textResult.rowsDrawn == 1
             const size = textResult.pixelHeight + margin * 2 // TODO: Increase this to avoid emojis clipping at top/bottom
 
             // Draw background
-            const maxCanvasWidth = Config.pipe.customChatMessageConfig.width
+            const maxCanvasWidth = this._config.customChatMessageConfig.width
             const actualCanvasWidth = isOneRow 
                 ? textResult.firstRowWidth + margin * 2 + size 
                 : maxCanvasWidth
             imageEditor.initiateEmptyCanvas(
                 actualCanvasWidth,
-                Config.pipe.customChatMessageConfig.top
+                this._config.customChatMessageConfig.top
 					+ textResult.pixelHeight
 					+ margin * 2
             )
-            imageEditor.drawBackground({
-                    x: isOneRow ? size : 0,
-                    y: isOneRow ? 0 : Config.pipe.customChatMessageConfig.top,
-                    w: isOneRow ? textResult.firstRowWidth + margin * 2 : Config.pipe.customChatMessageConfig.width,
-                    h: size
-                }, 
-                Config.pipe.customChatMessageConfig.cornerRadius,
+            const imageEditorRect = new ConfigImageEditorRect()
+            imageEditorRect.x = isOneRow ? size : 0,
+            imageEditorRect.y = isOneRow ? 0 : this._config.customChatMessageConfig.top,
+            imageEditorRect.w = isOneRow ? textResult.firstRowWidth + margin * 2 : this._config.customChatMessageConfig.width,
+            imageEditorRect.h = size
+            const imageEditorOutline = new ConfigImageEditorOutline()
+            imageEditorOutline.width = 16
+            imageEditorOutline.color = '#666'
+            imageEditor.drawBackground(
+                imageEditorRect,
+                this._config.customChatMessageConfig.cornerRadius,
                 Color.Gray,
-                {
-                    width: 16,
-                    color: '#666'
-                }
+                imageEditorOutline
             )
 
             // Draw message
@@ -132,18 +139,18 @@ export default class Pipe {
             // Avatar
             if(imageDataUrl != null) {
                 // Replace undefined colors in outlines with user color or default
-                const avatarConfig = Utils.clone(Config.pipe.customChatAvatarConfig)
+                const avatarConfig = Utils.clone(this._config.customChatAvatarConfig)
                 for(const [key, value] of avatarConfig.outlines?.entries() ?? []) {
                     // TODO: Does changing this in value actually update the avatarConfig? Debug this later.
-                    if(value.color == undefined) value.color = userColor ?? Color.White
+                    if(value.color.length == 0 ) value.color = userColor ?? Color.White
                 }
                 // Draw
-                const avatarRect = isOneRow ? {
-                    x: 0,
-                    y: 0,
-                    w: size,
-                    h: size
-                } : avatarConfig.rect
+                const avatarRectSingle = new ConfigImageEditorRect()
+                avatarRectSingle.x = 0
+                avatarRectSingle.y = 0
+                avatarRectSingle.w = size
+                avatarRectSingle.h = size
+                const avatarRect = isOneRow ? avatarRectSingle : avatarConfig.rect
 
                 // Draw image
                 await imageEditor.drawImage(
@@ -156,10 +163,10 @@ export default class Pipe {
 
             // Name
             if(textResult.rowsDrawn > 1) {
-                const nameFontConfig = Utils.clone(Config.pipe.customChatNameConfig.font)
-                if(nameFontConfig.color == undefined) nameFontConfig.color = userColor ?? Color.White
+                const nameFontConfig = Utils.clone(this._config.customChatNameConfig.font)
+                if(nameFontConfig.color.length == 0) nameFontConfig.color = userColor ?? Color.White
                 if(displayName.length > 0) {
-                    await imageEditor.drawText(displayName, Config.pipe.customChatNameConfig.rect, nameFontConfig)
+                    await imageEditor.drawText(displayName, this._config.customChatNameConfig.rect, nameFontConfig)
                 }
             }
 
@@ -170,7 +177,7 @@ export default class Pipe {
             if(isOneRow) {
                 let width = preset.config?.customProperties?.widthM ?? 0
                 // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
-                if(preset.config.customProperties) preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
+                if(preset.config?.customProperties) preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
             }
             this.showPreset(preset).then()
             done = true
@@ -179,13 +186,13 @@ export default class Pipe {
         if(!done) { // SteamVR notification
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(imageDataUrl != null) {
-                this._socket.send(JSON.stringify(<PresetPipeBasic>{
+                this._socket?.send(JSON.stringify(<PresetPipeBasic>{
                     basicTitle: "",
                     basicMessage: text,
                     imageData: Utils.removeImageHeader(imageDataUrl)
                 }))
             } else {
-                this._socket.send(JSON.stringify(<PresetPipeBasic>{
+                this._socket?.send(JSON.stringify(<PresetPipeBasic>{
                     basicTitle: "",
                     basicMessage: text,
                 }))
@@ -193,11 +200,18 @@ export default class Pipe {
         }
     }
 
-    sendCustom(message: PresetPipeCustom) {
-        this._socket.send(JSON.stringify(message))
+    async sendCustom(message: PresetPipeCustom) {
+        if(this._socket) {
+            const nonce = Utils.getNonce('custom-pipe')
+            message.customProperties.nonce = nonce
+            const response = await this._socket.sendMessageWithPromise(JSON.stringify(message), nonce, 10000)
+            console.log('Pipe.sendCustom result', response)
+        }
+        else console.warn('Pipe.sendCustom: Websockets instance not initiated.')
     }
 
     async showPreset(preset: IPipeAction) {
+        if(!preset.config) return console.warn('Pipe.showPreset: IPipeAction did not contain a config.')
         // If path exists, load image, in all cases output base64 image data
         const states = StatesSingleton.getInstance()
         let imageB64arr: string[] = []

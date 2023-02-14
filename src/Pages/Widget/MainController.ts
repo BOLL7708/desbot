@@ -37,7 +37,7 @@ export default class MainController {
 
         // Check configs
         const cfgPropCount = Object.keys(Config).length
-        const cfgPropTotal = 11
+        const cfgPropTotal = 10
         if(cfgPropCount < cfgPropTotal) {
             Utils.log(`Warning: Config is incomplete, only ${cfgPropCount}/${cfgPropTotal} set!`, Color.Red, true, true)
         }

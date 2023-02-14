@@ -113,6 +113,7 @@ span, input, a, button {
             opacity 0.1s,
             border 0.1s,
             color 0.1s,
+            transform 0.1s,
             filter 0.1s;
 }
 code {

@@ -1,14 +1,18 @@
 import Utils from './Utils.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
 import Color from './ColorConstants.js'
-import {IImageEditorFontSettings, IImageEditorOutline, IImageEditorRect} from '../Interfaces/iimage_editor.js'
 import ImageHelper from './ImageHelper.js'
+import {
+    ConfigImageEditorFontSettings,
+    ConfigImageEditorOutline,
+    ConfigImageEditorRect
+} from '../Objects/Config/ImageEditor.js'
 
 export default class ImageEditor {
-    private _canvas: HTMLCanvasElement
-    private _textCanvas: HTMLCanvasElement
-    private _ctx: CanvasRenderingContext2D|null
-    private _textCtx: CanvasRenderingContext2D|null
+    private readonly _canvas: HTMLCanvasElement
+    private readonly _textCanvas: HTMLCanvasElement
+    private readonly _ctx: CanvasRenderingContext2D|null
+    private readonly _textCtx: CanvasRenderingContext2D|null
     constructor() {
         this._canvas = document.createElement('canvas')
         this._textCanvas = document.createElement('canvas')
@@ -78,9 +82,9 @@ export default class ImageEditor {
     // region Drawing
     async drawImage(
         imageData: string, 
-        rect: IImageEditorRect,
+        rect: ConfigImageEditorRect,
         radius: number = 0,
-        outlines: IImageEditorOutline[] = []
+        outlines: ConfigImageEditorOutline[] = []
     ): Promise<boolean> {
         const img: HTMLImageElement|null = await Utils.makeImage(imageData)
         if(img == null) return false
@@ -93,7 +97,12 @@ export default class ImageEditor {
         const h = rect.h - maxBorderWidth*2
         this._ctx?.beginPath()
         if(radius > 0) { // Will use quadratic corners at a radius
-            this.constructRoundedRectangle(this._ctx, {x, y, w, h}, radius)
+            const rect = new ConfigImageEditorRect()
+            rect.x = x
+            rect.y = y
+            rect.w = w
+            rect.h = h
+            this.constructRoundedRectangle(this._ctx, rect, radius)
         } else if (radius < 0) { // Will make it an ellipse
             this._ctx?.ellipse(x+w/2, y+h/2, w/2, h/2, 0, 0, 2 * Math.PI)
         } else { // Rectangle
@@ -123,15 +132,14 @@ export default class ImageEditor {
 
     async drawText(
         text: string,
-        rect: IImageEditorRect,
-        font: IImageEditorFontSettings
+        rect: ConfigImageEditorRect,
+        font: ConfigImageEditorFontSettings
     ) {
         if(!this._ctx) return console.warn(`ImageEditor: No context to draw text`)
         // Setup
         this._ctx.textBaseline = 'middle'
         const weight = font.weight ?? 'normal'
-        const fontStyle = `${weight} ${font.size}px ${font.family}`
-        this._ctx.font = fontStyle
+        this._ctx.font = `${weight} ${font.size}px ${font.family}`
         this._ctx.fillStyle = font.color ?? 'white'
 
         // Init text vars
@@ -152,7 +160,7 @@ export default class ImageEditor {
         this._ctx.fillText(text, rect.x, y)
     }
 
-    private constructRoundedRectangle(context: CanvasRenderingContext2D|null, rect: IImageEditorRect, cornerRadius: number, margin: number = 0) {
+    private constructRoundedRectangle(context: CanvasRenderingContext2D|null, rect: ConfigImageEditorRect, cornerRadius: number, margin: number = 0) {
         if(!context) return console.warn(`ImageEditor: No context to draw rounded rectangle`)
         const rectClone = Utils.clone(rect)
         rectClone.x += margin
@@ -179,7 +187,7 @@ export default class ImageEditor {
      * @param color 
      * @param outline 
      */
-    drawBackground(rect: IImageEditorRect, cornerRadius: number, color: string, outline?: IImageEditorOutline) {
+    drawBackground(rect: ConfigImageEditorRect, cornerRadius: number, color: string, outline?: ConfigImageEditorOutline) {
         this.constructRoundedRectangle(this._ctx, rect, cornerRadius, outline ? outline.width/2 : 0)
         if(outline != undefined) {
             if(this._ctx) {
@@ -201,7 +209,7 @@ export default class ImageEditor {
      * @param rect Where the text should be contained
      * @param font Font settings
      */
-    async buildTwitchText(messageData: ITwitchMessageData, rect: IImageEditorRect, font: IImageEditorFontSettings): Promise<ITwitchTextResult> {
+    async buildTwitchText(messageData: ITwitchMessageData, rect: ConfigImageEditorRect, font: ConfigImageEditorFontSettings): Promise<ITwitchTextResult> {
         if(!this._textCtx) {
             return new Promise<ITwitchTextResult>((resolve, reject) => {
                 reject(new Error(`ImageEditor: No context to draw Twitch text`))
@@ -351,7 +359,7 @@ export default class ImageEditor {
         return result
     }
 
-    drawBuiltTwitchText(rect: IImageEditorRect) {
+    drawBuiltTwitchText(rect: ConfigImageEditorRect) {
         this._ctx?.drawImage(this._textCanvas, rect.x, rect.y)
     }
     // endregion

@@ -22,6 +22,7 @@ import {TKeys} from '../../_data/!keys.js'
 import {ConfigDiscord} from '../../Objects/Config/Discord.js'
 import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
+import {ConfigPipe} from '../../Objects/Config/Pipe.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -189,7 +190,8 @@ export default class Callbacks {
             }
 
             // Pipe to VR (basic)
-            const showReward = Config.pipe.showRewardsWithKeys.indexOf(rewardPair?.key ?? 'Unknown') > -1
+            const pipeConfig = await DataBaseHelper.loadMain(new ConfigPipe())
+            const showReward = pipeConfig.showRewardsWithKeys.indexOf(rewardPair?.key ?? 'Unknown') > -1
             if(showReward) {
                 modules.pipe.sendBasic(
                     redemption.user_input, 
@@ -261,7 +263,9 @@ export default class Callbacks {
                 || (requestData == null && Config.screenshots.callback.pipeEnabledForManual)
             ) {
                 const preset = Config.screenshots.callback.pipeMessagePreset
-                if(preset != undefined) {
+                if(preset) preset.config = await DataBaseHelper.load(new PresetPipeCustom(), preset.configRef)
+
+                if(preset !== undefined && preset.config !== undefined) {
                     const configClone: PresetPipeCustom = Utils.clone(preset.config)
                     configClone.imageData = responseData.image
                     if(configClone.customProperties) {
@@ -278,7 +282,7 @@ export default class Callbacks {
                             tas[1].text = title
                         }
                     }
-                    modules.pipe.sendCustom(configClone)
+                    modules.pipe.sendCustom(configClone).then()
                 }
             }
 

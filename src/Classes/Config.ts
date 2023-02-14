@@ -1,4 +1,3 @@
-import {IPipeConfig} from '../Interfaces/ipipe.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IEventsConfig} from '../Interfaces/ievents.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
@@ -31,7 +30,6 @@ export default class Config {
     static eventsForGames: {[game: string]: IEventsConfig}
     static steam: ISteamConfig
     static obs: IObsConfig
-    static pipe: IPipeConfig
     static screenshots: IScreenshotConfig
     static audioplayer: IAudioPlayerConfig
     static twitchChat: ITwitchChatConfig

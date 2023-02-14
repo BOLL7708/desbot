@@ -36,10 +36,7 @@ export class PresetPipeCustomProperties extends BaseDataObject {
     rollDeg: number = 0
     follow = new PresetPipeCustomFollow()
     animations: PresetPipeCustomAnimation[] = []
-    transitions: PresetPipeCustomTransition[] = [
-        new PresetPipeCustomTransition(),
-        new PresetPipeCustomTransition()
-    ]
+    transitions: PresetPipeCustomTransition[] = []
     textAreas: PresetPipeCustomTextArea[] = []
 }
 

@@ -5,7 +5,7 @@ import DataObjectMap from '../DataObjectMap.js'
 import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ImageEditor.js'
 
 export class ConfigPipe extends BaseDataObject {
-    port: number = 8807
+    port: number = 8077
     showRewardsWithKeys: TKeys[] = [] // TODO: Switch to IDs later.
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()
