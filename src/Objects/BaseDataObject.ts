@@ -1,28 +1,49 @@
 import Utils from '../Classes/Utils.js'
-import DataObjectMap from './DataObjectMap.js'
+import DataObjectMap, {TNoFunctions} from './DataObjectMap.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
 export default abstract class BaseDataObject {
     /**
      * Get the name of the class without instantiating it.
      */
-    public static ref(): string {
+    static ref(): string {
         return this.name
     }
 
     /**
-     * Get the name of the class appended with the ID flag without instantiating it.
+     * Get the name of the class appended with the ID flag.
+     * If this ID is referenced when instancing a class, it will be filled with the object.
      */
-    public static refId() {
+    static refId() {
         return this.ref()+'|id'
     }
 
     /**
-     * Get the name of the class appended with the ID flag and label value without instantiating it.
+     * Get the name of the class appended with the ID flag and label value.
+     * If this ID is referenced when instancing a class, it will be filled with the object.
      * @param label
      */
-    public static refIdLabel(label: string) { // TODO: Should use the TNoFunctions type here but seems impossible if we keep it static... urgh.
-        return this.refId()+`|label=${label}`
+    // static refIdLabel(label: string) { // TODO: Should use the TNoFunctions type here but seems impossible if we keep it static... urgh.
+    //     return this.refId()+`|label=${label}`
+    // }
+    static refIdLabel<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>): string {
+        return this.refId()+`|label=${label as string}`
+    }
+
+    /**
+     * Get the name of the class appended with the ID flag.
+     * If this ID is referenced when instancing a class, it will be filled with the key for the object.
+     */
+    static refIdKey() {
+        return this.refId()+'|key'
+    }
+
+    /**
+     * Get the name of the class appended with the ID flag and label value.
+     * If this ID is referenced when instancing a class, it will be filled with the key for the object.
+     */
+    static refIdLabelKey<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>) {
+        return this.refIdLabel(label)+'|key'
     }
 
     /**
@@ -30,7 +51,7 @@ export default abstract class BaseDataObject {
      * @param instanceOrJsonResult Optional properties to apply to this instance.
      * @param fillReferences Replace reference IDs with the referenced object.
      */
-    public async __apply(instanceOrJsonResult: object = {}, fillReferences: boolean = false) {
+    async __apply(instanceOrJsonResult: object = {}, fillReferences: boolean = false) {
         const prototype = Object.getPrototypeOf(this)
         const props = !!instanceOrJsonResult
             && typeof instanceOrJsonResult == 'object'
@@ -128,13 +149,13 @@ export default abstract class BaseDataObject {
      * @param props Optional properties to apply to the new instance, usually a plain object cast to the same class which is why we need to do this.
      * @param fillReferences Replace reference IDs with the referenced object.
      */
-    public async __new<T>(props?: T&object, fillReferences: boolean = false): Promise<T&BaseDataObject> {
+    async __new<T>(props?: T&object, fillReferences: boolean = false): Promise<T&BaseDataObject> {
         const obj = Object.create(this) as T&BaseDataObject // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
         await obj.__apply(props ?? {}, fillReferences) // Will run with empty just to lift properties from the prototype up to the class instance.
         return obj
     }
 
-    public async __clone(fillReferences: boolean = false) {
+    async __clone(fillReferences: boolean = false) {
         return await this.__new(Utils.clone(this), fillReferences)
     }
 

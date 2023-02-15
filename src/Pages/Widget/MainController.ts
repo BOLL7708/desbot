@@ -23,6 +23,7 @@ import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
 import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
+import {ConfigSteam} from '../../Objects/Config/Steam.js'
 
 export default class MainController {
     public static async init() {
@@ -33,11 +34,11 @@ export default class MainController {
             PasswordForm.spawn()
             return
         }
-        if(Config.controller.saveConsoleOutputToSettings) LogWriter.init()
+        if(Config.controller.saveConsoleOutputToSettings) LogWriter.init().then()
 
         // Check configs
         const cfgPropCount = Object.keys(Config).length
-        const cfgPropTotal = 10
+        const cfgPropTotal = 9
         if(cfgPropCount < cfgPropTotal) {
             Utils.log(`Warning: Config is incomplete, only ${cfgPropCount}/${cfgPropTotal} set!`, Color.Red, true, true)
         }
@@ -86,11 +87,12 @@ export default class MainController {
         Functions.setEmptySoundForTTS()
 
         // Steam Web API intervals
-        MainController.startSteamAchievementsInterval()
+        MainController.startSteamAchievementsInterval().then()
         
         if(!Config.controller.websocketsUsed.openvr2ws) {
-            MainController.startSteamPlayerSummaryInterval()
-            if(Config.steam.playerSummaryIntervalMs > 0) {
+            MainController.startSteamPlayerSummaryInterval().then()
+            const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+            if(steamConfig.playerSummaryIntervalMs > 0) {
                 await Functions.loadPlayerSummary()
             }
         }
@@ -110,11 +112,11 @@ export default class MainController {
         .####.##....##.####....##...
         */
         await modules.twitch.init(Config.controller.websocketsUsed.twitchChat)
-        if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init()
-        if(Config.controller.websocketsUsed.pipe) modules.pipe.init()
+        if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init().then()
+        if(Config.controller.websocketsUsed.pipe) modules.pipe.init().then()
         if(Config.controller.websocketsUsed.obs) modules.obs.init()
         if(Config.controller.websocketsUsed.sssvr) modules.sssvr.init()
-        if(Config.controller.websocketsUsed.sdrelay) modules.streamDeckRelay.init()
+        if(Config.controller.websocketsUsed.sdrelay) modules.streamDeckRelay.init().then()
     }
 
 
@@ -130,8 +132,9 @@ export default class MainController {
 
     public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()
+        const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
         if(
-            Config.steam.playerSummaryIntervalMs
+            steamConfig.playerSummaryIntervalMs
             && states.steamPlayerSummaryIntervalHandle == -1 
             && !ModulesSingleton.getInstance().openvr2ws.isConnected
         ) {
@@ -139,17 +142,18 @@ export default class MainController {
             await Functions.loadPlayerSummary() // Get initial state immidately
             states.steamPlayerSummaryIntervalHandle = setInterval(async() => {
                 await Functions.loadPlayerSummary()
-            }, Config.steam.playerSummaryIntervalMs)
+            }, steamConfig.playerSummaryIntervalMs)
         }
     }
 
     public static async startSteamAchievementsInterval() {
-        if(Config.steam.achievementsIntervalMs) {
+        const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+        if(steamConfig.achievementsIntervalMs) {
             Utils.log('Starting Steam achievements interval', Color.Green)
             const states = StatesSingleton.getInstance()
             states.steamAchievementsIntervalHandle = setInterval(async() => {
                 await Functions.loadAchievements()
-            }, Config.steam.achievementsIntervalMs)
+            }, steamConfig.achievementsIntervalMs)
         }
     }
 }

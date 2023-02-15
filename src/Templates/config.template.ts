@@ -4,7 +4,6 @@ import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {IObsConfig} from '../Interfaces/iobs.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
-import {ISteamConfig} from '../Interfaces/isteam.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
 
@@ -183,26 +182,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             }
             */
         }
-    }
-}
-
-/*
-..######..########.########....###....##.....##
-.##....##....##....##.........##.##...###...###
-.##..........##....##........##...##..####.####
-..######.....##....######...##.....##.##.###.##
-.......##....##....##.......#########.##.....##
-.##....##....##....##.......##.....##.##.....##
-..######.....##....########.##.....##.##.....##
-*/
-Config.steam = <ISteamConfig> {
-    playerSummaryIntervalMs: 60000,
-    achievementsIntervalMs: 60000,
-    ignoreAchievementsOlderThanHours: 24,
-    ignoredAppIds: [],
-    achievementSettings: {
-        discordFooter: 'Progress: %progress, global rate: %rate',
-        twitchChatMessage: 'Achievement %progress unlocked: %name (%text, %rate)'
     }
 }
 

@@ -15,6 +15,7 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {TKeys} from '../../_data/!keys.js'
 import {SettingSteamAchievements} from '../../Objects/Setting/Steam.js'
+import {ConfigSteam} from '../../Objects/Config/Steam.js'
 
 export default class Functions {
     /*
@@ -35,7 +36,8 @@ export default class Functions {
 
     public static async appIdCallback(appId: string, isVr: boolean) {
         // Skip if we should ignore this app ID.
-        if(Config.steam.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
+        const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+        if(steamConfig.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
 		
 		// Init
 		const modules = ModulesSingleton.getInstance()
@@ -293,6 +295,7 @@ export default class Functions {
         const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
         if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
+            const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
             const steamAchievements = await DataBaseHelper.load(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
             const doneAchievements = steamAchievements.achieved.length
 
@@ -310,7 +313,7 @@ export default class Functions {
                     steamAchievements.achieved.push(achievement.apiname)
 
                     // Announce achievement
-                    if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (Config.steam.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
+                    if(new Date(achievement.unlocktime*1000).getTime() >= new Date().getTime() - (steamConfig.ignoreAchievementsOlderThanHours * 60 * 60 * 1000)) {
                         Utils.log(`New achievement unlocked! ${achievement.apiname}`, Color.Green, true, true)
                         const key = achievement.apiname
                         const profileTag = await SteamWebHelper.getProfileTag()
@@ -337,7 +340,7 @@ export default class Functions {
                                     timestamp: new Date(achievement.unlocktime*1000).toISOString(),
                                     footer: {
                                         text: Utils.replaceTags(
-                                            Config.steam.achievementSettings.discordFooter,
+                                            steamConfig.achievementDiscordFooter,
                                             {
                                                 progress: progressStr, 
                                                 rate: globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
@@ -351,7 +354,7 @@ export default class Functions {
                         // Twitch chat
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             Utils.replaceTags(
-                                Config.steam.achievementSettings.twitchChatMessage,
+                                steamConfig.achievementTwitchChatMessage,
                                 {
                                     progress: progressStr, 
                                     name: achievementDetails?.displayName ?? key, 
