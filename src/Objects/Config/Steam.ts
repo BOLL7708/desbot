@@ -21,6 +21,6 @@ DataObjectMap.addRootInstance(new ConfigSteam(),
         achievementDiscordFooter: 'The information in the footer of achievement posting to Discord.\n\nText replacements:\n- current/total achievements unlocked\n- achievement global rate',
         achievementTwitchChatMessage: 'The message written in chat when a new achievement is unlocked.\n\nText replacements:\n- current/total achievements unlocked\n- achievement name\n- achievement description\n- achievement global rate'
     }, {
-        ignoredAppIds: SettingSteamGame.refIdLabelKey('title')
+        ignoredAppIds: SettingSteamGame.refIdKeyLabel('title')
     }
 )

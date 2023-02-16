@@ -65,7 +65,7 @@ export default class Functions {
                 if(gameSchema) {
                     const steamGame = new SettingSteamGame()
                     steamGame.title = gameSchema.game.gameName
-                    await DataBaseHelper.save(steamGame)
+                    await DataBaseHelper.save(steamGame, appId)
                 }
             }
 

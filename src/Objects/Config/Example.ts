@@ -1,57 +1,98 @@
 import BaseDataObject from '../BaseDataObject.js'
-import {IStringDictionary} from '../../Interfaces/igeneral.js'
+import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetPipeBasic, PresetPipeCustom} from '../Preset/Pipe.js'
+import {PresetPipeBasic} from '../Preset/Pipe.js'
 
 export class ConfigExample extends BaseDataObject {
-    public singleInstance = new ConfigExampleSub()
-    public singleValue = ''
-    public arrayOfStrings: string[] = []
-    public dictionaryOfStrings: IStringDictionary = {}
-    public arrayOfSubClasses: ConfigExampleSub[] = []
-    public dictionaryWithSubClasses: {[key:string]: ConfigExampleSub} = {}
-    public arrayOfIds: (number|PresetPipeBasic)[] = []
-    public dictionaryOfIds: {[key:string]: number|PresetPipeCustom} = {}
-    public idsToKeys: (number|string)[] = []
-    public singleId: number|PresetPipeBasic = 0
+    singleBoolean = false
+    singleNumber = 0
+    singleString = ''
+    singleSubInstance = new ConfigExampleSub()
+    singleIdReference: number|PresetPipeBasic = 0
+    singleIdReferenceUsingLabel: number|PresetPipeBasic = 0
+    singleIdToKeyReference: number|string = ''
+    singleIdToKeyReferenceUsingLabel: number|string = ''
+    arrayOfBooleans: boolean[] = []
+    arrayOfNumbers: number[] = []
+    arrayOfStrings: string[] = []
+    arrayOfSubInstances: ConfigExampleSub[] = []
+    arrayOfIdReferences: (number|PresetPipeBasic)[] = []
+    arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
+    arrayOfIdToKeyReferences: (number|string)[] = []
+    arrayOfIdToKeyReferencesUsingLabels: (number|string)[] = []
+    dictionaryOfBooleans: IBooleanDictionary = {}
+    dictionaryOfNumbers: INumberDictionary = {}
+    dictionaryOfStrings: IStringDictionary = {}
+    dictionaryOfSubInstances: {[key:string]: ConfigExampleSub} = {}
+    dictionaryOfIdReferences: {[key:string]: number|PresetPipeBasic} = {}
+    dictionaryOfIdReferencesUsingLabels: {[key:string]: number|PresetPipeBasic} = {}
+    dictionaryOfIdToKeyReferences: {[key:string]: number|string} = {}
+    dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|string} = {}
 }
 export class ConfigExampleSub extends BaseDataObject {
-    public label: string = ''
-    public subClassValue: string = ''
-    public subClassArray: number[] = []
+    singleString: string = ''
+    singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
 }
 
 DataObjectMap.addRootInstance(
     new ConfigExample(),
-    'Test config for deeper structures.',
+    'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
     {
-        singleValue: 'Hello!',
-        arrayOfStrings: 'Just strings derp.',
-        dictionaryOfStrings: 'Just strings with keys',
-        arrayOfSubClasses: 'A cake!',
-        dictionaryWithSubClasses: 'Oh my...',
-        singleInstance: 'A single instance yeah!',
-        arrayOfIds: 'A list of objects referenced by IDs only',
-        dictionaryOfIds: 'A dictionary of objects referenced by IDs only'
+        singleBoolean: 'A single boolean flag',
+        singleNumber: 'A single number value',
+        singleString: 'A single string value',
+        singleSubInstance: 'A single instance of a sub-class',
+        singleIdReference: 'A single ID reference to any other object',
+        singleIdReferenceUsingLabel: 'A single ID reference displayed with a label',
+        singleIdToKeyReference: 'A single ID reference to any other object key',
+        singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
+        arrayOfBooleans: '',
+        arrayOfNumbers: '',
+        arrayOfStrings: '',
+        arrayOfSubInstances: '',
+        arrayOfIdReferences: '',
+        arrayOfIdReferencesUsingLabels: '',
+        arrayOfIdToKeyReferences: '',
+        arrayOfIdToKeyReferencesUsingLabels: '',
+        dictionaryOfBooleans: '',
+        dictionaryOfNumbers: '',
+        dictionaryOfStrings: '',
+        dictionaryOfSubInstances: '',
+        dictionaryOfIdReferences: '',
+        dictionaryOfIdReferencesUsingLabels: '',
+        dictionaryOfIdToKeyReferences: '',
+        dictionaryOfIdToKeyReferencesUsingLabels: ''
     },
     {
+        singleIdReference: PresetPipeBasic.refId(),
+        singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel('basicTitle'),
+        singleIdToKeyReference: PresetPipeBasic.refIdKey(),
+        singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel('basicTitle'),
+        arrayOfBooleans: 'boolean',
+        arrayOfNumbers: 'number',
         arrayOfStrings: 'string',
+        arrayOfSubInstances: ConfigExampleSub.ref(),
+        arrayOfIdReferences: PresetPipeBasic.refId(),
+        arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel('basicTitle'),
+        arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
+        arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
+        dictionaryOfBooleans: 'boolean',
+        dictionaryOfNumbers: 'number',
         dictionaryOfStrings: 'string',
-        arrayOfSubClasses: ConfigExampleSub.ref(),
-        dictionaryWithSubClasses: ConfigExampleSub.ref(),
-        arrayOfIds: PresetPipeBasic.refIdLabel('basicTitle'),
-        dictionaryOfIds: PresetPipeCustom.refId(),
-        idsToKeys: PresetPipeBasic.refIdLabelKey('basicTitle'),
-        singleId: PresetPipeBasic.refIdKey()
+        dictionaryOfSubInstances: ConfigExampleSub.ref(),
+        dictionaryOfIdReferences: PresetPipeBasic.refId(),
+        dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel('basicTitle'),
+        dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
+        dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle')
     }
 )
 DataObjectMap.addSubInstance(
     new ConfigExampleSub(),
     {
-        subClassValue: 'Just a subclass value yeah?',
-        subClassArray: 'An array of numbers yo!'
+        singleString: 'A string value',
+        singleIdReference: 'A reference to an object'
     },
     {
-        subClassArray: 'number'
+        singleIdReference: PresetPipeBasic.refId()
     }
 )

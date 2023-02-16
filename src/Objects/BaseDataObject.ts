@@ -39,8 +39,8 @@ export default abstract class BaseDataObject {
      * Get the name of the class appended with the ID flag and label value.
      * If this ID is referenced when instancing a class, it will be filled with the key for the object.
      */
-    static refIdLabelKey<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>) {
-        return this.refIdLabel(label)+'|key'
+    static refIdKeyLabel<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>) {
+        return this.refIdKey()+`|label=${label as string}`
     }
 
     /**
@@ -65,7 +65,7 @@ export default abstract class BaseDataObject {
                 const types = DataObjectMap.getMeta(thisClass)?.types ?? {}
                 const typeValues = BaseDataObject.parseRef(types[propertyName] ?? '')
                 const hasSubInstance = DataObjectMap.hasInstance(typeValues.class)
-                if(hasSubInstance && typeValues.isIdList && fillReferences) {
+                if(hasSubInstance && typeValues.isIdReference && fillReferences) {
                     // Populate reference list of IDs with the referenced object.
                     const emptyInstance = await DataObjectMap.getInstance(typeValues.class)
                     if (Array.isArray(propertyValue)) {
@@ -97,8 +97,17 @@ export default abstract class BaseDataObject {
                             }
                         }
                         (this as any)[propertyName] = newProp
+                    } else {
+                        const dbItem = await DataBaseHelper.loadById(propertyValue)
+                        if(typeValues.idToKey) {
+                            (this as any)[propertyName] = dbItem?.key ?? propertyValue
+                        } else if(emptyInstance) {
+                            (this as any)[propertyName] = await emptyInstance.__new(dbItem?.data, fillReferences)
+                        } else {
+                            console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
+                        }
                     }
-                } else if(hasSubInstance && !typeValues.isIdList) {
+                } else if(hasSubInstance && !typeValues.isIdReference) {
                     // Fill list with new instances filled with the incoming data.
                     if(Array.isArray(propertyValue)) {
                         // It is an array of subclasses, instantiate.
@@ -118,7 +127,7 @@ export default abstract class BaseDataObject {
                 } else {
                     // Fill with single a instance or basic values.
                     const singleInstanceType = (this as any)[propertyName]?.constructor.name ?? (prototype as any)[propertyName]?.constructor.name
-                    if(DataObjectMap.hasInstance(singleInstanceType) && !typeValues.isIdList) {
+                    if(DataObjectMap.hasInstance(singleInstanceType) && !typeValues.isIdReference) {
                         // It is a single instance class
                         (this as any)[propertyName] = await DataObjectMap.getInstance(singleInstanceType, propertyValue, fillReferences)
                     } else {
@@ -169,14 +178,14 @@ export default abstract class BaseDataObject {
         const refValues: IBaseDataObjectRefValues = {
             original: refStr,
             class: refArr.shift() ?? '',
-            isIdList: false,
+            isIdReference: false,
             idLabelField: '',
             idToKey: false
         }
         for(const t of refArr) {
             const [k, v] = t.split('=')
             switch(k) {
-                case 'id': refValues.isIdList = true; break
+                case 'id': refValues.isIdReference = true; break
                 case 'key': refValues.idToKey = true; break
                 case 'label': refValues.idLabelField = v; break
             }
@@ -190,7 +199,7 @@ export class EmptyDataObject extends BaseDataObject {}
 export interface IBaseDataObjectRefValues {
     original: string
     class: string
-    isIdList: boolean
+    isIdReference: boolean
     idLabelField: string
     idToKey: boolean
 }

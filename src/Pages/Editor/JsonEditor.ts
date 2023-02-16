@@ -131,8 +131,10 @@ export default class JsonEditor {
         const isRoot = path.length == 1
 
         // Sort out type values for ID references
+        const thisType = instanceMeta?.types ? instanceMeta.types[key] ?? '' : ''
+        const thisTypeValues = BaseDataObject.parseRef(thisType)
         const parentType = instanceMeta?.types ? instanceMeta.types[previousKey] ?? '' : ''
-        const parentValues = BaseDataObject.parseRef(parentType)
+        const parentTypeValues = BaseDataObject.parseRef(parentType)
 
         // Label
         let keyInput: HTMLSpanElement|undefined
@@ -160,7 +162,7 @@ export default class JsonEditor {
         const li = document.createElement('li') as HTMLLIElement
         if(originListCount > 1) this.appendDragButton(li, origin, path)
         if(keyInput) {
-        // Optional editable key
+            // Optional editable key
             li.appendChild(keyInput)
         }
 
@@ -269,12 +271,14 @@ export default class JsonEditor {
             li.appendChild(input)
         }
 
-        // This is where we differentiate on if we're in a list of IDs or not
-        if(parentValues.isIdList) {
+        // This is where we differentiate on if we are referencing something by ID
+        if(thisTypeValues.isIdReference || parentTypeValues.isIdReference) {
+            const values = thisTypeValues.isIdReference ? thisTypeValues : parentTypeValues
+
             input.contentEditable = 'false'
             input.classList.add('disabled')
             const select = document.createElement('select') as HTMLSelectElement
-            const items = await DataBaseHelper.loadIDs(parentValues.class, parentValues.idLabelField)
+            const items = await DataBaseHelper.loadIDs(values.class, values.idLabelField)
             let hasSetInitialValue = false
             let firstValue = '0'
             items['0'] = '- empty -'
@@ -303,13 +307,15 @@ export default class JsonEditor {
             editButton.title = 'Edit the referenced item.'
             editButton.classList.add('inline-button')
             editButton.onclick = (event)=>{
-                const link = `editor.php?id=${select.value}`
-                window.location.replace(link)
+                if(select.value !== '0') {
+                    const link = `editor.php?id=${select.value}`
+                    window.location.replace(link)
+                }
             }
             li.appendChild(select)
             li.appendChild(editButton)
         }
-
+        if(thisTypeValues.isIdReference) this.appendNewReferenceItemButton(li, thisTypeValues)
         this.appendRemoveButton(li, origin, path, label)
         this.appendDocumentationIcon(li, key, instanceMeta)
         root.appendChild(li)
@@ -432,7 +438,7 @@ export default class JsonEditor {
         }
     }
     private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues) {
-        if(typeValues.class && typeValues.isIdList) {
+        if(typeValues.class && typeValues.isIdReference) {
             const button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '👶'
             button.title = 'Create new item of this type'
@@ -624,7 +630,7 @@ export default class JsonEditor {
                         case 'boolean': instance.push(false); break
                         case 'string': instance.push(''); break
                         default:
-                            if(typeValues.isIdList) {
+                            if(typeValues.isIdReference) {
                                 instance.push(0)
                                 break
                             }
@@ -642,7 +648,7 @@ export default class JsonEditor {
                             case 'boolean': (instance as any)[newKey] = false; break
                             case 'string': (instance as any)[newKey] = ''; break
                             default:
-                                if(typeValues.isIdList) {
+                                if(typeValues.isIdReference) {
                                     (instance as any)[newKey] = 0
                                     break
                                 }

@@ -10,6 +10,7 @@ export default class DataBaseHelper {
 
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
     private static _idStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
+    private static _idLabelStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists with labels used in the editor
     private static _fillReferences: boolean = false
 
     static async testConnection(): Promise<boolean> {
@@ -173,7 +174,12 @@ export default class DataBaseHelper {
      * Load all available IDs for a group class registered in the database.
      */
     static async loadIDs(groupClass: string, rowIdLabel: string): Promise<{[id:string]: string}> {
-        if(this._idStore.has(groupClass)) return this._idStore.get(groupClass) ?? {}
+        if(rowIdLabel) {
+            if(this._idLabelStore.has(groupClass)) return this._idLabelStore.get(groupClass) ?? {}
+        } else {
+            if(this._idStore.has(groupClass)) return this._idStore.get(groupClass) ?? {}
+        }
+
         const url = this.getUrl()
         const response = await fetch(url, {
             headers: await this.getHeader({
@@ -183,7 +189,8 @@ export default class DataBaseHelper {
             })
         })
         const json = response.ok ? await response.json() : {}
-        this._idStore.set(groupClass, json)
+        if(rowIdLabel) this._idLabelStore.set(groupClass, json)
+        else this._idStore.set(groupClass, json)
         return json
     }
 
