@@ -147,7 +147,7 @@ export default class DataBaseHelper {
         return Utils.isEmptyObject(result) ? undefined : result
     }
 
-    static async loadById(rowId?: string): Promise<IDataBaseItem|undefined> {
+    static async loadById(rowId?: string|number): Promise<IDataBaseItem|undefined> {
         if(!rowId) return undefined
         let url = this.getUrl()
         const response = await fetch(url, {

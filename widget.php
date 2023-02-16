@@ -30,6 +30,7 @@ $debug = boolval($_REQUEST['debug'] ?? '0');
                 await import('./dist/Classes/SteamStoreHelper.js').then(m => window.SteamStoreHelper = m.default)
                 await import('./dist/Classes/SteamWebHelper.js').then(m => window.SteamWebHelper = m.default)
                 await import('./dist/Classes/Utils.js').then(m => window.Utils = m.default)
+                await import('./dist/Classes/DataBaseHelper.js').then(m => window.DataBaseHelper = m.default)
             }
         </script>
         <!-- DOM Elements -->

@@ -10,8 +10,10 @@ export class ConfigExample extends BaseDataObject {
     public dictionaryOfStrings: IStringDictionary = {}
     public arrayOfSubClasses: ConfigExampleSub[] = []
     public dictionaryWithSubClasses: {[key:string]: ConfigExampleSub} = {}
-    public arrayOfIds: number[]|PresetPipeBasic[] = []
-    public dictionaryOfIds: {[key:string]: number}|{[key:string]: PresetPipeCustom} = {}
+    public arrayOfIds: (number|PresetPipeBasic)[] = []
+    public dictionaryOfIds: {[key:string]: number|PresetPipeCustom} = {}
+    public idsToKeys: (number|string)[] = []
+    public singleId: number|PresetPipeBasic = 0
 }
 export class ConfigExampleSub extends BaseDataObject {
     public label: string = ''
@@ -38,7 +40,9 @@ DataObjectMap.addRootInstance(
         arrayOfSubClasses: ConfigExampleSub.ref(),
         dictionaryWithSubClasses: ConfigExampleSub.ref(),
         arrayOfIds: PresetPipeBasic.refIdLabel('basicTitle'),
-        dictionaryOfIds: PresetPipeCustom.refId()
+        dictionaryOfIds: PresetPipeCustom.refId(),
+        idsToKeys: PresetPipeBasic.refIdLabelKey('basicTitle'),
+        singleId: PresetPipeBasic.refIdKey()
     }
 )
 DataObjectMap.addSubInstance(

@@ -275,18 +275,18 @@ export default class JsonEditor {
             input.classList.add('disabled')
             const select = document.createElement('select') as HTMLSelectElement
             const items = await DataBaseHelper.loadIDs(parentValues.class, parentValues.idLabelField)
-            let firstValue = '0'
-            let hasUpdatedFirstValue = false
             let hasSetInitialValue = false
-            for(const [id, label] of Object.entries(items ?? {})) {
-                if(!hasUpdatedFirstValue) {
-                    firstValue = id.toString()
-                    hasUpdatedFirstValue = true
-                }
+            let firstValue = '0'
+            items['0'] = '- empty -'
+            for(const [id, label] of Object.entries(items ?? {}).sort(
+                (a, b)=>{return (parseInt(a[0]) > parseInt(b[0]) ? 1 : -1)}
+            )) {
                 const option = document.createElement('option') as HTMLOptionElement
+                if(!parseInt(id)) option.style.color = 'darkgray'
                 option.value = id
                 option.innerHTML = label && label.length > 0 ? label : id
                 if(id.toString() == value.toString()) {
+                    firstValue = id
                     option.selected = true
                     input.innerHTML = id.toString()
                     hasSetInitialValue = true
@@ -388,7 +388,7 @@ export default class JsonEditor {
             }
         } else {
             const newOrigin = type ? EOrigin.ListDictionary : EOrigin.Single
-            for(const key of Object.keys(instance).sort()) {
+            for(const key of Object.keys(instance)) {
                 const newPath = this.clone(path)
                 newPath.push(key)
                 this.stepData(newUL, (instance as any)[key], newInstanceMeta, newPath, undefined, newOrigin)

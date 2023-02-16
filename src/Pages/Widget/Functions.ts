@@ -14,7 +14,7 @@ import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {TKeys} from '../../_data/!keys.js'
-import {SettingSteamAchievements} from '../../Objects/Setting/Steam.js'
+import {SettingSteamAchievements, SettingSteamGame} from '../../Objects/Setting/Steam.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
 
 export default class Functions {
@@ -57,6 +57,17 @@ export default class Functions {
             await SteamWebHelper.getGameSchema(appId)
             await SteamWebHelper.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
+
+            // Save reference to current game, for use in the editor.
+            const appIdNumber = Utils.numberFromAppId(appId)
+            if(SteamWebHelper._gameSchemas.has(appIdNumber)) {
+                const gameSchema = SteamWebHelper._gameSchemas.get(appIdNumber)
+                if(gameSchema) {
+                    const steamGame = new SettingSteamGame()
+                    steamGame.title = gameSchema.game.gameName
+                    await DataBaseHelper.save(steamGame)
+                }
+            }
 
 			/**
 			 * Controller defaults loading, various settings including TTS etc.

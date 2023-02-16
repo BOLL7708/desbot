@@ -23,9 +23,6 @@ export default abstract class BaseDataObject {
      * If this ID is referenced when instancing a class, it will be filled with the object.
      * @param label
      */
-    // static refIdLabel(label: string) { // TODO: Should use the TNoFunctions type here but seems impossible if we keep it static... urgh.
-    //     return this.refId()+`|label=${label}`
-    // }
     static refIdLabel<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>): string {
         return this.refId()+`|label=${label as string}`
     }
@@ -59,77 +56,85 @@ export default abstract class BaseDataObject {
                 ? instanceOrJsonResult
                 : {}
         const thisClass = this.constructor.name
-        for(const [name, prop] of Object.entries(props)) {
+        for(const [propertyName, propertyValue] of Object.entries(props)) {
             if(
-                this.hasOwnProperty(name) // This is true if the `props` is an original instance of the implementing class.
-                || prototype.hasOwnProperty(name) // The `__new()` call returns an instance with the original class as prototype, which is why we also check it.
+                this.hasOwnProperty(propertyName) // This is true if the `props` is an original instance of the implementing class.
+                || prototype.hasOwnProperty(propertyName) // The `__new()` call returns an instance with the original class as prototype, which is why we also check it.
             ) {
                 // We cast to `any` in here to be able to set the props at all.
                 const types = DataObjectMap.getMeta(thisClass)?.types ?? {}
-                const subClassInstanceValues = BaseDataObject.parseRef(types[name] ?? '')
-                const hasSubInstance = DataObjectMap.hasInstance(subClassInstanceValues.class)
-                if(hasSubInstance && subClassInstanceValues.isIdList && fillReferences) {
+                const typeValues = BaseDataObject.parseRef(types[propertyName] ?? '')
+                const hasSubInstance = DataObjectMap.hasInstance(typeValues.class)
+                if(hasSubInstance && typeValues.isIdList && fillReferences) {
                     // Populate reference list of IDs with the referenced object.
-                    const emptyInstance = await DataObjectMap.getInstance(subClassInstanceValues.class)
-                    if(emptyInstance) {
-                        if (Array.isArray(prop)) {
-                            // It is an array of subclasses, instantiate.
-                            const newProp: any[] = []
-                            for (const id of prop) {
-                                const dbItem = await DataBaseHelper.loadById(id.toString())
-                                newProp.push(await emptyInstance.__new(dbItem?.data, fillReferences))
-                            }
-                            (this as any)[name] = newProp
-
-                        } else if (typeof prop == 'object') {
-                            // It is a dictionary of subclasses, instantiate.
-                            const newProp: { [key: string]: any } = {}
-                            for (const [k, id] of Object.entries(prop)) {
-                                const dbItem = await DataBaseHelper.loadById(id?.toString())
-                                newProp[k] = await emptyInstance.__new(dbItem?.data, fillReferences)
-                            }
-                            (this as any)[name] = newProp
-                        }
-                    } else {
-                        console.warn(`BaseDataObjects.__apply: Unable to load instance for ${subClassInstanceValues.class}`)
-                    }
-                } else if(hasSubInstance && !subClassInstanceValues.isIdList) {
-                    // Fill list with new instances filled with the incoming data.
-                    if(Array.isArray(prop)) {
+                    const emptyInstance = await DataObjectMap.getInstance(typeValues.class)
+                    if (Array.isArray(propertyValue)) {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
-                        for(const v of prop) {
-                            newProp.push(await DataObjectMap.getInstance(subClassInstanceValues.class, v, fillReferences))
+                        for (const id of propertyValue) {
+                            const dbItem = await DataBaseHelper.loadById(id.toString())
+                            if(typeValues.idToKey) {
+                                newProp.push(dbItem?.key ?? id)
+                            } else if(emptyInstance) {
+                                newProp.push(await emptyInstance.__new(dbItem?.data, fillReferences))
+                            } else {
+                                console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
+                            }
                         }
-                        (this as any)[name] = newProp
-                    } else if (typeof prop == 'object') {
+                        (this as any)[propertyName] = newProp
+
+                    } else if (typeof propertyValue == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
-                        for(const [k, v] of Object.entries(prop)) {
-                            newProp[k] = await DataObjectMap.getInstance(subClassInstanceValues.class, v as object|undefined, fillReferences)
+                        for (const [k, id] of Object.entries(propertyValue)) {
+                            const dbItem = await DataBaseHelper.loadById(id?.toString())
+                            if(typeValues.idToKey) {
+                                newProp[k] = dbItem?.key ?? id
+                            } else if(emptyInstance) {
+                                newProp[k] = await emptyInstance.__new(dbItem?.data, fillReferences)
+                            } else {
+                                console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
+                            }
                         }
-                        (this as any)[name] = newProp
+                        (this as any)[propertyName] = newProp
+                    }
+                } else if(hasSubInstance && !typeValues.isIdList) {
+                    // Fill list with new instances filled with the incoming data.
+                    if(Array.isArray(propertyValue)) {
+                        // It is an array of subclasses, instantiate.
+                        const newProp: any[] = []
+                        for(const v of propertyValue) {
+                            newProp.push(await DataObjectMap.getInstance(typeValues.class, v, fillReferences))
+                        }
+                        (this as any)[propertyName] = newProp
+                    } else if (typeof propertyValue == 'object') {
+                        // It is a dictionary of subclasses, instantiate.
+                        const newProp: { [key: string]: any } = {}
+                        for(const [k, v] of Object.entries(propertyValue)) {
+                            newProp[k] = await DataObjectMap.getInstance(typeValues.class, v as object|undefined, fillReferences)
+                        }
+                        (this as any)[propertyName] = newProp
                     }
                 } else {
                     // Fill with single a instance or basic values.
-                    const singleInstanceType = (this as any)[name]?.constructor.name ?? (prototype as any)[name]?.constructor.name
-                    if(DataObjectMap.hasInstance(singleInstanceType) && !subClassInstanceValues.isIdList) {
+                    const singleInstanceType = (this as any)[propertyName]?.constructor.name ?? (prototype as any)[propertyName]?.constructor.name
+                    if(DataObjectMap.hasInstance(singleInstanceType) && !typeValues.isIdList) {
                         // It is a single instance class
-                        (this as any)[name] = await DataObjectMap.getInstance(singleInstanceType, prop, fillReferences)
+                        (this as any)[propertyName] = await DataObjectMap.getInstance(singleInstanceType, propertyValue, fillReferences)
                     } else {
                         // It is a basic value, just set it.
-                        const expectedType = typeof (this as any)[name]
-                        const actualType = typeof prop
-                        let correctedProp = prop
+                        const expectedType = typeof (this as any)[propertyName]
+                        const actualType = typeof propertyValue
+                        let correctedProp = propertyValue
                         if(expectedType !== actualType) {
                             switch(expectedType) {
-                                case 'string': correctedProp = prop.toString(); break;
-                                case 'number': correctedProp = parseFloat(prop.toString()); break;
-                                case 'boolean': correctedProp = Utils.toBool(prop); break;
-                                default: console.warn(`BaseDataObjects.__apply: Unhandled field type for prop [${name}] in [${thisClass}]: ${expectedType}`)
+                                case 'string': correctedProp = propertyValue.toString(); break;
+                                case 'number': correctedProp = parseFloat(propertyValue.toString()); break;
+                                case 'boolean': correctedProp = Utils.toBool(propertyValue); break;
+                                default: console.warn(`BaseDataObjects.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`)
                             }
                         }
-                        (this as any)[name] = correctedProp
+                        (this as any)[propertyName] = correctedProp
                     }
                 }
             }
@@ -165,13 +170,15 @@ export default abstract class BaseDataObject {
             original: refStr,
             class: refArr.shift() ?? '',
             isIdList: false,
-            idLabelField: ''
+            idLabelField: '',
+            idToKey: false
         }
         for(const t of refArr) {
-            if(t == 'id') refValues.isIdList = true
-            else {
-                const [k, v] = t.split('=')
-                if(k == 'label') refValues.idLabelField = v
+            const [k, v] = t.split('=')
+            switch(k) {
+                case 'id': refValues.isIdList = true; break
+                case 'key': refValues.idToKey = true; break
+                case 'label': refValues.idLabelField = v; break
             }
         }
         return refValues
@@ -185,4 +192,5 @@ export interface IBaseDataObjectRefValues {
     class: string
     isIdList: boolean
     idLabelField: string
+    idToKey: boolean
 }
