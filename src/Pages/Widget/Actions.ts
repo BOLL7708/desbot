@@ -635,7 +635,7 @@ export class Actions {
             call: async (user: IActionUser, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
                 const configClone = Utils.clone(config)
-                configClone.config = Utils.clone(await DataBaseHelper.load(new PresetPipeCustom(), config.configRef))
+                configClone.config = await DataBaseHelper.load(new PresetPipeCustom(), config.configRef)
 
                 // Need to reference the original config arrays here as the __type is dropped in the clone process.
                 configClone.imagePathEntries = Utils.ensureArray(config.imagePathEntries).getAsType(index)
@@ -645,8 +645,6 @@ export class Actions {
                 configClone.texts = await Utils.replaceTagsInTextArray(configClone.texts, user)
                 configClone.imagePathEntries = await Utils.replaceTagsInTextArray(configClone.imagePathEntries, user)
                 if(configClone.config && configClone.config.customProperties) {
-                    const textAreas = Utils.clone(configClone.config.customProperties.textAreas)
-                    if(textAreas) configClone.config.customProperties.textAreas = textAreas
                     for(const textArea of configClone.config.customProperties.textAreas) {
                         textArea.text = await Utils.replaceTagsInText(textArea.text, user)
                     }

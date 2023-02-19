@@ -87,20 +87,31 @@ export default class DataBaseHelper {
 
         // Cache
         if(!ignoreCache && this._dataStore.has(className)) {
-            return this._dataStore.get(className) as { [key: string]: T }
+            const cacheDictionary = this._dataStore.get(className) as { [key: string]: T }
+            const resultDictionary: { [key:string]: T } = {}
+            for(const [key, setting] of Object.entries(cacheDictionary)) {
+                resultDictionary[key] = await emptyInstance.__new(setting as T&object, this._fillReferences)
+            }
+            return resultDictionary
         }
 
         // DB
         const jsonResult = await this.loadJson(className)
-        const result = jsonResult ? jsonResult as { [key: string]: T } : undefined
-        if(result) {
+        const plainDictionary = jsonResult ? jsonResult as { [key: string]: T } : undefined
+        const cacheDictionary: { [key: string]: T } = {}
+        const resultDictionary: { [key: string]: T } = {}
+        if(plainDictionary) {
             // Convert plain objects to class instances and cache them
-            for(const [key, setting] of Object.entries(result)) {
-                result[key] = await emptyInstance.__new(setting as T&object, this._fillReferences)
+            for(const [key, setting] of Object.entries(plainDictionary)) {
+                const resultInstance = await emptyInstance.__new(setting as T&object, this._fillReferences)
+                if(resultInstance) {
+                    cacheDictionary[key] = await emptyInstance.__new(setting as T&object, this._fillReferences)
+                    resultDictionary[key] = resultInstance
+                }
             }
-            this._dataStore.set(className, result)
+            this._dataStore.set(className, cacheDictionary)
         }
-        return result
+        return resultDictionary
     }
 
     /**
@@ -126,26 +137,29 @@ export default class DataBaseHelper {
         if (!ignoreCache && this._dataStore.has(className)) {
             const dictionary = this._dataStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
-                return dictionary[key]
+                return await emptyInstance.__new(dictionary[key] ?? undefined, this._fillReferences)
             }
         }
 
         // DB
         const jsonResult = await this.loadJson(className, key)
-        let result: T|undefined = jsonResult ? jsonResult as T : undefined
-        if (result) {
+        let plainObject: T|undefined = jsonResult ? jsonResult as T : undefined
+        let filledObject: T|undefined
+        if (plainObject) {
             // Convert plain object to class instance
-            if (!Utils.isEmptyObject(result)) {
-                result = await emptyInstance.__new(result as T&object, this._fillReferences)
-            }
+            filledObject = await emptyInstance.__new(plainObject as T&object, this._fillReferences)
+
+            // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
                 const newDic: { [key: string]: T } = {}
                 this._dataStore.set(className, newDic)
             }
             const dictionary = this._dataStore.get(className)
-            if (dictionary && !Utils.isEmptyObject(result)) dictionary[key] = result
+
+            // Save a new instance in the cache so the returned instance can be modified without affecting the cache.
+            if (dictionary) dictionary[key] = await emptyInstance.__new(plainObject as T&object, this._fillReferences)
         }
-        return Utils.isEmptyObject(result) ? undefined : result
+        return filledObject ? filledObject : undefined
     }
 
     static async loadById(rowId?: string|number): Promise<IDataBaseItem|undefined> {
@@ -260,6 +274,10 @@ export default class DataBaseHelper {
         return ok
     }
 
+    // endregion
+
+    // region Helpers
+
     /**
      * Returns the relative path to the PHP file, this used to have functionality.
      * @returns string
@@ -267,10 +285,6 @@ export default class DataBaseHelper {
     private static getUrl(): string {
         return '_db.php'
     }
-
-    // endregion
-
-    // region Helpers
 
     /**
      * Get authorization header with optional JSON content type.
