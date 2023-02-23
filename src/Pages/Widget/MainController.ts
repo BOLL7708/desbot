@@ -80,7 +80,6 @@ export default class MainController {
         .####.##....##.####....##...
         */
         await modules.twitchTokens.refreshToken()
-        if(Config.controller.websocketsUsed.twitchPubSub) modules.twitchPubSub.init()
         if(Config.controller.websocketsUsed.twitchEventSub) modules.twitchEventSub.init().then()
 
         modules.pipe.setOverlayTitle("Streaming Widget")

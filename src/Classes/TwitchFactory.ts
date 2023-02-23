@@ -5,7 +5,7 @@ import {
     ITwitchMessageCmd
 } from '../Interfaces/itwitch_chat.js'
 import Utils from './Utils.js'
-import {ITwitchPubsubEmote} from '../Interfaces/itwitch_pubsub.js'
+import {ITwitchEventSubEmote} from '../Interfaces/itwitch_eventsub.js'
 
 export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {
@@ -111,9 +111,9 @@ export default class TwitchFactory {
         }
         return ranges
     }
-    public static getPubsubEmotePositions(emotes: ITwitchPubsubEmote[]): ITwitchEmotePosition[] {
+    public static getEventSubEmotePositions(emotes: ITwitchEventSubEmote[]): ITwitchEmotePosition[] {
         const twitchEmotes = emotes.map(emote => {
-            return <ITwitchEmote> { id: emote.id.toString(), positions: [{ start: emote.start, end: emote.end}] }
+            return <ITwitchEmote> { id: emote.id.toString(), positions: [{ start: emote.begin, end: emote.end}] }
         })
         return this.getEmotePositions(twitchEmotes)
     }

@@ -27,16 +27,6 @@ export interface ITwitchEventSubPayloadSubscription {
     },
     created_at: string
 }
-export interface ITwitchEventSubEvent {
-    user_id: string
-    user_login: string
-    user_name: string
-    broadcaster_user_id: string
-    broadcaster_user_login: string
-    broadcaster_user_name: string
-    tier: string
-    is_gift: boolean
-}
 // endregion
 
 // region Messages
@@ -66,7 +56,7 @@ export interface ITwitchEventSubMessageNotification {
     metadata: ITwitchEventSubMetadata
     payload: {
         subscription: ITwitchEventSubPayloadSubscription
-        event: ITwitchEventSubEvent
+        event: any
     }
 }
 // endregion
@@ -171,19 +161,98 @@ export interface ITwitchEventSubSubscriptionCondition {
 // endregion
 
 // region Notifications
-export interface ITwitchEventSubEventRedemption extends ITwitchEventSubEvent {
-    redeemed_at: string
-    reward: {
-        cost: number
-        id: string
-        prompt: string
-        title: string
-    }
-    status: TTwitchEventSubEventStatus
-    user_input: string
+export interface ITwitchEventSubEmote {
+    begin: number
+    end: number
+    id: number
 }
-
 export type TTwitchEventSubEventStatus =
     'fulfilled'
-    | ''
+    | 'unfulfilled'
+    | 'canceled'
+
+/**
+ * @link https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionadd
+ * @link https://dev.twitch.tv/docs/eventsub/eventsub-reference/#channel-points-custom-reward-redemption-add-event
+ */
+export interface ITwitchEventSubEventRedemption {
+    id: string
+    broadcaster_user_id: string
+    broadcaster_user_login: string
+    broadcaster_user_name: string
+    user_id: string
+    user_login: string
+    user_name: string
+    user_input: string
+    status: TTwitchEventSubEventStatus,
+    reward: {
+        id: string
+        title: string
+        cost: number
+        prompt: string
+    },
+    redeemed_at: string
+}
+export interface ITwitchEventSubEventCheer {
+    is_anonymous: boolean
+    user_id: string // null if is_anonymous=true
+    user_login: string // null if is_anonymous=true
+    user_name: string // null if is_anonymous=true
+    broadcaster_user_id: string
+    broadcaster_user_login: string
+    broadcaster_user_name: string
+    message: string
+    bits: number
+}
+
+export interface ITwitchEventSubEventSubscription {
+    user_id: string
+    user_login: string
+    user_name: string
+    broadcaster_user_id: string
+    broadcaster_user_login: string
+    broadcaster_user_name: string
+    tier: string
+    is_gift: false
+}
+
+export interface ITwitchEventSubEventGiftSubscription {
+    user_id: string
+    user_login: string
+    user_name: string
+    broadcaster_user_id: string
+    broadcaster_user_login: string
+    broadcaster_user_name: string
+    total: number
+    tier: string
+    cumulative_total: number //null if anonymous or not shared by the user
+    is_anonymous: boolean
+}
+
+export interface ITwitchEventSubEventSubscriptionMessage {
+    user_id: string
+    user_login: string
+    user_name: string
+    broadcaster_user_id: string
+    broadcaster_user_login: string
+    broadcaster_user_name: string
+    tier: string
+    message: {
+        text: string
+        emotes: [
+            {
+                begin: number
+                end: number
+                id: string
+            }
+        ]
+    }
+    cumulative_months: number
+    streak_months: number, // null if not shared
+    duration_months: number
+}
+
+export interface ITwitchEventSubEventRaid {
+
+}
 // endregion

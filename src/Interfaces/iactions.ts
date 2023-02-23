@@ -1,11 +1,11 @@
 import {TKeys} from '../_data/!keys.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from './iopenvr2ws.js'
-import {ITwitchPubsubRewardMessage} from './itwitch_pubsub.js'
 import {IPhilipsHueBulb} from './iphilipshue.js'
 import {ITwitchActionCommandConfig} from './itwitch.js'
 import {IRunCommandConfig} from './iexec.js'
 import {EEventSource, ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
 import {PresetPipeCustom} from '../Objects/Preset/Pipe.js'
+import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
 
 export interface IActionCallback {
     tag: string
@@ -164,7 +164,7 @@ export interface IActionUser {
     bitsTotal: number
     rewardCost: number
     commandConfig?: ITwitchActionCommandConfig
-    rewardMessage?: ITwitchPubsubRewardMessage
+    rewardMessage?: ITwitchEventSubEventRedemption
 }
 
 export interface ISystemAction {

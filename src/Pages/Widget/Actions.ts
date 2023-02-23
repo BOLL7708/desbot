@@ -26,11 +26,6 @@ import {EEventSource, ETTSFunction, ETTSType} from './Enums.js'
 import IKeyBoolRecord from '../../Interfaces/i.js'
 import ExecUtils from '../../Classes/ExecUtils.js'
 import Callbacks from './Callbacks.js'
-import {
-    ITwitchPubsubCheerMessage,
-    ITwitchPubsubRewardMessage,
-    ITwitchPubsubSubscriptionMessage
-} from '../../Interfaces/itwitch_pubsub.js'
 import Color from '../../Classes/ColorConstants.js'
 import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
 import Config from '../../Classes/Config.js'
@@ -50,6 +45,11 @@ import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
 import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
+import {
+    ITwitchEventSubEventCheer,
+    ITwitchEventSubEventRedemption, ITwitchEventSubEventSubscriptionMessage,
+    ITwitchEventSubPayloadSubscription
+} from '../../Interfaces/itwitch_eventsub.js'
 
 export class ActionHandler {
     constructor(
@@ -237,20 +237,21 @@ export class Actions {
         }
     }
 
+    // TODO: Expand all user data stuff to also extract things from user-input etc.
+
     // region User DataUtils Builders
-    public static async buildUserDataFromRedemptionMessage(key: TKeys, message?: ITwitchPubsubRewardMessage): Promise<IActionUser> {
-        const modules = ModulesSingleton.getInstance()
-        const id = message?.data?.redemption?.user?.id ?? ''
-        const input = message?.data?.redemption?.user_input ?? ''
+    public static async buildUserDataFromRedemptionMessage(key: TKeys, event: ITwitchEventSubEventRedemption): Promise<IActionUser> {
+        const id = event.user_id
+        const input = event.user_input
         return {
             source: EEventSource.TwitchReward,
             eventKey: key,
             id: parseInt(id),
-            login: message?.data?.redemption?.user?.login ?? '',
-            name: message?.data?.redemption?.user?.display_name ?? '',
+            login: event.user_login,
+            name: event.user_name,
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(message?.data?.redemption?.user_input),
+            message: await Utils.cleanText(input),
             color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -258,48 +259,44 @@ export class Actions {
             isSubscriber: false,
             bits: 0,
             bitsTotal: 0,
-            rewardCost: message?.data?.redemption?.reward?.cost ?? 0,
-            rewardMessage: message
+            rewardCost: event.reward.cost,
+            rewardMessage: event
         }
     }
-    public static async buildUserDataFromCheerMessage(key: TKeys, message?: ITwitchPubsubCheerMessage): Promise<IActionUser> {
-        const modules = ModulesSingleton.getInstance()
-        const user = await TwitchHelixHelper.getUserByLogin(message?.data?.user_name ?? '')
-        const id = user?.id ?? ''
-        const input = message?.data?.chat_message ?? ''
+    public static async buildUserDataFromCheerMessage(key: TKeys, event: ITwitchEventSubEventCheer): Promise<IActionUser> {
+        const id = event.user_id
+        const input = event.message
         return {
             source: EEventSource.TwitchCheer,
             eventKey: key,
             id: parseInt(id),
-            login: user?.login ?? '',
-            name: user?.display_name ?? '',
+            login: event.user_login,
+            name: event.user_name,
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(message?.data?.chat_message),
+            message: await Utils.cleanText(input),
             color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
             isVIP: false,
             isSubscriber: false,
-            bits: message?.data?.bits_used ?? 0,
-            bitsTotal: message?.data?.total_bits_used ?? 0,
+            bits: event.bits,
+            bitsTotal: 0, // TODO: EventSub cheer callback does not have total cheered...
             rewardCost: 0
         }
     }
-    public static async buildUserDataFromSubscriptionMessage(key: TKeys, message?: ITwitchPubsubSubscriptionMessage): Promise<IActionUser> {
-        const modules = ModulesSingleton.getInstance()
-        const user = await TwitchHelixHelper.getUserByLogin(message?.user_name ?? '')
-        const id = user?.id ?? ''
-        const input = message?.sub_message.message ?? ''
+    public static async buildUserDataFromSubscriptionMessage(key: TKeys, event: ITwitchEventSubEventSubscriptionMessage): Promise<IActionUser> {
+        const id = event.user_id
+        const input = event.message.text
         return {
             source: EEventSource.TwitchSubscription,
             eventKey: key,
             id: parseInt(id),
-            login: user?.login ?? '',
-            name: user?.display_name ?? '',
+            login: event.user_login,
+            name: event.user_name,
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(message?.sub_message.message),
+            message: await Utils.cleanText(input),
             color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -349,7 +346,7 @@ export class Actions {
             handler: actionHandler
         }
         if(reward.id != null) {
-            modules.twitchPubSub.registerReward(reward)
+            modules.twitchEventSub.registerReward(reward)
         } else {
             Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
         }
@@ -404,7 +401,7 @@ export class Actions {
             handler: actionHandler
         }
         if(cheer.bits > 0) {
-            modules.twitchPubSub.registerCheer(cheer)
+            modules.twitchEventSub.registerCheer(cheer)
         } else {
             Utils.logWithBold(`Cannot register cheer event for: <${key}>, it might be missing a cheer config.`, 'red')
         }

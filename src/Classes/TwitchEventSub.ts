@@ -2,24 +2,72 @@ import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import {
+    ITwitchEventSubEventCheer,
+    ITwitchEventSubEventGiftSubscription,
+    ITwitchEventSubEventRaid,
+    ITwitchEventSubEventRedemption,
+    ITwitchEventSubEventSubscription,
+    ITwitchEventSubEventSubscriptionMessage,
     ITwitchEventSubMessageKeepAlive,
-    ITwitchEventSubMetadata,
-    ITwitchEventSubPayloadSession,
+    ITwitchEventSubMessageNotification,
+    ITwitchEventSubMessageRevocation,
     ITwitchEventSubMessageSessionReconnect,
     ITwitchEventSubMessageWelcome,
-    TTwitchEventSubSubscriptionType,
-    ITwitchEventSubMessageRevocation,
-    ITwitchEventSubMessageNotification,
-    ITwitchEventSubSubscriptionPayload, ITwitchEventSubSubscriptionCondition, ITwitchEventSubEventRedemption
+    ITwitchEventSubMetadata,
+    ITwitchEventSubSubscriptionCondition,
+    ITwitchEventSubSubscriptionPayload,
+    TTwitchEventSubSubscriptionType
 } from '../Interfaces/itwitch_eventsub.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
+import ModulesSingleton from '../Singletons/ModulesSingleton.js'
+import {ITwitchCheer, ITwitchReward} from '../Interfaces/itwitch.js'
+import {SettingTwitchRedemption} from '../Objects/Setting/Twitch.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {Actions} from '../Pages/Widget/Actions.js'
 
 export default class TwitchEventSub {
+    private LOG_COLOR = Color.DarkViolet
     private _serverUrl: string = 'wss://eventsub-beta.wss.twitch.tv/ws'
     private _socket?: WebSockets
     private _sessionId: string = ''
     private _keepAliveSeconds: number = 0
     private _receivedMessageIds: string[] = []
+
+    private _onRewardCallback: ITwitchEventSubRewardCallback = (event) => { console.log('EventSub: Reward unhandled') }
+    private _onSubscriptionCallback: ITwitchEventSubSubscriptionCallback = (event) => { console.log('EventSub: Subscription unhandled') }
+    private _onGiftSubscriptionCallback: ITwitchEventSubGiftSubscriptionCallback = (event) => { console.log('EventSub: Gift Subscription unhandled') }
+    private _onResubscriptionCallback: ITwitchEventSubResubscriptionCallback = (event) => { console.log('EventSub: Resubscription unhandled') }
+    private _onCheerCallback: ITwitchEventSubCheerCallback = (event) => { console.log('EventSub: Cheer unhandled') }
+
+    private _rewards: Map<string, ITwitchReward> = new Map()
+    registerReward(twitchReward: ITwitchReward) {
+        if(twitchReward.id) {
+            Utils.log(`Registering reward: ${twitchReward.id}`, this.LOG_COLOR)
+            this._rewards.set(twitchReward.id ?? '', twitchReward)
+        } else {
+            Utils.log(`Failed registering reward as ID was: ${twitchReward.id}`, Color.DarkRed)
+        }
+    }
+    private _cheers: Map<number, ITwitchCheer> = new Map()
+    registerCheer(twitchCheer: ITwitchCheer) {
+        Utils.log(`Registering cheer: ${this._cheers}`, this.LOG_COLOR)
+        this._cheers.set(twitchCheer.bits, twitchCheer)
+    }
+    setOnRewardCallback(callback: ITwitchEventSubRewardCallback) {
+        this._onRewardCallback = callback
+    }
+    setOnSubscriptionCallback(callback: ITwitchEventSubSubscriptionCallback) {
+        this._onSubscriptionCallback = callback
+    }
+    setOnGiftSubscriptionCallback(callback: ITwitchEventSubGiftSubscriptionCallback) {
+        this._onGiftSubscriptionCallback = callback
+    }
+    setOnResubscriptionCallback(callback: ITwitchEventSubResubscriptionCallback) {
+        this._onResubscriptionCallback = callback
+    }
+    setOnCheerCallback(callback: ITwitchEventSubCheerCallback) {
+        this._onCheerCallback = callback
+    }
 
     async init() {
         this._socket = new WebSockets(this._serverUrl)
@@ -137,12 +185,25 @@ export default class TwitchEventSub {
                 'channel.cheer',
                 { broadcaster_user_id: broadcasterId.toString() }
             )
+            /**
+             * New subscriptions
+             */
             successes += await this.subscribe(
                 'channel.subscribe',
                 { broadcaster_user_id: broadcasterId.toString() }
             )
+            /**
+             * Gift subscriptions
+             */
             successes += await this.subscribe(
                 'channel.subscription.gift',
+                { broadcaster_user_id: broadcasterId.toString() }
+            )
+            /**
+             * Re-subscriptions
+             */
+            successes += await this.subscribe(
+                'channel.subscription.message',
                 { broadcaster_user_id: broadcasterId.toString() }
             )
             successes += await this.subscribe(
@@ -210,7 +271,7 @@ export default class TwitchEventSub {
         return await TwitchHelixHelper.subscribeToEventSub(body) ? 1 : 0
     }
 
-    private onEvent(eventMessage: ITwitchEventSubMessageNotification) {
+    private async onEvent(eventMessage: ITwitchEventSubMessageNotification) {
         switch(eventMessage.metadata.subscription_type) {
             // TODO:
             //  Redemptions
@@ -218,12 +279,74 @@ export default class TwitchEventSub {
             //  Cheers
             //  Raids
             //  Subscriptions
-            case 'channel.channel_points_custom_reward_redemption.add':
+            case 'channel.channel_points_custom_reward_redemption.add': {
                 const event = eventMessage.payload.event as ITwitchEventSubEventRedemption
                 console.log('TwitchEventSub: Redemption', event)
+
+                const redemptionId = event.id
+                if(event && event.status == 'unfulfilled') {
+                    const redemptionStatus = new SettingTwitchRedemption()
+                    redemptionStatus.userId = parseInt(event.user_id) ?? 0
+                    redemptionStatus.rewardId = event.reward.id
+                    redemptionStatus.time = event.redeemed_at
+                    redemptionStatus.status = event.status
+                    redemptionStatus.cost = event.reward.cost
+                    await DataBaseHelper.save(redemptionStatus, event.id)
+                }
+                Utils.log(`Reward redeemed! (${redemptionId})`, this.LOG_COLOR)
+                if(event.reward.id !== null) this._onRewardCallback(event)
+
+                // Event
+                const reward = this._rewards.get(event.reward.id)
+                if(reward?.handler) reward.handler.call(await Actions.buildUserDataFromRedemptionMessage(reward.handler.key, event)).then()
+                else console.warn(`Reward not found: ${redemptionId}`)
                 break
-            default:
+            }
+            case 'channel.subscribe': {
+                const event = eventMessage.payload.event as ITwitchEventSubEventSubscription
+                this._onSubscriptionCallback(event)
+                break
+            }
+            case 'channel.subscription.gift': {
+                const event = eventMessage.payload.event as ITwitchEventSubEventGiftSubscription
+                this._onGiftSubscriptionCallback(event)
+                break
+            }
+            case 'channel.subscription.message': {
+                const event = eventMessage.payload.event as ITwitchEventSubEventSubscriptionMessage
+                this._onResubscriptionCallback(event)
+                break
+            }
+            case 'channel.cheer': {
+                const event = eventMessage.payload.event as ITwitchEventSubEventCheer
+                this._onCheerCallback(event)
+                break
+            }
+            case 'channel.raid': {
+                const event = eventMessage.payload.event as ITwitchEventSubEventRaid
+
+                break
+            }
+            default: {
+                ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(`EventSub: unhandled event of type: ${eventMessage.metadata.subscription_type}`)
                 console.warn(`TwitchEventSub: Unhandled subscription type: ${eventMessage.metadata.subscription_type}`)
+            }
         }
     }
+}
+
+export interface ITwitchEventSubRewardCallback {
+    (event: ITwitchEventSubEventRedemption):void
+}
+export interface ITwitchEventSubSubscriptionCallback {
+    (event: ITwitchEventSubEventSubscription):void
+}
+export interface ITwitchEventSubGiftSubscriptionCallback {
+    (event: ITwitchEventSubEventGiftSubscription):void
+}
+export interface ITwitchEventSubResubscriptionCallback {
+    (event: ITwitchEventSubEventSubscriptionMessage):void
+}
+export interface ITwitchEventSubCheerCallback {
+    (event: ITwitchEventSubEventCheer):void
 }

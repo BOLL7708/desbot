@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
-import {TTwitchRedemptionStatus} from '../../Interfaces/itwitch_pubsub.js'
 import DataObjectMap from '../DataObjectMap.js'
+import {TTwitchEventSubEventStatus} from '../../Interfaces/itwitch_eventsub.js'
 
 export class SettingTwitchClient extends BaseDataObject {
     clientId: string = ''
@@ -31,7 +31,7 @@ export class SettingTwitchRedemption extends BaseDataObject {
     userId: number = 0
     rewardId: string = ''
     time: string = ''
-    status: TTwitchRedemptionStatus = 'UNFULFILLED'
+    status: TTwitchEventSubEventStatus = 'unfulfilled'
     cost: number = 0
 }
 

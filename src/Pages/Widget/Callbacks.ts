@@ -8,7 +8,6 @@ import AudioPlayer from '../../Classes/AudioPlayer.js'
 import Functions from './Functions.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchFactory from '../../Classes/TwitchFactory.js'
-import {ITwitchPubsubRewardMessage} from '../../Interfaces/itwitch_pubsub.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import MainController from './MainController.js'
@@ -23,6 +22,8 @@ import {ConfigDiscord} from '../../Objects/Config/Discord.js'
 import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {ConfigPipe} from '../../Objects/Config/Pipe.js'
+import {ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
+import TwitchChat from '../../Classes/TwitchChat.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -155,20 +156,19 @@ export default class Callbacks {
         // region Rewards
 
         // This callback was added as rewards with no text input does not come in through the chat callback
-        modules.twitchPubSub.setOnRewardCallback(async (id: string, message: ITwitchPubsubRewardMessage) => {
-            const redemption = message?.data?.redemption
-            if(!redemption) return console.warn('Reward redemption empty', message)
-
-            const user = await TwitchHelixHelper.getUserById(parseInt(redemption.user.id))
+        modules.twitchEventSub.setOnRewardCallback(async (event: ITwitchEventSubEventRedemption) => {
+            if(!event) return console.warn('Reward redemption empty', event)
+            const user = await TwitchHelixHelper.getUserById(parseInt(event.user_id))
             const rewardPairs = await Utils.getRewardPairs()
-            const rewardPair = rewardPairs.find((pair) => { return pair.id === redemption.reward.id })
+            const rewardPair = rewardPairs.find((pair) => { return pair.id === event.reward.id })
 
             // Discord
-            const amount = redemption.reward.redemptions_redeemed_current_stream
+            // TODO: Not yet available with EventSub
+            const amount = null // redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
-            let description = `${discordConfig.prefixReward}**${redemption.reward.title}${amountStr}** (${redemption.reward.cost})`
-            if(redemption.user_input) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(redemption.user_input))}`
+            let description = `${discordConfig.prefixReward}**${event.reward.title}${amountStr}** (${event.reward.cost})`
+            if(event.user_input.length > 0) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(event.user_input))}`
             if(states.logChatToDiscord) {
                 DiscordUtils.enqueueMessage(
                     Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
@@ -194,58 +194,75 @@ export default class Callbacks {
             const showReward = pipeConfig.showRewardsWithKeys.indexOf(rewardPair?.key ?? 'Unknown') > -1
             if(showReward) {
                 modules.pipe.sendBasic(
-                    redemption.user_input, 
+                    event.user_input,
                     user?.display_name, 
-                    await TwitchHelixHelper.getUserColor(parseInt(redemption.user.id)) ?? Color.White,
+                    await TwitchHelixHelper.getUserColor(parseInt(event.user_id)) ?? Color.White,
                     user?.profile_image_url
                 ).then()
             }
         })
 
-        modules.twitchPubSub.setOnSubscriptionCallback( async(message) => {
+        modules.twitchEventSub.setOnSubscriptionCallback( async(event) => {
             // https://dev.twitch.tv/docs/pubsub#topics Channel Subscription Event Message
-            const subTier = parseInt(message.sub_plan) || 0 // Prime ends up as 0 as it's not a valid int.
-            const multiMonth = message.multi_month_duration ?? 0 // Only exists if it was a multi month subscription.
+            const subTier = parseInt(event.tier) || 0 // Prime ends up as 0 as it's not a valid int.
+            /*
+            const multiMonth = event.multi_month_duration ?? 0 // Only exists if it was a multi month subscription.
             const sub = Config.twitch.announceSubs.find((sub) =>
-                    sub.gift == message.is_gift
+                    sub.gift == event.is_gift
                     && sub.tier == subTier
-                    && sub.multi == false // Not sure how to get this value, just listen for messages with some common transaction ID?
+                    && !sub.multi // Make this general and use it for all subs?
             )
 
             // Save user sub
             const subSetting = new SettingTwitchSub()
-            subSetting.totalMonths = message.cumulative_months ?? 0
-            subSetting.streakMonths = message.streak_months ?? 0
-            await DataBaseHelper.save(subSetting, message.user_id)
+            subSetting.totalMonths = event.cumulative_months ?? 0
+            subSetting.streakMonths = event.streak_months ?? 0
+            await DataBaseHelper.save(subSetting, event.user_id)
 
             // Announce sub
             if(sub) {
-                const user = await Actions.buildUserDataFromSubscriptionMessage('Unknown', message)
+                const user = await Actions.buildUserDataFromSubscriptionMessage('Unknown', event)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
                     await Utils.replaceTagsInText(sub.message, user, {
-                        targetLogin: message.recipient_user_name ?? '',
-                        targetName: message.recipient_display_name ?? '',
-                        targetTag: `@${message.recipient_display_name}`
+                        targetLogin: event.recipient_user_name ?? '',
+                        targetName: event.recipient_display_name ?? '',
+                        targetTag: `@${event.recipient_display_name}`
                     })
                 )
             }
+            */
+            // TODO: Implement
+            const modules = ModulesSingleton.getInstance()
+            modules.twitch._twitchChatOut.sendMessageToChannel(`Someone subscribed, this is a test thing.`)
         })
-        modules.twitchPubSub.setOnCheerCallback(async (message) => {
+
+        modules.twitchEventSub.setOnGiftSubscriptionCallback( async(event)=>{
+            // TODO: Implement
+            const modules = ModulesSingleton.getInstance()
+            modules.twitch._twitchChatOut.sendMessageToChannel(`Someone gifted, this is a test thing.`)
+        })
+
+        modules.twitchEventSub.setOnResubscriptionCallback( async(event)=>{
+            // TODO: Implement
+            const modules = ModulesSingleton.getInstance()
+            modules.twitch._twitchChatOut.sendMessageToChannel(`Someone resubscribed, this is a test thing.`)
+        })
+
+        modules.twitchEventSub.setOnCheerCallback(async (event) => {
             // Save user cheer
             const cheerSetting = new SettingTwitchCheer()
-            cheerSetting.totalBits = message.data.total_bits_used
-            cheerSetting.lastBits = message.data.bits_used
-            await DataBaseHelper.save(cheerSetting, message.data.user_id)
+            cheerSetting.lastBits = event.bits
+            await DataBaseHelper.save(cheerSetting, event.user_id)
 
             // Announce cheer
-            const bits = message.data.bits_used ?? 0
+            const bits = event.bits
             const levels = Utils.clone(Config.twitch.announceCheers)
             let selectedLevel = levels.shift()
             for(const level of levels) {
                 if(bits >= level.bits) selectedLevel = level
             }
             if(selectedLevel) {
-                const user = await Actions.buildUserDataFromCheerMessage('Unknown', message)
+                const user = await Actions.buildUserDataFromCheerMessage('Unknown', event)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
                     await Utils.replaceTagsInText(selectedLevel.message, user)
                 )
@@ -255,7 +272,6 @@ export default class Callbacks {
         // endregion
 
         // region Screenshots
-
         modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
             // Pipe manual screenshots into VR if configured.
             if(

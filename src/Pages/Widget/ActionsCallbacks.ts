@@ -444,7 +444,7 @@ export default class ActionsCallbacks {
                 const userTag = `@${userName}`
                 const userData = await TwitchHelixHelper.getUserByLogin(userName)
                 const userRedemptions = Object.entries(redemptions ?? {}).filter(
-                    redemption => (redemption[0] == userData?.id ?? '') && (redemption[1].status == 'UNFULFILLED')
+                    redemption => (redemption[0] == userData?.id ?? '') && (redemption[1].status.toLowerCase() == 'unfulfilled')
                 )
                 const message = Config.controller.chatReferences['RefundRedemption'] ?? []
                 if(userRedemptions && userRedemptions.length > 0) {
@@ -454,7 +454,7 @@ export default class ActionsCallbacks {
                     const key = lastRedemptionPair[0]
                     const lastRedemption = lastRedemptionPair[1]
                     if(lastRedemption) {
-                        lastRedemption.status = 'CANCELED'
+                        lastRedemption.status = 'canceled'
                         const result = await TwitchHelixHelper.updateRedemption(key, lastRedemption)
                         if(result) {
                             await DataBaseHelper.save(lastRedemption, key)
@@ -477,10 +477,10 @@ export default class ActionsCallbacks {
                 let totalClearable = 0
                 let totalCleared = 0
                 for(const [key, redemption] of Object.entries(redemptions)) {
-                    if(redemption.status == 'UNFULFILLED') {
+                    if(redemption.status.toLowerCase() == 'unfulfilled') {
                         totalClearable++
                         const redemptionClone = Utils.clone(redemption)
-                        redemptionClone.status = 'FULFILLED'
+                        redemptionClone.status = 'fulfilled'
                         const result = await TwitchHelixHelper.updateRedemption(key, redemptionClone)
                         if(result) {
                             await DataBaseHelper.delete(new SettingTwitchRedemption(), key)
@@ -513,10 +513,13 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
 
                 // Save stat
-                const cost = user.rewardMessage?.data?.redemption.reward.cost ?? 0
+                const cost = user.rewardMessage?.reward.cost ?? 0
                 const setting = new SettingChannelTrophyStat()
                 setting.userId = user.id
-                setting.index = user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream
+
+                // TODO: This is not available in EventSub
+                setting.index = 0 //  user.rewardMessage?.data?.redemption.reward.redemptions_redeemed_current_stream
+
                 const settingsUpdated = await DataBaseHelper.save(setting, cost.toString())
                 if(!settingsUpdated) return Utils.log('ChannelTrophy: Could not write settings reward', Color.Red)
 
