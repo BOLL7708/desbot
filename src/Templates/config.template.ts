@@ -58,7 +58,8 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
     },
     websocketsUsed: {
         twitchChat: true,
-        twitchPubsub: true,
+        twitchPubSub: true,
+        twitchEventSub: true,
         obs: true,
         openvr2ws: false,
         pipe: false,

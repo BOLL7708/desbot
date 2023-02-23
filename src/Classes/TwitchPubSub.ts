@@ -15,7 +15,7 @@ import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 
-export default class TwitchPubsub {
+export default class TwitchPubSub {
     private LOG_COLOR: string = 'teal'
     private _socket?: WebSockets
     private _pingIntervalHandle?: number

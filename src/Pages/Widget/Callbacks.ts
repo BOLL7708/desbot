@@ -155,7 +155,7 @@ export default class Callbacks {
         // region Rewards
 
         // This callback was added as rewards with no text input does not come in through the chat callback
-        modules.twitchPubsub.setOnRewardCallback(async (id: string, message: ITwitchPubsubRewardMessage) => {
+        modules.twitchPubSub.setOnRewardCallback(async (id: string, message: ITwitchPubsubRewardMessage) => {
             const redemption = message?.data?.redemption
             if(!redemption) return console.warn('Reward redemption empty', message)
 
@@ -202,7 +202,7 @@ export default class Callbacks {
             }
         })
 
-        modules.twitchPubsub.setOnSubscriptionCallback( async(message) => {
+        modules.twitchPubSub.setOnSubscriptionCallback( async(message) => {
             // https://dev.twitch.tv/docs/pubsub#topics Channel Subscription Event Message
             const subTier = parseInt(message.sub_plan) || 0 // Prime ends up as 0 as it's not a valid int.
             const multiMonth = message.multi_month_duration ?? 0 // Only exists if it was a multi month subscription.
@@ -230,7 +230,7 @@ export default class Callbacks {
                 )
             }
         })
-        modules.twitchPubsub.setOnCheerCallback(async (message) => {
+        modules.twitchPubSub.setOnCheerCallback(async (message) => {
             // Save user cheer
             const cheerSetting = new SettingTwitchCheer()
             cheerSetting.totalBits = message.data.total_bits_used

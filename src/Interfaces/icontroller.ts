@@ -27,7 +27,11 @@ export interface IControllerConfig {
         /**
          * Twitch PubSub connection, for reward redemptions and other channel events.
          */
-        twitchPubsub: boolean
+        twitchPubSub: boolean
+        /**
+         * Twitch EventSub connection, for a plethora of channel events.
+         */
+        twitchEventSub: boolean
         /**
          * OBS Studio connection, to toggle sources and filters.
          */

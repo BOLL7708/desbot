@@ -7,11 +7,12 @@ import AudioPlayer from '../Classes/AudioPlayer.js'
 import SuperScreenShotterVR from '../Classes/SuperScreenShotterVR.js'
 import Sign from '../Classes/Sign.js'
 import Pipe from '../Classes/Pipe.js'
-import TwitchPubsub from '../Classes/TwitchPubsub.js'
+import TwitchPubSub from '../Classes/TwitchPubSub.js'
 import PhilipsHue from '../Classes/PhilipsHue.js'
 import GoogleTTS from '../Classes/GoogleTTS.js'
 import StreamDeckRelay from '../Classes/StreamDeckRelay.js'
 import Relay from '../Classes/Relay.js'
+import TwitchEventSub from '../Classes/TwitchEventSub.js'
 
 /**
  * Contains instances of various modules
@@ -26,7 +27,8 @@ export default class ModulesSingleton {
 
     public twitch = new Twitch()
     public twitchTokens = new TwitchTokens()
-    public twitchPubsub = new TwitchPubsub()
+    public twitchPubSub = new TwitchPubSub()
+    public twitchEventSub = new TwitchEventSub()
     public tts = new GoogleTTS()
     public pipe = new Pipe()
     public obs = new OBS()

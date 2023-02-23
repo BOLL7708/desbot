@@ -349,7 +349,7 @@ export class Actions {
             handler: actionHandler
         }
         if(reward.id != null) {
-            modules.twitchPubsub.registerReward(reward)
+            modules.twitchPubSub.registerReward(reward)
         } else {
             Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
         }
@@ -404,7 +404,7 @@ export class Actions {
             handler: actionHandler
         }
         if(cheer.bits > 0) {
-            modules.twitchPubsub.registerCheer(cheer)
+            modules.twitchPubSub.registerCheer(cheer)
         } else {
             Utils.logWithBold(`Cannot register cheer event for: <${key}>, it might be missing a cheer config.`, 'red')
         }

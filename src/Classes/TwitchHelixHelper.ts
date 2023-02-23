@@ -20,6 +20,7 @@ import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
+import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -31,15 +32,16 @@ export default class TwitchHelixHelper {
     static _channelVIPCache: Map<number, boolean> = new Map()
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
-    private static async getAuthHeaders(): Promise<Headers> {
+    private static async getAuthHeaders(addJsonHeader: boolean = false): Promise<Headers> {
         const tokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         const client = await DataBaseHelper.load(new SettingTwitchClient(), 'Main')
         const headers = new Headers()
         headers.append('Authorization', `Bearer ${tokens?.accessToken}`)
         headers.append('Client-Id', client?.clientId ?? '')
+        if(addJsonHeader) headers.append('Content-Type', 'application/json')
         return headers
     }
-    private static async getBroadcasterUserId(): Promise<number> {
+    static async getBroadcasterUserId(): Promise<number> {
         const tokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         return tokens?.userId ?? 0
     }
@@ -244,11 +246,9 @@ export default class TwitchHelixHelper {
     static async updateChannelInformation(channelInformation: ITwitchHelixChannelRequest):Promise<boolean> {
         // https://dev.twitch.tv/docs/api/reference#modify-channel-information
         const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${await this.getBroadcasterUserId()}`
-        const headers = await this.getAuthHeaders()
-        headers.append('Content-Type', 'application/json')
         const request = {
             method: 'PATCH',
-            headers: headers, 
+            headers: await this.getAuthHeaders(true),
             body: JSON.stringify(channelInformation)
         }
         const response = await fetch(url, request)
@@ -419,6 +419,19 @@ export default class TwitchHelixHelper {
         }
         const response = await fetch(url, request)
         if(response.ok) this._channelVIPCache.set(userId, false)
+        return response.ok
+    }
+    // endregion
+
+    // region EventSub Subscriptions
+    static async subscribeToEventSub(body: ITwitchEventSubSubscriptionPayload): Promise<boolean> {
+        const url = `https://api.twitch.tv/helix/eventsub/subscriptions`
+        const request = {
+            method: 'POST',
+            headers: await this.getAuthHeaders(true),
+            body: JSON.stringify(body)
+        }
+        const response = await fetch(url, request)
         return response.ok
     }
     // endregion
