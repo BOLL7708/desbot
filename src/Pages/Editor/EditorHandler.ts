@@ -308,7 +308,6 @@ export default class EditorHandler {
     }
 
     private updateModifiedState(modified: boolean) {
-        console.log(`Modified state: ${modified ? 'MODOFIED' : 'unmodified'}`)
         this._unsavedChanges = Utils.clone(modified)
         if(modified) {
             window.onbeforeunload = (event)=>{

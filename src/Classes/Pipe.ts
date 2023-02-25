@@ -13,6 +13,7 @@ import {PresetPipeBasic, PresetPipeCustom, PresetPipeCustomTransition} from '../
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigPipe} from '../Objects/Config/Pipe.js'
 import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ImageEditor.js'
+import TextHelper from './TextHelper.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -67,7 +68,7 @@ export default class Pipe {
         const hasBits = (messageData?.bits ?? 0) > 0
         const cleanTextConfig = Utils.clone(this._config.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = hasBits
-        const cleanText = await Utils.cleanText(
+        const cleanText = await TextHelper.cleanText(
             message,
             cleanTextConfig,
             TwitchFactory.getEmotePositions(messageData?.emotes ?? []),

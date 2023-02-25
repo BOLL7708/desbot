@@ -8,6 +8,7 @@ import {EEventSource} from './Enums.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {SettingTwitchReward} from '../../Objects/Setting/Twitch.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export default class Rewards {
     public static async init() {
@@ -33,8 +34,8 @@ export default class Rewards {
             const config = <ITwitchHelixRewardConfig> Utils.getEventConfig(key)?.triggers.reward
             if(config) {
                 const configClone = Utils.clone(Array.isArray(config) ? config[0] : config)
-                configClone.title = await Utils.replaceTagsInText(configClone.title, await Actions.buildEmptyUserData(EEventSource.Created, key))
-                configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, await Actions.buildEmptyUserData(EEventSource.Created, key))
+                configClone.title = await TextHelper.replaceTagsInText(configClone.title, await Actions.buildEmptyUserData(EEventSource.Created, key))
+                configClone.prompt = await TextHelper.replaceTagsInText(configClone.prompt, await Actions.buildEmptyUserData(EEventSource.Created, key))
                 let reward = await TwitchHelixHelper.createReward(configClone)
                 if(reward && reward.data && reward.data.length > 0) {
                     const newReward = new SettingTwitchReward()

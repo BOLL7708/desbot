@@ -28,6 +28,7 @@ import {
     ITwitchEventSubEventSubscription
 } from '../../Interfaces/itwitch_eventsub.js'
 import TwitchChat from '../../Classes/TwitchChat.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -219,7 +220,7 @@ export default class Callbacks {
                 /*
                 const user = await Actions.buildUserDataFromSubscriptionMessage('Unknown', event)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
-                    await Utils.replaceTagsInText(sub.message, user)
+                    await TextHelper.replaceTagsInText(sub.message, user)
                 )
                 */
             }
@@ -259,7 +260,7 @@ export default class Callbacks {
             if(selectedLevel) {
                 const user = await Actions.buildUserDataFromCheerMessage('Unknown', event)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
-                    await Utils.replaceTagsInText(selectedLevel.message, user)
+                    await TextHelper.replaceTagsInText(selectedLevel.message, user)
                 )
             }
         })
@@ -325,7 +326,7 @@ export default class Callbacks {
                         await TwitchHelixHelper.getUserColor(requestData.userId) ?? discordConfig.screenshotEmbedColorRemote
                     )
                     const descriptionText = description?.trim().length > 0
-                        ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
+                        ? TextHelper.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
                         : Config.screenshots.callback.discordRewardInstantTitle
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
                     DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
@@ -385,7 +386,7 @@ export default class Callbacks {
                         await TwitchHelixHelper.getUserColor(requestData.userId) ?? discordConfig.screenshotEmbedColorRemote
                     )
                     const descriptionText = description?.trim().length > 0
-                        ? Utils.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
+                        ? TextHelper.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
                         : Config.obs.sourceScreenshotConfig.discordDescription
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
                     DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)

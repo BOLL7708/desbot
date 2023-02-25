@@ -13,6 +13,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigSpeech} from '../Objects/Config/Speech.js'
 import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import {SettingUserMute, SettingUserVoice} from '../Objects/Setting/User.js'
+import TextHelper from './TextHelper.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -167,12 +168,12 @@ export default class GoogleTTS {
 
         // Get username
         const userData = await TwitchHelixHelper.getUserById(sentence.userId)
-        let cleanName = await Utils.loadCleanName(userData?.id ?? sentence.userId)
+        let cleanName = await TextHelper.loadCleanName(userData?.id ?? sentence.userId)
 
         // Clean input text
         const cleanTextConfig = Utils.clone(this._config.cleanTextConfig) // TODO: Apparently not a class instance as no __clone available?
         cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
-        let cleanText = await Utils.cleanText(
+        let cleanText = await TextHelper.cleanText(
             text, 
             cleanTextConfig,
             clearRanges,
@@ -201,7 +202,7 @@ export default class GoogleTTS {
                 const speech = Config.twitchChat.speech ?? '%userNick said: %userInput'
                 cleanText = (this._lastSpeaker == sentence.userId || this._config.skipSaid)
                     ? cleanText 
-                    : Utils.replaceTags(speech, {userNick: cleanName, userInput: cleanText})
+                    : TextHelper.replaceTags(speech, {userNick: cleanName, userInput: cleanText})
                 break
             case ETTSType.Action:
                 cleanText = `${cleanName} ${cleanText}`

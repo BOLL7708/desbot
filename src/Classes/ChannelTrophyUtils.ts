@@ -5,6 +5,7 @@ import {IDiscordEmbed, IDiscordEmbedField} from '../Interfaces/idiscord.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Color from './ColorConstants.js'
 import {SettingChannelTrophyStat} from '../Objects/Setting/Channel.js'
+import TextHelper from './TextHelper.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
@@ -128,7 +129,7 @@ export default class ChannelTrophyUtils {
         const funnyNumberItems: string[] = [`⭐ First: ${await getName(firstRedemptionLastStream[0])} (**${firstRedemptionLastStream[1]}**)`]
         for(const config of funnyNumbers) {
             const name = await getName(config.userId)
-            const label = Utils.replaceTags(
+            const label = TextHelper.replaceTags(
                 config.label, 
                 { userName: name }
             )
@@ -236,7 +237,7 @@ export default class ChannelTrophyUtils {
                 const value = pair[1].toString()
                 const emote = emotes[i] ?? '🥔';
                 valueArr.push(
-                    emote+Utils.replaceTags(
+                    emote+TextHelper.replaceTags(
                         template, 
                         { userName: displayName, number: value }
                     )
@@ -290,8 +291,8 @@ export default class ChannelTrophyUtils {
 		
 		// Detect patterns here, in order of awesomeness or something
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
-			result.speech = Utils.replaceTags(uniqueNumbers[n].speech, {start: nameForTTS, number: n.toString()})
-			result.label = Utils.replaceTags(uniqueNumbers[n].label, {entry: nameForDiscord})
+			result.speech = TextHelper.replaceTags(uniqueNumbers[n].speech, {start: nameForTTS, number: n.toString()})
+			result.label = TextHelper.replaceTags(uniqueNumbers[n].label, {entry: nameForDiscord})
 		} else if(NumberPatterns.checkIfBinary(n)) { // Power of two / binary
 			result.speech = `${nameForTTS} a power of two ${trophyName}, number ${n}`
             result.label = `🎣 Power of two: ${nameForDiscord}`

@@ -21,6 +21,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DiscordUtils from './DiscordUtils.js'
 import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
+import TextHelper from './TextHelper.js'
 
 export default class Twitch{
     private _twitchChatIn: TwitchChat = new TwitchChat()
@@ -165,7 +166,7 @@ export default class Twitch{
             name: messageCmd.properties?.["display-name"] ?? userName,
             input: '',
             inputWords: [],
-            message: await Utils.cleanText(messageCmd.message.text, undefined, TwitchFactory.getEmotePositions(messageCmd.properties.emotes ?? [])),
+            message: await TextHelper.cleanText(messageCmd.message.text, undefined, TwitchFactory.getEmotePositions(messageCmd.properties.emotes ?? [])),
             color: messageCmd.properties?.color ?? '',
             isModerator: isModerator,
             isVIP: isVIP,

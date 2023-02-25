@@ -50,6 +50,7 @@ import {
     ITwitchEventSubEventRedemption, ITwitchEventSubEventResubscription,
     ITwitchEventSubPayloadSubscription
 } from '../../Interfaces/itwitch_eventsub.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export class ActionHandler {
     constructor(
@@ -141,8 +142,8 @@ export class ActionHandler {
                         : Utils.clone(rewardConfigs[rewardIndex])
                     if (newRewardConfigClone) {
                         await DataBaseHelper.save(counter, this.key)
-                        newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
-                        newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
+                        newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
                         const cost = newRewardConfigClone.cost ?? 0
                         // Make sure the last reward doesn't cost more points than the total left.
                         if(rewardIndex < 2 && (currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount
@@ -183,8 +184,8 @@ export class ActionHandler {
                     // Reset reward
                     if(rewardConfigs.length > 0) {
                         const newRewardConfigClone = Utils.clone(rewardConfigs[0])
-                        newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
-                        newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
+                        newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
                         if (newRewardConfigClone) TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                     TwitchHelixHelper.toggleRewards({[this.key]: true}).then()
@@ -204,8 +205,8 @@ export class ActionHandler {
                                 : rewardConfigs[multiTierCounter.count]
                     )
                     if (newRewardConfigClone) {
-                        newRewardConfigClone.title = await Utils.replaceTagsInText(newRewardConfigClone.title, user)
-                        newRewardConfigClone.prompt = await Utils.replaceTagsInText(newRewardConfigClone.prompt, user)
+                        newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
+                        newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
                         TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 } else if(options.multiTierDisableWhenMaxed) {
@@ -251,7 +252,7 @@ export class Actions {
             name: event.user_name,
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(input),
+            message: await TextHelper.cleanText(input),
             color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -274,7 +275,7 @@ export class Actions {
             name: event.user_name,
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(input),
+            message: await TextHelper.cleanText(input),
             color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -296,7 +297,7 @@ export class Actions {
             name: event.user_name,
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(input),
+            message: await TextHelper.cleanText(input),
             color: await TwitchHelixHelper.getUserColor(id) ?? '',
             isBroadcaster: false,
             isModerator: false,
@@ -324,7 +325,7 @@ export class Actions {
             name: user?.display_name ?? '',
             input: input,
             inputWords: input.split(' '),
-            message: await Utils.cleanText(userMessage ?? userInput),
+            message: await TextHelper.cleanText(userMessage ?? userInput),
             color: await TwitchHelixHelper.getUserColor(user?.id ?? '') ?? '',
             isBroadcaster: true,
             isModerator: false,
@@ -359,7 +360,7 @@ export class Actions {
         if(command) {
             const triggers = Utils.ensureArray(command.entries)
             for(let trigger of triggers) {
-                trigger = Utils.replaceTags(trigger, {eventKey: key})
+                trigger = TextHelper.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
@@ -379,7 +380,7 @@ export class Actions {
         if(remoteCommand) {
             const triggers = Utils.ensureArray(remoteCommand.entries)
             for(let trigger of triggers) {
-                trigger = Utils.replaceTags(trigger, {eventKey: key})
+                trigger = TextHelper.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
@@ -431,7 +432,7 @@ export class Actions {
     private static async registerRelay(key: TKeys) {
         const event = Utils.getEventConfig(key)
         const relay: IOpenVR2WSRelay = {
-            key: <TKeys> Utils.replaceTags(event?.triggers.relay ?? 'Unknown', {eventKey: key}),
+            key: <TKeys> TextHelper.replaceTags(event?.triggers.relay ?? 'Unknown', {eventKey: key}),
             handler: new ActionHandler(key)
         }
         if(relay.key.length > 0) {
@@ -589,7 +590,7 @@ export class Actions {
                 const modules = ModulesSingleton.getInstance()
                 let ttsStrings: string[] = []
                 if(speechConfig?.entries) {
-                    ttsStrings = await Utils.replaceTagsInTextArray(
+                    ttsStrings = await TextHelper.replaceTagsInTextArray(
                         Utils.ensureArray(speechConfig.entries).getAsType(index),
                         user
                     )
@@ -597,7 +598,7 @@ export class Actions {
                 }
                 if(config) { // If we have an audio config, play it. Attach 
                     const configClone = Utils.clone(config)
-                    configClone.srcEntries = await Utils.replaceTagsInTextArray( // To support audio URLs in input
+                    configClone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
                         Utils.ensureArray(config.srcEntries).getAsType(index), // Need to read entries from config here as cloning drops __type
                         user
                     )
@@ -607,7 +608,7 @@ export class Actions {
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {
                         const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
-                        const voiceOfUserTagged = await Utils.replaceTagsInText(speechConfig.voiceOfUser ?? '', user)
+                        const voiceOfUserTagged = await TextHelper.replaceTagsInText(speechConfig.voiceOfUser ?? '', user)
                         const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelixHelper.getUserByLogin(voiceOfUserTagged) : undefined
                         const voiceUserId = parseInt(voiceUser?.id ?? '')
                         await modules.tts.enqueueSpeakSentence(
@@ -639,11 +640,11 @@ export class Actions {
                 configClone.imageDataEntries = Utils.ensureArray(config.imageDataEntries).getAsType(index)
 
                 // Replace tags in texts.
-                configClone.texts = await Utils.replaceTagsInTextArray(configClone.texts, user)
-                configClone.imagePathEntries = await Utils.replaceTagsInTextArray(configClone.imagePathEntries, user)
+                configClone.texts = await TextHelper.replaceTagsInTextArray(configClone.texts, user)
+                configClone.imagePathEntries = await TextHelper.replaceTagsInTextArray(configClone.imagePathEntries, user)
                 if(configClone.config && configClone.config.customProperties) {
                     for(const textArea of configClone.config.customProperties.textAreas) {
-                        textArea.text = await Utils.replaceTagsInText(textArea.text, user)
+                        textArea.text = await TextHelper.replaceTagsInText(textArea.text, user)
                     }
                 }
 
@@ -684,10 +685,10 @@ export class Actions {
                 TwitchHelixHelper.getUserById(user.id).then(async userData => {
                     const modules = ModulesSingleton.getInstance()
                     const clonedConfig = Utils.clone(config)
-                    clonedConfig.title = await Utils.replaceTagsInText(clonedConfig.title ?? '', user)
+                    clonedConfig.title = await TextHelper.replaceTagsInText(clonedConfig.title ?? '', user)
                     if(clonedConfig.image == undefined) clonedConfig.image = userData?.profile_image_url
-                    clonedConfig.image = await Utils.replaceTagsInText(clonedConfig.image ?? '', user)
-                    clonedConfig.subtitle = await Utils.replaceTagsInText(clonedConfig.subtitle ?? '', user)
+                    clonedConfig.image = await TextHelper.replaceTagsInText(clonedConfig.image ?? '', user)
+                    clonedConfig.subtitle = await TextHelper.replaceTagsInText(clonedConfig.subtitle ?? '', user)
                     modules.sign.enqueueSign(clonedConfig)
                 })
             }
@@ -711,7 +712,7 @@ export class Actions {
             call: async (user: IActionUser, index?: number) => {
                 const entries = Utils.ensureArray(config.entries).getAsType(index)
                 for(const entry of entries) {
-                    ExecUtils.loadCustomURI(await Utils.replaceTagsInText(entry, user))
+                    ExecUtils.loadCustomURI(await TextHelper.replaceTagsInText(entry, user))
                 }
             }
         }
@@ -780,7 +781,7 @@ export class Actions {
                         Config.credentials.DiscordWebhooks[key] ?? '',
                         user.name,
                         userData?.profile_image_url,
-                        await Utils.replaceTagsInText(entry, user)
+                        await TextHelper.replaceTagsInText(entry, user)
                     )
                 }
             }
@@ -796,7 +797,7 @@ export class Actions {
                 const entries = Utils.ensureArray(config.entries).getAsType(index)
                 for(const entry of entries) {
                     modules.twitch._twitchChatOut.sendMessageToChannel(
-                        await Utils.replaceTagsInText(entry, user)
+                        await TextHelper.replaceTagsInText(entry, user)
                     )
                 }
             }
@@ -811,8 +812,8 @@ export class Actions {
                 const entries = Utils.ensureArray<string>(config.entries).getAsType(index)
                 for(const entry of entries) {
                     modules.twitch._twitchChatOut.sendMessageToUser(
-                        await Utils.replaceTagsInText(config.user, user),
-                        await Utils.replaceTagsInText(entry, user)
+                        await TextHelper.replaceTagsInText(config.user, user),
+                        await TextHelper.replaceTagsInText(entry, user)
                     )
                 }
             }
@@ -825,9 +826,9 @@ export class Actions {
             description: 'Callback that triggers a Label action',
             call: async (user: IActionUser) => {
                 if(config.append) {
-                    await DataUtils.appendText(config.fileName, await Utils.replaceTagsInText(config.text, user))
+                    await DataUtils.appendText(config.fileName, await TextHelper.replaceTagsInText(config.text, user))
                 } else {
-                    await DataUtils.writeText(config.fileName, await Utils.replaceTagsInText(config.text, user))
+                    await DataUtils.writeText(config.fileName, await TextHelper.replaceTagsInText(config.text, user))
                 }
             }
         }
@@ -917,15 +918,15 @@ export class Actions {
             call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
-                const input = await Utils.replaceTagsInText(config.inputOverride ?? user.input, user)
+                const input = await TextHelper.replaceTagsInText(config.inputOverride ?? user.input, user)
                 const inputLowerCase = input.toLowerCase()
-                const targetId = parseInt(await Utils.replaceTagsInText('%targetId', user))
-                const targetLogin = await Utils.replaceTagsInText('%targetLogin', user)
-                const targetOrUserId = parseInt(await Utils.replaceTagsInText('%targetOrUserId', user))
-                const targetOrUserLogin = await Utils.replaceTagsInText('%targetOrUserLogin', user)
-                const userInputHead = await Utils.replaceTagsInText('%userInputHead', user)
-                const userInputRest = await Utils.replaceTagsInText('%userInputRest', user)
-                const userInputNoTags = await Utils.replaceTagsInText('%userInputNoTags', user)
+                const targetId = parseInt(await TextHelper.replaceTagsInText('%targetId', user))
+                const targetLogin = await TextHelper.replaceTagsInText('%targetLogin', user)
+                const targetOrUserId = parseInt(await TextHelper.replaceTagsInText('%targetOrUserId', user))
+                const targetOrUserLogin = await TextHelper.replaceTagsInText('%targetOrUserLogin', user)
+                const userInputHead = await TextHelper.replaceTagsInText('%userInputHead', user)
+                const userInputRest = await TextHelper.replaceTagsInText('%userInputRest', user)
+                const userInputNoTags = await TextHelper.replaceTagsInText('%userInputNoTags', user)
                 const canSetThingsForOthers = user.isBroadcaster || user.isModerator
                 switch(config.function) {
                     case ETTSFunction.Enable:
@@ -1015,7 +1016,7 @@ export class Actions {
                             userData && (canSetThingsForOthers || (isClearingNickOfOther == canSetThingsForOthers))
                         ) {
                             // We clear the custom nick for the user, setting it to a clean one.
-                            const cleanName = Utils.cleanName(userData.login)
+                            const cleanName = TextHelper.cleanName(userData.login)
                             states.textTagCache.lastTTSSetNickLogin = userData.display_name
                             states.textTagCache.lastTTSSetNickSubstitute = cleanName
                             const setting = new SettingUserName()
@@ -1044,7 +1045,7 @@ export class Actions {
                         let word = userInputHead.trim().toLowerCase()
                         const firstChar = word[0] ?? ''
                         word = ['+', '-'].includes(firstChar) ? word.substring(1) : word
-                        const substitute = Utils.cleanSetting(userInputRest).toLowerCase()
+                        const substitute = TextHelper.cleanSetting(userInputRest).toLowerCase()
 
                         let entry = await DataBaseHelper.load(new SettingDictionaryEntry(), word)
                         if(!entry) {

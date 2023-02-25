@@ -16,6 +16,7 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {TKeys} from '../../_data/!keys.js'
 import {SettingSteamAchievements, SettingSteamGame} from '../../Objects/Setting/Steam.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export default class Functions {
     /*
@@ -120,8 +121,8 @@ export default class Functions {
                     let rewardConfigClone = Utils.clone(Utils.ensureArray(eventRef.triggers.reward)[0])
                     if(rewardConfigClone) {
                         Utils.log(`Updating reward for event "${key}" to be in line with options.`, Color.DarkOliveGreen)
-                        rewardConfigClone.title = await Utils.replaceTagsInText(rewardConfigClone.title, await Actions.buildEmptyUserData(EEventSource.Updated, key))
-                        rewardConfigClone.prompt = await Utils.replaceTagsInText(rewardConfigClone.prompt, await Actions.buildEmptyUserData(EEventSource.Updated, key))
+                        rewardConfigClone.title = await TextHelper.replaceTagsInText(rewardConfigClone.title, await Actions.buildEmptyUserData(EEventSource.Updated, key))
+                        rewardConfigClone.prompt = await TextHelper.replaceTagsInText(rewardConfigClone.prompt, await Actions.buildEmptyUserData(EEventSource.Updated, key))
                         TwitchHelixHelper.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
                     }
                 }
@@ -279,9 +280,9 @@ export default class Functions {
                 const speech = Config.controller.speechReferences['CallbackAppID'] ?? []
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
-                    await modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[0], {game: twitchGameData.name}))
+                    await modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[0], {game: twitchGameData.name}))
                 } else {
-                    await modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}))
+                    await modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}))
                 }
             } else {
                 Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)
@@ -350,7 +351,7 @@ export default class Functions {
                                     },
                                     timestamp: new Date(achievement.unlocktime*1000).toISOString(),
                                     footer: {
-                                        text: Utils.replaceTags(
+                                        text: TextHelper.replaceTags(
                                             steamConfig.achievementDiscordFooter,
                                             {
                                                 progress: progressStr, 
@@ -364,7 +365,7 @@ export default class Functions {
 
                         // Twitch chat
                         modules.twitch._twitchChatOut.sendMessageToChannel(
-                            Utils.replaceTags(
+                            TextHelper.replaceTags(
                                 steamConfig.achievementTwitchChatMessage,
                                 {
                                     progress: progressStr, 

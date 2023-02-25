@@ -20,6 +20,7 @@ import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchTokens} from '.
 import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingChannelTrophyStat} from '../../Objects/Setting/Channel.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -86,11 +87,11 @@ export default class ActionsCallbacks {
             description: 'Make a user channel moderator',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelixHelper.makeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.makeUserModerator(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['Mod'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                    modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
                 }
             }
         },
@@ -99,11 +100,11 @@ export default class ActionsCallbacks {
             description: 'Remove user from channel moderators',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelixHelper.removeUserModerator(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.removeUserModerator(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['UnMod'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                    modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
                 }
             }
         },
@@ -112,11 +113,11 @@ export default class ActionsCallbacks {
             description: 'Make a user channel VIP',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelixHelper.makeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.makeUserVIP(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['Vip'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                    modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
                 }
             }
         },
@@ -125,11 +126,11 @@ export default class ActionsCallbacks {
             description: 'Remove user from channel VIPs',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const result = await TwitchHelixHelper.removeUserVIP(parseInt(await Utils.replaceTagsInText('%targetId', user)))
+                const result = await TwitchHelixHelper.removeUserVIP(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
                 const speechArr = Config.controller.speechReferences['UnVip'] ?? ''
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
-                    modules.tts.enqueueSpeakSentence(await Utils.replaceTagsInText(speech, user)).then()
+                    modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
                 }
             }
         },
@@ -147,7 +148,7 @@ export default class ActionsCallbacks {
                     const isTag = possibleUserTag.includes('@')
                     const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
                     const userLogin = isTag
-                        ? Utils.cleanUserName(possibleUserTag)
+                        ? TextHelper.cleanUserName(possibleUserTag)
                         : channelTokens?.userLogin ?? ''
                     const userData = await TwitchHelixHelper.getUserByLogin(userLogin)
                     if(!isTag) {
@@ -167,7 +168,7 @@ export default class ActionsCallbacks {
                         await DataBaseHelper.save(quoteSetting)
                         const speech = Config.controller.speechReferences['Quote'] ?? ''
                         modules.tts.enqueueSpeakSentence(
-                            await Utils.replaceTagsInText(
+                            await TextHelper.replaceTagsInText(
                                 <string> speech,
                                 user,
                                 {quote: quote}
@@ -183,7 +184,7 @@ export default class ActionsCallbacks {
                         const userData = await TwitchHelixHelper.getUserById(quote.quoteeUserId)
                         const speech = Config.controller.chatReferences['Quote'] ?? ''
                         modules.twitch._twitchChatOut.sendMessageToChannel(
-                            await Utils.replaceTagsInText(
+                            await TextHelper.replaceTagsInText(
                                 <string> speech,
                                 user,
                                 { // We need to add targetTag as there is no user tag in the input.
@@ -252,7 +253,7 @@ export default class ActionsCallbacks {
                         // TODO: Disable all scale rewards
                         // Launch interval
                         modules.tts.enqueueSpeakSentence(
-                            await Utils.replaceTagsInText(
+                            await TextHelper.replaceTagsInText(
                                 speech[1],
                                 user,
                                 {
@@ -301,7 +302,7 @@ export default class ActionsCallbacks {
                     }
                     const value = Math.max(10, Math.min(1000, scale || 100))
                     modules.tts.enqueueSpeakSentence(
-                        await Utils.replaceTagsInText(
+                        await TextHelper.replaceTagsInText(
                             speech[0],
                             user,
                             { // Overriding the number tag as the scale is clamped.
@@ -328,7 +329,7 @@ export default class ActionsCallbacks {
                 const brightness = Utils.toInt(user.input, 130)
                 const speech = Config.controller.speechReferences['Brightness'] ?? ''
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
-                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()})).then()
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
                 modules.openvr2ws.setSetting({
                     setting: OpenVR2WS.SETTING_ANALOG_GAIN,
                     value: value/100.0
@@ -347,7 +348,7 @@ export default class ActionsCallbacks {
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
                 const speech = Config.controller.speechReferences['RefreshRate'] ?? ''
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
-                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()})).then()
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
                 modules.openvr2ws.setSetting({
                     setting: OpenVR2WS.SETTING_PREFERRED_REFRESH_RATE,
                     value: value
@@ -364,7 +365,7 @@ export default class ActionsCallbacks {
                 const eyeMode = Utils.toInt(user.input, 4)
                 const speech = Config.controller.speechReferences['VrViewEye'] ?? ''
                 const value = Math.max(0, Math.min(5, eyeMode))
-                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech, {value: value.toString()})).then()
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
                 modules.openvr2ws.setSetting({
                     setting: OpenVR2WS.SETTING_MIRROR_VIEW_EYE,
                     value: value
@@ -386,8 +387,8 @@ export default class ActionsCallbacks {
                     const config = Array.isArray(rewardSetup) ? rewardSetup[0] : rewardSetup
                     if(config != undefined && eventConfig?.options?.rewardIgnoreUpdateCommand !== true) {
                         const configClone = Utils.clone(config)
-                        configClone.title = await Utils.replaceTagsInText(configClone.title, user)
-                        configClone.prompt = await Utils.replaceTagsInText(configClone.prompt, user)
+                        configClone.title = await TextHelper.replaceTagsInText(configClone.title, user)
+                        configClone.prompt = await TextHelper.replaceTagsInText(configClone.prompt, user)
                         const response = await TwitchHelixHelper.updateReward(pair.id, configClone)
                         if(response != null && response.data != null) {
                             const success = response?.data[0]?.id == pair.id
@@ -439,7 +440,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption())
-                const userName = Utils.getFirstUserTagInText(user.input)
+                const userName = TextHelper.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
                 const userData = await TwitchHelixHelper.getUserByLogin(userName)
@@ -458,12 +459,12 @@ export default class ActionsCallbacks {
                         const result = await TwitchHelixHelper.updateRedemption(key, lastRedemption)
                         if(result) {
                             await DataBaseHelper.save(lastRedemption, key)
-                            modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
+                            modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
-                            modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[1], {targetTag: userTag}))
+                            modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[1], {targetTag: userTag}))
                         }
-                    } else modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[2], {targetTag: userTag}))
-                } else modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTags( message[2], {targetTag: userTag}))
+                    } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[2], {targetTag: userTag}))
+                } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[2], {targetTag: userTag}))
             }
         },
         'ClearRedemptions': {
@@ -496,7 +497,7 @@ export default class ActionsCallbacks {
 
                 if(totalClearable) {
                     modules.tts.enqueueSpeakSentence(
-                        Utils.replaceTags(
+                        TextHelper.replaceTags(
                             speech[1],
                             {total: totalClearable.toString(), count: totalCleared.toString()}
                         )
@@ -536,7 +537,7 @@ export default class ActionsCallbacks {
                     const funnyNumberConfig = ChannelTrophyUtils.detectFunnyNumber(cost)
                     if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
                         modules.tts.enqueueSpeakSentence(
-                            await Utils.replaceTagsInText(
+                            await TextHelper.replaceTagsInText(
                                 funnyNumberConfig.speech,
                                 user
                             )
@@ -545,7 +546,7 @@ export default class ActionsCallbacks {
                     // Update label in overlay
                     const labelUpdated = await DataUtils.writeText(
                         'trophy_label.txt', // TODO: Save as a constant or something?
-                        await Utils.replaceTagsInText(
+                        await TextHelper.replaceTagsInText(
                             Config.controller.channelTrophySettings.label,
                             user,
                             { number: cost.toString(), userName: user.name }
@@ -559,14 +560,14 @@ export default class ActionsCallbacks {
                     if(config != undefined) {
                         const newCost = cost+1;
                         const updatedReward = await TwitchHelixHelper.updateReward(rewardId, {
-                            title: await Utils.replaceTagsInText(
+                            title: await TextHelper.replaceTagsInText(
                                 Config.controller.channelTrophySettings.rewardTitle,
                                 user
                             ),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
                             global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
-                            prompt: await Utils.replaceTagsInText(
+                            prompt: await TextHelper.replaceTagsInText(
                                 Config.controller.channelTrophySettings.rewardPrompt,
                                 user,
                                 {
@@ -620,7 +621,7 @@ export default class ActionsCallbacks {
                         }
                     }
                 }
-                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[1], {
                     total: totalCount.toString(),
                     reset: totalResetCount.toString(),
                     skipped: totalSkippedCount.toString()
@@ -659,8 +660,8 @@ export default class ActionsCallbacks {
                                     const setup = Utils.clone(rewardSetup[0])
                                     user.rewardCost = setup.cost ?? 0
                                     user.eventKey = key
-                                    setup.title = await Utils.replaceTagsInText(setup.title, user)
-                                    setup.prompt = await Utils.replaceTagsInText(setup.prompt, user)
+                                    setup.title = await TextHelper.replaceTagsInText(setup.title, user)
+                                    setup.prompt = await TextHelper.replaceTagsInText(setup.prompt, user)
                                     await TwitchHelixHelper.updateReward(await Utils.getRewardId(key), setup)
                                     totalResetCount++
                                 } else {
@@ -670,7 +671,7 @@ export default class ActionsCallbacks {
                         }
                     }
                 }
-                modules.tts.enqueueSpeakSentence(Utils.replaceTags(speech[1], {
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[1], {
                     total: totalCount.toString(),
                     reset: totalResetCount.toString(),
                     skipped: totalSkippedCount.toString()
@@ -752,7 +753,7 @@ export default class ActionsCallbacks {
                 states.runRemoteCommands = true
                 const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOn']) ?? ''
                 modules.tts.enqueueSpeakSentence(
-                    await Utils.replaceTagsInText(
+                    await TextHelper.replaceTagsInText(
                         speech,
                         user
                     )
@@ -768,7 +769,7 @@ export default class ActionsCallbacks {
                 states.runRemoteCommands = false
                 const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOff']) ?? ''
                 modules.tts.enqueueSpeakSentence(
-                    await Utils.replaceTagsInText(speech, user)
+                    await TextHelper.replaceTagsInText(speech, user)
                 ).then()
             }
         },
@@ -855,7 +856,7 @@ export default class ActionsCallbacks {
                     return Date.parse(a.created_at) - Date.parse(b.created_at)
                 })
                 modules.tts.enqueueSpeakSentence(
-                    await Utils.replaceTagsInText(
+                    await TextHelper.replaceTagsInText(
                         speech[1],
                         user,
                         {
@@ -886,7 +887,7 @@ export default class ActionsCallbacks {
                     })
                 }
                 modules.tts.enqueueSpeakSentence(
-                    await Utils.replaceTagsInText(
+                    await TextHelper.replaceTagsInText(
                         speech[2],
                         user,
                         {count: (count-oldClipIds.length).toString()}
@@ -901,7 +902,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 let channel =
-                    Utils.getFirstUserTagInText(user.input)
+                    TextHelper.getFirstUserTagInText(user.input)
                     ?? user.input.split(' ').shift()
                     ?? ''
                 if(channel.includes('https://')) channel = channel.split('/').pop() ?? ''
@@ -911,11 +912,11 @@ export default class ActionsCallbacks {
                 if(channelData) {
                     TwitchHelixHelper.raidChannel(channelData.broadcaster_id).then()
                     if(chat) {
-                        if(chat[0] && chat[0].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[0], user))
-                        if(chat[1] && chat[1].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[1], user))
+                        if(chat[0] && chat[0].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chat[0], user))
+                        if(chat[1] && chat[1].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chat[1], user))
                     }
                 } else {
-                    if(chat && chat.length >= 3) modules.twitch._twitchChatOut.sendMessageToChannel(await Utils.replaceTagsInText(chat[2], user))
+                    if(chat && chat.length >= 3) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chat[2], user))
                 }
             }
         },

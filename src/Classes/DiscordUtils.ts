@@ -12,21 +12,21 @@ export default class DiscordUtils {
     private static _rateLimitBuckets: Record<string, string> = {} // Url, Bucket
     private static _messageQueues: Record<string, IDiscordQueue[]> = {} // URL, Payloads
     private static _messageIntervalHandle = setInterval(async ()=>{
-        for(const [key, value] of Object.entries(DiscordUtils._messageQueues)) {
+        for(const [key, value] of Object.entries(this._messageQueues)) {
             if(value.length > 0) {
-                const bucketName = DiscordUtils._rateLimitBuckets[key] ?? null
-                const rateLimit = DiscordUtils._rateLimits[bucketName] ?? null
+                const bucketName = this._rateLimitBuckets[key] ?? null
+                const rateLimit = this._rateLimits[bucketName] ?? null
                 const now = Date.now()
                 if(rateLimit == null || (rateLimit.remaining > 1 || now > rateLimit.resetTimestamp)) {
                     const item = value.shift()
-                    const result = await DiscordUtils.send(key, item?.formData ?? new FormData())
+                    const result = await this.send(key, item?.formData ?? new FormData())
                     if(item?.callback) item.callback(result)
                 } else {
                     Utils.log(`Discord: Waiting for rate limit (${rateLimit.remaining}) to reset (${rateLimit.resetTimestamp-now}ms)`, Color.Gray)
                 }
             } else {
                 // Remove queue if empty
-                if(DiscordUtils._messageQueues.hasOwnProperty(key)) delete DiscordUtils._messageQueues[key]
+                if(this._messageQueues.hasOwnProperty(key)) delete DiscordUtils._messageQueues[key]
             }
         }
     }, 500)
@@ -35,6 +35,7 @@ export default class DiscordUtils {
      * Enqueue a message to be sent to Discord.
      * @param url
      * @param formData
+     * @param callback
      */
     private static enqueue(
         url: string, 
@@ -99,7 +100,8 @@ export default class DiscordUtils {
      * @param url 
      * @param displayName 
      * @param iconUrl 
-     * @param message 
+     * @param message
+     * @param callback
      */
     static enqueueMessage(
         url: string, 
@@ -118,7 +120,8 @@ export default class DiscordUtils {
     /**
      * Used for Channel Trophy stats, Twitch clips and Steam achievements
      * @param url 
-     * @param payload 
+     * @param payload
+     * @param callback
      * @returns 
      */
     static enqueuePayload(
@@ -138,7 +141,8 @@ export default class DiscordUtils {
      * @param authorName 
      * @param authorUrl 
      * @param authorIconUrl 
-     * @param footerText 
+     * @param footerText
+     * @param callback
      */
     static enqueuePayloadEmbed(
         url: string, 

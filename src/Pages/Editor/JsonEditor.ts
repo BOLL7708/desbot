@@ -55,9 +55,7 @@ export default class JsonEditor {
 
         this._labels = []
         const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
-        console.log('START Build resulting props', JSON.stringify(Object.keys(instance)))
         await this.stepData(this._root, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
-        console.log('END Build resulting props', JSON.stringify(Object.keys(instance)))
         if(dirty) this.highlightLabels()
         return this._root
     }
