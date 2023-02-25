@@ -616,8 +616,13 @@ export default class JsonEditor {
         return this._instance
     }
     async setData(data: any) {
-        this._instance = data
-        await this.rebuild()
+        const freshInstance = await DataObjectMap.getInstance(this._originalInstanceType, data)
+        if(freshInstance) {
+            this._instance = freshInstance
+            await this.rebuild()
+        } else {
+            alert('Unable to import as there is no reference class in memory. This should not really happen.')
+        }
     }
     getKey(): string {
         return this._key

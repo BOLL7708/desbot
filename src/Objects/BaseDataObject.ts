@@ -160,7 +160,7 @@ export default abstract class BaseDataObject {
             }
         }
         // Copy values from the prototype to the instance, because if we don't, the prototype will get future assignments and not the instance.
-        const propsKeys = Object.keys(props)
+        const propsKeys = Object.keys(sourceObject)
         const prototypePropsKeys = Object.keys(prototype).filter(
             (prop) => { return prototype.hasOwnProperty(prop) && !propsKeys.includes(prop) }
         )
