@@ -22,7 +22,11 @@ import {ConfigDiscord} from '../../Objects/Config/Discord.js'
 import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {ConfigPipe} from '../../Objects/Config/Pipe.js'
-import {ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
+import {
+    ITwitchEventSubEventGiftSubscription,
+    ITwitchEventSubEventRedemption,
+    ITwitchEventSubEventSubscription
+} from '../../Interfaces/itwitch_eventsub.js'
 import TwitchChat from '../../Classes/TwitchChat.js'
 
 export default class Callbacks {
@@ -202,50 +206,41 @@ export default class Callbacks {
             }
         })
 
-        modules.twitchEventSub.setOnSubscriptionCallback( async(event) => {
-            // https://dev.twitch.tv/docs/pubsub#topics Channel Subscription Event Message
-            const subTier = parseInt(event.tier) || 0 // Prime ends up as 0 as it's not a valid int.
-            /*
-            const multiMonth = event.multi_month_duration ?? 0 // Only exists if it was a multi month subscription.
+        const subscriptionHandler = async (tier: number, gift: boolean, multi: boolean)=>{
             const sub = Config.twitch.announceSubs.find((sub) =>
-                    sub.gift == event.is_gift
-                    && sub.tier == subTier
-                    && !sub.multi // Make this general and use it for all subs?
+                sub.gift == gift
+                && sub.tier == tier
+                && sub.multi == multi
             )
-
-            // Save user sub
-            const subSetting = new SettingTwitchSub()
-            subSetting.totalMonths = event.cumulative_months ?? 0
-            subSetting.streakMonths = event.streak_months ?? 0
-            await DataBaseHelper.save(subSetting, event.user_id)
 
             // Announce sub
             if(sub) {
+                console.warn('Found a sub announcement: ', sub)
+                /*
                 const user = await Actions.buildUserDataFromSubscriptionMessage('Unknown', event)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
-                    await Utils.replaceTagsInText(sub.message, user, {
-                        targetLogin: event.recipient_user_name ?? '',
-                        targetName: event.recipient_display_name ?? '',
-                        targetTag: `@${event.recipient_display_name}`
-                    })
+                    await Utils.replaceTagsInText(sub.message, user)
                 )
+                */
             }
-            */
-            // TODO: Implement
+        }
+
+        modules.twitchEventSub.setOnSubscriptionCallback( async(event) => {
+            subscriptionHandler(parseInt(event.tier), event.is_gift, false).then()
             const modules = ModulesSingleton.getInstance()
-            modules.twitch._twitchChatOut.sendMessageToChannel(`Someone subscribed, this is a test thing.`)
+            modules.twitch._twitchChatOut.sendMessageToChannel(`${event.user_name} subscribed to the channel! (${event.tier}, ${event.is_gift}, this is a test)`)
         })
 
         modules.twitchEventSub.setOnGiftSubscriptionCallback( async(event)=>{
-            // TODO: Implement
+            subscriptionHandler(parseInt(event.tier), true, event.total > 1).then()
             const modules = ModulesSingleton.getInstance()
-            modules.twitch._twitchChatOut.sendMessageToChannel(`Someone gifted, this is a test thing.`)
+            modules.twitch._twitchChatOut.sendMessageToChannel(`@${event.user_name} gifter ${event.total} subs in the channel! (${event.tier}, ${event.cumulative_total}, this is a test)`)
         })
 
         modules.twitchEventSub.setOnResubscriptionCallback( async(event)=>{
-            // TODO: Implement
+            subscriptionHandler(parseInt(event.tier), false, false)
             const modules = ModulesSingleton.getInstance()
-            modules.twitch._twitchChatOut.sendMessageToChannel(`Someone resubscribed, this is a test thing.`)
+            modules.twitch._twitchChatOut.sendMessageToChannel(`@${event.user_name} resubscribed for a total of ${event.cumulative_months} months! (${event.tier}, ${event.duration_months}, this is a test)`)
         })
 
         modules.twitchEventSub.setOnCheerCallback(async (event) => {

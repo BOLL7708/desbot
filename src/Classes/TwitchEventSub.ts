@@ -7,7 +7,7 @@ import {
     ITwitchEventSubEventRaid,
     ITwitchEventSubEventRedemption,
     ITwitchEventSubEventSubscription,
-    ITwitchEventSubEventSubscriptionMessage,
+    ITwitchEventSubEventResubscription,
     ITwitchEventSubMessageKeepAlive,
     ITwitchEventSubMessageNotification,
     ITwitchEventSubMessageRevocation,
@@ -39,6 +39,7 @@ export default class TwitchEventSub {
     private _onResubscriptionCallback: ITwitchEventSubResubscriptionCallback = (event) => { console.log('EventSub: Resubscription unhandled') }
     private _onCheerCallback: ITwitchEventSubCheerCallback = (event) => { console.log('EventSub: Cheer unhandled') }
 
+    // region Triggers & Actions
     private _rewards: Map<string, ITwitchReward> = new Map()
     registerReward(twitchReward: ITwitchReward) {
         if(twitchReward.id) {
@@ -53,6 +54,9 @@ export default class TwitchEventSub {
         Utils.log(`Registering cheer: ${this._cheers}`, this.LOG_COLOR)
         this._cheers.set(twitchCheer.bits, twitchCheer)
     }
+    // endregion
+
+    // region Callbacks
     setOnRewardCallback(callback: ITwitchEventSubRewardCallback) {
         this._onRewardCallback = callback
     }
@@ -68,7 +72,9 @@ export default class TwitchEventSub {
     setOnCheerCallback(callback: ITwitchEventSubCheerCallback) {
         this._onCheerCallback = callback
     }
+    // endregion
 
+    // region Connection
     async init() {
         this._socket = new WebSockets(this._serverUrl)
         this._socket._onOpen = ()=>{
@@ -152,7 +158,9 @@ export default class TwitchEventSub {
             }, (this._keepAliveSeconds+1)*1000) // Give it some margin
         }
     }
+    // endregion
 
+    // region Subscriptions
     private async subscribeToEvents() {
         if(this._socket) {
             const broadcasterId = await TwitchHelixHelper.getBroadcasterUserId()
@@ -270,7 +278,9 @@ export default class TwitchEventSub {
         }
         return await TwitchHelixHelper.subscribeToEventSub(body) ? 1 : 0
     }
+    // endregion
 
+    // region Events
     private async onEvent(eventMessage: ITwitchEventSubMessageNotification) {
         switch(eventMessage.metadata.subscription_type) {
             // TODO:
@@ -293,13 +303,13 @@ export default class TwitchEventSub {
                     redemptionStatus.cost = event.reward.cost
                     await DataBaseHelper.save(redemptionStatus, event.id)
                 }
-                Utils.log(`Reward redeemed! (${redemptionId})`, this.LOG_COLOR)
+                Utils.log(`TwitchEventSub: Reward redeemed! (${redemptionId})`, this.LOG_COLOR)
                 if(event.reward.id !== null) this._onRewardCallback(event)
 
                 // Event
                 const reward = this._rewards.get(event.reward.id)
                 if(reward?.handler) reward.handler.call(await Actions.buildUserDataFromRedemptionMessage(reward.handler.key, event)).then()
-                else console.warn(`Reward not found: ${redemptionId}`)
+                else console.warn(`TwitchEventSub: Reward not found: ${redemptionId}`)
                 break
             }
             case 'channel.subscribe': {
@@ -313,18 +323,29 @@ export default class TwitchEventSub {
                 break
             }
             case 'channel.subscription.message': {
-                const event = eventMessage.payload.event as ITwitchEventSubEventSubscriptionMessage
+                const event = eventMessage.payload.event as ITwitchEventSubEventResubscription
                 this._onResubscriptionCallback(event)
                 break
             }
             case 'channel.cheer': {
                 const event = eventMessage.payload.event as ITwitchEventSubEventCheer
                 this._onCheerCallback(event)
+
+                // Event
+                const cheer = this._cheers.get(event.bits)
+                if(cheer?.handler) cheer.handler.call(await Actions.buildUserDataFromCheerMessage(cheer.handler.key, event)).then()
+                else console.warn(`TwitchEventSub: Cheer not found: ${event.bits}`)
                 break
             }
             case 'channel.raid': {
                 const event = eventMessage.payload.event as ITwitchEventSubEventRaid
-
+                const broadcasterId = (await TwitchHelixHelper.getBroadcasterUserId()).toString()
+                if(event.to_broadcaster_user_id == broadcasterId) {
+                    ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(`@${event.from_broadcaster_user_name} raided the channel with ${event.viewers} viewer(s)! (this is a test)`)
+                }
+                if (event.from_broadcaster_user_id == broadcasterId) {
+                    ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(`This channel raided @${event.to_broadcaster_user_name} with ${event.viewers} viewer(s)! (this is a test)`)
+                }
                 break
             }
             default: {
@@ -333,6 +354,7 @@ export default class TwitchEventSub {
             }
         }
     }
+    // endregion
 }
 
 export interface ITwitchEventSubRewardCallback {
@@ -345,7 +367,7 @@ export interface ITwitchEventSubGiftSubscriptionCallback {
     (event: ITwitchEventSubEventGiftSubscription):void
 }
 export interface ITwitchEventSubResubscriptionCallback {
-    (event: ITwitchEventSubEventSubscriptionMessage):void
+    (event: ITwitchEventSubEventResubscription):void
 }
 export interface ITwitchEventSubCheerCallback {
     (event: ITwitchEventSubEventCheer):void

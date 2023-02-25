@@ -47,7 +47,7 @@ import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {
     ITwitchEventSubEventCheer,
-    ITwitchEventSubEventRedemption, ITwitchEventSubEventSubscriptionMessage,
+    ITwitchEventSubEventRedemption, ITwitchEventSubEventResubscription,
     ITwitchEventSubPayloadSubscription
 } from '../../Interfaces/itwitch_eventsub.js'
 
@@ -285,7 +285,7 @@ export class Actions {
             rewardCost: 0
         }
     }
-    public static async buildUserDataFromSubscriptionMessage(key: TKeys, event: ITwitchEventSubEventSubscriptionMessage): Promise<IActionUser> {
+    public static async buildUserDataFromSubscriptionMessage(key: TKeys, event: ITwitchEventSubEventResubscription): Promise<IActionUser> {
         const id = event.user_id
         const input = event.message.text
         return {
