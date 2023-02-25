@@ -49,18 +49,29 @@ export default abstract class BaseDataObject {
      * @param fillReferences Replace reference IDs with the referenced object.
      */
     async __apply(instanceOrJsonResult: object = {}, fillReferences: boolean = false) {
+        // Ensure valid input
         const prototype = Object.getPrototypeOf(this)
-        const props = !!instanceOrJsonResult
+        const sourceObject = !!instanceOrJsonResult
             && typeof instanceOrJsonResult == 'object'
             && !Array.isArray(instanceOrJsonResult)
                 ? instanceOrJsonResult
                 : {}
         const thisClass = this.constructor.name
-        for(const [propertyName, propertyValue] of Object.entries(props)) {
-            if(
-                this.hasOwnProperty(propertyName) // This is true if the `props` is an original instance of the implementing class.
-                || prototype.hasOwnProperty(propertyName) // The `__new()` call returns an instance with the original class as prototype, which is why we also check it.
-            ) {
+
+        // Make an entry map of the incoming properties just to enable orderly application below this.
+        const entryMap: Map<string, any> = new Map()
+        for(const [name, value] of Object.entries(sourceObject)) {
+            entryMap.set(name, value)
+        }
+        /*
+         * We loop over the properties of this object, combined with the prototype properties, just in case
+         * this is an already cloned empty object, which will have all defaults in the prototype.
+         * We loop over possible properties instead of the incoming properties to retain the original property order.
+         */
+        const possibleProperties = [...Object.keys(this), ...Object.keys(prototype)]
+        for(const propertyName of possibleProperties) {
+            const propertyValue = entryMap.has(propertyName) ? entryMap.get(propertyName) : undefined
+            if(propertyName && propertyValue !== undefined) {
                 // We cast to `any` in here to be able to set the props at all.
                 const types = DataObjectMap.getMeta(thisClass)?.types ?? {}
                 const typeValues = BaseDataObject.parseRef(types[propertyName] ?? '')

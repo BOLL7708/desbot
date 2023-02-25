@@ -161,7 +161,7 @@ export default class EditorHandler {
         if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
-            updateEditor(undefined, true, false, skipHistory).then()
+            await updateEditor(undefined, true, false, skipHistory)
         } else {
             dropdown.id = 'dropdown'
             dropdownLabel.htmlFor = dropdown.id
@@ -186,7 +186,7 @@ export default class EditorHandler {
         editorNewButton.innerHTML = '✨ New'
         editorNewButton.title = 'And new entry'
         editorNewButton.onclick = async (event)=>{
-            updateEditor(undefined, true).then()
+            await updateEditor(undefined, true)
         }
 
         // Reset button
@@ -195,7 +195,7 @@ export default class EditorHandler {
         editorResetButton.innerHTML = '🧼 Reset'
         editorResetButton.title = 'Reset to default values'
         editorResetButton.onclick = async (event)=>{
-            updateEditor(undefined, true, this._state.forceMainKey).then()
+            await updateEditor(undefined, true, this._state.forceMainKey)
         }
 
         // Reload button
@@ -204,7 +204,7 @@ export default class EditorHandler {
         editorReloadButton.innerHTML = '💫 Reload'
         editorReloadButton.title = 'Reload stored values'
         editorReloadButton.onclick = async (event)=>{
-            updateEditor(undefined).then()
+            await updateEditor(undefined)
         }
 
         // Delete button
@@ -257,7 +257,7 @@ export default class EditorHandler {
             else this._editor?.setData(result)
         }
 
-        updateEditor(undefined, this._state.newItem, false, skipHistory).then()
+        await updateEditor(undefined, this._state.newItem, false, skipHistory)
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
         if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
