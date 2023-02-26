@@ -3,6 +3,7 @@ import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import BaseDataObject from '../Objects/BaseDataObject.js'
 import EditorHandler from '../Pages/Editor/EditorHandler.js'
+import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 
 export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
@@ -11,6 +12,7 @@ export default class DataBaseHelper {
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
     private static _idStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
     private static _idLabelStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists with labels used in the editor
+    private static _idClassStore: Map<string, string> = new Map() // Used to store classes for IDs
     private static _fillReferences: boolean = false
 
     static async testConnection(): Promise<boolean> {
@@ -176,7 +178,7 @@ export default class DataBaseHelper {
     /**
      * Load all available group classes registered in the database.
      */
-    static async loadClasses(like: string): Promise<{[group:string]: number}> {
+    static async loadClasses(like: string): Promise<INumberDictionary> {
         const url = this.getUrl()
         const response = await fetch(url, {
             headers: await this.getHeader({groupClass: like+'*'})
@@ -187,7 +189,7 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDs(groupClass: string, rowIdLabel: string): Promise<{[id:string]: string}> {
+    static async loadIDs(groupClass: string, rowIdLabel?: string): Promise<IStringDictionary> {
         if(rowIdLabel) {
             if(this._idLabelStore.has(groupClass)) return this._idLabelStore.get(groupClass) ?? {}
         } else {
@@ -209,7 +211,7 @@ export default class DataBaseHelper {
     }
 
     /**
-     * Clears the cache of IDs loaded for a class or all classes so they will be reloaded.
+     * Clears the cache of IDs loaded for a class or all classes so they will be reloaded, to show recent additions or deletions.
      * @param groupClass
      */
     static clearIDs(groupClass?: string) {
@@ -218,6 +220,39 @@ export default class DataBaseHelper {
         } else {
             this._idStore.clear()
         }
+    }
+    
+    static async loadIDClasses(idArr: string[]): Promise<IStringDictionary> {
+        const output: IStringDictionary = {}
+        const toLoad: string[] = []
+        for(const id of idArr) {
+            if(this._idClassStore.has(id)) {
+                output[id] = this._idClassStore.get(id) ?? ''
+            } else {
+                toLoad.push(id)
+            }
+        }
+        if(toLoad.length > 0) {
+            const url = this.getUrl()
+            const response = await fetch(url, {
+                headers: await this.getHeader({
+                    rowIds: toLoad.join(','),
+                    rowIdClasses: true
+                })
+            })
+            if(response.ok) {
+                const json = await response.json()
+                if(json) {
+                    for(const [id, clazz] of Object.entries(json))
+                    if(id && clazz) {
+                        const classStr = clazz.toString()
+                        output[id] = classStr.toString()
+                        this._idClassStore.set(id, classStr)
+                    }
+                }
+            }
+        }
+        return output
     }
 
     /**
@@ -303,6 +338,7 @@ export default class DataBaseHelper {
         if(options.rowIds !== undefined) headers.set('X-Row-Ids', options.rowIds.toString())
         if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
         if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
+        if(options.rowIdClasses !== undefined) headers.set('X-Row-Id-Classes', options.rowIdClasses ? '1' : '0')
         return headers
     }
 
@@ -325,6 +361,7 @@ interface IDataBaseHelperHeaders {
     rowIds?: number|string
     rowIdList?: boolean
     rowIdLabel?: string
+    rowIdClasses?: boolean
     addJsonHeader?: boolean
 }
 

@@ -51,7 +51,7 @@ export default class DataObjectMap {
         props: object|undefined = undefined,
         fillReferences: boolean = false
     ): Promise<BaseDataObject|undefined> {
-        const invalidClassNames = ['string', 'number', 'boolean']
+        const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return
         if(className && this._map.has(className)) {
             const instance = this._map.get(className)?.instance

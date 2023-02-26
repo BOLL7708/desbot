@@ -12,7 +12,6 @@ export default class ImageHelper {
     /**
      * Will load a remote image into a b64 string
      * @param url Url to image
-     * @param callback Will be called after finished loading
      * @param useCache Will load/store cached data
      */
     static async getDataUrl(url: string, useCache: boolean=true): Promise<string> {

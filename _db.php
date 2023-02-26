@@ -30,6 +30,7 @@ $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 $newGroupKey = getHeaderValue('X-New-Group-Key');
 $rowIdList = !!getHeaderValue('X-Row-Id-List');
 $rowIdLabel = getHeaderValue('X-Row-Id-Label');
+$rowIdClasses = getHeaderValue('X-Row-Id-Classes');
 
 // Execute
 $output = null;
@@ -61,8 +62,13 @@ switch($method) {
             // Only row IDs with labels
             $output = $db->getRowIdsWithLabels($groupClass, $rowIdLabel);
         }
+        elseif($rowIdClasses) {
+            // Only class references based on IDs
+            if($rowIds && count($rowIds) > 0) $output = $db->getClassesByIds($rowIds);
+            else $output = new stdClass();
+        }
         elseif($rowIds && count($rowIds) > 0) {
-            // Entries based on IDs
+            // Full data entries based on IDs
             $output = $db->getEntriesByIds($rowIds);
         }
         elseif(!$groupClass || str_contains($groupClass, '*')) {

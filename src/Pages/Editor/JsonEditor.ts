@@ -2,6 +2,7 @@ import Utils from '../../Classes/Utils.js'
 import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataObjectMap, {DataObjectEntry} from '../../Objects/DataObjectMap.js'
+import {IStringDictionary} from '../../Interfaces/igeneral.js'
 
 enum EOrigin {
     Unknown,
@@ -273,62 +274,113 @@ export default class JsonEditor {
             li.appendChild(input)
         }
 
-        // This is where we differentiate on if we are referencing something by ID
+        /*
+         * This is where we differentiate on if we are referencing something by ID
+         * We support both this item being that, or the parent, depending on if it's
+         * a single item we are referencing, or an appendable array.
+         */
         if(thisTypeValues.isIdReference || parentTypeValues.isIdReference) {
             const values = thisTypeValues.isIdReference ? thisTypeValues : parentTypeValues
-
             input.contentEditable = 'false'
             input.classList.add('disabled')
-            const select = document.createElement('select') as HTMLSelectElement
-            const items = await DataBaseHelper.loadIDs(values.class, values.idLabelField)
-            let hasSetInitialValue = false
-            let firstValue = '0'
-            items['0'] = '- empty -'
-            for(const [id, label] of Object.entries(items ?? {}).sort(
-                (a, b)=>{return (parseInt(a[0]) > parseInt(b[0]) ? 1 : -1)}
-            )) {
-                const option = document.createElement('option') as HTMLOptionElement
-                if(!parseInt(id)) option.style.color = 'darkgray'
-                option.value = id
-                option.innerHTML = label && label.length > 0 ? label : id
-                if(id.toString() == value.toString()) {
-                    firstValue = id
-                    option.selected = true
-                    input.innerHTML = id.toString()
-                    hasSetInitialValue = true
+
+            // Select with IDs
+            const selectIDs = document.createElement('select') as HTMLSelectElement
+
+            // Fill select with IDs with options
+            const buildSelectOfIDs = async(overrideClass: string = '') => {
+                let items: IStringDictionary = {}
+                if(overrideClass.length > 0) {
+                    items = await DataBaseHelper.loadIDs(overrideClass)
+                } else {
+                    items = await DataBaseHelper.loadIDs(values.class, values.idLabelField)
                 }
-                select.add(option)
+                let hasSetInitialValue = false
+                let firstValue = '0'
+                items['0'] = '- empty -'
+                selectIDs.replaceChildren()
+                for(const [id, label] of Object.entries(items ?? {}).sort(
+                    (a, b)=>{return (parseInt(a[0]) > parseInt(b[0]) ? 1 : -1)}
+                )) {
+                    const option = document.createElement('option') as HTMLOptionElement
+                    if(!parseInt(id)) option.style.color = 'darkgray'
+                    option.value = id
+                    option.innerHTML = label && label.length > 0 ? label : id
+                    if(id.toString() == value.toString()) {
+                        firstValue = id
+                        option.selected = true
+                        input.innerHTML = id.toString()
+                        hasSetInitialValue = true
+                    }
+                    selectIDs.add(option)
+                }
+                if(!hasSetInitialValue) input.innerHTML = firstValue
+                selectIDs.oninput = (event) => {
+                    input.innerHTML = selectIDs.value
+                    handle(event)
+                }
             }
-            if(!hasSetInitialValue) input.innerHTML = firstValue
-            select.oninput = (event) => {
-                input.innerHTML = select.value
-                handle(event)
+
+            // Generics need an additional list of classes, this is that.
+            const selectGeneric = document.createElement('select') as HTMLSelectElement
+            if(values.genericLike.length > 0) {
+                li.appendChild(selectGeneric)
+                const setNewReference = this.appendNewReferenceItemButton(li, values)
+
+                const items = await DataBaseHelper.loadClasses(values.genericLike)
+                const genericClasses = await DataBaseHelper.loadIDClasses([value.toString()])
+                const genericClass = genericClasses[value.toString()] ?? ''
+                for(const [clazz, count] of Object.entries(items)) {
+                    if(clazz) {
+                        const option = document.createElement('option') as HTMLOptionElement
+                        option.innerHTML = clazz
+                        option.value = clazz
+                        if(genericClass == clazz) {
+                            option.selected = true
+                            setNewReference(clazz)
+                        }
+                        selectGeneric.add(option)
+                    }
+                }
+                selectGeneric.oninput = (event) => {
+                    const clazz = selectGeneric.value
+                    setNewReference(clazz)
+                    buildSelectOfIDs(clazz)
+                }
+
             }
+
+            // List of ID references and edit button.
             const editButton = document.createElement('button') as HTMLButtonElement
             editButton.innerHTML = '📝'
             editButton.title = 'Edit the referenced item.'
             editButton.classList.add('inline-button')
             editButton.onclick = (event)=>{
-                if(select.value !== '0') {
-                    const link = `editor.php?id=${select.value}`
+                if(selectIDs.value !== '0') {
+                    const link = `editor.php?id=${selectIDs.value}`
                     window.location.replace(link)
                 }
             }
-            li.appendChild(select)
+            li.appendChild(selectIDs)
             li.appendChild(editButton)
+            if(values.genericLike) {
+                await buildSelectOfIDs(selectGeneric.value)
+            } else {
+                await buildSelectOfIDs()
+            }
         }
-        if(thisTypeValues.isIdReference) this.appendNewReferenceItemButton(li, thisTypeValues)
+        if(thisTypeValues.isIdReference && thisTypeValues.genericLike.length == 0) this.appendNewReferenceItemButton(li, thisTypeValues)
         this.appendRemoveButton(li, origin, path, label)
         this.appendDocumentationIcon(li, key, instanceMeta)
         root.appendChild(li)
         return
     }
 
-    private promptForKey(path: IJsonEditorPath) {
+    private async promptForKey(path: IJsonEditorPath) {
         const oldKey = Utils.clone(path).pop() ?? ''
         const newKey = prompt(`Provide new key for "${path.join('.')}"`, oldKey.toString())
         if(newKey && newKey.length > 0) {
-            this.handleKey(Utils.unescapeHTML(newKey), path)
+            await this.handleKey(Utils.unescapeHTML(newKey), path)
         }
     }
 
@@ -378,7 +430,7 @@ export default class JsonEditor {
         // Add new item button if we have a type defined
         await this.appendAddButton(newRoot, typeValues, instance, path)
         this.appendRemoveButton(newRoot, origin, path, undefined)
-        this.appendNewReferenceItemButton(newRoot, typeValues)
+        if(typeValues.genericLike.length == 0) this.appendNewReferenceItemButton(newRoot, typeValues)
         this.appendDocumentationIcon(newRoot, pathKey, instanceMeta)
 
         // Get new instance meta if we are going deeper.
@@ -431,28 +483,43 @@ export default class JsonEditor {
             span.ondragend = (event)=>{
                 span.style.cursor = 'grabbing'
             }
-            span.ondrop = (event)=>{
+            span.ondrop = async (event)=>{
                 const data = event.dataTransfer?.getData('application/json')
                 if(data) {
                     const fromPath = JSON.parse(data) as IJsonEditorPath
-                    this.handleArrayMove(fromPath, path)
+                    await this.handleArrayMove(fromPath, path)
                 }
             }
             element.appendChild(span)
         }
     }
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues) {
+
+    /**
+     * Returns a lambda that can update the link of the button to lead to a different class.
+     * @param element
+     * @param typeValues
+     * @private
+     */
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues): Function {
+        let button: HTMLButtonElement|undefined = undefined
+        const updateLink = (clazz: string)=>{
+            if(button) {
+                button.title = `Create new item of type: ${clazz}`
+                button.onclick = (event)=>{
+                    window.location.replace(`?c=${clazz}&n=1`)
+                }
+            }
+        }
         if(typeValues.class && typeValues.isIdReference) {
-            const button = document.createElement('button') as HTMLButtonElement
+            button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '👶'
-            button.title = 'Create new item of this type'
+
             button.classList.add('inline-button')
             button.tabIndex = -1
-            button.onclick = (event)=>{
-                window.location.replace(`?c=${typeValues.class}&n=1`)
-            }
+            updateLink(typeValues.class)
             element.appendChild(button)
         }
+        return updateLink
     }
 
     private appendRemoveButton(element: HTMLElement, origin: EOrigin, path: IJsonEditorPath, label: HTMLElement|undefined) {

@@ -168,7 +168,7 @@ class DB {
     function getEntries(
         string $groupClass,
         string|null $groupKey = null
-    ) : stdClass|array|null {
+    ): stdClass|array|null {
         $query = 'SELECT group_key, data_json FROM json_store WHERE group_class = ?';
         $params = [$groupClass];
         if($groupKey) {
@@ -186,11 +186,16 @@ class DB {
         }
         return $output;
     }
-    public function getEntriesByIds(array $rowIds) : stdClass|null {
+    public function getEntriesByIds(array $rowIds, bool $onlyClasses = false): stdClass|null {
         $count = count($rowIds);
         $items = array_fill(0, $count, '?');
         $params = implode(',', $items);
-        $query = "SELECT row_id, group_class, group_key, data_json FROM json_store WHERE row_id IN ($params);";
+
+        $fields = ['row_id', 'group_class'];
+        if(!$onlyClasses) array_push($fields, 'group_key', 'data_json');
+        $fieldsStr = implode(',', $fields);
+
+        $query = "SELECT $fieldsStr FROM json_store WHERE row_id IN ($params);";
         $result = $this->query($query, $rowIds);
         $output = null;
         if(is_array($result)) {
@@ -198,13 +203,21 @@ class DB {
             foreach($result as $row) {
                 $id = $row['row_id'];
                 $rowData = new stdClass();
-                $rowData->class = $row['group_class'];
-                $rowData->key = $row['group_key'];
-                $rowData->data = json_decode($row['data_json']);
-                $output->$id = $rowData;
+                if($onlyClasses) {
+                    $output->$id = $row['group_class'];
+                } else {
+                    $rowData->class = $row['group_class'];
+                    $rowData->key = $row['group_key'];
+                    $rowData->data = json_decode($row['data_json']);
+                    $output->$id = $rowData;
+                }
             }
         }
         return $output;
+    }
+
+    public function getClassesByIds(array $rowIds): stdClass|null {
+        return $this->getEntriesByIds($rowIds, true);
     }
 
     function getClassesWithCounts(string|null $like = null): stdClass {

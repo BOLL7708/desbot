@@ -2,9 +2,20 @@ import Utils from '../Classes/Utils.js'
 import DataObjectMap, {TNoFunctions} from './DataObjectMap.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
+export type TBaseDataCategory =
+    'Setting'
+    | 'Config'
+    | 'Preset'
+    | 'Event'
+    | 'Trigger'
+    | 'Action'
+
 export default abstract class BaseDataObject {
+    // region References
+
     /**
      * Get the name of the class without instantiating it.
+     * If this is used the referenced class will be instanced in place.
      */
     static ref(): string {
         return this.name
@@ -44,6 +55,16 @@ export default abstract class BaseDataObject {
     }
 
     /**
+     * Used to denote a generic object field that can contain any variant.
+     * @param like Will show a list in the editor filtered on this as a starting word.
+     */
+    static genericRef(like: TBaseDataCategory) {
+        return BaseDataObject.refId()+'|like='+like
+    }
+
+    // endregion
+
+    /**
      * Submit any object to get mapped to this class instance.
      * @param instanceOrJsonResult Optional properties to apply to this instance.
      * @param fillReferences Replace reference IDs with the referenced object.
@@ -76,14 +97,15 @@ export default abstract class BaseDataObject {
                 const types = DataObjectMap.getMeta(thisClass)?.types ?? {}
                 const typeValues = BaseDataObject.parseRef(types[propertyName] ?? '')
                 const hasSubInstance = DataObjectMap.hasInstance(typeValues.class)
-                if(hasSubInstance && typeValues.isIdReference && fillReferences) {
+                const isBaseDataObject = typeValues.class == BaseDataObject.ref()
+                if((hasSubInstance || isBaseDataObject) && typeValues.isIdReference && fillReferences) {
                     // Populate reference list of IDs with the referenced object.
-                    const emptyInstance = await DataObjectMap.getInstance(typeValues.class)
                     if (Array.isArray(propertyValue)) {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
                         for (const id of propertyValue) {
                             const dbItem = await DataBaseHelper.loadById(id.toString())
+                            const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
                             if(typeValues.idToKey) {
                                 newProp.push(dbItem?.key ?? id)
                             } else if(emptyInstance) {
@@ -99,6 +121,7 @@ export default abstract class BaseDataObject {
                         const newProp: { [key: string]: any } = {}
                         for (const [k, id] of Object.entries(propertyValue)) {
                             const dbItem = await DataBaseHelper.loadById(id?.toString())
+                            const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
                             if(typeValues.idToKey) {
                                 newProp[k] = dbItem?.key ?? id
                             } else if(emptyInstance) {
@@ -109,13 +132,15 @@ export default abstract class BaseDataObject {
                         }
                         (this as any)[propertyName] = newProp
                     } else {
+                        // It is single instance
                         const dbItem = await DataBaseHelper.loadById(propertyValue)
+                        const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
                         if(typeValues.idToKey) {
                             (this as any)[propertyName] = dbItem?.key ?? propertyValue
                         } else if(emptyInstance) {
                             (this as any)[propertyName] = await emptyInstance.__new(dbItem?.data, fillReferences)
                         } else {
-                            console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
+                            console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`)
                         }
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {
@@ -191,7 +216,8 @@ export default abstract class BaseDataObject {
             class: refArr.shift() ?? '',
             isIdReference: false,
             idLabelField: '',
-            idToKey: false
+            idToKey: false,
+            genericLike: ''
         }
         for(const t of refArr) {
             const [k, v] = t.split('=')
@@ -199,6 +225,7 @@ export default abstract class BaseDataObject {
                 case 'id': refValues.isIdReference = true; break
                 case 'key': refValues.idToKey = true; break
                 case 'label': refValues.idLabelField = v; break
+                case 'like': refValues.genericLike = v; break
             }
         }
         return refValues
@@ -213,4 +240,5 @@ export interface IBaseDataObjectRefValues {
     isIdReference: boolean
     idLabelField: string
     idToKey: boolean
+    genericLike: string
 }
