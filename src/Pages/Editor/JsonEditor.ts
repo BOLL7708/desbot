@@ -327,10 +327,10 @@ export default class JsonEditor {
                 li.appendChild(selectGeneric)
                 const setNewReference = this.appendNewReferenceItemButton(li, values)
 
-                const items = await DataBaseHelper.loadClasses(values.genericLike)
+                const items = DataObjectMap.getNames(values.genericLike, true)
                 const genericClasses = await DataBaseHelper.loadIDClasses([value.toString()])
                 const genericClass = genericClasses[value.toString()] ?? ''
-                for(const [clazz, count] of Object.entries(items)) {
+                for(const clazz of items) {
                     if(clazz) {
                         const option = document.createElement('option') as HTMLOptionElement
                         option.innerHTML = clazz
@@ -347,7 +347,6 @@ export default class JsonEditor {
                     setNewReference(clazz)
                     buildSelectOfIDs(clazz)
                 }
-
             }
 
             // List of ID references and edit button.

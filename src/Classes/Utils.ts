@@ -405,8 +405,8 @@ export default class Utils {
 
     static getCurrentFolder(): string {
         const pathArray = window.location.pathname.split('/');
-        let pathItem = '.'
-        while(pathArray.length && pathItem.includes('.')) {
+        let pathItem = ''
+        while(pathArray.length && (pathItem.includes('.') || pathItem.length == 0)) {
             pathItem = pathArray.pop() ?? ''
         }
         return pathItem
@@ -450,9 +450,13 @@ export default class Utils {
     }
 
     static camelToTitle(str: string, removeHead: boolean = false): string {
-        const arr = this.splitOnCaps(str)
-        if(removeHead) return arr.splice(1).join(' ')
-        else return arr.map((s)=>{return this.capitalize(s)}).join(' ')
+        const detectWords = /([A-Z0-9$])(?<=[a-z]\1|[A-Za-z0-9$]\1(?=[a-z]))/g
+        const splitOnWords = /[\W_]/g
+        str = str.replace(detectWords, ' $1')
+        const arr = str.split(splitOnWords)
+        if(removeHead && arr.length > 1) arr.shift()
+        if(arr.length > 0) arr[0] = this.capitalize(arr[0])
+        return arr.join(' ')
     }
     static capitalize(str: string): string {
         return str.length > 0 ? str[0].toUpperCase()+str.slice(1) : str

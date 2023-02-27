@@ -12,6 +12,7 @@ export class ConfigExample extends BaseDataObject {
     singleIdReferenceUsingLabel: number|PresetPipeBasic = 0
     singleIdToKeyReference: number|string = ''
     singleIdToKeyReferenceUsingLabel: number|string = ''
+    singleIdToGenericReference: number|BaseDataObject = 0
     arrayOfBooleans: boolean[] = []
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
@@ -20,6 +21,7 @@ export class ConfigExample extends BaseDataObject {
     arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
     arrayOfIdToKeyReferences: (number|string)[] = []
     arrayOfIdToKeyReferencesUsingLabels: (number|string)[] = []
+    arrayOfIdToGenericReferences: (number|BaseDataObject)[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
@@ -28,6 +30,7 @@ export class ConfigExample extends BaseDataObject {
     dictionaryOfIdReferencesUsingLabels: {[key:string]: number|PresetPipeBasic} = {}
     dictionaryOfIdToKeyReferences: {[key:string]: number|string} = {}
     dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|string} = {}
+    dictionaryOfIdToGenericReferences: {[key:string]: number|BaseDataObject} = {}
 }
 export class ConfigExampleSub extends BaseDataObject {
     singleString: string = ''
@@ -46,6 +49,7 @@ DataObjectMap.addRootInstance(
         singleIdReferenceUsingLabel: 'A single ID reference displayed with a label',
         singleIdToKeyReference: 'A single ID reference to any other object key',
         singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
+        singleIdToGenericReference: 'Contains a single generic entry.',
         arrayOfBooleans: '',
         arrayOfNumbers: '',
         arrayOfStrings: '',
@@ -54,6 +58,7 @@ DataObjectMap.addRootInstance(
         arrayOfIdReferencesUsingLabels: '',
         arrayOfIdToKeyReferences: '',
         arrayOfIdToKeyReferencesUsingLabels: '',
+        arrayOfIdToGenericReferences: 'Contains an array of generic entries.',
         dictionaryOfBooleans: '',
         dictionaryOfNumbers: '',
         dictionaryOfStrings: '',
@@ -61,13 +66,15 @@ DataObjectMap.addRootInstance(
         dictionaryOfIdReferences: '',
         dictionaryOfIdReferencesUsingLabels: '',
         dictionaryOfIdToKeyReferences: '',
-        dictionaryOfIdToKeyReferencesUsingLabels: ''
+        dictionaryOfIdToKeyReferencesUsingLabels: '',
+        dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.'
     },
     {
         singleIdReference: PresetPipeBasic.refId(),
         singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel('basicTitle'),
         singleIdToKeyReference: PresetPipeBasic.refIdKey(),
         singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel('basicTitle'),
+        singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
         arrayOfBooleans: 'boolean',
         arrayOfNumbers: 'number',
         arrayOfStrings: 'string',
@@ -76,6 +83,7 @@ DataObjectMap.addRootInstance(
         arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel('basicTitle'),
         arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
         arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
+        arrayOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
         dictionaryOfBooleans: 'boolean',
         dictionaryOfNumbers: 'number',
         dictionaryOfStrings: 'string',
@@ -83,7 +91,8 @@ DataObjectMap.addRootInstance(
         dictionaryOfIdReferences: PresetPipeBasic.refId(),
         dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel('basicTitle'),
         dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
-        dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle')
+        dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
+        dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting')
     }
 )
 DataObjectMap.addSubInstance(
