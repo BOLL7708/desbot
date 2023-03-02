@@ -31,7 +31,7 @@ export default class TwitchEventSub {
     private _socket?: WebSockets
     private _sessionId: string = ''
     private _keepAliveSeconds: number = 0
-    private _receivedMessageIds: string[] = []
+    private static _receivedMessageIds: string[] = []
 
     private _onRewardCallback: ITwitchEventSubRewardCallback = (event) => { console.log('EventSub: Reward unhandled') }
     private _onSubscriptionCallback: ITwitchEventSubSubscriptionCallback = (event) => { console.log('EventSub: Subscription unhandled') }
@@ -96,11 +96,14 @@ export default class TwitchEventSub {
         }
         if(dataJson && dataJson.metadata) {
             const metaData: ITwitchEventSubMetadata = dataJson.metadata
-            if(this._receivedMessageIds.indexOf(metaData.message_id) >= 0) {
+            const messageId = metaData.message_id
+            console.log(`TwitchEventSub: [${messageId}] MsgType: ${metaData.message_type}, SubType: ${metaData.subscription_type}`)
+            if(TwitchEventSub._receivedMessageIds.indexOf(messageId) >= 0) {
                 console.warn(`TwitchEventSub: Got a duplicate message of type: ${metaData.message_type}, id: ${metaData.message_id}`)
                 return
+            } else {
+                TwitchEventSub._receivedMessageIds.push(messageId)
             }
-            this._receivedMessageIds.push(metaData.message_id)
             switch(metaData.message_type) {
                 case 'session_welcome': {
                     // Initial message after connection to the server.
@@ -134,7 +137,7 @@ export default class TwitchEventSub {
                 case 'notification':
                     this.resetTimeout()
                     const message = dataJson as ITwitchEventSubMessageNotification
-                    this.onEvent(message)
+                    this.onEvent(metaData, message).then()
                     break
                 default:
                     console.warn(`TwitchEventSub: Unhandled message type: ${metaData.message_type}`)
@@ -155,7 +158,7 @@ export default class TwitchEventSub {
             this._timeoutHandle = setTimeout(()=>{
                 console.warn('TwitchEventSub: Connection timed out, resetting...')
                 this._socket?.reconnect()
-            }, (this._keepAliveSeconds+1)*1000) // Give it some margin
+            }, (this._keepAliveSeconds+5)*1000) // TODO: Put this margin in some config?
         }
     }
     // endregion
@@ -281,7 +284,9 @@ export default class TwitchEventSub {
     // endregion
 
     // region Events
-    private async onEvent(eventMessage: ITwitchEventSubMessageNotification) {
+    private _receivedRedemptions: string[] = []
+
+    private async onEvent(eventMeta: ITwitchEventSubMetadata, eventMessage: ITwitchEventSubMessageNotification) {
         switch(eventMessage.metadata.subscription_type) {
             // TODO:
             //  Redemptions
@@ -291,9 +296,15 @@ export default class TwitchEventSub {
             //  Subscriptions
             case 'channel.channel_points_custom_reward_redemption.add': {
                 const event = eventMessage.payload.event as ITwitchEventSubEventRedemption
-                console.log('TwitchEventSub: Redemption', event)
-
                 const redemptionId = event.id
+                console.log(`TwitchEventSub: Redemption ${redemptionId} (${eventMeta.message_id})`, event)
+
+                if(this._receivedRedemptions.indexOf(redemptionId) >= 0) {
+                    console.warn(`TwitchEventSub: We got a duplicate redemption with ID: ${redemptionId}`)
+                    break
+                } else {
+                    this._receivedRedemptions.push(redemptionId)
+                }
                 if(event && event.status == 'unfulfilled') {
                     const redemptionStatus = new SettingTwitchRedemption()
                     redemptionStatus.userId = parseInt(event.user_id) ?? 0
