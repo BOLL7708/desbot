@@ -97,7 +97,6 @@ export default class TwitchEventSub {
         if(dataJson && dataJson.metadata) {
             const metaData: ITwitchEventSubMetadata = dataJson.metadata
             const messageId = metaData.message_id
-            console.log(`TwitchEventSub: [${messageId}] MsgType: ${metaData.message_type}, SubType: ${metaData.subscription_type}`)
             if(TwitchEventSub._receivedMessageIds.indexOf(messageId) >= 0) {
                 console.warn(`TwitchEventSub: Got a duplicate message of type: ${metaData.message_type}, id: ${metaData.message_id}`)
                 return
@@ -136,6 +135,7 @@ export default class TwitchEventSub {
                 }
                 case 'notification':
                     this.resetTimeout()
+                    console.log(`TwitchEventSub: [${messageId}] MsgType: ${metaData.message_type}, SubType: ${metaData.subscription_type}`)
                     const message = dataJson as ITwitchEventSubMessageNotification
                     this.onEvent(metaData, message).then()
                     break

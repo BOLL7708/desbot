@@ -31,6 +31,7 @@ $newGroupKey = getHeaderValue('X-New-Group-Key');
 $rowIdList = !!getHeaderValue('X-Row-Id-List');
 $rowIdLabel = getHeaderValue('X-Row-Id-Label');
 $rowIdClasses = getHeaderValue('X-Row-Id-Classes');
+$returnId = !!getHeaderValue('X-Return-Id');
 
 // Execute
 $output = null;
@@ -58,7 +59,11 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if($rowIdList) {
+        if($returnId) {
+            // Only return the ID for this row
+            $output = $db->getRowId($groupClass, $groupKey);
+        }
+        elseif($rowIdList) {
             // Only row IDs with labels
             $output = $db->getRowIdsWithLabels($groupClass, $rowIdLabel);
         }

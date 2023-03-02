@@ -152,7 +152,8 @@ export default class EditorHandler {
                 if(!skipHistory) {
                     this.updateHistory()
                 }
-                editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, markAsDirty, this._state.forceMainKey) ?? '')
+                const rowId = await DataBaseHelper.loadID(group, resultingKey)
+                editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, rowId, markAsDirty, this._state.forceMainKey) ?? '')
             }
             return true
         }

@@ -21,6 +21,7 @@ export default class JsonEditor {
     private _labels: HTMLSpanElement[] = []
     private _hideKey: boolean = false
     private _dirty: boolean = false
+    private _rowId: number = 0
 
     private readonly _labelUnchangedColor = 'transparent'
     private readonly _labelChangedColor = 'pink'
@@ -35,6 +36,7 @@ export default class JsonEditor {
     async build(
         key: string,
         instance: object&BaseDataObject,
+        rowId: number = 0,
         dirty: boolean = false,
         hideKey: boolean = false,
         isRebuild: boolean = false
@@ -43,6 +45,7 @@ export default class JsonEditor {
             this._key = key
             this._originalKey = key
             this._hideKey = hideKey
+            this._rowId = rowId
             if(instance) {
                 this._instance = await instance.__clone()
                 this._originalInstance = await instance.__clone();
@@ -64,6 +67,7 @@ export default class JsonEditor {
         return await this.build(
             this._key,
             this._instance,
+            this._rowId,
             false,
             this._hideKey,
             true
@@ -325,7 +329,7 @@ export default class JsonEditor {
             const selectGeneric = document.createElement('select') as HTMLSelectElement
             if(values.genericLike.length > 0) {
                 li.appendChild(selectGeneric)
-                const setNewReference = this.appendNewReferenceItemButton(li, values)
+                const setNewReference = this.appendNewReferenceItemButton(li, values, this._rowId)
 
                 const items = DataObjectMap.getNames(values.genericLike, true)
                 const genericClasses = await DataBaseHelper.loadIDClasses([value.toString()])
@@ -497,15 +501,16 @@ export default class JsonEditor {
      * Returns a lambda that can update the link of the button to lead to a different class.
      * @param element
      * @param typeValues
+     * @param parentRowId
      * @private
      */
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues): Function {
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues, parentRowId: number = 0): Function {
         let button: HTMLButtonElement|undefined = undefined
         const updateLink = (clazz: string)=>{
             if(button) {
-                button.title = `Create new item of type: ${clazz}`
+                button.title = `Create new item of type: ${clazz}`+(parentRowId > 0 ? ` for parent: ${this._key} (${parentRowId})` : '')
                 button.onclick = (event)=>{
-                    window.location.replace(`?c=${clazz}&n=1`)
+                    window.location.replace(`?c=${clazz}&n=1`+(parentRowId > 0 ? `&=${parentRowId}` : ''))
                 }
             }
         }

@@ -29,10 +29,10 @@ export default class DataBaseHelper {
     }
 
     // region Json Store
-    static async loadJson(groupClass: string, groupKey: string|undefined = undefined): Promise<any|undefined> {
+    static async loadJson(groupClass: string, groupKey: string|undefined = undefined, returnId: boolean = false): Promise<any|undefined> {
         let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader({groupClass, groupKey})
+            headers: await this.getHeader({groupClass, groupKey, returnId})
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
@@ -211,6 +211,14 @@ export default class DataBaseHelper {
     }
 
     /**
+     * Load a single ID for a group class and key.
+     */
+    static async loadID(groupClass: string, groupKey: string): Promise<number> {
+        const jsonResult = await this.loadJson(groupClass, groupKey, true)
+        return jsonResult.id ?? 0
+    }
+
+    /**
      * Clears the cache of IDs loaded for a class or all classes so they will be reloaded, to show recent additions or deletions.
      * @param groupClass
      */
@@ -326,8 +334,8 @@ export default class DataBaseHelper {
      * @param options
      * @private
      */
-    private static async getHeader(options: IDataBaseHelperHeaders
-
+    private static async getHeader(
+        options: IDataBaseHelperHeaders
     ): Promise<HeadersInit> {
         const headers = new Headers()
         headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
@@ -339,6 +347,7 @@ export default class DataBaseHelper {
         if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
         if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
         if(options.rowIdClasses !== undefined) headers.set('X-Row-Id-Classes', options.rowIdClasses ? '1' : '0')
+        if(options.returnId !== undefined) headers.set('X-Return-Id', options.returnId ? '1' : '0')
         return headers
     }
 
@@ -363,6 +372,7 @@ interface IDataBaseHelperHeaders {
     rowIdLabel?: string
     rowIdClasses?: boolean
     addJsonHeader?: boolean
+    returnId?: boolean
 }
 
 interface IDataBaseItem {

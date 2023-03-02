@@ -237,6 +237,18 @@ class DB {
         }
         return $output;
     }
+    public function getRowId(?string $groupClass, ?string $groupKey): stdClass
+    {
+        $result = 0;
+        if(is_string($groupClass) && is_string($groupKey)) {
+            $result = $this->query("SELECT row_id as id FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $groupKey]);
+        }
+        $output = new stdClass();
+        $output->id = $result[0]['id'] ?? 0;
+        $output->class = $groupClass;
+        $output->key = $groupKey;
+        return $output;
+    }
     public function getRowIdsWithLabels(string|null $like, string|null $label): stdClass {
         $where = '';
         $params = [];
