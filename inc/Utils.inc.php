@@ -1,12 +1,14 @@
 <?php
 
+use JetBrains\PhpStorm\NoReturn;
+
 class Utils {
-    static function printJSIncludesAndConfigs() {
+    static function printJSIncludesAndConfigs(): void {
         // Load PHP config
         $config = include_once('_configs/config.php');
 
         // Include single file
-        function includeFile($root, $file, $directory=null) {
+        function includeFile($root, $file, $directory=null): void {
             if (is_string($file)) {
                 $name = $file;
                 $fileArr = explode('.', $file);
@@ -66,11 +68,11 @@ class Utils {
         if($configOverride != null) includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
     }
 
-    static function printJSAssetFiles() {
+    static function printJSAssetFiles(): void {
         echo 'AssetsHelper._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES);
     }
     
-    static function decode(string $b64url) {
+    static function decode(string $b64url): false|string {
         $len = strlen($b64url);
         $pad = $len+4-($len%4);
         $b64 = str_pad(str_replace(['-', '_'], ['+', '/'], $b64url), $pad, '=');
@@ -99,21 +101,21 @@ class Utils {
     /**
      * Do POST request with form data.
      */
-    static function postForm(string $url, array $postVars = array()) {
+    static function postForm(string $url, array $postVars = array()): false|null|string {
         $postStr = http_build_query($postVars);
         return Utils::post($url, $postStr, 'application/x-www-form-urlencoded');
     }
     /**
      * Do POST request with JSON data.
      */
-    static function postJSON(string $url, array $postVars = array()) {
+    static function postJSON(string $url, array $postVars = array()): false|null|string {
         $postStr = json_encode($postVars);
         return Utils::post($url, $postStr, 'application/json');
     }
     /**
      * Do POST request.
      */
-    static function post(string $url, $postStr = '', string $contentType = ''){
+    static function post(string $url, $postStr = '', string $contentType = ''): null|string {
         $options = array(
             'http' =>
                 array(
@@ -132,7 +134,7 @@ class Utils {
         return $result;
     }
 
-    static function get(string $url, array $headers = array()) {
+    static function get(string $url, array $headers = array()): false|string {
         $options = array(
             'http' =>
                 array(
@@ -144,7 +146,7 @@ class Utils {
         return file_get_contents($url, false, $context);
     }
 
-    static function exitWithError(string $message, int $code = -1, int $httpCode = 400): void
+    #[NoReturn] static function exitWithError(string $message, int $code = -1, int $httpCode = 400): void
     {
         error_log("Terminated script: $message, $code");
         header("Streaming-Widget-Error-Code: $code");
@@ -152,7 +154,7 @@ class Utils {
         self::outputJson(['error'=>$message, 'code'=>$code], $httpCode);
     }
 
-    static function outputJson(array|stdClass $body, int $code = 200): void
+    #[NoReturn] static function outputJson(array|stdClass $body, int $code = 200): void
     {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
@@ -208,13 +210,10 @@ class Utils {
      */
     public static function getScriptFileName(): string {
         $path = $_SERVER['SCRIPT_NAME'] ?? '';
-        error_log($path);
         $pathArr = explode('/', $path);
         $fileNameExt = array_pop($pathArr) ?? '';
-        error_log($fileNameExt);
         $fileNameArr = explode('.', $fileNameExt);
         $fileName = array_shift($fileNameArr) ?? '';
-        error_log($fileName);
         return strtolower($fileName);
     }
 }
