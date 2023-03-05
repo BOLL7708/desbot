@@ -30,8 +30,7 @@ $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
 $newGroupKey = getHeaderValue('X-New-Group-Key');
 $rowIdList = !!getHeaderValue('X-Row-Id-List');
 $rowIdLabel = getHeaderValue('X-Row-Id-Label');
-$rowIdClasses = getHeaderValue('X-Row-Id-Classes');
-$returnId = !!getHeaderValue('X-Return-Id');
+$noData = !!getHeaderValue('X-No-Data');
 
 // Execute
 $output = null;
@@ -59,37 +58,22 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if($returnId) {
-            // Only return the ID for this row
-            $output = $db->getRowId($groupClass, $groupKey);
-        }
-        elseif($rowIdList) {
-            // Only row IDs with labels
+        if($rowIdList) {
+            // Only row IDs with labels, used in Editor reference dropdowns.
             $output = $db->getRowIdsWithLabels($groupClass, $rowIdLabel);
         }
-        elseif($rowIdClasses) {
-            // Only class references based on IDs
-            if($rowIds && count($rowIds) > 0) $output = $db->getClassesByIds($rowIds);
-            else $output = new stdClass();
-        }
         elseif($rowIds && count($rowIds) > 0) {
-            // Full data entries based on IDs
-            $output = $db->getEntriesByIds($rowIds);
+            // Entries based on IDs
+            $output = $db->getEntriesByIds($rowIds, $noData);
         }
         elseif(!$groupClass || str_contains($groupClass, '*')) {
-            // Only classes with counts
+            // Only classes with counts, used in Editor side menu.
             $output = $db->getClassesWithCounts($groupClass);
         }
-        elseif($groupKey) {
-            // Single entry based on key
-            $output = $db->getEntries($groupClass, $groupKey);
-            $array = is_object($output) ? get_object_vars($output) : $output;
-            $output = array_pop($array);
-        } else {
-            // All entries for a group
-            $output = $db->getEntries($groupClass);
+        else {
+            // Single entry or list, depending on if key is set.
+            $output = $db->getEntries($groupClass, $groupKey, $noData);
         }
-        break;
 }
 
 // Output

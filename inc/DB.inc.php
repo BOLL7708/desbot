@@ -160,66 +160,68 @@ class DB {
     }
 
     /**
-     * Get entries, either a dictionary keyed on groupKey, an array of rows with no groupKey, or a single entry matched on groupKey.
+     * Get entries, an array matched on class and possibly key, then it's a single item array.
      * @param string $groupClass Class for the setting for the setting.
      * @param string|null $groupKey Supply this to get one specific entry.
-     * @return stdClass|array|null
+     * @param bool $noData If true excludes the JSON data.
+     * @return array|null
      */
     function getEntries(
         string $groupClass,
-        string|null $groupKey = null
-    ): stdClass|array|null {
-        $query = 'SELECT group_key, data_json FROM json_store WHERE group_class = ?';
+        string|null $groupKey = null,
+        bool $noData = false
+    ): array|null {
+        $fields = ['row_id', 'group_class', 'group_key'];
+        if(!$noData) $fields[] = 'data_json';
+        $fieldsStr = implode(',', $fields);
+
+        $query = "SELECT $fieldsStr FROM json_store WHERE group_class = ?";
         $params = [$groupClass];
         if($groupKey) {
             $query .= ' AND group_key = ?;';
             $params[] = $groupKey;
         }
         $result = $this->query($query, $params);
+        return $this->outputEntries($result);
+    }
+    private function outputEntries($entries): array|null {
         $output = null;
-        if(is_array($result)) {
-            $output = new stdClass();
-            foreach($result as $row) {
-                $groupKey = $row['group_key'];
-                $output->$groupKey = json_decode($row['data_json']);
+        if(is_array($entries)) {
+            $output = [];
+            foreach($entries as $row) {
+                $item = new stdClass();
+                $item->key = $row['group_key'];
+                $item->class = $row['group_class'];
+                $item->id = $row['row_id'];
+                $item->data = json_decode($row['data_json'] ?? 'null');
+                $output[] = $item;
             }
         }
         return $output;
     }
-    public function getEntriesByIds(array $rowIds, bool $onlyClasses = false): stdClass|null {
+    public function getEntriesByIds(array $rowIds, bool $noData = false): array|null {
         $count = count($rowIds);
         $items = array_fill(0, $count, '?');
         $params = implode(',', $items);
 
-        $fields = ['row_id', 'group_class'];
-        if(!$onlyClasses) array_push($fields, 'group_key', 'data_json');
+        $fields = ['row_id', 'group_class', 'group_key'];
+        if(!$noData) $fields[] = 'data_json';
         $fieldsStr = implode(',', $fields);
 
         $query = "SELECT $fieldsStr FROM json_store WHERE row_id IN ($params);";
         $result = $this->query($query, $rowIds);
-        $output = null;
-        if(is_array($result)) {
-            $output = new stdClass();
-            foreach($result as $row) {
-                $id = $row['row_id'];
-                $rowData = new stdClass();
-                if($onlyClasses) {
-                    $output->$id = $row['group_class'];
-                } else {
-                    $rowData->class = $row['group_class'];
-                    $rowData->key = $row['group_key'];
-                    $rowData->data = json_decode($row['data_json']);
-                    $output->$id = $rowData;
-                }
-            }
-        }
-        return $output;
+        return $this->outputEntries($result);
     }
 
-    public function getClassesByIds(array $rowIds): stdClass|null {
+    public function getClassesByIds(array $rowIds): array|null {
         return $this->getEntriesByIds($rowIds, true);
     }
 
+    /**
+     * Specifically used in the editor side menu.
+     * @param string|null $like
+     * @return stdClass
+     */
     function getClassesWithCounts(string|null $like = null): stdClass {
         $where = '';
         $params = [];
@@ -237,6 +239,13 @@ class DB {
         }
         return $output;
     }
+
+    /**
+     * Possibly not too useful but will remain for now.
+     * @param string|null $groupClass
+     * @param string|null $groupKey
+     * @return stdClass
+     */
     public function getRowId(?string $groupClass, ?string $groupKey): stdClass
     {
         $result = 0;
@@ -249,6 +258,13 @@ class DB {
         $output->key = $groupKey;
         return $output;
     }
+
+    /**
+     * Specifically used in the editor to get ID lists with the key or a specific field as label.
+     * @param string|null $like
+     * @param string|null $label
+     * @return stdClass
+     */
     public function getRowIdsWithLabels(string|null $like, string|null $label): stdClass {
         $where = '';
         $params = [];

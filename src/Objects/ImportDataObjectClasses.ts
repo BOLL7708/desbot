@@ -17,6 +17,7 @@ import {SettingSteamAchievements} from './Setting/Steam.js'
 import {SettingStreamQuote} from './Setting/Stream.js'
 import {SettingTwitchCheer} from './Setting/Twitch.js'
 import {SettingUserMute} from './Setting/User.js'
+import {ConfigSteam} from './Config/Steam.js'
 
 /**
  * This was added as a way to get all modules to load if this class is requested, because the classes are
@@ -42,6 +43,7 @@ export default class ImportDataObjectClasses {
             new ConfigRelay(),
             new ConfigSign(),
             new ConfigSpeech(),
+            new ConfigSteam(),
 
             // Presets
             new PresetPipeBasic(),

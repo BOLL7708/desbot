@@ -18,7 +18,7 @@ function getAuthUrl():string {
     global $scopes, $state;
     $db = DB::get();
     $twitchClient = $db->getEntries('SettingTwitchClient', 'Main');
-    $config = $twitchClient->Main;
+    $config = $twitchClient[0]->data;
     $url = 'https://id.twitch.tv/oauth2/authorize';
     $url .= "?client_id=$config->clientId";
     $url .= "&redirect_uri=$config->redirectUri";
@@ -41,7 +41,7 @@ if(!$gotAuthResponse) { ?>
      */
     $db = DB::get();
     $twitchClient = $db->getEntries('SettingTwitchClient', 'Main');
-    $config = $twitchClient->Main;
+    $config = $twitchClient[0]->data;
     $result = Utils::postForm('https://id.twitch.tv/oauth2/token', [
         'client_id' => $config->clientId,
         'client_secret' => $config->clientSecret,

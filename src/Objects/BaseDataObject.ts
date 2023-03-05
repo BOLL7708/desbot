@@ -108,8 +108,8 @@ export default abstract class BaseDataObject {
                             const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
                             if(typeValues.idToKey) {
                                 newProp.push(dbItem?.key ?? id)
-                            } else if(emptyInstance) {
-                                newProp.push(await emptyInstance.__new(dbItem?.data, fillReferences))
+                            } else if(emptyInstance && dbItem?.data) {
+                                newProp.push(await emptyInstance.__new(dbItem?.data ?? undefined, fillReferences))
                             } else {
                                 console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
                             }
@@ -125,7 +125,7 @@ export default abstract class BaseDataObject {
                             if(typeValues.idToKey) {
                                 newProp[k] = dbItem?.key ?? id
                             } else if(emptyInstance) {
-                                newProp[k] = await emptyInstance.__new(dbItem?.data, fillReferences)
+                                newProp[k] = await emptyInstance.__new(dbItem?.data ?? undefined, fillReferences)
                             } else {
                                 console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
                             }
@@ -138,7 +138,7 @@ export default abstract class BaseDataObject {
                         if(typeValues.idToKey) {
                             (this as any)[propertyName] = dbItem?.key ?? propertyValue
                         } else if(emptyInstance) {
-                            (this as any)[propertyName] = await emptyInstance.__new(dbItem?.data, fillReferences)
+                            (this as any)[propertyName] = await emptyInstance.__new(dbItem?.data ?? undefined, fillReferences)
                         } else {
                             console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`)
                         }

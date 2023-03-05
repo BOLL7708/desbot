@@ -295,9 +295,9 @@ export default class JsonEditor {
             const buildSelectOfIDs = async(overrideClass: string = '') => {
                 let items: IStringDictionary = {}
                 if(overrideClass.length > 0) {
-                    items = await DataBaseHelper.loadIDs(overrideClass)
+                    items = await DataBaseHelper.loadIDsWithLabelForClass(overrideClass)
                 } else {
-                    items = await DataBaseHelper.loadIDs(values.class, values.idLabelField)
+                    items = await DataBaseHelper.loadIDsWithLabelForClass(values.class, values.idLabelField)
                 }
                 let hasSetInitialValue = false
                 let firstValue = '0'

@@ -5,14 +5,30 @@ import BaseDataObject from '../Objects/BaseDataObject.js'
 import EditorHandler from '../Pages/Editor/EditorHandler.js'
 import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 
+/*
+TODO
+ 1. [OK] Vi borde ta emot det nya formatet från databas-funktionerna i PHP, MEN, sen lagra det på samma sätt här.
+ 2. [OK] Däremot så skapar vi två nya tabeller, Class+Id -> ID, ID -> Class+Id, så vi kan slå upp saker åt båda hållen.
+ 3. [] Gör så att ladda ut en enhet inte returnerar en class man läser data ur, utan instansen direkt.
+ 4. [] Testa så att allt fungerar... har ändrat på när saker fylls med fillReferences o_O
+ */
+
 export default class DataBaseHelper {
     private static LOG_GOOD_COLOR: string = Color.BlueViolet
     private static LOG_BAD_COLOR: string = Color.DarkRed
 
+    // Main storage
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
-    private static _idStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
+
+    // Editor specific storage
+    private static _idKeyStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
     private static _idLabelStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists with labels used in the editor
-    private static _idClassStore: Map<string, string> = new Map() // Used to store classes for IDs
+
+    // Reference maps, if an object has been loaded once, it exists in these maps.
+    private static _keyToIdMap: Map<[string, string], number> = new Map()
+    private static _idToKeyMap: Map<number, [string, string]> = new Map()
+
+    // Global flags
     private static _fillReferences: boolean = false
 
     static async testConnection(): Promise<boolean> {
@@ -29,10 +45,10 @@ export default class DataBaseHelper {
     }
 
     // region Json Store
-    static async loadJson(groupClass: string, groupKey: string|undefined = undefined, returnId: boolean = false): Promise<any|undefined> {
+    static async loadJson(groupClass: string, groupKey: string|undefined = undefined, noData: boolean = false): Promise<any|undefined> {
         let url = this.getUrl()
         const response = await fetch(url, {
-            headers: await this.getHeader({groupClass, groupKey, returnId})
+            headers: await this.getHeader({groupClass, groupKey, noData})
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
@@ -64,6 +80,14 @@ export default class DataBaseHelper {
         if(response.ok) {
             const jsonData = await response.json()
             groupKey = jsonData.groupKey
+            if(groupKey) { // Load item and store in reference lists
+                const newItemResponse = await this.loadJson(groupClass, groupKey, true)
+                if(newItemResponse.ok) {
+                    const newItemJson = await newItemResponse.json()
+                    if(Array.isArray(newItemJson) && newItemJson.length > 0)
+                    this.handleDataBaseItem(newItemJson[0])
+                }
+            }
         }
         return response.ok ? groupKey : undefined
     }
@@ -78,6 +102,18 @@ export default class DataBaseHelper {
     // endregion
 
     // region Instance Functions
+
+    /**
+     * Register the meta in maps and return a cast object in case data is available.
+     * @param item
+     * @private
+     */
+    private static handleDataBaseItem<T>(item: IDataBaseItem<T>):T|undefined {
+        this._idToKeyMap.set(item.id, [item.class, item.key])
+        this._keyToIdMap.set([item.class, item.key], item.id)
+        return item.data ? item.data as T : undefined
+    }
+
     /**
      * Load a dictionary of entries from the database, this will retain keys.
      * @param emptyInstance Instance of the class to load.
@@ -98,22 +134,24 @@ export default class DataBaseHelper {
         }
 
         // DB
-        const jsonResult = await this.loadJson(className)
-        const plainDictionary = jsonResult ? jsonResult as { [key: string]: T } : undefined
-        const cacheDictionary: { [key: string]: T } = {}
-        const resultDictionary: { [key: string]: T } = {}
-        if(plainDictionary) {
+        const jsonResult = await this.loadJson(className) as IDataBaseItem<T>[]|undefined
+        if(jsonResult && jsonResult.length > 0) {
+            const resultDictionary: { [key: string]: T } = {}
+            const cacheDictionary: { [key: string]: T } = {}
+
             // Convert plain objects to class instances and cache them
-            for(const [key, setting] of Object.entries(plainDictionary)) {
-                const resultInstance = await emptyInstance.__new(setting as T&object, this._fillReferences)
-                if(resultInstance) {
-                    cacheDictionary[key] = await emptyInstance.__new(setting as T&object, this._fillReferences)
-                    resultDictionary[key] = resultInstance
+            for(const item of jsonResult) {
+                const plainObject = this.handleDataBaseItem(item) as T&object
+                const filledObject = await emptyInstance.__new(plainObject, this._fillReferences)
+                if(filledObject) {
+                    cacheDictionary[item.key] = await emptyInstance.__new(plainObject)
+                    resultDictionary[item.key] = filledObject
                 }
             }
             this._dataStore.set(className, cacheDictionary)
+            return resultDictionary
         }
-        return resultDictionary
+        return undefined
     }
 
     /**
@@ -126,12 +164,26 @@ export default class DataBaseHelper {
     }
 
     /**
-     * Load one specific blob from the database, or cache if it exists.
+     * The original load function that now loads the full item but returns only the data.
+     * @param emptyInstance
+     * @param key
+     * @param ignoreCache
+     */
+    static async load<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
+        const item = await this.loadItem(emptyInstance, key, ignoreCache)
+        if(item) {
+            return item.data as T
+        }
+        return undefined
+    }
+
+    /**
+     * Load one specific blob from the database, or from the cache if it already exists.
      * @param emptyInstance Instance of the class to load.
      * @param key The key for the row to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async load<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
+    static async loadItem<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<IDataBaseItem<T>|undefined> {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
@@ -139,46 +191,59 @@ export default class DataBaseHelper {
         if (!ignoreCache && this._dataStore.has(className)) {
             const dictionary = this._dataStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
-                return await emptyInstance.__new(dictionary[key] ?? undefined, this._fillReferences)
+                const data = await emptyInstance.__new(dictionary[key] ?? undefined, this._fillReferences)
+                return {
+                    id: this._keyToIdMap.get([className, key]) ?? 0,
+                    key: key,
+                    class: className,
+                    data: data
+                }
             }
         }
 
         // DB
-        const jsonResult = await this.loadJson(className, key)
-        let plainObject: T|undefined = jsonResult ? jsonResult as T : undefined
-        let filledObject: T|undefined
-        if (plainObject) {
+        const jsonResult = await this.loadJson(className, key) as IDataBaseItem<T>[]|undefined
+        if(jsonResult && jsonResult.length == 1) {
+
             // Convert plain object to class instance
-            filledObject = await emptyInstance.__new(plainObject as T&object, this._fillReferences)
+            const item = jsonResult[0]
+            const plainObject = this.handleDataBaseItem(item) as T&object
+            const filledObject = await emptyInstance.__new(plainObject, this._fillReferences)
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
                 const newDic: { [key: string]: T } = {}
                 this._dataStore.set(className, newDic)
             }
-            const dictionary = this._dataStore.get(className)
+            const cacheDictionary = this._dataStore.get(className)
 
             // Save a new instance in the cache so the returned instance can be modified without affecting the cache.
-            if (dictionary) dictionary[key] = await emptyInstance.__new(plainObject as T&object, this._fillReferences)
+            if (cacheDictionary) cacheDictionary[key] = await emptyInstance.__new(plainObject)
+            item.data = filledObject
+            return item
         }
-        return filledObject ? filledObject : undefined
+        return undefined
     }
 
-    static async loadById(rowId?: string|number): Promise<IDataBaseItem|undefined> {
+    static async loadById(rowId?: string|number): Promise<IDataBaseItem<unknown>|undefined> {
         if(!rowId) return undefined
         let url = this.getUrl()
         const response = await fetch(url, {
             headers: await this.getHeader({rowIds: rowId})
         })
-        const responseText = await response.text()
-        const result = responseText.length > 0 ? JSON.parse(responseText) : undefined;
-        return result ? result[rowId] : undefined
+        const jsonResult = await response.json()
+        if(jsonResult && jsonResult.length > 0) {
+            const item = jsonResult[0]
+            this.handleDataBaseItem(item)
+            return item
+        }
+        return undefined
     }
 
     /**
      * Load all available group classes registered in the database.
      */
-    static async loadClasses(like: string): Promise<INumberDictionary> {
+    static async loadClassesWithCounts(like: string): Promise<INumberDictionary> {
         const url = this.getUrl()
         const response = await fetch(url, {
             headers: await this.getHeader({groupClass: like+'*'})
@@ -189,11 +254,11 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDs(groupClass: string, rowIdLabel?: string): Promise<IStringDictionary> {
+    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string): Promise<IStringDictionary> {
         if(rowIdLabel) {
             if(this._idLabelStore.has(groupClass)) return this._idLabelStore.get(groupClass) ?? {}
         } else {
-            if(this._idStore.has(groupClass)) return this._idStore.get(groupClass) ?? {}
+            if(this._idKeyStore.has(groupClass)) return this._idKeyStore.get(groupClass) ?? {}
         }
 
         const url = this.getUrl()
@@ -206,38 +271,53 @@ export default class DataBaseHelper {
         })
         const json = response.ok ? await response.json() : {}
         if(rowIdLabel) this._idLabelStore.set(groupClass, json)
-        else this._idStore.set(groupClass, json)
+        else this._idKeyStore.set(groupClass, json)
+
         return json
     }
 
     /**
-     * Load a single ID for a group class and key.
+     * Load a single ID for a group class and key, will use cache if that is set.
      */
     static async loadID(groupClass: string, groupKey: string): Promise<number> {
+        const tuple: [string, string] = [groupClass, groupKey]
+
+        // Return cache if it is set
+        if(this._keyToIdMap.has(tuple)) return this._keyToIdMap.get(tuple) ?? 0
+
+        // Load from DB
         const jsonResult = await this.loadJson(groupClass, groupKey, true)
-        return jsonResult.id ?? 0
+        if(jsonResult && jsonResult.length > 0) {
+            const item = jsonResult[0]
+            this.handleDataBaseItem(item) // Store cache
+            return item.id ?? 0
+        }
+        return 0
     }
 
     /**
      * Clears the cache of IDs loaded for a class or all classes so they will be reloaded, to show recent additions or deletions.
      * @param groupClass
      */
-    static clearIDs(groupClass?: string) {
+    static clearReferences(groupClass?: string): boolean {
         if(groupClass) {
-            if(this._idStore.has(groupClass)) this._idStore.delete(groupClass)
-        } else {
-            this._idStore.clear()
+            this._idKeyStore.delete(groupClass)
+            this._idLabelStore.delete(groupClass)
+            return true
         }
+        return false
     }
     
     static async loadIDClasses(idArr: string[]): Promise<IStringDictionary> {
         const output: IStringDictionary = {}
         const toLoad: string[] = []
-        for(const id of idArr) {
-            if(this._idClassStore.has(id)) {
-                output[id] = this._idClassStore.get(id) ?? ''
+        for(const idStr of idArr) {
+            const id = parseInt(idStr)
+            if(this._idToKeyMap.has(id)) {
+                const tuple = this._idToKeyMap.get(id)
+                output[id] = Array.isArray(tuple) ? tuple[0] : ''
             } else {
-                toLoad.push(id)
+                toLoad.push(idStr)
             }
         }
         if(toLoad.length > 0) {
@@ -245,17 +325,17 @@ export default class DataBaseHelper {
             const response = await fetch(url, {
                 headers: await this.getHeader({
                     rowIds: toLoad.join(','),
-                    rowIdClasses: true
+                    noData: true
                 })
             })
             if(response.ok) {
-                const json = await response.json()
-                if(json) {
-                    for(const [id, clazz] of Object.entries(json))
-                    if(id && clazz) {
-                        const classStr = clazz.toString()
-                        output[id] = classStr.toString()
-                        this._idClassStore.set(id, classStr)
+                const jsonResult = await response.json()
+                if(jsonResult && jsonResult.length > 0) {
+                    for(const item of jsonResult) {
+                        this.handleDataBaseItem(item)
+                        if(item) {
+                            output[item.id] = item.class
+                        }
                     }
                 }
             }
@@ -281,6 +361,7 @@ export default class DataBaseHelper {
             if(!this._dataStore.has(className)) this._dataStore.set(className, {})
             const dictionary = this._dataStore.get(className)
             if(dictionary) dictionary[key] = setting
+
         }
 
         // Result
@@ -303,10 +384,14 @@ export default class DataBaseHelper {
         // DB
         const ok = await this.deleteJson(className, key)
 
-        // Cache
+        // Clear cache
         if(ok) {
             const dictionary = this._dataStore.get(className)
             if(dictionary) delete dictionary[key]
+            const tuple: [string, string] = [className, key]
+            const id = this._keyToIdMap.get(tuple) ?? 0
+            this._idToKeyMap.delete(id)
+            this._keyToIdMap.delete(tuple)
         }
 
         // Result
@@ -346,8 +431,7 @@ export default class DataBaseHelper {
         if(options.rowIds !== undefined) headers.set('X-Row-Ids', options.rowIds.toString())
         if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
         if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
-        if(options.rowIdClasses !== undefined) headers.set('X-Row-Id-Classes', options.rowIdClasses ? '1' : '0')
-        if(options.returnId !== undefined) headers.set('X-Return-Id', options.returnId ? '1' : '0')
+        if(options.noData !== undefined) headers.set('X-No-Data', options.noData ? '1' : '0')
         return headers
     }
 
@@ -370,13 +454,18 @@ interface IDataBaseHelperHeaders {
     rowIds?: number|string
     rowIdList?: boolean
     rowIdLabel?: string
-    rowIdClasses?: boolean
+    noData?: boolean
     addJsonHeader?: boolean
-    returnId?: boolean
 }
 
-interface IDataBaseItem {
-    class: string,
-    key: string,
-    data: any
+export interface IDataBaseItem<T> {
+    id: number
+    class: string
+    key: string
+    data: (T&BaseDataObject)|null
+}
+export interface IDataBaseLabelItem {
+    id: number
+    key: string
+    label: string
 }

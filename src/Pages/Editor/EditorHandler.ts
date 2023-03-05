@@ -1,4 +1,4 @@
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import DataBaseHelper, {IDataBaseItem} from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
 import BaseDataObject from '../../Objects/BaseDataObject.js'
@@ -65,7 +65,7 @@ export default class EditorHandler {
         if(!this._sideMenuDiv) {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
-        const classesAndCounts = await DataBaseHelper.loadClasses(this._state.likeFilter)
+        const classesAndCounts = await DataBaseHelper.loadClassesWithCounts(this._state.likeFilter)
         for(const className of DataObjectMap.getNames(this._state.likeFilter)) {
             if(!classesAndCounts.hasOwnProperty(className)) {
                 // Add missing classes so they can still be edited
@@ -141,19 +141,22 @@ export default class EditorHandler {
             } else {
                 resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(resultingKey.length > 0) {
-                    instance = await DataObjectMap.getInstance(group, items[resultingKey] ?? {}) ?? items[resultingKey] // The last ?? is for test settings that has no class.
+                    const item = (items as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
+                    instance = await DataObjectMap.getInstance(group, item?.data ?? {}) ?? item?.data ?? {} // The last ?? is for test settings that has no class.
                 } else {
                     instance = await DataObjectMap.getInstance(group, {})
                 }
                 editorSaveButton.innerHTML = this._labelSaveButton
             }
-            if(instance) {
+            if(instance && instance?.constructor.name !== 'Object') {
                 this._state.groupKey = resultingKey
                 if(!skipHistory) {
                     this.updateHistory()
                 }
                 const rowId = await DataBaseHelper.loadID(group, resultingKey)
                 editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, rowId, markAsDirty, this._state.forceMainKey) ?? '')
+            } else {
+                console.warn(`Could not load instance for ${group}, class is: ${instance?.constructor.name}`)
             }
             return true
         }
@@ -168,11 +171,11 @@ export default class EditorHandler {
             dropdownLabel.htmlFor = dropdown.id
             dropdownLabel.innerText = 'Entries: '
             if(this._contentDiv && items) {
-                for(const key of Object.keys(items)) {
+                for(const item of items) {
                     const option = document.createElement('option') as HTMLOptionElement
-                    option.innerText = key
-                    option.value = key
-                    if(selectKey == key) option.selected = true
+                    option.innerText = item.key
+                    option.value = item.key
+                    if(selectKey == item.key) option.selected = true
                     dropdown.appendChild(option)
                 }
             }
@@ -219,7 +222,7 @@ export default class EditorHandler {
             if(doDelete) {
                 const ok = await DataBaseHelper.deleteJson(group, this._state.groupKey)
                 if(ok) {
-                    DataBaseHelper.clearIDs(group) // To make reference lists reload to remove the deleted entry.
+                    DataBaseHelper.clearReferences(group) // To make reference lists reload to remove the deleted entry.
                     this.updateSideMenu().then()
                     this.showListOfItems(group).then()
                 } else {
@@ -281,7 +284,7 @@ export default class EditorHandler {
             const newGroupKey = this._editor.getKey()
             const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey)
             if(resultingGroupKey) {
-                if(newGroupKey) DataBaseHelper.clearIDs(groupClass) // To make reference lists reload with the new/updated item.
+                if(newGroupKey) DataBaseHelper.clearReferences(groupClass) // To make reference lists reload with the new/updated item.
                 this.updateSideMenu().then()
                 this.updateModifiedState(false)
                 this.showListOfItems(groupClass, resultingGroupKey).then()
