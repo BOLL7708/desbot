@@ -96,7 +96,7 @@ export default class EditorHandler {
     private _editor: JsonEditor|undefined
     private _editorSaveButton: HTMLButtonElement|undefined
     private async showListOfItems(group: string, selectKey: string = '', skipHistory: boolean = false) {
-        if(!this.promptNavigateAway()) return
+        await this.saveOnNavigateAway()
         this._state.groupClass = group
         this._state.groupKey = selectKey
         if(!skipHistory) {
@@ -127,10 +127,9 @@ export default class EditorHandler {
             event: Event|undefined,
             clear: boolean = false,
             markAsDirty: boolean = false,
-            skipHistory: boolean = false,
-            forceNavigation: boolean = false
+            skipHistory: boolean = false
         ): Promise<boolean> =>{
-            if(!forceNavigation && !this.promptNavigateAway()) return false
+            await this.saveOnNavigateAway()
             this._state.newItem = false // Reset it as we only need that to affect the initial load.
             let instance: BaseDataObject|undefined = undefined
             let resultingKey = selectKey
@@ -278,20 +277,22 @@ export default class EditorHandler {
         this._contentDiv.appendChild(editorImportButton)
     }
 
-    private async saveData(groupKey: string, groupClass: string) {
+    private async saveData(groupKey: string, groupClass: string): Promise<boolean> {
         if(this._editor) {
             const data = this._editor.getData()
             const newGroupKey = this._editor.getKey()
             const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey)
             if(resultingGroupKey) {
                 if(newGroupKey) DataBaseHelper.clearReferences(groupClass) // To make reference lists reload with the new/updated item.
-                this.updateSideMenu().then()
+                await this.updateSideMenu()
                 this.updateModifiedState(false)
-                this.showListOfItems(groupClass, resultingGroupKey).then()
+                await this.showListOfItems(groupClass, resultingGroupKey)
+                return true
             } else {
                 alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
             }
         }
+        return false
     }
 
     private updateHistory(replace: boolean = false) {
@@ -315,18 +316,19 @@ export default class EditorHandler {
         this._unsavedChanges = Utils.clone(modified)
         if(modified) {
             window.onbeforeunload = (event)=>{
-                event.preventDefault()
-                return event.returnValue = ''
+                this.saveData(this._state.groupKey, this._state.groupClass).then()
+                return undefined
             }
         } else {
             window.onbeforeunload = null
         }
      }
 
-    private promptNavigateAway(): boolean {
-        return this._unsavedChanges
-            ? confirm('You will lose your unsaved changes if you continue.')
-            : true
+    private async saveOnNavigateAway(): Promise<boolean> {
+        if(this._unsavedChanges) {
+            return await this.saveData(this._state.groupKey, this._state.groupClass)
+        }
+        return false
     }
 }
 
