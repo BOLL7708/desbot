@@ -54,12 +54,27 @@ export default class JsonEditor {
         }
         this._modifiedStatusListener(dirty)
 
-        if(!this._root) this._root = this.buildUL()
-        else this._root.replaceChildren()
+
 
         this._labels = []
         const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
-        await this.stepData(this._root, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
+        const tempParent = this.buildUL()
+        if(this._rowId > 0) {
+            const idLI = this.buildLI('')
+            const idLabel = document.createElement('span')
+            idLabel.classList.add('input-label')
+            idLabel.innerHTML = 'ID: '
+            const idField = document.createElement('code')
+            idField.classList.add('disabled')
+            idField.contentEditable = 'false'
+            idField.innerHTML = this._rowId.toString()
+            idLI.replaceChildren(idLabel, idField)
+            tempParent.appendChild(idLI)
+        }
+        await this.stepData(tempParent, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
+
+        if(!this._root) this._root = this.buildUL()
+        this._root.replaceChildren(...tempParent.children)
         if(dirty) this.highlightLabels()
         return this._root
     }
