@@ -118,7 +118,11 @@ class DB {
      * @param string $newGroupKey
      * @return bool
      */
-    function updateKey(string $groupClass, string $groupKey, string $newGroupKey): bool {
+    function updateKey(
+        string $groupClass,
+        string $groupKey,
+        string $newGroupKey
+    ): bool {
         $newKeyAlreadyExists = !!$this->query("SELECT group_key FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $newGroupKey]);
         return !$newKeyAlreadyExists && !!$this->query("UPDATE json_store SET group_key = ? WHERE group_class = ? AND group_key = ?;", [$newGroupKey, $groupClass, $groupKey]);
     }
@@ -127,20 +131,22 @@ class DB {
      * Save an entry, use subcategory and key if you want to be able to update it too.
      * @param string $groupClass
      * @param string|null $groupKey
+     * @param int|null $parentId
      * @param string $dataJson
      * @return string|bool The inserted/updated key or false if failed.
      */
     function saveEntry(
         string      $groupClass,
         string|null $groupKey,
+        int|null $parentId,
         string      $dataJson
     ): string|bool {
         $uuid = $this->getUUID();
         $result = $this->query("
-            INSERT INTO json_store (group_class, group_key, data_json) VALUES (?, IFNULL(?, ?), ?)
+            INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (?, IFNULL(?, ?), ?, ?)
             ON DUPLICATE KEY
             UPDATE data_json = ?;
-        ", [$groupClass, $groupKey, $uuid, $dataJson, $dataJson]);
+        ", [$groupClass, $groupKey, $uuid, $parentId, $dataJson, $dataJson]);
         return $result ? ($groupKey ?? $uuid) : false;
     }
 
@@ -169,18 +175,25 @@ class DB {
     function getEntries(
         string $groupClass,
         string|null $groupKey = null,
+        int|null $parentId = null,
         bool $noData = false
     ): array|null {
-        $fields = ['row_id', 'group_class', 'group_key'];
+        $fields = ['row_id', 'group_class', 'group_key', 'parent_id'];
         if(!$noData) $fields[] = 'data_json';
         $fieldsStr = implode(',', $fields);
 
         $query = "SELECT $fieldsStr FROM json_store WHERE group_class = ?";
         $params = [$groupClass];
         if($groupKey) {
-            $query .= ' AND group_key = ?;';
+            $query .= ' AND group_key = ?';
             $params[] = $groupKey;
         }
+        if($parentId !== null) {
+            $query .= ' AND parent_id = ?';
+            $params[] = $parentId;
+        }
+        $query .= ';';
+
         $result = $this->query($query, $params);
         return $this->outputEntries($result);
     }
@@ -193,28 +206,35 @@ class DB {
                 $item->key = $row['group_key'];
                 $item->class = $row['group_class'];
                 $item->id = $row['row_id'];
+                $item->pid = $row['parent_id'];
                 $item->data = json_decode($row['data_json'] ?? 'null');
                 $output[] = $item;
             }
         }
         return $output;
     }
-    public function getEntriesByIds(array $rowIds, bool $noData = false): array|null {
+    public function getEntriesByIds(array $rowIds, int|null $parentId, bool $noData = false): array|null {
         $count = count($rowIds);
         $items = array_fill(0, $count, '?');
-        $params = implode(',', $items);
+        $paramsStr = implode(',', $items);
 
-        $fields = ['row_id', 'group_class', 'group_key'];
+        $fields = ['row_id', 'group_class', 'group_key', 'parent_id'];
         if(!$noData) $fields[] = 'data_json';
         $fieldsStr = implode(',', $fields);
+        $query = "SELECT $fieldsStr FROM json_store WHERE row_id IN ($paramsStr)";
+        $params = $rowIds;
+        if($parentId !== null) {
+            $query .= " AND parent_id = ?";
+            $params[] = $parentId;
+        }
+        $query .= ';';
 
-        $query = "SELECT $fieldsStr FROM json_store WHERE row_id IN ($params);";
-        $result = $this->query($query, $rowIds);
+        $result = $this->query($query, $params);
         return $this->outputEntries($result);
     }
 
-    public function getClassesByIds(array $rowIds): array|null {
-        return $this->getEntriesByIds($rowIds, true);
+    public function getClassesByIds(array $rowIds, int|null $parentId): array|null {
+        return $this->getEntriesByIds($rowIds, $parentId, true);
     }
 
     /**
@@ -222,12 +242,16 @@ class DB {
      * @param string|null $like
      * @return stdClass
      */
-    function getClassesWithCounts(string|null $like = null): stdClass {
+    function getClassesWithCounts(string|null $like = null, int|null $parentId = null): stdClass {
         $where = '';
         $params = [];
         if($like && strlen($like) > 0) {
             $params[] = str_replace('*', '%', $like);
-            $where = 'WHERE group_class LIKE ?';
+            $where .= 'WHERE group_class LIKE ?';
+        }
+        if($parentId !== null) {
+            $params[] = $parentId;
+            $where .= ' AND parent_id = ?';
         }
         $query = "SELECT group_class, COUNT(*) as count FROM json_store $where GROUP BY group_class;";
         $result = $this->query($query, $params);
@@ -263,14 +287,23 @@ class DB {
      * Specifically used in the editor to get ID lists with the key or a specific field as label.
      * @param string|null $like
      * @param string|null $label
+     * @param int|null $parentId
      * @return stdClass
      */
-    public function getRowIdsWithLabels(string|null $like, string|null $label): stdClass {
+    public function getRowIdsWithLabels(
+        string|null $like,
+        string|null $label,
+        int|null $parentId = null
+    ): stdClass {
         $where = '';
         $params = [];
         if($like && strlen($like) > 0) {
+            $where .= 'WHERE group_class LIKE ?';
             $params[] = str_replace('*', '%', $like);
-            $where = 'WHERE group_class LIKE ?';
+        }
+        if($parentId !== null) {
+            $where .= ' AND parent_id = ?';
+            $params[] = $parentId;
         }
         if($label && strlen($label) > 0) {
             array_unshift($params, "$.$label");

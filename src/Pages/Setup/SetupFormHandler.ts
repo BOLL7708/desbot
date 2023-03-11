@@ -69,7 +69,7 @@ export default class SetupFormHandler {
         await this.migrateDB()
 
         // Twitch client info
-        const twitchClient = await DataBaseHelper.load(new SettingTwitchClient(), 'Main', true)
+        const twitchClient = await DataBaseHelper.load(new SettingTwitchClient(), 'Main', undefined, true)
         if(!twitchClient || Utils.isEmptyObject(twitchClient)) {
             // Fill form with existing values.
             const form = this._formElements['TwitchClient']
@@ -96,7 +96,7 @@ export default class SetupFormHandler {
         let scopes = await scopesResponse.json()
         if(Array.isArray(scopes)) scopes = scopes.join(' ')
         // Twitch credentials channel
-        const twitchChannelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel', true)
+        const twitchChannelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel', undefined, true)
         if(!twitchChannelTokens || Utils.isEmptyObject(twitchChannelTokens) || twitchChannelTokens.scopes !== scopes) {
             console.log('We need to login Channel Twitch account', twitchChannelTokens)
             return this._sections.show('TwitchLoginChannel')
@@ -107,7 +107,7 @@ export default class SetupFormHandler {
         }
 
         // Twitch credentials chatbot
-        const twitchChatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot', true)
+        const twitchChatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot', undefined, true)
         if(!twitchChatbotTokens || Utils.isEmptyObject(twitchChatbotTokens) || twitchChatbotTokens.scopes !== scopes) {
             console.log('We need to login Chatbot Twitch account', twitchChatbotTokens)
             return this._sections.show('TwitchLoginChatbot')
@@ -118,7 +118,7 @@ export default class SetupFormHandler {
         }
 
         // Imports
-        let importStatus = await DataBaseHelper.load(new SettingImportStatus(), 'Legacy', true)
+        let importStatus = await DataBaseHelper.load(new SettingImportStatus(), 'Legacy', undefined, true)
         if(!importStatus || !importStatus.done) {
             await this._sections.show('Waiting', 'Waiting...', 'Confirm if you want to do the import or not.')
             const doImport = confirm('It is possible to import legacy settings from the _settings folder, do you want do this import? Cancelling will mark it as done.')

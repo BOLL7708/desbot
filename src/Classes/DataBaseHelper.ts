@@ -21,12 +21,12 @@ export default class DataBaseHelper {
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
-    private static _idKeyStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
-    private static _idLabelStore: Map<string, { [id:string]: string }> = new Map() // Used to store ID reference lists with labels used in the editor
+    private static _idKeyStore: Map<[string, number], { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
+    private static _idLabelStore: Map<[string, number], { [id:string]: string }> = new Map() // Used to store ID reference lists with labels used in the editor
 
     // Reference maps, if an object has been loaded once, it exists in these maps.
-    private static _keyToIdMap: Map<[string, string], number> = new Map()
-    private static _idToKeyMap: Map<number, [string, string]> = new Map()
+    private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
+    private static _idToMetaMap: Map<number, IDataBaseItem<any>> = new Map()
 
     // Global flags
     private static _fillReferences: boolean = false
@@ -45,10 +45,18 @@ export default class DataBaseHelper {
     }
 
     // region Json Store
-    static async loadJson(groupClass: string, groupKey: string|undefined = undefined, noData: boolean = false): Promise<any|undefined> {
+    static async loadJson(
+        groupClass: string,
+        groupKey?: string,
+        parentId?: number,
+        noData?: boolean): Promise<any|undefined> {
         let url = this.getUrl()
+        const options: IDataBaseHelperHeaders = {groupClass, groupKey, noData}
+        if(parentId && !isNaN(parentId) && parentId > 0) {
+            options.parentId = parentId
+        }
         const response = await fetch(url, {
-            headers: await this.getHeader({groupClass, groupKey, noData})
+            headers: await this.getHeader(options)
         })
         const responseText = await response.text()
         return responseText.length > 0 ? JSON.parse(responseText) : undefined;
@@ -60,16 +68,21 @@ export default class DataBaseHelper {
      * @param groupClass Main category to load.
      * @param groupKey Specific item to fetch.
      * @param newGroupKey New key to replace old with.
+     * @param parentId Optional ID for a parent row.
      */
     static async saveJson(
         jsonStr: string,
         groupClass: string,
-        groupKey: string|undefined,
-        newGroupKey: string|undefined = undefined
+        groupKey?: string,
+        newGroupKey?: string,
+        parentId?: number
     ): Promise<string|undefined> {
         const options: IDataBaseHelperHeaders = {groupClass, groupKey, addJsonHeader: true}
         if(newGroupKey && groupKey != newGroupKey) {
-            options['newGroupKey'] = newGroupKey
+            options.newGroupKey = newGroupKey
+        }
+        if(parentId && !isNaN(parentId) && parentId > 0) {
+            options.parentId = parentId
         }
         let url = this.getUrl()
         const response = await fetch(url, {
@@ -81,7 +94,7 @@ export default class DataBaseHelper {
             const jsonData = await response.json()
             groupKey = jsonData.groupKey
             if(groupKey) { // Load item and store in reference lists
-                const newItemResponse = await this.loadJson(groupClass, groupKey, true)
+                const newItemResponse = await this.loadJson(groupClass, groupKey, parentId, true)
                 if(newItemResponse.ok) {
                     const newItemJson = await newItemResponse.json()
                     if(Array.isArray(newItemJson) && newItemJson.length > 0)
@@ -109,17 +122,24 @@ export default class DataBaseHelper {
      * @private
      */
     private static handleDataBaseItem<T>(item: IDataBaseItem<T>):T|undefined {
-        this._idToKeyMap.set(item.id, [item.class, item.key])
-        this._keyToIdMap.set([item.class, item.key], item.id)
+        const itemClone = Utils.clone<IDataBaseItem<T>>(item)
+        itemClone.data = null
+        this._idToMetaMap.set(item.id, itemClone)
+        this._groupKeyTupleToMetaMap.set([item.class, item.key], itemClone)
         return item.data ? item.data as T : undefined
     }
 
     /**
      * Load a dictionary of entries from the database, this will retain keys.
      * @param emptyInstance Instance of the class to load.
+     * @param parentId Filter on items with this parent id.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadAll<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<{ [key: string]: T }|undefined> {
+    static async loadAll<T>(
+        emptyInstance: T&BaseDataObject,
+        parentId?: number,
+        ignoreCache?: boolean
+    ): Promise<{ [key: string]: T }|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
@@ -135,7 +155,7 @@ export default class DataBaseHelper {
 
         // DB
         const jsonResult = await this.loadJson(className) as IDataBaseItem<T>[]|undefined
-        if(jsonResult && jsonResult.length > 0) {
+        if(jsonResult && jsonResult.length <= 0) {
             const resultDictionary: { [key: string]: T } = {}
             const cacheDictionary: { [key: string]: T } = {}
 
@@ -160,17 +180,23 @@ export default class DataBaseHelper {
      * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T> {
-        return await this.load(emptyInstance, EditorHandler.MainKey, ignoreCache) ?? emptyInstance
+        return await this.load(emptyInstance, EditorHandler.MainKey, undefined, ignoreCache) ?? emptyInstance
     }
 
     /**
      * The original load function that now loads the full item but returns only the data.
      * @param emptyInstance
      * @param key
+     * @param parentId
      * @param ignoreCache
      */
-    static async load<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<T|undefined> {
-        const item = await this.loadItem(emptyInstance, key, ignoreCache)
+    static async load<T>(
+        emptyInstance: T&BaseDataObject,
+        key: string,
+        parentId?: number,
+        ignoreCache?: boolean
+    ): Promise<T|undefined> {
+        const item = await this.loadItem(emptyInstance, key, parentId, ignoreCache)
         if(item) {
             return item.data as T
         }
@@ -181,9 +207,15 @@ export default class DataBaseHelper {
      * Load one specific blob from the database, or from the cache if it already exists.
      * @param emptyInstance Instance of the class to load.
      * @param key The key for the row to load.
+     * @param parentId Only load the item if it has this parent id.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadItem<T>(emptyInstance: T&BaseDataObject, key: string, ignoreCache: boolean = false): Promise<IDataBaseItem<T>|undefined> {
+    static async loadItem<T>(
+        emptyInstance: T&BaseDataObject,
+        key: string,
+        parentId?: number,
+        ignoreCache?: boolean
+    ): Promise<IDataBaseItem<T>|undefined> {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
 
@@ -192,17 +224,17 @@ export default class DataBaseHelper {
             const dictionary = this._dataStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
                 const data = await emptyInstance.__new(dictionary[key] ?? undefined, this._fillReferences)
-                return {
-                    id: this._keyToIdMap.get([className, key]) ?? 0,
-                    key: key,
-                    class: className,
-                    data: data
+                const item = this._groupKeyTupleToMetaMap.get([className, key])
+                if(item) {
+                    const itemClone = Utils.clone(item)
+                    itemClone.data = data
+                    return itemClone
                 }
             }
         }
 
         // DB
-        const jsonResult = await this.loadJson(className, key) as IDataBaseItem<T>[]|undefined
+        const jsonResult = await this.loadJson(className, key, parentId) as IDataBaseItem<T>[]|undefined
         if(jsonResult && jsonResult.length == 1) {
 
             // Convert plain object to class instance
@@ -225,11 +257,15 @@ export default class DataBaseHelper {
         return undefined
     }
 
-    static async loadById(rowId?: string|number): Promise<IDataBaseItem<unknown>|undefined> {
+    static async loadById(rowId?: string|number, parentId?: number): Promise<IDataBaseItem<unknown>|undefined> {
         if(!rowId) return undefined
         let url = this.getUrl()
+        const options: IDataBaseHelperHeaders = {rowIds: rowId}
+        if(parentId && !isNaN(parentId) && parentId > 0) {
+            options.parentId = parentId
+        }
         const response = await fetch(url, {
-            headers: await this.getHeader({rowIds: rowId})
+            headers: await this.getHeader(options)
         })
         const jsonResult = await response.json()
         if(jsonResult && jsonResult.length > 0) {
@@ -254,67 +290,78 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string): Promise<IStringDictionary> {
+    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): Promise<IStringDictionary> {
+        const tuple: [string, number] = [groupClass, parentId ?? 0]
         if(rowIdLabel) {
-            if(this._idLabelStore.has(groupClass)) return this._idLabelStore.get(groupClass) ?? {}
+            if(this._idLabelStore.has(tuple)) return this._idLabelStore.get(tuple) ?? {}
         } else {
-            if(this._idKeyStore.has(groupClass)) return this._idKeyStore.get(groupClass) ?? {}
+            if(this._idKeyStore.has(tuple)) return this._idKeyStore.get(tuple) ?? {}
         }
 
         const url = this.getUrl()
+        const options: IDataBaseHelperHeaders = {
+            groupClass,
+            rowIdList: true,
+            rowIdLabel,
+            parentId
+        }
         const response = await fetch(url, {
-            headers: await this.getHeader({
-                groupClass,
-                rowIdList: true,
-                rowIdLabel
-            })
+            headers: await this.getHeader(options)
         })
         const json = response.ok ? await response.json() : {}
-        if(rowIdLabel) this._idLabelStore.set(groupClass, json)
-        else this._idKeyStore.set(groupClass, json)
+        if(rowIdLabel) this._idLabelStore.set(tuple, json)
+        else this._idKeyStore.set(tuple, json)
 
         return json
     }
 
     /**
-     * Load a single ID for a group class and key, will use cache if that is set.
+     * Loads raw JSON a group class and key, will use cache if that is set.
      */
-    static async loadID(groupClass: string, groupKey: string): Promise<number> {
+    static async loadRawItem(groupClass: string, groupKey: string): Promise<IDataBaseItem<any>|undefined> {
         const tuple: [string, string] = [groupClass, groupKey]
 
         // Return cache if it is set
-        if(this._keyToIdMap.has(tuple)) return this._keyToIdMap.get(tuple) ?? 0
+        if(this._groupKeyTupleToMetaMap.has(tuple)) {
+            const cachedItem = this._groupKeyTupleToMetaMap.get(tuple)
+            if(cachedItem) return cachedItem
+        }
 
         // Load from DB
-        const jsonResult = await this.loadJson(groupClass, groupKey, true)
+        const jsonResult = await this.loadJson(groupClass, groupKey, 0, true)
         if(jsonResult && jsonResult.length > 0) {
             const item = jsonResult[0]
             this.handleDataBaseItem(item) // Store cache
-            return item.id ?? 0
+            return item
         }
-        return 0
+        return undefined
     }
 
     /**
      * Clears the cache of IDs loaded for a class or all classes so they will be reloaded, to show recent additions or deletions.
      * @param groupClass
+     * @param parentId
      */
-    static clearReferences(groupClass?: string): boolean {
+    static clearReferences(groupClass?: string, parentId?: number): boolean {
         if(groupClass) {
-            this._idKeyStore.delete(groupClass)
-            this._idLabelStore.delete(groupClass)
+            this._idKeyStore.delete([groupClass, parentId ?? 0])
+            this._idLabelStore.delete([groupClass, parentId ?? 0])
             return true
         }
         return false
     }
-    
+
+    /**
+     * Used to get which classes a reference list of IDs has in the editor.
+     * @param idArr
+     */
     static async loadIDClasses(idArr: string[]): Promise<IStringDictionary> {
         const output: IStringDictionary = {}
         const toLoad: string[] = []
         for(const idStr of idArr) {
             const id = parseInt(idStr)
-            if(this._idToKeyMap.has(id)) {
-                const tuple = this._idToKeyMap.get(id)
+            if(this._idToMetaMap.has(id)) {
+                const tuple = this._idToMetaMap.get(id)
                 output[id] = Array.isArray(tuple) ? tuple[0] : ''
             } else {
                 toLoad.push(idStr)
@@ -348,13 +395,14 @@ export default class DataBaseHelper {
      * @param setting Instance of the class to save.
      * @param key Optional key for the setting to save, will upsert if key is set, else insert.
      * @param newKey
+     * @param parentId
      */
-    static async save<T>(setting: T&BaseDataObject, key?: string, newKey?: string): Promise<boolean> {
+    static async save<T>(setting: T&BaseDataObject, key?: string, newKey?: string, parentId?: number): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
         // DB
-        key = await this.saveJson(JSON.stringify(setting), className, key, newKey)
+        key = await this.saveJson(JSON.stringify(setting), className, key, newKey, parentId)
 
         // Cache
         if(key) {
@@ -389,9 +437,9 @@ export default class DataBaseHelper {
             const dictionary = this._dataStore.get(className)
             if(dictionary) delete dictionary[key]
             const tuple: [string, string] = [className, key]
-            const id = this._keyToIdMap.get(tuple) ?? 0
-            this._idToKeyMap.delete(id)
-            this._keyToIdMap.delete(tuple)
+            const id = this._groupKeyTupleToMetaMap.get(tuple)?.id ?? 0
+            this._idToMetaMap.delete(id)
+            this._groupKeyTupleToMetaMap.delete(tuple)
         }
 
         // Result
@@ -432,6 +480,7 @@ export default class DataBaseHelper {
         if(options.rowIdList !== undefined) headers.set('X-Row-Id-List', options.rowIdList ? '1' : '0')
         if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
         if(options.noData !== undefined) headers.set('X-No-Data', options.noData ? '1' : '0')
+        if(options.parentId !== undefined) headers.set('X-Parent-Id', options.parentId.toString())
         return headers
     }
 
@@ -456,12 +505,14 @@ interface IDataBaseHelperHeaders {
     rowIdLabel?: string
     noData?: boolean
     addJsonHeader?: boolean
+    parentId?: number
 }
 
 export interface IDataBaseItem<T> {
     id: number
     class: string
     key: string
+    pid: number|null
     data: (T&BaseDataObject)|null
 }
 export interface IDataBaseLabelItem {

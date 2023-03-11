@@ -31,6 +31,7 @@ export default class EditorHandler {
         if(urlParams.has('k')) this._state.groupKey = decodeURIComponent(urlParams.get('k') ?? '')
         if(urlParams.has('c')) this._state.groupClass = decodeURIComponent(urlParams.get('c') ?? '')
         if(urlParams.has('n')) this._state.newItem = !!urlParams.get('n')
+        if(urlParams.has('p')) this._state.parentId = parseInt(urlParams.get('p') ?? '')
         let group = urlParams.get('g') ?? this._state.groupClass.substring(0,1).toLowerCase()
 
         switch(group) {
@@ -43,7 +44,7 @@ export default class EditorHandler {
         this._state.group = group
 
         this.updateSideMenu().then()
-        if(this._state.groupClass.length > 0) this.showListOfItems(this._state.groupClass, this._state.groupKey).then()
+        if(this._state.groupClass.length > 0) this.showListOfItems(this._state.groupClass, this._state.groupKey, this._state.parentId).then()
 
         window.onkeydown = (event)=>{
             if(event.key == 's' && event.ctrlKey) {
@@ -55,7 +56,7 @@ export default class EditorHandler {
             if(event.state) {
                 this._state = event.state
                 this.updateSideMenu().then()
-                this.showListOfItems(this._state.groupClass, this._state.groupKey, true).then()
+                this.showListOfItems(this._state.groupClass, this._state.groupKey, this._state.parentId, true).then()
             }
         }
     }
@@ -95,7 +96,12 @@ export default class EditorHandler {
     private _contentDiv: HTMLDivElement|undefined
     private _editor: JsonEditor|undefined
     private _editorSaveButton: HTMLButtonElement|undefined
-    private async showListOfItems(group: string, selectKey: string = '', skipHistory: boolean = false) {
+    private async showListOfItems(
+        group: string,
+        selectKey: string = '',
+        parentId?: number,
+        skipHistory?: boolean
+    ) {
         await this.saveOnNavigateAway()
         this._state.groupClass = group
         this._state.groupKey = selectKey
@@ -152,15 +158,15 @@ export default class EditorHandler {
                 if(!skipHistory) {
                     this.updateHistory()
                 }
-                const rowId = await DataBaseHelper.loadID(group, resultingKey)
-                editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, rowId, markAsDirty, this._state.forceMainKey) ?? '')
+                const item = await DataBaseHelper.loadItem(instance, resultingKey)
+                editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, item?.id, parentId ?? item?.pid ?? undefined, markAsDirty, this._state.forceMainKey) ?? '')
             } else {
                 console.warn(`Could not load instance for ${group}, class is: ${instance?.constructor.name}`)
             }
             return true
         }
 
-        const items = await DataBaseHelper.loadJson(group)
+        const items = await DataBaseHelper.loadJson(group, undefined, parentId)
         if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
@@ -223,7 +229,7 @@ export default class EditorHandler {
                 if(ok) {
                     DataBaseHelper.clearReferences(group) // To make reference lists reload to remove the deleted entry.
                     this.updateSideMenu().then()
-                    this.showListOfItems(group).then()
+                    this.showListOfItems(group, '', this._state.parentId).then()
                 } else {
                     alert(`Deletion of ${group} : ${this._state.groupKey} failed.`)
                 }
@@ -235,7 +241,7 @@ export default class EditorHandler {
         editorSaveButton.classList.add('editor-button', 'save-button')
         editorSaveButton.innerHTML = this._labelSaveButton
         editorSaveButton.onclick = (event)=>{
-            this.saveData(this._state.groupKey, group).then()
+            this.saveData(this._state.groupKey, group, this._state.parentId).then()
         }
         this._editorSaveButton = editorSaveButton
 
@@ -277,16 +283,16 @@ export default class EditorHandler {
         this._contentDiv.appendChild(editorImportButton)
     }
 
-    private async saveData(groupKey: string, groupClass: string): Promise<boolean> {
+    private async saveData(groupKey: string, groupClass: string, parentId?: number): Promise<boolean> {
         if(this._editor) {
             const data = this._editor.getData()
             const newGroupKey = this._editor.getKey()
-            const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey)
+            const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey, parentId)
             if(resultingGroupKey) {
                 if(newGroupKey) DataBaseHelper.clearReferences(groupClass) // To make reference lists reload with the new/updated item.
                 await this.updateSideMenu()
                 this.updateModifiedState(false)
-                await this.showListOfItems(groupClass, resultingGroupKey)
+                await this.showListOfItems(groupClass, resultingGroupKey, this._state.parentId)
                 return true
             } else {
                 alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
@@ -316,7 +322,7 @@ export default class EditorHandler {
         this._unsavedChanges = Utils.clone(modified)
         if(modified) {
             window.onbeforeunload = (event)=>{
-                this.saveData(this._state.groupKey, this._state.groupClass).then()
+                this.saveData(this._state.groupKey, this._state.groupClass, this._state.parentId).then()
                 return undefined
             }
         } else {
@@ -326,7 +332,7 @@ export default class EditorHandler {
 
     private async saveOnNavigateAway(): Promise<boolean> {
         if(this._unsavedChanges) {
-            return await this.saveData(this._state.groupKey, this._state.groupClass)
+            return await this.saveData(this._state.groupKey, this._state.groupClass, this._state.parentId)
         }
         return false
     }
@@ -339,4 +345,5 @@ class EditorPageState {
     groupClass: string = ''
     groupKey: string = ''
     newItem: boolean = false
+    parentId: number = 0
 }

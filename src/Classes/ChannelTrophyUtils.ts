@@ -9,7 +9,7 @@ import TextHelper from './TextHelper.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
-        const stats = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), true) ?? {}
+        const stats = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), undefined, true) ?? {}
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
 
@@ -21,7 +21,7 @@ export default class ChannelTrophyUtils {
     }
 
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelixHelper, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
-        const stats = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), true) ?? {}
+        const stats = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), undefined, true) ?? {}
 
         /* GENERATE DATA */
 
