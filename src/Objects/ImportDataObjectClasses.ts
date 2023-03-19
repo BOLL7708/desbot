@@ -17,7 +17,14 @@ import {SettingSteamAchievements} from './Setting/Steam.js'
 import {SettingStreamQuote} from './Setting/Stream.js'
 import {SettingTwitchCheer} from './Setting/Twitch.js'
 import {SettingUserMute} from './Setting/User.js'
+import {TriggerCheer} from './Trigger/TriggerCheer.js'
+import {TriggerCommand} from './Trigger/TriggerCommand.js'
+import {TriggerRemoteCommand} from './Trigger/TriggerRemoteCommand.js'
+import {TriggerTimer} from './Trigger/TriggerTimer.js'
 import {ConfigSteam} from './Config/Steam.js'
+import {PresetReward} from './Preset/Reward.js'
+import {PresetPermissions} from './Preset/Permissions.js'
+import {PresetText} from './Preset/Text.js'
 
 /**
  * This was added as a way to get all modules to load if this class is requested, because the classes are
@@ -47,6 +54,9 @@ export default class ImportDataObjectClasses {
 
             // Presets
             new PresetPipeBasic(),
+            new PresetPermissions(),
+            new PresetReward(),
+            new PresetText(),
 
             // Settings
             new SettingChannelTrophyStat(),
@@ -56,7 +66,12 @@ export default class ImportDataObjectClasses {
             new SettingSteamAchievements(),
             new SettingStreamQuote(),
             new SettingTwitchCheer(),
-            new SettingUserMute()
+            new SettingUserMute(),
+            // Triggers
+            new TriggerCheer(),
+            new TriggerCommand(),
+            new TriggerRemoteCommand(),
+            new TriggerTimer(),
         ]
     }
 }

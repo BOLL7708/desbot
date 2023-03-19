@@ -16,6 +16,8 @@ function printMenuItem(string $thisScript, string $file, string $label, string $
             printMenuItem($scriptFile, 'editor.php?g=c', '🎨 Config', 'Browse, add, edit or delete configs.');
             printMenuItem($scriptFile, 'editor.php?g=p', '🧩 Presets', 'Browse, add, edit or delete presets.');
             printMenuItem($scriptFile, 'editor.php?g=e', '🎉 Events', 'Browse, add, edit or delete events.');
+            printMenuItem($scriptFile, 'editor.php?g=t', '⏰ Triggers', 'Browse, add, edit or delete triggers.');
+            printMenuItem($scriptFile, 'editor.php?g=a', '🤹 Actions', 'Browse, add, edit or delete actions.');
             printMenuItem($scriptFile, 'dashboard.php', '🚦 Dashboard', 'Show the dashboard which lets you manage events and features live.');
             printMenuItem($scriptFile, 'widget.php', '🎭 Widget (new tab)', 'This opens the widget in a new tab, use this as a browser source in your streaming application.', true);
             printMenuItem($scriptFile, 'widget.php?debug=1', '🚧 Widget (+debug)', 'This opens the widget in a new tab with debugging turned on, which means some objects are available in the console.', true);

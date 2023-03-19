@@ -1,8 +1,10 @@
 import Utils from '../../Classes/Utils.js'
 import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import DataObjectMap, {DataObjectEntry} from '../../Objects/DataObjectMap.js'
+import DataObjectMap, {DataObjectMeta} from '../../Objects/DataObjectMap.js'
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
+import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
+import {BaseMeta} from '../../Objects/BaseMeta.js'
 
 enum EOrigin {
     Unknown,
@@ -110,7 +112,7 @@ export default class JsonEditor {
     private async stepData(
         root: HTMLElement,
         data: string|number|boolean|object,
-        instanceMeta: DataObjectEntry|undefined,
+        instanceMeta: BaseMeta|undefined,
         path: IJsonEditorPath,
         key: string|undefined = undefined,
         origin: EOrigin = EOrigin.Unknown,
@@ -127,7 +129,7 @@ export default class JsonEditor {
             case 'boolean':
                 await this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin, originListCount)
                 break
-            case 'object':
+            case 'object': // Instances
                 if(data === null) {
                     // Exist to show that something is broken as we don't support the null type.
                     await this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin, originListCount)
@@ -135,8 +137,12 @@ export default class JsonEditor {
                     await this.buildFields(root, data as object, instanceMeta, path, key, origin, originListCount)
                 }
                 break
+            case 'function': // Enum
+                console.log('StepData Function', data, instanceMeta, path, origin, originListCount)
+                await this.buildField(root, EJsonEditorFieldType.Number, 0, instanceMeta, path, origin, originListCount)
+                break
             default:
-                console.warn('Unhandled data type!', data)
+                console.warn('Unhandled data type: ', type,', data: ', data)
         }
         return
     }
@@ -168,7 +174,7 @@ export default class JsonEditor {
         root: HTMLElement,
         type: EJsonEditorFieldType,
         value: string|number|boolean|object,
-        instanceMeta: DataObjectEntry|undefined,
+        instanceMeta: BaseMeta|undefined,
         path: IJsonEditorPath,
         origin: EOrigin,
         originListCount: number = 1
@@ -320,6 +326,37 @@ export default class JsonEditor {
         }
 
         /*
+         * An Enum class will have a select showing all the valid options.
+         */
+        if(thisTypeValues.enum || parentTypeValues.enum) {
+            input.contentEditable = 'false'
+            input.classList.add('disabled')
+            const enumClass = thisTypeValues.enum
+                ? thisTypeValues.class // Single enum
+                : parentTypeValues.class  // List of enums
+            const enumPrototype = EnumObjectMap.getPrototype(enumClass)
+            const enumMeta = EnumObjectMap.getMeta(enumClass)
+            if(enumMeta && enumPrototype) {
+                const enumSelect = document.createElement('select') as HTMLSelectElement
+                for(const [enumKey,enumValue] of Object.entries(enumPrototype)) {
+                    const option = document.createElement('option') as HTMLOptionElement
+                    option.value = enumValue
+                    option.innerHTML = enumKey
+                    console.log(instanceMeta, enumKey)
+                    if(enumMeta.documentation?.hasOwnProperty(enumKey)) option.title = enumMeta.documentation[enumKey]
+                    if(enumValue == Utils.ensureNumber(value)) {
+                        option.selected = true
+                    }
+                    enumSelect.appendChild(option)
+                }
+                enumSelect.oninput = (event) => {
+                    input.innerHTML = enumSelect.value
+                    handle(event)
+                }
+                li.appendChild(enumSelect)
+            }
+        }
+        /*
          * This is where we differentiate on if we are referencing something by ID
          * We support both this item being that, or the parent, depending on if it's
          * a single item we are referencing, or an appendable array.
@@ -394,6 +431,10 @@ export default class JsonEditor {
                         selectGeneric.add(option)
                     }
                 }
+                if(items.length <= 1) {
+                    selectGeneric.title = 'Only one type is available so the selector is disabled.'
+                    selectGeneric.disabled = true
+                }
                 selectGeneric.oninput = (event) => {
                     const clazz = selectGeneric.value
                     setNewReference(clazz)
@@ -439,7 +480,7 @@ export default class JsonEditor {
     private async buildFields(
         root: HTMLElement,
         instance: object,
-        instanceMeta: DataObjectEntry|undefined,
+        instanceMeta: BaseMeta|undefined,
         path: IJsonEditorPath,
         objectKey: string|undefined,
         origin: EOrigin,
@@ -449,8 +490,9 @@ export default class JsonEditor {
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
 
-        const type = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
-        const typeValues = BaseDataObject.parseRef(type)
+        // Sort out type values for ID references
+        const thisType = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
+        const thisTypeValues = BaseDataObject.parseRef(thisType)
         const instanceType = instance.constructor.name
 
         if(originListCount > 1) this.appendDragButton(newRoot, origin, path)
@@ -474,33 +516,33 @@ export default class JsonEditor {
                 strongSpan.innerHTML = origin == EOrigin.ListArray
                     ? `${pathKey}`
                     : Utils.camelToTitle(pathKey.toString())
-                if(typeValues.class) strongSpan.title = `Type: ${typeValues.class}`
+                if(thisTypeValues.class) strongSpan.title = `Type: ${thisTypeValues.class}`
                 newRoot.appendChild(strongSpan)
             }
         }
 
         // Add new item button if we have a type defined
-        await this.appendAddButton(newRoot, typeValues, instance, path)
+        await this.appendAddButton(newRoot, thisTypeValues, instance, path)
         this.appendRemoveButton(newRoot, origin, path, undefined)
-        if(typeValues.genericLike.length == 0) this.appendNewReferenceItemButton(newRoot, typeValues)
+        if(thisTypeValues.genericLike.length == 0) this.appendNewReferenceItemButton(newRoot, thisTypeValues)
         this.appendDocumentationIcon(newRoot, pathKey, instanceMeta)
 
-        // Get new instance meta if we are going deeper.
+        // Get new instance meta if we are going deeper. TODO: This needs to support ENUMs
         let newInstanceMeta = instanceMeta
-        if(type && DataObjectMap.hasInstance(type)) { // For lists
-            newInstanceMeta = DataObjectMap.getMeta(type) ?? instanceMeta
+        if(thisType && DataObjectMap.hasInstance(thisType)) { // For lists class instances
+            newInstanceMeta = DataObjectMap.getMeta(thisType) ?? instanceMeta
         } else if (instanceType && DataObjectMap.hasInstance(instanceType)) { // For single class instances
             newInstanceMeta = DataObjectMap.getMeta(instanceType) ?? instanceMeta
         }
         if(Array.isArray(instance)) {
-            const newOrigin = type ? EOrigin.ListArray : EOrigin.Single
+            const newOrigin = thisType ? EOrigin.ListArray : EOrigin.Single
             for(let i=0; i<instance.length; i++) {
                 const newPath = this.clone(path)
                 newPath.push(i)
                 await this.stepData(newUL, instance[i], newInstanceMeta, newPath, undefined, newOrigin, instance.length)
             }
         } else {
-            const newOrigin = type ? EOrigin.ListDictionary : EOrigin.Single
+            const newOrigin = thisType ? EOrigin.ListDictionary : EOrigin.Single
             for(const key of Object.keys(instance)) {
                 const newPath = this.clone(path)
                 newPath.push(key.toString())
@@ -558,6 +600,7 @@ export default class JsonEditor {
             if(button) {
                 button.title = `Create new item of type: ${clazz}`+(parentId ? ` for parent: ${this._key} (${parentId})` : '')
                 button.onclick = (event)=>{
+                    this.checkIfModified()
                     window.location.replace(`?c=${clazz}&n=1`+(parentId ? `&p=${parentId}` : ''))
                 }
             }
@@ -589,7 +632,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: DataObjectEntry|undefined) {
+    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: BaseMeta|undefined) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0) {
@@ -762,8 +805,13 @@ export default class JsonEditor {
                                 instance.push(0)
                                 break
                             }
-                            const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
-                            if(newInstance) instance.push(await newInstance.__clone()) // For some reason this would do nothing unless cloned.
+                            if(DataObjectMap.hasInstance(typeValues.class)) {
+                                const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
+                                if(newInstance) instance.push(await newInstance.__clone()) // For some reason this would do nothing unless cloned.
+                            } else if(EnumObjectMap.hasPrototype(typeValues.class)) {
+                                const enumPrototype = await EnumObjectMap.getPrototype(typeValues.class)
+                                if(enumPrototype) instance.push(enumPrototype)
+                            }
                             else console.warn('Unhandled type:', typeValues.class)
                     }
                     this.handleValue(instance, path, newRoot)
@@ -780,8 +828,13 @@ export default class JsonEditor {
                                     (instance as any)[newKey] = 0
                                     break
                                 }
-                                const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
-                                if(newInstance) (instance as any)[newKey] = await newInstance.__clone()
+                                if(DataObjectMap.hasInstance(typeValues.class)) {
+                                    const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
+                                    if(newInstance) (instance as any)[newKey] = await newInstance.__clone()
+                                } else if(EnumObjectMap.hasPrototype(typeValues.class)) {
+                                    const enumPrototype = EnumObjectMap.getPrototype(typeValues.class)
+                                    if(enumPrototype) (instance as any)[newKey] = enumPrototype
+                                }
                                 else console.warn('Unhandled type:', typeValues.class)
                         }
                         this.handleValue(instance, path, newRoot)

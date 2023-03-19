@@ -39,6 +39,8 @@ export default class EditorHandler {
             case 'c': this._state.likeFilter = 'Config'; this._state.forceMainKey = true; break
             case 'p': this._state.likeFilter = 'Preset'; break
             case 'e': this._state.likeFilter = 'Event'; break
+            case 't': this._state.likeFilter = 'Trigger'; break
+            case 'a': this._state.likeFilter = 'Action'; break
             default: group = ''
         }
         this._state.group = group

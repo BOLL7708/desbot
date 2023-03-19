@@ -165,6 +165,17 @@ export default class Utils {
         return (Array.isArray(value) && value.length > 0) ? value.shift() : <Type> value
     }
 
+    static ensureNumber(value: any, fallback: number = 0): number {
+        switch(typeof value) {
+            case 'number': return value
+            case 'string':
+                const num = parseInt(value)
+                return isNaN(num) ? fallback : num
+            case 'boolean': return value ? 1 : 0
+            default: return fallback
+        }
+    }
+
     static async getRewardId(key: TKeys): Promise<string|undefined> {
         const rewards = await this.getRewardPairs()
         const reward = rewards.find((obj)=>{return obj.key === key})

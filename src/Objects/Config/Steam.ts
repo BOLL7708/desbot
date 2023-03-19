@@ -11,7 +11,8 @@ export class ConfigSteam extends BaseDataObject {
     achievementTwitchChatMessage: string = '🔓 Achievement %progress unlocked: %name (%text, 🌍 %rate)'
 }
 
-DataObjectMap.addRootInstance(new ConfigSteam(),
+DataObjectMap.addRootInstance(
+    new ConfigSteam(),
     'Loading player and game data from the Steam Web API requires API keys set in credentials.',
     {
         playerSummaryIntervalMs: 'Interval in milliseconds in between loads of the player summary, which will provide the current running app ID for non-VR users.\n\nSet this to 0 to disable.',

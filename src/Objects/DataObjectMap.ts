@@ -1,21 +1,22 @@
 import {IStringDictionary} from '../Interfaces/igeneral.js'
 import BaseDataObject from './BaseDataObject.js'
+import {BaseMeta} from './BaseMeta.js'
 
 // Types
 export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
 export type TTypes = 'number'|'boolean'|'string'|string
 
 export default class DataObjectMap {
-    private static _map = new Map<string, DataObjectEntry>()
+    private static _map = new Map<string, DataObjectMeta>()
     private static addInstance<T>(
         isRoot: boolean = false,
         instance: T&BaseDataObject,
-        description: string|undefined = undefined,
+        description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>
     ) {
         const className = instance.constructor.name
-        const meta = new DataObjectEntry(
+        const meta = new DataObjectMeta(
             instance,
             isRoot,
             description,
@@ -83,22 +84,19 @@ export default class DataObjectMap {
         return names
     }
 
-    public static getMeta(className: string): DataObjectEntry|undefined {
+    public static getMeta(className: string): DataObjectMeta|undefined {
         return this._map.get(className)
     }
 }
 
-export class DataObjectEntry {
-    public instance: BaseDataObject
-    public isRoot: boolean
-    public description: string|undefined
-    public documentation: IStringDictionary|undefined
-    public types: IStringDictionary|undefined
-    constructor(instance: BaseDataObject, isRoot: boolean, description?: string, documentation?: IStringDictionary, types?: IStringDictionary) {
-        this.instance = instance
-        this.isRoot = isRoot
-        if(description) this.description = description
-        if(documentation) this.documentation = documentation
-        if(types) this.types = types
+export class DataObjectMeta extends BaseMeta {
+    constructor(
+        public instance: BaseDataObject,
+        public isRoot: boolean,
+        public description?: string,
+        public documentation?: IStringDictionary,
+        public types?: IStringDictionary
+    ) {
+        super()
     }
 }

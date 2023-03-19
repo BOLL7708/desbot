@@ -1,6 +1,6 @@
 <?php
 $group = $_REQUEST['g'] ?? '';
-$validGroups = ['s'=>'Settings', 'c'=>'Configs', 'p'=>'Presets', 'e'=>'Events'];
+$validGroups = ['s'=>'Settings', 'c'=>'Configs', 'p'=>'Presets', 'e'=>'Events', 't'=>'Triggers', 'a'=>'Actions'];
 $descriptions = [
     's'=>'<p>This page exists for when there are issues, as an easy way to inspect and correct eventual faulty data.</p>
 <p>Settings are values that are automatically stored, accessed and updated by various systems in the widget, and should in general not have to be touched by a human.</p>
@@ -8,7 +8,9 @@ $descriptions = [
     'c'=>'<p>The plan is for this to be the main place for setting up the widget, there is a lot of features to add before this will be possible though.</p>
 <p>Access any of the configs stored in the database from the list to the left.</p>',
     'p'=>'<p>Presets are things we want to reuse, or just things too big to keep in an already complex object.</p>',
-    'e'=>'<p>Eventually this will contain the event configs which are now the main motherload of crazy garbagea in the widget.</p>'
+    'e'=>'<p>Eventually this will contain the event configs which are now the main motherload of crazy garbagea in the widget.</p>',
+    't'=>'<p>Triggers! Yeah!</p>',
+    'a'=>'<p>Bloody actions...</p>'
 ];
 
 $title = 'Editor';

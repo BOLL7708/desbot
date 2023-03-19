@@ -2,6 +2,7 @@ import BaseDataObject from '../BaseDataObject.js'
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {PresetPipeBasic} from '../Preset/Pipe.js'
+import {EnumEntryType} from '../../Enums/EntryType.js'
 
 export class ConfigExample extends BaseDataObject {
     singleBoolean = false
@@ -13,6 +14,7 @@ export class ConfigExample extends BaseDataObject {
     singleIdToKeyReference: number|string = ''
     singleIdToKeyReferenceUsingLabel: number|string = ''
     singleIdToGenericReference: number|BaseDataObject = 0
+    singleEnum = EnumEntryType.First
     arrayOfBooleans: boolean[] = []
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
@@ -22,6 +24,7 @@ export class ConfigExample extends BaseDataObject {
     arrayOfIdToKeyReferences: (number|string)[] = []
     arrayOfIdToKeyReferencesUsingLabels: (number|string)[] = []
     arrayOfIdToGenericReferences: (number|BaseDataObject)[] = []
+    arrayOfEnum: EnumEntryType[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
@@ -31,10 +34,12 @@ export class ConfigExample extends BaseDataObject {
     dictionaryOfIdToKeyReferences: {[key:string]: number|string} = {}
     dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|string} = {}
     dictionaryOfIdToGenericReferences: {[key:string]: number|BaseDataObject} = {}
+    dictionaryOfEnums: { [key:string]: number } = {}
 }
 export class ConfigExampleSub extends BaseDataObject {
     singleString: string = ''
     singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
+    singleEnum: number = EnumEntryType.All
 }
 
 DataObjectMap.addRootInstance(
@@ -50,6 +55,7 @@ DataObjectMap.addRootInstance(
         singleIdToKeyReference: 'A single ID reference to any other object key',
         singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
         singleIdToGenericReference: 'Contains a single generic entry.',
+        singleEnum: '',
         arrayOfBooleans: '',
         arrayOfNumbers: '',
         arrayOfStrings: '',
@@ -59,6 +65,7 @@ DataObjectMap.addRootInstance(
         arrayOfIdToKeyReferences: '',
         arrayOfIdToKeyReferencesUsingLabels: '',
         arrayOfIdToGenericReferences: 'Contains an array of generic entries.',
+        arrayOfEnum: '',
         dictionaryOfBooleans: '',
         dictionaryOfNumbers: '',
         dictionaryOfStrings: '',
@@ -67,7 +74,8 @@ DataObjectMap.addRootInstance(
         dictionaryOfIdReferencesUsingLabels: '',
         dictionaryOfIdToKeyReferences: '',
         dictionaryOfIdToKeyReferencesUsingLabels: '',
-        dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.'
+        dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.',
+        dictionaryOfEnums: ''
     },
     {
         singleIdReference: PresetPipeBasic.refId(),
@@ -75,6 +83,7 @@ DataObjectMap.addRootInstance(
         singleIdToKeyReference: PresetPipeBasic.refIdKey(),
         singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel('basicTitle'),
         singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
+        singleEnum: EnumEntryType.ref(),
         arrayOfBooleans: 'boolean',
         arrayOfNumbers: 'number',
         arrayOfStrings: 'string',
@@ -84,6 +93,7 @@ DataObjectMap.addRootInstance(
         arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
         arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
         arrayOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
+        arrayOfEnum: EnumEntryType.ref(),
         dictionaryOfBooleans: 'boolean',
         dictionaryOfNumbers: 'number',
         dictionaryOfStrings: 'string',
@@ -92,7 +102,8 @@ DataObjectMap.addRootInstance(
         dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel('basicTitle'),
         dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
         dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
-        dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting')
+        dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
+        dictionaryOfEnums: EnumEntryType.ref()
     }
 )
 DataObjectMap.addSubInstance(
@@ -102,6 +113,7 @@ DataObjectMap.addSubInstance(
         singleIdReference: 'A reference to an object'
     },
     {
-        singleIdReference: PresetPipeBasic.refId()
+        singleIdReference: PresetPipeBasic.refId(),
+        singleEnum: EnumEntryType.ref()
     }
 )

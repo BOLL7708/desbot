@@ -3,7 +3,8 @@ import DataObjectMap, {TNoFunctions} from './DataObjectMap.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
 export type TBaseDataCategory =
-    'Setting'
+    string
+    | 'Setting'
     | 'Config'
     | 'Preset'
     | 'Event'
@@ -217,7 +218,8 @@ export default abstract class BaseDataObject {
             isIdReference: false,
             idLabelField: '',
             idToKey: false,
-            genericLike: ''
+            genericLike: '',
+            enum: false
         }
         for(const t of refArr) {
             const [k, v] = t.split('=')
@@ -226,6 +228,7 @@ export default abstract class BaseDataObject {
                 case 'key': refValues.idToKey = true; break
                 case 'label': refValues.idLabelField = v; break
                 case 'like': refValues.genericLike = v; break
+                case 'enum': refValues.enum = true; break
             }
         }
         return refValues
@@ -241,4 +244,5 @@ export interface IBaseDataObjectRefValues {
     idLabelField: string
     idToKey: boolean
     genericLike: string
+    enum: boolean
 }
