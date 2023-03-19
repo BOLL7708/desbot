@@ -342,7 +342,6 @@ export default class JsonEditor {
                     const option = document.createElement('option') as HTMLOptionElement
                     option.value = enumValue
                     option.innerHTML = enumKey
-                    console.log(instanceMeta, enumKey)
                     if(enumMeta.documentation?.hasOwnProperty(enumKey)) option.title = enumMeta.documentation[enumKey]
                     if(enumValue == Utils.ensureNumber(value)) {
                         option.selected = true
