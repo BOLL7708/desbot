@@ -3,7 +3,6 @@ import Utils from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
 import BaseDataObject from '../../Objects/BaseDataObject.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
-import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -18,7 +17,6 @@ export default class EditorHandler {
         this.init().then()
     }
     private async init() {
-        ImportDataObjectClasses.init()
         const queryString = window.location.search
         const urlParams = new URLSearchParams(queryString)
 

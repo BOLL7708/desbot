@@ -22,13 +22,11 @@ import {
 import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
-import ImportDataObjectClasses from '../../Objects/ImportDataObjectClasses.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
 
 export default class MainController {
     public static async init() {
         DataBaseHelper.setFillReferences(true)
-        ImportDataObjectClasses.init()
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()
