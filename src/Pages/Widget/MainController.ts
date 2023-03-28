@@ -55,18 +55,7 @@ export default class MainController {
         await DataBaseHelper.loadAll(new SettingStreamQuote())
 
         const modules = ModulesSingleton.getInstance()
-        if(dictionarySettings) {
-            // TODO: Make a custom mapping function for this.
-            const dictionary: IDictionaryEntry[] = []
-            for(const [key, dictionaryEntry] of Object.entries(dictionarySettings)) {
-                const entry: IDictionaryEntry = {
-                    original: key,
-                    substitute: dictionaryEntry.substitute
-                }
-                dictionary.push(entry)
-            }
-            modules.tts.setDictionary(dictionary ?? [])
-        }
+        modules.tts.setDictionary(dictionarySettings)
 
         /*
         .####.##....##.####.########

@@ -1,11 +1,10 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {ICommandPermissions} from '../../Interfaces/itwitch.js'
 import {PresetPermissions} from '../Preset/Permissions.js'
 
 export class TriggerCommand extends BaseDataObject {
     entries: string[] = []
-    permissions = new PresetPermissions()
+    permissions: number|PresetPermissions = 0
     requireUserTag = false
     requireExactWordCount: number = 0
     requireMinimumWordCount: number = 0

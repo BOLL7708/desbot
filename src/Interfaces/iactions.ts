@@ -128,11 +128,6 @@ export interface IActions {
     remoteCommand?: IEntriesAction
 
     /**
-     * Optional: Change Twitch reward status, indexed on the key for the reward, set to the enabled state.
-     */
-    rewardStates?: IRewardStates
-
-    /**
      * Optional: Provide a custom action callback, this can execute any arbitrary code you provide.
      */
     custom?: IActionCallback

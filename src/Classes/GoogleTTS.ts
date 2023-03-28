@@ -14,6 +14,7 @@ import {ConfigSpeech} from '../Objects/Config/Speech.js'
 import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import {SettingUserMute, SettingUserVoice} from '../Objects/Setting/User.js'
 import TextHelper from './TextHelper.js'
+import {SettingDictionaryEntry} from '../Objects/Setting/Dictionary.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -96,8 +97,13 @@ export default class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    setDictionary(dictionary?: IDictionaryEntry[]) {
-        if(dictionary) this._dictionary.set(dictionary)
+    setDictionary(dictionary?: {[key:string]: SettingDictionaryEntry}) {
+        if(dictionary !== undefined) {
+            const dictionaryEntries = Object.entries(dictionary).map(([key, entry])=>{
+                return { original: key, substitute: entry.substitute } as IDictionaryEntry
+            })
+            this._dictionary.set(dictionaryEntries)
+        }
     }
     /**
      * Will enqueue 

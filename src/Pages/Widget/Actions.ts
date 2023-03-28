@@ -1051,9 +1051,9 @@ export class Actions {
                         if(!entry) {
                             entry = new SettingDictionaryEntry()
                             entry.substitute = ''
-                            entry.editorUserId = user.id
-                            entry.datetime = Utils.getISOTimestamp()
                         }
+                        entry.editorUserId = user.id
+                        entry.datetime = Utils.getISOTimestamp()
                         const entries = entry.substitute.split(',')
                         // entries.splice(entries.indexOf(word), 1) // TODO: Not sure why this existed... it broke anyway and disabled the + option.
                         switch (firstChar) {
@@ -1072,9 +1072,7 @@ export class Actions {
                         states.textTagCache.lastDictionarySubstitute = entry.substitute
                         // Set substitute for word
                         if(word.length && substitute.length) {
-                            const setting = new SettingDictionaryEntry()
-                            setting.substitute = entry.substitute
-                            await DataBaseHelper.save(setting, word)
+                            await DataBaseHelper.save(entry, word)
                         }
                         // Clearing a word by setting it to itself
                         else if(word.length) {
@@ -1084,10 +1082,7 @@ export class Actions {
                         }
                         const fullDictionary = await DataBaseHelper.loadAll(new SettingDictionaryEntry())
                         if(fullDictionary) {
-                            const dictionaryEntries = Object.entries(fullDictionary).map((pair)=>{
-                                return { original: pair[0], substitute: pair[1].substitute } as IDictionaryEntry
-                            })
-                            modules.tts.setDictionary(dictionaryEntries)
+                            modules.tts.setDictionary(fullDictionary)
                         } else {
                             Utils.log('TTS Dictionary: Could not load full dictionary to update TTS.', Color.DarkRed)
                         }

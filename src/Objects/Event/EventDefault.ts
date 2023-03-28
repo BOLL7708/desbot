@@ -1,11 +1,6 @@
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
 import {EBehavior} from '../../Interfaces/ievents.js'
-import {TriggerCommand} from '../Trigger/TriggerCommand.js'
-import {TriggerRemoteCommand} from '../Trigger/TriggerRemoteCommand.js'
-import {TriggerReward} from '../Trigger/TriggerReward.js'
-import {TriggerCheer} from '../Trigger/TriggerCheer.js'
-import {TriggerTimer} from '../Trigger/TriggerTimer.js'
 
 export class EventDefault extends BaseDataObject {
     options: EventOptions = new EventOptions()

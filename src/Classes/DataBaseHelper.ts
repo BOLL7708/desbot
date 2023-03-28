@@ -155,7 +155,7 @@ export default class DataBaseHelper {
 
         // DB
         const jsonResult = await this.loadJson(className) as IDataBaseItem<T>[]|undefined
-        if(jsonResult && jsonResult.length <= 0) {
+        if(Array.isArray(jsonResult)) {
             const resultDictionary: { [key: string]: T } = {}
             const cacheDictionary: { [key: string]: T } = {}
 
