@@ -13,6 +13,17 @@ enum EOrigin {
     Single
 }
 
+export interface IStepDataOptions {
+    root: HTMLElement
+    data: string|number|boolean|object
+    instanceMeta: BaseMeta|undefined
+    path: IJsonEditorPath
+    key: string|undefined
+    origin: EOrigin
+    originListCount: number
+    extraChildren: HTMLElement[]
+}
+
 export default class JsonEditor {
     private _key: string = ''
     private _originalKey: string = ''
@@ -63,28 +74,35 @@ export default class JsonEditor {
         const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
         const tempParent = this.buildUL()
 
-        const firstRowChildren: HTMLElement[] = []
-        if(this._rowId > 0) firstRowChildren.push(...this.buildInfo('ID', this._rowId.toString()))
+        const extraChildren: HTMLElement[] = []
+        if(this._rowId > 0) extraChildren.push(...this.buildInfo(' ID', this._rowId.toString(), 'If an ID is shown, the data has been saved.', 'The ID of this row in the database.'))
         if(this._rowId > 0 && this._parentId > 0) {
             const spaceSpan = document.createElement('span') as HTMLSpanElement
             spaceSpan.innerHTML = ' ⇒ '
-            firstRowChildren.push(spaceSpan)
+            extraChildren.push(spaceSpan)
         }
         if(this._parentId > 0) {
-            firstRowChildren.push(...this.buildInfo('Parent ID', this._parentId.toString()))
+            extraChildren.push(...this.buildInfo('Parent ID', this._parentId.toString(), 'If a parent ID is shown, this data belongs to a different row.', 'The ID of the parent row in the database.'))
             const parentButton = document.createElement('button') as HTMLButtonElement
-            parentButton.innerHTML = '📝'
+            parentButton.innerHTML = '👴'
             parentButton.title = 'Edit the parent item.'
             parentButton.classList.add('inline-button')
             parentButton.onclick = (event)=>{
                 window.location.replace(`?id=${this._parentId}`)
             }
-            firstRowChildren.push(parentButton)
+            extraChildren.push(parentButton)
         }
-        const firstRowLI = this.buildLI(firstRowChildren)
-        tempParent.replaceChildren(firstRowLI)
-
-        await this.stepData(tempParent, instance, instanceMeta, ['Key'], key, EOrigin.Unknown)
+        const options: IStepDataOptions = {
+            root: tempParent,
+            data: instance,
+            instanceMeta: instanceMeta,
+            path: ['Key'],
+            key: key,
+            origin: EOrigin.Unknown,
+            originListCount: 1,
+            extraChildren: extraChildren
+        }
+        await this.stepData(options)
 
         if(!this._root) this._root = this.buildUL()
         this._root.replaceChildren(...tempParent.children)
@@ -109,40 +127,36 @@ export default class JsonEditor {
         }
     }
 
-    private async stepData(
-        root: HTMLElement,
-        data: string|number|boolean|object,
-        instanceMeta: BaseMeta|undefined,
-        path: IJsonEditorPath,
-        key: string|undefined = undefined,
-        origin: EOrigin = EOrigin.Unknown,
-        originListCount: number = 1
-    ):Promise<void> {
-        const type = typeof data
+    private async stepData(options: IStepDataOptions):Promise<void> {
+        const type = typeof options.data
         switch(type) {
             case 'string':
-                await this.buildField(root, EJsonEditorFieldType.String, data, instanceMeta, path, origin, originListCount)
+                await this.buildField(EJsonEditorFieldType.String, options)
                 break
             case 'number':
-                await this.buildField(root, EJsonEditorFieldType.Number, data, instanceMeta, path, origin, originListCount)
+                await this.buildField(EJsonEditorFieldType.Number, options)
                 break
             case 'boolean':
-                await this.buildField(root, EJsonEditorFieldType.Boolean, data, instanceMeta, path, origin, originListCount)
+                await this.buildField(EJsonEditorFieldType.Boolean, options)
                 break
             case 'object': // Instances
-                if(data === null) {
+                if(options.data === null) {
                     // Exist to show that something is broken as we don't support the null type.
-                    await this.buildField(root, EJsonEditorFieldType.Null, data, instanceMeta, path, origin, originListCount)
+                    await this.buildField(EJsonEditorFieldType.Null, options)
                 } else {
-                    await this.buildFields(root, data as object, instanceMeta, path, key, origin, originListCount)
+                    await this.buildFields(options)
                 }
                 break
             case 'function': // Enum
-                console.log('StepData Function', data, instanceMeta, path, origin, originListCount)
-                await this.buildField(root, EJsonEditorFieldType.Number, 0, instanceMeta, path, origin, originListCount)
+                console.log('StepData Function', options)
+                const optionsClone = Utils.clone(options)
+                optionsClone.root = options.root
+                optionsClone.extraChildren = options.extraChildren
+                optionsClone.data = 0
+                await this.buildField(EJsonEditorFieldType.Number, optionsClone)
                 break
             default:
-                console.warn('Unhandled data type: ', type,', data: ', data)
+                console.warn('Unhandled data type: ', type,', data: ', options.data)
         }
         return
     }
@@ -159,41 +173,38 @@ export default class JsonEditor {
         }
         return li
     }
-    private buildInfo(label: string, value: string): HTMLElement[] {
-        const idLabel = document.createElement('span')
-        idLabel.classList.add('input-label')
-        idLabel.innerHTML = `${label}: `
-        const idField = document.createElement('code')
-        idField.classList.add('disabled')
-        idField.contentEditable = 'false'
-        idField.innerHTML = value
-        return [idLabel, idField]
+    private buildInfo(labelStr: string, valueStr: string, labelTitle: string = '', valueTitle = ''): HTMLElement[] {
+        const label = document.createElement('span')
+        label.classList.add('input-label')
+        label.innerHTML = `${labelStr}: `
+        label.title = labelTitle
+        const field = document.createElement('code')
+        field.classList.add('disabled')
+        field.contentEditable = 'false'
+        field.innerHTML = valueStr
+        field.title = valueTitle
+        return [label, field]
     }
 
     private async buildField(
-        root: HTMLElement,
         type: EJsonEditorFieldType,
-        value: string|number|boolean|object,
-        instanceMeta: BaseMeta|undefined,
-        path: IJsonEditorPath,
-        origin: EOrigin,
-        originListCount: number = 1
+        options: IStepDataOptions
     ): Promise<void> {
-        const key = path[path.length-1] ?? ''
-        const previousKey = path[path.length-2] ?? ''
-        const pathStr = path.join('.')
-        const isRoot = path.length == 1
+        const key = options.path[options.path.length-1] ?? ''
+        const previousKey = options.path[options.path.length-2] ?? ''
+        const pathStr = options.path.join('.')
+        const isRoot = options.path.length == 1
 
         // Sort out type values for ID references
-        const thisType = instanceMeta?.types ? instanceMeta.types[key] ?? '' : ''
+        const thisType = options.instanceMeta?.types ? options.instanceMeta.types[key] ?? '' : ''
         const thisTypeValues = BaseDataObject.parseRef(thisType)
-        const parentType = instanceMeta?.types ? instanceMeta.types[previousKey] ?? '' : ''
+        const parentType = options.instanceMeta?.types ? options.instanceMeta.types[previousKey] ?? '' : ''
         const parentTypeValues = BaseDataObject.parseRef(parentType)
 
         // Label
         let keyInput: HTMLSpanElement|undefined
         const label: HTMLSpanElement = document.createElement('span') as HTMLSpanElement
-        if(origin == EOrigin.ListDictionary) {
+        if(options.origin == EOrigin.ListDictionary) {
             label.innerHTML = ' : '
             keyInput = document.createElement('code') as HTMLSpanElement
             keyInput.contentEditable = 'false'
@@ -201,7 +212,7 @@ export default class JsonEditor {
         } else {
             label.innerHTML = isRoot
                 ? `<strong>${key}</strong>: `
-                : origin == EOrigin.ListArray
+                : options.origin == EOrigin.ListArray
                     ? `${key}: `
                     : `${Utils.camelToTitle(key.toString())}: `
             label.onclick = (event)=>{
@@ -211,10 +222,10 @@ export default class JsonEditor {
         }
         label.classList.add('input-label')
         this._labels.push(label)
-        this.handleValue(value, path, label ,true) // Will colorize label
+        this.handleValue(options.data, options.path, label ,true) // Will colorize label
 
         const li = document.createElement('li') as HTMLLIElement
-        if(originListCount > 1) this.appendDragButton(li, origin, path)
+        if(options.originListCount > 1) this.appendDragButton(li, options.origin, options.path)
         if(keyInput) {
             // Optional editable key
             li.appendChild(keyInput)
@@ -249,14 +260,14 @@ export default class JsonEditor {
         switch (type) {
             case EJsonEditorFieldType.String:
                 input.contentEditable = 'true'
-                input.innerHTML = Utils.escapeHTML(`${value}`)
+                input.innerHTML = Utils.escapeHTML(`${options.data}`)
                 input.onkeydown = (event)=>{
                     if (event.key === 'Enter') {
                         event.preventDefault()
                     }
                 }
                 handle = (event) => {
-                    this.handleValue(Utils.unescapeHTML(input.innerHTML), path, label)
+                    this.handleValue(Utils.unescapeHTML(input.innerHTML), options.path, label)
                 }
                 break
             case EJsonEditorFieldType.Boolean:
@@ -264,7 +275,7 @@ export default class JsonEditor {
                 const off = '❌ False'
                 input.style.userSelect = 'none'
                 input.tabIndex = 0
-                input.innerHTML = (value as boolean) ? on : off
+                input.innerHTML = (options.data as boolean) ? on : off
                 input.classList.add('boolean-input')
                 label.onclick = input.onclick = input.onkeydown = (event: KeyboardEvent|MouseEvent)=>{
                     if(event instanceof KeyboardEvent) {
@@ -272,13 +283,13 @@ export default class JsonEditor {
                         if(validKeys.indexOf(event.key) == -1) return console.log(`"${key}"`)
                     }
                     input.innerHTML = (input.innerHTML == on) ? off : on
-                    this.handleValue(input.innerHTML == on, path, label)
+                    this.handleValue(input.innerHTML == on, options.path, label)
                 }
                 handle = (event) => {}
                 break
             case EJsonEditorFieldType.Number:
                 input.contentEditable = 'true'
-                input.innerHTML = `${value}`
+                input.innerHTML = `${options.data}`
                 input.onkeydown = (event)=>{
                     const validKeys = ['Delete', 'Backspace', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'ArrowLeft', 'Tab']
                     const key = event.key
@@ -297,7 +308,7 @@ export default class JsonEditor {
                 }
                 handle = (event)=>{
                     const num = parseFloat(input.innerHTML)
-                    this.handleValue(isNaN(num) ? 0 : num, path, label)
+                    this.handleValue(isNaN(num) ? 0 : num, options.path, label)
                 }
                 break
             case EJsonEditorFieldType.Null:
@@ -309,7 +320,7 @@ export default class JsonEditor {
 
         if(keyInput) {
             keyInput.onclick = (event)=>{
-                this.promptForKey(path)
+                this.promptForKey(options.path)
             }
         }
 
@@ -343,7 +354,7 @@ export default class JsonEditor {
                     option.value = enumValue
                     option.innerHTML = enumKey
                     if(enumMeta.documentation?.hasOwnProperty(enumKey)) option.title = enumMeta.documentation[enumKey]
-                    if(enumValue == Utils.ensureNumber(value)) {
+                    if(enumValue == Utils.ensureNumber(options.data)) {
                         option.selected = true
                     }
                     enumSelect.appendChild(option)
@@ -388,7 +399,7 @@ export default class JsonEditor {
                     if(!parseInt(id)) option.style.color = 'darkgray'
                     option.value = id
                     option.innerHTML = label && label.length > 0 ? label : id
-                    if(id.toString() == value.toString()) {
+                    if(id.toString() == options.data.toString()) {
                         firstValue = id
                         option.selected = true
                         input.innerHTML = id.toString()
@@ -410,8 +421,8 @@ export default class JsonEditor {
                 const setNewReference = this.appendNewReferenceItemButton(li, values, this._rowId)
 
                 const items = DataObjectMap.getNames(values.genericLike, true)
-                const genericClasses = await DataBaseHelper.loadIDClasses([value.toString()])
-                const genericClass = genericClasses[value.toString()] ?? ''
+                const genericClasses = await DataBaseHelper.loadIDClasses([options.data.toString()])
+                const genericClass = genericClasses[options.data.toString()] ?? ''
                 let isNewReferenceItemButtonInitialized = false
                 for(const clazz of items) {
                     if(!isNewReferenceItemButtonInitialized) {
@@ -462,9 +473,10 @@ export default class JsonEditor {
             }
         }
         if(thisTypeValues.isIdReference && thisTypeValues.genericLike.length == 0) this.appendNewReferenceItemButton(li, thisTypeValues)
-        this.appendRemoveButton(li, origin, path, label)
-        this.appendDocumentationIcon(li, key, instanceMeta)
-        root.appendChild(li)
+        this.appendRemoveButton(li, options.origin, options.path, label)
+        this.appendDocumentationIcon(li, key, options.instanceMeta)
+        if(options.extraChildren.length > 0) for(const child of options.extraChildren) li.appendChild(child)
+        options.root.appendChild(li)
         return
     }
 
@@ -477,42 +489,42 @@ export default class JsonEditor {
     }
 
     private async buildFields(
-        root: HTMLElement,
-        instance: object,
-        instanceMeta: BaseMeta|undefined,
-        path: IJsonEditorPath,
-        objectKey: string|undefined,
-        origin: EOrigin,
-        originListCount: number = 1
+        options: IStepDataOptions
     ): Promise<void> {
-        const pathKey = path[path.length-1] ?? 'root'
+        const pathKey = options.path[options.path.length-1] ?? 'root'
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
+        const instance = (options.data as object)
 
         // Sort out type values for ID references
-        const thisType = instanceMeta?.types ? instanceMeta.types[pathKey] ?? '' : ''
+        const thisType = options.instanceMeta?.types ? options.instanceMeta.types[pathKey] ?? '' : ''
         const thisTypeValues = BaseDataObject.parseRef(thisType)
         const instanceType = instance.constructor.name
 
-        if(originListCount > 1) this.appendDragButton(newRoot, origin, path)
+        if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
 
-        if(path.length == 1) { // Root object generates a key field
-            await this.buildField(root, EJsonEditorFieldType.String, `${objectKey ?? ''}`, instanceMeta, path, EOrigin.Single)
+        if(options.path.length == 1) { // Root object generates a key field
+            const optionsClone = Utils.clone(options)
+            optionsClone.root = options.root
+            optionsClone.extraChildren = options.extraChildren
+            optionsClone.data = `${options.key ?? ''}`
+            optionsClone.origin = EOrigin.Single
+            await this.buildField(EJsonEditorFieldType.String, optionsClone)
         } else {
             // A dictionary has editable keys
-            if(origin == EOrigin.ListDictionary) {
+            if(options.origin == EOrigin.ListDictionary) {
                 const keyInput = document.createElement('code') as HTMLSpanElement
                 keyInput.contentEditable = 'false'
                 keyInput.innerHTML = pathKey.toString()
                 keyInput.onclick = (event)=>{
-                    this.promptForKey(path)
+                    this.promptForKey(options.path)
                 }
                 newRoot.appendChild(keyInput)
             }
             // An array has a fixed index
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
-                strongSpan.innerHTML = origin == EOrigin.ListArray
+                strongSpan.innerHTML = options.origin == EOrigin.ListArray
                     ? `${pathKey}`
                     : Utils.camelToTitle(pathKey.toString())
                 if(thisTypeValues.class) strongSpan.title = `Type: ${thisTypeValues.class}`
@@ -521,35 +533,54 @@ export default class JsonEditor {
         }
 
         // Add new item button if we have a type defined
-        await this.appendAddButton(newRoot, thisTypeValues, instance, path)
-        this.appendRemoveButton(newRoot, origin, path, undefined)
+        await this.appendAddButton(newRoot, thisTypeValues, instance, options.path)
+        this.appendRemoveButton(newRoot, options.origin, options.path, undefined)
         if(thisTypeValues.genericLike.length == 0) this.appendNewReferenceItemButton(newRoot, thisTypeValues)
-        this.appendDocumentationIcon(newRoot, pathKey, instanceMeta)
+        this.appendDocumentationIcon(newRoot, pathKey, options.instanceMeta)
 
         // Get new instance meta if we are going deeper. TODO: This needs to support ENUMs
-        let newInstanceMeta = instanceMeta
+        let newInstanceMeta = options.instanceMeta
         if(thisType && DataObjectMap.hasInstance(thisType)) { // For lists class instances
-            newInstanceMeta = DataObjectMap.getMeta(thisType) ?? instanceMeta
+            newInstanceMeta = DataObjectMap.getMeta(thisType) ?? options.instanceMeta
         } else if (instanceType && DataObjectMap.hasInstance(instanceType)) { // For single class instances
-            newInstanceMeta = DataObjectMap.getMeta(instanceType) ?? instanceMeta
+            newInstanceMeta = DataObjectMap.getMeta(instanceType) ?? options.instanceMeta
+        }
+        const newOptions: IStepDataOptions = {
+            root: newUL,
+            data: 0,
+            instanceMeta: newInstanceMeta,
+            path: [],
+            key: undefined,
+            origin: EOrigin.Unknown,
+            originListCount: 1,
+            extraChildren: []
         }
         if(Array.isArray(instance)) {
-            const newOrigin = thisType ? EOrigin.ListArray : EOrigin.Single
+            newOptions.origin = thisType ? EOrigin.ListArray : EOrigin.Single
             for(let i=0; i<instance.length; i++) {
-                const newPath = this.clone(path)
-                newPath.push(i)
-                await this.stepData(newUL, instance[i], newInstanceMeta, newPath, undefined, newOrigin, instance.length)
+                const optionsClone = Utils.clone(newOptions)
+                optionsClone.root = newOptions.root
+                optionsClone.extraChildren = newOptions.extraChildren
+                optionsClone.data = instance[i]
+                optionsClone.path = this.clone(options.path)
+                optionsClone.path.push(i)
+                optionsClone.originListCount = instance.length
+                await this.stepData(optionsClone)
             }
         } else {
-            const newOrigin = thisType ? EOrigin.ListDictionary : EOrigin.Single
+            newOptions.origin = thisType ? EOrigin.ListDictionary : EOrigin.Single
             for(const key of Object.keys(instance)) {
-                const newPath = this.clone(path)
-                newPath.push(key.toString())
-                await this.stepData(newUL, (instance as any)[key.toString()], newInstanceMeta, newPath, undefined, newOrigin)
+                const optionsClone = Utils.clone(newOptions)
+                optionsClone.root = newOptions.root
+                optionsClone.extraChildren = newOptions.extraChildren
+                optionsClone.path = this.clone(options.path)
+                optionsClone.path.push(key.toString())
+                optionsClone.data = (instance as any)[key.toString()]
+                await this.stepData(optionsClone)
             }
         }
         newRoot.appendChild(newUL)
-        root.appendChild(newRoot)
+        options.root.appendChild(newRoot)
         return
     }
     // region Buttons

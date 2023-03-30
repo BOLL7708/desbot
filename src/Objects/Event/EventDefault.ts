@@ -1,6 +1,6 @@
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
-import {EBehavior} from '../../Interfaces/ievents.js'
+import {EnumEventBehavior} from '../../Enums/EventBehavior.js'
 
 export class EventDefault extends BaseDataObject {
     options: EventOptions = new EventOptions()
@@ -9,7 +9,7 @@ export class EventDefault extends BaseDataObject {
 }
 
 export class EventOptions extends BaseDataObject {
-    behavior: EBehavior = EBehavior.All // TODO: Might have to change this up, support Enum Drop-downs somehow?
+    behavior = EnumEventBehavior.All
     accumulationGoal: number = 0
     multiTierTimeout: number = 0
     multiTierMaxLevel: number = 0
@@ -45,7 +45,7 @@ DataObjectMap.addRootInstance(new EventDefault(),
 
 DataObjectMap.addSubInstance(new EventOptions(),
     {
-        behavior: 'Set this to add special behavior to this reward.\n- **All**: Is the same as leaving this out, no special behavior, will trigger everything provided.\n- **Random**: Will pick a random reward from the list.\n- **Incrementing**: Will increment every time it is redeemed.\n- **Accumulating**: Will show the first setting until goal is met when it shows the second.\n- **MultiTier**: Will switch to the next, but will reset after a duration, can have multiple levels.',
+        behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.',
         accumulationGoal: 'The goal to reach if behavior is set to accumulating.',
         multiTierTimeout: 'The duration in seconds before we reset the multi-tier level unless it is triggered again.',
         multiTierMaxLevel: 'The maximum level we can reach with the multi-tier behavior. If this is not provided we will use the count of `triggers.reward`.',
@@ -59,6 +59,9 @@ DataObjectMap.addSubInstance(new EventOptions(),
         rewardMergeUpdateConfigWithFirst: 'Merge the current reward config onto the first default config in the array.',
         specificIndex: 'Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.',
         relayCanTrigger: 'If this event can be triggered by messages from WSRelay.'
+    },
+    {
+        behavior: EnumEventBehavior.ref()
     }
 )
 

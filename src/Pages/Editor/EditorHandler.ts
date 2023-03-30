@@ -159,7 +159,16 @@ export default class EditorHandler {
                     this.updateHistory()
                 }
                 const item = await DataBaseHelper.loadItem(instance, resultingKey)
-                editorContainer.replaceChildren(await this._editor?.build(resultingKey, instance, item?.id, parentId ?? item?.pid ?? undefined, markAsDirty, this._state.forceMainKey) ?? '')
+                editorContainer.replaceChildren(
+                    await this._editor?.build(
+                        resultingKey,
+                        instance, 
+                        item?.id,
+                        !!parentId ? parentId : item?.pid ?? undefined,
+                        markAsDirty,
+                        this._state.forceMainKey
+                    ) ?? ''
+                )
             } else {
                 console.warn(`Could not load instance for ${group}, class is: ${instance?.constructor.name}`)
             }
