@@ -16,7 +16,7 @@ html, body {
 #menu-bar {
     box-sizing: border-box;
     background-color: #f0f0f0;
-    padding: 0.5em;
+    padding: 0.5em 1em;
     border-bottom: 2px solid #808080;
 }
 #menu-bar ul {
@@ -63,7 +63,7 @@ html, body {
 #side-bar {
     flex: 0 0 20vw; /* TODO: is it possible to make this shrink to the size of the contents? */
     box-sizing: border-box;
-    padding: 0.5em;
+    padding: 0.5em 1.5em;
     overflow: auto;
     background-color: #e0e0e0;
     border-right: 2px solid #808080;
@@ -83,7 +83,7 @@ html, body {
 #content {
     flex: 1;
     box-sizing: border-box;
-    padding: 0.5em;
+    padding: 0.5em 1.5em;
     overflow: auto;
 }
 

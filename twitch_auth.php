@@ -59,7 +59,7 @@ if(!$gotAuthResponse) { ?>
         ]));
         $userInfo = $userInfoArr->data[0] ?? (object) [];
         if($userInfo) {
-            $success = $db->saveEntry('SettingTwitchTokens', $state, json_encode([
+            $success = $db->saveEntry('SettingTwitchTokens', $state, null, json_encode([
                 'userId' => intval($userInfo->id),
                 'userLogin' => $userInfo->login,
                 'accessToken' => $json->access_token,
@@ -71,7 +71,7 @@ if(!$gotAuthResponse) { ?>
     ?>
     <script>
         window.onload = ()=>{
-            window.opener['ReportTwitchOAuthResult']('<?=$success ? $userInfo->id : ''?>')
+            window.opener.postMessage('<?=$success ? $userInfo->id : ''?>', '*')
             window.close()
         }
     </script>

@@ -3,9 +3,10 @@
 class PageUtils {
     /**
      * Prints the top part of the HTML page.
+     * @param bool $onlyContents If true will not draw side or top bar.
      * @return void
      */
-    public static function printTop(): void
+    public static function printTop(bool $onlyContents = false): void
     {
         $scriptFile = Utils::getScriptFileName();
         ?>
@@ -28,10 +29,10 @@ class PageUtils {
     <body>
         <div id="container">
             <?php
-            include_once('inc/embeds/TopBar.embed.inc.php');
+            if(!$onlyContents) include_once('inc/embeds/TopBar.embed.inc.php');
             ?>
             <div id="page-container">
-                <div id="side-bar"></div>
+                <?php if(!$onlyContents) { ?><div id="side-bar"></div><?php } ?>
             <?php
     }
 

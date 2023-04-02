@@ -21,8 +21,7 @@ export default class DataBaseHelper {
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
-    private static _idKeyStore: Map<[string, number], { [id:string]: string }> = new Map() // Used to store ID reference lists used in the editor
-    private static _idLabelStore: Map<[string, number], { [id:string]: string }> = new Map() // Used to store ID reference lists with labels used in the editor
+    private static _idKeyLabelStore: Map<[string, number], IDataBaseKeysAndLabels> = new Map() // Used to store ID reference lists used in the editor
 
     // Reference maps, if an object has been loaded once, it exists in these maps.
     private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
@@ -290,13 +289,9 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): Promise<IStringDictionary> {
+    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): Promise<IDataBaseKeysAndLabels> {
         const tuple: [string, number] = [groupClass, parentId ?? 0]
-        if(rowIdLabel) {
-            if(this._idLabelStore.has(tuple)) return this._idLabelStore.get(tuple) ?? {}
-        } else {
-            if(this._idKeyStore.has(tuple)) return this._idKeyStore.get(tuple) ?? {}
-        }
+        if(this._idKeyLabelStore.has(tuple)) return this._idKeyLabelStore.get(tuple) ?? {}
 
         const url = this.getUrl()
         const options: IDataBaseHelperHeaders = {
@@ -309,8 +304,8 @@ export default class DataBaseHelper {
             headers: await this.getHeader(options)
         })
         const json = response.ok ? await response.json() : {}
-        if(rowIdLabel) this._idLabelStore.set(tuple, json)
-        else this._idKeyStore.set(tuple, json)
+        if(rowIdLabel) this._idKeyLabelStore.set(tuple, json)
+        else this._idKeyLabelStore.set(tuple, json)
 
         return json
     }
@@ -344,8 +339,7 @@ export default class DataBaseHelper {
      */
     static clearReferences(groupClass?: string, parentId?: number): boolean {
         if(groupClass) {
-            this._idKeyStore.delete([groupClass, parentId ?? 0])
-            this._idLabelStore.delete([groupClass, parentId ?? 0])
+            this._idKeyLabelStore.delete([groupClass, parentId ?? 0])
             return true
         }
         return false
@@ -515,8 +509,6 @@ export interface IDataBaseItem<T> {
     pid: number|null
     data: (T&BaseDataObject)|null
 }
-export interface IDataBaseLabelItem {
-    id: number
-    key: string
-    label: string
+export interface IDataBaseKeysAndLabels {
+    [id: string]: [string, string]
 }

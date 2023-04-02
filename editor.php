@@ -1,5 +1,7 @@
 <?php
 $group = $_REQUEST['g'] ?? '';
+$minimal = !!($_REQUEST['m'] ?? '');
+
 $validGroups = ['s'=>'Settings', 'c'=>'Configs', 'p'=>'Presets', 'e'=>'Events', 't'=>'Triggers', 'a'=>'Actions'];
 $descriptions = [
     's'=>'<p>This page exists for when there are issues, as an easy way to inspect and correct eventual faulty data.</p>
@@ -21,7 +23,7 @@ if(array_key_exists($group, $validGroups)) {
     $description = $descriptions[$group];
 }
 include_once '_init.php';
-PageUtils::printTop();
+PageUtils::printTop($minimal);
 ?>
         <div id="content">
             <h2><?=$title?></h2>

@@ -1,7 +1,7 @@
 import Utils from '../../Classes/Utils.js'
 import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import DataObjectMap, {DataObjectMeta} from '../../Objects/DataObjectMap.js'
+import DataBaseHelper, {IDataBaseKeysAndLabels} from '../../Classes/DataBaseHelper.js'
+import DataObjectMap from '../../Objects/DataObjectMap.js'
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
 import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
 import {BaseMeta} from '../../Objects/BaseMeta.js'
@@ -74,23 +74,29 @@ export default class JsonEditor {
         const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
         const tempParent = this.buildUL()
 
+        const urlParams = Utils.getUrlParams()
         const extraChildren: HTMLElement[] = []
-        if(this._rowId > 0) extraChildren.push(...this.buildInfo(' ID', this._rowId.toString(), 'If an ID is shown, the data has been saved.', 'The ID of this row in the database.'))
-        if(this._rowId > 0 && this._parentId > 0) {
+        if(this._rowId > 0) {
+            extraChildren.push(...this.buildInfo(' ID', this._rowId.toString(), 'If an ID is shown, the data has been saved.', 'The ID of this row in the database.'))
+        }
+        if(this._rowId > 0 && this._parentId > 0 && !(urlParams.has('m') && !!urlParams.get('m'))) {
             const spaceSpan = document.createElement('span') as HTMLSpanElement
             spaceSpan.innerHTML = ' ⇒ '
             extraChildren.push(spaceSpan)
         }
         if(this._parentId > 0) {
-            extraChildren.push(...this.buildInfo('Parent ID', this._parentId.toString(), 'If a parent ID is shown, this data belongs to a different row.', 'The ID of the parent row in the database.'))
-            const parentButton = document.createElement('button') as HTMLButtonElement
-            parentButton.innerHTML = '👴'
-            parentButton.title = 'Edit the parent item.'
-            parentButton.classList.add('inline-button')
-            parentButton.onclick = (event)=>{
-                window.location.replace(`?id=${this._parentId}`)
+            const urlParams = Utils.getUrlParams()
+            if(!urlParams.get('m')) { // m as in Minimal
+                extraChildren.push(...this.buildInfo('Parent ID', this._parentId.toString(), 'If a parent ID is shown, this data belongs to a different row.', 'The ID of the parent row in the database.'))
+                const parentButton = document.createElement('button') as HTMLButtonElement
+                parentButton.innerHTML = '👴'
+                parentButton.title = 'Edit the parent item.'
+                parentButton.classList.add('inline-button')
+                parentButton.onclick = (event)=>{
+                    window.location.replace(`?id=${this._parentId}`)
+                }
+                extraChildren.push(parentButton)
             }
-            extraChildren.push(parentButton)
         }
         const options: IStepDataOptions = {
             root: tempParent,
@@ -382,7 +388,7 @@ export default class JsonEditor {
 
             // Fill select with IDs with options
             const buildSelectOfIDs = async(overrideClass: string = '') => {
-                let items: IStringDictionary = {}
+                let items: IDataBaseKeysAndLabels = {}
                 if(overrideClass.length > 0) {
                     items = await DataBaseHelper.loadIDsWithLabelForClass(overrideClass, undefined, isGeneric ? this._rowId : undefined)
                 } else {
@@ -390,19 +396,20 @@ export default class JsonEditor {
                 }
                 let hasSetInitialValue = false
                 let firstValue = '0'
-                items['0'] = '- empty -'
+                items['0'] = ['', '- empty -']
                 selectIDs.replaceChildren()
-                for(const [id, label] of Object.entries(items ?? {}).sort(
+                for(const [itemId, [itemKey, itemLabel]] of Object.entries(items ?? {}).sort(
                     (a, b)=>{return (parseInt(a[0]) > parseInt(b[0]) ? 1 : -1)}
                 )) {
                     const option = document.createElement('option') as HTMLOptionElement
-                    if(!parseInt(id)) option.style.color = 'darkgray'
-                    option.value = id
-                    option.innerHTML = label && label.length > 0 ? label : id
-                    if(id.toString() == options.data.toString()) {
-                        firstValue = id
+                    if(!parseInt(itemId)) option.style.color = 'darkgray'
+                    option.value = itemId
+                    option.innerHTML = Utils.getFirstValidString(itemLabel, itemKey, itemId)
+                    option.title = itemKey
+                    if(itemId.toString() == options.data.toString()) {
+                        firstValue = itemId
                         option.selected = true
-                        input.innerHTML = id.toString()
+                        input.innerHTML = itemId.toString()
                         hasSetInitialValue = true
                     }
                     selectIDs.add(option)
@@ -459,9 +466,9 @@ export default class JsonEditor {
             editButton.classList.add('inline-button')
             editButton.onclick = (event)=>{
                 if(selectIDs.value !== '0') {
-                    let link = `editor.php?id=${selectIDs.value}`
+                    let link = `editor.php?m=1&id=${selectIDs.value}`
                     if(isGeneric) link += `&p=${this._rowId}`
-                    window.location.replace(link)
+                    window.open(link)
                 }
             }
             li.appendChild(selectIDs)
@@ -630,15 +637,15 @@ export default class JsonEditor {
             if(button) {
                 button.title = `Create new item of type: ${clazz}`+(parentId ? ` for parent: ${this._key} (${parentId})` : '')
                 button.onclick = (event)=>{
-                    this.checkIfModified()
-                    window.location.replace(`?c=${clazz}&n=1`+(parentId ? `&p=${parentId}` : ''))
+                    let link = `editor.php?c=${clazz}&m=1&n=1`
+                    if(parentId) link += `&p=${parentId}`
+                    window.open(link)
                 }
             }
         }
         if(typeValues.class && typeValues.isIdReference) {
             button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '👶'
-
             button.classList.add('inline-button')
             button.tabIndex = -1
             updateLink(typeValues.class)
@@ -693,6 +700,7 @@ export default class JsonEditor {
         label: HTMLElement|undefined = undefined,
         checkModified: boolean = false
     ) {
+        // console.log("Handle value: ", value, new Error().stack?.toString())
         let current: any = this._instance
         let currentOriginal: any = this._originalInstance
         if(path.length == 1) {

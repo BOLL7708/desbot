@@ -460,12 +460,19 @@ export default class Utils {
         return str.split(/(?=[A-Z][a-z])/)
     }
 
-    static camelToTitle(str: string, removeHead: boolean = false): string {
+    static camelToTitle(str: string, option = EUtilsTitleReturnOption.Everything): string {
         const detectWords = /([A-Z0-9$])(?<=[a-z]\1|[A-Za-z0-9$]\1(?=[a-z]))/g
         const splitOnWords = /[\W_]/g
         str = str.replace(detectWords, ' $1')
         const arr = str.split(splitOnWords)
-        if(removeHead && arr.length > 1) arr.shift()
+        if(arr.length > 1) switch(option) {
+            case EUtilsTitleReturnOption.OnlyFirstWord:
+                arr.splice(1)
+                break;
+            case EUtilsTitleReturnOption.SkipFirstWord:
+                arr.shift()
+                break;
+        }
         if(arr.length > 0) arr[0] = this.capitalize(arr[0])
         return arr.join(' ')
     }
@@ -518,6 +525,7 @@ export default class Utils {
     }
     static unescapeHTML(html: string): string {
         return html
+            .replace(/&nbsp;/g, ' ')
             .replace(/&amp;/g, '&')
             .replace(/&lt;/g, '<')
             .replace(/&gt;/g, '>')
@@ -555,6 +563,20 @@ export default class Utils {
         if (steps == 0 || arr.length == 0) return arr
         return this.moveInArray(arr, fromIndex, fromIndex+steps)
     }
+
+    static getUrlParams(): URLSearchParams {
+        const queryString = window.location.search
+        return new URLSearchParams(queryString)
+    }
+
+    static getFirstValidString(...values: any[]): string {
+        for(const value of values) {
+            if(typeof value === 'string') {
+                if(value.trim().length > 0) return value
+            }
+        }
+        return ''
+    }
 }
 
 interface IRewardData {
@@ -570,3 +592,9 @@ export type TJson =
     | null
     | readonly TJson[]
     | { readonly [key: string]: TJson }
+
+export enum EUtilsTitleReturnOption {
+    Everything,
+    OnlyFirstWord,
+    SkipFirstWord
+}

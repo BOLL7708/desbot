@@ -189,11 +189,13 @@ export default class SetupFormHandler {
         event.preventDefault()
         await this._sections.show('Loading', 'Authenticating...', 'Waiting for a return from Twitch, reload page to restart.')
         const inputData = this.getFormInputData(event.target, new StateInput());
-        (window as any).ReportTwitchOAuthResult = async (userId: string)=>{
+        window.onmessage = async(event)=>{
+            const userId = event.data
             if(userId.length == 0) {
                 const reset = confirm('Could not retrieve Twitch tokens, do you want to reset the Twitch Client settings?')
                 if(reset) await DataBaseHelper.delete(new SettingTwitchClient(), 'Main')
             }
+            window.onmessage = null
             await this.setup()
         }
         window.open(`twitch_auth.php?state=${inputData.state}`, 'StreamingWidgetTwitchAuthAuxiliaryWindow')
