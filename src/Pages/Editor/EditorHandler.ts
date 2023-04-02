@@ -18,7 +18,41 @@ export default class EditorHandler {
     public constructor() {
         this.init().then()
     }
+
+    private _containerDiv: HTMLDivElement|undefined
+    private _coverDiv: HTMLDivElement|undefined
+
     private async init() {
+        window.onunload = (event)=>{
+            if(this._state.minimal) window.opener.postMessage(null) // Cancel cover in parent window
+        }
+        if(!this._containerDiv) {
+            this._containerDiv = document.querySelector('#container') as HTMLDivElement
+        }
+        if(!this._coverDiv) {
+            this._coverDiv = document.createElement('div') as HTMLDivElement
+            this._coverDiv.classList.add('cover')
+            this._coverDiv.style.display = 'none'
+
+            const coverText = document.createElement('p') as HTMLParagraphElement
+            coverText.innerHTML = 'Waiting for result... '
+
+            const coverButton = document.createElement('button') as HTMLButtonElement
+            coverButton.classList.add('editor-button')
+            coverButton.innerHTML = 'Abort'
+            coverButton.onclick = (event)=>{
+                if(this._childEditorWindow) {
+                    this._childEditorWindow.close()
+                } else {
+                    this.toggleCover(false)
+                }
+            }
+
+            coverText.appendChild(coverButton)
+            this._coverDiv.appendChild(coverText)
+            document.body.appendChild(this._coverDiv)
+        }
+
         const urlParams = Utils.getUrlParams()
         const rowId = urlParams.get('id') ?? undefined
         let rowItem = await DataBaseHelper.loadById(rowId)
@@ -104,7 +138,7 @@ export default class EditorHandler {
         selectKey: string = '',
         parentId?: number,
     ) {
-        await this.saveOnReplacingEditorContents()
+        await this.confirmSaveIfReplacingOrLeaving()
         this._state.groupClass = group
         this._state.groupKey = selectKey
 
@@ -125,6 +159,7 @@ export default class EditorHandler {
         editorContainer.id = 'editor-container'
         this._editor = new JsonEditor()
         this._editor.setModifiedStatusListener(this.updateModifiedState.bind(this))
+        this._editor.setChildEditorLaunchedListener(this.childEditorLaunched.bind(this))
 
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
@@ -133,7 +168,7 @@ export default class EditorHandler {
             clear: boolean = false,
             markAsDirty: boolean = false
         ): Promise<boolean> =>{
-            await this.saveOnReplacingEditorContents()
+            await this.confirmSaveIfReplacingOrLeaving()
             this._state.newItem = false // Reset it as we only need that to affect the initial load.
             let instance: BaseDataObject|undefined = undefined
             let resultingKey = selectKey
@@ -152,6 +187,12 @@ export default class EditorHandler {
                 editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
             }
             if(instance && instance?.constructor.name !== 'Object') {
+                // Update URL to enable refreshes and bookmarks.
+                Utils.setUrlParam({
+                    c: group,
+                    k: resultingKey
+                })
+
                 this._state.groupKey = resultingKey
                 const item = await DataBaseHelper.loadItem(instance, resultingKey)
                 editorContainer.replaceChildren(
@@ -226,8 +267,14 @@ export default class EditorHandler {
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
         editorSaveButton.classList.add('editor-button', 'save-button')
         editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
-        editorSaveButton.onclick = (event)=>{
-            this.saveData(this._state.groupKey, group, this._state.parentId).then()
+        editorSaveButton.onclick = async (event)=>{
+            await this.saveData(group, this._state.groupKey, this._state.parentId)
+            const json = await DataBaseHelper.loadJson(this._state.groupClass, this._state.groupKey, this._state.parentId)
+            if(this._state.minimal) {
+                const id = json.pop()?.id ?? ''
+                window.opener.postMessage(id)
+                window.close()
+            }
         }
         this._editorSaveButton = editorSaveButton
 
@@ -269,7 +316,7 @@ export default class EditorHandler {
         this._contentDiv.appendChild(editorImportButton)
     }
 
-    private async saveData(groupKey: string, groupClass: string, parentId?: number): Promise<boolean> {
+    private async saveData(groupClass: string, groupKey: string, parentId?: number): Promise<string|null> {
         if(this._editor) {
             const data = this._editor.getData()
             const newGroupKey = this._editor.getKey()
@@ -279,32 +326,66 @@ export default class EditorHandler {
                 await this.updateSideMenu()
                 this.updateModifiedState(false)
                 await this.buildEditorControls(groupClass, resultingGroupKey, this._state.parentId)
-                return true
+                return resultingGroupKey
             } else {
                 alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
             }
         }
-        return false
+        return null
     }
 
     private updateModifiedState(modified: boolean) {
         this._unsavedChanges = Utils.clone(modified)
         if(modified) {
-            window.onbeforeunload = (event)=>{
-                this.saveData(this._state.groupKey, this._state.groupClass, this._state.parentId).then()
+            window.onbeforeunload = async (event)=>{
+                await this.confirmSaveIfReplacingOrLeaving()
                 return undefined
             }
         } else {
             window.onbeforeunload = null
         }
-     }
+    }
 
-    private async saveOnReplacingEditorContents(): Promise<boolean> {
+    private async confirmSaveIfReplacingOrLeaving(): Promise<boolean> {
         if(this._unsavedChanges) {
+            // This is ignored if we are called by onbeforeunload, it manages staying on the page with browser features.
             const shouldSave = confirm('There are still unsaved changes, do you want to save?')
-            if(shouldSave) return await this.saveData(this._state.groupKey, this._state.groupClass, this._state.parentId)
+            if(shouldSave) {
+                const resultKey = await this.saveData(this._state.groupClass, this._state.groupKey, this._state.parentId)
+                return resultKey !== null
+            }
         }
         return false
+    }
+
+    private _childEditorWindow: Window|null = null
+    private childEditorLaunched(window: Window|null) {
+        this._childEditorWindow = window
+        this.toggleCover(true)
+    }
+
+    private async childEditorResult(id: number) {
+        const obj = await DataBaseHelper.loadById(id)
+        if(obj) DataBaseHelper.clearReferences(obj.class)
+        this._editor?.gotChildEditorResult(id)
+    }
+
+    // private _childPathToSet:
+    private toggleCover(state: boolean) {
+        if(state) {
+            window.onmessage = (event)=>{
+                this.toggleCover(false)
+                if(typeof event.data == 'number') {
+                    this.childEditorResult(event.data).then()
+                }
+            }
+            if(this._containerDiv) this._containerDiv.style.filter = 'blur(10px)'
+            if(this._coverDiv) this._coverDiv.style.display = 'flex'
+        } else {
+            window.onmessage = null
+            if(this._containerDiv) this._containerDiv.style.filter = ''
+            if(this._coverDiv) this._coverDiv.style.display = 'none'
+        }
     }
 }
 

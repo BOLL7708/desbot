@@ -40,9 +40,13 @@ export default class JsonEditor {
     private readonly _labelUnchangedColor = 'transparent'
     private readonly _labelChangedColor = 'pink'
 
-    private _modifiedStatusListener: IJsonEditorModifiedStatusListener = (modified:boolean)=>{}
+    private _modifiedStatusListener: IJsonEditorModifiedStatusListener = (modified)=>{}
     setModifiedStatusListener(listener: IJsonEditorModifiedStatusListener) {
         this._modifiedStatusListener = listener
+    }
+    private _childEditorLaunchedListener: IChildEditorLaunchedListener = (window)=>{}
+    setChildEditorLaunchedListener(listener: IChildEditorLaunchedListener) {
+        this._childEditorLaunchedListener = listener
     }
 
     constructor() {}
@@ -425,8 +429,7 @@ export default class JsonEditor {
             const selectGeneric = document.createElement('select') as HTMLSelectElement
             if(isGeneric) {
                 li.appendChild(selectGeneric)
-                const setNewReference = this.appendNewReferenceItemButton(li, values, this._rowId)
-
+                const setNewReference = this.appendNewReferenceItemButton(li, values, options.path, this._rowId) // Button after items in groups of generic references
                 const items = DataObjectMap.getNames(values.genericLike, true)
                 const genericClasses = await DataBaseHelper.loadIDClasses([options.data.toString()])
                 const genericClass = genericClasses[options.data.toString()] ?? ''
@@ -468,7 +471,9 @@ export default class JsonEditor {
                 if(selectIDs.value !== '0') {
                     let link = `editor.php?m=1&id=${selectIDs.value}`
                     if(isGeneric) link += `&p=${this._rowId}`
-                    window.open(link)
+                    this.openChildEditor(link,
+                        thisTypeValues.isIdReference || parentTypeValues.isIdReference ? options.path : []
+                    )
                 }
             }
             li.appendChild(selectIDs)
@@ -479,7 +484,9 @@ export default class JsonEditor {
                 await buildSelectOfIDs()
             }
         }
-        if(thisTypeValues.isIdReference && thisTypeValues.genericLike.length == 0) this.appendNewReferenceItemButton(li, thisTypeValues)
+        if(thisTypeValues.isIdReference && thisTypeValues.genericLike.length == 0) {
+            this.appendNewReferenceItemButton(li, thisTypeValues, options.path) // The button that goes onto single non-generic reference items.
+        }
         this.appendRemoveButton(li, options.origin, options.path, label)
         this.appendDocumentationIcon(li, key, options.instanceMeta)
         if(options.extraChildren.length > 0) for(const child of options.extraChildren) li.appendChild(child)
@@ -542,7 +549,9 @@ export default class JsonEditor {
         // Add new item button if we have a type defined
         await this.appendAddButton(newRoot, thisTypeValues, instance, options.path)
         this.appendRemoveButton(newRoot, options.origin, options.path, undefined)
-        if(thisTypeValues.genericLike.length == 0) this.appendNewReferenceItemButton(newRoot, thisTypeValues)
+        if(thisTypeValues.genericLike.length == 0) {
+            this.appendNewReferenceItemButton(newRoot, thisTypeValues, []) // The new button for groups of generic reference items
+        }
         this.appendDocumentationIcon(newRoot, pathKey, options.instanceMeta)
 
         // Get new instance meta if we are going deeper. TODO: This needs to support ENUMs
@@ -626,12 +635,14 @@ export default class JsonEditor {
     }
 
     /**
-     * Returns a lambda that can update the link of the button to lead to a different class.
+     * Adds the button but also returns a lambda that can update the link of the button to lead to a different class.
      * @param element
      * @param typeValues
+     * @param path // Only include the path if the item is supposed to be replaced with the new one.
+     * @param parentId // Add parent IDs for generic items that should belong to a single parent.
      * @private
      */
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues, parentId?: number): Function {
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues, path: IJsonEditorPath, parentId?: number): Function {
         let button: HTMLButtonElement|undefined = undefined
         const updateLink = (clazz: string)=>{
             if(button) {
@@ -639,7 +650,7 @@ export default class JsonEditor {
                 button.onclick = (event)=>{
                     let link = `editor.php?c=${clazz}&m=1&n=1`
                     if(parentId) link += `&p=${parentId}`
-                    window.open(link)
+                    this.openChildEditor(link, path)
                 }
             }
         }
@@ -696,7 +707,7 @@ export default class JsonEditor {
      */
     private handleValue(
         value: string|number|boolean|object|null,
-        path: (string | number)[],
+        path: IJsonEditorPath,
         label: HTMLElement|undefined = undefined,
         checkModified: boolean = false
     ) {
@@ -883,6 +894,25 @@ export default class JsonEditor {
             newRoot.appendChild(newButton)
         }
     }
+
+    private _childEditorPath: IJsonEditorPath = []
+    private openChildEditor(url: string, path: IJsonEditorPath) {
+        this._childEditorPath = path
+        const childEditorWindow = window.open(url)
+        this._childEditorLaunchedListener(childEditorWindow)
+    }
+
+    gotChildEditorResult(id: number): boolean {
+        if(this._childEditorPath.length > 0) {
+            if(this._childEditorPath.length > 0) this.handleValue(id, this._childEditorPath)
+            this._childEditorPath = []
+            this.rebuild().then()
+            return true
+        } else {
+            this.rebuild().then()
+            return false
+        }
+    }
 }
 enum EJsonEditorFieldType {
     String,
@@ -895,4 +925,7 @@ interface IJsonEditorPath extends Array<string|number> {}
 
 interface IJsonEditorModifiedStatusListener {
     (modified: boolean): void
+}
+interface IChildEditorLaunchedListener {
+    (window: Window|null): void
 }

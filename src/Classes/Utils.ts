@@ -577,6 +577,14 @@ export default class Utils {
         }
         return ''
     }
+
+    static setUrlParam(pairs: { [param: string]: string }) {
+        const urlParams = Utils.getUrlParams()
+        for(const [param, value] of Object.entries(pairs)) {
+            urlParams.set(param, encodeURIComponent(value))
+        }
+        window.history.replaceState(null, '', `?${urlParams.toString()}`);
+    }
 }
 
 interface IRewardData {

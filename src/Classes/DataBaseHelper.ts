@@ -403,7 +403,6 @@ export default class DataBaseHelper {
             if(!this._dataStore.has(className)) this._dataStore.set(className, {})
             const dictionary = this._dataStore.get(className)
             if(dictionary) dictionary[key] = setting
-
         }
 
         // Result

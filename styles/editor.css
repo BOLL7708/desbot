@@ -16,6 +16,24 @@ code {
     background: transparent;
 }
 
+.cover {
+    user-select: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(128,128,128,0.5);
+}
+.cover p {
+    background-color: #ffffff;
+    padding: 1em;
+    border-radius: 1em;
+}
+
 .editor-button {
     padding: 0.25em 1em;
     font-weight: bold;
