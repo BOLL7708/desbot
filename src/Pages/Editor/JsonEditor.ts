@@ -1,8 +1,7 @@
-import Utils from '../../Classes/Utils.js'
+import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
 import DataBaseHelper, {IDataBaseKeysAndLabels} from '../../Classes/DataBaseHelper.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
-import {IStringDictionary} from '../../Interfaces/igeneral.js'
 import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
 import {BaseMeta} from '../../Objects/BaseMeta.js'
 
@@ -223,7 +222,7 @@ export default class JsonEditor {
             label.innerHTML = isRoot
                 ? `<strong>${key}</strong>: `
                 : options.origin == EOrigin.ListArray
-                    ? `${key}: `
+                    ? `Item ${Utils.ensureNumber(key)+1}: `
                     : `${Utils.camelToTitle(key.toString())}: `
             label.onclick = (event)=>{
                 input.click()
@@ -442,7 +441,9 @@ export default class JsonEditor {
                     }
                     if(clazz) {
                         const option = document.createElement('option') as HTMLOptionElement
-                        option.innerHTML = clazz
+                        option.innerHTML = Utils.camelToTitle(clazz, EUtilsTitleReturnOption.SkipFirstWord)
+                        const meta = DataObjectMap.getMeta(clazz)
+                        option.title = `${clazz} : ${meta?.description ?? 'No description.'}`
                         option.value = clazz
                         if(genericClass == clazz) { // Make selected if a match
                             option.selected = true
@@ -539,7 +540,7 @@ export default class JsonEditor {
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
                 strongSpan.innerHTML = options.origin == EOrigin.ListArray
-                    ? `${pathKey}`
+                    ? `Item ${Utils.ensureNumber(pathKey)+1}`
                     : Utils.camelToTitle(pathKey.toString())
                 if(thisTypeValues.class) strongSpan.title = `Type: ${thisTypeValues.class}`
                 newRoot.appendChild(strongSpan)

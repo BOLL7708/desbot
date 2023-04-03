@@ -216,4 +216,25 @@ class Utils {
         $fileName = array_shift($fileNameArr) ?? '';
         return strtolower($fileName);
     }
+
+    /**
+     * Gets all query parameters from a string URL.
+     */
+    public static function getQueryParams(string $url = ''): array
+    {
+        if(empty($url)) $url = $_SERVER['REQUEST_URI'];
+        $result = [];
+        if(str_contains($url, '?')) {
+            $urlArr = explode('?', $url);
+            $paramsStr = array_pop($urlArr);
+            $params = explode('&', $paramsStr);
+            foreach($params as $param) {
+                $pair = explode('=', $param);
+                if(count($pair) == 2) {
+                    $result[$pair[0]] = $pair[1];
+                }
+            }
+        }
+        return $result;
+    }
 }
