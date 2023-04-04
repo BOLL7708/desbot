@@ -1,9 +1,10 @@
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
-import DataBaseHelper, {IDataBaseKeysAndLabels} from '../../Classes/DataBaseHelper.js'
+import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
 import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
 import {BaseMeta} from '../../Objects/BaseMeta.js'
+import {ConfigEditor} from '../../Objects/Config/Editor.js'
 
 enum EOrigin {
     Unknown,
@@ -35,6 +36,7 @@ export default class JsonEditor {
     private _dirty: boolean = false
     private _rowId: number = 0
     private _parentId: number = 0
+    private _config: ConfigEditor = new ConfigEditor()
 
     private readonly _labelUnchangedColor = 'transparent'
     private readonly _labelChangedColor = 'pink'
@@ -70,6 +72,7 @@ export default class JsonEditor {
                 this._originalInstance = await instance.__clone();
             }
             this._originalInstanceType = instance.constructor.name
+            this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
         }
         this._modifiedStatusListener(!!dirty)
 
@@ -79,18 +82,31 @@ export default class JsonEditor {
 
         const urlParams = Utils.getUrlParams()
         const extraChildren: HTMLElement[] = []
-        if(this._rowId > 0) {
-            extraChildren.push(...this.buildInfo(' ID', this._rowId.toString(), 'If an ID is shown, the data has been saved.', 'The ID of this row in the database.'))
-        }
-        if(this._rowId > 0 && this._parentId > 0 && !(urlParams.has('m') && !!urlParams.get('m'))) {
-            const spaceSpan = document.createElement('span') as HTMLSpanElement
-            spaceSpan.innerHTML = ' ⇒ '
-            extraChildren.push(spaceSpan)
+        if(!this._config.hideIDs) {
+            if(this._rowId > 0) {
+                extraChildren.push(
+                    ...this.buildInfo(' ID',
+                        this._rowId.toString(),
+                        'If an ID is shown, the data has been saved.',
+                        'The ID of this row in the database.'
+                    )
+                )
+            }
+            if(this._rowId > 0 && this._parentId > 0 && !(urlParams.has('m') && !!urlParams.get('m'))) {
+                const spaceSpan = document.createElement('span') as HTMLSpanElement
+                spaceSpan.innerHTML = ' ⇒ '
+                extraChildren.push(spaceSpan)
+            }
         }
         if(this._parentId > 0) {
             const urlParams = Utils.getUrlParams()
             if(!urlParams.get('m')) { // m as in Minimal
-                extraChildren.push(...this.buildInfo('Parent ID', this._parentId.toString(), 'If a parent ID is shown, this data belongs to a different row.', 'The ID of the parent row in the database.'))
+                if(!this._config.hideIDs) extraChildren.push(
+                    ...this.buildInfo('Parent ID', this._parentId.toString(),
+                        'If a parent ID is shown, this data belongs to a different row.',
+                        'The ID of the parent row in the database.'
+                    )
+                )
                 const parentButton = document.createElement('button') as HTMLButtonElement
                 parentButton.innerHTML = '👴'
                 parentButton.title = 'Edit the parent item.'
@@ -351,6 +367,7 @@ export default class JsonEditor {
         if(thisTypeValues.enum || parentTypeValues.enum) {
             input.contentEditable = 'false'
             input.classList.add('disabled')
+            if(this._config.hideIDs) input.classList.add('hidden')
             const enumClass = thisTypeValues.enum
                 ? thisTypeValues.class // Single enum
                 : parentTypeValues.class  // List of enums
@@ -385,31 +402,39 @@ export default class JsonEditor {
             const isGeneric = values.genericLike.length > 0
             input.contentEditable = 'false'
             input.classList.add('disabled')
+            if(this._config.hideIDs) input.classList.add('hidden')
 
             // Select with IDs
             const selectIDs = document.createElement('select') as HTMLSelectElement
 
             // Fill select with IDs with options
             const buildSelectOfIDs = async(overrideClass: string = '') => {
-                let items: IDataBaseKeysAndLabels = {}
+                const idStr = options.data.toString()
+                let items: IDataBaseListItems = {}
                 if(overrideClass.length > 0) {
                     items = await DataBaseHelper.loadIDsWithLabelForClass(overrideClass, undefined, isGeneric ? this._rowId : undefined)
                 } else {
                     items = await DataBaseHelper.loadIDsWithLabelForClass(values.class, values.idLabelField, isGeneric ? this._rowId : undefined)
                 }
+                if(!this._config.includeOrphansInGenericLists) {
+                    items = Object.fromEntries(
+                        // Filter on if parent is not null, or the ID matches the current value.
+                        Object.entries(items).filter( ([k,v]) => v.pid !== null || k.toString() === idStr )
+                    )
+                }
                 let hasSetInitialValue = false
                 let firstValue = '0'
-                items['0'] = ['', '- empty -']
+                items['0'] = {key: '', label: '- empty -', pid: null}
                 selectIDs.replaceChildren()
-                for(const [itemId, [itemKey, itemLabel]] of Object.entries(items ?? {}).sort(
+                for(const [itemId, item] of Object.entries(items ?? {}).sort(
                     (a, b)=>{return (parseInt(a[0]) > parseInt(b[0]) ? 1 : -1)}
                 )) {
                     const option = document.createElement('option') as HTMLOptionElement
                     if(!parseInt(itemId)) option.style.color = 'darkgray'
                     option.value = itemId
-                    option.innerHTML = Utils.getFirstValidString(itemLabel, itemKey, itemId)
-                    option.title = itemKey
-                    if(itemId.toString() == options.data.toString()) {
+                    option.innerHTML = Utils.getFirstValidString(item.label, item.key, itemId)
+                    option.title = item.key
+                    if(itemId.toString() == idStr) {
                         firstValue = itemId
                         option.selected = true
                         input.innerHTML = itemId.toString()
@@ -684,7 +709,7 @@ export default class JsonEditor {
     private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: BaseMeta|undefined) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
-        if(docStr.length > 0) {
+        if(docStr.length > 0 && this._config.showHelpIcons) {
             const span = document.createElement('span') as HTMLSpanElement
             span.classList.add('documentation-icon')
             span.innerHTML = ' 💬'
@@ -712,7 +737,7 @@ export default class JsonEditor {
         label: HTMLElement|undefined = undefined,
         checkModified: boolean = false
     ) {
-        // console.log("Handle value: ", value, new Error().stack?.toString())
+        // console.log("Handle value: ", value, path, new Error().stack?.toString())
         let current: any = this._instance
         let currentOriginal: any = this._originalInstance
         if(path.length == 1) {

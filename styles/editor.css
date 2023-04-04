@@ -13,7 +13,7 @@ code {
     background: rgba(0,0,0,0.04);
 }
 #content li:nth-child(even) {
-    background: transparent;
+    background: rgba(0,0,0,0.02);
 }
 
 .cover {
@@ -21,8 +21,8 @@ code {
     position: fixed;
     left: 0;
     top: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -113,6 +113,9 @@ span.disabled, code.disabled {
     border-color: lightgray;
     color: #888;
     background-color: #eee;
+}
+span.hidden, code.hidden {
+    display: none;
 }
 .input-root {
     padding: 6px;

@@ -21,7 +21,7 @@ export default class DataBaseHelper {
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
-    private static _idKeyLabelStore: Map<[string, number], IDataBaseKeysAndLabels> = new Map() // Used to store ID reference lists used in the editor
+    private static _idKeyLabelStore: Map<[string, number], IDataBaseListItems> = new Map() // Used to store ID reference lists used in the editor
 
     // Reference maps, if an object has been loaded once, it exists in these maps.
     private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
@@ -289,7 +289,7 @@ export default class DataBaseHelper {
     /**
      * Load all available IDs for a group class registered in the database.
      */
-    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): Promise<IDataBaseKeysAndLabels> {
+    static async loadIDsWithLabelForClass(groupClass: string, rowIdLabel?: string, parentId?: number): Promise<IDataBaseListItems> {
         const tuple: [string, number] = [groupClass, parentId ?? 0]
         if(this._idKeyLabelStore.has(tuple)) return this._idKeyLabelStore.get(tuple) ?? {}
 
@@ -508,6 +508,11 @@ export interface IDataBaseItem<T> {
     pid: number|null
     data: (T&BaseDataObject)|null
 }
-export interface IDataBaseKeysAndLabels {
-    [id: string]: [string, string]
+export interface IDataBaseListItems {
+    [id: string]: IDataBaseListItem
+}
+export interface IDataBaseListItem {
+    key: string
+    label: string
+    pid: number|null
 }

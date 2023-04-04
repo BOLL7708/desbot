@@ -302,20 +302,20 @@ class DB {
             $params[] = str_replace('*', '%', $like);
         }
         if($parentId !== null) {
-            $where .= ' AND parent_id = ?';
+            $where .= ' AND (parent_id = ? OR parent_id IS NULL)';
             $params[] = $parentId;
         }
         if($label && strlen($label) > 0) {
             array_unshift($params, "$.$label");
-            $result = $this->query("SELECT row_id as id, group_key as `key`, JSON_VALUE(data_json, ?) as label FROM json_store $where;", $params);
+            $result = $this->query("SELECT row_id as id, group_key as `key`, JSON_VALUE(data_json, ?) as label, parent_id as pid FROM json_store $where;", $params);
         } else {
-            $result = $this->query("SELECT row_id as id, group_key as `key`, '' as label FROM json_store $where;", $params);
+            $result = $this->query("SELECT row_id as id, group_key as `key`, '' as label, parent_id as pid FROM json_store $where;", $params);
         }
         $output = new stdClass();
         if(is_array($result)) foreach($result as $row) {
-            $tuple = [$row['key'], $row['label']];
             $id = $row['id'];
-            $output->$id = $tuple;
+            unset($row['id']);
+            $output->$id = $row;
         }
         return $output;
     }
