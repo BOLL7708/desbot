@@ -237,4 +237,15 @@ class Utils {
         }
         return $result;
     }
+    public static function getMigrations(): array {
+        $migrations = [];
+        $root = './migrations/';
+        $ext = '.sql';
+        $dir = new DirectoryIterator($root);
+        foreach($dir as $file) {
+            $version = intval($file->getBasename($ext));
+            $migrations[$version] = $root.$file->getFilename();
+        }
+        return $migrations;
+    }
 }

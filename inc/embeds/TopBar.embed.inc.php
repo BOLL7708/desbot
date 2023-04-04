@@ -1,5 +1,5 @@
 <?php
-function printMenuItem(string $thisScript, $newGroup, string $file, string $label, string $title, bool $blank=false): void {
+function printMenuItem(string $thisScript, $newGroup, string $file, string $label, string $title, bool $blank=false, bool $showBadge=false): void {
     $thisGroup = Utils::getQueryParams($file)['g'] ?? '';
     $newScript = explode('.', $file)[0];
     $isCurrent = (
@@ -7,7 +7,8 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
             && $thisGroup == $newGroup
     ) ? 'class="menu-bar-current"' : '';
     $openInBlank = $blank ? 'target="_blank"' : '';
-    echo "<li><a href=\"$file\" title=\"$title\" $isCurrent $openInBlank>$label</a></li>";
+    $badge = $showBadge ? ' <span class="badge">db☝</span>' : '';
+    echo "<li><a href=\"$file\" title=\"$title\" $isCurrent $openInBlank>$label$badge</a></li>";
 }
 ?>
 <div id="menu-bar">
@@ -15,7 +16,13 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         <?php
         $scriptFile = Utils::getScriptFileName();
         $group = Utils::getQueryParams()['g'] ?? '';
-        printMenuItem($scriptFile,$group, 'index.php', '🧪 Setup', 'Run the setup which includes regular database migrations.');
+
+        $migrations = Utils::getMigrations();
+        $highestVersion = max(array_keys($migrations));
+        $currentVersion = json_decode(file_get_contents('_data/version.json'));
+        $hasMigrations = $highestVersion > ($currentVersion->current ?? 0);
+
+        printMenuItem($scriptFile,$group, 'index.php', '🧪 Setup', 'Run the setup which includes regular database migrations.', false, $hasMigrations);
         if($scriptFile !== 'index') {
             printMenuItem($scriptFile, $group, 'editor.php?g=c', '🎨 Config', 'Browse, add, edit or delete configs.');
             printMenuItem($scriptFile, $group, 'editor.php?g=p', '🧩 Presets', 'Browse, add, edit or delete presets.');
