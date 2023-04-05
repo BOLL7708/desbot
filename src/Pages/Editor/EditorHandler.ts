@@ -12,6 +12,8 @@ export default class EditorHandler {
     private readonly _labelSaveNewButton = '✨ Save new (ctrl+s)'
     private readonly _labelSaveNewAndCloseButton = '✨ Save new & close (ctrl+s)'
     private readonly _labelDeleteButton = '💥 Delete'
+    private readonly _labelDeleteAndCloseButton = '💥 Delete & close'
+    private readonly _labelDeleteCancelButton = '❌ Cancel'
     private _unsavedChanges: boolean = false
 
     static readonly MainKey = 'Main'
@@ -176,6 +178,7 @@ export default class EditorHandler {
                 resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
                 instance = await DataObjectMap.getInstance(group, {})
                 if(!this._state.forceMainKey) editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveNewAndCloseButton : this._labelSaveNewButton
+                editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteCancelButton : this._labelDeleteButton
             } else {
                 resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
                 if(resultingKey.length > 0) {
@@ -185,6 +188,7 @@ export default class EditorHandler {
                     instance = await DataObjectMap.getInstance(group, {})
                 }
                 editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
+                editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteAndCloseButton : this._labelDeleteButton
             }
             if(instance && instance?.constructor.name !== 'Object') {
                 // Update URL to enable refreshes and bookmarks.
@@ -215,7 +219,6 @@ export default class EditorHandler {
         if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
-            await updateEditor(undefined, true, false)
         } else {
             dropdown.id = 'dropdown'
             dropdownLabel.htmlFor = dropdown.id
@@ -229,7 +232,6 @@ export default class EditorHandler {
                     dropdown.appendChild(option)
                 }
             }
-            // dropdown.onblur = updateEditor
             dropdown.onclose = updateEditor
             dropdown.onchange = updateEditor
         }
@@ -247,18 +249,29 @@ export default class EditorHandler {
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('editor-button', 'delete-button')
         editorDeleteButton.style.marginRight = '10em'
-        editorDeleteButton.innerHTML = this._labelDeleteButton
+        editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteAndCloseButton : this._labelDeleteButton
         editorDeleteButton.tabIndex = -1
         editorDeleteButton.onclick = async(event)=>{
-            const doDelete = confirm(`Do you want to delete ${group} : ${this._state.groupKey}?`)
-            if(doDelete) {
-                const ok = await DataBaseHelper.deleteJson(group, this._state.groupKey)
-                if(ok) {
-                    DataBaseHelper.clearReferences(group) // To make reference lists reload to remove the deleted entry.
-                    this.updateSideMenu().then()
-                    this.buildEditorControls(group, '', this._state.parentId).then()
-                } else {
-                    alert(`Deletion of ${group} : ${this._state.groupKey} failed.`)
+            if(!this._state.groupKey) { // Cancel
+                if(this._state.minimal) {
+                    window.opener.postMessage(NaN)
+                    window.close()
+                }
+            } else { // Delete
+                const doDelete = confirm(`Do you want to delete ${group} : ${this._state.groupKey}?`)
+                if(doDelete) {
+                    const ok = await DataBaseHelper.deleteJson(group, this._state.groupKey)
+                    if(ok) {
+                        DataBaseHelper.clearReferences(group) // To make reference lists reload to remove the deleted entry.
+                        this.updateSideMenu().then()
+                        this.buildEditorControls(group, '', this._state.parentId).then()
+                        if(this._state.minimal) {
+                            window.opener.postMessage(0)
+                            window.close()
+                        }
+                    } else {
+                        alert(`Deletion of ${group} : ${this._state.groupKey} failed.`)
+                    }
                 }
             }
         }
@@ -268,8 +281,8 @@ export default class EditorHandler {
         editorSaveButton.classList.add('editor-button', 'save-button')
         editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
         editorSaveButton.onclick = async (event)=>{
-            await this.saveData(group, this._state.groupKey, this._state.parentId)
-            const json = await DataBaseHelper.loadJson(this._state.groupClass, this._state.groupKey, this._state.parentId)
+            const newKey = await this.saveData(group, this._state.groupKey, this._state.parentId)
+            const json = await DataBaseHelper.loadJson(this._state.groupClass, newKey ?? this._state.groupKey, this._state.parentId)
             if(this._state.minimal) {
                 const id = json.pop()?.id ?? ''
                 window.opener.postMessage(id)

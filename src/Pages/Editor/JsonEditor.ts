@@ -930,7 +930,7 @@ export default class JsonEditor {
 
     gotChildEditorResult(id: number): boolean {
         if(this._childEditorPath.length > 0) {
-            if(this._childEditorPath.length > 0) this.handleValue(id, this._childEditorPath)
+            this.handleValue(id, this._childEditorPath)
             this._childEditorPath = []
             this.rebuild().then()
             return true

@@ -355,8 +355,8 @@ export default class DataBaseHelper {
         for(const idStr of idArr) {
             const id = parseInt(idStr)
             if(this._idToMetaMap.has(id)) {
-                const tuple = this._idToMetaMap.get(id)
-                output[id] = Array.isArray(tuple) ? tuple[0] : ''
+                const item = this._idToMetaMap.get(id)
+                output[id] = item?.class ?? ''
             } else {
                 toLoad.push(idStr)
             }
