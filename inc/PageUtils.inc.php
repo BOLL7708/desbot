@@ -6,7 +6,7 @@ class PageUtils {
      * @param bool $onlyContents If true will not draw side or top bar.
      * @return void
      */
-    public static function printTop(bool $onlyContents = false): void
+    public static function printTop(bool $topBar = true, bool $sideBar = true): void
     {
         $scriptFile = Utils::getScriptFileName();
         ?>
@@ -29,10 +29,10 @@ class PageUtils {
     <body>
         <div id="container">
             <?php
-            if(!$onlyContents) include_once('inc/embeds/TopBar.embed.inc.php');
+            if($topBar) include_once('inc/embeds/TopBar.embed.inc.php');
             ?>
             <div id="page-container">
-                <?php if(!$onlyContents) { ?><div id="side-bar"></div><?php } ?>
+                <?php if($sideBar) { ?><div id="side-bar"></div><?php } ?>
             <?php
     }
 

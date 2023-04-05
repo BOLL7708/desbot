@@ -186,10 +186,18 @@ export default class Utils {
         const reward = rewards.find((obj)=>{return obj.id === id})
         return reward?.key
     }
-    static encode(value: string): string {
-        let b64 = btoa(value)
-        let b64url = b64.replace(/\//g, '_').replace(/\+/g, '-').replace(/\=/g, '')
-        return b64url
+
+    static encode(str: string): string {
+        let base64 = btoa(str)
+        base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+        return base64
+    }
+    static decode(base64: string): string {
+        let str = base64.replace(/-/g, '+').replace(/_/g, '/')
+        while (str.length % 4) {
+            str += '='
+        }
+        return atob(str)
     }
 
     static numberToDiscordEmote(value: number, addHash: boolean = false): string {
@@ -581,7 +589,7 @@ export default class Utils {
     static setUrlParam(pairs: { [param: string]: string }) {
         const urlParams = Utils.getUrlParams()
         for(const [param, value] of Object.entries(pairs)) {
-            urlParams.set(param, encodeURIComponent(value))
+            urlParams.set(param, value)
         }
         window.history.replaceState(null, '', `?${urlParams.toString()}`);
     }

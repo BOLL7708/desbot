@@ -1,0 +1,14 @@
+table {
+    border: 2px solid gray;
+    border-radius: 4px;
+}
+tr:nth-of-type(even) {
+    background-color: lightgray;
+}
+td {
+    margin: 0;
+    padding: 4px;
+    border: 2px solid lightgray;
+    word-wrap:break-word;
+    overflow:auto;
+}

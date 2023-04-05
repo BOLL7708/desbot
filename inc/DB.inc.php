@@ -319,6 +319,12 @@ class DB {
         }
         return $output;
     }
+
+    public function search(string $query): array {
+        $query = str_replace(['*', '?'], ['%', '_'], $query);
+        $output = $this->query('SELECT row_id as id, group_class as `class`, group_key as `key`, parent_id as pid, data_json as data FROM json_store WHERE LOWER(group_key) LIKE LOWER(?) OR LOWER(data_json) LIKE LOWER(?);', ["%$query%", "%$query%"]);
+        return is_array($output) ? $output : [];
+    }
     // endregion
 
     // region Helper Functions

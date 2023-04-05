@@ -111,6 +111,16 @@ export default class DataBaseHelper {
         })
         return response.ok
     }
+
+    static async search(searchQuery: string): Promise<IDataBaseItemRaw[]> {
+        let url = this.getUrl()
+        const response = await fetch(url, {
+            headers: await this.getHeader({searchQuery}),
+            method: 'GET'
+        })
+        const json = await response.json()
+        return json as IDataBaseItemRaw[]
+    }
     // endregion
 
     // region Instance Functions
@@ -442,7 +452,6 @@ export default class DataBaseHelper {
         )
         return ok
     }
-
     // endregion
 
     // region Helpers
@@ -474,6 +483,7 @@ export default class DataBaseHelper {
         if(options.rowIdLabel !== undefined) headers.set('X-Row-Id-Label', options.rowIdLabel)
         if(options.noData !== undefined) headers.set('X-No-Data', options.noData ? '1' : '0')
         if(options.parentId !== undefined) headers.set('X-Parent-Id', options.parentId.toString())
+        if(options.searchQuery !== undefined) headers.set('X-Search-Query', options.searchQuery)
         return headers
     }
 
@@ -499,6 +509,7 @@ interface IDataBaseHelperHeaders {
     noData?: boolean
     addJsonHeader?: boolean
     parentId?: number
+    searchQuery?: string
 }
 
 export interface IDataBaseItem<T> {
@@ -507,6 +518,9 @@ export interface IDataBaseItem<T> {
     key: string
     pid: number|null
     data: (T&BaseDataObject)|null
+}
+export interface IDataBaseItemRaw extends IDataBaseItem<any> {
+    data: string
 }
 export interface IDataBaseListItems {
     [id: string]: IDataBaseListItem

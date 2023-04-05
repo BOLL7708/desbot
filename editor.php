@@ -32,7 +32,7 @@ if(array_key_exists($group, $validGroups)) {
     $description = $descriptions[$group];
 }
 include_once '_init.php';
-PageUtils::printTop($minimal);
+PageUtils::printTop(!$minimal, !$minimal);
 ?>
         <div id="content">
             <h2><?=$title?></h2>

@@ -35,21 +35,25 @@ $rowIdList = !!getHeaderValue('X-Row-Id-List');
 $rowIdLabel = getHeaderValue('X-Row-Id-Label');
 $noData = !!getHeaderValue('X-No-Data');
 $parentId = getHeaderValue('X-Parent-Id', true);
+$searchQuery = getHeaderValue('X-Search-Query');
 if($parentId == 0) $parentId = null;
 
 // Execute
 $output = null;
 switch($method) {
     case 'post':
+        // Update key
         $updatedKey = false;
-        if($groupKey !== null && $newGroupKey !== null) { // Edit key
+        if($groupKey !== null && $newGroupKey !== null) { // Try to edit key
             $updatedKey = $db->updateKey($groupClass, $groupKey, $newGroupKey);
             $groupKey = $newGroupKey;
         }
         if($groupKey === null && $newGroupKey !== null) { // New key
             $groupKey = $newGroupKey;
         }
-        $result = $db->saveEntry( // Insert or update data
+
+        // Insert or update
+        $result = $db->saveEntry(
             $groupClass,
             $groupKey,
             $parentId,
@@ -64,7 +68,11 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if($rowIdList) {
+        if($searchQuery !== null) {
+            // Search
+            $output = $db->search($searchQuery);
+        }
+        elseif($rowIdList) {
             // Only row IDs with labels, used in Editor reference dropdowns.
             $output = $db->getRowIdsWithLabels($groupClass, $rowIdLabel, $parentId);
         }
