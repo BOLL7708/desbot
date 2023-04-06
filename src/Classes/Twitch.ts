@@ -24,6 +24,13 @@ import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import TextHelper from './TextHelper.js'
 
 export default class Twitch{
+    // Constants
+
+    /**
+     * This [URL]/[Emote ID]/[Resolution], resolution can be 1.0, 2.0 or 3.0.
+     */
+    static readonly EMOTE_URL = 'https://static-cdn.jtvnw.net/emoticons/v1'
+
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     public _twitchChatRemote: TwitchChat = new TwitchChat()

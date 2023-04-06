@@ -7,6 +7,7 @@ import {
     ConfigImageEditorOutline,
     ConfigImageEditorRect
 } from '../Objects/Config/ImageEditor.js'
+import Twitch from './Twitch.js'
 
 export default class ImageEditor {
     private readonly _canvas: HTMLCanvasElement
@@ -244,7 +245,7 @@ export default class ImageEditor {
         let emoteCount = 0
         for(const emote of messageData.emotes ?? []) {
 			// Using full resolution emojis appears to have murdered memory usage or something?
-            const url = `https://static-cdn.jtvnw.net/emoticons/v1/${emote.id}/` // Does 3.0 resolution exist for all emotes? Looks nice at least.
+            const url = `${Twitch.EMOTE_URL}/${emote.id}/` // Does 3.0 resolution exist for all emotes? Looks nice at least.
             for(const pos of emote.positions) {
                 emoteCount++
                 emotes.set(pos.start, url)

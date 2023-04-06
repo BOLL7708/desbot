@@ -31,7 +31,15 @@ export default class Relay {
     }
     setOnMessageCallback(callback: IOnRelayMessageCallback) {
         this._onMessageCallback = callback
-        this.init()
+        this.init().then()
+    }
+
+    send(message: string) {
+        this._socket?.send(message)
+    }
+
+    sendJSON(data: any) {
+        this.send(JSON.stringify(data))
     }
 
     private onOpen(evt: Event) {

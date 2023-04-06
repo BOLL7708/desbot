@@ -6,6 +6,8 @@ import {
 } from '../Interfaces/itwitch_chat.js'
 import Utils from './Utils.js'
 import {ITwitchEventSubEmote} from '../Interfaces/itwitch_eventsub.js'
+import Twitch from './Twitch.js'
+import {INumberDictionary} from '../interfaces/igeneral.js'
 
 export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {
@@ -116,6 +118,11 @@ export default class TwitchFactory {
             return <ITwitchEmote> { id: emote.id.toString(), positions: [{ start: emote.begin, end: emote.end}] }
         })
         return this.getEmotePositions(twitchEmotes)
+    }
+
+    static getEmoteImages(emotes: ITwitchEmote[], size: number = 1): INumberDictionary {
+        size = Math.max(1, Math.min(3, Math.round(Math.abs(size))))
+        return Object.fromEntries(emotes.map((emote)=>[`${Twitch.EMOTE_URL}/${emote.id}/${size}.0`, emote.positions.length]))
     }
 
     public static buildMessageCmd(data:string): ITwitchMessageCmd {

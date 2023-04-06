@@ -16,7 +16,7 @@ import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ImageEditor from '../../Classes/ImageEditor.js'
-import {IRelayTempMessage} from '../../Classes/Relay.js'
+import Relay, {IRelayTempMessage} from '../../Classes/Relay.js'
 import {TKeys} from '../../_data/!keys.js'
 import {ConfigDiscord} from '../../Objects/Config/Discord.js'
 import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
@@ -29,12 +29,16 @@ import {
 } from '../../Interfaces/itwitch_eventsub.js'
 import TwitchChat from '../../Classes/TwitchChat.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import {ConfigRelay} from '../../Objects/Config/Relay.js'
+import WebSockets from '../../Classes/WebSockets.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
     public static registerRelay(relay: IOpenVR2WSRelay) {
         this._relays.set(relay.key, relay)
     }
+
+    private static _imageRelay: Relay
 
     public static async init() {   
         /*
@@ -49,6 +53,10 @@ export default class Callbacks {
 
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
+
+        const configRelay = await DataBaseHelper.loadMain(new ConfigRelay())
+        this._imageRelay = new Relay(configRelay.overlayImagesChannel)
+        this._imageRelay.init().then()
 
         // region Chat
         modules.twitch.registerAnnouncers({
@@ -88,6 +96,8 @@ export default class Callbacks {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
             let type = ETTSType.Said
             if(messageData.isAction) type = ETTSType.Action
+
+            this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
             
             if(states.ttsForAll) { 
                 // TTS is on for everyone
