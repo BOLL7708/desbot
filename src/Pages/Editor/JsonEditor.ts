@@ -92,26 +92,26 @@ export default class JsonEditor {
                     )
                 )
             }
-            if(this._rowId > 0 && this._parentId > 0 && !(urlParams.has('m') && !!urlParams.get('m'))) {
+            if(this._rowId > 0 && this._parentId > 0) {
                 const spaceSpan = document.createElement('span') as HTMLSpanElement
                 spaceSpan.innerHTML = ' ⇒ '
                 extraChildren.push(spaceSpan)
             }
         }
         if(this._parentId > 0) {
+            if(!this._config.hideIDs) extraChildren.push(
+                ...this.buildInfo('Parent ID', this._parentId.toString(),
+                    'If a parent ID is shown, this data belongs to a different row.',
+                    'The ID of the parent row in the database.'
+                )
+            )
             const urlParams = Utils.getUrlParams()
             if(!urlParams.get('m')) { // m as in Minimal
-                if(!this._config.hideIDs) extraChildren.push(
-                    ...this.buildInfo('Parent ID', this._parentId.toString(),
-                        'If a parent ID is shown, this data belongs to a different row.',
-                        'The ID of the parent row in the database.'
-                    )
-                )
                 const parentButton = document.createElement('button') as HTMLButtonElement
                 parentButton.innerHTML = '👴'
                 parentButton.title = 'Edit the parent item.'
                 parentButton.classList.add('inline-button')
-                parentButton.onclick = (event)=>{
+                parentButton.onclick = (event) => {
                     window.location.replace(`?id=${this._parentId}`)
                 }
                 extraChildren.push(parentButton)
@@ -426,9 +426,11 @@ export default class JsonEditor {
                 let firstValue = '0'
                 items['0'] = {key: '', label: '- empty -', pid: null}
                 selectIDs.replaceChildren()
-                for(const [itemId, item] of Object.entries(items ?? {}).sort(
-                    (a, b)=>{return (parseInt(a[0]) > parseInt(b[0]) ? 1 : -1)}
-                )) {
+                for(const [itemId, item] of Object.entries(items ?? {}).sort(([k1,v1], [k2, v2])=>{
+                    const a = Utils.getFirstValidString(v1.label, v1.key, k1)
+                    const b = Utils.getFirstValidString(v2.label, v2.key, k2)
+                    return a.localeCompare(b)
+                })) {
                     const option = document.createElement('option') as HTMLOptionElement
                     if(!parseInt(itemId)) option.style.color = 'darkgray'
                     option.value = itemId
@@ -490,13 +492,14 @@ export default class JsonEditor {
 
             // List of ID references and edit button.
             const editButton = document.createElement('button') as HTMLButtonElement
+            const dataBaseItem = await DataBaseHelper.loadById(selectIDs.value)
             editButton.innerHTML = '📝'
             editButton.title = 'Edit the referenced item.'
             editButton.classList.add('inline-button')
             editButton.onclick = (event)=>{
                 if(selectIDs.value !== '0') {
                     let link = `editor.php?m=1&id=${selectIDs.value}`
-                    if(isGeneric) link += `&p=${this._rowId}`
+                    if(isGeneric && dataBaseItem?.pid) link += `&p=${dataBaseItem.pid}`
                     this.openChildEditor(link,
                         thisTypeValues.isIdReference || parentTypeValues.isIdReference ? options.path : []
                     )

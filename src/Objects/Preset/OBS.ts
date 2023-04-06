@@ -19,16 +19,16 @@ DataObjectMap.addRootInstance(
     }
 )
 DataObjectMap.addRootInstance(
-    new PresetOBSScene(),
+    new PresetOBSSource(),
     'An OBS source referenced by name.',
     {
-        sceneName: 'The exact name of the source in OBS.'
+        sourceName: 'The exact name of the source in OBS.'
     }
 )
 DataObjectMap.addRootInstance(
-    new PresetOBSScene(),
+    new PresetOBSFilter(),
     'An OBS filter referenced by name.',
     {
-        sceneName: 'The exact name of the filter in OBS.'
+        filterName: 'The exact name of the filter in OBS.'
     }
 )
