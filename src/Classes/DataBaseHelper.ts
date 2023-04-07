@@ -14,8 +14,9 @@ TODO
  */
 
 export default class DataBaseHelper {
-    private static LOG_GOOD_COLOR: string = Color.BlueViolet
-    private static LOG_BAD_COLOR: string = Color.DarkRed
+    static readonly OBJECT_MAIN_KEY: string = 'Main'
+    private static readonly LOG_GOOD_COLOR: string = Color.BlueViolet
+    private static readonly LOG_BAD_COLOR: string = Color.DarkRed
 
     // Main storage
     private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
@@ -189,7 +190,7 @@ export default class DataBaseHelper {
      * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T> {
-        return await this.load(emptyInstance, EditorHandler.MainKey, undefined, ignoreCache) ?? emptyInstance
+        return await this.load(emptyInstance, this.OBJECT_MAIN_KEY, undefined, ignoreCache) ?? emptyInstance
     }
 
     /**

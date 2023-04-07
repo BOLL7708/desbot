@@ -138,16 +138,16 @@ class DB {
     function saveEntry(
         string      $groupClass,
         string|null $groupKey,
-        int|null $parentId,
+        int|null    $parentId,
         string      $dataJson
     ): string|bool {
-        $uuid = $this->getUUID();
+        if(empty($groupKey)) $groupKey = $this->getUUID();
         $result = $this->query("
-            INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (?, IFNULL(?, ?), ?, ?)
+            INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY
             UPDATE data_json = ?;
-        ", [$groupClass, $groupKey, $uuid, $parentId, $dataJson, $dataJson]);
-        return $result ? ($groupKey ?? $uuid) : false;
+        ", [$groupClass, $groupKey, $parentId, $dataJson, $dataJson]);
+        return $result ? $groupKey : false;
     }
 
     /**

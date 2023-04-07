@@ -93,6 +93,9 @@ html, body {
     padding: 0.5em 1.5em;
     overflow: auto;
 }
+.hidden {
+    display: none;
+}
 
 input, select, button {
     border-radius: 6px;

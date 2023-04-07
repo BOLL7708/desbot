@@ -9,14 +9,11 @@ export default class EditorHandler {
 
     private readonly _labelSaveButton = '💾 Save (ctrl+s)'
     private readonly _labelSaveAndCloseButton = '💾 Save & close (ctrl+s)'
-    private readonly _labelSaveNewButton = '✨ Save new (ctrl+s)'
-    private readonly _labelSaveNewAndCloseButton = '✨ Save new & close (ctrl+s)'
     private readonly _labelDeleteButton = '💥 Delete'
     private readonly _labelDeleteAndCloseButton = '💥 Delete & close'
-    private readonly _labelDeleteCancelButton = '❌ Cancel'
+    private readonly _labelDeleteResetButton = '💥 Reset'
     private _unsavedChanges: boolean = false
 
-    static readonly MainKey = 'Main'
     public constructor() {
         this.init().then()
     }
@@ -64,7 +61,6 @@ export default class EditorHandler {
         }
         if(urlParams.has('k')) this._state.groupKey = decodeURIComponent(urlParams.get('k') ?? '')
         if(urlParams.has('c')) this._state.groupClass = decodeURIComponent(urlParams.get('c') ?? '')
-        if(urlParams.has('n')) this._state.newItem = !!urlParams.get('n')
         if(urlParams.has('p')) this._state.parentId = parseInt(urlParams.get('p') ?? '')
         if(urlParams.has('m')) this._state.minimal = !!urlParams.get('m')
         let group = urlParams.get('g') ?? this._state.groupClass.substring(0,1).toLowerCase()
@@ -80,20 +76,39 @@ export default class EditorHandler {
         }
         this._state.group = group
 
+        // When a child editor is spawned we ask to create a new item so the editor will show up.
+        const createNew = urlParams.has('n')
+            ? !!urlParams.get('n')
+            : false
+        if(this._state.minimal && createNew) {
+            const newKey = await prompt(`Provide a new key for this ${this._state.groupClass}`)
+            if(newKey && newKey.length > 0) {
+                const instance = await DataObjectMap.getInstance(this._state.groupClass)
+                if(instance) {
+                    const didSave = await DataBaseHelper.save(instance, newKey, undefined, this._state.parentId)
+                    if(!didSave) {
+                        alert(`Unable to save new ${this._state.groupClass} entry.`)
+                        window.close()
+                        return
+                    }
+                }
+            } else {
+                window.close()
+                return
+            }
+        }
+
         this.updateSideMenu().then()
-        if(this._state.groupClass.length > 0) this.buildEditorControls(this._state.groupClass, this._state.groupKey, this._state.parentId).then()
+        if(this._state.groupClass.length > 0) this.buildEditorControls(
+            this._state.groupClass,
+            this._state.groupKey,
+            this._state.parentId
+        ).then()
 
         window.onkeydown = (event)=>{
             if(event.key == 's' && event.ctrlKey) {
                 if(event.cancelable) event.preventDefault()
                 this._editorSaveButton?.click()
-            }
-        }
-        window.onpopstate = (event)=>{
-            if(event.state) {
-                this._state = event.state
-                this.updateSideMenu().then()
-                this.buildEditorControls(this._state.groupClass, this._state.groupKey, this._state.parentId).then()
             }
         }
     }
@@ -144,6 +159,8 @@ export default class EditorHandler {
         this._state.groupClass = group
         this._state.groupKey = selectKey
 
+        Utils.setUrlParam({c: group})
+
         if(!this._contentDiv) {
             this._contentDiv = document.querySelector('#content') as HTMLDivElement
         }
@@ -166,30 +183,28 @@ export default class EditorHandler {
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
         const updateEditor = async(
-            event: Event|undefined,
-            clear: boolean = false,
-            markAsDirty: boolean = false
+            event: Event|undefined, // Here so we can assign it to listeners
+            newKey: string = ''
         ): Promise<boolean> =>{
             await this.confirmSaveIfReplacingOrLeaving()
-            this._state.newItem = false // Reset it as we only need that to affect the initial load.
-            let instance: BaseDataObject|undefined = undefined
-            let resultingKey = selectKey
-            if(clear) {
-                resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : ''
-                instance = await DataObjectMap.getInstance(group, {})
-                if(!this._state.forceMainKey) editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveNewAndCloseButton : this._labelSaveNewButton
-                editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteCancelButton : this._labelDeleteButton
+            let instance: BaseDataObject|undefined
+            const resultingKey = newKey.length > 0
+                ? newKey
+                : this._state.forceMainKey
+                    ? DataBaseHelper.OBJECT_MAIN_KEY
+                    : dropdown.value
+            if(resultingKey.length > 0) {
+                const item = (items as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
+                instance = await DataObjectMap.getInstance(group, item?.data ?? {}) ?? item?.data ?? {} // The last ?? is for test settings that has no class.
             } else {
-                resultingKey = this._state.forceMainKey ? EditorHandler.MainKey : dropdown.value
-                if(resultingKey.length > 0) {
-                    const item = (items as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
-                    instance = await DataObjectMap.getInstance(group, item?.data ?? {}) ?? item?.data ?? {} // The last ?? is for test settings that has no class.
-                } else {
-                    instance = await DataObjectMap.getInstance(group, {})
-                }
-                editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
-                editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteAndCloseButton : this._labelDeleteButton
+                instance = await DataObjectMap.getInstance(group, {})
             }
+            editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
+            editorDeleteButton.innerHTML = this._state.forceMainKey
+                ? this._labelDeleteResetButton
+                : this._state.minimal
+                    ? this._labelDeleteAndCloseButton
+                    : this._labelDeleteButton
             if(instance && instance?.constructor.name !== 'Object') {
                 // Update URL to enable refreshes and bookmarks.
                 Utils.setUrlParam({
@@ -198,17 +213,30 @@ export default class EditorHandler {
                 })
 
                 this._state.groupKey = resultingKey
-                const item = await DataBaseHelper.loadItem(instance, resultingKey)
+                let item = await DataBaseHelper.loadItem(instance, resultingKey)
+
+                if(this._state.forceMainKey && !item) {
+                    const didSave = await DataBaseHelper.save(instance, resultingKey)
+                    if(didSave) {
+                        item = await DataBaseHelper.loadItem(instance, resultingKey)
+                        await this.updateSideMenu()
+                    } else {
+                        alert('Unable to initialize config.')
+                        return false
+                    }
+                }
+
                 editorContainer.replaceChildren(
                     await this._editor?.build(
                         resultingKey,
                         instance, 
                         item?.id,
                         !!parentId ? parentId : item?.pid ?? undefined,
-                        markAsDirty,
                         this._state.forceMainKey
                     ) ?? ''
                 )
+                editorDeleteButton.classList.remove('hidden')
+                editorSaveButton.classList.remove('hidden')
             } else {
                 console.warn(`Could not load instance for ${group}, class is: ${instance?.constructor.name}`)
             }
@@ -242,12 +270,21 @@ export default class EditorHandler {
         editorNewButton.innerHTML = '✨ New'
         editorNewButton.title = 'And new entry'
         editorNewButton.onclick = async (event)=>{
-            await updateEditor(undefined, true)
+            let newKey: string = ''
+            if(this._state.forceMainKey) {
+                newKey = DataBaseHelper.OBJECT_MAIN_KEY
+            } else {
+                newKey = await prompt(`Provide a key for the new ${group}`) ?? ''
+            }
+            if(newKey && newKey.length > 0) {
+                await updateEditor(undefined, newKey)
+                await this.saveData(group, newKey, parentId)
+            }
         }
 
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
-        editorDeleteButton.classList.add('editor-button', 'delete-button')
+        editorDeleteButton.classList.add('editor-button', 'delete-button', 'hidden')
         editorDeleteButton.style.marginRight = '10em'
         editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteAndCloseButton : this._labelDeleteButton
         editorDeleteButton.tabIndex = -1
@@ -258,7 +295,8 @@ export default class EditorHandler {
                     window.close()
                 }
             } else { // Delete
-                const doDelete = confirm(`Do you want to delete ${group} : ${this._state.groupKey}?`)
+                const verb = this._state.forceMainKey ? 'reset' : 'delete'
+                const doDelete = confirm(`Do you want to ${verb} ${group} : ${this._state.groupKey}?`)
                 if(doDelete) {
                     const ok = await DataBaseHelper.deleteJson(group, this._state.groupKey)
                     if(ok) {
@@ -278,7 +316,7 @@ export default class EditorHandler {
 
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
-        editorSaveButton.classList.add('editor-button', 'save-button')
+        editorSaveButton.classList.add('editor-button', 'save-button', 'hidden')
         editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
         editorSaveButton.onclick = async (event)=>{
             const newKey = await this.saveData(group, this._state.groupKey, this._state.parentId)
@@ -312,7 +350,10 @@ export default class EditorHandler {
             else this._editor?.setData(result)
         }
 
-        await updateEditor(undefined, this._state.newItem, false)
+        const hasAnyItems = dropdown.children.length > 0
+        if(hasAnyItems || this._state.forceMainKey) {
+            await updateEditor(undefined)
+        }
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
         if(!this._state.minimal) {
@@ -320,13 +361,15 @@ export default class EditorHandler {
             this._contentDiv.appendChild(dropdown)
             if(!this._state.forceMainKey) this._contentDiv.appendChild(editorNewButton)
         }
-        this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
+        if(hasAnyItems) this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)
         this._contentDiv.appendChild(editorSaveButton)
-        this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
-        this._contentDiv.appendChild(editorExportButton)
-        this._contentDiv.appendChild(editorImportButton)
+        if(hasAnyItems) {
+            this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
+            this._contentDiv.appendChild(editorExportButton)
+            this._contentDiv.appendChild(editorImportButton)
+        }
     }
 
     private async saveData(groupClass: string, groupKey: string, parentId?: number): Promise<string|null> {
@@ -408,7 +451,6 @@ class EditorPageState {
     forceMainKey: boolean = false
     groupClass: string = ''
     groupKey: string = ''
-    newItem: boolean = false
     parentId: number = 0
     minimal: boolean = false
 }

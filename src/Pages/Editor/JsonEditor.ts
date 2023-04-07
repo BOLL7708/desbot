@@ -57,7 +57,6 @@ export default class JsonEditor {
         instance: object&BaseDataObject,
         rowId?: number,
         parentId?: number,
-        dirty?: boolean,
         hideKey?: boolean,
         isRebuild?: boolean
     ): Promise<HTMLElement> {
@@ -74,7 +73,6 @@ export default class JsonEditor {
             this._originalInstanceType = instance.constructor.name
             this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
         }
-        this._modifiedStatusListener(!!dirty)
 
         this._labels = []
         const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
@@ -131,7 +129,6 @@ export default class JsonEditor {
 
         if(!this._root) this._root = this.buildUL()
         this._root.replaceChildren(...tempParent.children)
-        if(dirty) this.highlightLabels()
         return this._root
     }
     private async rebuild(): Promise<HTMLElement> {
@@ -140,7 +137,6 @@ export default class JsonEditor {
             this._instance,
             this._rowId,
             this._parentId,
-            false,
             this._hideKey,
             true
         )

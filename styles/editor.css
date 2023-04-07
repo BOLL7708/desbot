@@ -114,9 +114,6 @@ span.disabled, code.disabled {
     color: #888;
     background-color: #eee;
 }
-span.hidden, code.hidden {
-    display: none;
-}
 .input-root {
     padding: 6px;
 }
