@@ -1,7 +1,7 @@
 import {BaseEnum} from '../Objects/BaseEnum.js'
 import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
 
-export class EnumEntryType extends BaseEnum {
+export class EnumEntryUsage extends BaseEnum {
     static readonly First = 0
     static readonly Last = 100
     static readonly All = 200
@@ -10,7 +10,7 @@ export class EnumEntryType extends BaseEnum {
     static readonly OneSpecific = 600
 }
 EnumObjectMap.addPrototype(
-    EnumEntryType,
+    EnumEntryUsage,
     'Universal behavior type for entry lists.',
     {
         First: 'Will only use the first value.',

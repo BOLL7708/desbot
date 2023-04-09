@@ -58,26 +58,11 @@ code {
     transform: translate(0,2px)
 }
 
-.new-button, .reset-button {
-    margin-left: 1em;
-}
 .new-button {
     background-color: lightgoldenrodyellow;
 }
 .new-button:hover {
     background-color: gold !important;
-}
-.reset-button {
-    background-color: pink;
-}
-.reset-button:hover {
-    background-color: hotpink !important;
-}
-.reload-button {
-    background-color: lightblue;
-}
-.reload-button:hover {
-    background-color: deepskyblue !important;
 }
 .delete-button {
     background-color: pink;

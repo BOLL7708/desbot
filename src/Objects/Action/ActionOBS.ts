@@ -1,15 +1,15 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/OBS.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionOBS extends BaseDataObject {
     sceneEntries: PresetOBSScene[] = []
-    sceneEntriesType = EnumEntryType.All
+    sceneEntriesType = EnumEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
-    sourceEntriesType = EnumEntryType.All
+    sourceEntriesType = EnumEntryUsage.All
     filterEntries: ActionOBSFilter[] = []
-    filterEntriesType = EnumEntryType.All
+    filterEntriesType = EnumEntryUsage.All
     durationMs: number = 0
     state: boolean = true
 }
@@ -34,11 +34,11 @@ DataObjectMap.addRootInstance(
     },
     {
         sceneEntries: PresetOBSScene.refId(),
-        sceneEntriesType: EnumEntryType.ref(),
+        sceneEntriesType: EnumEntryUsage.ref(),
         sourceEntries: ActionOBSSource.ref(),
-        sourceEntriesType: EnumEntryType.ref(),
+        sourceEntriesType: EnumEntryUsage.ref(),
         filterEntries: ActionOBSFilter.ref(),
-        filterEntriesType: EnumEntryType.ref()
+        filterEntriesType: EnumEntryUsage.ref()
     }
 )
 DataObjectMap.addSubInstance(

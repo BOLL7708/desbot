@@ -17,7 +17,7 @@ class PageUtils {
         <link rel="icon" type="image/x-icon" href="./media/sw_logo.ico" />
         <link rel="stylesheet" href="./styles/general.css"/>
         <link rel="stylesheet" href="./styles/editor.css"/>
-        <script type="module" src="./inc/ImportAllJS.php"></script>
+        <script type="module" src="./inc/ScriptImporter.php"></script>
         <?php
             $filePath = "./styles/<?=$scriptFile?>.css";
             if(file_exists($filePath)) {

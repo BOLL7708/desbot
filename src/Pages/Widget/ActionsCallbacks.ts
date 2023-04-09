@@ -21,6 +21,7 @@ import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingChannelTrophyStat} from '../../Objects/Setting/Channel.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -379,7 +380,7 @@ export default class ActionsCallbacks {
             tag: 'UpdateRewards',
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
-                const storedRewards = await Utils.getRewardPairs()
+                const storedRewards = await LegacyUtils.getRewardPairs()
                 for(const pair of storedRewards) {
                     user.eventKey = pair.key
                     const eventConfig = Utils.getEventConfig(pair.key)
@@ -528,7 +529,7 @@ export default class ActionsCallbacks {
                 if(userData == undefined) return Utils.log('ChannelTrophy: Could not retrieve user for reward', Color.Red)
 
                 // Update reward
-                const rewardId = await Utils.getRewardId('ChannelTrophy')
+                const rewardId = await LegacyUtils.getRewardId('ChannelTrophy')
                 const rewardData = await TwitchHelixHelper.getReward(rewardId ?? '')
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
@@ -613,7 +614,7 @@ export default class ActionsCallbacks {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                                 const reset = new SettingIncrementingCounter()
                                 await DataBaseHelper.save(reset, key)
-                                await TwitchHelixHelper.updateReward(await Utils.getRewardId(key), rewardSetup[0])
+                                await TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), rewardSetup[0])
                                 totalResetCount++
                             } else {
                                 totalSkippedCount++
@@ -662,7 +663,7 @@ export default class ActionsCallbacks {
                                     user.eventKey = key
                                     setup.title = await TextHelper.replaceTagsInText(setup.title, user)
                                     setup.prompt = await TextHelper.replaceTagsInText(setup.prompt, user)
-                                    await TwitchHelixHelper.updateReward(await Utils.getRewardId(key), setup)
+                                    await TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), setup)
                                     totalResetCount++
                                 } else {
                                     totalSkippedCount++

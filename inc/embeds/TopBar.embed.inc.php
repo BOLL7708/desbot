@@ -19,8 +19,10 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
 
         $migrations = Utils::getMigrations();
         $highestVersion = max(array_keys($migrations));
-        $currentVersion = json_decode(file_get_contents('_data/version.json'));
-        $hasMigrations = $highestVersion > ($currentVersion->current ?? 0);
+        $versionPath = '_data/version.json';
+        $versionJson = is_file($versionPath) ? file_get_contents($versionPath) : null;
+        $currentVersion = is_string($versionJson) ? json_decode($versionJson) : null;
+        $hasMigrations = $highestVersion > ($currentVersion?->current ?? 0);
 
         printMenuItem($scriptFile,$group, 'index.php', '🧪 Setup', 'Run the setup which includes regular database migrations.', false, $hasMigrations);
         if($scriptFile !== 'index') {
@@ -31,6 +33,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
             printMenuItem($scriptFile, $group, 'editor.php?g=a', '🤹 Actions', 'Browse, add, edit or delete actions.');
             printMenuItem($scriptFile, $group, 'editor.php?g=s', '📚 Settings', 'Browse, add, edit or delete settings.');
             printMenuItem($scriptFile, $group, 'dashboard.php', '🚦 Dashboard', 'Show the dashboard which lets you manage events and features live.');
+            printMenuItem($scriptFile, $group, 'defaults.php', '🍰 Defaults', 'Import various default commands, rewards, etc.');
             printMenuItem($scriptFile, $group, 'search.php', '🔭 Search', 'Search for items in the database.');
             printMenuItem($scriptFile, $group, 'widget.php', '🎭 Widget (new tab)', 'This opens the widget in a new tab, use this as a browser source in your streaming application.', true);
             printMenuItem($scriptFile, $group, 'widget.php?debug=1', '🚧 Widget (+debug)', 'This opens the widget in a new tab with debugging turned on, which means some objects are available in the console.', true);

@@ -78,8 +78,11 @@ export default class JsonEditor {
         const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
         const tempParent = this.buildUL()
 
+        // region Extra Children
         const urlParams = Utils.getUrlParams()
         const extraChildren: HTMLElement[] = []
+
+        // ID field
         if(!this._config.hideIDs) {
             if(this._rowId > 0) {
                 extraChildren.push(
@@ -96,6 +99,8 @@ export default class JsonEditor {
                 extraChildren.push(spaceSpan)
             }
         }
+
+        // Parent ID field
         if(this._parentId > 0) {
             if(!this._config.hideIDs) extraChildren.push(
                 ...this.buildInfo('Parent ID', this._parentId.toString(),
@@ -115,6 +120,8 @@ export default class JsonEditor {
                 extraChildren.push(parentButton)
             }
         }
+        // region
+
         const options: IStepDataOptions = {
             root: tempParent,
             data: instance,
@@ -169,7 +176,6 @@ export default class JsonEditor {
                 }
                 break
             case 'function': // Enum
-                console.log('StepData Function', options)
                 const optionsClone = Utils.clone(options)
                 optionsClone.root = options.root
                 optionsClone.extraChildren = options.extraChildren
@@ -222,6 +228,20 @@ export default class JsonEditor {
         const parentType = options.instanceMeta?.types ? options.instanceMeta.types[previousKey] ?? '' : ''
         const parentTypeValues = BaseDataObject.parseRef(parentType)
 
+        // Root element
+        let newRoot = document.createElement('li') as HTMLElement
+
+        const [partnerKey, labelStr] = Utils.splitOnFirst('_', key.toString())
+        let isPartnerField = false
+        if(key.toString().includes('_') && partnerKey.length > 0) {
+            const partnerId = this.getPartnerSlotID(this._instance.constructor.name, partnerKey)
+            const partnerSlot = options.root.querySelector(`#${partnerId}`) as HTMLElement
+            if(partnerSlot) {
+                isPartnerField = true
+                newRoot = partnerSlot
+            }
+        }
+
         // Label
         let keyInput: HTMLSpanElement|undefined
         const label: HTMLSpanElement = document.createElement('span') as HTMLSpanElement
@@ -235,7 +255,7 @@ export default class JsonEditor {
                 ? `<strong>${key}</strong>: `
                 : options.origin == EOrigin.ListArray
                     ? `Item ${Utils.ensureNumber(key)+1}: `
-                    : `${Utils.camelToTitle(key.toString())}: `
+                    : `${isPartnerField ? ' '+labelStr : Utils.camelToTitle(key.toString())}: `
             label.onclick = (event)=>{
                 input.click()
                 input.focus()
@@ -245,15 +265,13 @@ export default class JsonEditor {
         this._labels.push(label)
         this.handleValue(options.data, options.path, label ,true) // Will colorize label
 
-        const li = document.createElement('li') as HTMLLIElement
-        if(options.originListCount > 1) this.appendDragButton(li, options.origin, options.path)
+        // Append
+        if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
         if(keyInput) {
             // Optional editable key
-            li.appendChild(keyInput)
+            newRoot.appendChild(keyInput)
         }
-
-        // Item
-        li.appendChild(label)
+        newRoot.appendChild(label)
 
         // Input
         let skip = false
@@ -354,7 +372,7 @@ export default class JsonEditor {
             input.id = pathStr
             input.oninput = handle
 
-            li.appendChild(input)
+            newRoot.appendChild(input)
         }
 
         /*
@@ -385,7 +403,7 @@ export default class JsonEditor {
                     input.innerHTML = enumSelect.value
                     handle(event)
                 }
-                li.appendChild(enumSelect)
+                newRoot.appendChild(enumSelect)
             }
         }
         /*
@@ -450,8 +468,8 @@ export default class JsonEditor {
             // Generics need an additional list of classes, this is that.
             const selectGeneric = document.createElement('select') as HTMLSelectElement
             if(isGeneric) {
-                li.appendChild(selectGeneric)
-                const setNewReference = this.appendNewReferenceItemButton(li, values, options.path, this._rowId) // Button after items in groups of generic references
+                newRoot.appendChild(selectGeneric)
+                const setNewReference = this.appendNewReferenceItemButton(newRoot, values, options.path, this._rowId) // Button after items in groups of generic references
                 const items = DataObjectMap.getNames(values.genericLike, true)
                 const genericClasses = await DataBaseHelper.loadIDClasses([options.data.toString()])
                 const genericClass = genericClasses[options.data.toString()] ?? ''
@@ -501,21 +519,28 @@ export default class JsonEditor {
                     )
                 }
             }
-            li.appendChild(selectIDs)
-            li.appendChild(editButton)
+            newRoot.appendChild(selectIDs)
+            newRoot.appendChild(editButton)
             if(values.genericLike) {
                 await buildSelectOfIDs(selectGeneric.value)
             } else {
                 await buildSelectOfIDs()
             }
         }
+
+        // Append partner field slot
+        this.appendPartnerFieldSlot(newRoot, this._instance.constructor.name, key.toString())
+
+        // Append buttons and icons
         if(thisTypeValues.isIdReference && thisTypeValues.genericLike.length == 0) {
-            this.appendNewReferenceItemButton(li, thisTypeValues, options.path) // The button that goes onto single non-generic reference items.
+            this.appendNewReferenceItemButton(newRoot, thisTypeValues, options.path) // The button that goes onto single non-generic reference items.
         }
-        this.appendRemoveButton(li, options.origin, options.path, label)
-        this.appendDocumentationIcon(li, key, options.instanceMeta)
-        if(options.extraChildren.length > 0) for(const child of options.extraChildren) li.appendChild(child)
-        options.root.appendChild(li)
+        this.appendRemoveButton(newRoot, options.origin, options.path, label)
+        this.appendDocumentationIcon(newRoot, key, options.instanceMeta)
+        if(options.extraChildren.length > 0) for(const child of options.extraChildren) newRoot.appendChild(child)
+
+        // Append to parent
+        if(!isPartnerField) options.root.appendChild(newRoot)
         return
     }
 
@@ -534,6 +559,7 @@ export default class JsonEditor {
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
         const instance = (options.data as object)
+        const isRoot = options.path.length == 1
 
         // Sort out type values for ID references
         const thisType = options.instanceMeta?.types ? options.instanceMeta.types[pathKey] ?? '' : ''
@@ -542,7 +568,7 @@ export default class JsonEditor {
 
         if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
 
-        if(options.path.length == 1) { // Root object generates a key field
+        if(isRoot) { // Root object generates a key field
             const optionsClone = Utils.clone(options)
             optionsClone.root = options.root
             optionsClone.extraChildren = options.extraChildren
@@ -570,6 +596,9 @@ export default class JsonEditor {
                 newRoot.appendChild(strongSpan)
             }
         }
+
+        // Append partner field slot
+        if(!isRoot) this.appendPartnerFieldSlot(newRoot, this._instance.constructor.name, pathKey.toString())
 
         // Add new item button if we have a type defined
         await this.appendAddButton(newRoot, thisTypeValues, instance, options.path)
@@ -657,6 +686,13 @@ export default class JsonEditor {
             }
             element.appendChild(span)
         }
+    }
+
+    private appendPartnerFieldSlot(element: HTMLElement, clazz: string, key: string) {
+        const partnerSlot = document.createElement('span') as HTMLSpanElement
+        partnerSlot.id = this.getPartnerSlotID(clazz, key)
+        partnerSlot.classList.add('partner')
+        element.appendChild(partnerSlot)
     }
 
     /**
@@ -937,6 +973,10 @@ export default class JsonEditor {
             this.rebuild().then()
             return false
         }
+    }
+
+    private getPartnerSlotID(partnerClass: string, key: string | number) {
+        return `editorPartnerSlot-${partnerClass}-${key}`
     }
 }
 enum EJsonEditorFieldType {

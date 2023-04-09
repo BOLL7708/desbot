@@ -9,6 +9,7 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {SettingTwitchReward} from '../../Objects/Setting/Twitch.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export default class Rewards {
     public static async init() {
@@ -48,17 +49,17 @@ export default class Rewards {
         }
 
         // Toggle TTS rewards
-        TwitchHelixHelper.updateReward(await Utils.getRewardId('Speak'), {is_enabled: !states.ttsForAll}).then()
+        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId('Speak'), {is_enabled: !states.ttsForAll}).then()
 
         // Enable default rewards
         const enableRewards = Config.twitch.alwaysOnRewards.filter(rewardKey => { return !Config.twitch.alwaysOffRewards.includes(rewardKey) })
         for(const key of enableRewards) {
-            TwitchHelixHelper.updateReward(await Utils.getRewardId(key), {is_enabled: true}).then()
+            TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), {is_enabled: true}).then()
         }
         
         // Disable unwanted rewards
         for(const key of Config.twitch.alwaysOffRewards) {
-            TwitchHelixHelper.updateReward(await Utils.getRewardId(key), {is_enabled: false}).then()
+            TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), {is_enabled: false}).then()
         }
     }
 }

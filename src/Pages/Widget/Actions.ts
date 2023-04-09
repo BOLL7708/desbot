@@ -51,6 +51,7 @@ import {
     ITwitchEventSubPayloadSubscription
 } from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export class ActionHandler {
     constructor(
@@ -111,7 +112,7 @@ export class ActionHandler {
                         : rewardConfigs[counter.count]
                     if (newRewardConfig) {
                         await DataBaseHelper.save(counter, this.key)
-                        TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfig).then()
+                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfig).then()
                     }
                 }
                 // Register index and build callback for this step of the sequence
@@ -147,7 +148,7 @@ export class ActionHandler {
                         const cost = newRewardConfigClone.cost ?? 0
                         // Make sure the last reward doesn't cost more points than the total left.
                         if(rewardIndex < 2 && (currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount
-                        TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 }
                 // Register index and build callback for this step of the sequence
@@ -186,7 +187,7 @@ export class ActionHandler {
                         const newRewardConfigClone = Utils.clone(rewardConfigs[0])
                         newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        if (newRewardConfigClone) TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                        if (newRewardConfigClone) TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                     TwitchHelixHelper.toggleRewards({[this.key]: true}).then()
                 }, (options.multiTierTimeout ?? 30)*1000)
@@ -207,7 +208,7 @@ export class ActionHandler {
                     if (newRewardConfigClone) {
                         newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
                         newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        TwitchHelixHelper.updateReward(await Utils.getRewardId(this.key), newRewardConfigClone).then()
+                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfigClone).then()
                     }
                 } else if(options.multiTierDisableWhenMaxed) {
                     TwitchHelixHelper.toggleRewards({[this.key]: false}).then()
@@ -343,7 +344,7 @@ export class Actions {
         const modules = ModulesSingleton.getInstance()
         const actionHandler = new ActionHandler(key, appId)
         const reward: ITwitchReward = {
-            id: await Utils.getRewardId(key),
+            id: await LegacyUtils.getRewardId(key),
             handler: actionHandler
         }
         if(reward.id != null) {

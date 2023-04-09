@@ -1,15 +1,15 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 import {EventDefault} from '../Event/EventDefault.js'
 import {SettingTwitchReward} from '../Setting/Twitch.js'
 import {EnumTwitchRewardUsable, EnumTwitchRewardVisible} from '../../Enums/Twitch.js'
 
 export class ActionSystem extends BaseDataObject {
     triggerCommandEntries: string[] = []
-    triggerCommandEntriesType = EnumEntryType.First
+    triggerCommandEntriesType = EnumEntryUsage.First
     triggerEventEntries: number|EventDefault = 0
-    triggerEventEntriesType = EnumEntryType.First
+    triggerEventEntriesType = EnumEntryUsage.First
     triggerInterval: number = 0
     toggleRewardStates: ActionSystemRewardState[] = []
 }
@@ -30,9 +30,9 @@ DataObjectMap.addRootInstance(
     },
     {
         triggerCommandEntries: 'string',
-        triggerCommandEntriesType: EnumEntryType.ref(),
+        triggerCommandEntriesType: EnumEntryUsage.ref(),
         triggerEventEntries: EventDefault.refId(),
-        triggerEventEntriesType: EnumEntryType.ref(),
+        triggerEventEntriesType: EnumEntryUsage.ref(),
         toggleRewardStates: ActionSystemRewardState.ref()
     }
 )

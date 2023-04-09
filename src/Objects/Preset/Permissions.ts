@@ -3,7 +3,7 @@ import DataObjectMap from '../DataObjectMap.js'
 
 export class PresetPermissions extends BaseDataObject {
     streamer: boolean = true
-    moderators: boolean = true
+    moderators: boolean = false
     VIPs: boolean = false
     subscribers: boolean = false
     everyone: boolean = false

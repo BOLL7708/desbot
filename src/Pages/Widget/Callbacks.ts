@@ -31,6 +31,7 @@ import TwitchChat from '../../Classes/TwitchChat.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import {ConfigRelay} from '../../Objects/Config/Relay.js'
 import WebSockets from '../../Classes/WebSockets.js'
+import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -54,6 +55,8 @@ export default class Callbacks {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
 
+        // TODO: This should be on or off depending on a general websockets setting.
+        //  Also add support for subscriber avatars, cheer emotes & avatar, raiders avatars.
         const configRelay = await DataBaseHelper.loadMain(new ConfigRelay())
         this._imageRelay = new Relay(configRelay.overlayImagesChannel)
         this._imageRelay.init().then()
@@ -174,7 +177,7 @@ export default class Callbacks {
         modules.twitchEventSub.setOnRewardCallback(async (event: ITwitchEventSubEventRedemption) => {
             if(!event) return console.warn('Reward redemption empty', event)
             const user = await TwitchHelixHelper.getUserById(parseInt(event.user_id))
-            const rewardPairs = await Utils.getRewardPairs()
+            const rewardPairs = await LegacyUtils.getRewardPairs()
             const rewardPair = rewardPairs.find((pair) => { return pair.id === event.reward.id })
 
             // Discord

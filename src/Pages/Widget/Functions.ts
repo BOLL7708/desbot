@@ -17,6 +17,7 @@ import {TKeys} from '../../_data/!keys.js'
 import {SettingSteamAchievements, SettingSteamGame} from '../../Objects/Setting/Steam.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export default class Functions {
     /*
@@ -123,7 +124,7 @@ export default class Functions {
                         Utils.log(`Updating reward for event "${key}" to be in line with options.`, Color.DarkOliveGreen)
                         rewardConfigClone.title = await TextHelper.replaceTagsInText(rewardConfigClone.title, await Actions.buildEmptyUserData(EEventSource.Updated, key))
                         rewardConfigClone.prompt = await TextHelper.replaceTagsInText(rewardConfigClone.prompt, await Actions.buildEmptyUserData(EEventSource.Updated, key))
-                        TwitchHelixHelper.updateReward(await Utils.getRewardId(key), rewardConfigClone).then()
+                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), rewardConfigClone).then()
                     }
                 }
             }
@@ -200,7 +201,7 @@ export default class Functions {
                 const rewardConfig = thisEvent.triggers.reward ?? {}
                 const defaultRewardConfig = defaultEvent.triggers.reward ?? {}
                 delete profileToUse[key] // Delete any state set elsewhere as this overrides and is handled here to reduce number of updates needed.
-                const rewardId = await Utils.getRewardId(key)
+                const rewardId = await LegacyUtils.getRewardId(key)
                 Utils.logWithBold(`Updating Game Reward: <${key}:${rewardId}>`, Color.Purple)
 
                 // Update game rewards on Twitch

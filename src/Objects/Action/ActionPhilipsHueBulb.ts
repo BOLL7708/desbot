@@ -1,13 +1,13 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 import {PresetPhilipsHueColor} from '../Preset/PhilipsHue.js'
 
 export class ActionPhilipsHueBulb extends BaseDataObject {
     entries: number[] = []
-    entriesType = EnumEntryType.All
+    entriesType = EnumEntryUsage.All
     colorEntries: PresetPhilipsHueColor[] = []
-    colorEntriesType = EnumEntryType.First
+    colorEntriesType = EnumEntryUsage.First
 }
 
 DataObjectMap.addRootInstance(
@@ -19,8 +19,8 @@ DataObjectMap.addRootInstance(
     },
     {
         entries: 'number',
-        entriesType: EnumEntryType.ref(),
+        entriesType: EnumEntryUsage.ref(),
         colorEntries: PresetPhilipsHueColor.refId(),
-        colorEntriesType: EnumEntryType.ref()
+        colorEntriesType: EnumEntryUsage.ref()
     }
 )

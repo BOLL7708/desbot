@@ -1,10 +1,10 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionRemoteCommand extends BaseDataObject {
     entries: string[] = []
-    entriesType = EnumEntryType.All
+    entriesType = EnumEntryUsage.All
 }
 
 DataObjectMap.addRootInstance(
@@ -13,6 +13,6 @@ DataObjectMap.addRootInstance(
     {},
     {
         entries: 'string',
-        entriesType: EnumEntryType.ref()
+        entriesType: EnumEntryUsage.ref()
     }
 )

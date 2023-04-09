@@ -1,11 +1,11 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionLabel extends BaseDataObject{
     fileName: string = ''
     textEntries: string[] = []
-    textEntriesType = EnumEntryType.First
+    textEntriesType = EnumEntryUsage.First
     append: boolean = false
 }
 
@@ -19,6 +19,6 @@ DataObjectMap.addRootInstance(
     },
     {
         textEntries: 'string',
-        textEntriesType: EnumEntryType.ref()
+        textEntriesType: EnumEntryUsage.ref()
     }
 )

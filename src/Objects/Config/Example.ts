@@ -2,7 +2,7 @@ import BaseDataObject from '../BaseDataObject.js'
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {PresetPipeBasic} from '../Preset/Pipe.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ConfigExample extends BaseDataObject {
     singleBoolean = false
@@ -14,7 +14,7 @@ export class ConfigExample extends BaseDataObject {
     singleIdToKeyReference: number|string = ''
     singleIdToKeyReferenceUsingLabel: number|string = ''
     singleIdToGenericReference: number|BaseDataObject = 0
-    singleEnum = EnumEntryType.First
+    singleEnum = EnumEntryUsage.First
     arrayOfBooleans: boolean[] = []
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
@@ -24,7 +24,7 @@ export class ConfigExample extends BaseDataObject {
     arrayOfIdToKeyReferences: (number|string)[] = []
     arrayOfIdToKeyReferencesUsingLabels: (number|string)[] = []
     arrayOfIdToGenericReferences: (number|BaseDataObject)[] = []
-    arrayOfEnum: EnumEntryType[] = []
+    arrayOfEnum: EnumEntryUsage[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
@@ -39,7 +39,7 @@ export class ConfigExample extends BaseDataObject {
 export class ConfigExampleSub extends BaseDataObject {
     singleString: string = ''
     singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
-    singleEnum: number = EnumEntryType.All
+    singleEnum: number = EnumEntryUsage.All
 }
 
 DataObjectMap.addRootInstance(
@@ -83,7 +83,7 @@ DataObjectMap.addRootInstance(
         singleIdToKeyReference: PresetPipeBasic.refIdKey(),
         singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel('basicTitle'),
         singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
-        singleEnum: EnumEntryType.ref(),
+        singleEnum: EnumEntryUsage.ref(),
         arrayOfBooleans: 'boolean',
         arrayOfNumbers: 'number',
         arrayOfStrings: 'string',
@@ -93,7 +93,7 @@ DataObjectMap.addRootInstance(
         arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
         arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
         arrayOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-        arrayOfEnum: EnumEntryType.ref(),
+        arrayOfEnum: EnumEntryUsage.ref(),
         dictionaryOfBooleans: 'boolean',
         dictionaryOfNumbers: 'number',
         dictionaryOfStrings: 'string',
@@ -103,7 +103,7 @@ DataObjectMap.addRootInstance(
         dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
         dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
         dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-        dictionaryOfEnums: EnumEntryType.ref()
+        dictionaryOfEnums: EnumEntryUsage.ref()
     }
 )
 DataObjectMap.addSubInstance(
@@ -114,6 +114,6 @@ DataObjectMap.addSubInstance(
     },
     {
         singleIdReference: PresetPipeBasic.refId(),
-        singleEnum: EnumEntryType.ref()
+        singleEnum: EnumEntryUsage.ref()
     }
 )

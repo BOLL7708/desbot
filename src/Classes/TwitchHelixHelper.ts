@@ -21,6 +21,7 @@ import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
+import LegacyUtils from './LegacyUtils.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -182,7 +183,7 @@ export default class TwitchHelixHelper {
         const result: ITwitchHelixRewardStates = {}
         if(Array.isArray(rewards)) {
             for(const key of rewards) {
-                const id = await Utils.getRewardId(key)
+                const id = await LegacyUtils.getRewardId(key)
                 if(id) {
                     const reward = await this.getReward(id)
                     const rewardData = reward?.data?.getSpecific(0)
@@ -193,7 +194,7 @@ export default class TwitchHelixHelper {
             }
         } else {
             for(const [key, state] of Object.entries(rewards) as [TKeys, boolean][]) {
-                const id = await Utils.getRewardId(key)
+                const id = await LegacyUtils.getRewardId(key)
                 if(id) {
                     const updated = await this.updateReward(id, {is_enabled: state})
                     if(updated !== null) result[key] = state
@@ -263,7 +264,7 @@ export default class TwitchHelixHelper {
      */
     static async updateRedemption(redemptionId: string, redemption: SettingTwitchRedemption):Promise<boolean|null> {
         // https://dev.twitch.tv/docs/api/reference#update-redemption-status
-        const rewardPairs = await Utils.getRewardPairs()
+        const rewardPairs = await LegacyUtils.getRewardPairs()
         const rewardPair = rewardPairs.find((pair)=>{ return pair.id === redemption.rewardId })
         if(rewardPair) {
             const eventConfig = Utils.getEventConfig(rewardPair.key)

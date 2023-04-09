@@ -41,11 +41,12 @@ $finishedCount = 0;
 if(count($files)) {
     // TODO: Do MySQL dump backup here!
 }
+sort($files, );
 foreach($files as $number => $filePath) {
     $ok = $db->migrate($filePath);
     error_log("Migration from $from to $number was: $ok");
     if($ok) {
-        $lastOk = $number;
+        $lastOk = $filePath;
         $finishedCount++;
     } else {
         $finishedOk = false;

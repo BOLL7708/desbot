@@ -1,13 +1,13 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {PresetPipeCustom} from '../Preset/Pipe.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionPipe extends BaseDataObject{
     imagePathEntries: string[] = []
-    imagePathEntriesType = EnumEntryType.First
+    imagePathEntriesType = EnumEntryUsage.First
     imageDataEntries: string[] = []
-    imageDataEntriesType = EnumEntryType.First
+    imageDataEntriesType = EnumEntryUsage.First
     durationMs: number = 1000
     preset: number|PresetPipeCustom = 0
     texts: string[] = []
@@ -24,9 +24,9 @@ DataObjectMap.addRootInstance(
         texts: 'If your custom notification includes text areas, this is where you add the texts that are to be used for it.'
     },{
         imagePathEntries: 'string',
-        imagePathEntriesType: EnumEntryType.ref(),
+        imagePathEntriesType: EnumEntryUsage.ref(),
         imageDataEntries: 'string',
-        imageDataEntriesType: EnumEntryType.ref(),
+        imageDataEntriesType: EnumEntryUsage.ref(),
         preset: PresetPipeCustom.refId(),
         texts: 'string'
     }

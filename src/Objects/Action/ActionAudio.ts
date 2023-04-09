@@ -1,10 +1,10 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionAudio extends BaseDataObject {
     srcEntries: string[] = []
-    srcEntriesType = EnumEntryType.First
+    srcEntries_use = EnumEntryUsage.First
     volume: number = 1.0
     nonce: string = ''
     repeat: number = 1
@@ -22,6 +22,6 @@ DataObjectMap.addRootInstance(
         channel: 'Channel to play on, it is a separate instance of the audio player.'
     }, {
         srcEntries: 'string',
-        srcEntriesType: EnumEntryType.ref()
+        srcEntries_use: EnumEntryUsage.ref()
     }
 )

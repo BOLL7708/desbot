@@ -1,11 +1,11 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryType} from '../../Enums/EntryType.js'
+import {EnumEntryUsage} from '../../Enums/EntryType.js'
 import {ActionChat} from './ActionChat.js'
 
 export class ActionDiscord extends BaseDataObject{
     entries: string[] = []
-    entriesType = EnumEntryType.First
+    entriesType = EnumEntryUsage.First
 }
 
 DataObjectMap.addRootInstance(
@@ -14,6 +14,6 @@ DataObjectMap.addRootInstance(
     {},
     {
         entries: 'string',
-        entriesType: EnumEntryType.ref()
+        entriesType: EnumEntryUsage.ref()
     }
 )

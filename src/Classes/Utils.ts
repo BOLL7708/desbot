@@ -2,8 +2,6 @@ import Config from './Config.js'
 import {TKeys} from '../_data/!keys.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import {SettingTwitchReward} from '../Objects/Setting/Twitch.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -176,16 +174,7 @@ export default class Utils {
         }
     }
 
-    static async getRewardId(key: TKeys): Promise<string|undefined> {
-        const rewards = await this.getRewardPairs()
-        const reward = rewards.find((obj)=>{return obj.key === key})
-        return reward?.id
-    }
-    static async getRewardKey(id: string): Promise<TKeys|undefined> {
-        const rewards = await this.getRewardPairs()
-        const reward = rewards.find((obj)=>{return obj.id === id})
-        return reward?.key
-    }
+
 
     static encode(str: string): string {
         let base64 = btoa(str)
@@ -441,15 +430,6 @@ export default class Utils {
             && Object.getPrototypeOf(object) === Object.prototype
     }
 
-    static async getRewardPairs(): Promise<IRewardData[]> {
-        const rewards = await DataBaseHelper.loadAll(new SettingTwitchReward()) ?? {}
-        const rewardPairs: IRewardData[] = []
-        for(const [id, obj] of Object.entries(rewards) as [string, SettingTwitchReward][]) {
-            rewardPairs.push({key: obj.key as TKeys, id: id})
-        }
-        return rewardPairs;
-    }
-
     static reload() {
         window.location.reload()
     }
@@ -593,11 +573,6 @@ export default class Utils {
         }
         window.history.replaceState(null, '', `?${urlParams.toString()}`);
     }
-}
-
-interface IRewardData {
-    key: TKeys
-    id: string
 }
 
 // Tip from the TS Discord, ended up not using it, possibly useful later?

@@ -2,7 +2,6 @@ import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import BaseDataObject from '../Objects/BaseDataObject.js'
-import EditorHandler from '../Pages/Editor/EditorHandler.js'
 import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 
 /*
