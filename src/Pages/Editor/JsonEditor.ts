@@ -38,8 +38,7 @@ export default class JsonEditor {
     private _parentId: number = 0
     private _config: ConfigEditor = new ConfigEditor()
 
-    private readonly _labelUnchangedColor = 'transparent'
-    private readonly _labelChangedColor = 'pink'
+    private readonly _modifiedClass = 'modified'
 
     private _modifiedStatusListener: IJsonEditorModifiedStatusListener = (modified)=>{}
     setModifiedStatusListener(listener: IJsonEditorModifiedStatusListener) {
@@ -79,14 +78,13 @@ export default class JsonEditor {
         const tempParent = this.buildUL()
 
         // region Extra Children
-        const urlParams = Utils.getUrlParams()
         const extraChildren: HTMLElement[] = []
 
         // ID field
         if(!this._config.hideIDs) {
             if(this._rowId > 0) {
                 extraChildren.push(
-                    ...this.buildInfo(' ID',
+                    ...this.buildInfo('ID',
                         this._rowId.toString(),
                         'If an ID is shown, the data has been saved.',
                         'The ID of this row in the database.'
@@ -95,7 +93,7 @@ export default class JsonEditor {
             }
             if(this._rowId > 0 && this._parentId > 0) {
                 const spaceSpan = document.createElement('span') as HTMLSpanElement
-                spaceSpan.innerHTML = ' ⇒ '
+                spaceSpan.innerHTML = '⇒ '
                 extraChildren.push(spaceSpan)
             }
         }
@@ -147,12 +145,6 @@ export default class JsonEditor {
             this._hideKey,
             true
         )
-    }
-
-    private highlightLabels() {
-        for(const label of this._labels) {
-            label.style.backgroundColor = this._labelChangedColor
-        }
     }
 
     private async stepData(options: IStepDataOptions):Promise<void> {
@@ -608,7 +600,7 @@ export default class JsonEditor {
         }
         this.appendDocumentationIcon(newRoot, pathKey, options.instanceMeta)
 
-        // Get new instance meta if we are going deeper. TODO: This needs to support ENUMs
+        // Get new instance meta if we are going deeper.
         let newInstanceMeta = options.instanceMeta
         if(thisType && DataObjectMap.hasInstance(thisType)) { // For lists class instances
             newInstanceMeta = DataObjectMap.getMeta(thisType) ?? options.instanceMeta
@@ -691,7 +683,6 @@ export default class JsonEditor {
     private appendPartnerFieldSlot(element: HTMLElement, clazz: string, key: string) {
         const partnerSlot = document.createElement('span') as HTMLSpanElement
         partnerSlot.id = this.getPartnerSlotID(clazz, key)
-        partnerSlot.classList.add('partner')
         element.appendChild(partnerSlot)
     }
 
@@ -747,7 +738,7 @@ export default class JsonEditor {
         if(docStr.length > 0 && this._config.showHelpIcons) {
             const span = document.createElement('span') as HTMLSpanElement
             span.classList.add('documentation-icon')
-            span.innerHTML = ' 💬'
+            span.innerHTML = '💬'
             span.title = docStr
             element.appendChild(span)
         }
@@ -778,11 +769,11 @@ export default class JsonEditor {
         if(path.length == 1) {
             if(value == this._originalKey) {
                 // Same as original value
-                if(label) label.style.backgroundColor = this._labelUnchangedColor
+                if(label) label.classList.remove(this._modifiedClass)
             } else {
                 // New value
                 this._key = `${value}`
-                if(label) label.style.backgroundColor = this._labelChangedColor
+                if(label) label.classList.add(this._modifiedClass)
             }
         } else {
             for(let i = 1; i<path.length; i++) {
@@ -805,10 +796,10 @@ export default class JsonEditor {
                         if(!checkModified) current[path[i]] = value // Actual update in the JSON structure
                         if(currentOriginalValue == value) {
                             // Same as original value
-                            if(label) label.style.backgroundColor = this._labelUnchangedColor
+                            if(label) label.classList.remove(this._modifiedClass)
                         } else {
                             // New value
-                            if(label) label.style.backgroundColor = this._labelChangedColor
+                            if(label) label.classList.add(this._modifiedClass)
                         }
                     }
                 } else {

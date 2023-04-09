@@ -39,9 +39,11 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
             printMenuItem($scriptFile, $group, 'widget.php?debug=1', '🚧 Widget (+debug)', 'This opens the widget in a new tab with debugging turned on, which means some objects are available in the console.', true);
         } ?>
         <li><a href="index.php" id="topBarSignOutLink" title="Sign out of this page.">🔥 Sign out</a></li>
+        <li><a href="#" id="topBarPageModeLink" title="Switch between bright and dark mode.">🌕/🌑</a></li>
     </ul>
     <script type="module">
         import TopBar from './dist/Pages/TopBar.js'
         TopBar.attachSignOutClick('#topBarSignOutLink')
+        TopBar.attachPageModeClick('#topBarPageModeLink')
     </script>
 </div>

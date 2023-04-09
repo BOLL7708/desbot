@@ -38,8 +38,8 @@ class Files {
         self::ensureFolderExists($fullPath);
         return match ($ext) {
             'php' => @include($fullPath) ?? '',
-            'json' => json_decode(file_get_contents($fullPath)),
-            default => file_get_contents($fullPath),
+            'json' => json_decode(is_file($fullPath) ? file_get_contents($fullPath) : 'null'),
+            default => is_file($fullPath) ? file_get_contents($fullPath) : null,
         };
     }
     // endregion

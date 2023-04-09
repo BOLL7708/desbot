@@ -85,7 +85,6 @@ switch($method) {
             $output = $db->getClassesWithCounts($groupClass, $parentId);
         }
         else {
-            error_log(json_encode([$groupClass, $groupKey, $parentId, $noData]));
             // Single entry or list, depending on if key is set.
             $output = $db->getEntries($groupClass, $groupKey, $parentId, $noData);
         }

@@ -7,6 +7,7 @@ import {EnumEntryUsage} from '../../Enums/EntryType.js'
 export class ConfigExample extends BaseDataObject {
     singleBoolean = false
     singleNumber = 0
+    singleNumber_format: string = 'Decimal'
     singleString = ''
     singleSubInstance = new ConfigExampleSub()
     singleIdReference: number|PresetPipeBasic = 0
@@ -16,8 +17,10 @@ export class ConfigExample extends BaseDataObject {
     singleIdToGenericReference: number|BaseDataObject = 0
     singleEnum = EnumEntryUsage.First
     arrayOfBooleans: boolean[] = []
+    arrayOfBooleans_use: number = 0
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
+    arrayOfStrings_active: boolean = false
     arrayOfSubInstances: ConfigExampleSub[] = []
     arrayOfIdReferences: (number|PresetPipeBasic)[] = []
     arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
@@ -48,6 +51,7 @@ DataObjectMap.addRootInstance(
     {
         singleBoolean: 'A single boolean flag',
         singleNumber: 'A single number value',
+        singleNumber_format: '',
         singleString: 'A single string value',
         singleSubInstance: 'A single instance of a sub-class',
         singleIdReference: 'A single ID reference to any other object',
@@ -56,9 +60,11 @@ DataObjectMap.addRootInstance(
         singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
         singleIdToGenericReference: 'Contains a single generic entry.',
         singleEnum: '',
-        arrayOfBooleans: '',
+        arrayOfBooleans: 'This is an array property with a partner field.',
+        arrayOfBooleans_use: 'This is a separate property acting as the partner field.',
         arrayOfNumbers: '',
         arrayOfStrings: '',
+        arrayOfStrings_active: '',
         arrayOfSubInstances: '',
         arrayOfIdReferences: '',
         arrayOfIdReferencesUsingLabels: '',
@@ -85,6 +91,7 @@ DataObjectMap.addRootInstance(
         singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
         singleEnum: EnumEntryUsage.ref(),
         arrayOfBooleans: 'boolean',
+        arrayOfBooleans_use: EnumEntryUsage.ref(),
         arrayOfNumbers: 'number',
         arrayOfStrings: 'string',
         arrayOfSubInstances: ConfigExampleSub.ref(),

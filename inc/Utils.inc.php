@@ -159,7 +159,6 @@ class Utils {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
         $body = json_encode($body);
-        error_log($body);
         echo $body;
         exit;
     }

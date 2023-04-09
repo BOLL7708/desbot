@@ -37,7 +37,7 @@ export default class EditorHandler {
             coverText.innerHTML = 'Waiting for result... '
 
             const coverButton = document.createElement('button') as HTMLButtonElement
-            coverButton.classList.add('editor-button')
+            coverButton.classList.add('main-button')
             coverButton.innerHTML = 'Abort'
             coverButton.onclick = (event)=>{
                 if(this._childEditorWindow) {
@@ -266,7 +266,7 @@ export default class EditorHandler {
 
         // New button
         const editorNewButton = document.createElement('button') as HTMLButtonElement
-        editorNewButton.classList.add('editor-button', 'new-button')
+        editorNewButton.classList.add('main-button', 'new-button')
         editorNewButton.innerHTML = '✨ New'
         editorNewButton.title = 'And new entry'
         editorNewButton.onclick = async (event)=>{
@@ -284,7 +284,7 @@ export default class EditorHandler {
 
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
-        editorDeleteButton.classList.add('editor-button', 'delete-button', 'hidden')
+        editorDeleteButton.classList.add('main-button', 'delete-button', 'hidden')
         editorDeleteButton.style.marginRight = '10em'
         editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteAndCloseButton : this._labelDeleteButton
         editorDeleteButton.tabIndex = -1
@@ -316,7 +316,7 @@ export default class EditorHandler {
 
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
-        editorSaveButton.classList.add('editor-button', 'save-button', 'hidden')
+        editorSaveButton.classList.add('main-button', 'save-button', 'hidden')
         editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
         editorSaveButton.onclick = async (event)=>{
             const newKey = await this.saveData(group, this._state.groupKey, this._state.parentId)
@@ -331,7 +331,7 @@ export default class EditorHandler {
 
         // Export button
         const editorExportButton = document.createElement('button') as HTMLButtonElement
-        editorExportButton.classList.add('editor-button', 'export-button')
+        editorExportButton.classList.add('main-button', 'export-button')
         editorExportButton.innerHTML = '📤 Export'
         editorExportButton.title = 'Export current editor data as JSON to the system clipboard.'
         editorExportButton.onclick = async (event)=>{
@@ -341,7 +341,7 @@ export default class EditorHandler {
 
         // Import button
         const editorImportButton = document.createElement('button') as HTMLButtonElement
-        editorImportButton.classList.add('editor-button', 'import-button')
+        editorImportButton.classList.add('main-button', 'import-button')
         editorImportButton.innerHTML = '📥 Import'
         editorImportButton.title = 'Import the current system clipboard JSON data into the editor.'
         editorImportButton.onclick = async (event)=>{

@@ -1,4 +1,6 @@
 html, body {
+    background-color: var(--main-background-color);
+    color: var(--body-text-color);
     font-family: sans-serif;
     margin: 0;
     padding: 0;
@@ -15,9 +17,9 @@ html, body {
 /* Top Bar */
 #menu-bar {
     box-sizing: border-box;
-    background-color: #f0f0f0;
+    background-color: var(--topbar-background-color);
     padding: 0.5em 1em;
-    border-bottom: 2px solid #808080;
+    border-bottom: 2px solid var(--border-color);
 }
 #menu-bar ul {
     background-image: url('../media/sw_logo.svg');
@@ -36,7 +38,7 @@ html, body {
     float: left;
 }
 #menu-bar li a {
-    color: black;
+    color: var(--body-text-color);
     font-weight: bold;
     display: block;
     text-align: center;
@@ -47,14 +49,14 @@ html, body {
 }
 
 #menu-bar li a:hover {
-    background-color: #d0d0d0;
+    background-color: var(--topbar-link-hover);
 }
 .menu-bar-current, .menu-bar-current:hover {
-    background-color: #fff !important;
+    background-color: var(--topbar-link-active) !important;
 }
 .badge {
     background-color: red;
-    color: white;
+    color: var(--topbar-badge-text);
     font-weight: bold;
     border-radius: 4px;
     padding: 0.125em 0.25em;
@@ -72,18 +74,18 @@ html, body {
     box-sizing: border-box;
     padding: 0.5em 1.5em;
     overflow: auto;
-    background-color: #e0e0e0;
-    border-right: 2px solid #808080;
+    background-color: var(--sidebar-background-color);
+    border-right: 2px solid var(--border-color);
 }
 #side-bar a {
-    color: #404040;
+    color: var(--sidebar-link-color);
     border-radius: 6px;
     padding: 2px 6px;
     line-height: 133%;
     text-decoration: none;
 }
 #side-bar a:hover {
-    background-color: #c0c0c0;
+    background-color: var(--sidebar-link-hover);
 }
 
 /* Content */
@@ -101,18 +103,18 @@ input, select, button {
     border-radius: 6px;
     font-size: 100%;
     margin: 0.25em;
-    border-color: #00000040;
+    border-color: var(--input-border-color);
     border-style: solid;
     box-sizing: border-box;
 }
 select {
     padding: 0.25em;
-    background-color: rgba(255,255,255,0.5);
+    background-color: var(--select-background-color);
 }
 input[type="checkbox"] {
     scale: 150%;
     padding: 0.25em;
-    accent-color: #404040;
+    accent-color: var(--checkbox-accent-color);
 }
 label {
     padding: 0.25em;
@@ -127,5 +129,70 @@ span, input, a, button {
             filter 0.1s;
 }
 code {
-    background-color: rgba(255,255,255,0.5);
+    background-color: var(--code-background-color);
+}
+select {
+    color: var(--body-text-color);
+}
+
+/* Buttons */
+.main-button {
+    padding: 0.25em 1em;
+    font-weight: bold;
+    color: var(--button-main-text-color);
+    background-color: var(--button-main-background-color);
+}
+.inline-button {
+    color: var(--button-inline-text-color);
+    background-color: transparent !important;
+    border: 2px solid transparent;
+    filter: saturate(0.5);
+}
+.main-button:hover, .inline-button:hover {
+    color: var(--button-main-text-hover);
+    background-color: var(--button-main-background-hover) !important;
+    border-color: var(--button-main-border-hover);
+    filter: saturate(1);
+}
+.main-button:active, .inline-button:active {
+    transform: translate(0,2px)
+}
+
+.new-button {
+    background-color: var(--button-new-background-color);
+}
+.new-button:hover {
+    background-color: var(--button-new-background-hover) !important;
+}
+.delete-button {
+    background-color: var(--button-delete-background-color);
+}
+.delete-button:hover {
+    background-color: var(--button-delete-background-hover) !important;
+}
+.save-button {
+    background-color: var(--button-save-background-color);
+}
+.save-button:hover {
+    background-color: var(--button-save-background-hover) !important;
+}
+
+/* Fields */
+span[contenteditable], code[contenteditable] {
+    color: var(--body-text-color);
+    padding: 4px;
+    border: 1px solid var(--editable-border-color);
+    border-radius: 6px;
+    margin-right: 0.25em;
+}
+span[contenteditable]:hover, code[contenteditable]:hover {
+    border: 1px solid var(--editable-border-hover);
+}
+span[contenteditable]:focus, code[contenteditable]:focus {
+    background-color: var(--editable-background-focus);
+}
+span.disabled, code.disabled {
+    border-color: var(--disabled-border-color);
+    color: var(--disabled-text-color);
+    background-color: var(--disabled-background-color);
 }

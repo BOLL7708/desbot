@@ -25,9 +25,7 @@ if(!$from && !$to) {
 $files = [];
 foreach($migrations as $version => $filePath) {
     if(is_file($filePath)) {
-        error_log("$version > $from && $version <= $to");
         if($version > $from && $version <= $to) {
-            error_log("Adding migration to $version");
             $files[$version] = $filePath;
         }
     }

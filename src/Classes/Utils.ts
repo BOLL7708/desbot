@@ -271,7 +271,7 @@ export default class Utils {
     }
 
     /**
-     * Returns the deducted boolean value for a string, provided default or false if no match.
+     * Returns the deduced boolean value for a string, provided default or false if no match.
      * @param boolStr
      * @param defaultValue
      */
