@@ -448,6 +448,11 @@ export default class Utils {
         return str.split(/(?=[A-Z][a-z])/)
     }
 
+    static nameToSentence(str: string, lowerCase: boolean = false): string {
+        const sentence = this.splitOnCaps(str).join(' ').replace('_', ' ')
+        return lowerCase ? sentence.toLowerCase() : sentence
+    }
+
     static camelToTitle(str: string, option = EUtilsTitleReturnOption.Everything): string {
         const detectWords = /([A-Z0-9$])(?<=[a-z]\1|[A-Za-z0-9$]\1(?=[a-z]))/g
         const splitOnWords = /[\W_]/g

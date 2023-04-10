@@ -7,7 +7,6 @@ import {EnumEntryUsage} from '../../Enums/EntryType.js'
 export class ConfigExample extends BaseDataObject {
     singleBoolean = false
     singleNumber = 0
-    singleNumber_format: string = 'Decimal'
     singleString = ''
     singleSubInstance = new ConfigExampleSub()
     singleIdReference: number|PresetPipeBasic = 0
@@ -20,7 +19,6 @@ export class ConfigExample extends BaseDataObject {
     arrayOfBooleans_use: number = 0
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
-    arrayOfStrings_active: boolean = false
     arrayOfSubInstances: ConfigExampleSub[] = []
     arrayOfIdReferences: (number|PresetPipeBasic)[] = []
     arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
@@ -37,7 +35,22 @@ export class ConfigExample extends BaseDataObject {
     dictionaryOfIdToKeyReferences: {[key:string]: number|string} = {}
     dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|string} = {}
     dictionaryOfIdToGenericReferences: {[key:string]: number|BaseDataObject} = {}
-    dictionaryOfEnums: { [key:string]: number } = {}
+    dictionaryOfEnums: { [key:string]: EnumEntryUsage } = {}
+    partnerToSingle = ''
+    partnerToSingle_active = false
+    partnerToSingleAdvanced = ''
+    partnerToSingleAdvanced_enum = EnumEntryUsage.First
+    partnerToArray: string[] = []
+    partnerToArray_withTitle = ''
+    partnerToDictionary: IStringDictionary = {}
+    partnerToDictionary_repeatsCount = 0
+    partnerToEnum = EnumEntryUsage.First
+    partnerToEnum_label = ''
+    partnerMultiple = false
+    partnerMultiple_and = false
+    partnerMultiple_or = 0
+    partnerMultiple_plus = false
+    partnerMultiple_butNot = ''
 }
 export class ConfigExampleSub extends BaseDataObject {
     singleString: string = ''
@@ -51,7 +64,6 @@ DataObjectMap.addRootInstance(
     {
         singleBoolean: 'A single boolean flag',
         singleNumber: 'A single number value',
-        singleNumber_format: '',
         singleString: 'A single string value',
         singleSubInstance: 'A single instance of a sub-class',
         singleIdReference: 'A single ID reference to any other object',
@@ -64,7 +76,6 @@ DataObjectMap.addRootInstance(
         arrayOfBooleans_use: 'This is a separate property acting as the partner field.',
         arrayOfNumbers: '',
         arrayOfStrings: '',
-        arrayOfStrings_active: '',
         arrayOfSubInstances: '',
         arrayOfIdReferences: '',
         arrayOfIdReferencesUsingLabels: '',
@@ -110,7 +121,11 @@ DataObjectMap.addRootInstance(
         dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
         dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel('basicTitle'),
         dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-        dictionaryOfEnums: EnumEntryUsage.ref()
+        dictionaryOfEnums: EnumEntryUsage.ref(),
+        partnerToSingleAdvanced_enum: EnumEntryUsage.ref(),
+        partnerToArray: 'string',
+        partnerToDictionary: 'string',
+        partnerToEnum: EnumEntryUsage.ref()
     }
 )
 DataObjectMap.addSubInstance(

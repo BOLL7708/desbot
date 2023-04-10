@@ -247,7 +247,7 @@ export default class JsonEditor {
                 ? `<strong>${key}</strong>: `
                 : options.origin == EOrigin.ListArray
                     ? `Item ${Utils.ensureNumber(key)+1}: `
-                    : `${isPartnerField ? ' '+labelStr : Utils.camelToTitle(key.toString())}: `
+                    : `${isPartnerField ? ' '+Utils.nameToSentence(labelStr) : Utils.camelToTitle(key.toString())}: `
             label.onclick = (event)=>{
                 input.click()
                 input.focus()
@@ -304,8 +304,8 @@ export default class JsonEditor {
                 }
                 break
             case EJsonEditorFieldType.Boolean:
-                const on = '✅ True'
-                const off = '❌ False'
+                const on = this._config.hideBooleanNames ? '✅' : '✅ True'
+                const off = this._config.hideBooleanNames ? '❌' : '❌ False'
                 input.style.userSelect = 'none'
                 input.tabIndex = 0
                 input.innerHTML = (options.data as boolean) ? on : off
@@ -540,7 +540,7 @@ export default class JsonEditor {
 
     private async promptForKey(path: IJsonEditorPath) {
         const oldKey = Utils.clone(path).pop() ?? ''
-        const newKey = prompt(`Provide new key for "${path.join('.')}"`, oldKey.toString())
+        const newKey = prompt(`Provide a new key for "${path.join('.')}:"`, oldKey.toString())
         if(newKey && newKey.length > 0) {
             await this.handleKey(Utils.unescapeHTML(newKey), path)
         }
@@ -802,7 +802,12 @@ export default class JsonEditor {
                     if(current[path[i]] != value || onlyCheckModified) {
                         if(!onlyCheckModified) current[path[i]] = value // Actual update in the JSON structure
                         let newPropertyIndex = false
-                        if(typeof current == 'object' && !Array.isArray(current)) {
+                        if(
+                            typeof current == 'object'
+                            && !Array.isArray(current)
+                            && typeof currentOriginal == 'object'
+                            && !Array.isArray(currentOriginal)
+                        ) {
                             newPropertyIndex = Object.keys(current).indexOf(path[i].toString())
                                 !== Object.keys(currentOriginal).indexOf(path[i].toString())
                         }
@@ -960,7 +965,7 @@ export default class JsonEditor {
                     this.handleValue(instance, path, newRoot)
                     await this.rebuild()
                 } else {
-                    const newKey = prompt('Provide a key for the new entry')
+                    const newKey = prompt(`Provide a key for the new ${typeValues.class}:`)
                     if(newKey && newKey.length > 0) {
                         switch(typeValues.original) {
                             case 'number': (instance as any)[newKey] = 0; break

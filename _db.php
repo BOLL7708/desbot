@@ -36,6 +36,8 @@ $rowIdLabel = getHeaderValue('X-Row-Id-Label');
 $noData = !!getHeaderValue('X-No-Data');
 $parentId = getHeaderValue('X-Parent-Id', true);
 $searchQuery = getHeaderValue('X-Search-Query');
+$nextGroupKey = !!getHeaderValue('X-Next-Group-Key');
+
 if($parentId == 0) $parentId = null;
 
 // Execute
@@ -68,7 +70,10 @@ switch($method) {
         );
         break;
     default: // GET, etc
-        if($searchQuery !== null) {
+        if($nextGroupKey) {
+            $output = $db->getNextKey($groupClass, $groupKey);
+        }
+        elseif($searchQuery !== null) {
             // Search
             $output = $db->search($searchQuery);
         }

@@ -322,8 +322,32 @@ class DB {
 
     public function search(string $query): array {
         $query = str_replace(['*', '?'], ['%', '_'], $query);
-        $output = $this->query('SELECT row_id as id, group_class as `class`, group_key as `key`, parent_id as pid, data_json as data FROM json_store WHERE LOWER(group_key) LIKE LOWER(?) OR LOWER(data_json) LIKE LOWER(?);', ["%$query%", "%$query%"]);
+        $output = $this->query('SELECT row_id as id, group_class as `class`, group_key as `key`, parent_id as pid, data_json as data FROM json_store WHERE LOWER(group_key) LIKE LOWER(?) OR LOWER(data_json) LIKE LOWER(?);', [$query, $query]);
         return is_array($output) ? $output : [];
+    }
+
+    public function getNextKey(string $groupClass, string $groupKey): array {
+        $result = $this->query('SELECT group_key as `key` FROM json_store WHERE group_class = ? AND group_key LIKE ? OR group_key LIKE ?;', [$groupClass, $groupKey, "$groupKey %"]);
+        $output = $groupKey;
+        if(is_array($result)) {
+            $maxSerial = 0;
+            $keyLength = strlen($groupKey);
+            foreach($result as $row) {
+                $key = $row['key'];
+                if($key == $groupKey) {
+                    $output = null;
+                } else {
+                    $tail = substr($key, $keyLength);
+                    $serial = intval($tail);
+                    if($serial > $maxSerial) $maxSerial = $serial;
+                }
+            }
+            if($output == null) {
+                $newSerial = $maxSerial+1;
+                $output = "$groupKey $newSerial";
+            }
+        }
+        return ['key'=>$output];
     }
     // endregion
 

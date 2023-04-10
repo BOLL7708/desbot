@@ -3,6 +3,7 @@ import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
 import BaseDataObject from '../../Objects/BaseDataObject.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
+import {ConfigEditor} from '../../Objects/Config/Editor.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -81,12 +82,20 @@ export default class EditorHandler {
             ? !!urlParams.get('n')
             : false
         if(this._state.minimal && createNew) {
-            const newKey = await prompt(`Provide a new key for this ${this._state.groupClass}`)
+            let defaultKey = ''
+            const config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
+            if(config.autoGenerateKeys) {
+                const nextKey = await DataBaseHelper.getNextKey(this._state.groupClass, this._state.parentId, config.autoGenerateKeys_andShorten)
+                if(nextKey) defaultKey = nextKey.key ?? ''
+            }
+            const newKey = await prompt(`Provide a new key for this ${this._state.groupClass}:`, defaultKey)
             if(newKey && newKey.length > 0) {
                 const instance = await DataObjectMap.getInstance(this._state.groupClass)
                 if(instance) {
                     const didSave = await DataBaseHelper.save(instance, newKey, undefined, this._state.parentId)
-                    if(!didSave) {
+                    if(didSave) {
+                        this._state.groupKey = newKey
+                    } else {
                         alert(`Unable to save new ${this._state.groupClass} entry.`)
                         window.close()
                         return
@@ -274,7 +283,7 @@ export default class EditorHandler {
             if(this._state.forceMainKey) {
                 newKey = DataBaseHelper.OBJECT_MAIN_KEY
             } else {
-                newKey = await prompt(`Provide a key for the new ${group}`) ?? ''
+                newKey = await prompt(`Provide a key for the new ${group}:`) ?? ''
             }
             if(newKey && newKey.length > 0) {
                 await updateEditor(undefined, newKey)
@@ -365,7 +374,7 @@ export default class EditorHandler {
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)
         this._contentDiv.appendChild(editorSaveButton)
-        if(hasAnyItems) {
+        if(hasAnyItems || this._state.forceMainKey) {
             this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
             this._contentDiv.appendChild(editorExportButton)
             this._contentDiv.appendChild(editorImportButton)

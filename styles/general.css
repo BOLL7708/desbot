@@ -1,5 +1,4 @@
 html, body {
-    background-color: var(--main-background-color);
     color: var(--body-text-color);
     font-family: sans-serif;
     margin: 0;
@@ -64,6 +63,7 @@ html, body {
 
 /* Page Container */
 #page-container {
+    background-color: var(--main-background-color);
     display: flex;
     flex: 1;
 }

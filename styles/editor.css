@@ -1,9 +1,15 @@
 code {
     font-size: 133%;
 }
+#page-container {
+    background-color: transparent !important;
+}
 #editor-container ul {
     list-style-type: none;
     padding-left: 1em;
+}
+#content {
+    background-color: var(--main-background-color);
 }
 #content li {
     border-radius: 6px;

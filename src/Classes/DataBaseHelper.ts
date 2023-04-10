@@ -3,6 +3,7 @@ import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import BaseDataObject from '../Objects/BaseDataObject.js'
 import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
+import {ConfigEditor} from '../Objects/Config/Editor.js'
 
 /*
 TODO
@@ -112,7 +113,8 @@ export default class DataBaseHelper {
         return response.ok
     }
 
-    static async search(searchQuery: string): Promise<IDataBaseItemRaw[]> {
+    static async search(searchQuery: string, surroundWithWildcards: boolean = true): Promise<IDataBaseItemRaw[]> {
+        if(surroundWithWildcards) searchQuery = `*${searchQuery}*`
         let url = this.getUrl()
         const response = await fetch(url, {
             headers: await this.getHeader({searchQuery}),
@@ -484,6 +486,7 @@ export default class DataBaseHelper {
         if(options.noData !== undefined) headers.set('X-No-Data', options.noData ? '1' : '0')
         if(options.parentId !== undefined) headers.set('X-Parent-Id', options.parentId.toString())
         if(options.searchQuery !== undefined) headers.set('X-Search-Query', options.searchQuery)
+        if(options.nextGroupKey !== undefined) headers.set('X-Next-Group-Key', options.nextGroupKey ? '1' : '0')
         return headers
     }
 
@@ -496,6 +499,17 @@ export default class DataBaseHelper {
         return isProblem
     }
 
+    static async getNextKey(groupClass: string, parentId: number, shorten: boolean): Promise<IDataBaseNextKeyItem|undefined> {
+        const parent = await this.loadById(parentId)
+        let tail = groupClass
+        if(shorten) tail = Utils.splitOnCaps(groupClass).splice(1).join('')
+        let newKey = `${parent?.key ?? 'New'} ${tail}`
+        let url = this.getUrl()
+        const response = await fetch(url, {
+            headers: await this.getHeader({groupClass, groupKey: newKey, nextGroupKey: true})
+        })
+        return response.ok ? await response.json() : undefined
+    }
     // endregion
 }
 
@@ -510,6 +524,7 @@ interface IDataBaseHelperHeaders {
     addJsonHeader?: boolean
     parentId?: number
     searchQuery?: string
+    nextGroupKey?: boolean
 }
 
 export interface IDataBaseItem<T> {
@@ -529,4 +544,7 @@ export interface IDataBaseListItem {
     key: string
     label: string
     pid: number|null
+}
+export interface IDataBaseNextKeyItem {
+    key: string
 }
