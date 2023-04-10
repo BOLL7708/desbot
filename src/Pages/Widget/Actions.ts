@@ -42,7 +42,7 @@ import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 import {TKeys} from '../../_data/!keys.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
-import {SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
+import {SettingUser, SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
 import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {
@@ -929,6 +929,7 @@ export class Actions {
                 const userInputRest = await TextHelper.replaceTagsInText('%userInputRest', user)
                 const userInputNoTags = await TextHelper.replaceTagsInText('%userInputNoTags', user)
                 const canSetThingsForOthers = user.isBroadcaster || user.isModerator
+                const targetUser = await DataBaseHelper.loadOrEmpty(new SettingUser(), targetOrUserId.toString())
                 switch(config.function) {
                     case ETTSFunction.Enable:
                         states.ttsForAll = true
@@ -947,7 +948,10 @@ export class Actions {
                         const setting = new SettingUserMute()
                         setting.active = false
                         setting.reason = userInputRest
-                        await DataBaseHelper.save(setting, targetId.toString())
+                        setting.moderatorUserId = user.id
+                        setting.datetime = Utils.getISOTimestamp()
+                        targetUser.mute = setting
+                        await DataBaseHelper.save(targetUser, targetId.toString())
                         break
                     }
                     case ETTSFunction.SetUserDisabled: {
@@ -955,11 +959,14 @@ export class Actions {
                         const setting = new SettingUserMute()
                         setting.active = true
                         setting.reason = userInputRest
-                        await DataBaseHelper.save(setting, targetId.toString())
+                        setting.moderatorUserId = user.id
+                        setting.datetime = Utils.getISOTimestamp()
+                        targetUser.mute = setting
+                        await DataBaseHelper.save(targetUser, targetId.toString())
                         break
                     }
                     case ETTSFunction.SetUserNick: {
-                        let id =targetOrUserId // We can change nick for us or someone else by default
+                        let id = targetOrUserId // We can change nick for us or someone else by default
                         if(!id || user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
                             id = user.id
                         }
@@ -984,7 +991,8 @@ export class Actions {
                             setting.shortName = newNick
                             setting.editorUserId = id
                             setting.datetime = Utils.getISOTimestamp()
-                            await DataBaseHelper.save(setting, id.toString())
+                            targetUser.name = setting
+                            await DataBaseHelper.save(targetUser, id.toString())
                         } else {
                             // We do nothing
                             states.textTagCache.lastTTSSetNickLogin = ''
@@ -995,8 +1003,8 @@ export class Actions {
                     case ETTSFunction.GetUserNick: {
                         const userData = await TwitchHelixHelper.getUserById(targetOrUserId)
                         if(userData && userData.login.length) {
-                            const currentName = await DataBaseHelper.load(new SettingUserName(), userData.id)
-                            if(currentName) {
+                            const currentName = targetUser.name
+                            if(currentName.shortName.trim().length > 0) {
                                 states.textTagCache.lastTTSSetNickLogin = userData.display_name
                                 states.textTagCache.lastTTSSetNickSubstitute = currentName.shortName
                             } else {
@@ -1024,7 +1032,8 @@ export class Actions {
                             setting.shortName = cleanName
                             setting.editorUserId = user.id
                             setting.datetime = Utils.getISOTimestamp()
-                            await DataBaseHelper.save(setting, id.toString())
+                            targetUser.name = setting
+                            await DataBaseHelper.save(targetUser, id.toString())
                         }
                         break
                     }
@@ -1106,14 +1115,13 @@ export class Actions {
                         if (!id || user.source == EEventSource.TwitchReward) { // Except rewards, because they are publicly available
                             id = user.id
                         }
-                        const setting = await DataBaseHelper.load(new SettingUserVoice(), id.toString())
                         let gender = ''
                         // Use input for a specific gender
                         if (inputLowerCase.includes('f')) gender = 'female'
                         else if (inputLowerCase.includes('m')) gender = 'male'
                         // If missing, flip current or fall back to random.
                         if (gender.length == 0) {
-                            if (setting) gender = setting.gender.toLowerCase() == 'male' ? 'female' : 'male'
+                            if (targetUser.voice.gender.length > 0) gender = targetUser.voice.gender.toLowerCase() == 'male' ? 'female' : 'male'
                             else gender = Utils.randomFromArray(['male', 'female'])
                         }
                         modules.tts.setVoiceForUser(id, gender).then() // This will save the voice setting with the chosen gender.

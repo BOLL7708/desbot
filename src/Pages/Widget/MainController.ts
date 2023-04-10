@@ -12,7 +12,7 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
-import {SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
+import {SettingUser, SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
 import {
     SettingTwitchClip,
     SettingTwitchRedemption,
@@ -42,9 +42,7 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
-        await DataBaseHelper.loadAll(new SettingUserMute())
-        await DataBaseHelper.loadAll(new SettingUserName())
-        await DataBaseHelper.loadAll(new SettingUserVoice())
+        await DataBaseHelper.loadAll(new SettingUser())
         await DataBaseHelper.loadAll(new SettingTwitchTokens())
         await DataBaseHelper.loadAll(new SettingTwitchReward())
         await DataBaseHelper.loadAll(new SettingTwitchRedemption())

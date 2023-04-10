@@ -24,10 +24,12 @@ if(!$from && !$to) {
 // Get which migrations to run
 $files = [];
 foreach($migrations as $version => $filePath) {
-    if(is_file($filePath)) {
-        if($version > $from && $version <= $to) {
-            $files[$version] = $filePath;
-        }
+    if(
+        is_file($filePath)
+        && $version > $from
+        && $version <= $to
+    ) {
+        $files[] = [$version, $filePath];
     }
 }
 
@@ -39,12 +41,14 @@ $finishedCount = 0;
 if(count($files)) {
     // TODO: Do MySQL dump backup here!
 }
-sort($files, );
-foreach($files as $number => $filePath) {
+usort($files, function($a, $b) { return $a[0] <=> $b[0]; });
+foreach($files as $fileInfo) {
+    $version = $fileInfo[0];
+    $filePath = $fileInfo[1];
     $ok = $db->migrate($filePath);
-    error_log("Migration from $from to $number was: $ok");
+    error_log("Migration from $from to $version was: $ok");
     if($ok) {
-        $lastOk = $filePath;
+        $lastOk = $version;
         $finishedCount++;
     } else {
         $finishedOk = false;

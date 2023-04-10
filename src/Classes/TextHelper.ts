@@ -4,8 +4,7 @@ import StatesSingleton from '../Singletons/StatesSingleton.js'
 import SteamStoreHelper from './SteamStoreHelper.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {SettingUserName, SettingUserVoice} from '../Objects/Setting/User.js'
-import {SettingTwitchCheer, SettingTwitchSub} from '../Objects/Setting/Twitch.js'
+import {SettingUser, SettingUserName, SettingUserVoice} from '../Objects/Setting/User.js'
 import {SettingAccumulatingCounter} from '../Objects/Setting/Counters.js'
 import Utils from './Utils.js'
 import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
@@ -25,14 +24,15 @@ export default class TextHelper {
         }
         const userId = userData?.id ?? ''
         const userName = userData?.login ?? ''
-        let cleanNameSetting = await DataBaseHelper.load(new SettingUserName(), userId)
-        let cleanName = cleanNameSetting?.shortName ?? userName
-        if(!cleanName) {
+        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userId)
+        let cleanName = Utils.getFirstValidString(user.name.shortName, userName)
+        if(cleanName.length == 0) {
             cleanName = this.cleanName(userName)
             const cleanNameSetting = new SettingUserName()
             cleanNameSetting.shortName = cleanName
             cleanNameSetting.datetime = Utils.getISOTimestamp()
-            await DataBaseHelper.save(cleanNameSetting, userId)
+            user.name = cleanNameSetting
+            await DataBaseHelper.save(user, userId)
         }
         return cleanName
     }
@@ -245,9 +245,10 @@ export default class TextHelper {
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
         const userIdStr = userData?.id?.toString() ?? ''
-        const subs = await DataBaseHelper.load(new SettingTwitchSub(), userIdStr)
-        const cheers = await DataBaseHelper.load(new SettingTwitchCheer(), userIdStr)
-        const voice = await DataBaseHelper.load(new SettingUserVoice(), userIdStr)
+        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userIdStr)
+        const subs = user.sub
+        const cheers = user.cheer
+        const voice = user.voice
         const now = new Date()
 
         const eventConfig = Utils.getEventConfig(userData?.eventKey)
@@ -280,8 +281,8 @@ export default class TextHelper {
             userInputTag: '',
             userBits: userBits,
             userBitsTotal: userBitsTotal,
-            userSubsTotal: subs?.totalMonths ?? '0',
-            userSubsStreak: subs?.streakMonths ?? '0',
+            userSubsTotal: subs?.totalMonths.toString() ?? '0',
+            userSubsStreak: subs?.streakMonths.toString() ?? '0',
             userColor: userData?.color ?? '',
             userVoice: this.getVoiceString(voice),
             // endregion
@@ -346,8 +347,19 @@ export default class TextHelper {
             eventLevelNext: (eventLevel+1).toString(),
             eventLevelMax: eventLevelMax.toString(),
             eventLevelProgress: `${eventLevel}/${eventLevelMax}`,
-            eventLevelNextProgress: `${eventLevel+1}/${eventLevelMax}`
+            eventLevelNextProgress: `${eventLevel+1}/${eventLevelMax}`,
             // endregion
+
+            userInputWord1: '',
+            userInputWord2: '',
+            userInputWord3: '',
+            userInputWord4: '',
+            userInputWord5: '',
+            lastDictionarySubstitute: '',
+            lastDictionaryWord: '',
+            lastTTSSetNickLogin: '',
+            lastTTSSetNickSubstitute: ''
+
         }
         if(typeof userData?.input === 'string') {
             const inputWordsClone = Utils.clone(userData.inputWords)

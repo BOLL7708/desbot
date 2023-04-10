@@ -2,7 +2,7 @@ import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {EnumTTSType} from '../../Enums/TTS.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
-import {SettingUserVoice} from '../Setting/User.js'
+import {SettingUser, SettingUserVoice} from '../Setting/User.js'
 
 export class ActionSpeech extends BaseDataObject {
     entries: string[] = []
@@ -23,7 +23,7 @@ DataObjectMap.addRootInstance(
     {
         entries: 'string',
         entriesType: EnumEntryUsage.ref(),
-        voiceOfUser: SettingUserVoice.refId(),
+        voiceOfUser: SettingUser.refId(),
         type: EnumTTSType.ref()
     }
 )

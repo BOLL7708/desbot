@@ -214,6 +214,15 @@ export default class DataBaseHelper {
         return undefined
     }
 
+    static async loadOrEmpty<T>(
+        emptyInstance: T&BaseDataObject,
+        key: string,
+        parentId?: number,
+        ignoreCache?: boolean
+    ): Promise<T> {
+        return await this.load(emptyInstance, key, parentId, ignoreCache) ?? emptyInstance
+    }
+
     /**
      * Load one specific blob from the database, or from the cache if it already exists.
      * @param emptyInstance Instance of the class to load.

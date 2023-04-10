@@ -10,7 +10,6 @@ type TSection =
     | 'TwitchClient'
     | 'TwitchLoginChannel'
     | 'TwitchLoginChatbot'
-    | 'ImportSettings'
     | 'SettingsBrowser'
 
 export default class SetupSectionHandler {
@@ -24,7 +23,6 @@ export default class SetupSectionHandler {
         'TwitchClient': this.getSectionElement('TwitchClient'),
         'TwitchLoginChannel': this.getSectionElement('TwitchLoginChannel'),
         'TwitchLoginChatbot': this.getSectionElement('TwitchLoginChatbot'),
-        'ImportSettings': this.getSectionElement('ImportSettings'),
         'SettingsBrowser': this.getSectionElement('SettingsBrowser')
     }
     private _stepLabels: Partial<Record<TSection, string>> = {
@@ -33,8 +31,7 @@ export default class SetupSectionHandler {
         'DBSetup': 'Setup database',
         'TwitchClient': 'Setup Twitch Client',
         'TwitchLoginChannel': 'Login Twitch channel',
-        'TwitchLoginChatbot': 'Login Twitch chatbot',
-        'ImportSettings': 'Import old settings'
+        'TwitchLoginChatbot': 'Login Twitch chatbot'
     }
 
     constructor() {

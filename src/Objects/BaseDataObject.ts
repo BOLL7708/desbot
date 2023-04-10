@@ -174,8 +174,8 @@ export default abstract class BaseDataObject {
                         let correctedProp = propertyValue
                         if(expectedType !== actualType) {
                             switch(expectedType) {
-                                case 'string': correctedProp = propertyValue.toString(); break;
-                                case 'number': correctedProp = parseFloat(propertyValue.toString()); break;
+                                case 'string': correctedProp = propertyValue?.toString() ?? ''; break;
+                                case 'number': correctedProp = parseFloat(propertyValue?.toString() ?? 0); break;
                                 case 'boolean': correctedProp = Utils.toBool(propertyValue); break;
                                 default: console.warn(`BaseDataObjects.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`)
                             }

@@ -12,7 +12,7 @@ import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigSpeech} from '../Objects/Config/Speech.js'
 import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
-import {SettingUserMute, SettingUserVoice} from '../Objects/Setting/User.js'
+import {SettingUser, SettingUserMute, SettingUserVoice} from '../Objects/Setting/User.js'
 import TextHelper from './TextHelper.js'
 import {SettingDictionaryEntry} from '../Objects/Setting/Dictionary.js'
 
@@ -128,10 +128,10 @@ export default class GoogleTTS {
         if(userId == 0) userId = (await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
         const serial = ++this._count
         this._preloadQueue[serial] = null
+        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userId.toString())
 
         // Check blacklist
-        const blacklist = await DataBaseHelper.load(new SettingUserMute(), userId.toString())
-        if(blacklist?.active) {
+        if(user.mute.active) {
             console.warn(`GoogleTTS: User ${userId} blacklisted, skipped!`, input)
             delete this._preloadQueue[serial]
             return
@@ -166,10 +166,11 @@ export default class GoogleTTS {
         }
 
         // Get voice
-        let voice = await DataBaseHelper.load(new SettingUserVoice(), userId.toString())
-        if(voice == null) {
+        let voice = user.voice
+        if(!Utils.hasValidProps(user.voice)) {
             voice = await this.getDefaultVoice()
-            await DataBaseHelper.save(voice, userId.toString())
+            user.voice = voice
+            await DataBaseHelper.save(user, userId.toString())
         }
 
         // Get username
@@ -233,7 +234,9 @@ export default class GoogleTTS {
         const voiceConfig: {[key: string]: string} = {}
         voiceConfig['languageCode'] = voice.languageCode ?? 'en-US' // Needs to exist, then either voice NAME or GENDER
         if(voice.voiceName.length > 0) voiceConfig['name'] = voice.voiceName
-        else voiceConfig['ssmlGender'] = (voice.gender.length > 0 ? voice.gender : ['male', 'female'].getRandom() ?? 'male')
+        else voiceConfig['ssmlGender'] = (voice.gender.length > 0 ? voice.gender : ['male', 'female'].getRandom() ?? 'male').toUpperCase()
+        // TODO: Even if gender is provided as specified it seems to not work.
+        //  Not sure if we should stop supporting gender entirely and only do specific voices?
         const response = await fetch(url, {
             method: 'post',
             body: JSON.stringify({
@@ -281,10 +284,10 @@ export default class GoogleTTS {
 
     async setVoiceForUser(userId: number, input:string, nonce:string=''):Promise<string> {
         await this.loadVoicesAndLanguages() // Fills caches
-        let loadedVoice = await DataBaseHelper.load(new SettingUserVoice(), userId.toString())
+        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userId.toString())
         const defaultVoice = await this.getDefaultVoice()
         let voice = defaultVoice
-        if(loadedVoice != null) voice = loadedVoice
+        if(Utils.hasValidProps(user.voice)) voice = user.voice
         
         const inputArr = input.split(' ')
         let changed = false
@@ -357,7 +360,9 @@ export default class GoogleTTS {
                 return
             }
         })
-        let success = await DataBaseHelper.save(voice, userId.toString())
+        user.voice = voice
+        user.voice.datetime = Utils.getISOTimestamp()
+        let success = await DataBaseHelper.save(user, userId.toString())
         Utils.log(`GoogleTTS: Voice saved: ${success}`, Color.BlueViolet)
         return voice.voiceName
     }
@@ -375,7 +380,7 @@ export default class GoogleTTS {
                     voices.forEach(voice => {
                         voice.languageCodes.forEach(code => {
                             code = code.toLowerCase()
-                            if(this._languages.indexOf(code) < 0) this._languages.push(code)
+                            if(this._languages.indexOf(code) == -1) this._languages.push(code)
                         })
                     })
                     return true

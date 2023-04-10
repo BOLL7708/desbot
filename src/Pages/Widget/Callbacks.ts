@@ -19,7 +19,7 @@ import ImageEditor from '../../Classes/ImageEditor.js'
 import Relay, {IRelayTempMessage} from '../../Classes/Relay.js'
 import {TKeys} from '../../_data/!keys.js'
 import {ConfigDiscord} from '../../Objects/Config/Discord.js'
-import {SettingTwitchCheer, SettingTwitchSub, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
+import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {ConfigPipe} from '../../Objects/Config/Pipe.js'
 import {
@@ -32,6 +32,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import {ConfigRelay} from '../../Objects/Config/Relay.js'
 import WebSockets from '../../Classes/WebSockets.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
+import {SettingUser} from '../../Objects/Setting/User.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -227,7 +228,7 @@ export default class Callbacks {
                 && sub.multi == multi
             )
 
-            // Announce sub
+            // TODO: Announce sub
             if(sub) {
                 console.warn('Found a sub announcement: ', sub)
                 /*
@@ -252,16 +253,16 @@ export default class Callbacks {
         })
 
         modules.twitchEventSub.setOnResubscriptionCallback( async(event)=>{
-            subscriptionHandler(parseInt(event.tier), false, false)
+            subscriptionHandler(parseInt(event.tier), false, false).then()
             const modules = ModulesSingleton.getInstance()
             modules.twitch._twitchChatOut.sendMessageToChannel(`@${event.user_name} resubscribed for a total of ${event.cumulative_months} months! (${event.tier}, ${event.duration_months}, this is a test)`)
         })
 
         modules.twitchEventSub.setOnCheerCallback(async (event) => {
             // Save user cheer
-            const cheerSetting = new SettingTwitchCheer()
-            cheerSetting.lastBits = event.bits
-            await DataBaseHelper.save(cheerSetting, event.user_id)
+            const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), event.user_id)
+            user.cheer.lastBits = event.bits
+            await DataBaseHelper.save(user, event.user_id)
 
             // Announce cheer
             const bits = event.bits

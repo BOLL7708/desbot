@@ -214,6 +214,7 @@ export default class Utils {
         const date = (input != undefined) ? new Date(Date.parse(input)) : new Date()
         return date.toISOString()
     }
+
     static getDiscordTimetag(input: string|null, format: string='F'): string {
         const date = (input != null) ? new Date(Date.parse(input)) : new Date()
         return `<t:${Math.round(date.getTime()/1000)}:${format}>`
@@ -430,6 +431,24 @@ export default class Utils {
             && Object.getPrototypeOf(object) === Object.prototype
     }
 
+    /**
+     * Returns true if the object contains any primitive value that is true, above zero or longer than zero.
+     * @param object
+     */
+    static hasValidProps(object: any): boolean {
+        if(object && typeof object == 'object') {
+            for(const [prop, value] of Object.entries(object)) {
+                switch(typeof value) {
+                    case 'number': if(value > 0) return true; break;
+                    case 'boolean': if(value) return true; break;
+                    case 'string': if(value.trim().length > 0) return true; break
+                    default: if(this.hasValidProps(value)) return true
+                }
+            }
+        }
+        return false
+    }
+
     static reload() {
         window.location.reload()
     }
@@ -581,6 +600,11 @@ export default class Utils {
         return new URLSearchParams(queryString)
     }
 
+    /**
+     * Takes any number of strings, will return the first non-empty string.
+     * It verifies type and length for every value until there is a match.
+     * @param values
+     */
     static getFirstValidString(...values: any[]): string {
         for(const value of values) {
             if(typeof value === 'string') {
