@@ -38,7 +38,7 @@ export default class JsonEditor {
     private _parentId: number = 0
     private _config: ConfigEditor = new ConfigEditor()
 
-    private readonly _modifiedClass = 'modified'
+    private readonly MODIFIED_CLASS = 'modified'
 
     private _modifiedStatusListener: IJsonEditorModifiedStatusListener = (modified)=>{}
     setModifiedStatusListener(listener: IJsonEditorModifiedStatusListener) {
@@ -258,7 +258,9 @@ export default class JsonEditor {
         this.handleValue(options.data, options.path, label ,true) // Will colorize label
 
         // Append
-        if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
+        if(options.originListCount > 1) {
+            this.appendDragButton(newRoot, options.origin, options.path)
+        }
         if(keyInput) {
             // Optional editable key
             newRoot.appendChild(keyInput)
@@ -638,6 +640,7 @@ export default class JsonEditor {
                 optionsClone.path = this.clone(options.path)
                 optionsClone.path.push(key.toString())
                 optionsClone.data = (instance as any)[key.toString()]
+                optionsClone.originListCount = Object.keys(instance).length
                 await this.stepData(optionsClone)
             }
         }
@@ -647,10 +650,10 @@ export default class JsonEditor {
     }
     // region Buttons
     private appendDragButton(element: HTMLElement, origin: EOrigin, path: (string | number)[]) {
-        if(origin == EOrigin.ListArray) {
+        if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
             const span = document.createElement('span') as HTMLSpanElement
             span.innerHTML = '🤚'
-            span.title = 'Drag & drop in array'
+            span.title = 'Drag & drop in list'
             span.classList.add('drag-icon')
             span.draggable = true
             span.ondragstart = (event)=>{
@@ -673,7 +676,11 @@ export default class JsonEditor {
                 const data = event.dataTransfer?.getData('application/json')
                 if(data) {
                     const fromPath = JSON.parse(data) as IJsonEditorPath
-                    await this.handleArrayMove(fromPath, path)
+                    if(origin == EOrigin.ListArray) {
+                        await this.handleArrayMove(fromPath, path)
+                    } else if(origin == EOrigin.ListDictionary) {
+                        await this.handleDictionaryMove(fromPath, path)
+                    }
                 }
             }
             element.appendChild(span)
@@ -754,14 +761,14 @@ export default class JsonEditor {
      * @param value A value to set, check, or remove. Null will remove.
      * @param path Path to the value in the structure.
      * @param label The HTML element to colorize to indicate if the value changed.
-     * @param checkModified Will not set, only check and color label.
+     * @param onlyCheckModified Will not set, only check and color label.
      * @private
      */
     private handleValue(
         value: string|number|boolean|object|null,
         path: IJsonEditorPath,
         label: HTMLElement|undefined = undefined,
-        checkModified: boolean = false
+        onlyCheckModified: boolean = false
     ) {
         // console.log("Handle value: ", value, path, new Error().stack?.toString())
         let current: any = this._instance
@@ -769,11 +776,11 @@ export default class JsonEditor {
         if(path.length == 1) {
             if(value == this._originalKey) {
                 // Same as original value
-                if(label) label.classList.remove(this._modifiedClass)
+                if(label) label.classList.remove(this.MODIFIED_CLASS)
             } else {
                 // New value
                 this._key = `${value}`
-                if(label) label.classList.add(this._modifiedClass)
+                if(label) label.classList.add(this.MODIFIED_CLASS)
             }
         } else {
             for(let i = 1; i<path.length; i++) {
@@ -792,14 +799,21 @@ export default class JsonEditor {
                 const currentOriginalValue = currentOriginal && currentOriginal.hasOwnProperty(path[i]) ? currentOriginal[path[i]] : undefined
                 if(i == path.length-1) {
                     // Not same as the stored one, or just checked if modified
-                    if(current[path[i]] != value || checkModified) {
-                        if(!checkModified) current[path[i]] = value // Actual update in the JSON structure
-                        if(currentOriginalValue == value) {
+                    if(current[path[i]] != value || onlyCheckModified) {
+                        if(!onlyCheckModified) current[path[i]] = value // Actual update in the JSON structure
+                        let newPropertyIndex = false
+                        if(typeof current == 'object' && !Array.isArray(current)) {
+                            newPropertyIndex = Object.keys(current).indexOf(path[i].toString())
+                                !== Object.keys(currentOriginal).indexOf(path[i].toString())
+                        }
+                        // ? current.indexOf(path[i]) != currentOriginal.indexOf(path[i])
+                        // : false
+                        if(currentOriginalValue == value && !newPropertyIndex) {
                             // Same as original value
-                            if(label) label.classList.remove(this._modifiedClass)
+                            if(label) label.classList.remove(this.MODIFIED_CLASS)
                         } else {
                             // New value
-                            if(label) label.classList.add(this._modifiedClass)
+                            if(label) label.classList.add(this.MODIFIED_CLASS)
                         }
                     }
                 } else {
@@ -829,6 +843,34 @@ export default class JsonEditor {
                 if(Array.isArray(contents)) {
                     Utils.moveInArray(contents, fromIndex, toIndex)
                 }
+                current[p] = contents
+                await this.rebuild()
+            } else {
+                // Continue to navigate down into the data structure
+                current = current[fromPath[i]]
+            }
+        }
+        this.checkIfModified()
+    }
+
+    private async handleDictionaryMove(
+        fromPath: IJsonEditorPath,
+        toPath: IJsonEditorPath
+    ) {
+        let fromProperty = fromPath[fromPath.length-1]
+        let toProperty = toPath[toPath.length-1]
+        console.log(fromProperty, toProperty)
+        let current: any = this._instance
+        for (let i = 1; i < fromPath.length; i++) {
+            // Will change the order of an array
+            if (i == fromPath.length - 2) {
+                const p = fromPath[i]
+                let contents = Utils.clone(current[p])
+                console.log(Object.keys(contents))
+                if(typeof contents == 'object') {
+                    contents = Utils.moveInDictionary(contents, fromProperty.toString(), toProperty.toString())
+                }
+                console.log(Object.keys(contents))
                 current[p] = contents
                 await this.rebuild()
             } else {

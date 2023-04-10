@@ -184,6 +184,7 @@ span[contenteditable], code[contenteditable] {
     border: 1px solid var(--editable-border-color);
     border-radius: 6px;
     margin-right: 0.25em;
+    line-height: 160%;
 }
 span[contenteditable]:hover, code[contenteditable]:hover {
     border: 1px solid var(--editable-border-hover);

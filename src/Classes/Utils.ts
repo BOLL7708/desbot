@@ -541,15 +541,34 @@ export default class Utils {
         }
     }
 
+    /**
+     * Moves an element in place in an array.
+     * @param arr
+     * @param fromIndex
+     * @param toIndex
+     */
     static moveInArray<T>(arr: T[], fromIndex: number, toIndex: number): T[] {
         const newIndex = Math.max(0, Math.min(arr.length-1, toIndex))
         const [item] = arr.splice(fromIndex, 1)
         if(item !== undefined) arr.splice(newIndex, 0, item)
         return arr
     }
-    static moveStepsInArray<T>(arr: T[], fromIndex: number, steps: number): T[] {
-        if (steps == 0 || arr.length == 0) return arr
-        return this.moveInArray(arr, fromIndex, fromIndex+steps)
+
+    /**
+     * Returns an object where the properties have been rearranged.
+     * @param obj
+     * @param fromProperty
+     * @param toProperty
+     */
+    static moveInDictionary(obj: object, fromProperty: string, toProperty: string): object {
+        const keys = Object.keys(obj)
+        const fromIndex = keys.indexOf(fromProperty)
+        const toIndex = keys.indexOf(toProperty)
+        let entries = Object.entries(obj)
+        if(toIndex > -1 && fromIndex > -1) {
+            entries = this.moveInArray(entries, fromIndex, toIndex)
+        }
+        return Object.fromEntries(entries)
     }
 
     static getUrlParams(): URLSearchParams {
