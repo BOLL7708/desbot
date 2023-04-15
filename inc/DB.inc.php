@@ -108,6 +108,53 @@ class DB {
         if(empty($lines)) return false;
         return $success;
     }
+
+    static function dump(): int {
+        function cleanDir(string $dir): string
+        {
+            return str_replace("\\", '/', $dir);
+        }
+
+        // System vars
+        $homeDir = cleanDir($_SERVER['MYSQL_HOME']);
+        $exePath = "$homeDir/mysqldump.exe";
+        $scriptPath = $_SERVER['SCRIPT_FILENAME'];
+
+        // User vars
+        $dbData = Files::read('db.php');
+        $username = $dbData->username ?? '';
+        $password = $dbData->password ?? '';
+        $database = $dbData->database ?? '';
+
+        // Dump vars
+        $dumpDir = pathinfo($scriptPath, PATHINFO_DIRNAME) . '/_backups/dumps';
+        $version = Files::read('version.json');
+        $currentVersion = $version->current ?? 0;
+        $dumpFileName = date('Ymd-His')."_v$currentVersion.sql";
+        $dumpPath = "$dumpDir/$dumpFileName";
+
+        $dumpSize = -1;
+        if (is_file($exePath)) {
+            // Ensure dump folder
+            if (!is_dir($dumpDir)) {
+                mkdir($dumpDir, 0777, true);
+            }
+
+            // Execute
+            if (strlen($password)) {
+                $command = "$exePath -u $username -p$password --databases $database > $dumpPath";
+            } else {
+                $command = "$exePath -u $username --databases $database > $dumpPath";
+            }
+            $result = system($command);
+
+            // Result
+            if ($result !== false && is_file($dumpPath)) {
+                $dumpSize = filesize($dumpPath);
+            }
+        }
+        return $dumpSize;
+    }
     // endregion
 
     // region Json Store

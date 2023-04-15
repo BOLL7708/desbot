@@ -27,7 +27,7 @@ import {Actions} from '../Pages/Widget/Actions.js'
 
 export default class TwitchEventSub {
     private LOG_COLOR = Color.DarkViolet
-    private _serverUrl: string = 'wss://eventsub-beta.wss.twitch.tv/ws'
+    private _serverUrl: string = 'wss://eventsub.wss.twitch.tv/ws'
     private _socket?: WebSockets
     private _sessionId: string = ''
     private _keepAliveSeconds: number = 0
@@ -178,7 +178,7 @@ export default class TwitchEventSub {
                     broadcaster_user_id: broadcasterId.toString(),
                     moderator_user_id: broadcasterId.toString()
                 },
-                'beta'
+                '2'
             )
             successes += await this.subscribe(
                 'channel.raid',

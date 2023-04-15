@@ -38,8 +38,10 @@ $db = DB::get();
 $lastOk = $from;
 $finishedOk = true;
 $finishedCount = 0;
+$dumpResult = false;
 if(count($files)) {
-    // TODO: Do MySQL dump backup here!
+    $dumpBytes = DB::dump();
+    $dumpResult = $dumpBytes > 0;
 }
 usort($files, function($a, $b) { return $a[0] <=> $b[0]; });
 foreach($files as $fileInfo) {
@@ -57,4 +59,4 @@ foreach($files as $fileInfo) {
 }
 
 // Output result
-Utils::outputJson((object) ['ok'=>$finishedOk, 'count'=>$finishedCount, 'id'=>$lastOk]);
+Utils::outputJson((object) ['ok'=>$finishedOk, 'count'=>$finishedCount, 'id'=>$lastOk, 'dump'=>$dumpResult]);
