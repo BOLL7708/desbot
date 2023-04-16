@@ -1,5 +1,5 @@
 import Utils from './Utils.js'
-import {IDiscordRateLimit, IDiscordResponseHeaders, IDiscordWebookPayload} from '../Interfaces/idiscord.js'
+import {IDiscordResponseHeaders, IDiscordWebookPayload} from '../Interfaces/idiscord.js'
 
 enum EResponseState {
     OK,
@@ -11,7 +11,7 @@ export default class DiscordUtils {
     // region Pipe
     private static _rateLimits: { [bucket: string]: IDiscordRateLimit } = {} // Bucket, limit?
     private static _rateLimitBuckets: { [url: string]: string } = {} // Url, Bucket
-    private static _messageQueues: { [url: string]: FormData[] } = {} // URL, Payloads
+    private static _messageQueues: { [url: string]: DiscordQueueItem[] } = {} // URL, Payloads
     private static readonly SEND_INTERVAL_MS = 500
     private static _messageIntervalHandle = setInterval(async ()=>{
         for(const [url, queue] of Object.entries(this._messageQueues)) {
@@ -22,15 +22,15 @@ export default class DiscordUtils {
 
                 // Could be > 0 remaining and > resetTimestamp, but to avoid error instances we slow things down.
                 if(rateLimit == null || (rateLimit.remaining > 1 || now > (rateLimit.resetTimestamp + DiscordUtils.SEND_INTERVAL_MS))) {
-                    const formData = queue.shift() ?? new FormData() // Fallback should not be necessary, but needed to fix the type.
-                    const result = await this.send(url, formData)
+                    const item = queue.shift() ?? new DiscordQueueItem() // Fallback should not be necessary, but needed to fix the type.
+                    const result = await this.send(url, item)
                     switch(result) {
                         case EResponseState.Retry:
-                            queue.unshift(formData) // Add item we just sent back onto the front of the queue.
-                            console.log('Discord: Retry', formData)
+                            queue.unshift(item) // Add item we just sent back onto the front of the queue.
+                            console.log('Discord: Retry', item)
                             break
                         case EResponseState.Skip:
-                            console.warn('Discord: Skipped', formData)
+                            console.warn('Discord: Skipped', item)
                             break
                     }
                 } else {
@@ -47,29 +47,32 @@ export default class DiscordUtils {
      * Enqueue a message to be sent to Discord.
      * @param url
      * @param formData
+     * @param callback
      */
     private static enqueue(
         url: string, 
-        formData: FormData
+        formData: FormData,
+        callback?: IDiscordQueueItemCallback
     ) {
         // Check if queue exists, if not, initiate it with the incoming data.
-        if (!this._messageQueues.hasOwnProperty(url)) this._messageQueues[url] = [formData]
-        else this._messageQueues[url].push(formData)
+        const item = new DiscordQueueItem(formData, callback)
+        if (!this._messageQueues.hasOwnProperty(url)) this._messageQueues[url] = [item]
+        else this._messageQueues[url].push(item)
     }
 
     /**
      * Main send function that transmits messages to Discord over webhoooks.
      * @param url
-     * @param formData
+     * @param item
      */
-    private static async send(url: string, formData: FormData): Promise<EResponseState> {
+    private static async send(url: string, item: DiscordQueueItem): Promise<EResponseState> {
         const options = {
             method: 'post',
-            body: formData
+            body: item.data
         }
         const response: Response = await fetch(url, options)
         if(response == null) {
-            console.warn('Discord: Catastrophic Failure', url, formData)
+            console.warn('Discord: Catastrophic Failure', url, item.data)
             return EResponseState.Skip
         }
         const headers: IDiscordResponseHeaders = {}
@@ -77,7 +80,7 @@ export default class DiscordUtils {
             headers[key] = header
         }
         if(headers['x-ratelimit-global']) {
-            console.warn('Discord: ratelimit was global, this is unexpected as it usually means the server is in a bad standing!', url, formData, headers)
+            console.warn('Discord: ratelimit was global, this is unexpected as it usually means the server is in a bad standing!', url, item.data, headers)
         }
         const bucket = headers["x-ratelimit-bucket"]
         if(bucket) {
@@ -87,14 +90,14 @@ export default class DiscordUtils {
             if(response.ok) {
                 const resetTimestamp = reset * 1000
                 this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
+                if(item.callback) item.callback(true)
                 return EResponseState.OK
             } else if(response.status == 429) {
                 this._rateLimits[bucket] = {remaining: 0, resetTimestamp: (reset+1) * 1000}
                 return EResponseState.Retry
-            } else {
-                return EResponseState.Skip
             }
         }
+        if(item.callback) item.callback(false)
         return EResponseState.Skip
     }
 
@@ -114,47 +117,56 @@ export default class DiscordUtils {
 
     /**
      * Used for Twitch Chat log and Twitch Reward redemptions
-     * @param url 
-     * @param displayName 
-     * @param iconUrl 
+     * @param url
+     * @param displayName
+     * @param iconUrl
      * @param message
+     * @param callback
      */
     static enqueueMessage(
         url: string, 
         displayName: string = 'N/A',
         iconUrl: string = '', 
-        message: string = ''
+        message: string = '',
+        callback?: IDiscordQueueItemCallback
     ) {
-        this.enqueue(url, this.getFormDataFromPayload({
-            username: displayName,
-            avatar_url: iconUrl,
-            content: message
-        }))
+        this.enqueue(
+            url,
+            this.getFormDataFromPayload({
+                username: displayName,
+                avatar_url: iconUrl,
+                content: message
+            }),
+            callback
+        )
     }
 
     /**
      * Used for Channel Trophy stats, Twitch clips and Steam achievements
-     * @param url 
+     * @param url
      * @param payload
-     * @returns 
+     * @param callback
+     * @returns
      */
     static enqueuePayload(
         url: string, 
-        payload: IDiscordWebookPayload
+        payload: IDiscordWebookPayload,
+        callback?: IDiscordQueueItemCallback
     ) {
-        this.enqueue(url, this.getFormDataFromPayload(payload))
+        this.enqueue(url, this.getFormDataFromPayload(payload), callback)
     }
 
     /**
      * Used for screenshots
-     * @param url 
-     * @param imageBlob 
-     * @param color 
-     * @param description 
-     * @param authorName 
-     * @param authorUrl 
-     * @param authorIconUrl 
+     * @param url
+     * @param imageBlob
+     * @param color
+     * @param description
+     * @param authorName
+     * @param authorUrl
+     * @param authorIconUrl
      * @param footerText
+     * @param callback
      */
     static enqueuePayloadEmbed(
         url: string, 
@@ -164,7 +176,8 @@ export default class DiscordUtils {
         authorName?: string,
         authorUrl?: string,
         authorIconUrl?: string,
-        footerText?: string
+        footerText?: string,
+        callback?: IDiscordQueueItemCallback
     ) {
         const formData = this.getFormDataFromPayload({
             username: authorName,
@@ -187,4 +200,22 @@ export default class DiscordUtils {
         this.enqueue(url, formData)
     }
     // endregion
+}
+
+export interface IDiscordQueueItemCallback {
+    (success: boolean): void
+}
+
+// Internal
+interface IDiscordRateLimit {
+    remaining: number
+    resetTimestamp: number
+}
+class DiscordQueueItem {
+    constructor(data?: FormData, callback?: IDiscordQueueItemCallback) {
+        if(data) this.data = data
+        if(callback) this.callback = callback
+    }
+    data = new FormData()
+    callback: IDiscordQueueItemCallback = (success: boolean)=>{}
 }

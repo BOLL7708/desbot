@@ -2,6 +2,7 @@ import Config from './Config.js'
 import {TKeys} from '../_data/!keys.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
+import {SettingUserVoice} from '../Objects/Setting/User.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -174,7 +175,15 @@ export default class Utils {
         }
     }
 
-
+    /**
+     * Used to check if an object from the database has filled an ID reference with an object or not.
+     * @param value
+     * @return The original value or undefined if it wasn't an object.
+     */
+    static ensureObjectNotId<Type>(value: number|Type): Type|undefined {
+        if(typeof value !== 'object' || value === null) return undefined
+        else return value
+    }
 
     static encode(str: string): string {
         let base64 = btoa(str)

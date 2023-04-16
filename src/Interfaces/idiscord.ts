@@ -54,12 +54,6 @@ export interface IDiscordEmbedField {
     inline?: boolean
 }
 
-// Internal
-export interface IDiscordRateLimit {
-    remaining: number
-    resetTimestamp: number
-}
-
 // Response rate-limit headers
 // https://discord.com/developers/docs/topics/rate-limits
 export interface IDiscordResponseHeaders {
