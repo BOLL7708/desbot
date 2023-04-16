@@ -165,9 +165,9 @@ export default class Utils {
 
     static ensureNumber(value: any, fallback: number = 0): number {
         switch(typeof value) {
-            case 'number': return value
+            case 'number': return isNaN(value) ? fallback : value
             case 'string':
-                const num = parseInt(value)
+                const num = parseFloat(value)
                 return isNaN(num) ? fallback : num
             case 'boolean': return value ? 1 : 0
             default: return fallback

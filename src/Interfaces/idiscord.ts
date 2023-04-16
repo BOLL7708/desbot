@@ -59,10 +59,6 @@ export interface IDiscordRateLimit {
     remaining: number
     resetTimestamp: number
 }
-export interface IDiscordQueue {
-    formData: FormData,
-    callback?: (success: boolean) => void
-}
 
 // Response rate-limit headers
 // https://discord.com/developers/docs/topics/rate-limits
