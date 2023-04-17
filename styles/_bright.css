@@ -3,8 +3,9 @@
     --main-background-color: #ffffff;
     --topbar-background-color: #f0f0f0;
     --sidebar-background-color: #e0e0e0;
+    --favoritesbar-background-color: #d0d0d0;
 
-    --topbar-link-hover: #d0d0d0;
+    --topbar-link-hover: #00000020;
     --topbar-link-active: #ffffff;
     --body-text-color: #000000;
     --border-color: #808080;

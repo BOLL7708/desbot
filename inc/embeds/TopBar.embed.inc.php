@@ -11,7 +11,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
     echo "<li><a href=\"$file\" title=\"$title\" $isCurrent $openInBlank>$label$badge</a></li>";
 }
 ?>
-<div id="menu-bar">
+<div id="menu-bar" class="hbar">
     <ul>
         <?php
         $scriptFile = Utils::getScriptFileName();
@@ -41,9 +41,11 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         <li><a href="index.php" id="topBarSignOutLink" title="Sign out of this page.">🔥 Sign out</a></li>
         <li><a href="#" id="topBarPageModeLink" title="Switch between bright and dark mode.">🌕/🌑</a></li>
     </ul>
-    <script type="module">
-        import TopBar from './dist/Pages/TopBar.js'
-        TopBar.attachSignOutClick('#topBarSignOutLink')
-        TopBar.attachPageModeClick('#topBarPageModeLink')
-    </script>
 </div>
+<div id="favorites-bar" class="hbar"></div>
+<script type="module">
+    import TopBar from './dist/Pages/TopBar.js'
+    TopBar.attachSignOutClick('#topBarSignOutLink')
+    TopBar.attachPageModeClick('#topBarPageModeLink')
+    TopBar.attachFavorites('#favorites-bar')
+</script>

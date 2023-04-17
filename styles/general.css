@@ -27,16 +27,18 @@ html, body {
     background-size: 32px;
     vertical-align: middle;
     height: 100%;
-
+    padding: 0 0 0 48px;
+}
+.hbar ul {
+    padding: 0;
     list-style-type: none;
     margin: 0;
-    padding: 0 0 0 48px;
     overflow: hidden;
 }
-#menu-bar li {
+.hbar > *, .hbar > * > * {
     float: left;
 }
-#menu-bar li a {
+.hbar li a {
     color: var(--body-text-color);
     font-weight: bold;
     display: block;
@@ -46,8 +48,7 @@ html, body {
     padding: 0.25em 0.5em;
     border-radius: 6px;
 }
-
-#menu-bar li a:hover {
+.hbar li a:hover {
     background-color: var(--topbar-link-hover);
 }
 .menu-bar-current, .menu-bar-current:hover {
@@ -59,6 +60,14 @@ html, body {
     font-weight: bold;
     border-radius: 4px;
     padding: 0.125em 0.25em;
+}
+
+/* Favorites Bar */
+#favorites-bar {
+    box-sizing: border-box;
+    background-color: var(--favoritesbar-background-color);
+    padding: 0.5em 1em;
+    border-bottom: 2px solid var(--border-color);
 }
 
 /* Page Container */

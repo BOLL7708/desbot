@@ -563,9 +563,24 @@ export default class JsonEditor {
         if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
 
         if(isRoot) { // Root object generates a key field
+
+            const bookmarkButton = document.createElement('button') as HTMLButtonElement
+            bookmarkButton.innerHTML = '⭐'
+            bookmarkButton.classList.add('inline-button')
+            const toggleFavorite = async(event: Event)=>{
+                const tag = await prompt('Set a bookmark title for this object')
+                if(tag && tag.length > 0) {
+                    this._config.favorites[tag] = this._rowId
+                    await DataBaseHelper.saveMain(this._config)
+                }
+            }
+            bookmarkButton.onclick = toggleFavorite
+            bookmarkButton.ontouchstart = toggleFavorite
+
             const optionsClone = Utils.clone(options)
             optionsClone.root = options.root
             optionsClone.extraChildren = options.extraChildren
+            optionsClone.extraChildren.push(bookmarkButton)
             optionsClone.data = `${options.key ?? ''}`
             optionsClone.origin = EOrigin.Single
             await this.buildField(EJsonEditorFieldType.String, optionsClone)
@@ -575,9 +590,11 @@ export default class JsonEditor {
                 const keyInput = document.createElement('code') as HTMLSpanElement
                 keyInput.contentEditable = 'false'
                 keyInput.innerHTML = pathKey.toString()
-                keyInput.onclick = (event)=>{
+                const editKey = (event: Event)=>{
                     this.promptForKey(options.path)
                 }
+                keyInput.onclick = editKey
+                keyInput.ontouchstart = editKey
                 newRoot.appendChild(keyInput)
             }
             // An array has a fixed index

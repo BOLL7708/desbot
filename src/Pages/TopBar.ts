@@ -1,10 +1,11 @@
 import Utils from '../Classes/Utils.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 import DataUtils from '../Classes/DataUtils.js'
+import {ConfigEditor} from '../Objects/Config/Editor.js'
 
 export default class TopBar {
     static attachSignOutClick(elementId: string) {
-        const a = document.querySelector(elementId) as HTMLLinkElement
+        const a = document.querySelector<HTMLLinkElement>(elementId)
         if(a) {
             function signOut(e: Event) {
                 Utils.clearAuth()
@@ -14,10 +15,10 @@ export default class TopBar {
         }
     }
     static attachPageModeClick(elementId: string) {
-        const a = document.querySelector(elementId) as HTMLLinkElement
+        const a = document.querySelector<HTMLLinkElement>(elementId)
         if(a) {
             const dataFile = 'page_mode.json'
-            const styleTag = document.querySelector('#link-page-mode-stylesheet') as HTMLLinkElement
+            const styleTag = document.querySelector<HTMLLinkElement>('#link-page-mode-stylesheet')
             async function togglePageMode() {
                 if(styleTag) {
                     const currentMode = Utils.toBool(await DataUtils.readData(dataFile))
@@ -27,6 +28,31 @@ export default class TopBar {
             }
             a.onclick = togglePageMode
             a.ontouchstart = togglePageMode
+        }
+    }
+    static async attachFavorites(elementId: string) {
+        const div = document.querySelector<HTMLDivElement>(elementId)
+        if(div) {
+            const editorConfig = await DataBaseHelper.loadMain(new ConfigEditor())
+            const favorites = editorConfig.favorites
+            const items: HTMLElement[] = [buildFavorite('🔨 Config', 0, 'editor.php?g=c&c=ConfigEditor&k=Main')]
+            if(Object.keys(favorites).length > 0) {
+                for(const [name, id] of Object.entries(favorites)) {
+                    items.push(buildFavorite(`⭐ ${name}`, id))
+                }
+            }
+            const ul = document.createElement('ul') as HTMLUListElement
+            ul.replaceChildren(...items)
+            div.appendChild(ul)
+        }
+
+        function buildFavorite(name: string, id: number, url?: string): HTMLSpanElement {
+            const li = document.createElement('li') as HTMLLIElement
+            const a = document.createElement('a') as HTMLAnchorElement
+            a.href = url ?? `editor.php?id=${id}`
+            a.innerHTML = name
+            li.appendChild(a)
+            return li
         }
     }
 }

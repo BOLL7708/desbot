@@ -434,6 +434,10 @@ export default class DataBaseHelper {
         return !!key
     }
 
+    static async saveMain<T>(setting: T&BaseDataObject, parentId?: number): Promise<boolean> {
+        return this.save(setting, this.OBJECT_MAIN_KEY, undefined, parentId)
+    }
+
     /**
      * Delete specific setting
      * @param emptyInstance Instance of the class to delete.
