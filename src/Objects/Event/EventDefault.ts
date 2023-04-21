@@ -26,7 +26,7 @@ export class EventOptions extends BaseDataObject {
 }
 export class EventActionContainer extends BaseDataObject {
     delayMs: number = 0
-    timeMs: number = 0
+    delayMs_orTimeMs: number = 0
     entries: (number|BaseDataObject)[] = []
 }
 
@@ -67,8 +67,7 @@ DataObjectMap.addSubInstance(new EventOptions(),
 
 DataObjectMap.addSubInstance(new EventActionContainer(),
     {
-        delayMs: 'Set this to execute this batch of actions a set delay after the previous batch, can get overridden by `_timeMs`.',
-        timeMs: 'Set this to execute this batch of actions at a specific time in a timeline, overrides the delay.',
+        delayMs: 'Set delay to execute this batch a certain amount of time after the previous batch, or set time to execute it at an absolute point in time.',
         entries: 'The actions that will run.'
     },
     {

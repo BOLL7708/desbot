@@ -35,7 +35,7 @@
     --editable-border-hover: #808080;
     --editable-background-focus: #fafad2;
     --disabled-border-color: #d3d3d3;
-    --disabled-text-color: #808080;
+    --disabled-text-color: #00000080;
     --disabled-background-color: #eeeeee;
 
     /* Editor */

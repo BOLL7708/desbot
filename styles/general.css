@@ -201,8 +201,8 @@ span[contenteditable]:hover, code[contenteditable]:hover {
 span[contenteditable]:focus, code[contenteditable]:focus {
     background-color: var(--editable-background-focus);
 }
-span.disabled, code.disabled {
+span.disabled, code.disabled, button.disabled, button.disabled:hover {
     border-color: var(--disabled-border-color);
     color: var(--disabled-text-color);
-    background-color: var(--disabled-background-color);
+    background-color: var(--disabled-background-color) !important;
 }

@@ -11,6 +11,8 @@ export class TriggerCommand extends BaseDataObject {
     helpTitle: string = ''
     helpInput: string[] = []
     helpText: string = ''
+    globalCooldown: number = 0
+    userCooldown: number = 0
 }
 
 DataObjectMap.addRootInstance(new TriggerCommand(),
@@ -23,7 +25,9 @@ DataObjectMap.addRootInstance(new TriggerCommand(),
         requireMinimumWordCount: 'Require this command to include at least this number of words to get triggered.',
         helpTitle: 'A title that is used when posting all help to Discord, is inserted above this command.',
         helpInput: 'Input values for the command, used to build the help text.',
-        helpText: 'Description that is used for help documentation.'
+        helpText: 'Description that is used for help documentation.',
+        globalCooldown: 'The number of seconds before this can be used again, by anyone.',
+        userCooldown: 'The number of seconds before this can be used again, by the same user.'
     },
     {
         entries: 'string',
