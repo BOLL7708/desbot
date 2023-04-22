@@ -7,14 +7,15 @@ import {EnumTwitchRewardUsable, EnumTwitchRewardVisible} from '../../Enums/Twitc
 
 export class ActionSystem extends BaseDataObject {
     triggerCommandEntries: string[] = []
-    triggerCommandEntriesType = EnumEntryUsage.First
+    triggerCommandEntries_type = EnumEntryUsage.First
     triggerEventEntries: number|EventDefault = 0
-    triggerEventEntriesType = EnumEntryUsage.First
+    triggerEventEntries_type = EnumEntryUsage.First
     triggerInterval: number = 0
     toggleRewardStates: ActionSystemRewardState[] = []
 }
 export class ActionSystemRewardState extends BaseDataObject {
     reward: number|SettingTwitchReward = 0
+    reward_orEvent: number|EventDefault = 0
     visible = EnumTwitchRewardVisible.Enable
     usable = EnumTwitchRewardUsable.Unpause
 }
@@ -30,21 +31,22 @@ DataObjectMap.addRootInstance(
     },
     {
         triggerCommandEntries: 'string',
-        triggerCommandEntriesType: EnumEntryUsage.ref(),
+        triggerCommandEntries_type: EnumEntryUsage.ref(),
         triggerEventEntries: EventDefault.refId(),
-        triggerEventEntriesType: EnumEntryUsage.ref(),
+        triggerEventEntries_type: EnumEntryUsage.ref(),
         toggleRewardStates: ActionSystemRewardState.ref()
     }
 )
 DataObjectMap.addSubInstance(
     new ActionSystemRewardState(),
     {
-        reward: 'The reward to set the state for.',
+        reward: 'The reward to set the state for, or the event containing the reward.',
         visible: 'If the reward should be visible.',
         usable: 'If the reward should be redeemable.'
     },
     {
         reward: SettingTwitchReward.refIdLabel('key'),
+        reward_orEvent: EventDefault.refIdKey(),
         visible: EnumTwitchRewardVisible.ref(),
         usable: EnumTwitchRewardUsable.ref()
     }

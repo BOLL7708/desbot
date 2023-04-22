@@ -145,11 +145,14 @@ select {
 }
 
 /* Buttons */
+.button, .main-button {
+    color: var(--button-text-color);
+    background-color: var(--button-main-background-color);
+}
 .main-button {
+    color: var(--button-main-text-color);
     padding: 0.25em 1em;
     font-weight: bold;
-    color: var(--button-main-text-color);
-    background-color: var(--button-main-background-color);
 }
 .inline-button {
     color: var(--button-inline-text-color);
@@ -157,13 +160,13 @@ select {
     border: 2px solid transparent;
     filter: saturate(0.5);
 }
-.main-button:hover, .inline-button:hover {
+.button:hover, .main-button:hover, .inline-button:hover {
     color: var(--button-main-text-hover);
     background-color: var(--button-main-background-hover) !important;
     border-color: var(--button-main-border-hover);
     filter: saturate(1);
 }
-.main-button:active, .inline-button:active {
+.button:active, .main-button:active, .inline-button:active {
     transform: translate(0,2px)
 }
 

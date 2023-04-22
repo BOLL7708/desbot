@@ -16,83 +16,126 @@ export default class DefaultsHandler {
             An import can be a class and subclasses. Basically a structure, think event + triggers + actions, possibly also presets.
             Some imports might actually depends on some presets... like permissions. Make this into a "MakeFile" system?
             Some imports needs an advanced run: create event, get ID to use as parents for triggers and actions, update event with those references... shit.
-
-
-         TODO:
-           Add tooltips to the buttons.
          */
+        await DefaultsHandler.updatePage()
+    }
 
+    private static async updatePage() {
         const container = document.querySelector('#defaults-container') as HTMLDivElement
         const children: HTMLElement[] = []
-        children.push(...await this.buildSection(DefaultObjects.PREREQUISITES))
-        children.push(...await this.buildSection(DefaultObjects.COMMANDS))
+
+        const mandatoryExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.MANDATORY_ENTRIES)
+        children.push(await DefaultsHandler.buildImportButton(DefaultObjects.MANDATORY_ENTRIES, 'Mandatory'))
+        if(mandatoryExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BONUS_ENTRIES, 'Bonus'))
+        children.push(...await DefaultsHandler.buildSection(DefaultObjects.MANDATORY_ENTRIES))
+        if(mandatoryExists) children.push(...await DefaultsHandler.buildSection(DefaultObjects.BONUS_ENTRIES))
+
         container.replaceChildren(...children)
     }
 
-    private async buildSection(parentList: IDefaultObjectList): Promise<HTMLElement[]> {
+    private static buildImportButton(items: IDefaultObjectList, label: string): HTMLElement {
+        const button = document.createElement('button') as HTMLButtonElement
+        button.onclick = importMandatory
+        button.ontouchstart = importMandatory
+        button.innerHTML = `✨ Import missing ${label} items`
+        button.classList.add('main-button', 'new-button')
+        button.title = `Import all ${label} items that have not already been imported.`
+        const importMandatoryStatus = document.createElement('span') as HTMLSpanElement
+        async function importMandatory() {
+            await DefaultsHandler.importItems(items, importMandatoryStatus)
+            await DefaultsHandler.updatePage()
+        }
+        return button
+    }
+
+    private static async buildSection(parentList: IDefaultObjectList): Promise<HTMLElement[]> {
         const children: HTMLElement[] = []
         for(const [category, list] of Object.entries(parentList)) {
             const p = document.createElement('p') as HTMLParagraphElement
             const strong = document.createElement('strong') as HTMLSpanElement
             strong.innerHTML = `${Utils.camelToTitle(category)} (${list.length}) `
             p.appendChild(strong)
-
-            const importAllButton = document.createElement('button') as HTMLButtonElement
-            importAllButton.onclick = importAllItems
-            importAllButton.ontouchstart = importAllItems
-            importAllButton.innerHTML = `✨ Import All`
-            importAllButton.classList.add('main-button', 'new-button')
-            importAllButton.title = 'Import all the not already imported entries below.'
-            async function importAllItems() {
-                for(const item of list) {
-                    const existingItem = await DataBaseHelper.loadItem(item.instance, item.key)
-                    if(!existingItem) {
-                        await item.importer(item.instance, item.key)
-                    }
-                }
-                window.location.reload()
-            }
-            p.appendChild(importAllButton)
             p.appendChild(document.createElement('br'))
 
             for(const item of list) {
-                const button = await this.buildButton(item)
-                p.appendChild(button)
+                p.appendChild(await DefaultsHandler.buildItem(p, item))
             }
             children.push(p)
         }
         return children
     }
 
-
-
-    private async buildButton(item: IDefaultObject): Promise<HTMLElement> {
-        const existingItem = await DataBaseHelper.loadItem(item.instance, item.key)
-        const icon = existingItem ? '✅' : '✨'
-
-        const title = `${icon} ${Utils.camelToTitle(item.key)}`
-        const button = document.createElement('button') as HTMLButtonElement
-        button.classList.add('main-button')
-        if(existingItem) {
-            button.classList.add('disabled')
-            button.disabled = true
-        } else {
-            button.classList.add('new-button')
-        }
-        button.innerHTML = title
-        async function importItem() {
-            const success = await item.importer(item.instance, item.key)
-            if(success) {
-                button.onclick = null
-                button.ontouchstart = null
-                button.disabled = true
-                button.classList.add('disabled')
+    private static async checkIfItemsExists(entries: IDefaultObjectList): Promise<boolean> {
+        for(const list of Object.values(entries)) {
+            for(const item of list) {
+                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key)
+                if(!existingItem) return false
             }
         }
-        button.onclick = importItem
-        button.ontouchstart = importItem
+        return true
+    }
 
-        // TODO: Make this detect if already imported, otherwise provide click.
+    private static async importItems(entries: IDefaultObjectList, status: HTMLElement) {
+        let total = 0
+        let ok = 0
+        for(const [listName, list] of Object.entries(entries)) {
+            for(const item of list) {
+                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key)
+                if(!existingItem) {
+                    total++
+                    const message = `(${ok}/${total}) ${listName}:${item.instance.constructor.name}:${item.key}`
+                    status.innerHTML = `${message} Importing...`
+                    const imported = await item.importer(item.instance, item.key)
+                    await DefaultsHandler.updateButton(item, imported)
+                    if(imported) {
+                        ok++
+                        status.innerHTML = `${message} Imported!`
+                    } else {
+                        status.innerHTML = `${message} Failed import!`
+                    }
+                }
+            }
+        }
+        status.innerHTML = ''
+    }
+
+    private static async updateButton(item: IDefaultObject, exists: boolean, buttonElement?: HTMLButtonElement) {
+        const id = this.getButtonId(item)
+        const button = buttonElement ?? document.querySelector(`#${id}`) as HTMLButtonElement
+        if(button) {
+            button.classList.add('button')
+            button.innerHTML = getLabel(exists)
+            if(exists) {
+                button.title = 'Navigate to item'
+                button.classList.remove('disabled')
+                button.onclick = navigateToItem
+                button.ontouchstart = navigateToItem
+            } else {
+                button.title = 'Item not available.'
+                button.classList.add('disabled')
+                button.disabled = true
+                button.onclick = null
+                button.ontouchstart = null
+            }
+        }
+        async function navigateToItem() {
+            const id = await DefaultObjects.loadID(item.instance, item.key)
+            window.location.href = `./editor.php?id=${id}`
+        }
+        function getLabel(exists: boolean) {
+            const icon = exists ? '✅' : '❌'
+            return `${icon} ${Utils.camelToTitle(item.key)}`
+        }
+    }
+
+    private static async buildItem(root: HTMLElement, item: IDefaultObject): Promise<HTMLElement> {
+        const exists = !!(await DataBaseHelper.loadItem(item.instance, item.key))
+        const button = document.createElement('button') as HTMLButtonElement
+        button.id = this.getButtonId(item)
+        await this.updateButton(item, exists, button)
         return button
+    }
+    private static getButtonId(item: IDefaultObject) {
+        return `${item.instance.constructor.name}-${item.key}`.replace(/[\s&]/g, '').toLowerCase()
     }
 }

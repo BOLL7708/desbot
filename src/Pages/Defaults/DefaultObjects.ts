@@ -9,14 +9,23 @@ import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {ActionChat} from '../../Objects/Action/ActionChat.js'
+import {PresetReward} from '../../Objects/Preset/Reward.js'
+import {ActionSystem, ActionSystemRewardState} from '../../Objects/Action/ActionSystem.js'
+import {EnumTwitchRewardUsable, EnumTwitchRewardVisible} from '../../Enums/Twitch.js'
 
 enum EKeys {
+    // region Presets
     PermissionsStreamer = '1 Streamer',
     PermissionsModerators = '2 Moderators',
     PermissionsSubscribers = '3 Subscribers',
     PermissionsVIPs = '4 VIPs',
     PermissionsEveryone = '5 Everyone',
 
+    RewardSpeak = 'Reward Speak',
+    RewardSetVoice = 'Reward Set Voice',
+    // endregion
+
+    // region Events
     TtsOn = 'Command TTS On',
     TtsOff = 'Command TTS Off',
     TtsSilence = 'Command TTS Silence',
@@ -28,13 +37,14 @@ enum EKeys {
     TtsGender = 'Command TTS Gender',
     TtsSpeak = 'Reward TTS Speak',
     TtsSay = 'Command TTS Say',
-    TtsSetVoice = 'Command TTS Set Voice',
+    TtsSetVoice = 'Command & Reward TTS Set Voice',
     TtsGetNick = 'Command TTS Get Nick',
     TtsGetVoice = 'Command TTS Get Voice',
     TtsVoices = 'Command TTS Voices',
     DictionarySetWord = 'Command Dictionary Set Word',
     DictionaryGetWord = 'Command Dictionary Get Word',
     DictionaryClearWord = 'Command Dictionary Clear Word'
+    // endregion
 }
 
 export default class DefaultObjects {
@@ -59,8 +69,8 @@ export default class DefaultObjects {
         }
      */
 
-    static readonly PREREQUISITES: IDefaultObjectList = {
-        permissions: [
+    static readonly MANDATORY_ENTRIES: IDefaultObjectList = {
+        permissionPresets: [
             {
                 key: EKeys.PermissionsStreamer,
                 instance: new PresetPermissions(),
@@ -122,49 +132,37 @@ export default class DefaultObjects {
                 }
             }
         ],
-        rewards: [
+        rewardPresets: [
             // TODO: Add some rewards presets for things in the TTS etc.
-        ]
-    }
-    static readonly COMMANDS: IDefaultObjectList = {
-        textToSpeech: [
             {
-                key: EKeys.TtsOn,
-                instance: new EventDefault(),
-                importer: async (instance: EventDefault, key)=>{
-                    const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
-                    trigger.entries.push('ttson')
-                    trigger.helpTitle = 'Text To Speech'
-                    trigger.helpText = 'Turn ON global TTS for Twitch chat.'
-
-                    const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.Enable
-                    const actionSpeech = new ActionSpeech()
-                    actionSpeech.entries.push('TTS enabled.')
-                    // TODO: Toggling the reward might be something people will have to add manually.
-
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                key: EKeys.RewardSpeak,
+                instance: new PresetReward(),
+                importer: async (instance: PresetReward, key)=>{
+                    instance.title = '💬 Speak'
+                    instance.cost = 5
+                    instance.prompt = 'Your message is read aloud.'
+                    instance.background_color = '#AAAAAA'
+                    instance.is_user_input_required = true
+                    instance.should_redemptions_skip_request_queue = true
+                    return await DataBaseHelper.save(instance, key)
                 }
-            },{
-                key: EKeys.TtsOff,
-                instance: new EventDefault(),
-                importer: async (instance: EventDefault, key)=>{
-                    const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
-                    trigger.entries.push('ttsoff')
-                    trigger.helpTitle = 'Text To Speech'
-                    trigger.helpText = 'Turn OFF global TTS for Twitch chat.'
-
-                    const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.Disable
-                    const actionSpeech = new ActionSpeech()
-                    actionSpeech.entries.push('TTS disabled.')
-                    // TODO: Toggling the reward might be something people will have to add manually.
-
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+            },            {
+                key: EKeys.RewardSetVoice,
+                instance: new PresetReward(),
+                importer: async (instance: PresetReward, key)=>{
+                    instance.title = '👄 Set Your Voice'
+                    instance.cost = 5
+                    instance.prompt = 'Change your speaking voice, see the About section for options.'
+                    instance.background_color = '#AAAAAA'
+                    instance.is_user_input_required = true
+                    instance.should_redemptions_skip_request_queue = true
+                    return await DataBaseHelper.save(instance, key)
                 }
-            },{
+            }
+        ],
+        textToSpeechEvents: [
+            // region Actions
+            {
                 key: EKeys.TtsSilence,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
@@ -284,7 +282,8 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerReward()
-                    // TODO: Need to do proper reward handling. Should probably make presets first.
+                    trigger.rewardEntries.push(await DefaultObjects.loadID(new PresetReward(), EKeys.RewardSpeak))
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
 
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
@@ -296,8 +295,11 @@ export default class DefaultObjects {
                 key: EKeys.TtsSay,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
-                    const trigger = new TriggerReward()
-                    // TODO: Need to do proper reward handling. Should probably make presets first.
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('say')
+                    trigger.helpInput.push('message')
+                    trigger.helpText = 'Speaks a message with TTS without announcing any user.'
 
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
@@ -310,7 +312,8 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const triggerReward = new TriggerReward()
-                    // TODO: Need to do proper reward handling. Should probably make presets first.
+                    triggerReward.rewardEntries.push(await DefaultObjects.loadID(new PresetReward(), EKeys.RewardSetVoice))
+                    triggerReward.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     const triggerCommand = new TriggerCommand()
                     triggerCommand.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     triggerCommand.entries.push('voice', 'setvoice')
@@ -387,7 +390,53 @@ export default class DefaultObjects {
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
+            },{
+                key: EKeys.TtsOn,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('ttson')
+                    trigger.helpTitle = 'Text To Speech'
+                    trigger.helpText = 'Turn ON global TTS for Twitch chat.'
+
+                    const actionTTS = new ActionSettingTTS()
+                    actionTTS.functionType = EnumTTSFunctionType.Enable
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('TTS enabled.')
+                    const actionSystem = new ActionSystem()
+                    const rewardState = new ActionSystemRewardState()
+                    rewardState.reward_orEvent = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
+                    rewardState.visible = EnumTwitchRewardVisible.Disable
+                    actionSystem.toggleRewardStates.push(rewardState)
+
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
+                }
+            },{
+                key: EKeys.TtsOff,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('ttsoff')
+                    trigger.helpTitle = 'Text To Speech'
+                    trigger.helpText = 'Turn OFF global TTS for Twitch chat.'
+
+                    const actionTTS = new ActionSettingTTS()
+                    actionTTS.functionType = EnumTTSFunctionType.Disable
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('TTS disabled.')
+                    const actionSystem = new ActionSystem()
+                    const rewardState = new ActionSystemRewardState()
+                    rewardState.reward_orEvent = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
+                    rewardState.visible = EnumTwitchRewardVisible.Enable
+                    actionSystem.toggleRewardStates.push(rewardState)
+
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
+                }
             },
+            // endregion
+
             // region Dictionary
             {
                 key: EKeys.DictionarySetWord,
@@ -446,16 +495,17 @@ export default class DefaultObjects {
             // endregion
         ]
     }
-    static readonly REWARDS: IDefaultObjectList = {
-
+    static readonly BONUS_ENTRIES: IDefaultObjectList = {
+        bonus: []
     }
+
     static async loadID<T>(instance: T&BaseDataObject, key: string): Promise<number> {
         const item = await DataBaseHelper.loadItem(instance, key)
         return item?.id ?? 0
     }
     static async saveSubAndGetID<T>(instance: T&BaseDataObject, key: string, parentId: number = 0): Promise<number> {
         const subKey = this.buildKey(instance, key)
-        return await this.saveAndGetID(instance, subKey)
+        return await this.saveAndGetID(instance, subKey, parentId)
     }
     static async saveAndGetID<T>(instance: T&BaseDataObject, key: string, parentId: number = 0): Promise<number> {
         await DataBaseHelper.save(instance, key, undefined, parentId)
