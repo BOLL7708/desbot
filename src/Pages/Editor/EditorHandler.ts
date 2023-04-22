@@ -119,6 +119,10 @@ export default class EditorHandler {
                 if(event.cancelable) event.preventDefault()
                 this._editorSaveButton?.click()
             }
+            if(event.key == 'Delete' && event.shiftKey) {
+                if(event.cancelable) event.preventDefault()
+                this._editorDeleteButton?.click()
+            }
         }
     }
 
@@ -159,6 +163,7 @@ export default class EditorHandler {
     private _contentDiv: HTMLDivElement|undefined
     private _editor: JsonEditor|undefined
     private _editorSaveButton: HTMLButtonElement|undefined
+    private _editorDeleteButton: HTMLButtonElement|undefined
     private async buildEditorControls(
         group: string,
         selectKey: string = '',
@@ -322,6 +327,7 @@ export default class EditorHandler {
                 }
             }
         }
+        this._editorDeleteButton = editorDeleteButton
 
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement

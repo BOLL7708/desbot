@@ -34,18 +34,20 @@ export default class DefaultsHandler {
     }
 
     private static buildImportButton(items: IDefaultObjectList, label: string): HTMLElement {
+        const p = document.createElement('p') as HTMLParagraphElement
         const button = document.createElement('button') as HTMLButtonElement
         button.onclick = importMandatory
         button.ontouchstart = importMandatory
         button.innerHTML = `✨ Import missing ${label} items`
         button.classList.add('main-button', 'new-button')
         button.title = `Import all ${label} items that have not already been imported.`
-        const importMandatoryStatus = document.createElement('span') as HTMLSpanElement
+        const status = document.createElement('span') as HTMLSpanElement
         async function importMandatory() {
-            await DefaultsHandler.importItems(items, importMandatoryStatus)
+            await DefaultsHandler.importItems(items, status)
             await DefaultsHandler.updatePage()
         }
-        return button
+        p.replaceChildren(button, status)
+        return p
     }
 
     private static async buildSection(parentList: IDefaultObjectList): Promise<HTMLElement[]> {
