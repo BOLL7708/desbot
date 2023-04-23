@@ -33,6 +33,7 @@ import {ConfigRelay} from '../../Objects/Config/Relay.js'
 import WebSockets from '../../Classes/WebSockets.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/User.js'
+import ConfigOBS from '../../Objects/Config/OBS.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -391,8 +392,9 @@ export default class Callbacks {
 
                 // Discord
                 if(discordCfg) {
+                    const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
-                    const gameTitle = gameData ? gameData.name : Config.obs.sourceScreenshotConfig.discordGameTitle
+                    const gameTitle = gameData ? gameData.name : obsConfig.sourceScreenshotConfig.discordGameTitle
                     const description = requestData.userInput
                     const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                     const authorIconUrl = userData?.profile_image_url ?? ''
@@ -401,7 +403,7 @@ export default class Callbacks {
                     )
                     const descriptionText = description?.trim().length > 0
                         ? TextHelper.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
-                        : Config.obs.sourceScreenshotConfig.discordDescription
+                        : obsConfig.sourceScreenshotConfig.discordDescription
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
                     DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
                 }

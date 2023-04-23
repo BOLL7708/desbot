@@ -2,7 +2,6 @@ import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IEventsConfig} from '../Interfaces/ievents.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
-import {IObsConfig} from '../Interfaces/iobs.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
@@ -27,7 +26,6 @@ export default class Config {
     static controller: IControllerConfig
     static events: IEventsConfig
     static eventsForGames: {[game: string]: IEventsConfig}
-    static obs: IObsConfig
     static screenshots: IScreenshotConfig
     static audioplayer: IAudioPlayerConfig
     static twitchChat: ITwitchChatConfig

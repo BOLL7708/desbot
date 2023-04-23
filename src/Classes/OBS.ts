@@ -5,22 +5,26 @@ import Config from './Config.js'
 import {ISceneChangeCallback, ISourceScreenshotCallback} from '../Interfaces/iobs.js'
 import {TKeys} from '../_data/!keys.js'
 import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
+import ConfigOBS from '../Objects/Config/OBS.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
 export default class OBS {
-    private _socket: WebSockets
-    private _config = Config.obs;
-    private _messageCounter: number = 10;
+    private _socket?: WebSockets
+    private _config = new ConfigOBS()
+    private _messageCounter: number = 10
     private _screenshotRequests: Map<string, IScreenshotRequestData> = new Map()
     constructor() {
+
+    }
+    async init() {
+        this._config = await DataBaseHelper.loadMain(new ConfigOBS())
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, false)
         this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onMessage = this.onMessage.bind(this)
-    }
-    init() {
         this._socket.init()
     }
     private onOpen(evt: Event) {
-        this._socket.send(this.buildRequest("GetAuthRequired", '1', {}))
+        this._socket?.send(this.buildRequest("GetAuthRequired", '1', {}))
     }
     private onMessage(evt: MessageEvent) {
         const data = JSON.parse(evt.data)
@@ -34,13 +38,13 @@ export default class OBS {
 			case '1':
                 Utils.sha256(Config.credentials.OBSPassword + data.salt).then(secret => {
                     Utils.sha256(secret + data.challenge).then(authResponse => {
-                        this._socket.send(this.buildRequest("Authenticate", '2', {auth: authResponse}));
+                        this._socket?.send(this.buildRequest("Authenticate", '2', {auth: authResponse}));
                     })
                 })
 				break
 			case '2':
 				console.log(`OBS auth: ${data.status}`)
-				if(data.status != "ok") this._socket.disconnect()
+				if(data.status != "ok") this._socket?.disconnect()
 				break
 			default: 
                 switch(updateType) {
@@ -69,20 +73,23 @@ export default class OBS {
 
     show(config: IObsAction|undefined, ignoreDuration: boolean = false) {
         if(config?.sceneNames != undefined) { // If we have scenes, it would be sources we toggle.
-            const group = Config.obs.sourceGroups.find(group => group.includes(config.key ?? 'Unknown'))
+            // TODO: Make this work with the keys for events, not the old keys.
+            const group = Object.values(this._config.sourceEventGroups).find(group => group.members.includes(config.key ?? 'Unknown'))
             if(group) { // If this source is in a group, hide all other sources in the group. Useful for sources sharing a single position on screen.
-                for(const k of group) {
+                for(const k of group.members) {
                     if(k != config.key) {
+                        /*
                         const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actionsEntries)
                         for(const actions of actionsArr) {
                             this.hide(actions?.obs)
                         }
+                        */
                     }
                 }
             }
             for(const sceneName of config.sceneNames) {
                 for(const src of Utils.ensureArray(config.sourceName)) {
-                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
+                    this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
                         "scene-name": sceneName,
                         "item": src,
                         "visible": true
@@ -91,19 +98,22 @@ export default class OBS {
             }
         } else if(config?.filterName != undefined) {
             // If this filter is in a group, hide all the other ones, useful for audio filters that should not overlap.
-            const group = Config.obs.filterGroups.find(group => group.includes(config.key ?? 'Unknown'))
+            // TODO: Make this work with the keys for events, not the old keys.
+            const group = Object.values(this._config.filterEventGroups).find(group => group.members.includes(config.key ?? 'Unknown'))
             if(group) {
-                for(const k of group) {
+                for(const k of group.members) {
+                    /*
                     if(k != config.key) {
                         const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actionsEntries)
                         for(const actions of actionsArr) {
                             this.hide(actions?.obs)
                         }
                     }
+                    */
                 }
             }
             for(const src of Utils.ensureArray(config.sourceName)) {
-                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
+                this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
                     "sourceName": src,
                     "filterName": config.filterName,
                     "filterEnabled": true
@@ -120,7 +130,7 @@ export default class OBS {
         if(config?.sceneNames) {
             for(const sceneName of config.sceneNames) {
                 for(const src of Utils.ensureArray(config.sourceName)) {
-                    this._socket.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
+                    this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
                         "scene-name": sceneName,
                         "item": src,
                         "visible": false
@@ -129,7 +139,7 @@ export default class OBS {
             }
         } else if (config?.filterName) {
             for(const src of Utils.ensureArray(config.sourceName)) {
-                this._socket.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
+                this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
                     "sourceName": src,
                     "filterName": config.filterName,
                     "filterEnabled": false
@@ -166,7 +176,7 @@ export default class OBS {
         const user = requestData.userName.length > 0 ? `_${requestData.userName}` : ''
         this._screenshotRequests.set(id, requestData)
         setTimeout(async ()=>{
-            this._socket.send(
+            this._socket?.send(
                 this.buildRequest("TakeSourceScreenshot", id, {
                     "sourceName": sourceName,
                     "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,

@@ -24,7 +24,7 @@ export class ConfigSpeechWordToAudio extends BaseDataObject {
 
 DataObjectMap.addRootInstance(
     new ConfigSpeech(),
-    'These are settings for the Google Text-to-Speech API.',
+    'These are settings for the Google Text-to-Speech API.\nGo here for more details: https://cloud.google.com/text-to-speech/docs/before-you-begin',
     {
         googleApiKey: 'API key for the Google Cloud Platform: Text To Speech API.',
         speakerTimeoutMs: 'This is the amount of time between two utterances that can pass before a person\'s name will be said again.',

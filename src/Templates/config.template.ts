@@ -2,7 +2,6 @@ import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
-import {IObsConfig} from '../Interfaces/iobs.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
@@ -183,30 +182,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
             }
             */
         }
-    }
-}
-
-/*
-..#######..########...######.
-.##.....##.##.....##.##....##
-.##.....##.##.....##.##......
-.##.....##.########...######.
-.##.....##.##.....##.......##
-.##.....##.##.....##.##....##
-..#######..########...######.
-*/
-Config.obs = <IObsConfig> { // Toggle sources in OBS on and off with the obs-websocket plugin.
-    port: 4445,
-    sourceGroups: [],
-    filterGroups: [],
-    filterOnScenes: [''], // WIP
-    sourceScreenshotConfig: {
-        embedPictureFormat: 'png',
-        saveToFilePath: 'C:\\A file path\\on your\\disk\\',
-		discordDescription: 'OBS Screenshot',
-        discordGameTitle: 'Your Game',
-        signTitle: 'Screenshot',
-        signDurationMs: 10000
     }
 }
 
