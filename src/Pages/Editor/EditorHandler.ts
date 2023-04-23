@@ -185,7 +185,8 @@ export default class EditorHandler {
 
         // Description
         const description = document.createElement('p') as HTMLParagraphElement
-        description.innerHTML = DataObjectMap.getMeta(group)?.description ?? 'No description.'
+        const descriptionText = DataObjectMap.getMeta(group)?.description ?? 'No description.'
+        description.innerHTML = this.linkifyDescription(descriptionText)
 
         // Dropdown & editor
         const editorContainer = document.createElement('div') as HTMLDivElement
@@ -457,6 +458,15 @@ export default class EditorHandler {
             if(this._containerDiv) this._containerDiv.style.filter = ''
             if(this._coverDiv) this._coverDiv.style.display = 'none'
         }
+    }
+
+    private linkifyDescription(descriptionText: string) {
+        const re = /(https?:\/\/\S*)\w/ig
+        let text = descriptionText.replace(re, (str)=>{
+            const label = str.split('//').pop()
+            return `<a href="${str}" target="_blank">${label ?? str}</a>`
+        })
+        return text.replace(/\n/g, '<br/>')
     }
 }
 

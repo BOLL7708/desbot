@@ -15,7 +15,7 @@ export class ConfigSteam extends BaseDataObject {
 
 DataObjectMap.addRootInstance(
     new ConfigSteam(),
-    'Loading player and game data from the Steam Web API requires API keys set in credentials.\nGet your Steam Web API Key here: https://steamcommunity.com/dev\nGet your Steam User ID in any of these places: https://steamid.io https://www.steamidfinder.com',
+    'Loading player and game data from the Steam Web API requires API keys set in credentials.\nGet your Steam Web API Key here: https://steamcommunity.com/dev\nGet your Steam User ID from https://steamid.io or https://www.steamidfinder.com.',
     {
         steamWebApiKey: 'API Key for loading Steam user data.',
         steamUserId: 'The decimal 64bit ID of the Steam user to load data for.\nSee main description for where to get this.',
