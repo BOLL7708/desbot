@@ -1,0 +1,4 @@
+:root {
+    --censored-text-color: transparent;
+    --censored-background-color: var(--body-text-color);
+}

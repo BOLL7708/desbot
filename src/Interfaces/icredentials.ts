@@ -15,48 +15,7 @@ export interface ICredentialsConfig {
     OBSPassword: string
 
     /**
-     * The password for OpenVR2WS.
-     * Used to change SteamVR settings remotely and receive SteamVR App IDs.
-     */
-    OpenVR2WSPassword: string
-
-    /**
-     * API key for the Google Cloud Platform: Text To Speech API.
-     * //TODO: Fill in how to get said API key.
-     */
-    GoogleTTSApiKey: string
-
-    /**
-     * Username for your local Philips Hue hub to control lights and plugs
-     * // TODO: Fill in how to get said username.
-     */
-    PhilipsHueUsername: string
-
-    /**
-     * The password set in the config.php file to allow for writing things to disk.
-     */
-    PHPPassword: string
-
-    /**
      * Webhooks from Discord to which we pipe various things.
      */
     DiscordWebhooks: Partial<Record<TKeys, string>>
-
-    /**
-     * API Key for loading Steam user data.
-     */
-    SteamWebAPIKey: string
-
-    /**
-     * The decimal 64bit ID of the Steam user to load data for.
-     * You can use one of these website to get this value:
-     * - https://steamid.io/
-     * - https://www.steamidfinder.com/
-     */
-    SteamUserID: string
-
-    /**
-     * Relay password
-     */
-    StreamDeckRelayPassword: string
 }

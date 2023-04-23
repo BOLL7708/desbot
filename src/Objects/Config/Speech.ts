@@ -3,6 +3,7 @@ import DataObjectMap from '../DataObjectMap.js'
 import {ConfigCleanText} from './CleanText.js'
 
 export class ConfigSpeech extends BaseDataObject {
+    googleApiKey: string = ''
     speakerTimeoutMs: number = 10000
     randomizeVoice: boolean = true
     randomizeVoiceLanguageFilter: string = 'en-'
@@ -25,6 +26,7 @@ DataObjectMap.addRootInstance(
     new ConfigSpeech(),
     'These are settings for the Google Text-to-Speech API.',
     {
+        googleApiKey: 'API key for the Google Cloud Platform: Text To Speech API.',
         speakerTimeoutMs: 'This is the amount of time between two utterances that can pass before a person\'s name will be said again.',
         randomizeVoice: 'Turn this on to give new users a random voice.',
         randomizeVoiceLanguageFilter: 'Random voices will be selected fom this pattern, it is matched from the start of the voice name.\nIt will default to only randomize among non-standard voices, to get the best sounding ones. See examples:\n* "en-" for English\n* "en-GB-" for English (Great Britain)\n* "en-US-Wavenet-F" for English (United States) with a specific Voice Model',
@@ -34,7 +36,9 @@ DataObjectMap.addRootInstance(
         cleanTextConfig: 'Configuration for cleaning the text before it is spoken.',
         dictionaryConfig: 'Configuration for the dictionary that replaces words.'
     },
-    {}
+    {
+        googleApiKey: 'string|secret'
+    }
 )
 DataObjectMap.addSubInstance(
     new ConfigSpeechDictionary(),

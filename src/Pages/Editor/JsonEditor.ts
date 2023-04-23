@@ -292,6 +292,7 @@ export default class JsonEditor {
 
         switch (type) {
             case EJsonEditorFieldType.String:
+                if(thisTypeValues.secret) input.classList.add('censored')
                 input.contentEditable = 'true'
                 input.innerHTML = Utils.escapeHTML(`${options.data}`)
                 input.onkeydown = (event)=>{
@@ -563,7 +564,6 @@ export default class JsonEditor {
         if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
 
         if(isRoot) { // Root object generates a key field
-
             const bookmarkButton = document.createElement('button') as HTMLButtonElement
             bookmarkButton.innerHTML = '⭐'
             bookmarkButton.classList.add('inline-button')

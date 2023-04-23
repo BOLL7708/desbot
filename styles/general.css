@@ -204,8 +204,18 @@ span[contenteditable]:hover, code[contenteditable]:hover {
 span[contenteditable]:focus, code[contenteditable]:focus {
     background-color: var(--editable-background-focus);
 }
-span.disabled, code.disabled, button.disabled, button.disabled:hover {
+span.disabled[contenteditable],
+code.disabled[contenteditable],
+button.disabled, button.disabled:hover {
     border-color: var(--disabled-border-color);
     color: var(--disabled-text-color);
     background-color: var(--disabled-background-color) !important;
+}
+span.censored[contenteditable], code.censored[contenteditable] {
+    color: var(--censored-text-color);
+    background-color: var(--censored-background-color);
+}
+span.censored[contenteditable]:focus, code.censored[contenteditable]:focus {
+    color: var(--body-text-color);
+    background-color: var(--editable-background-focus);
 }

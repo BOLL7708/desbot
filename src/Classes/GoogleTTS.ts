@@ -155,7 +155,7 @@ export default class GoogleTTS {
         }
 
         const sentence = {text: input, userId: userId, type: type, meta: meta}
-        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${Config.credentials.GoogleTTSApiKey}`
+        let url = `https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${this._config.googleApiKey}`
         let text = sentence.text
 
         // Another empty check, I'm not sure why.
@@ -369,7 +369,7 @@ export default class GoogleTTS {
 
     private async loadVoicesAndLanguages():Promise<boolean> {
         if(this._voices.length == 0) {
-            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${Config.credentials.GoogleTTSApiKey}`
+            let url = `https://texttospeech.googleapis.com/v1beta1/voices?key=${this._config.googleApiKey}`
             return fetch(url).then(response => response?.json()).then(json => {
                 console.log("Voices loaded!")
                 let voices: IGoogleVoice[] = json?.voices

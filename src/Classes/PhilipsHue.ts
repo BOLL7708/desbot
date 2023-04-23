@@ -14,7 +14,7 @@ export default class PhilipsHue {
     }
     private async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
-        this._baseUrl = `${this._config.serverPath}/api/${Config.credentials.PhilipsHueUsername}`
+        this._baseUrl = `${this._config.serverPath}/api/${this._config.username}`
     }
     private loadLights() { // Not used for anything except checking states
         const url = `${this._baseUrl}/lights`

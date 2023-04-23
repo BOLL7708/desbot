@@ -4,7 +4,7 @@ import {BaseMeta} from './BaseMeta.js'
 
 // Types
 export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
-export type TTypes = 'number'|'boolean'|'string'|string
+export type TTypes = 'number'|'boolean'|'string'|'string|secret'|string
 
 export default class DataObjectMap {
     private static _map = new Map<string, DataObjectMeta>()

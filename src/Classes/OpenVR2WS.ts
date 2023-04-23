@@ -33,6 +33,7 @@ export default class OpenVR2WS {
 
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }
 
+    private _config = new ConfigOpenVR2WS()
     private _socket: WebSockets|undefined = undefined
     private _resetLoopHandle: number = 0
     private _resetSettingMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
@@ -43,9 +44,9 @@ export default class OpenVR2WS {
     constructor() {}
 
     async init() { // Init function as we want to set the callbacks before the first messages arrive.
-        const config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
+        this._config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
         this._socket = new WebSockets(
-            `ws://localhost:${config.port}`,
+            `ws://localhost:${this._config.port}`,
             10,
             false
         )
@@ -164,7 +165,7 @@ export default class OpenVR2WS {
     }
 
     public async setSetting(config: IOpenVR2WSSetting) {
-        const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
+        const password = await Utils.sha256(this._config.password)
         const settingArr: string[] = config.setting.split('|') ?? []
         if(settingArr.length != 3) return Utils.log(`OpenVR2WS: Malformed setting, did not split into 3 on '|': ${config.setting}`, Color.Red)
         if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString() ?? ''
@@ -188,7 +189,7 @@ export default class OpenVR2WS {
     }
 
     public async moveSpace(config: IOpenVR2WSMoveSpace) {
-        const password = await Utils.sha256(Config.credentials.OpenVR2WSPassword)
+        const password = await Utils.sha256(this._config.password)
         const message: IOpenVRWSCommandMessage = {
             key: 'MoveSpace',
             value: password,

@@ -18,6 +18,7 @@ class PageUtils {
         <title>Streaming Widget: <?=ucfirst($scriptFile)?>></title>
         <link rel="icon" type="image/x-icon" href="./media/sw_logo.ico" />
         <link rel="stylesheet" href="./styles/general.css"/>
+        <link rel="stylesheet" href="./styles/_shared.css"/>
         <link rel="stylesheet" href="./styles/editor.css"/><!-- TODO: Should likely be split to what needs to go into general... -->
         <link id="link-page-mode-stylesheet" rel="stylesheet" href="./styles/_<?=$pageMode ? 'dark' : 'bright';?>.css"/>
         <script type="module" src="./inc/ScriptImporter.php"></script>
