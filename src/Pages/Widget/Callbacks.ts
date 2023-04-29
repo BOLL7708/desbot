@@ -34,6 +34,8 @@ import WebSockets from '../../Classes/WebSockets.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/User.js'
 import ConfigOBS from '../../Objects/Config/OBS.js'
+import ConfigTwitch from '../../Objects/Config/Twitch.js'
+import {IAudioAction} from '../../Interfaces/iactions.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -64,13 +66,21 @@ export default class Callbacks {
         this._imageRelay.init().then()
 
         // region Chat
+        const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
+        const announcerNames = Utils.ensureObjectArrayNotId(twitchConfig.announcerUsers)
+                .map((user)=>{return Utils.ensureObjectNotId(user)?.userName.toLowerCase() ?? ''})
+                .filter(v=>v) // Remove empty strings
         modules.twitch.registerAnnouncers({
-            userNames: Config.twitch.announcerNames.map((name)=>{return name.toLowerCase()}),
-            triggers: Config.twitch.announcerTriggers,
+            userNames: announcerNames,
+            triggers: Object.keys(twitchConfig.announcerTriggers),
             callback: async (userData, messageData, firstWord) => {
                 // TTS
-                if(Config.audioplayer.configs.hasOwnProperty(firstWord)) {
-                    modules.tts.enqueueSoundEffect(Config.audioplayer.configs[firstWord])
+                // TODO: Convert audio player to use classes
+                const audioConfig = Utils.ensureObjectNotId(twitchConfig.announcerTriggers[firstWord]?.audio)
+                if(audioConfig) {
+                    const audio = audioConfig as IAudioAction
+                    Utils.applyEntryType(Utils.ensureArray(audio.srcEntries), audioConfig.srcEntries_use)
+                    modules.tts.enqueueSoundEffect(audioConfig as IAudioAction)
                 }
                 await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 

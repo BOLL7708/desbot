@@ -32,6 +32,7 @@ $debug = boolval($_REQUEST['debug'] ?? '0');
                 await import('./dist/Classes/Utils.js').then(m => window.Utils = m.default)
                 await import('./dist/Classes/DataBaseHelper.js').then(m => window.DataBaseHelper = m.default)
                 await import('./dist/Objects/BaseDataObject.js').then(m => window.BaseDataObject = m.default)
+                await import('./dist/Objects/DataObjectMap.js').then(m => window.DataObjectMap = m.default)
             }
         </script>
         <!-- DOM Elements -->

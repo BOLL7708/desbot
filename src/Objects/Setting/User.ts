@@ -2,6 +2,8 @@ import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 
 export class SettingUser extends BaseDataObject {
+    userName: string = ''
+    displayName: string = ''
     voice = new SettingUserVoice()
     name = new SettingUserName()
     mute = new SettingUserMute()
@@ -17,8 +19,6 @@ export class SettingUserVoice extends BaseDataObject {
     datetime: string = ''
 }
 export class SettingUserName extends BaseDataObject {
-    userName: string = ''
-    displayName: string = ''
     shortName: string = ''
     editorUserId: number = 0
     datetime: string = ''

@@ -3,6 +3,8 @@ import {TKeys} from '../_data/!keys.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import {SettingUserVoice} from '../Objects/Setting/User.js'
+import {IAudioAction} from '../Interfaces/iactions.js'
+import {EnumEntryUsage} from '../Enums/EntryType.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -183,6 +185,15 @@ export default class Utils {
     static ensureObjectNotId<Type>(value: number|Type): Type|undefined {
         if(typeof value !== 'object' || value === null) return undefined
         else return value
+    }
+    static ensureObjectArrayNotId<Type>(arrayOfValues: number|Type[]): Type[] {
+        const result: Type[] = []
+        if(Array.isArray(arrayOfValues)) {
+            for(const value of arrayOfValues) {
+                if(value !== null && typeof value === 'object') result.push(value)
+            }
+        }
+        return result
     }
 
     static encode(str: string): string {
@@ -629,6 +640,24 @@ export default class Utils {
             urlParams.set(param, value)
         }
         window.history.replaceState(null, '', `?${urlParams.toString()}`);
+    }
+
+    static applyEntryType<T>(entries: T[], type: number) {
+        switch(type) {
+            case EnumEntryUsage.OneSpecific:
+                entries.useSpecific()
+                break
+            case EnumEntryUsage.OneRandom:
+                entries.useRandom()
+                break
+            case EnumEntryUsage.All:
+                entries.useAll()
+                break
+            case EnumEntryUsage.AllRandom:
+                entries.useAllRandom()
+                break
+        }
+        return entries
     }
 }
 

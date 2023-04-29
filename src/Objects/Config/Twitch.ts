@@ -1,10 +1,10 @@
 import {ActionAudio} from '../Action/ActionAudio.js'
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
-import {SettingUserName} from '../Setting/User.js'
+import {SettingUser, SettingUserName} from '../Setting/User.js'
 
 export default class ConfigTwitch extends BaseDataObject {
-    announcerUsers: number|SettingUserName = 0
+    announcerUsers: (number|SettingUser)[] = []
     announcerTriggers: { [pattern: string]: ConfigTwitchAnnouncerTriggers } = {}
 }
 
@@ -21,6 +21,7 @@ DataObjectMap.addRootInstance(
         announcerTriggers: 'Things triggered by matching the start of an announcements message by any designated announcer.'
     },
     {
+        announcerUsers: SettingUser.refIdLabel('displayName'),
         announcerTriggers: ConfigTwitchAnnouncerTriggers.ref()
     }
 )

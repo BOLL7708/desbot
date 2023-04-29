@@ -78,12 +78,10 @@ export default class OBS {
             if(group) { // If this source is in a group, hide all other sources in the group. Useful for sources sharing a single position on screen.
                 for(const k of group.members) {
                     if(k != config.key) {
-                        /*
-                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actionsEntries)
+                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k as TKeys)?.actionsEntries)
                         for(const actions of actionsArr) {
                             this.hide(actions?.obs)
                         }
-                        */
                     }
                 }
             }
@@ -102,14 +100,12 @@ export default class OBS {
             const group = Object.values(this._config.filterEventGroups).find(group => group.members.includes(config.key ?? 'Unknown'))
             if(group) {
                 for(const k of group.members) {
-                    /*
                     if(k != config.key) {
-                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k)?.actionsEntries)
+                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k as TKeys)?.actionsEntries)
                         for(const actions of actionsArr) {
                             this.hide(actions?.obs)
                         }
                     }
-                    */
                 }
             }
             for(const src of Utils.ensureArray(config.sourceName)) {

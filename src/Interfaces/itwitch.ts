@@ -30,19 +30,6 @@ export interface ITwitchConfig {
      */
     remoteCommandAllowedUsers: string[]
     /**
-     * If you are using any bots that writes in chat, you can allow them to announce things using the TTS, provide their names here.
-     * 
-     * It will only announce things that are using the triggers in `anouncerTriggers`.
-     */
-    announcerNames: string[]
-    /**
-     * The triggers that the announcer will use to announce things. 
-     * 
-     * These could be referenced in `Keys.*` and also used to trigger sound effects, as with automatic rewards.
-     */
-    announcerTriggers: string[]
-
-    /**
      * Subscription types to announce in chat.
      */
     announceSubs: IAnnounceSubConfig[],

@@ -555,6 +555,7 @@ export default class JsonEditor {
         const newUL = this.buildUL()
         const instance = (options.data as object)
         const isRoot = options.path.length == 1
+        const isList = options.origin == EOrigin.ListArray || options.origin == EOrigin.ListDictionary
 
         // Sort out type values for ID references
         const thisType = options.instanceMeta?.types ? options.instanceMeta.types[pathKey] ?? '' : ''
@@ -621,6 +622,12 @@ export default class JsonEditor {
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = options.instanceMeta
+
+        // TODO: thisType is often WRONG, why does this work when that is the case. Need to understand this.
+        //  The below does not actually work... so what the cheese.
+        // if(thisTypeValues.class && DataObjectMap.hasInstance(thisTypeValues.class)) { // For lists class instances
+        //     newInstanceMeta = isList ? options.instanceMeta : DataObjectMap.getMeta(thisTypeValues.class) ?? options.instanceMeta
+
         if(thisType && DataObjectMap.hasInstance(thisType)) { // For lists class instances
             newInstanceMeta = DataObjectMap.getMeta(thisType) ?? options.instanceMeta
         } else if (instanceType && DataObjectMap.hasInstance(instanceType)) { // For single class instances

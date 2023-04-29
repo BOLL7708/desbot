@@ -273,8 +273,6 @@ Config.twitch = <ITwitchConfig> {
     remoteCommandPrefix: '!',
     remoteCommandChannel: '',       
     remoteCommandAllowedUsers: ['AllowedUser1', 'AllowedUser2'],
-    announcerNames: ['AnnouncerName'],
-    announcerTriggers: ['§'],
     announceSubs: [
         {tier: 0, gift: false, multi: false, message: '%userTag subbed with Prime'},
         {tier: 1000, gift: false, multi: false, message: '%userTag subbed with tier 1'},

@@ -325,8 +325,7 @@ export default class DataBaseHelper {
             headers: await this.getHeader(options)
         })
         const json = response.ok ? await response.json() : {}
-        if(rowIdLabel) this._idKeyLabelStore.set(tuple, json)
-        else this._idKeyLabelStore.set(tuple, json)
+        this._idKeyLabelStore.set(tuple, json)
 
         return json
     }
