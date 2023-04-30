@@ -36,6 +36,7 @@ import {SettingUser} from '../../Objects/Setting/User.js'
 import ConfigOBS from '../../Objects/Config/OBS.js'
 import ConfigTwitch from '../../Objects/Config/Twitch.js'
 import {IAudioAction} from '../../Interfaces/iactions.js'
+import TempFactory from '../../Classes/TempFactory.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -75,12 +76,11 @@ export default class Callbacks {
             triggers: Object.keys(twitchConfig.announcerTriggers),
             callback: async (userData, messageData, firstWord) => {
                 // TTS
-                // TODO: Convert audio player to use classes
                 const audioConfig = Utils.ensureObjectNotId(twitchConfig.announcerTriggers[firstWord]?.audio)
                 if(audioConfig) {
-                    const audio = audioConfig as IAudioAction
-                    Utils.applyEntryType(Utils.ensureArray(audio.srcEntries), audioConfig.srcEntries_use)
-                    modules.tts.enqueueSoundEffect(audioConfig as IAudioAction)
+                    // TODO: Convert to use class instead of interface
+                    const audio = TempFactory.configAudio(audioConfig)
+                    modules.tts.enqueueSoundEffect(audio)
                 }
                 await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 

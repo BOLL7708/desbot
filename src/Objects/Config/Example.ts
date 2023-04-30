@@ -8,6 +8,7 @@ export class ConfigExample extends BaseDataObject {
     singleBoolean = false
     singleNumber = 0
     singleString = ''
+    singleSecretString = ''
     singleSubInstance = new ConfigExampleSub()
     singleIdReference: number|PresetPipeBasic = 0
     singleIdReferenceUsingLabel: number|PresetPipeBasic = 0
@@ -65,6 +66,7 @@ DataObjectMap.addRootInstance(
         singleBoolean: 'A single boolean flag',
         singleNumber: 'A single number value',
         singleString: 'A single string value',
+        singleSecretString: 'A single secret string value, use for passwords or API keys, etc.',
         singleSubInstance: 'A single instance of a sub-class',
         singleIdReference: 'A single ID reference to any other object',
         singleIdReferenceUsingLabel: 'A single ID reference displayed with a label',
@@ -95,6 +97,7 @@ DataObjectMap.addRootInstance(
         dictionaryOfEnums: ''
     },
     {
+        singleSecretString: 'string|secret',
         singleIdReference: PresetPipeBasic.refId(),
         singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel('basicTitle'),
         singleIdToKeyReference: PresetPipeBasic.refIdKey(),

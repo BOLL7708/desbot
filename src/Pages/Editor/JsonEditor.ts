@@ -292,7 +292,7 @@ export default class JsonEditor {
             document.execCommand('insertText', false, text) // No good substitute yet.
         }
         input.onclick = (event)=>{
-            if(this._config.askToEditHiddenFields && thisTypeValues.secret) {
+            if(this._config.askToRevealSecretInput && thisTypeValues.secret) {
                 const ok = confirm('Are you sure you want to reveal this secret value?')
                 if(ok) {
                     this._okShowCensored = true
@@ -301,9 +301,9 @@ export default class JsonEditor {
             }
         }
         input.onfocus = ()=>{
-            // Asking to show a censored field with a confirm prompt will blur, then focus again
-            // this is why we set this here, and only if the confirm was positive.
-            if(this._config.askToEditHiddenFields && this._okShowCensored) {
+            // Asking to show a censored field with a confirmation prompt will blur, then focus again
+            // this is why we set this here, and only if the confirmation was positive.
+            if(this._config.askToRevealSecretInput && this._okShowCensored) {
                 input.onblur = ()=>{
                     this._okShowCensored = false
                     input.classList.add('censored-always')
@@ -315,7 +315,7 @@ export default class JsonEditor {
         switch (type) {
             case EJsonEditorFieldType.String:
                 if(thisTypeValues.secret) {
-                    if(this._config.askToEditHiddenFields) {
+                    if(this._config.askToRevealSecretInput) {
                         input.classList.add('censored-always')
                     } else {
                         input.classList.add('censored')
