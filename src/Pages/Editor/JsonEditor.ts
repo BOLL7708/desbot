@@ -206,6 +206,7 @@ export default class JsonEditor {
         return [label, field]
     }
 
+    private _okShowCensored: boolean = false
     private async buildField(
         type: EJsonEditorFieldType,
         options: IStepDataOptions
@@ -290,10 +291,36 @@ export default class JsonEditor {
             }
             document.execCommand('insertText', false, text) // No good substitute yet.
         }
+        input.onclick = (event)=>{
+            if(this._config.askToEditHiddenFields && thisTypeValues.secret) {
+                const ok = confirm('Are you sure you want to reveal this secret value?')
+                if(ok) {
+                    this._okShowCensored = true
+                    input.classList.remove('censored-always')
+                }
+            }
+        }
+        input.onfocus = ()=>{
+            // Asking to show a censored field with a confirm prompt will blur, then focus again
+            // this is why we set this here, and only if the confirm was positive.
+            if(this._config.askToEditHiddenFields && this._okShowCensored) {
+                input.onblur = ()=>{
+                    this._okShowCensored = false
+                    input.classList.add('censored-always')
+                    input.onblur = null
+                }
+            }
+        }
 
         switch (type) {
             case EJsonEditorFieldType.String:
-                if(thisTypeValues.secret) input.classList.add('censored')
+                if(thisTypeValues.secret) {
+                    if(this._config.askToEditHiddenFields) {
+                        input.classList.add('censored-always')
+                    } else {
+                        input.classList.add('censored')
+                    }
+                }
                 input.contentEditable = 'true'
                 input.innerHTML = Utils.escapeHTML(`${options.data}`)
                 input.onkeydown = (event)=>{

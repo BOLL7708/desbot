@@ -211,7 +211,8 @@ button.disabled, button.disabled:hover {
     color: var(--disabled-text-color);
     background-color: var(--disabled-background-color) !important;
 }
-span.censored[contenteditable], code.censored[contenteditable] {
+span.censored[contenteditable], code.censored[contenteditable],
+span.censored-always[contenteditable], code.censored-always[contenteditable] {
     color: var(--censored-text-color);
     background-color: var(--censored-background-color);
 }
