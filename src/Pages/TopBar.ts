@@ -35,21 +35,22 @@ export default class TopBar {
         if(div) {
             const editorConfig = await DataBaseHelper.loadMain(new ConfigEditor())
             const favorites = editorConfig.favorites
-            const items: HTMLElement[] = [buildFavorite('🔨 Config', 0, 'editor.php?g=c&c=ConfigEditor&k=Main')]
+            const items: HTMLElement[] = [buildFavorite('🔨 Config', 'ConfigEditor', DataBaseHelper.OBJECT_MAIN_KEY, 'editor.php?g=c&c=ConfigEditor&k=Main')]
             if(Object.keys(favorites).length > 0) {
-                for(const [name, id] of Object.entries(favorites)) {
-                    items.push(buildFavorite(`⭐ ${name}`, id))
+                for(const [name, favorite] of Object.entries(favorites)) {
+                    items.push(buildFavorite(`⭐ ${name}`, favorite.class, favorite.class_withKey))
                 }
             }
             const ul = document.createElement('ul') as HTMLUListElement
             ul.replaceChildren(...items)
             div.appendChild(ul)
+            if(editorConfig.showFavoritesBar) div.style.display = ''
         }
 
-        function buildFavorite(name: string, id: number, url?: string): HTMLSpanElement {
+        function buildFavorite(name: string, groupClass: string, groupKey: string, url?: string): HTMLSpanElement {
             const li = document.createElement('li') as HTMLLIElement
             const a = document.createElement('a') as HTMLAnchorElement
-            a.href = url ?? `editor.php?id=${id}`
+            a.href = url ?? `editor.php?c=${groupClass}&k=${groupKey}`
             a.innerHTML = name
             li.appendChild(a)
             return li

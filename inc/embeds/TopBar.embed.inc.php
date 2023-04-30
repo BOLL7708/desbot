@@ -42,7 +42,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         <li><a href="#" id="topBarPageModeLink" title="Switch between bright and dark mode.">🌕/🌑</a></li>
     </ul>
 </div>
-<div id="favorites-bar" class="hbar"></div>
+<div id="favorites-bar" class="hbar" style="display: none;"></div>
 <script type="module">
     import TopBar from './dist/Pages/TopBar.js'
     TopBar.attachSignOutClick('#topBarSignOutLink')

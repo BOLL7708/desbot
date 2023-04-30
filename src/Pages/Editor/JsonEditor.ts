@@ -4,7 +4,8 @@ import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.j
 import DataObjectMap from '../../Objects/DataObjectMap.js'
 import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
 import {BaseMeta} from '../../Objects/BaseMeta.js'
-import {ConfigEditor} from '../../Objects/Config/Editor.js'
+import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/Editor.js'
+import Config from '../../Classes/Config.js'
 
 enum EOrigin {
     Unknown,
@@ -571,7 +572,10 @@ export default class JsonEditor {
             const toggleFavorite = async(event: Event)=>{
                 const tag = await prompt('Set a bookmark title for this object')
                 if(tag && tag.length > 0) {
-                    this._config.favorites[tag] = this._rowId
+                    const favorite = new ConfigEditorFavorite()
+                    favorite.class = this._instance.constructor.name
+                    favorite.class_withKey = this._key
+                    this._config.favorites[tag] = favorite
                     await DataBaseHelper.saveMain(this._config)
                 }
             }
