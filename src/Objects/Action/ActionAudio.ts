@@ -21,7 +21,7 @@ DataObjectMap.addRootInstance(
         repeat: 'Repeat the playback of this audio this many times.',
         channel: 'Channel to play on, it is a separate instance of the audio player.'
     }, {
-        srcEntries: 'string',
+        srcEntries: 'string|file',
         srcEntries_use: EnumEntryUsage.ref()
     }
 )

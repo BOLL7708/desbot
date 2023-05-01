@@ -101,7 +101,9 @@ DataObjectMap.addRootInstance(
         imagePath: 'Optional: Absolute path to an image, not used in this solution except for when doing tests.',
         customProperties: 'Properties for the custom notification.'
     },
-    {}
+    {
+        imagePath: 'string|file'
+    }
 )
 
 DataObjectMap.addSubInstance(

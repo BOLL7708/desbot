@@ -220,7 +220,8 @@ export default abstract class BaseDataObject {
             idToKey: false,
             genericLike: '',
             enum: false,
-            secret: false
+            secret: false,
+            file: false
         }
         for(const t of refArr) {
             const [k, v] = t.split('=')
@@ -231,6 +232,7 @@ export default abstract class BaseDataObject {
                 case 'like': refValues.genericLike = v; break
                 case 'enum': refValues.enum = true; break
                 case 'secret': refValues.secret = true; break;
+                case 'file': refValues.file = true; break;
             }
         }
         return refValues
@@ -247,5 +249,6 @@ export interface IBaseDataObjectRefValues {
     idToKey: boolean
     genericLike: string
     enum: boolean,
-    secret: boolean
+    secret: boolean,
+    file: boolean
 }

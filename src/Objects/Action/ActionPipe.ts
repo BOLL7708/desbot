@@ -23,7 +23,7 @@ DataObjectMap.addRootInstance(
         preset: 'Preset config for the custom notification, which can be generated with the Editor that comes with OpenVRNotificationPipe.',
         texts: 'If your custom notification includes text areas, this is where you add the texts that are to be used for it.'
     },{
-        imagePathEntries: 'string',
+        imagePathEntries: 'string|file',
         imagePathEntriesType: EnumEntryUsage.ref(),
         imageDataEntries: 'string',
         imageDataEntriesType: EnumEntryUsage.ref(),

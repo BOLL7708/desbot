@@ -6,6 +6,7 @@ import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
 import {BaseMeta} from '../../Objects/BaseMeta.js'
 import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/Editor.js'
 import Config from '../../Classes/Config.js'
+import AssetsHelper from '../../Classes/AssetsHelper.js'
 
 enum EOrigin {
     Unknown,
@@ -551,6 +552,39 @@ export default class JsonEditor {
             }
         }
 
+        /*
+         * This is if we are picking a file
+         */
+        if(thisTypeValues.file || parentTypeValues.file) {
+            console.log("I am a file field!")
+            input.contentEditable = 'false'
+            input.classList.add('disabled')
+            input.classList.add('hidden') // Always hidden as it can get long.
+
+            const files = await AssetsHelper.getAll()
+            const id = `${thisType}-datalist`
+            const inputFile: HTMLInputElement = document.createElement('input') as HTMLInputElement
+            inputFile.setAttribute('list', id)
+            const value = Utils.escapeHTML(`${options.data}`)
+            inputFile.value = value
+            inputFile.title = value
+            inputFile.size = 32
+            const datalist: HTMLDataListElement = document.createElement('datalist') as HTMLDataListElement
+            datalist.id = id
+            for(const file of files) {
+                const option = document.createElement('option') as HTMLOptionElement
+                option.value = file
+                datalist.appendChild(option)
+            }
+            inputFile.oninput = (event)=>{
+                input.innerHTML = inputFile.value
+                inputFile.title = inputFile.value
+                handle(event)
+            }
+            newRoot.appendChild(inputFile)
+            newRoot.appendChild(datalist)
+        }
+
         // Append partner field slot
         this.appendPartnerFieldSlot(newRoot, this._instance.constructor.name, key.toString())
 
@@ -999,7 +1033,7 @@ export default class JsonEditor {
             newButton.classList.add('inline-button', 'new-button')
             newButton.onclick = async (event)=>{
                 if(Array.isArray(instance)) {
-                    switch(typeValues.original) {
+                    switch(typeValues.class) {
                         case 'number': instance.push(0); break
                         case 'boolean': instance.push(false); break
                         case 'string': instance.push(''); break
@@ -1015,7 +1049,7 @@ export default class JsonEditor {
                                 const enumPrototype = await EnumObjectMap.getPrototype(typeValues.class)
                                 if(enumPrototype) instance.push(enumPrototype)
                             }
-                            else console.warn('Unhandled type:', typeValues.class)
+                            else console.warn('Unhandled type:', typeValues.class, ' from value: ', typeValues.original)
                     }
                     this.handleValue(instance, path, newRoot)
                     await this.rebuild()

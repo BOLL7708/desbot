@@ -9,6 +9,7 @@ export class ConfigExample extends BaseDataObject {
     singleNumber = 0
     singleString = ''
     singleSecretString = ''
+    singleFileString = ''
     singleSubInstance = new ConfigExampleSub()
     singleIdReference: number|PresetPipeBasic = 0
     singleIdReferenceUsingLabel: number|PresetPipeBasic = 0
@@ -98,6 +99,7 @@ DataObjectMap.addRootInstance(
     },
     {
         singleSecretString: 'string|secret',
+        singleFileString: 'string|file',
         singleIdReference: PresetPipeBasic.refId(),
         singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel('basicTitle'),
         singleIdToKeyReference: PresetPipeBasic.refIdKey(),

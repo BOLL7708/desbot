@@ -43,8 +43,7 @@ export default class TopBar {
             }
             const ul = document.createElement('ul') as HTMLUListElement
             ul.replaceChildren(...items)
-            div.appendChild(ul)
-            if(editorConfig.showFavoritesBar) div.style.display = ''
+            div.replaceChildren(ul)
         }
 
         function buildFavorite(name: string, groupClass: string, groupKey: string, url?: string): HTMLSpanElement {

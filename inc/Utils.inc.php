@@ -80,7 +80,6 @@ class Utils {
     }
 
     static function getAssetFiles() {
-        
         function listFolderFiles($dir, $res)
         {
             foreach (new DirectoryIterator($dir) as $fileInfo) {

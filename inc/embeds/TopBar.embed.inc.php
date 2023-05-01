@@ -37,12 +37,20 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
             printMenuItem($scriptFile, $group, 'search.php', '🔭 Search', 'Search for items in the database.');
             printMenuItem($scriptFile, $group, 'widget.php', '🎭 Widget (new tab)', 'This opens the widget in a new tab, use this as a browser source in your streaming application.', true);
             printMenuItem($scriptFile, $group, 'widget.php?debug=1', '🚧 Widget (+debug)', 'This opens the widget in a new tab with debugging turned on, which means some objects are available in the console.', true);
-        } ?>
+        }
+        // This is not really preferred as it will not get referenced when changing the
+        // data object class in TS, but to make the interface not jump we load this here.
+        $db = DB::get();
+        $entries = $db->getEntries('ConfigEditor', 'Main') ?? [];
+        $config = array_shift($entries);
+        $showFavorites = $config->data->showFavoritesBar ?? true;
+        $favoritesBarStyle = !$showFavorites ? 'style="display: none;"' : '';
+        ?>
         <li><a href="index.php" id="topBarSignOutLink" title="Sign out of this page.">🔥 Sign out</a></li>
         <li><a href="#" id="topBarPageModeLink" title="Switch between bright and dark mode.">🌕/🌑</a></li>
     </ul>
 </div>
-<div id="favorites-bar" class="hbar" style="display: none;"></div>
+<div id="favorites-bar" class="hbar" <?=$favoritesBarStyle?>><ul><li><a>⌛ Loading...</a></li></ul></div>
 <script type="module">
     import TopBar from './dist/Pages/TopBar.js'
     TopBar.attachSignOutClick('#topBarSignOutLink')

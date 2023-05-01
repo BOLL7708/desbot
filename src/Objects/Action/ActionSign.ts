@@ -16,5 +16,8 @@ DataObjectMap.addRootInstance(
         imageSrc: 'The image to display in the Sign pop-in, as web URL, local URL or data URL.\n\nIf left empty the avatar image will be used instead, if available.',
         subtitle: 'The subtitle beneath the image, takes tags.',
         durationMs: 'The duration for the Sign to be visible for, in milliseconds.'
+    },
+    {
+        imageSrc: 'string|file'
     }
 )

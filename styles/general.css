@@ -116,7 +116,7 @@ input, select, button {
     border-style: solid;
     box-sizing: border-box;
 }
-select {
+select, input[list] {
     padding: 0.25em;
     background-color: var(--select-background-color);
 }

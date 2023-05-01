@@ -79,8 +79,7 @@ export default class Callbacks {
                 const audioConfig = Utils.ensureObjectNotId(twitchConfig.announcerTriggers[firstWord]?.audio)
                 if(audioConfig) {
                     // TODO: Convert to use class instead of interface
-                    const audio = TempFactory.configAudio(audioConfig)
-                    modules.tts.enqueueSoundEffect(audio)
+                    modules.tts.enqueueSoundEffect(TempFactory.configAudio(audioConfig))
                 }
                 await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 
