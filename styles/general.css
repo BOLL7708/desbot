@@ -220,3 +220,15 @@ span.censored[contenteditable]:focus, code.censored[contenteditable]:focus {
     color: var(--body-text-color);
     background-color: var(--editable-background-focus);
 }
+span.preview {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-right: 0.25em;
+    user-select: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+span.no-border {
+    border: none;
+}

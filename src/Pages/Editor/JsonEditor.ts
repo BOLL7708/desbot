@@ -7,6 +7,7 @@ import {BaseMeta} from '../../Objects/BaseMeta.js'
 import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/Editor.js'
 import Config from '../../Classes/Config.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
+import AudioPlayer from '../../Classes/AudioPlayer.js'
 
 enum EOrigin {
     Unknown,
@@ -260,6 +261,67 @@ export default class JsonEditor {
         this._labels.push(label)
         this.handleValue(options.data, options.path, label ,true) // Will colorize label
 
+
+        // Preview box
+        const previewBox = document.createElement('span') as HTMLElement
+        previewBox.classList.add('preview')
+        previewBox.style.display = 'none'
+        newRoot.appendChild(previewBox)
+        let player: HTMLAudioElement|null
+        async function updatePreview() {
+            player = null
+            previewBox.classList.remove('no-border')
+            previewBox.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;'
+            previewBox.style.backgroundImage = ''
+            previewBox.style.backgroundColor = ''
+            const value = input.innerHTML
+            if(thisTypeValues.file || parentTypeValues.file) {
+                const response = await fetch(value, { method: 'HEAD' })
+                const contentType = response.headers.get('Content-Type')
+                const contentLength = parseInt(response.headers.get('Content-Length') ?? '0')
+                previewBox.onclick = null
+                if(Utils.isImage(contentType)) {
+                    previewBox.style.backgroundImage = `url('${value}')`
+                    previewBox.title = `${contentType}, ${Utils.formatShortNumber(contentLength)}B, click to open`
+                    previewBox.onclick = ()=>{ window.open(value, '_blank') }
+                    previewBox.style.display = ''
+                } else if(Utils.isAudio(contentType)) {
+                    previewBox.classList.add('no-border')
+                    previewBox.title = `${contentType}, ${Utils.formatShortNumber(contentLength)}B, click to play`
+                    player = new Audio(value)
+                    const icon = '🔊'
+                    player.onpause = ()=>{
+                        playLink.innerHTML = icon
+                    }
+                    const playLink = document.createElement('a') as HTMLAnchorElement
+                    playLink.innerHTML = icon
+                    playLink.onclick = ()=>{
+                        if(player) {
+                            if(player.paused) {
+                                playLink.innerHTML = '🛑'
+                                player.play()
+                            } else {
+                                playLink.innerHTML = icon
+                                player.pause()
+                                player.currentTime = 0;
+                            }
+                        }
+                    }
+                    previewBox.replaceChildren(playLink)
+                    previewBox.style.display = ''
+                } else {
+                    console.log('Unsupported file: ', value, contentType)
+                }
+            } else if(Utils.isColor(value)) {
+                previewBox.style.backgroundColor = value
+                previewBox.style.display = ''
+            } else {
+                previewBox.style.backgroundImage = ''
+                previewBox.style.backgroundColor = ''
+                previewBox.style.display = 'none'
+            }
+        }
+
         // Append
         if(options.originListCount > 1) {
             this.appendDragButton(newRoot, options.origin, options.path)
@@ -269,6 +331,7 @@ export default class JsonEditor {
             newRoot.appendChild(keyInput)
         }
         newRoot.appendChild(label)
+        newRoot.appendChild(previewBox)
 
         // Input
         let skip = false
@@ -315,7 +378,7 @@ export default class JsonEditor {
 
         switch (type) {
             case EJsonEditorFieldType.String:
-                if(thisTypeValues.secret) {
+                if(thisTypeValues.secret || parentTypeValues.secret) {
                     if(this._config.askToRevealSecretInput) {
                         input.classList.add('censored-always')
                     } else {
@@ -330,8 +393,10 @@ export default class JsonEditor {
                     }
                 }
                 handle = (event) => {
+                    updatePreview()
                     this.handleValue(Utils.unescapeHTML(input.innerHTML), options.path, label)
                 }
+                updatePreview()
                 break
             case EJsonEditorFieldType.Boolean:
                 const on = this._config.hideBooleanNames ? '✅' : '✅ True'
@@ -576,9 +641,11 @@ export default class JsonEditor {
                 option.value = file
                 datalist.appendChild(option)
             }
-            inputFile.oninput = (event)=>{
-                input.innerHTML = inputFile.value
-                inputFile.title = inputFile.value
+            inputFile.oninput = async(event)=>{
+                const filePath = inputFile.value
+                input.innerHTML = filePath
+                inputFile.title = filePath
+                updatePreview()
                 handle(event)
             }
             newRoot.appendChild(inputFile)

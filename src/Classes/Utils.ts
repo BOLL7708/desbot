@@ -5,6 +5,7 @@ import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import {SettingUserVoice} from '../Objects/Setting/User.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
 import {EnumEntryUsage} from '../Enums/EntryType.js'
+import Color from './ColorConstants.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -658,6 +659,33 @@ export default class Utils {
                 break
         }
         return entries
+    }
+
+    /**
+     * Check if the string is a color, currently supports:
+     *  rgb()
+     *  rgba()
+     *  #000-#00000000
+     * @param color
+     */
+    static isColor(color: any):boolean {
+        const colorRegex = /(^#[a-f0-9]{3,8}$)|(^rgba?\(.*?\)$)/i;
+        return typeof color == 'string'
+            && (
+                colorRegex.test(color)
+                || (Object.values(Color) as string[]).indexOf(color.toLowerCase()) > -1
+            )
+    }
+
+    static isImage(contentType: any) {
+        // https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types
+        const validTypes = ['image/apng', 'image/avif', 'image/gif', 'image/jpeg', 'image/png', 'image/svg+xml', 'image/webp']
+        return typeof contentType == 'string' && validTypes.indexOf(contentType) > -1
+    }
+
+    static isAudio(contentType: any) {
+        const validTypes = ['audio/wav', 'audio/x-wav', 'audio/mpeg', 'audio/mp4', 'audio/aac', 'audio/aacp', 'audio/ogg', 'audio/webm', 'audio/x-caf', 'audio/flac']
+        return typeof contentType == 'string' && validTypes.indexOf(contentType) > -1
     }
 }
 

@@ -21,6 +21,8 @@ export class ConfigExample extends BaseDataObject {
     arrayOfBooleans_use: number = 0
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
+    arrayOfSecretStrings: string[] = []
+    arrayOfFileStrings: string[] = []
     arrayOfSubInstances: ConfigExampleSub[] = []
     arrayOfIdReferences: (number|PresetPipeBasic)[] = []
     arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
@@ -110,6 +112,8 @@ DataObjectMap.addRootInstance(
         arrayOfBooleans_use: EnumEntryUsage.ref(),
         arrayOfNumbers: 'number',
         arrayOfStrings: 'string',
+        arrayOfSecretStrings: 'string|secret',
+        arrayOfFileStrings: 'string|file',
         arrayOfSubInstances: ConfigExampleSub.ref(),
         arrayOfIdReferences: PresetPipeBasic.refId(),
         arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel('basicTitle'),
