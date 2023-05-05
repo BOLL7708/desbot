@@ -21,7 +21,7 @@ export interface IActionsExecutor {
 export interface IActionsMainCallback {
     (user: IActionUser, index?: number): void
 }
-export interface IActionsCallbackStack extends Partial<Record<TKeys, IActionCallback|undefined>> {}
+export interface IActionsCallbackStack extends Partial<Record<number, IActionCallback|undefined>> {}
 export interface IActions {
     /**
      * Optional: Set this to execute this batch of actions at a specific time in a timeline, overrides `_delayMs`.

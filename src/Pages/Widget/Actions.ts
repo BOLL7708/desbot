@@ -52,6 +52,7 @@ import {
 } from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
+import TempFactory from '../../Classes/TempFactory.js'
 
 export class ActionHandler {
     constructor(
@@ -468,7 +469,7 @@ export class Actions {
             // Build callbacks
             actionCallbacks.pushIfExists(this.buildTTSCallback(actions?.tts))
             actionCallbacks.pushIfExists(actions?.custom)
-            actionCallbacks.pushIfExists(ActionsCallbacks.stack[key as TKeys])
+            actionCallbacks.pushIfExists(ActionsCallbacks.stack[TempFactory.keyToActionCallbackEnum(key as TKeys)])
             actionCallbacks.pushIfExists(this.buildOBSCallback(actions?.obs, key))
             actionCallbacks.pushIfExists(this.buildColorCallback(actions?.lights))
             actionCallbacks.pushIfExists(this.buildPlugCallback(actions?.plugs))

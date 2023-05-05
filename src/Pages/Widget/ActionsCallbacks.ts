@@ -22,11 +22,12 @@ import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Obje
 import {SettingChannelTrophyStat} from '../../Objects/Setting/Channel.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
+import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
         // region Chat
-        'Chat': {
+        [EnumSystemActionType.Chat]: {
             tag: 'Chat',
             description: 'Sends a message to the chat overlay in VR.',
             call: (user) => {
@@ -34,7 +35,7 @@ export default class ActionsCallbacks {
                 modules.pipe.sendBasic(user.input)
             }
         },
-        'ChatOn': {
+        [EnumSystemActionType.ChatOn]: {
             tag: 'Chat On',
             description: 'Enables the chat overlay in VR.',
             call: (user) => {
@@ -45,7 +46,7 @@ export default class ActionsCallbacks {
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
-        'ChatOff': {
+        [EnumSystemActionType.ChatOff]: {
             tag: 'Chat Off',
             description: 'Disables the chat overlay in VR.',
             call: (user) => {
@@ -56,7 +57,7 @@ export default class ActionsCallbacks {
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
-        'PingOn': {
+        [EnumSystemActionType.PingOn]: {
             tag: 'Ping On',
             description: 'Enables a sound effect for chat messages if TTS is off or messages are empty.',
             call: (user) => {
@@ -68,7 +69,7 @@ export default class ActionsCallbacks {
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
-        'PingOff': {
+        [EnumSystemActionType.PingOff]: {
             tag: 'Ping Off',
             description: 'Disables the sound effect for chat messages.',
             call: (user) => {
@@ -83,7 +84,7 @@ export default class ActionsCallbacks {
         // endregion
 
         // region Channel
-        'Mod': {
+        [EnumSystemActionType.Mod]: {
             tag: 'Add mod',
             description: 'Make a user channel moderator',
             call: async (user) => {
@@ -96,7 +97,7 @@ export default class ActionsCallbacks {
                 }
             }
         },
-        'UnMod': {
+        [EnumSystemActionType.UnMod]: {
             tag: 'Remove mod',
             description: 'Remove user from channel moderators',
             call: async (user) => {
@@ -109,7 +110,7 @@ export default class ActionsCallbacks {
                 }
             }
         },
-        'Vip': {
+        [EnumSystemActionType.Vip]: {
             tag: 'Add VIP',
             description: 'Make a user channel VIP',
             call: async (user) => {
@@ -122,7 +123,7 @@ export default class ActionsCallbacks {
                 }
             }
         },
-        'UnVip': {
+        [EnumSystemActionType.UnVip]: {
             tag: 'Remove VIP',
             description: 'Remove user from channel VIPs',
             call: async (user) => {
@@ -137,7 +138,7 @@ export default class ActionsCallbacks {
         },
         // endregion
 
-        'Quote': {
+        [EnumSystemActionType.Quote]: {
             tag: 'Quote',
             description: 'Stores a new quote or posts a random quote to chat.',
             call: async (user) => {
@@ -202,7 +203,7 @@ export default class ActionsCallbacks {
         },
 
         // region Logging
-        'LogOn': {
+        [EnumSystemActionType.LogOn]: {
             tag: 'Log On',
             description: 'Enables logging of chat to Discord.',
             call: (user) => {
@@ -213,7 +214,7 @@ export default class ActionsCallbacks {
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
-        'LogOff': {
+        [EnumSystemActionType.LogOff]: {
             tag: 'Log Off',
             description: 'Disables logging of chat to Discord.',
             call: (user) => {
@@ -227,7 +228,7 @@ export default class ActionsCallbacks {
         // endregion
 
         // region Scale
-        'Scale': {
+        [EnumSystemActionType.Scale]: {
             tag: 'Scale',
             description: 'Changes the world scale of the currently running VR game.',
             call: async (user) => {
@@ -322,7 +323,7 @@ export default class ActionsCallbacks {
 
         // region SteamVR
         // TODO: WIP - Should only work with what the headset supports
-        'Brightness': {
+        [EnumSystemActionType.Brightness]: {
             tag: 'Brightness',
             description: 'Changes the display brightness of the headset.',
             call: (user) => {
@@ -339,7 +340,7 @@ export default class ActionsCallbacks {
         },
 
         // TODO: WIP - Should only work with what the headset supports
-        'RefreshRate': {
+        [EnumSystemActionType.RefreshRate]: {
             tag: 'RefreshRate',
             description: 'Changes the display refresh rate of the headset.',
             call: (user) => {
@@ -358,7 +359,7 @@ export default class ActionsCallbacks {
         },
 
         // Currently not actually effective due to how the VR View does not listen to config changes
-        'VrViewEye': {
+        [EnumSystemActionType.VrViewEye]: {
             tag: 'VRViewEye',
             description: 'Changes the eye used for the VR View. Or would if it updated live.',
             call: (user) => {
@@ -376,7 +377,7 @@ export default class ActionsCallbacks {
         // endregion
 
         // region Rewards
-        'UpdateRewards': {
+        [EnumSystemActionType.UpdateRewards]: {
             tag: 'UpdateRewards',
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
@@ -411,7 +412,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'GameRewardsOn': {
+        [EnumSystemActionType.GameRewardsOn]: {
             tag: 'GameRewardsOn',
             description: 'Enable the channel rewards that are game specific.',
             call: (user) => {
@@ -423,7 +424,7 @@ export default class ActionsCallbacks {
                 Functions.appIdCallback(states.lastSteamAppId ?? '', StatesSingleton.getInstance().lastSteamAppIsVR).then()
             }
         },
-        'GameRewardsOff': {
+        [EnumSystemActionType.GameRewardsOff]: {
             tag: 'GameRewardsOff',
             description: 'Disable the channel rewards that are game specific.',
             call: (user) => {
@@ -435,7 +436,7 @@ export default class ActionsCallbacks {
                 Functions.appIdCallback('', false).then()
             }
         },
-        'RefundRedemption': {
+        [EnumSystemActionType.RefundRedemption]: {
             tag: 'RefundRedemption',
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
@@ -468,7 +469,7 @@ export default class ActionsCallbacks {
                 } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[2], {targetTag: userTag}))
             }
         },
-        'ClearRedemptions': {
+        [EnumSystemActionType.ClearRedemptions]: {
             tag: 'ClearRedemptions',
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
@@ -508,7 +509,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'ChannelTrophy': {
+        [EnumSystemActionType.ChannelTrophy]: {
             tag: 'ChannelTrophy',
             description: 'A user grabbed the Channel Trophy.',
             call: async (user: IActionUser) => {
@@ -585,7 +586,7 @@ export default class ActionsCallbacks {
         // endregion
 
         // region Redemptions
-        'ResetIncrementingEvents': {
+        [EnumSystemActionType.ResetIncrementingEvents]: {
             tag: 'ResetIncrementalReward',
             description: 'Reset the incremental reward counter for those rewards, unless ignored.',
             call: async (user) => {
@@ -629,7 +630,7 @@ export default class ActionsCallbacks {
                 })).then()
             }
         },
-        'ResetAccumulatingEvents': {
+        [EnumSystemActionType.ResetAccumulatingEvents]: {
             tag: 'ResetAccumulatingReward',
             description: 'Reset the accumulating reward counter for those rewards, unless ignored.',
             call: async (user) => {
@@ -683,7 +684,7 @@ export default class ActionsCallbacks {
         // endregion
 
         // region System
-        'ReloadWidget': {
+        [EnumSystemActionType.ReloadWidget]: {
             tag: 'ReloadWidget',
             description: 'Reloads the page for widget.',
             call: (user) => {
@@ -691,7 +692,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'ChannelTrophyStats': {
+        [EnumSystemActionType.ChannelTrophyStats]: {
             tag: 'ChannelTrophyStats',
             description: 'Posts the last Channel Trophy stats to DiscordUtils.',
             call: async (user) => {
@@ -732,7 +733,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'GameReset': {
+        [EnumSystemActionType.GameReset]: {
             tag: 'GameReset',
             description: 'Resets the currently detected game and trigger the app ID callback.',
             call: async (user) => {
@@ -745,7 +746,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'RemoteOn': {
+        [EnumSystemActionType.RemoteOn]: {
             tag: 'RemoteOn',
             description: 'Enables remote commands.',
             call: async (user) => {
@@ -761,7 +762,7 @@ export default class ActionsCallbacks {
                 ).then()
             }
         },
-        'RemoteOff': {
+        [EnumSystemActionType.RemoteOff]: {
             tag: 'RemoteOff',
             description: 'Disables remote commands.',
             call: async (user) => {
@@ -774,7 +775,7 @@ export default class ActionsCallbacks {
                 ).then()
             }
         },
-        'HelpToDiscord': {
+        [EnumSystemActionType.HelpToDiscord]: {
             tag: 'PostHelp',
             description: 'Post help for all commands with documentation to the specified Discord channel.',
             call: async (user) => {
@@ -807,7 +808,7 @@ export default class ActionsCallbacks {
                 DiscordUtils.enqueuePayload(url, {content: messageText})
             }
         },
-        'HelpToChat': {
+        [EnumSystemActionType.HelpToChat]: {
             tag: 'GetHelp',
             description: 'Post help for a single command to chat.',
             call: async (user) => {
@@ -827,7 +828,7 @@ export default class ActionsCallbacks {
         // endregion
 
         // region Twitch
-        'Clips': {
+        [EnumSystemActionType.Clips]: {
             tag: 'Clips',
             description: 'Posts new channel clips to Discord.',
             call: async (user) => {
@@ -897,7 +898,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'Raid': {
+        [EnumSystemActionType.Raid]: {
             tag: 'Raid',
             description: 'Initiates a raid for the supplied target.',
             call: async (user) => {
@@ -922,7 +923,7 @@ export default class ActionsCallbacks {
             }
         },
 
-        'Unraid': {
+        [EnumSystemActionType.Unraid]: {
             tag: 'Unraid',
             description: 'Cancels the currently active raid.',
             call: async (user) => {

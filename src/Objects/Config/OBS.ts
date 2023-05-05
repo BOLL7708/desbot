@@ -5,6 +5,7 @@ import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
 
 export default class ConfigOBS extends BaseDataObject {
     port: number = 4455
+    password: string = ''
     sourceEventGroups: { [key: string]: ConfigOBSEventGroups } = {}
     filterEventGroups: { [key: string]: ConfigOBSEventGroups } = {}
     sourceScreenshotConfig = new ConfigOBSSourceScreenshot()
@@ -26,11 +27,13 @@ DataObjectMap.addRootInstance(
     'Enables a secure connection to OBS Studio for remote functions through the OBS WebSockets plugin.',
     {
         port: 'The port set for the OBS WebSockets plugin.',
+        password: 'The password used for the OBS WebSockets plugin.',
         sourceEventGroups: 'When part of a group, turning one source on turns all the others off.',
         filterEventGroups: 'When part of a group, turning one filter on turns all the others off.',
         sourceScreenshotConfig: 'Configuration for taking OBS Source screenshots.'
     },
     {
+        password: 'string|secret',
         sourceEventGroups: ConfigOBSEventGroups.ref(),
         filterEventGroups: ConfigOBSEventGroups.ref()
     }

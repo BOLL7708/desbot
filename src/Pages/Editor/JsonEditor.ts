@@ -248,7 +248,7 @@ export default class JsonEditor {
             keyInput.innerHTML = key.toString()
         } else {
             label.innerHTML = isRoot
-                ? `<strong>${key}</strong>: `
+                ? `<strong class="list-title">${key}</strong>: `
                 : options.origin == EOrigin.ListArray
                     ? `Item ${Utils.ensureNumber(key)+1}: `
                     : `${isPartnerField ? ' '+Utils.nameToSentence(labelStr) : Utils.camelToTitle(key.toString())}: `
@@ -733,6 +733,7 @@ export default class JsonEditor {
             // An array has a fixed index
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
+                strongSpan.classList.add('list-title')
                 strongSpan.innerHTML = options.origin == EOrigin.ListArray
                     ? `Item ${Utils.ensureNumber(pathKey)+1}`
                     : Utils.camelToTitle(pathKey.toString())

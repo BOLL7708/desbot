@@ -117,6 +117,7 @@ input, select, button {
     box-sizing: border-box;
 }
 select, input[list] {
+    color: var(--body-text-color);
     padding: 0.25em;
     background-color: var(--select-background-color);
 }
@@ -188,7 +189,9 @@ select {
 .save-button:hover {
     background-color: var(--button-save-background-hover) !important;
 }
-
+.list-title {
+    line-height: 200%;
+}
 /* Fields */
 span[contenteditable], code[contenteditable] {
     color: var(--body-text-color);
