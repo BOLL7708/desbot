@@ -4,6 +4,7 @@ import JsonEditor from './JsonEditor.js'
 import BaseDataObject from '../../Objects/BaseDataObject.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
 import {ConfigEditor} from '../../Objects/Config/Editor.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -23,6 +24,8 @@ export default class EditorHandler {
     private _coverDiv: HTMLDivElement|undefined
 
     private async init() {
+        TwitchHelixHelper.loadNamesForUsersWhoLackThem().then()
+
         window.onunload = (event)=>{
             if(this._state.minimal) window.opener.postMessage(null) // Cancel cover in parent window
         }

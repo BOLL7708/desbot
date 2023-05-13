@@ -4,7 +4,6 @@ import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
-import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
 
 /*
 ..######..########..########.########..########.##....##.########.####....###....##........######.
@@ -214,26 +213,6 @@ Config.screenshots = <IScreenshotConfig> {
         soundEffectForOBSScreenshots: {
             // srcEntries: '_assets/yoursound.wav',
         }
-    }
-}
-
-/*
-....###....##.....##.########..####..#######..########..##..........###....##....##.########.########.
-...##.##...##.....##.##.....##..##..##.....##.##.....##.##.........##.##....##..##..##.......##.....##
-..##...##..##.....##.##.....##..##..##.....##.##.....##.##........##...##....####...##.......##.....##
-.##.....##.##.....##.##.....##..##..##.....##.########..##.......##.....##....##....######...########.
-.#########.##.....##.##.....##..##..##.....##.##........##.......#########....##....##.......##...##..
-.##.....##.##.....##.##.....##..##..##.....##.##........##.......##.....##....##....##.......##....##.
-.##.....##..#######..########..####..#######..##........########.##.....##....##....########.##.....##
-*/
-Config.audioplayer = <IAudioPlayerConfig> { // Play sound effects
-    configs: {
-        /*
-        'MatchedString': {
-            srcEntries: '_assets/your_chat_sound.wav',
-            volume: 0.5
-        }
-        */
     }
 }
 

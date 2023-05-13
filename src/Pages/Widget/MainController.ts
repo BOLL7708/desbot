@@ -9,10 +9,9 @@ import Rewards from './Rewards.js'
 import Functions from './Functions.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
-import {SettingUser, SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
+import {SettingUser} from '../../Objects/Setting/User.js'
 import {
     SettingTwitchClip,
     SettingTwitchRedemption,
@@ -23,6 +22,7 @@ import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 
 export default class MainController {
     public static async init() {
@@ -54,6 +54,8 @@ export default class MainController {
 
         const modules = ModulesSingleton.getInstance()
         modules.tts.setDictionary(dictionarySettings)
+
+        await TwitchHelixHelper.loadNamesForUsersWhoLackThem()
 
         /*
         .####.##....##.####.########

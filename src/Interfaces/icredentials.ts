@@ -9,12 +9,6 @@ import {TKeys} from '../_data/!keys.js'
  */
 export interface ICredentialsConfig {
     /**
-     * The password for the WebSockets plugin in OBS Studio.
-     * Used for remote control of OBS, toggle sources or filters.
-     */
-    OBSPassword: string
-
-    /**
      * Webhooks from Discord to which we pipe various things.
      */
     DiscordWebhooks: Partial<Record<TKeys, string>>

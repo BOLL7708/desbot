@@ -22,6 +22,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
 import LegacyUtils from './LegacyUtils.js'
+import {SettingUser} from '../Objects/Setting/User.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -99,6 +100,10 @@ export default class TwitchHelixHelper {
         if(result) {
             const id = parseInt(result.id)
             if(!isNaN(id)) {
+                const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), id.toString())
+                user.userName = result.login
+                user.displayName = result.display_name
+                await DataBaseHelper.save(user, id.toString())
                 this._userCache.set(id, result)
                 this._userNameToId.set(result.login, id)
             }
@@ -436,4 +441,13 @@ export default class TwitchHelixHelper {
         return response.ok
     }
     // endregion
+
+    static async loadNamesForUsersWhoLackThem() {
+        // region Chat
+        const userSettings = await DataBaseHelper.loadAll(new SettingUser()) ?? {}
+        for(const [key, setting] of Object.entries(userSettings)) {
+            if(setting.userName.length && setting.displayName.length) continue
+            await TwitchHelixHelper.getUserById(key) // This will automatically update the object in the database
+        }
+    }
 }

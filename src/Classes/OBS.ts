@@ -1,7 +1,6 @@
 import WebSockets from './WebSockets.js'
 import {IActionUser, IObsAction} from '../Interfaces/iactions.js'
 import Utils from './Utils.js'
-import Config from './Config.js'
 import {ISceneChangeCallback, ISourceScreenshotCallback} from '../Interfaces/iobs.js'
 import {TKeys} from '../_data/!keys.js'
 import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
@@ -36,7 +35,7 @@ export default class OBS {
 
         switch(id) {
 			case '1':
-                Utils.sha256(Config.credentials.OBSPassword + data.salt).then(secret => {
+                Utils.sha256(this._config.password + data.salt).then(secret => {
                     Utils.sha256(secret + data.challenge).then(authResponse => {
                         this._socket?.send(this.buildRequest("Authenticate", '2', {auth: authResponse}));
                     })

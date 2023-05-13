@@ -374,8 +374,8 @@ export default class Twitch{
     async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
         let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
-        if(command?.handler) command.handler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown'))
-        else if(command?.cooldownHandler) command?.cooldownHandler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown'))
+        if(command?.handler) command.handler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown')).then()
+        else if(command?.cooldownHandler) command?.cooldownHandler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown')).then()
     }
 
     async sendRemoteCommand(commandStr: string) {

@@ -51,4 +51,3 @@ export default class TempFactory {
         return 0
     }
 }
-}
