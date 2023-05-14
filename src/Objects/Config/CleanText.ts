@@ -12,6 +12,7 @@ export class ConfigCleanText extends BaseDataObject {
     replaceBigNumbersWithDigits: number = 7
     replaceLinks: boolean = true
     replaceLinksWith: string = '"link"'
+    replaceAmpersandWith: string = 'and'
     removeUnicodeEmojis: boolean = true
 }
 
@@ -28,6 +29,7 @@ DataObjectMap.addSubInstance(
         replaceBigNumbersWithDigits: 'The least amount of digits a number should have to be replaced.',
         replaceLinks: 'Replace web links.',
         replaceLinksWith: 'Will replace the link with this text.',
+        replaceAmpersandWith: 'Will replace the & symbol with the supplied value.',
         removeUnicodeEmojis: 'Removes unicode emojis characters.'
     },
     {}

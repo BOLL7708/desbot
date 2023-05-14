@@ -133,6 +133,7 @@ export default class TextHelper {
         }
 
         if(config?.replaceLinks) {
+            // TODO: This misses certain links? Do more testing and adjust.
             // Links: https://stackoverflow.com/a/23571059/2076423
             text = text.replace(/(?:https?|ftp):\/\/[\n\S]+/g, config.replaceLinksWith ?? 'link')
         }
@@ -145,8 +146,13 @@ export default class TextHelper {
             text = text.replace(/[^\p{L}\p{N}\p{P}\p{Z}{\^\$}]/gu, '')
         }
 
+        if(config?.replaceAmpersandWith.length > 0) {
+            // Replace &-symbols which otherwise breaks speech generation using certain TTS voices
+            text = text.replace(/&/g, config.replaceAmpersandWith)
+        }
+
         return text
-            .replace(/(\s+)\1{1,}/g, ' ') // spans of spaces to single space
+            .replace(/(\s+)\1+/g, ' ') // spans of spaces to single space
             .trim()
     }
 

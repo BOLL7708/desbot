@@ -3,12 +3,12 @@
 use JetBrains\PhpStorm\NoReturn;
 
 class Utils {
-    static function printJSIncludesAndConfigs(): void {
+    static function printJSIncludesAndConfigs(): string {
         // Load PHP config
         $config = include_once('_configs/config.php');
 
         // Include single file
-        function includeFile($root, $file, $directory=null): void {
+        function includeFile($root, $file, $directory=null): string {
             if (is_string($file)) {
                 $name = $file;
                 $fileArr = explode('.', $file);
@@ -19,15 +19,17 @@ class Utils {
             }
             if ($ext == 'js') {
                 if(is_string($directory) && file_exists($root.$directory.'/'.$name)) {
-                    echo '<script type="module" src="'.$root.$directory.'/'.$name.'?'.uniqid().'"></script>'."\n";
+                    return "await import ('$root$directory/$name?".uniqid()."')";
                 } elseif (file_exists($root.$name)) {
-                    echo '<script type="module" src="'.$root.$name.'?'.uniqid().'"></script>'."\n";
+                    return "await import ('$root.$name?".uniqid()."')";
                 }
             }
+            return '';
         }
 
         // Setup
         $root = './dist/';
+        $files = [];
 
         // Include files that aren't modules
         $includesPath = 'Includes';
@@ -35,7 +37,7 @@ class Utils {
         foreach($includesDir as $includeFile) {
             $includeName = $includeFile->getFileName();
             if(!$includeFile->isDir()) {
-                includeFile($root, $includeName, $includesPath);
+                $files[] = includeFile($root, $includeName, $includesPath);
             }
         }
 
@@ -47,54 +49,34 @@ class Utils {
         foreach($configDir as $configFile) {
             $configName = $configFile->getFileName();
             if(!$configFile->isDir() && str_contains($configName, $config->preConfigSymbol)) {
-                includeFile($root, $configName, $configPath);
+                $files[] = includeFile($root, $configName, $configPath);
             }
         }
 
         // Include main config
-        includeFile($root, 'config.js', $configPath);
+        $files[] = includeFile($root, 'config.js', $configPath);
 
         // Include post-configs
         foreach($configDir as $configFile) {
             $configName = $configFile->getFileName();
             if(!$configFile->isDir() && str_contains($configName, $config->postConfigSymbol)) {
-                includeFile($root, $configName, $configPath);
+                $files[] = includeFile($root, $configName, $configPath);
             }
         }
 
         // Load any config override specified in the URL
         $configOverride = $_REQUEST['config'] ?? null;
         $overrideSymbol = $config->overrideConfigSymbol;
-        if($configOverride != null) includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
+        if($configOverride != null) $files[] = includeFile($root, "config$overrideSymbol$configOverride.js", $configPath);
+
+        return implode("\n\t\t\t", array_filter($files))."\n";
     }
 
-    static function printJSAssetFiles(): void {
-        echo 'AssetsHelper._filePaths = '.json_encode(self::getAssetFiles(), JSON_UNESCAPED_SLASHES);
-    }
-    
     static function decode(string $b64url): false|string {
         $len = strlen($b64url);
         $pad = $len+4-($len%4);
         $b64 = str_pad(str_replace(['-', '_'], ['+', '/'], $b64url), $pad, '=');
         return base64_decode($b64);
-    }
-
-    static function getAssetFiles() {
-        function listFolderFiles($dir, $res)
-        {
-            foreach (new DirectoryIterator($dir) as $fileInfo) {
-                if (!$fileInfo->isDot()) {
-                    if ($fileInfo->isDir()) {
-                        $res = listFolderFiles($fileInfo->getPathname(), $res);
-                    } else {
-                        $res[] = str_replace('\\','/', $fileInfo->getPathname());
-                    }
-                }
-            }
-            return $res;
-        }
-
-        return listFolderFiles('_assets', []);
     }
 
     /**

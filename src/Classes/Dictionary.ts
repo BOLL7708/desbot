@@ -60,19 +60,8 @@ export default class Dictionary {
     public apply(text: string): string {
         const injectAudio = this._config.dictionaryConfig.replaceWordsWithAudio
 
-        // Add spaces after groups of symbols before word character, to make sure words are split up on space.
-        let adjustedText = text.replace(
-            /(\s*)([^\p{Letter}\p{Mark}\s]+)([\p{Letter}\p{Mark}]){1}/gu, 
-            function(full, whiteSpace, symbols, letter) {
-                if(whiteSpace.length > 0) return full // It's already separated from the prior word
-                else if(symbols == "'") return full // It's likely an English abbreviated word combination
-                else if(symbols.lastIndexOf('<') == (symbols.length -1)) return ` ${symbols}${letter}`
-                else return `${symbols} ${letter}`
-            }
-        )
-
         // Split into words and filter out empty strings in case we had double spaces due to the above.
-        const words = adjustedText.split(' ').filter(str => {return str.length > 0}) 
+        const words = text.split(' ').filter(str => {return str.length > 0})
         words.forEach((word, i) => {
             // Ignore these symbols at the start and end of a word
             let wordKey = word.toLowerCase()
@@ -82,7 +71,8 @@ export default class Dictionary {
             // Matches using unicode character categories for letters and marks
             // https://unicode.org/reports/tr18/#General_Category_Property
             // https://www.regular-expressions.info/unicode.html
-            const match = wordKey.match(/([^\p{Letter}\p{Mark}]*)([\p{Letter}\p{Mark}]+)([^\p{Letter}\p{Mark}]*.*)/u)
+            const regex = /([^\p{Letter}\p{Mark}]*)([\p{Letter}\p{Mark}]+)([^\p{Letter}\p{Mark}]*.*)/u
+            const match = wordKey.match(regex)
             if(match != null) {
                 startSymbol = match[1]
                 wordKey = match[2]
@@ -102,17 +92,37 @@ export default class Dictionary {
             }
 
             // Word replacement with other word(s)
-            if(!done && this._dictionary.has(wordKey)) {
-                const replaceWithArr = Utils.splitOnAny(this._dictionary.get(wordKey), ',;')
-                let replaceWith = ''
-                if(replaceWithArr.length > 0) { // Randomize if we find a list of words
-                    replaceWith = Utils.randomFromArray(replaceWithArr)
+            if(!done) {
+                const full = startSymbol+wordKey+endSymbol
+                const head = startSymbol+wordKey
+                const tail = wordKey+endSymbol
+
+                let dictionaryEntry: string|undefined = undefined
+                if(this._dictionary.has(full)) {
+                    dictionaryEntry = this._dictionary.get(full)
+                    startSymbol = ''
+                    endSymbol = ''
+                } else if(this._dictionary.has(head)) {
+                    dictionaryEntry = this._dictionary.get(head)
+                    startSymbol = ''
+                } else if(this._dictionary.has(tail)) {
+                    dictionaryEntry = this._dictionary.get(tail)
+                    endSymbol = ''
+                } else if(this._dictionary.has(wordKey)) {
+                    dictionaryEntry = this._dictionary.get(wordKey)
                 }
-                replaceWith = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
-                if(injectAudio) {
-                    replaceWith = this.escapeSymbolsForSSML(replaceWith)
+                if(dictionaryEntry) {
+                    const replaceWithArr = Utils.splitOnAny(dictionaryEntry, ',;')
+                    let replaceWith = ''
+                    if(replaceWithArr.length > 0) { // Randomize if we find a list of words
+                        replaceWith = Utils.randomFromArray(replaceWithArr)
+                    }
+                    replaceWith = `${startSymbol}${replaceWith}${endSymbol}` // Rebuild with replacement word
+                    if(injectAudio) {
+                        replaceWith = this.escapeSymbolsForSSML(replaceWith)
+                    }
+                    words[i] = replaceWith
                 }
-                words[i] = replaceWith
             }
         })
         return words.join(' ')
