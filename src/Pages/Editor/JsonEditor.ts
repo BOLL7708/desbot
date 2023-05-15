@@ -356,11 +356,24 @@ export default class JsonEditor {
             document.execCommand('insertText', false, text) // No good substitute yet.
         }
         input.onclick = (event)=>{
-            if(this._config.askToRevealSecretInput && thisTypeValues.secret) {
-                const ok = confirm('Are you sure you want to reveal this secret value?')
+            // If the field is censored (by CSS) but we should ask to reveal it, this triggers.
+            if(
+                this._config.askToRevealSecretInput
+                && thisTypeValues.secret
+                && input.classList.contains('censored-always')
+            ) {
+                let ok = true
+                let shouldFocus = false
+                if(input.innerHTML.length > 0) {
+                    ok = confirm('Are you sure you want to reveal this secret value?')
+                } else {
+                    shouldFocus = true
+                }
                 if(ok) {
                     this._okShowCensored = true
                     input.classList.remove('censored-always')
+                    // We need to do this as otherwise the onfocus has happened before we have set the variable.
+                    if(shouldFocus && input.onfocus) input.onfocus(new FocusEvent('focus'))
                 }
             }
         }

@@ -49,7 +49,7 @@ export default class TextHelper {
         }
 
         // Split on _ and keep the longest word
-        let nameArr = name.toLowerCase().split('_') // Split on _
+        let nameArr = name.toLowerCase().split(/_/g) // Split on _
         let namePart = nameArr.reduce((a, b) => a.length > b.length ? a : b) // Reduce to longest word
 
         // Remove big number groups (len: 2+)

@@ -11,9 +11,9 @@ export default class EditorHandler {
 
     private readonly _labelSaveButton = '💾 Save (ctrl+s)'
     private readonly _labelSaveAndCloseButton = '💾 Save & close (ctrl+s)'
-    private readonly _labelDeleteButton = '💥 Delete'
-    private readonly _labelDeleteAndCloseButton = '💥 Delete & close'
-    private readonly _labelDeleteResetButton = '💥 Reset'
+    private readonly _labelDeleteButton = '💥 Delete (shift+del)'
+    private readonly _labelDeleteAndCloseButton = '💥 Delete & close (shift+del)'
+    private readonly _labelDeleteResetButton = '💥 Reset (shift+del)'
     private _unsavedChanges: boolean = false
 
     public constructor() {
