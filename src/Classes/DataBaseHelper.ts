@@ -427,7 +427,7 @@ export default class DataBaseHelper {
 
         // Result
         Utils.log(
-            key ? `Wrote '${className}' to DB` : `Failed to write '${className}' to DB`,
+            key ? `Wrote '${className}' with key '${key}' to DB` : `Failed to write '${className}' with key '${key}' to DB`,
             key ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
         )
         return !!key

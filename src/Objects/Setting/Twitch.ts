@@ -23,7 +23,7 @@ export class SettingTwitchRedemption extends BaseDataObject {
     userId: number = 0
     rewardId: string = ''
     time: string = ''
-    status: TTwitchEventSubEventStatus = 'unfulfilled'
+    status: TTwitchEventSubEventStatus = 'UNFULFILLED'
     cost: number = 0
 }
 

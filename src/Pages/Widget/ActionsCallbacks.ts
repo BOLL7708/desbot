@@ -446,21 +446,22 @@ export default class ActionsCallbacks {
                 if(!userName) return
                 const userTag = `@${userName}`
                 const userData = await TwitchHelixHelper.getUserByLogin(userName)
-                const userRedemptions = Object.entries(redemptions ?? {}).filter(
-                    redemption => (redemption[0] == userData?.id ?? '') && (redemption[1].status.toLowerCase() == 'unfulfilled')
-                )
+                const userRedemptions = Object.fromEntries(Object.entries(redemptions ?? {}).filter(
+                    row => (row[1].userId.toString() == userData?.id ?? '') && (row[1].status.toLowerCase() == 'unfulfilled')
+                ))
                 const message = Config.controller.chatReferences['RefundRedemption'] ?? []
-                if(userRedemptions && userRedemptions.length > 0) {
-                    const lastRedemptionPair = userRedemptions.reduce(
-                        (prev, current) => (Date.parse(prev[1].time) > Date.parse(current[1].time)) ? prev : current
+                console.log('REFUND', userName, userTag, userData, userRedemptions, redemptions )
+                if(userRedemptions && Object.keys(userRedemptions).length > 0) {
+                    const [lastRedemptionId, lastRedemption] = Object.entries(userRedemptions).reduce(
+                        (prevRow, currentRow) => (Date.parse(prevRow[1].time) > Date.parse(currentRow[1].time)) ? prevRow : currentRow
                     )
-                    const key = lastRedemptionPair[0]
-                    const lastRedemption = lastRedemptionPair[1]
+                    console.log('REFUND', lastRedemptionId, lastRedemption)
                     if(lastRedemption) {
-                        lastRedemption.status = 'canceled'
-                        const result = await TwitchHelixHelper.updateRedemption(key, lastRedemption)
+                        lastRedemption.status = 'CANCELED'
+                        const result = await TwitchHelixHelper.updateRedemption(lastRedemptionId, lastRedemption)
+                        console.log('REFUND', result)
                         if(result) {
-                            await DataBaseHelper.save(lastRedemption, key)
+                            await DataBaseHelper.save(lastRedemption, lastRedemptionId)
                             modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
                             modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[1], {targetTag: userTag}))
@@ -483,7 +484,7 @@ export default class ActionsCallbacks {
                     if(redemption.status.toLowerCase() == 'unfulfilled') {
                         totalClearable++
                         const redemptionClone = Utils.clone(redemption)
-                        redemptionClone.status = 'fulfilled'
+                        redemptionClone.status = 'FULFILLED'
                         const result = await TwitchHelixHelper.updateRedemption(key, redemptionClone)
                         if(result) {
                             await DataBaseHelper.delete(new SettingTwitchRedemption(), key)

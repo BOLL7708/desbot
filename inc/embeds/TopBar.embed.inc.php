@@ -35,6 +35,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
             printMenuItem($scriptFile, $group, 'dashboard.php', '🚦 Dashboard', 'Show the dashboard which lets you manage events and features live.');
             printMenuItem($scriptFile, $group, 'defaults.php', '🍰 Defaults', 'Import various default commands, rewards, etc.');
             printMenuItem($scriptFile, $group, 'search.php', '🔭 Search', 'Search for items in the database.');
+            printMenuItem($scriptFile, $group, 'help.php', '🤖 Help', 'Search for items in the database.');
             printMenuItem($scriptFile, $group, 'widget.php', '🎭 Widget (new tab)', 'This opens the widget in a new tab, use this as a browser source in your streaming application.', true);
             printMenuItem($scriptFile, $group, 'widget.php?debug=1', '🚧 Widget (+debug)', 'This opens the widget in a new tab with debugging turned on, which means some objects are available in the console.', true);
         }

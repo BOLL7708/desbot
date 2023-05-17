@@ -167,9 +167,9 @@ export interface ITwitchEventSubEmote {
     id: number
 }
 export type TTwitchEventSubEventStatus =
-    'fulfilled'
-    | 'unfulfilled'
-    | 'canceled'
+    'FULFILLED'
+    | 'UNFULFILLED'
+    | 'CANCELED'
 
 /**
  * @link https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/#channelchannel_points_custom_reward_redemptionadd

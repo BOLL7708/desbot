@@ -305,7 +305,7 @@ export default class TwitchEventSub {
                 } else {
                     this._receivedRedemptions.push(redemptionId)
                 }
-                if(event && event.status == 'unfulfilled') {
+                if(event && event.status == 'UNFULFILLED') {
                     const redemptionStatus = new SettingTwitchRedemption()
                     redemptionStatus.userId = parseInt(event.user_id) ?? 0
                     redemptionStatus.rewardId = event.reward.id
