@@ -352,16 +352,24 @@ export default class TwitchEventSub {
                 const event = eventMessage.payload.event as ITwitchEventSubEventRaid
                 const broadcasterId = (await TwitchHelixHelper.getBroadcasterUserId()).toString()
                 if(event.to_broadcaster_user_id == broadcasterId) {
-                    ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(`@${event.from_broadcaster_user_name} raided the channel with ${event.viewers} viewer(s)! (this is a test)`)
+                    const message = `@${event.from_broadcaster_user_name} raided the channel with ${event.viewers} viewer(s)! (this is a test)`
+                    console.log(message)
+                    // TODO: Make customizable
+                    // ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(message)
                 }
                 if (event.from_broadcaster_user_id == broadcasterId) {
-                    ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(`This channel raided @${event.to_broadcaster_user_name} with ${event.viewers} viewer(s)! (this is a test)`)
+                    const message = `This channel raided @${event.to_broadcaster_user_name} with ${event.viewers} viewer(s)! (this is a test)`
+                    console.log(message)
+                    // TODO: Make customizable
+                    // ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(message)
                 }
                 break
             }
             default: {
-                ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(`EventSub: unhandled event of type: ${eventMessage.metadata.subscription_type}`)
-                console.warn(`TwitchEventSub: Unhandled subscription type: ${eventMessage.metadata.subscription_type}`)
+                const message = `EventSub: unhandled event of type: ${eventMessage.metadata.subscription_type}`
+                console.warn(message)
+                // TODO: Handle more events
+                // ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(message)
             }
         }
     }

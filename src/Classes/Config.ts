@@ -4,7 +4,6 @@ import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
 import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
-import {IAudioPlayerConfig} from '../Interfaces/iaudioplayer.js'
 
 /**
  * This is the static container that holds all configuration values.
@@ -27,7 +26,6 @@ export default class Config {
     static events: IEventsConfig
     static eventsForGames: {[game: string]: IEventsConfig}
     static screenshots: IScreenshotConfig
-    static audioplayer: IAudioPlayerConfig
     static twitchChat: ITwitchChatConfig
     static twitch: ITwitchConfig
 }

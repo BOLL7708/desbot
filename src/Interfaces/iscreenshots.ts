@@ -55,11 +55,6 @@ export interface IScreenshotConfig {
          * The Pipe preset for screenshots. This is located here instead of the list for automatic rewards due to it also being used for manual screenshots.
          */
         pipeMessagePreset: IPipeAction|undefined,
-        /**
-         * As there is not built in audio effect for OBS screenshots an option for that is provided here.
-         * Why this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.
-         */
-        soundEffectForOBSScreenshots: IAudioAction
     }
 }
 

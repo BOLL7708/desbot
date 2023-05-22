@@ -53,6 +53,7 @@ import {
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import TempFactory from '../../Classes/TempFactory.js'
+import ConfigOBS from '../../Objects/Config/OBS.js'
 
 export class ActionHandler {
     constructor(
@@ -738,10 +739,12 @@ export class Actions {
         if(config) return {
             tag: '📸',
             description: 'Callback that triggers a Screenshot action',
-            call: (user: IActionUser) => {
+            call: async (user: IActionUser) => {
                 const states = StatesSingleton.getInstance()
                 const modules = ModulesSingleton.getInstance()
                 const userInput = user.input
+                const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
+                const soundConfig = Utils.ensureObjectNotId(obsConfig.sourceScreenshotConfig.captureSoundEffect)
                 if(userInput) {
                     // This is executed after the TTS with the same nonce has finished.
                     states.nonceCallbacks.set(nonce, ()=>{
@@ -749,7 +752,7 @@ export class Actions {
                             // OBS Source Screenshot
                             const messageId = modules.obs.takeSourceScreenshot(key, user, config.obsSource, config.delay ?? 0)
                             states.nonceCallbacks.set(messageId, ()=>{
-                                modules.audioPlayer.enqueueAudio(Config.screenshots.callback.soundEffectForOBSScreenshots)
+                                if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
                             })
                         } else {
                             // SuperScreenShotterVR
@@ -759,7 +762,7 @@ export class Actions {
                 } else {
                     if(config.obsSource) {
                         // OBS Source Screenshot
-                        modules.audioPlayer.enqueueAudio(Config.screenshots.callback.soundEffectForOBSScreenshots)
+                        if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
                         modules.obs.takeSourceScreenshot(key, user, config.obsSource)
                     } else {
                         // SuperScreenShotterVR

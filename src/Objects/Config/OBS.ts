@@ -2,6 +2,7 @@ import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
 import {EventDefault} from '../Event/EventDefault.js'
 import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
+import {ActionAudio} from '../Action/ActionAudio.js'
 
 export default class ConfigOBS extends BaseDataObject {
     port: number = 4455
@@ -20,6 +21,7 @@ export class ConfigOBSSourceScreenshot extends BaseDataObject {
     discordGameTitle: string = 'N/A'
     signTitle: string = 'Screenshot'
     signDurationMs: number = 5000
+    captureSoundEffect: (number|ActionAudio) = 0
 }
 
 DataObjectMap.addRootInstance(
@@ -53,9 +55,11 @@ DataObjectMap.addSubInstance(
         discordDescription: 'Description for the screenshot when posted to Discord.',
         discordGameTitle: 'Backup game title in the footer when posting to Discord, only used if there is no game registered as running.',
         signTitle: 'Title for the screenshot when shown as a Sign.',
-        signDurationMs: 'Display duration in milliseconds for the screenshot Sign.'
+        signDurationMs: 'Display duration in milliseconds for the screenshot Sign.',
+        captureSoundEffect: 'As there is not built in audio effect for OBS screenshots an option for that is provided here.'
     },
     {
-        embedPictureFormat: EnumScreenshotFileType.ref()
+        embedPictureFormat: EnumScreenshotFileType.ref(),
+        captureSoundEffect: ActionAudio.refId()
     }
 )

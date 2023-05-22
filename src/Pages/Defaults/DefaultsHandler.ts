@@ -40,7 +40,7 @@ export default class DefaultsHandler {
         button.ontouchstart = importMandatory
         button.innerHTML = `✨ Import missing ${label} items`
         button.classList.add('main-button', 'new-button')
-        button.title = `Import all ${label} items that have not already been imported.`
+        button.title = `Import all ${label} items that do not already exist.`
         const status = document.createElement('span') as HTMLSpanElement
         async function importMandatory() {
             await DefaultsHandler.importItems(items, status)

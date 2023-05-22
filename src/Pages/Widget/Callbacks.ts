@@ -62,8 +62,8 @@ export default class Callbacks {
 
         // TODO: This should be on or off depending on a general websockets setting.
         //  Also add support for subscriber avatars, cheer emotes & avatar, raiders avatars.
-        const configRelay = await DataBaseHelper.loadMain(new ConfigRelay())
-        this._imageRelay = new Relay(configRelay.overlayImagesChannel)
+        const relayConfig = await DataBaseHelper.loadMain(new ConfigRelay())
+        this._imageRelay = new Relay(relayConfig.overlayImagesChannel)
         this._imageRelay.init().then()
 
         // region Chat
@@ -253,19 +253,28 @@ export default class Callbacks {
         modules.twitchEventSub.setOnSubscriptionCallback( async(event) => {
             subscriptionHandler(parseInt(event.tier), event.is_gift, false).then()
             const modules = ModulesSingleton.getInstance()
-            modules.twitch._twitchChatOut.sendMessageToChannel(`${event.user_name} subscribed to the channel! (${event.tier}, ${event.is_gift}, this is a test)`)
+            const message = `${event.user_name} subscribed to the channel! (${event.tier}, ${event.is_gift}, this is a test)`
+            console.log('TwitchEventSub: OnSubscription', message)
+            // TODO: Make customizable
+            // modules.twitch._twitchChatOut.sendMessageToChannel(message)
         })
 
         modules.twitchEventSub.setOnGiftSubscriptionCallback( async(event)=>{
             subscriptionHandler(parseInt(event.tier), true, event.total > 1).then()
             const modules = ModulesSingleton.getInstance()
-            modules.twitch._twitchChatOut.sendMessageToChannel(`@${event.user_name} gifter ${event.total} subs in the channel! (${event.tier}, ${event.cumulative_total}, this is a test)`)
+            const message = `@${event.user_name} gifter ${event.total} subs in the channel! (${event.tier}, ${event.cumulative_total}, this is a test)`
+            console.log('TwitchEventSub: OnGifSubscription', message)
+            // TODO: Make customizable
+            // modules.twitch._twitchChatOut.sendMessageToChannel(message)
         })
 
         modules.twitchEventSub.setOnResubscriptionCallback( async(event)=>{
             subscriptionHandler(parseInt(event.tier), false, false).then()
             const modules = ModulesSingleton.getInstance()
-            modules.twitch._twitchChatOut.sendMessageToChannel(`@${event.user_name} resubscribed for a total of ${event.cumulative_months} months! (${event.tier}, ${event.duration_months}, this is a test)`)
+            const message = `@${event.user_name} resubscribed for a total of ${event.cumulative_months} months! (${event.tier}, ${event.duration_months}, this is a test)`
+            console.log('TwitchEventSub: OnGifSubscription', message)
+            // TODO: Make customizable
+            // modules.twitch._twitchChatOut.sendMessageToChannel(message)
         })
 
         modules.twitchEventSub.setOnCheerCallback(async (event) => {
@@ -396,8 +405,9 @@ export default class Callbacks {
                 })
 
                 // Sound effect
-                const soundConfig = Config.audioplayer.configs['DiscordOBSScreenshot']
-                if(soundConfig) modules.audioPlayer.enqueueAudio(soundConfig)
+                const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
+                const soundConfig = Utils.ensureObjectNotId(obsConfig.sourceScreenshotConfig.captureSoundEffect)
+                if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
 
                 // Discord
                 if(discordCfg) {
@@ -429,7 +439,7 @@ export default class Callbacks {
         // endregion
 
         // region Audio
-        modules.audioPlayer.setPlayedCallback((nonce:string, status:number) => {
+        modules.audioPlayer.setMainPlayedCallback((nonce:string, status:number) => {
             console.log(`Audio Player: Nonce finished playing -> ${nonce} [${status}]`)
             const callback = states.nonceCallbacks.get(nonce)
             if(callback) {

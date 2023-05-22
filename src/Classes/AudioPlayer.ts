@@ -6,9 +6,9 @@ export default class AudioPlayer {
     static get STATUS_OK() { return 0 }
     static get STATUS_ERROR() { return 1 }
     static get STATUS_ABORTED() { return 2 }
-    private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`AudioPlayer: Played callback not set, ${nonce}->${status}`) } // Actually used but does not reference back through .call()
-    public setPlayedCallback(callback: IAudioPlayedCallback) {
-        this._callback = callback
+    private _mainCallback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`AudioPlayer: Played callback not set, ${nonce}->${status}`) } // Actually used but does not reference back through .call()
+    public setMainPlayedCallback(callback: IAudioPlayedCallback) {
+        this._mainCallback = callback
     }
     private _pool: Map<number, AudioPlayerInstance> = new Map()
 
@@ -18,7 +18,7 @@ export default class AudioPlayer {
             if(!this._pool.has(channel)) {
                 const player = new AudioPlayerInstance()
                 this._pool.set(channel, player)
-                player.setPlayedCallback(this.playedCallback)
+                player.setPlayedCallback(this.runMainPlayedCallback.bind(this))
             }
             this._pool.get(channel)?.enqueueAudio(audio)
         }
@@ -29,14 +29,14 @@ export default class AudioPlayer {
         player?.stop(andClearQueue)
     }
 
-    private playedCallback(nonce: string, status: number) {
-        this._callback(nonce, status)
+    private runMainPlayedCallback(nonce: string, status: number) {
+        this._mainCallback(nonce, status)
     }
 }
 
 export class AudioPlayerInstance {
+    private readonly _queueLoopHandle: number = 0
     private _audio?: HTMLAudioElement
-    private _queueLoopHandle: number = 0
     private _queue: IAudioAction[] = []
     private _isPlaying: boolean = false
     private _currentNonce?: string // Actually used but does not reference back through .call()
@@ -66,12 +66,12 @@ export class AudioPlayerInstance {
             // doCallback.call(this, AudioPlayer.STATUS_ABORTED) // TODO: Appears to do false negatives
         })
         this._audio.addEventListener('canplaythrough', (evt) => {
-            this._audio?.play()
+            this._audio?.play().then()
         })
 
         function doCallback(self: AudioPlayerInstance, status: number) {
+            // console.log(`Audio Player: Finished playing audio: ${self._currentNonce}, status: ${status}`)
             if(self._callback != null && self._currentNonce != null) self._callback(self._currentNonce, status)
-            // console.log(`AudioPlayer: Finished playing audio: ${this._currentNonce}, status: ${status}`)
             self._currentNonce = undefined
             self._isPlaying = false
         }
