@@ -7,7 +7,7 @@
 -->
 ## OBS: Important for Existing Users
 1. If you are upgrading a legacy widget with file based settings (v5 or lower), meaning no database is used yet, you need to upgrade to the [last version that has legacy imports](https://github.com/BOLL7708/streaming_widget/releases/tag/v6.657) if you want your data converted.
-2. If you are on a version below [v6.657](https://github.com/BOLL7708/streaming_widget/releases/tag/v6.657), you need to first upgrade to [v6.607](https://github.com/BOLL7708/streaming_widget/releases/tag/v6.607) and run the setup in the editor to apply the database migrations. When do the next upgrade, before using the editor, change: `./_data/version.json` to: `{"current":3}`.
+2. If you are on a version below [v6.657](https://github.com/BOLL7708/streaming_widget/releases/tag/v6.657), you need to first upgrade to [v6.607](https://github.com/BOLL7708/streaming_widget/releases/tag/v6.607) and run the setup in the editor to apply the database migrations. When you do the next upgrade, before using the editor, change: `./_data/version.json` to contain: `{"current":3}`.
 
 ## What is it?
 This is a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
