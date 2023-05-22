@@ -33,7 +33,7 @@ export default class TopBar {
     static async attachFavorites(elementId: string) {
         const div = document.querySelector<HTMLDivElement>(elementId)
         if(div) {
-            if(window.location.pathname.includes('index.php')) {
+            if(window.location.pathname.includes('index.php') || window.location.pathname.indexOf('.php') == -1) {
                 div.style.display = 'none'
             } else {
                 const editorConfig = await DataBaseHelper.loadMain(new ConfigEditor())

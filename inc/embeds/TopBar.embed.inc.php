@@ -42,9 +42,12 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         // This is not really preferred as it will not get referenced when changing the
         // data object class in TS, but to make the interface not jump we load this here.
         $db = DB::get();
-        $entries = $db->getEntries('ConfigEditor', 'Main') ?? [];
-        $config = array_shift($entries);
-        $showFavorites = $config->data->showFavoritesBar ?? true;
+        $showFavorites = false;
+        if(!str_ends_with($_SERVER['SCRIPT_NAME'], 'index.php')) {
+            $entries = $db->getEntries('ConfigEditor', 'Main') ?? [];
+            $config = array_shift($entries);
+            $showFavorites = $config->data->showFavoritesBar ?? true;
+        }
         $favoritesBarStyle = !$showFavorites ? 'style="display: none;"' : '';
         ?>
         <li><a href="index.php" id="topBarSignOutLink" title="Sign out of this page.">🔥 Sign out</a></li>
