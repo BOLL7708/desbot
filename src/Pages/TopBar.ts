@@ -33,17 +33,21 @@ export default class TopBar {
     static async attachFavorites(elementId: string) {
         const div = document.querySelector<HTMLDivElement>(elementId)
         if(div) {
-            const editorConfig = await DataBaseHelper.loadMain(new ConfigEditor())
-            const favorites = editorConfig.favorites
-            const items: HTMLElement[] = [buildFavorite('🔨 Config', 'ConfigEditor', DataBaseHelper.OBJECT_MAIN_KEY, 'editor.php?g=c&c=ConfigEditor&k=Main')]
-            if(Object.keys(favorites).length > 0) {
-                for(const [name, favorite] of Object.entries(favorites)) {
-                    items.push(buildFavorite(`⭐ ${name}`, favorite.class, favorite.class_withKey))
+            if(window.location.pathname.includes('index.php')) {
+                div.style.display = 'none'
+            } else {
+                const editorConfig = await DataBaseHelper.loadMain(new ConfigEditor())
+                const favorites = editorConfig.favorites
+                const items: HTMLElement[] = [buildFavorite('🔨 Config', 'ConfigEditor', DataBaseHelper.OBJECT_MAIN_KEY, 'editor.php?g=c&c=ConfigEditor&k=Main')]
+                if(Object.keys(favorites).length > 0) {
+                    for(const [name, favorite] of Object.entries(favorites)) {
+                        items.push(buildFavorite(`⭐ ${name}`, favorite.class, favorite.class_withKey))
+                    }
                 }
+                const ul = document.createElement('ul') as HTMLUListElement
+                ul.replaceChildren(...items)
+                div.replaceChildren(ul)
             }
-            const ul = document.createElement('ul') as HTMLUListElement
-            ul.replaceChildren(...items)
-            div.replaceChildren(ul)
         }
 
         function buildFavorite(name: string, groupClass: string, groupKey: string, url?: string): HTMLSpanElement {
