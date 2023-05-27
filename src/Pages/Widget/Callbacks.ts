@@ -404,11 +404,6 @@ export default class Callbacks {
                     durationMs: Config.screenshots.callback.signDurationMs
                 })
 
-                // Sound effect
-                const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
-                const soundConfig = Utils.ensureObjectNotId(obsConfig.sourceScreenshotConfig.captureSoundEffect)
-                if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
-
                 // Discord
                 if(discordCfg) {
                     const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
