@@ -23,8 +23,8 @@ export class ConfigScreenshotsCallback extends BaseDataObject {
     signManualSubtitle: string = 'Manual shot!'
     pipeEnabledForManual: boolean = true
     pipeEnabledForRewards: (number|string)[] = []
-    pipeMessagePreset: (number|PresetPipeCustom) = 0
-    pipeMessagePreset_forMs: number = 5000
+    pipePreset: (number|PresetPipeCustom) = 0
+    pipePreset_forMs: number = 5000
     captureSoundEffect: (number|ActionAudio) = 0
     // TODO: Add the ability to post discord threads in various ways, see Trello.
 }
@@ -51,7 +51,7 @@ DataObjectMap.addSubInstance(
         signManualSubtitle: 'Sub-title of the Sign pop-in for manual shots, goes beneath the image.\n\nRedeemed shots will have the subtitle be the redeemers username.',
         pipeEnabledForManual: 'Enable manual screenshots to be output to VR through the Pipe.',
         pipeEnabledForRewards: 'Keys for screenshot rewards that should be output to VR through the Pipe.',
-        pipeMessagePreset: 'The Pipe preset for screenshots. Duration to display the in headset overlay for in milliseconds.',
+        pipePreset: 'The Pipe preset for screenshots. Duration to display the headset overlay for in milliseconds.',
         captureSoundEffect: 'As there is not built in audio effect for OBS screenshots an option for that is provided here.\nWhy this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.'
     },
     {
@@ -59,7 +59,7 @@ DataObjectMap.addSubInstance(
         discordWebhooksOBS: PresetDiscordWebhook.refId(),
         discordWebhooksSSSVR: PresetDiscordWebhook.refId(),
         pipeEnabledForRewards: SettingTwitchReward.refIdKeyLabel('key'),
-        pipeMessagePreset: PresetPipeCustom.refId(),
+        pipePreset: PresetPipeCustom.refId(),
         captureSoundEffect: ActionAudio.refId()
     }
 )

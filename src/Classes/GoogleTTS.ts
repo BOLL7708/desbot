@@ -15,9 +15,12 @@ import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import {SettingUser, SettingUserMute, SettingUserVoice} from '../Objects/Setting/User.js'
 import TextHelper from './TextHelper.js'
 import {SettingDictionaryEntry} from '../Objects/Setting/Dictionary.js'
+import TwitchChat from './TwitchChat.js'
+import ConfigTwitchChat from '../Objects/Config/TwitchChat.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
+    private _chatConfig = new ConfigTwitchChat()
     private _speakerTimeoutMs: number = 0
     private _audio: AudioPlayerInstance = new AudioPlayerInstance()
     private _voices: IGoogleVoice[] = [] // Cache
@@ -41,6 +44,7 @@ export default class GoogleTTS {
     }
     private async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigSpeech())
+        this._chatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
         this._speakerTimeoutMs = this._config.speakerTimeoutMs
     }
 
@@ -206,7 +210,7 @@ export default class GoogleTTS {
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = 0
         switch(sentence.type) {
             case ETTSType.Said:
-                const speech = Config.twitchChat.speech ?? '%userNick said: %userInput'
+                const speech = this._chatConfig.speechTemplate
                 cleanText = (this._lastSpeaker == sentence.userId || this._config.skipSaid)
                     ? cleanText 
                     : TextHelper.replaceTags(speech, {userNick: cleanName, userInput: cleanText})

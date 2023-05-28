@@ -1,20 +1,3 @@
-import {IAudioAction, IPipeAction} from './iactions.js'
-
-export interface ITwitchChatConfig {
-    /**
-     * Pipe preset used for displaying custom chat messages in VR.
-     */
-    pipe?: IPipeAction
-    /**
-     * Audio config for empty messages that would not be piped.
-     */
-    audio?: IAudioAction
-    /**
-     * String used for TTS, `%name` is the name of the user, `%text` is the message.
-     */
-    speech: string
-}
-
 // Data (used in Factory)
 export interface ITwitchMessageCmd {
     properties: ITwitchChatMessageProperties

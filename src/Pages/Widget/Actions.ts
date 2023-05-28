@@ -653,7 +653,7 @@ export class Actions {
                 }
 
                 // Show it
-                modules.pipe.showPreset(configClone).then()
+                modules.pipe.showAction(TempFactory.pipeActionInterface(configClone)).then()
             }
         }
     }

@@ -39,6 +39,7 @@ import {IAudioAction} from '../../Interfaces/iactions.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
 import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
+import ConfigTwitchChat from '../../Objects/Config/TwitchChat.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -114,7 +115,8 @@ export default class Callbacks {
             if(messageData.isAction) type = ETTSType.Action
 
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
-            
+            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const soundEffect = Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage)
             if(states.ttsForAll) { 
                 // TTS is on for everyone
                 await modules.tts.enqueueSpeakSentence(
@@ -130,15 +132,16 @@ export default class Callbacks {
                 await modules.tts.enqueueSpeakSentence(
                     messageData.text, 
                     userData.id,
-                    type, 
-                    undefined, 
-                    Utils.getNonce('TTS'), 
+                    type,
+                    undefined,
+                    Utils.getNonce('TTS'),
                     clearRanges
                 )
-            } else if(states.pingForChat && Config.twitchChat.audio) {
+            } else if(states.pingForChat && twitchChatConfig.soundEffectOnEmptyMessage) {
                 // Chat sound
-                const soundEffect = Config.twitchChat.audio
-                if(!Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) modules.tts.enqueueSoundEffect(soundEffect)
+                if(soundEffect && !Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) {
+                    modules.tts.enqueueSoundEffect(TempFactory.configAudio(soundEffect))
+                }
             }
 
             // Pipe to VR (basic)
@@ -312,12 +315,12 @@ export default class Callbacks {
                 Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? 'Unknown')
                 || (requestData == null && screenshotsConfig.callback.pipeEnabledForManual)
             ) {
-                const preset = Utils.ensureObjectNotId(screenshotsConfig.callback.pipeMessagePreset)
+                const preset = Utils.ensureObjectNotId(screenshotsConfig.callback.pipePreset)
                 if(preset !== undefined) {
                     const configClone: PresetPipeCustom = Utils.clone(preset)
                     configClone.imageData = responseData.image
                     if(configClone.customProperties) {
-                        configClone.customProperties.durationMs = screenshotsConfig.callback.pipeMessagePreset_forMs
+                        configClone.customProperties.durationMs = screenshotsConfig.callback.pipePreset_forMs
                         const tas = configClone.customProperties.textAreas
                         if(tas && tas.length > 0) {
                             tas[0].text = `${responseData.width}x${responseData.height}`

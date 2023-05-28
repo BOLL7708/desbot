@@ -14,13 +14,18 @@ import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigPipe} from '../Objects/Config/Pipe.js'
 import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ImageEditor.js'
 import TextHelper from './TextHelper.js'
+import ConfigTwitchChat from '../Objects/Config/TwitchChat.js'
+import TempFactory from './TempFactory.js'
+import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
+    private _chatConfig: ConfigTwitchChat = new ConfigTwitchChat()
     private _socket?: WebSockets = undefined
     constructor() {}
     async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigPipe())
+        this._chatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
@@ -82,9 +87,9 @@ export default class Pipe {
         const imageDataUrl = profileUrl != undefined
             ? await ImageHelper.getDataUrl(profileUrl, true)
             : null
-        const preset = Utils.clone(Config.twitchChat.pipe)
+
+        const preset = Utils.clone(Utils.ensureObjectNotId(this._chatConfig.pipePreset))
         if(!preset) return Utils.log("Pipe: No preset found for chat messages", Color.Red)
-        preset.config = Utils.clone(await DataBaseHelper.load(new PresetPipeCustom(), preset.configRef))
         if(
             this._config.useCustomChatNotification
         ) { // Custom notification
@@ -172,15 +177,16 @@ export default class Pipe {
             }
 
             // Show it
-            preset.imageDataEntries = imageEditor.getData()
-            preset.imagePathEntries = undefined
-            preset.durationMs = 2500 + textResult.writtenChars * 50
+            const action = new ActionPipe()
+            action.preset = preset
+            action.imageDataEntries = [imageEditor.getData()]
+            action.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
-                let width = preset.config?.customProperties?.widthM ?? 0
+                let width = preset.customProperties?.widthM ?? 0
                 // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
-                if(preset.config?.customProperties) preset.config.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
+                if(preset.customProperties) preset.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
             }
-            this.showPreset(preset).then()
+            this.showAction(action).then()
             done = true
         } 
         
@@ -211,41 +217,42 @@ export default class Pipe {
         else console.warn('Pipe.sendCustom: Websockets instance not initiated.')
     }
 
-    async showPreset(preset: IPipeAction) {
-        if(!preset.config) return console.warn('Pipe.showPreset: IPipeAction did not contain a config.')
+    async showAction(action: ActionPipe) {
+        const preset = Utils.ensureObjectNotId(action.preset)
+        if(!preset) return console.warn('Pipe.showPreset: Action did not contain a preset.')
         // If path exists, load image, in all cases output base64 image data
         const states = StatesSingleton.getInstance()
         let imageB64arr: string[] = []
-        if(preset.imagePathEntries) {
-            for(const imagePath of Utils.ensureArray(preset.imagePathEntries)) {
-                const stateKey = preset.config.customProperties?.anchorType ?? 0
+        if(action.imagePathEntries.length > 0) {
+            for(const imagePath of Utils.ensureArray(action.imagePathEntries)) {
+                const stateKey = preset.customProperties?.anchorType ?? 0
                 states.pipeLastImageFileNamePerAnchor.set(stateKey, imagePath.split('/').pop() ?? '')
                 imageB64arr.push(await ImageHelper.getDataUrl(imagePath))
             }
-        } else if (preset.imageDataEntries) {
-            imageB64arr = Utils.ensureArray(preset.imageDataEntries)
+        } else if (action.imageDataEntries.length > 0) {
+            imageB64arr = Utils.ensureArray(action.imageDataEntries)
         } else {
             console.warn("Pipe: No image path nor image data found for preset")
         }
         
         // If the above resulted in image data, broadcast it
-        const configClone = Utils.clone(preset.config)
+        const presetClone = Utils.clone(preset)
         for(const imageB64 of imageB64arr) {
-            configClone.imageData = Utils.removeImageHeader(imageB64)
-            if (configClone.customProperties) {
-                configClone.customProperties.animationHz = -1
-                configClone.customProperties.durationMs = preset.durationMs;
+            presetClone.imageData = Utils.removeImageHeader(imageB64)
+            if (presetClone.customProperties) {
+                presetClone.customProperties.animationHz = -1
+                presetClone.customProperties.durationMs = action.durationMs;
                 if (
-                    configClone.customProperties.textAreas != undefined
-                    && preset.texts != undefined
-                    && preset.texts.length >= configClone.customProperties.textAreas.length
+                    presetClone.customProperties.textAreas != undefined
+                    && action.texts != undefined
+                    && action.texts.length >= presetClone.customProperties.textAreas.length
                 ) {
-                    for (let i = 0; i < preset.texts.length; i++) {
-                        configClone.customProperties.textAreas[i].text = preset.texts[i]
+                    for (let i = 0; i < action.texts.length; i++) {
+                        presetClone.customProperties.textAreas[i].text = action.texts[i]
                     }
                 }
             }
-            this.sendCustom(configClone)
+            this.sendCustom(presetClone).then()
         }
         if(imageB64arr.length == 0) {
             console.warn('Pipe: Show Custom, could not find image!')

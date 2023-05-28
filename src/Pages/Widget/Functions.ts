@@ -18,6 +18,8 @@ import {SettingSteamAchievements, SettingSteamGame} from '../../Objects/Setting/
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
+import ConfigTwitchChat from '../../Objects/Config/TwitchChat.js'
+import TempFactory from '../../Classes/TempFactory.js'
 
 export default class Functions {
     /*
@@ -29,11 +31,12 @@ export default class Functions {
     .##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
     .##........#######..##....##..######.....##....####..#######..##....##..######.
     */
-    public static setEmptySoundForTTS() {
+    public static async setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
-        const audio = states.pingForChat ? Config.twitchChat.audio : undefined
-        modules.tts.setEmptyMessageSound(audio)
+        const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+        const audio = states.pingForChat ? Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
+        if(audio) modules.tts.setEmptyMessageSound(TempFactory.configAudio(audio))
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {
@@ -91,7 +94,7 @@ export default class Functions {
 
             states.pipeAllChat = combinedSettings.pipeAllChat ?? false
             states.pingForChat = combinedSettings.pingForChat ?? false
-            this.setEmptySoundForTTS.call(this) // Needed as that is down in a module and does not read the flag directly.
+            this.setEmptySoundForTTS.call(this).then() // Needed as that is down in a module and does not read the flag directly.
             states.logChatToDiscord = combinedSettings.logChatToDiscord ?? false
             states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards ?? false // OBS: Running the command for this will create infinite loop.
             states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory ?? false

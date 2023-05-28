@@ -2,7 +2,6 @@ import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
-import {ITwitchChatConfig} from '../Interfaces/itwitch_chat.js'
 import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 
 /*
@@ -193,27 +192,6 @@ Config.screenshots = <IScreenshotConfig> {
             'Unknown' // Your screenshot reward key
         ]
     }
-}
-
-/*
-.########.##......##.####.########..######..##.....##.....######..##.....##....###....########
-....##....##..##..##..##.....##....##....##.##.....##....##....##.##.....##...##.##......##...
-....##....##..##..##..##.....##....##.......##.....##....##.......##.....##..##...##.....##...
-....##....##..##..##..##.....##....##.......#########....##.......#########.##.....##....##...
-....##....##..##..##..##.....##....##.......##.....##....##.......##.....##.#########....##...
-....##....##..##..##..##.....##....##....##.##.....##....##....##.##.....##.##.....##....##...
-....##.....###..###..####....##.....######..##.....##.....######..##.....##.##.....##....##...
-*/
-Config.twitchChat = <ITwitchChatConfig> {
-    pipe: {
-        durationMs: 5000,
-        configRef: 'database_group_key'
-    },
-    audio: {
-        srcEntries: '_assets/SOUND_FOR_EMPTY_CHAT_MESSAGE_NOTIFICATIONS.wav',
-        volume: 0.5
-    },
-    speech: '%userNick said: %userInput'
 }
 
 /*
