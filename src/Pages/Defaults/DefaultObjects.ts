@@ -248,7 +248,6 @@ export default class DefaultObjects {
                 key: EKeys.DiscordChannelTrophy,
                 instance: new PresetDiscordWebhook(),
                 importer: async (instance: PresetDiscordWebhook, key)=>{
-                    instance.label = 'Channel Trophy'
                     return await DataBaseHelper.save(instance, key)
                 }
             },

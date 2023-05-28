@@ -6,6 +6,7 @@ import {TKeys} from '../_data/!keys.js'
 import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import ConfigOBS from '../Objects/Config/OBS.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import {EnumScreenshotFileType} from '../Enums/EnumScreenshotFileType.js'
 
 export default class OBS {
     private _socket?: WebSockets
@@ -174,8 +175,8 @@ export default class OBS {
             this._socket?.send(
                 this.buildRequest("TakeSourceScreenshot", id, {
                     "sourceName": sourceName,
-                    "embedPictureFormat": this._config.sourceScreenshotConfig.embedPictureFormat,
-                    "saveToFilePath": this._config.sourceScreenshotConfig.saveToFilePath+`${time}_${ms}${user}.${this._config.sourceScreenshotConfig.embedPictureFormat}`
+                    "embedPictureFormat": EnumScreenshotFileType.PNG,
+                    "saveToFilePath": Utils.ensureTrailingSlash(this._config.saveScreenshotsToFilePath)+`${time}_${ms}${user}.${EnumScreenshotFileType.PNG}`
                 })
             )
         }, delaySeconds * 1000)

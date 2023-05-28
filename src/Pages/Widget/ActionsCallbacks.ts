@@ -440,6 +440,7 @@ export default class ActionsCallbacks {
             tag: 'RefundRedemption',
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
+                // TODO: Still broken, appears we're not getting new redemptions to register.
                 const modules = ModulesSingleton.getInstance()
                 const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption())
                 const userName = TextHelper.getFirstUserTagInText(user.input)

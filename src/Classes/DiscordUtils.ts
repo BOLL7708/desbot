@@ -169,9 +169,9 @@ export default class DiscordUtils {
      * @param callback
      */
     static enqueuePayloadEmbed(
-        url: string, 
-        imageBlob: Blob, 
-        color: number, 
+        url: string,
+        imageBlob: Blob,
+        color: number,
         description?: string,
         authorName?: string,
         authorUrl?: string,

@@ -21,6 +21,7 @@ export default class Utils {
     }
 
     static b64toBlob = (b64Data: string, contentType='image/png', sliceSize=512) => {
+        if(b64Data.includes(',')) b64Data = b64Data.split(',').pop() ?? b64Data
         const byteCharacters = atob(b64Data);
         const byteArrays = [];
     
@@ -187,7 +188,7 @@ export default class Utils {
         if(typeof value !== 'object' || value === null) return undefined
         else return value
     }
-    static ensureObjectArrayNotId<Type>(arrayOfValues: number|Type[]): Type[] {
+    static ensureObjectArrayNotId<Type>(arrayOfValues: (number|Type)[]): Type[] {
         const result: Type[] = []
         if(Array.isArray(arrayOfValues)) {
             for(const value of arrayOfValues) {
@@ -686,6 +687,18 @@ export default class Utils {
     static isAudio(contentType: any) {
         const validTypes = ['audio/wav', 'audio/x-wav', 'audio/mpeg', 'audio/mp4', 'audio/aac', 'audio/aacp', 'audio/ogg', 'audio/webm', 'audio/x-caf', 'audio/flac']
         return typeof contentType == 'string' && validTypes.indexOf(contentType) > -1
+    }
+
+    static ensureTrailingSlash(path: string): string {
+        if(path.split('/').length > path.split('\\').length) {
+            return this.ensureStringTail(path, '/')
+        } else {
+            return this.ensureStringTail(path, '\\')
+        }
+    }
+    static ensureStringTail(value: string, tail: string): string {
+        if(!value.endsWith(tail)) return `${value}${tail}`
+        else return value
     }
 }
 

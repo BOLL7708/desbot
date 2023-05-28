@@ -15,10 +15,6 @@ import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 ..######..##.....##.########.########..########.##....##....##....####.##.....##.########..######.
 */
 Config.credentials = <ICredentialsConfig> {
-    OBSPassword: '',
-    OpenVR2WSPassword: '',
-    GoogleTTSApiKey: '',
-    PhilipsHueUsername: '',
     DiscordWebhooks: {
         'DiscordChat': 'The webhook URL you want to use for logging Twitch chat',
         'DiscordVRScreenshot': 'The webhook URL you want to use for VR screenshots',
@@ -27,9 +23,7 @@ Config.credentials = <ICredentialsConfig> {
         'CallbackAchievement': 'The webhook URL you want to use for the achievement callback',
         'ChannelTrophyStats': 'The webhook URL you want to use for channel trophy statistics',
         'Clips': 'The webhook URL you want to use for Twitch clips'
-    },
-    SteamWebAPIKey: '',
-    SteamUserID: ''
+    }
 }
 
 /*
@@ -194,25 +188,10 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
 ..######...######..##.....##.########.########.##....##..######..##.....##..#######.....##...
 */
 Config.screenshots = <IScreenshotConfig> {
-    SSSVRPort: 8807,
     callback: {
-        discordManualTitle: 'Manual Screenshot',
-        discordRewardTitle: 'Photograph: %text',
-        discordRewardInstantTitle: 'Instant shot!',
-        signTitle: 'Screenshot',
-        signManualSubtitle: 'Manual shot!',
-        signDurationMs: 5000,
-        pipeEnabledForManual: false,
         pipeEnabledForRewards: [
             'Unknown' // Your screenshot reward key
-        ],
-        pipeMessagePreset:  {
-            durationMs: 5000,
-            configRef: 'database_group_key' // TODO: Is a DB reference to PresetPipeCustom
-        },
-        soundEffectForOBSScreenshots: {
-            // srcEntries: '_assets/yoursound.wav',
-        }
+        ]
     }
 }
 

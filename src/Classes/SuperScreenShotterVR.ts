@@ -4,19 +4,21 @@ import Config from './Config.js'
 import {ISSSVRCallback, ISSSVRRequest, ISSSVRResponse} from '../Interfaces/isssvr.js'
 import {IScreenshotConfig, IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import {TKeys} from '../_data/!keys.js'
+import ConfigScreenshots from '../Objects/Config/Screenshots.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
 export default class SuperScreenShotterVR {
-    private _socket: WebSockets
+    private _socket?: WebSockets
     private _messageCounter: number = 0
     private _screenshotRequests: Map<number, IScreenshotRequestData> = new Map()
     private _messageCallback: ISSSVRCallback = (requestResponse) => { console.warn('Screenshot: unhandled response') }
-    constructor() {
-        let config:IScreenshotConfig = Config.screenshots
-        this._socket = new WebSockets(`ws://localhost:${config.SSSVRPort}`, 10, true)
+    private _config = new ConfigScreenshots()
+    constructor() {}
+    async init() {
+        this._config = await DataBaseHelper.loadMain(new ConfigScreenshots())
+        this._socket = new WebSockets(`ws://localhost:${this._config.SSSVRPort}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
-    }
-    init() {
         this._socket.init();
     }
     private onMessage(evt: MessageEvent) {
@@ -47,6 +49,6 @@ export default class SuperScreenShotterVR {
             delay: delaySeconds,
             tag: userData.login
         }
-        this._socket.send(JSON.stringify(message))
+        this._socket?.send(JSON.stringify(message))
     }
 }

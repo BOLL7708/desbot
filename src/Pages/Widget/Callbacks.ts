@@ -37,6 +37,8 @@ import ConfigOBS from '../../Objects/Config/OBS.js'
 import ConfigTwitch from '../../Objects/Config/Twitch.js'
 import {IAudioAction} from '../../Interfaces/iactions.js'
 import TempFactory from '../../Classes/TempFactory.js'
+import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
+import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -302,19 +304,20 @@ export default class Callbacks {
 
         // region Screenshots
         modules.sssvr.setScreenshotCallback(async (requestData, responseData) => {
+            const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
+
             // Pipe manual screenshots into VR if configured.
+            // TODO: Figure out how to associate this with either events or actions in the future... probably events?
             if(
                 Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? 'Unknown')
-                || (requestData == null && Config.screenshots.callback.pipeEnabledForManual)
+                || (requestData == null && screenshotsConfig.callback.pipeEnabledForManual)
             ) {
-                const preset = Config.screenshots.callback.pipeMessagePreset
-                if(preset) preset.config = await DataBaseHelper.load(new PresetPipeCustom(), preset.configRef)
-
-                if(preset !== undefined && preset.config !== undefined) {
-                    const configClone: PresetPipeCustom = Utils.clone(preset.config)
+                const preset = Utils.ensureObjectNotId(screenshotsConfig.callback.pipeMessagePreset)
+                if(preset !== undefined) {
+                    const configClone: PresetPipeCustom = Utils.clone(preset)
                     configClone.imageData = responseData.image
                     if(configClone.customProperties) {
-                        configClone.customProperties.durationMs = preset.durationMs
+                        configClone.customProperties.durationMs = screenshotsConfig.callback.pipeMessagePreset_forMs
                         const tas = configClone.customProperties.textAreas
                         if(tas && tas.length > 0) {
                             tas[0].text = `${responseData.width}x${responseData.height}`
@@ -331,25 +334,28 @@ export default class Callbacks {
                 }
             }
 
-            const discordCfg = Config.credentials.DiscordWebhooks['DiscordVRScreenshot'] ?? ''
+            const webhooks = Utils.ensureObjectArrayNotId(screenshotsConfig.callback.discordWebhooksSSSVR)
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
             // Post screenshot to Sign and Discord
+            const blob = screenshotsConfig.callback.discordEmbedImageFormat == EnumScreenshotFileType.JPG
+                ? await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
+                : Utils.b64toBlob(dataUrl)
             if(requestData) { // A screenshot from a reward
                 const userData = await TwitchHelixHelper.getUserById(requestData.userId)
                 const authorName = userData?.display_name ?? ''
 
                 // Sign
                 modules.sign.enqueueSign({
-                    title: Config.screenshots.callback.signTitle,
+                    title: screenshotsConfig.callback.signTitle,
                     image: dataUrl,
                     subtitle: authorName,
-                    durationMs: Config.screenshots.callback.signDurationMs
+                    durationMs: screenshotsConfig.callback.signTitle_forMs
                 })
 
                 // Discord
-                if(discordCfg) {
+                for(const webhook of webhooks) {
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
                     const description = requestData.userInput
@@ -359,34 +365,33 @@ export default class Callbacks {
                         await TwitchHelixHelper.getUserColor(requestData.userId) ?? discordConfig.screenshotEmbedColorRemote
                     )
                     const descriptionText = description?.trim().length > 0
-                        ? TextHelper.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
-                        : Config.screenshots.callback.discordRewardInstantTitle
-                    const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
-                    DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                        ? TextHelper.replaceTags(screenshotsConfig.callback.discordRewardTitle, {text: description})
+                        : screenshotsConfig.callback.discordRewardInstantTitle
+                    DiscordUtils.enqueuePayloadEmbed(webhook.url, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
                 }
             } else { // A manually taken screenshot
                 // Sign
                 modules.sign.enqueueSign({
-                    title: Config.screenshots.callback.signTitle,
+                    title: screenshotsConfig.callback.signTitle,
                     image: dataUrl,
-                    subtitle: Config.screenshots.callback.signManualSubtitle,
-                    durationMs: Config.screenshots.callback.signDurationMs
+                    subtitle: screenshotsConfig.callback.signManualSubtitle,
+                    durationMs: screenshotsConfig.callback.signTitle_forMs
                 })
 
                 // Discord
-                if(discordCfg) {
+                for(const webhook of webhooks) {
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData != null ? gameData.name : states.lastSteamAppId
                     const color = Utils.hexToDecColor(discordConfig.screenshotEmbedColorManual)
-                    const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
-                    DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, Config.screenshots.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
+                    DiscordUtils.enqueuePayloadEmbed(webhook.url, blob, color, screenshotsConfig.callback.discordManualTitle, undefined, undefined, undefined, gameTitle)
                 }
             }
         })
 
         modules.obs.registerSourceScreenshotCallback(async (img, requestData, nonce) => {
+            const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
+
             const b64data = img.split(',').pop() ?? ''
-            const discordCfg = Config.credentials.DiscordWebhooks['DiscordOBSScreenshot'] ?? ''
             const dataUrl = Utils.b64ToDataUrl(b64data)
             const nonceCallback = states.nonceCallbacks.get(nonce)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
@@ -398,17 +403,17 @@ export default class Callbacks {
 
                 // Sign
                 modules.sign.enqueueSign({
-                    title: Config.screenshots.callback.signTitle,
+                    title: screenshotsConfig.callback.signTitle,
                     image: dataUrl,
                     subtitle: authorName,
-                    durationMs: Config.screenshots.callback.signDurationMs
+                    durationMs: screenshotsConfig.callback.signTitle_forMs
                 })
 
                 // Discord
-                if(discordCfg) {
-                    const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
+                const webhooks = Utils.ensureObjectArrayNotId(screenshotsConfig.callback.discordWebhooksSSSVR)
+                for(const webhook of webhooks) {
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
-                    const gameTitle = gameData ? gameData.name : obsConfig.sourceScreenshotConfig.discordGameTitle
+                    const gameTitle = gameData ? gameData.name : screenshotsConfig.callback.discordDefaultGameTitle
                     const description = requestData.userInput
                     const authorUrl = `https://twitch.tv/${userData?.login ?? ''}`
                     const authorIconUrl = userData?.profile_image_url ?? ''
@@ -416,10 +421,10 @@ export default class Callbacks {
                         await TwitchHelixHelper.getUserColor(requestData.userId) ?? discordConfig.screenshotEmbedColorRemote
                     )
                     const descriptionText = description?.trim().length > 0
-                        ? TextHelper.replaceTags(Config.screenshots.callback.discordRewardTitle, {text: description})
-                        : obsConfig.sourceScreenshotConfig.discordDescription
+                        ? TextHelper.replaceTags(screenshotsConfig.callback.discordRewardTitle, {text: description})
+                        : screenshotsConfig.callback.discordRewardInstantTitle
                     const blob = await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
-                    DiscordUtils.enqueuePayloadEmbed(discordCfg, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
+                    DiscordUtils.enqueuePayloadEmbed(webhook.url, blob, color, descriptionText, authorName, authorUrl, authorIconUrl, gameTitle)
                 }
             }
         })

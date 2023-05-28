@@ -54,6 +54,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigOBS from '../../Objects/Config/OBS.js'
+import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
 
 export class ActionHandler {
     constructor(
@@ -743,8 +744,8 @@ export class Actions {
                 const states = StatesSingleton.getInstance()
                 const modules = ModulesSingleton.getInstance()
                 const userInput = user.input
-                const obsConfig = await DataBaseHelper.loadMain(new ConfigOBS())
-                const soundConfig = Utils.ensureObjectNotId(obsConfig.sourceScreenshotConfig.captureSoundEffect)
+                const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
+                const soundConfig = Utils.ensureObjectNotId(screenshotsConfig.callback.captureSoundEffect)
                 if(userInput) {
                     // This is executed after the TTS with the same nonce has finished.
                     states.nonceCallbacks.set(nonce, ()=>{
