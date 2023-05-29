@@ -57,6 +57,9 @@ export default class WebSockets {
     disconnect() {
         this._socket?.close()
     }
+    isConnected(): boolean {
+        return this._connected
+    }
 
     private startConnectLoop(immediate:boolean = false) {
         this.stopConnectLoop()

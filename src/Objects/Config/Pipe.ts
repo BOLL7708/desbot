@@ -34,7 +34,7 @@ export class ConfigPipeCustomMessageAvatar extends BaseDataObject {
 
 DataObjectMap.addRootInstance(
     new ConfigPipe(),
-    'In-VR-overlays and notifications with <a href="https://github.com/BOLL7708/OpenVRNotificationPipe">OpenVRNotificationPipe</a>',
+    'In-VR-overlays and notifications with: https://github.com/BOLL7708/OpenVRNotificationPipe',
     {
         port: 'The port number set in OpenVRNotificationPipe.',
         showRewardsWithKeys: 'Pipe the input text for these rewards into VR.',

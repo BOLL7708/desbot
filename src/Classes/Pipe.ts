@@ -68,6 +68,8 @@ export default class Pipe {
         profileUrl?: string, 
         messageData?: ITwitchMessageData
     ) {
+        if(!this._socket?.isConnected()) console.warn('Pipe.sendBasic: Websockets instance not initiated.')
+
         // Skip if supposed to be skipped
         if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
@@ -208,16 +210,14 @@ export default class Pipe {
     }
 
     async sendCustom(message: PresetPipeCustom) {
-        if(this._socket) {
-            const nonce = Utils.getNonce('custom-pipe')
-            message.customProperties.nonce = nonce
-            const response = await this._socket.sendMessageWithPromise(JSON.stringify(message), nonce, 10000)
-            console.log('Pipe.sendCustom result', response)
-        }
-        else console.warn('Pipe.sendCustom: Websockets instance not initiated.')
+        if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
+        const nonce = Utils.getNonce('custom-pipe')
+        message.customProperties.nonce = nonce
+        const response = await this._socket?.sendMessageWithPromise(JSON.stringify(message), nonce, 10000)
+        console.log('Pipe.sendCustom result', response)
     }
-
     async showAction(action: ActionPipe) {
+	    if(!this._socket?.isConnected()) console.warn('Pipe.showPreset: Websockets instance not initiated.')
         const preset = Utils.ensureObjectNotId(action.preset)
         if(!preset) return console.warn('Pipe.showPreset: Action did not contain a preset.')
         // If path exists, load image, in all cases output base64 image data
