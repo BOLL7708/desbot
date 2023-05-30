@@ -55,7 +55,7 @@ DataObjectMap.addRootInstance(
         cheer: 'Last cheer data.',
         sub: 'Last sub data.',
         raid: 'Last raid data.'
-    })
+    }, {}, 'displayName')
 DataObjectMap.addSubInstance(new SettingUserVoice())
 DataObjectMap.addSubInstance(new SettingUserName())
 DataObjectMap.addSubInstance(new SettingUserMute())

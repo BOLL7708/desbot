@@ -92,7 +92,7 @@ export class PresetPipeCustomTextArea extends BaseDataObject {
     verticalAlignment: number = 0
 }
 
-DataObjectMap.addRootInstance(new PresetPipeBasic())
+DataObjectMap.addRootInstance(new PresetPipeBasic(), '', {}, {}, 'basicTitle')
 DataObjectMap.addRootInstance(
     new PresetPipeCustom(),
     'This is what is sent to the Pipe application',

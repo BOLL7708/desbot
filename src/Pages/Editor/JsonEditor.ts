@@ -530,7 +530,8 @@ export default class JsonEditor {
                 if(overrideClass.length > 0) {
                     items = await DataBaseHelper.loadIDsWithLabelForClass(overrideClass, undefined, isGeneric ? this._rowId : undefined)
                 } else {
-                    items = await DataBaseHelper.loadIDsWithLabelForClass(values.class, values.idLabelField, isGeneric ? this._rowId : undefined)
+                    const labelField = values.useLabel ? await DataObjectMap.getMeta(values.class)?.label : undefined
+                    items = await DataBaseHelper.loadIDsWithLabelForClass(values.class, labelField, isGeneric ? this._rowId : undefined)
                 }
                 if(!this._config.includeOrphansInGenericLists) {
                     items = Object.fromEntries(
@@ -634,7 +635,6 @@ export default class JsonEditor {
          * This is if we are picking a file
          */
         if(thisTypeValues.file || parentTypeValues.file) {
-            console.log("I am a file field!")
             input.contentEditable = 'false'
             input.classList.add('disabled')
             input.classList.add('hidden') // Always hidden as it can get long.

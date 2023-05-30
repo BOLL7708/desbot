@@ -58,7 +58,7 @@ DataObjectMap.addSubInstance(
         discordEmbedImageFormat: EnumScreenshotFileType.ref(),
         discordWebhooksOBS: PresetDiscordWebhook.refId(),
         discordWebhooksSSSVR: PresetDiscordWebhook.refId(),
-        pipeEnabledForRewards: SettingTwitchReward.refIdKeyLabel('key'),
+        pipeEnabledForRewards: SettingTwitchReward.refIdKeyLabel(),
         pipePreset: PresetPipeCustom.refId(),
         captureSoundEffect: ActionAudio.refId()
     }

@@ -31,12 +31,11 @@ export default abstract class BaseDataObject {
     }
 
     /**
-     * Get the name of the class appended with the ID flag and label value.
+     * Get the name of the class appended with the ID and label flags.
      * If this ID is referenced when instancing a class, it will be filled with the object.
-     * @param label
      */
-    static refIdLabel<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>): string {
-        return this.refId()+`|label=${label as string}`
+    static refIdLabel(): string {
+        return this.refId()+`|label`
     }
 
     /**
@@ -48,11 +47,11 @@ export default abstract class BaseDataObject {
     }
 
     /**
-     * Get the name of the class appended with the ID flag and label value.
+     * Get the name of the class appended with the ID and label flags.
      * If this ID is referenced when instancing a class, it will be filled with the key for the object.
      */
-    static refIdKeyLabel<T extends typeof BaseDataObject>(this: T, label: TNoFunctions<InstanceType<T>>) {
-        return this.refIdKey()+`|label=${label as string}`
+    static refIdKeyLabel() {
+        return this.refIdKey()+`|label`
     }
 
     /**
@@ -216,7 +215,7 @@ export default abstract class BaseDataObject {
             original: refStr,
             class: refArr.shift() ?? '',
             isIdReference: false,
-            idLabelField: '',
+            useLabel: false,
             idToKey: false,
             genericLike: '',
             enum: false,
@@ -228,7 +227,7 @@ export default abstract class BaseDataObject {
             switch(k) {
                 case 'id': refValues.isIdReference = true; break
                 case 'key': refValues.idToKey = true; break
-                case 'label': refValues.idLabelField = v; break
+                case 'label': refValues.useLabel = true; break
                 case 'like': refValues.genericLike = v; break
                 case 'enum': refValues.enum = true; break
                 case 'secret': refValues.secret = true; break;
@@ -245,7 +244,7 @@ export interface IBaseDataObjectRefValues {
     original: string
     class: string
     isIdReference: boolean
-    idLabelField: string
+    useLabel: boolean
     idToKey: boolean
     genericLike: string
     enum: boolean,

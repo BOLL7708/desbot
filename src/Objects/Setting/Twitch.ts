@@ -29,6 +29,6 @@ export class SettingTwitchRedemption extends BaseDataObject {
 
 DataObjectMap.addRootInstance(new SettingTwitchClient())
 DataObjectMap.addRootInstance(new SettingTwitchTokens())
-DataObjectMap.addRootInstance(new SettingTwitchReward(), 'Twitch Reward', { key: 'Easy to read identifier in the system.'})
+DataObjectMap.addRootInstance(new SettingTwitchReward(), 'Twitch Reward', { key: 'Easy to read identifier in the system.'}, {}, 'key')
 DataObjectMap.addRootInstance(new SettingTwitchClip())
 DataObjectMap.addRootInstance(new SettingTwitchRedemption())

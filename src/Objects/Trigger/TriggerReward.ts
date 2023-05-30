@@ -21,7 +21,7 @@ DataObjectMap.addRootInstance(new TriggerReward(),
     },
     {
         permissions: PresetPermissions.refId(),
-        rewardID: SettingTwitchReward.refIdKeyLabel('key'),
+        rewardID: SettingTwitchReward.refIdKeyLabel(),
         rewardEntries: BaseDataObject.genericRef('PresetReward'),
         rewardEntriesType: EnumEntryUsage.ref()
     }

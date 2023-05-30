@@ -77,7 +77,7 @@ DataObjectMap.addSubInstance(
         reward: 'The reward to update, if it should be visible and/or redeemable.'
     },
     {
-        reward: SettingTwitchReward.refIdLabel('key'),
+        reward: SettingTwitchReward.refIdLabel(),
         reward_visible: EnumTwitchRewardVisible.ref(),
         reward_usable: EnumTwitchRewardUsable.ref()
     }

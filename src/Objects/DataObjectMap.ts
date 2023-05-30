@@ -13,7 +13,8 @@ export default class DataObjectMap {
         instance: T&BaseDataObject,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
-        types?: Partial<Record<TNoFunctions<T>, TTypes>>
+        types?: Partial<Record<TNoFunctions<T>, TTypes>>,
+        label?: TNoFunctions<T>
     ) {
         const className = instance.constructor.name
         const meta = new DataObjectMeta(
@@ -21,7 +22,8 @@ export default class DataObjectMap {
             isRoot,
             description,
             documentation as IStringDictionary|undefined,
-            types as IStringDictionary|undefined
+            types as IStringDictionary|undefined,
+            label as string|undefined
         )
         this._map.set(className, meta)
     }
@@ -29,9 +31,10 @@ export default class DataObjectMap {
         instance: T&BaseDataObject,
         description: string|undefined = undefined,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
-        types?: Partial<Record<TNoFunctions<T>, TTypes>>
+        types?: Partial<Record<TNoFunctions<T>, TTypes>>,
+        label?: TNoFunctions<T>
     ) {
-        this.addInstance(true, instance, description, documentation, types)
+        this.addInstance(true, instance, description, documentation, types, label)
     }
     public static addSubInstance<T>(
         instance: T&BaseDataObject,
@@ -95,7 +98,8 @@ export class DataObjectMeta extends BaseMeta {
         public isRoot: boolean,
         public description?: string,
         public documentation?: IStringDictionary,
-        public types?: IStringDictionary
+        public types?: IStringDictionary,
+        public label?: string
     ) {
         super()
     }

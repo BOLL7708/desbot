@@ -15,5 +15,5 @@ DataObjectMap.addRootInstance(
     {achieved: 'string'}
 )
 DataObjectMap.addRootInstance(
-    new SettingSteamGame()
+    new SettingSteamGame(), '', {}, {}, 'title'
 )

@@ -28,6 +28,6 @@ DataObjectMap.addRootInstance(
     }, {
         steamWebApiKey: 'string|secret',
         steamUserId: 'string|secret',
-        ignoredAppIds: SettingSteamGame.refIdKeyLabel('title')
+        ignoredAppIds: SettingSteamGame.refIdKeyLabel()
     }
 )

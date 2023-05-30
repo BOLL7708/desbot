@@ -21,8 +21,8 @@ DataObjectMap.addRootInstance(
         announcerTriggers: 'Things triggered by matching the start of an announcements message by any designated announcer.'
     },
     {
-        announcerUsers: SettingUser.refIdLabel('displayName'),
-        announcerTriggers: ConfigTwitchAnnouncerTriggers.ref()
+        announcerUsers: SettingUser.refIdLabel(),
+        announcerTriggers: ConfigTwitchAnnouncerTriggers.ref(),
     }
 )
 
