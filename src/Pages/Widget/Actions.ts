@@ -55,6 +55,7 @@ import LegacyUtils from '../../Classes/LegacyUtils.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigOBS from '../../Objects/Config/OBS.js'
 import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
+import ConfigTwitch from '../../Objects/Config/Twitch.js'
 
 export class ActionHandler {
     constructor(
@@ -382,13 +383,15 @@ export class Actions {
         const event = Utils.getEventConfig(key)
         const remoteCommand = event?.triggers.remoteCommand
         if(remoteCommand) {
+            const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
             const triggers = Utils.ensureArray(remoteCommand.entries)
             for(let trigger of triggers) {
                 trigger = TextHelper.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
-                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.remoteCommand, trigger: trigger, allowedUsers: Config.twitch.remoteCommandAllowedUsers }
+                const allowedUsers = Utils.ensureObjectArrayNotId(twitchConfig.remoteCommandAllowedUsers).map((user) => user.userName).filter((login) => login)
+                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.remoteCommand, trigger: trigger, allowedUsers: allowedUsers }
                 if(remoteCommand?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
                 else if(remoteCommand?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
                 else useThisCommand.handler = actionHandler

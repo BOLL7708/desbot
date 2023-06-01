@@ -10,63 +10,6 @@ import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
  */
 export interface ITwitchConfig {
     /**
-     * Prefix for triggering chat commands.
-     */
-    commandPrefix: string
-    /**
-     * Will allow users with the right permissions to execute commands by whispering the chatbot.
-     */
-    allowWhisperCommands: boolean
-    /**
-     * Prefix for triggering remote chat commands.
-     */
-    remoteCommandPrefix: string
-    /**
-     * Set this to a Twitch channel name if you want to allow remote commands from a different channel.
-     */
-    remoteCommandChannel: string
-    /**
-     * Only allow remote command for these specific users.
-     */
-    remoteCommandAllowedUsers: string[]
-    /**
-     * Subscription types to announce in chat.
-     */
-    announceSubs: IAnnounceSubConfig[],
-
-    /**
-     * Cheer levels to announce in chat.
-     */
-    announceCheers: IAnnounceCheerConfig[],
-
-    /**
-     * The Twitch category that will be used if a game title cannot be automatically matched.
-     */
-    defaultGameCategory: string,
-
-    /**
-     * Manual override of game title to Twitch category for when a match is faulty or missing.
-     */
-    gameTitleToCategoryOverride: { [title:string]: string }
-
-    /**
-     * When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.
-     */
-    proxyChatBotName: string
-    /**
-     * A regular expression to extraxt the username and message from the proxy chat message.
-     * There should be three capture groups, in order: `botname, username, message`
-     * 
-     * Example meant to be used with Restream: `/\[(\w*):\s(.+)\]\s(.+)/`
-     */
-    proxyChatFormat: RegExp
-    
-    /**
-     * List of moderators that should not be able to execute commands, useful for bots.
-     */
-    ignoreModerators: string[]
-
-    /**
      * These rewards will be switched on at widget load as well as on game change.
      * 
      * The only override is if they are also listed in {@link ITwitchConfig.alwaysOffRewards}.

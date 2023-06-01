@@ -700,6 +700,20 @@ export default class Utils {
         if(!value.endsWith(tail)) return `${value}${tail}`
         else return value
     }
+
+    static toRegExp(rxStr: string): RegExp {
+        try {
+            const arr = rxStr.split('/')
+            if(arr.length >= 3) { // A valid string should split into at least three parts as it should have at least two slashes
+                const flags = arr.pop()
+                const pattern = arr.filter((str)=>str).join('/')
+                return new RegExp(pattern, flags)
+            }
+        } catch (e) {
+            console.warn('Exception trying to create regular expression', e)
+        }
+        return new RegExp(rxStr)
+    }
 }
 
 // Tip from the TS Discord, ended up not using it, possibly useful later?

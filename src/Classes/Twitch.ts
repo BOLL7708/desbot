@@ -22,6 +22,7 @@ import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DiscordUtils from './DiscordUtils.js'
 import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import TextHelper from './TextHelper.js'
+import ConfigTwitch from '../Objects/Config/Twitch.js'
 
 export default class Twitch{
     // Constants
@@ -30,13 +31,14 @@ export default class Twitch{
      * This [URL]/[Emote ID]/[Resolution], resolution can be 1.0, 2.0 or 3.0.
      */
     static readonly EMOTE_URL = 'https://static-cdn.jtvnw.net/emoticons/v1'
-
+    private _config = new ConfigTwitch()
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     public _twitchChatRemote: TwitchChat = new TwitchChat()
     private LOG_COLOR_COMMAND: string = 'maroon'
 
     async init(initChat: boolean = true) {
+        this._config = await DataBaseHelper.loadMain(new ConfigTwitch())
         if(initChat) {
             // In/out for chat in the main channel
             const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
@@ -45,8 +47,8 @@ export default class Twitch{
             this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
             // Remote command channel
-            const remoteChannel = Config.twitch.remoteCommandChannel
-            if(remoteChannel.length > 0) this._twitchChatRemote.init(chatbotTokens?.userLogin, Config.twitch.remoteCommandChannel)
+            const remoteChannel = Utils.ensureObjectNotId(this._config.remoteCommandChannel)?.userName ?? ''
+            if(remoteChannel.length > 0) this._twitchChatRemote.init(chatbotTokens?.userLogin, remoteChannel)
         }        
         this._twitchChatIn.registerChatMessageCallback((message) => {
             this.onChatMessage(message)
@@ -149,14 +151,15 @@ export default class Twitch{
         const isModerator = (
             messageCmd.properties?.mod == '1'
             || (await TwitchHelixHelper.isUserModerator(userId)) // Fallback
-        ) && !Config.twitch.ignoreModerators.map(name => name.toLowerCase()).includes(userName)
+        ) && !Utils.ensureObjectArrayNotId(this._config.ignoreModerators).map(user => user.userName.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
             || (await TwitchHelixHelper.isUserVIP(userId)) // Fallback
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
 
         // Chat proxy
-        if(Config.twitch.proxyChatBotName.toLowerCase() == userName) {
-            const matches = text.match(Config.twitch.proxyChatFormat)
+        const proxyChatBot = Utils.ensureObjectNotId(this._config.proxyChatBotUser)?.userName ?? ''
+        if(proxyChatBot.length > 0 && proxyChatBot.toLowerCase() == userName) {
+            const matches = text.match(Utils.toRegExp(this._config.proxyChatMessageRegex))
             if(matches && matches.length == 4) {
                 userName = matches[2].toLowerCase()
                 text = matches[3]
@@ -194,7 +197,7 @@ export default class Twitch{
         }
 
         // Commands
-        if(text && text.indexOf(Config.twitch.commandPrefix) == 0) {
+        if(text && text.indexOf(this._config.commandPrefix) == 0) {
             const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
             if(user.login.toLowerCase() == chatbotTokens?.userLogin) {
                 Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${chatbotTokens?.userLogin})`, this.LOG_COLOR_COMMAND)
@@ -229,7 +232,7 @@ export default class Twitch{
                 user.input = textStr
                 user.inputWords = textStr.split(' ')
                 user.source = EEventSource.TwitchCommand
-                if(!isWhisper || Config.twitch.allowWhisperCommands) {
+                if(!isWhisper || this._config.allowWhisperCommands) {
                     this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 }
                 if(isWhisper && Config.credentials.DiscordWebhooks['DiscordWhisperCommands']) {
@@ -283,7 +286,7 @@ export default class Twitch{
         user.id = parseInt(messageCmd.properties["user-id"] ?? '')
 
         // Commands
-        if(text && text.indexOf(Config.twitch.remoteCommandPrefix) == 0) {
+        if(text && text.indexOf(this._config.remoteCommandPrefix) == 0) {
             let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()
             let command = this._remoteCommands.find(cmd => commandStr == cmd.trigger.toLowerCase())
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''

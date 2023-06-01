@@ -10,6 +10,12 @@ export class EnumTwitchRewardUsable extends BaseEnum {
     static readonly Pause = 200
 
 }
+export class EnumTwitchSubTier extends BaseEnum {
+    static readonly Prime = 0
+    static readonly Tier1 = 1000
+    static readonly Tier2 = 2000
+    static readonly Tier3 = 3000
+}
 
 EnumObjectMap.addPrototype(
     EnumTwitchRewardVisible,
@@ -26,4 +32,8 @@ EnumObjectMap.addPrototype(
         Unpause: 'The reward will be available to redeem.',
         Pause: 'The reward will not be possible to redeem.'
     }
+)
+EnumObjectMap.addPrototype(
+    EnumTwitchSubTier,
+    'The tier of a Twitch subscription.'
 )

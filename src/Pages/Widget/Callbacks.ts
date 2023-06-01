@@ -79,7 +79,11 @@ export default class Callbacks {
             triggers: Object.keys(twitchConfig.announcerTriggers),
             callback: async (userData, messageData, firstWord) => {
                 // TTS
-                const audioConfig = Utils.ensureObjectNotId(twitchConfig.announcerTriggers[firstWord]?.audio)
+                const audioConfig = Utils.ensureObjectNotId(
+                    Utils.ensureObjectNotId(
+                        twitchConfig.announcerTriggers.find((announcer)=> announcer.trigger == firstWord)
+                    )?.trigger_audio
+                )
                 if(audioConfig) {
                     // TODO: Convert to use class instead of interface
                     modules.tts.enqueueSoundEffect(TempFactory.configAudio(audioConfig))
@@ -237,10 +241,10 @@ export default class Callbacks {
         })
 
         const subscriptionHandler = async (tier: number, gift: boolean, multi: boolean)=>{
-            const sub = Config.twitch.announceSubs.find((sub) =>
-                sub.gift == gift
-                && sub.tier == tier
-                && sub.multi == multi
+            const sub = twitchConfig.announceSubs.find((sub)=>
+                sub.tier == tier
+                && sub.tier_gift == gift
+                && sub.tier_multi == multi
             )
 
             // TODO: Announce sub
@@ -290,7 +294,7 @@ export default class Callbacks {
 
             // Announce cheer
             const bits = event.bits
-            const levels = Utils.clone(Config.twitch.announceCheers)
+            const levels = Utils.clone(twitchConfig.announceCheers)
             let selectedLevel = levels.shift()
             for(const level of levels) {
                 if(bits >= level.bits) selectedLevel = level

@@ -20,6 +20,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import ConfigTwitchChat from '../../Objects/Config/TwitchChat.js'
 import TempFactory from '../../Classes/TempFactory.js'
+import ConfigTwitch from '../../Objects/Config/Twitch.js'
 
 export default class Functions {
     /*
@@ -43,7 +44,8 @@ export default class Functions {
         // Skip if we should ignore this app ID.
         const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
         if(steamConfig.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
-		
+        const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
+
 		// Init
 		const modules = ModulesSingleton.getInstance()
 		const states = StatesSingleton.getInstance()
@@ -259,8 +261,9 @@ export default class Functions {
         if(appId.length > 0 && states.updateTwitchGameCategory) {
             const gameData = await SteamStoreHelper.getGameMeta(appId)
             let gameName = gameData?.name ?? ''
-            if(Config.twitch.gameTitleToCategoryOverride[gameName]) {
-                gameName = Config.twitch.gameTitleToCategoryOverride[gameName]
+            const override = twitchConfig.gameTitleToCategoryOverride.find((override)=>{ return Utils.ensureObjectNotId(override.game)?.title == gameName })
+            if(override) {
+                gameName = override.category
             }
             let twitchGameData = await TwitchHelixHelper.searchForGame(gameName)
             if(twitchGameData == null && typeof gameData?.name == 'string') {
@@ -274,7 +277,7 @@ export default class Functions {
             }
             if(twitchGameData == null) {
                 // If still no Twitch match, we load a possible default category.
-                twitchGameData = await TwitchHelixHelper.searchForGame(Config.twitch.defaultGameCategory)
+                twitchGameData = await TwitchHelixHelper.searchForGame(twitchConfig.defaultGameCategory)
             }
             if(twitchGameData != undefined) {
                 const request: ITwitchHelixChannelRequest = {
