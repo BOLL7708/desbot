@@ -15,12 +15,6 @@ import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 */
 Config.credentials = <ICredentialsConfig> {
     DiscordWebhooks: {
-        'DiscordChat': 'The webhook URL you want to use for logging Twitch chat',
-        'DiscordVRScreenshot': 'The webhook URL you want to use for VR screenshots',
-        'DiscordOBSScreenshot': 'The webhook URL you want to use for OBS screenshots',
-        'ChannelTrophy': 'The webhook URL you want to use for the channel trophy',
-        'CallbackAchievement': 'The webhook URL you want to use for the achievement callback',
-        'ChannelTrophyStats': 'The webhook URL you want to use for channel trophy statistics',
         'Clips': 'The webhook URL you want to use for Twitch clips'
     }
 }
@@ -35,28 +29,8 @@ Config.credentials = <ICredentialsConfig> {
 ..######...#######..##....##....##....##.....##..#######..########.########.########.##.....##
 */
 Config.controller = <IControllerConfig> { // Set defaults for the widget
-    defaults: {
-        pipeAllChat: true,
-        ttsForAll: true,
-        pingForChat: true,
-        logChatToDiscord: true,
-        useGameSpecificRewards: true,
-        updateTwitchGameCategory: true,
-        runRemoteCommands: false
-    },
     gameDefaults: {
         // [Games.YOUR_GAME]: { pipeAllChat: false }
-    },
-    websocketsUsed: {
-        twitchChat: true,
-        twitchPubSub: true,
-        twitchEventSub: true,
-        obs: true,
-        openvr2ws: false,
-        pipe: false,
-        relay: false,
-        sssvr: false,
-        sdrelay: false
     },
     commandPermissionsDefault: {
         streamer: true,
@@ -157,24 +131,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         ]
     },
     saveConsoleOutputToSettings: false,
-    secretChatSymbols: ['!'],
-    channelTrophySettings: {
-        label: 'Channel Trophy #%number\n%userName',
-        rewardTitle: 'Held by %userName!',
-        rewardPrompt: 'Currently held by %userName! %prompt Now costs %number points!',
-        rewardCooldownMultiplier: 30,
-        ttsOn: true,
-        ttsName: '@%userName grabbed',
-        ttsTrophy: 'trophy',
-        uniqueNumbers: {
-            /* 
-            1234: { 
-                speech: "%start the best trophy! Number %number is so cool!", 
-                label: "Trippy Channel Trophy: %entry" 
-            }
-            */
-        }
-    }
 }
 
 /*
@@ -204,37 +160,6 @@ Config.screenshots = <IScreenshotConfig> {
 ....##.....###..###..####....##.....######..##.....##
 */
 Config.twitch = <ITwitchConfig> {
-    commandPrefix: '!',
-    allowWhisperCommands: false,
-    remoteCommandPrefix: '!',
-    remoteCommandChannel: '',       
-    remoteCommandAllowedUsers: ['AllowedUser1', 'AllowedUser2'],
-    announceSubs: [
-        {tier: 0, gift: false, multi: false, message: '%userTag subbed with Prime'},
-        {tier: 1000, gift: false, multi: false, message: '%userTag subbed with tier 1'},
-        {tier: 2000, gift: false, multi: false, message: '%userTag subbed with tier 2'},
-        {tier: 3000, gift: false, multi: false, message: '%userTag subbed with tier 3'},
-        {tier: 1000, gift: true, multi: false, message: '%userTag gifted %targetTag a tier 1 sub'},
-        {tier: 2000, gift: true, multi: false, message: '%userTag gifted %targetTag a tier 2 sub'},
-        {tier: 3000, gift: true, multi: false, message: '%userTag gifted %targetTag a tier 3 sub'}
-    ],
-    announceCheers: [
-        {bits: 1, message: '%userTag cheered %userBits bits! (will be the default message)'},
-        {bits: 100, message: 'Wow %userTag cheered %userBits bits! (for 100 or more)'}
-    ],
-
-    defaultGameCategory: 'Games + Demos',
-    gameTitleToCategoryOverride: {
-        // 'Game Title from Steam': 'Twitch Category Name'
-    },
-
-    proxyChatBotName: 'RestreamBot',
-    proxyChatFormat: /\[(\w*):\s(.+)\]\s(.+)/,
-
-    ignoreModerators: [
-        'RestreamBot'
-    ],
-
     alwaysOnRewards: [ // Will be turned on unless they are in the other setting below to be disabled.
         'ChannelTrophy'
     ],

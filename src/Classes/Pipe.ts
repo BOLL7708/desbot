@@ -17,6 +17,7 @@ import TextHelper from './TextHelper.js'
 import ConfigTwitchChat from '../Objects/Config/TwitchChat.js'
 import TempFactory from './TempFactory.js'
 import {ActionPipe} from '../Objects/Action/ActionPipe.js'
+import {ConfigController} from '../Objects/Config/Controller.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -71,7 +72,8 @@ export default class Pipe {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendBasic: Websockets instance not initiated.')
 
         // Skip if supposed to be skipped
-        if(Utils.matchFirstChar(message, Config.controller.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
+        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        if(Utils.matchFirstChar(message, controllerConfig.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
         const cleanTextConfig = Utils.clone(this._config.cleanTextConfig)
         cleanTextConfig.removeBitEmotes = hasBits

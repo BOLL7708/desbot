@@ -1,5 +1,7 @@
 import Config from '../Classes/Config.js'
 import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js'
+import {ConfigController} from '../Objects/Config/Controller.js'
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
 /**
  * Contains states and settings for this session
@@ -7,25 +9,38 @@ import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js
 export default class StatesSingleton {
     private static _instance: StatesSingleton;
     private constructor() {}
+    private async init() {
+        const config = await DataBaseHelper.loadMain(new ConfigController())
+        this.ttsForAll = config.stateDefaults.ttsForAll
+        this.pipeAllChat = config.stateDefaults.pipeAllChat
+        this.pingForChat = config.stateDefaults.pingForChat
+        this.useGameSpecificRewards = config.stateDefaults.useGameSpecificRewards
+        this.logChatToDiscord = config.stateDefaults.logChatToDiscord
+        this.updateTwitchGameCategory = config.stateDefaults.updateTwitchGameCategory
+        this.runRemoteCommands = config.stateDefaults.runRemoteCommands
+    }
+    public static async initInstance() {
+        await this.getInstance().init()
+    }
     public static getInstance(): StatesSingleton {
         if (!this._instance) this._instance = new StatesSingleton();
         return this._instance;
     }
 
     public ttsEnabledUsers: string[] = []
-    public ttsForAll: boolean = Config.controller.defaults.ttsForAll ?? false
-    public pipeAllChat: boolean = Config.controller.defaults.pipeAllChat ?? false
-    public pingForChat: boolean = Config.controller.defaults.pingForChat ?? false
-    public useGameSpecificRewards: boolean = Config.controller.defaults.useGameSpecificRewards ?? false
-    public logChatToDiscord: boolean = Config.controller.defaults.logChatToDiscord ?? false
-    public updateTwitchGameCategory: boolean = Config.controller.defaults.updateTwitchGameCategory ?? false
+    public ttsForAll: boolean = false
+    public pipeAllChat: boolean = false
+    public pingForChat: boolean = false
+    public useGameSpecificRewards: boolean = false
+    public logChatToDiscord: boolean = false
+    public updateTwitchGameCategory: boolean = false
     public nonceCallbacks: Map<string, Function> = new Map()
     public scaleIntervalHandle: number = -1
     public steamPlayerSummaryIntervalHandle: number = -1
     public steamAchievementsIntervalHandle: number = -1
     public lastSteamAppId: string|undefined 
     public lastSteamAppIsVR: boolean = false
-    public runRemoteCommands: boolean = Config.controller.defaults.runRemoteCommands ?? false
+    public runRemoteCommands: boolean = false
     public textTagCache: ITextTagsCached = {
         lastDictionaryWord: '',
         lastDictionarySubstitute: '',

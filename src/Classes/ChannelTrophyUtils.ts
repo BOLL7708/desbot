@@ -6,6 +6,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import Color from './ColorConstants.js'
 import {SettingChannelTrophyStat} from '../Objects/Setting/Channel.js'
 import TextHelper from './TextHelper.js'
+import {ConfigController} from '../Objects/Config/Controller.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
@@ -103,7 +104,7 @@ export default class ChannelTrophyUtils {
             lastIndex = index
             lastId = userId
 
-            const funnyNumberConfig = this.detectFunnyNumber(cost, userId)
+            const funnyNumberConfig = await this.detectFunnyNumber(cost, userId)
             if(funnyNumberConfig != null) funnyNumbers.push(funnyNumberConfig)
         }
         updateIfLarger(topSpentInStreak, lastId, streakBuffer)
@@ -271,7 +272,7 @@ export default class ChannelTrophyUtils {
         return embeds
     }
 
-	static detectFunnyNumber(n: number, userId: number = -1): IChannelTrophyFunnyNumber|null {
+	static async detectFunnyNumber(n: number, userId: number = -1): Promise<IChannelTrophyFunnyNumber|null> {
         const result: IChannelTrophyFunnyNumber = {
             number: n,
             speech: '',
@@ -279,15 +280,15 @@ export default class ChannelTrophyUtils {
             userId: userId
         }
         // if(n < 10) return null
-
+        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
         const nameForDiscord = `%userName (**${n}**)`
-        const nameForTTS = Config.controller.channelTrophySettings.ttsName
+        const nameForTTS = controllerConfig.channelTrophySettings.ttsName
         const nStr = n.toString()
-        const trophyName = Config.controller.channelTrophySettings.ttsTrophy
+        const trophyName = controllerConfig.channelTrophySettings.ttsTrophy
         
         
 		// Not sure if this actually works, but let's hope so.
-		const uniqueNumbers = Config.controller.channelTrophySettings.uniqueNumbers
+		const uniqueNumbers = controllerConfig.channelTrophySettings.uniqueNumbers
 		
 		// Detect patterns here, in order of awesomeness or something
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values
@@ -488,22 +489,6 @@ class NumberPatterns {
     }
 }
 
-/**
- * Channel Trophy numbers that are in addition to the pattern matched ones.
- */
-export interface IChannelTrophyFunnyNumberTexts {
-    [key:number]: {
-        /**
-         * The tag `%start` is based on {@link Config.controller.channelTrophySettings.ttsName} and `%number` is the number of the trophy.
-         */
-        speech: string
-        /**
-         * The tag `%entry` is "[name] (number)"
-         */
-        label: string
-    }
-}
-	
 interface IChannelTrophyFunnyNumber {
     number: number
     speech: string

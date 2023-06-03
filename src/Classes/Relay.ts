@@ -5,6 +5,7 @@ import Color from './ColorConstants.js'
 import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigRelay} from '../Objects/Config/Relay.js'
+import {ConfigController} from '../Objects/Config/Controller.js'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen
@@ -26,7 +27,8 @@ export default class Relay {
         this._socket._onClose = this.onClose.bind(this)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
-        if(Config.controller.websocketsUsed.relay) this._socket.init()
+        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        if(controllerConfig.useWebsockets.relay) this._socket.init()
         else Utils.log('Relay: Will not init websockets as it is disabled in the config.', this._logColor)
     }
     setOnMessageCallback(callback: IOnRelayMessageCallback) {

@@ -235,10 +235,11 @@ export default class Twitch{
                 if(!isWhisper || this._config.allowWhisperCommands) {
                     this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 }
-                if(isWhisper && Config.credentials.DiscordWebhooks['DiscordWhisperCommands']) {
+                const webhook = Utils.ensureObjectNotId(this._config.logWhisperCommandsToDiscord)
+                if(isWhisper && webhook) {
                     const userData = await TwitchHelixHelper.getUserById(user.id)
                     DiscordUtils.enqueueMessage(
-                        Config.credentials.DiscordWebhooks['DiscordWhisperCommands'],
+                        webhook.url,
                         user.name,
                         userData?.profile_image_url,
                         '**Whisper Command**: '+Utils.escapeForDiscord(user.message)

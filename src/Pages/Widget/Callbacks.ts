@@ -40,6 +40,7 @@ import TempFactory from '../../Classes/TempFactory.js'
 import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
 import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
 import ConfigTwitchChat from '../../Objects/Config/TwitchChat.js'
+import {ConfigController} from '../../Objects/Config/Controller.js'
 
 export default class Callbacks {
     private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
@@ -120,6 +121,7 @@ export default class Callbacks {
 
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
             const soundEffect = Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage)
             if(states.ttsForAll) { 
                 // TTS is on for everyone
@@ -143,7 +145,7 @@ export default class Callbacks {
                 )
             } else if(states.pingForChat && twitchChatConfig.soundEffectOnEmptyMessage) {
                 // Chat sound
-                if(soundEffect && !Utils.matchFirstChar(messageData.text, Config.controller.secretChatSymbols)) {
+                if(soundEffect && !Utils.matchFirstChar(messageData.text, controllerConfig.secretChatSymbols)) {
                     modules.tts.enqueueSoundEffect(TempFactory.configAudio(soundEffect))
                 }
             }
@@ -179,10 +181,11 @@ export default class Callbacks {
             
             // TODO: Add more things like sub messages? Need to check that from raw logs.
             // TODO: Reference Jeppe's twitch logger for the other messages! :D
-            
-            if(states.logChatToDiscord) {
+            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
+            if(states.logChatToDiscord && webhook) {
                 DiscordUtils.enqueueMessage(
-                    Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
+                    webhook.url ?? '',
                     user?.display_name,
                     user?.profile_image_url,
                     `${label}${logText}`
@@ -201,15 +204,17 @@ export default class Callbacks {
             const rewardPair = rewardPairs.find((pair) => { return pair.id === event.reward.id })
 
             // Discord
-            // TODO: Not yet available with EventSub
+            // TODO: Not yet available with EventSub, handle it on our own I guess.
             const amount = null // redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
+            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
             let description = `${discordConfig.prefixReward}**${event.reward.title}${amountStr}** (${event.reward.cost})`
             if(event.user_input.length > 0) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(event.user_input))}`
-            if(states.logChatToDiscord) {
+            if(states.logChatToDiscord && webhook) {
                 DiscordUtils.enqueueMessage(
-                    Config.credentials.DiscordWebhooks['DiscordChat'] ?? '',
+                    webhook.url ?? '',
                     user?.display_name,
                     user?.profile_image_url,
                     description

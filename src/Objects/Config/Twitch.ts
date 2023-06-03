@@ -4,11 +4,13 @@ import BaseDataObject from '../BaseDataObject.js'
 import {SettingUser, SettingUserName} from '../Setting/User.js'
 import {SettingSteamGame} from '../Setting/Steam.js'
 import {EnumTwitchSubTier} from '../../Enums/Twitch.js'
+import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
 
 export default class ConfigTwitch extends BaseDataObject {
     commandPrefix: string = '!'
     ignoreModerators: number[]|SettingUser[] = []
     allowWhisperCommands: boolean = true
+    logWhisperCommandsToDiscord: number|PresetDiscordWebhook = 0
     remoteCommandChannel: number|SettingUser = 0
     remoteCommandPrefix: string = '!'
     remoteCommandAllowedUsers: number[]|SettingUser[] = []
@@ -92,6 +94,7 @@ DataObjectMap.addRootInstance(
         commandPrefix: 'Prefix for triggering chat commands.',
         ignoreModerators: 'List of moderators that should not be able to execute commands, useful for bots.',
         allowWhisperCommands: 'Will allow users with the right permissions to execute commands by whispering the chatbot.',
+        logWhisperCommandsToDiscord: 'Will push whisper commands to separate Discord channel for audit purposes.',
         remoteCommandChannel: 'Set this to a Twitch channel name if you want to allow remote commands from a different channel.',
         remoteCommandPrefix: 'Prefix for triggering remote chat commands.',
         remoteCommandAllowedUsers: 'Only allow remote command for these specific users.',
@@ -107,6 +110,7 @@ DataObjectMap.addRootInstance(
     },
     {
         ignoreModerators: SettingUser.refIdLabel(),
+        logWhisperCommandsToDiscord: PresetDiscordWebhook.refId(),
         remoteCommandChannel: SettingUser.refIdLabel(),
         remoteCommandAllowedUsers: SettingUser.refIdLabel(),
         proxyChatBotUser: SettingUser.refIdLabel(),

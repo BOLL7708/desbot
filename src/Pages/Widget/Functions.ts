@@ -21,6 +21,7 @@ import LegacyUtils from '../../Classes/LegacyUtils.js'
 import ConfigTwitchChat from '../../Objects/Config/TwitchChat.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigTwitch from '../../Objects/Config/Twitch.js'
+import {ConfigController} from '../../Objects/Config/Controller.js'
 
 export default class Functions {
     /*
@@ -45,6 +46,7 @@ export default class Functions {
         const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
         if(steamConfig.ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
         const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
+        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
 
 		// Init
 		const modules = ModulesSingleton.getInstance()
@@ -80,9 +82,9 @@ export default class Functions {
 			 * Controller defaults loading, various settings including TTS etc.
 			 */
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
-            let combinedSettings = Config.controller.defaults
+            let combinedSettings = controllerConfig.stateDefaults
             if(controllerGameDefaults) {
-                combinedSettings = {...combinedSettings, ...controllerGameDefaults}
+                await combinedSettings.__apply(controllerGameDefaults)
                 Utils.log(`Applying controller settings for: ${appId}`, Color.Green )
             } else {
                 // No merging here as there is no merging to do but we still log it to the console.
@@ -345,30 +347,36 @@ export default class Functions {
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
-                        DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['CallbackAchievement'] ?? '', {
-                            username: gameMeta?.name ?? 'N/A',
-                            avatar_url: gameMeta?.header_image ?? '',
-                            embeds: [
+                        const webhook = Utils.ensureObjectNotId(steamConfig.achievementToDiscord)
+                        if(webhook) {
+                            DiscordUtils.enqueuePayload(
+                                webhook.url,
                                 {
-                                    title: achievementDetails?.displayName ?? key,
-                                    description: achievementDetails?.description ?? '',
-                                    url: SteamStoreHelper.getAchievementsURL(lastSteamAppId, profileTag),
-                                    thumbnail: {
-                                        url: achievementDetails?.icon ?? ''
-                                    },
-                                    timestamp: new Date(achievement.unlocktime*1000).toISOString(),
-                                    footer: {
-                                        text: TextHelper.replaceTags(
-                                            steamConfig.achievementDiscordFooter,
-                                            {
-                                                progress: progressStr, 
-                                                rate: globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                                    username: gameMeta?.name ?? 'N/A',
+                                    avatar_url: gameMeta?.header_image ?? '',
+                                    embeds: [
+                                        {
+                                            title: achievementDetails?.displayName ?? key,
+                                            description: achievementDetails?.description ?? '',
+                                            url: SteamStoreHelper.getAchievementsURL(lastSteamAppId, profileTag),
+                                            thumbnail: {
+                                                url: achievementDetails?.icon ?? ''
+                                            },
+                                            timestamp: new Date(achievement.unlocktime*1000).toISOString(),
+                                            footer: {
+                                                text: TextHelper.replaceTags(
+                                                    steamConfig.achievementDiscordFooter,
+                                                    {
+                                                        progress: progressStr,
+                                                        rate: globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                                                    }
+                                                )
                                             }
-                                        )
-                                    }
+                                        }
+                                    ]
                                 }
-                            ]
-                        })
+                            )
+                        }
 
                         // Twitch chat
                         modules.twitch._twitchChatOut.sendMessageToChannel(

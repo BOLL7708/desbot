@@ -23,6 +23,7 @@ import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Obje
 import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
+import {ConfigController} from '../../Objects/Config/Controller.js'
 
 export default class MainController {
     public static async init() {
@@ -66,8 +67,10 @@ export default class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
+        await StatesSingleton.initInstance() // Init states
         await modules.twitchTokens.refreshToken()
-        if(Config.controller.websocketsUsed.twitchEventSub) modules.twitchEventSub.init().then()
+        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        if(controllerConfig.useWebsockets.twitchEventSub) modules.twitchEventSub.init().then()
 
         modules.pipe.setOverlayTitle("Streaming Widget")
 
@@ -76,7 +79,7 @@ export default class MainController {
         // Steam Web API intervals
         MainController.startSteamAchievementsInterval().then()
         
-        if(!Config.controller.websocketsUsed.openvr2ws) {
+        if(!controllerConfig.useWebsockets.openvr2ws) {
             MainController.startSteamPlayerSummaryInterval().then()
             const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
             if(steamConfig.playerSummaryIntervalMs > 0) {
@@ -98,12 +101,12 @@ export default class MainController {
         ..##..##...###..##.....##...
         .####.##....##.####....##...
         */
-        await modules.twitch.init(Config.controller.websocketsUsed.twitchChat)
-        if(Config.controller.websocketsUsed.openvr2ws) modules.openvr2ws.init().then()
-        if(Config.controller.websocketsUsed.pipe) modules.pipe.init().then()
-        if(Config.controller.websocketsUsed.obs) modules.obs.init()
-        if(Config.controller.websocketsUsed.sssvr) modules.sssvr.init()
-        if(Config.controller.websocketsUsed.sdrelay) modules.streamDeckRelay.init().then()
+        await modules.twitch.init(controllerConfig.useWebsockets.twitchChat)
+        if(controllerConfig.useWebsockets.openvr2ws) modules.openvr2ws.init().then()
+        if(controllerConfig.useWebsockets.pipe) modules.pipe.init().then()
+        if(controllerConfig.useWebsockets.obs) modules.obs.init()
+        if(controllerConfig.useWebsockets.sssvr) modules.sssvr.init()
+        // if(controllerConfig.useWebsockets.sdrelay) modules.streamDeckRelay.init().then() // TODO
     }
 
 

@@ -17,6 +17,7 @@ import TextHelper from './TextHelper.js'
 import {SettingDictionaryEntry} from '../Objects/Setting/Dictionary.js'
 import TwitchChat from './TwitchChat.js'
 import ConfigTwitchChat from '../Objects/Config/TwitchChat.js'
+import {ConfigController} from '../Objects/Config/Controller.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -152,7 +153,8 @@ export default class GoogleTTS {
         }
 
         // Will not even make empty message sound, so secret!
-        if(Utils.matchFirstChar(input, Config.controller.secretChatSymbols)) {
+        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        if(Utils.matchFirstChar(input, controllerConfig.secretChatSymbols)) {
             console.warn(`GoogleTTS: User ${userId} sent secret message!`, input)
             delete this._preloadQueue[serial]
             return

@@ -23,6 +23,7 @@ import {SettingChannelTrophyStat} from '../../Objects/Setting/Channel.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
+import {ConfigController} from '../../Objects/Config/Controller.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -516,6 +517,7 @@ export default class ActionsCallbacks {
             description: 'A user grabbed the Channel Trophy.',
             call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
+                const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
 
                 // Save stat
                 const cost = user.rewardMessage?.reward.cost ?? 0
@@ -538,8 +540,8 @@ export default class ActionsCallbacks {
                     const cost = rewardData.data[0].cost
 
                     // Do TTS
-                    const funnyNumberConfig = ChannelTrophyUtils.detectFunnyNumber(cost)
-                    if(funnyNumberConfig != null && Config.controller.channelTrophySettings.ttsOn) {
+                    const funnyNumberConfig = await ChannelTrophyUtils.detectFunnyNumber(cost)
+                    if(funnyNumberConfig != null && controllerConfig.channelTrophySettings.ttsOn) {
                         modules.tts.enqueueSpeakSentence(
                             await TextHelper.replaceTagsInText(
                                 funnyNumberConfig.speech,
@@ -551,7 +553,7 @@ export default class ActionsCallbacks {
                     const labelUpdated = await DataUtils.writeText(
                         'trophy_label.txt', // TODO: Save as a constant or something?
                         await TextHelper.replaceTagsInText(
-                            Config.controller.channelTrophySettings.label,
+                            controllerConfig.channelTrophySettings.label,
                             user,
                             { number: cost.toString(), userName: user.name }
                         )
@@ -565,14 +567,14 @@ export default class ActionsCallbacks {
                         const newCost = cost+1;
                         const updatedReward = await TwitchHelixHelper.updateReward(rewardId, {
                             title: await TextHelper.replaceTagsInText(
-                                Config.controller.channelTrophySettings.rewardTitle,
+                                controllerConfig.channelTrophySettings.rewardTitle,
                                 user
                             ),
                             cost: newCost,
                             is_global_cooldown_enabled: true,
-                            global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*Config.controller.channelTrophySettings.rewardCooldownMultiplier),
+                            global_cooldown_seconds: (config.global_cooldown_seconds ?? 30) + Math.round(Math.log(newCost)*controllerConfig.channelTrophySettings.rewardCooldownMultiplier),
                             prompt: await TextHelper.replaceTagsInText(
-                                Config.controller.channelTrophySettings.rewardPrompt,
+                                controllerConfig.channelTrophySettings.rewardPrompt,
                                 user,
                                 {
                                     prompt: config.prompt ?? '',
@@ -702,11 +704,13 @@ export default class ActionsCallbacks {
                 const speech = Config.controller.speechReferences['ChannelTrophyStats'] ?? []
                 const numberOfStreams = await ChannelTrophyUtils.getNumberOfStreams()
                 const streamNumber = Utils.toInt(user.input)
+                const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+                const webhook = Utils.ensureObjectNotId(controllerConfig.channelTrophySettings.discordStatistics)
                 if(user.input == "all") {
                     modules.tts.enqueueSpeakSentence(speech[0]).then()
                     for(let i=0; i<numberOfStreams; i++) {
                         const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper, i)
-                        DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
+                        DiscordUtils.enqueuePayload(webhook?.url ?? '', {
                             content: Utils.numberToDiscordEmote(i+1, true),
                             embeds: embeds
                         })
@@ -715,7 +719,7 @@ export default class ActionsCallbacks {
                 } else if (!isNaN(streamNumber)) {
                     modules.tts.enqueueSpeakSentence(speech[2]).then()
                     const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper, streamNumber-1)
-                    DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
+                    DiscordUtils.enqueuePayload(webhook?.url ?? '', {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
                         embeds: embeds
                     }, (success) => {
@@ -725,7 +729,7 @@ export default class ActionsCallbacks {
                 } else {
                     modules.tts.enqueueSpeakSentence(speech[2]).then()
                     const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper)
-                    DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['ChannelTrophyStats'] ?? '', {
+                    DiscordUtils.enqueuePayload(webhook?.url ?? '', {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
                         embeds: embeds
                     }, (success) => {
