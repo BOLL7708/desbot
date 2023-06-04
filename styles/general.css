@@ -235,3 +235,10 @@ span.preview {
 span.no-border {
     border: none;
 }
+
+#defaults-container div {
+    padding: 0.01em 0.5em;
+    margin: 0.5em;
+    border-radius: 0.75em;
+    background-color: var(--section-background-color);
+}

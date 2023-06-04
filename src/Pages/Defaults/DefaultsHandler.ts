@@ -24,11 +24,23 @@ export default class DefaultsHandler {
         const container = document.querySelector('#defaults-container') as HTMLDivElement
         const children: HTMLElement[] = []
 
-        const mandatoryExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.MANDATORY_ENTRIES)
-        children.push(await DefaultsHandler.buildImportButton(DefaultObjects.MANDATORY_ENTRIES, 'Mandatory'))
-        if(mandatoryExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BONUS_ENTRIES, 'Bonus'))
-        children.push(...await DefaultsHandler.buildSection(DefaultObjects.MANDATORY_ENTRIES))
-        if(mandatoryExists) children.push(...await DefaultsHandler.buildSection(DefaultObjects.BONUS_ENTRIES))
+        const LABEL_PREREQUISITE = 'Prerequisite'
+        const LABEL_SYSTEM = 'System'
+        const LABEL_BONUS = 'Bonus'
+
+        // Checks
+        const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.PREREQUISITE_ENTRIES)
+        const systemExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.SYSTEM_ENTRIES)
+
+        // Import Buttons
+        children.push(await DefaultsHandler.buildImportButton(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
+        if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.SYSTEM_ENTRIES, LABEL_SYSTEM))
+        if(systemExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
+
+        // Reference Buttons
+        children.push(await DefaultsHandler.buildSection(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
+        if(prerequisiteExists) children.push(await DefaultsHandler.buildSection(DefaultObjects.SYSTEM_ENTRIES, LABEL_SYSTEM))
+        if(systemExists) children.push(await DefaultsHandler.buildSection(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
 
         container.replaceChildren(...children)
     }
@@ -38,7 +50,7 @@ export default class DefaultsHandler {
         const button = document.createElement('button') as HTMLButtonElement
         button.onclick = importMandatory
         button.ontouchstart = importMandatory
-        button.innerHTML = `✨ Import missing ${label} items`
+        button.innerHTML = `✨ Import missing ${label} entries`
         button.classList.add('main-button', 'new-button')
         button.title = `Import all ${label} items that do not already exist.`
         const status = document.createElement('span') as HTMLSpanElement
@@ -50,8 +62,11 @@ export default class DefaultsHandler {
         return p
     }
 
-    private static async buildSection(parentList: IDefaultObjectList): Promise<HTMLElement[]> {
+    private static async buildSection(parentList: IDefaultObjectList, label: string): Promise<HTMLElement> {
         const children: HTMLElement[] = []
+        const title = document.createElement('h3')
+        title.innerHTML = label
+        children.push(title)
         for(const [category, list] of Object.entries(parentList)) {
             const p = document.createElement('p') as HTMLParagraphElement
             const strong = document.createElement('strong') as HTMLSpanElement
@@ -64,7 +79,9 @@ export default class DefaultsHandler {
             }
             children.push(p)
         }
-        return children
+        const div = document.createElement('div') as HTMLDivElement
+        div.append(...children)
+        return div
     }
 
     private static async checkIfItemsExists(entries: IDefaultObjectList): Promise<boolean> {

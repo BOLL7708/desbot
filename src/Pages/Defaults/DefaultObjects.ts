@@ -137,8 +137,7 @@ export default class DefaultObjects {
             ]
         }
      */
-
-    static readonly MANDATORY_ENTRIES: IDefaultObjectList = {
+    static readonly PREREQUISITE_ENTRIES: IDefaultObjectList = {
         permissionPresets: [
             {
                 key: EKeys.PermissionsStreamer,
@@ -528,7 +527,9 @@ export default class DefaultObjects {
                     return await DataBaseHelper.save(instance, key)
                 }
             }
-        ],
+        ]
+    }
+    static readonly SYSTEM_ENTRIES: IDefaultObjectList = {
         textToSpeechEvents: [
             // region Actions
             {
