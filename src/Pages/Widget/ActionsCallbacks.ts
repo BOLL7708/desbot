@@ -947,6 +947,7 @@ export default class ActionsCallbacks {
                 const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Raid.valueOf().toString())
                 const chatArr = textPreset?.data?.chat ?? []
                 if(channelData) {
+                    user.input = `@${channel}` // TODO: Temporary to fix text replacement! In the future we will generate the FULL set of text replacements ONCE per EVENT.
                     TwitchHelixHelper.raidChannel(channelData.broadcaster_id).then()
                     if(chatArr) {
                         if(chatArr[0] && chatArr[0].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chatArr[0], user))
