@@ -18,6 +18,8 @@ export default class ConfigTwitch extends BaseDataObject {
     proxyChatMessageRegex: string = '/\\[(\\w*):\\s(.+)\\]\\s(.+)/'
     defaultGameCategory: string = 'Games + Demos'
     gameTitleToCategoryOverride: ConfigTwitchCategoryOverride[] = []
+    gameCategoryMatchSpeech: string = 'Twitch game updated: %game'
+    gameCategoryNoMatchSpeech: string = 'Twitch game not matched: %game'
     announcerUsers: (number|SettingUser)[] = []
     announcerTriggers: ConfigTwitchAnnouncerTriggers[] = []
     announceSubs: ConfigTwitchAnnounceSub[] = [
@@ -102,6 +104,8 @@ DataObjectMap.addRootInstance(
         proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: `botname, username, message`',
         defaultGameCategory: 'The Twitch category that will be used if a game title cannot be automatically matched.',
         gameTitleToCategoryOverride: 'Manual override of game title to Twitch category for when a match is faulty or missing.',
+        gameCategoryMatchSpeech: 'Message read out when the Twitch category is set automatically, clear to skip.',
+        gameCategoryNoMatchSpeech: 'Message read out when the Twitch category failed to match, clear to skip.',
         announcerUsers: 'Any user that should be treated as an announcer in chat.\n\nThis means most messages are muted from text to speech, unless specified in announcer triggers, and some prefixes can trigger sound effects.',
         announcerTriggers: 'Things triggered by matching the start of an announcements message by any designated announcer.',
         announceSubs: 'Subscription types to announce in chat.',

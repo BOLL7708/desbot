@@ -24,6 +24,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
 import {ConfigController} from '../../Objects/Config/Controller.js'
+import {PresetSystemActionText} from '../../Objects/Preset/SystemActionText.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -39,46 +40,50 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.ChatOn]: {
             tag: 'Chat On',
             description: 'Enables the chat overlay in VR.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pipeAllChat = true
-                const speech = Config.controller.speechReferences['ChatOn'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.ChatOn.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
         [EnumSystemActionType.ChatOff]: {
             tag: 'Chat Off',
             description: 'Disables the chat overlay in VR.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pipeAllChat = false
-                const speech = Config.controller.speechReferences['ChatOff'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.ChatOff.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
         [EnumSystemActionType.PingOn]: {
             tag: 'Ping On',
             description: 'Enables a sound effect for chat messages if TTS is off or messages are empty.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pingForChat = true
                 Functions.setEmptySoundForTTS()
-                const speech = Config.controller.speechReferences['PingOn'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.PingOn.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
         [EnumSystemActionType.PingOff]: {
             tag: 'Ping Off',
             description: 'Disables the sound effect for chat messages.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pingForChat = false
                 Functions.setEmptySoundForTTS()
-                const speech = Config.controller.speechReferences['PingOff'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.PingOff.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
@@ -91,7 +96,8 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.makeUserModerator(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const speechArr = Config.controller.speechReferences['Mod'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Mod.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
                     modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
@@ -104,7 +110,8 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.removeUserModerator(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const speechArr = Config.controller.speechReferences['UnMod'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.UnMod.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
                     modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
@@ -117,7 +124,8 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.makeUserVIP(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const speechArr = Config.controller.speechReferences['Vip'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Vip.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
                     modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
@@ -130,7 +138,8 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.removeUserVIP(parseInt(await TextHelper.replaceTagsInText('%targetId', user)))
-                const speechArr = Config.controller.speechReferences['UnVip'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.UnVip.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
                 if(Array.isArray(speechArr)) {
                     const speech = result ? speechArr[0] : speechArr[1]
                     modules.tts.enqueueSpeakSentence(await TextHelper.replaceTagsInText(speech, user)).then()
@@ -169,7 +178,8 @@ export default class ActionsCallbacks {
                         quoteSetting.datetime = Utils.getISOTimestamp()
                         quoteSetting.game = gameData?.name ?? ''
                         await DataBaseHelper.save(quoteSetting)
-                        const speech = Config.controller.speechReferences['Quote'] ?? ''
+                        const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Quote.valueOf().toString())
+                        const speech = textPreset?.data?.speech[0] ?? ''
                         modules.tts.enqueueSpeakSentence(
                             await TextHelper.replaceTagsInText(
                                 <string> speech,
@@ -185,7 +195,8 @@ export default class ActionsCallbacks {
                     if(quote) {
                         const date = new Date(quote.datetime)
                         const userData = await TwitchHelixHelper.getUserById(quote.quoteeUserId)
-                        const speech = Config.controller.chatReferences['Quote'] ?? ''
+                        const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Quote.valueOf().toString())
+                        const speech = textPreset?.data?.speech[0] ?? ''
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             await TextHelper.replaceTagsInText(
                                 <string> speech,
@@ -207,22 +218,24 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.LogOn]: {
             tag: 'Log On',
             description: 'Enables logging of chat to Discord.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.logChatToDiscord = true
-                const speech = Config.controller.speechReferences['LogOn'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.LogOn.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
         [EnumSystemActionType.LogOff]: {
             tag: 'Log Off',
             description: 'Disables logging of chat to Discord.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.logChatToDiscord = false
-                const speech = Config.controller.speechReferences['LogOff'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.LogOff.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
             }
         },
@@ -236,7 +249,8 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 const parts = user.input.split(' ')
-                const speech = Config.controller.speechReferences['Scale'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Scale.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
                 const fileName = 'word_scale_label.txt'
                 if(parts.length == 3) {
                     const fromScale = parseInt(parts[0])
@@ -248,7 +262,7 @@ export default class ActionsCallbacks {
                     if(isNaN(fromScale) || isNaN(toScale) || isNaN(forMinutes)) {
                         // Fail to start interval
                         modules.tts.enqueueSpeakSentence(
-                            speech[3],
+                            speechArr[3],
                             chatbotTokens?.userId,
                             ETTSType.Announcement
                         ).then()
@@ -257,7 +271,7 @@ export default class ActionsCallbacks {
                         // Launch interval
                         modules.tts.enqueueSpeakSentence(
                             await TextHelper.replaceTagsInText(
-                                speech[1],
+                                speechArr[1],
                                 user,
                                 {
                                     from: fromScale.toString(),
@@ -281,7 +295,7 @@ export default class ActionsCallbacks {
                                 DataUtils.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
-                                    modules.tts.enqueueSpeakSentence(speech[2])
+                                    modules.tts.enqueueSpeakSentence(speechArr[2])
                                     clearInterval(states.scaleIntervalHandle)
                                     setTimeout(async ()=>{
                                         await DataUtils.writeText(fileName, '')
@@ -297,16 +311,15 @@ export default class ActionsCallbacks {
                     let scale = Utils.toInt(user.input)
                     if(isNaN(scale)) scale = 100
                     if(states.scaleIntervalHandle > -1) {
-                        const speech = Config.controller.speechReferences['Scale'] ?? ''
                         clearInterval(states.scaleIntervalHandle)
                         states.scaleIntervalHandle = -1
                         await DataUtils.writeText(fileName, '')
-                        modules.tts.enqueueSpeakSentence(speech[4]).then()
+                        modules.tts.enqueueSpeakSentence(speechArr[4]).then()
                     }
                     const value = Math.max(10, Math.min(1000, scale || 100))
                     modules.tts.enqueueSpeakSentence(
                         await TextHelper.replaceTagsInText(
-                            speech[0],
+                            speechArr[0],
                             user,
                             { // Overriding the number tag as the scale is clamped.
                                 userNumber: value.toString()
@@ -327,10 +340,11 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.Brightness]: {
             tag: 'Brightness',
             description: 'Changes the display brightness of the headset.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const brightness = Utils.toInt(user.input, 130)
-                const speech = Config.controller.speechReferences['Brightness'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Brightness.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
                 modules.openvr2ws.setSetting({
@@ -344,12 +358,13 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.RefreshRate]: {
             tag: 'RefreshRate',
             description: 'Changes the display refresh rate of the headset.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const validRefreshRates = [80, 90, 120, 144] // TODO: Load from OpenVR2WS so we don't set unsupported frame-rates as it breaks the headset.
                 const possibleRefreshRate = Utils.toInt(user.input, 120)
                 const refreshRate = (validRefreshRates.indexOf(possibleRefreshRate) != -1) ? possibleRefreshRate : 120
-                const speech = Config.controller.speechReferences['RefreshRate'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.RefreshRate.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
                 modules.openvr2ws.setSetting({
@@ -363,10 +378,11 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.VrViewEye]: {
             tag: 'VRViewEye',
             description: 'Changes the eye used for the VR View. Or would if it updated live.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const eyeMode = Utils.toInt(user.input, 4)
-                const speech = Config.controller.speechReferences['VrViewEye'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.VrViewEye.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(5, eyeMode))
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
                 modules.openvr2ws.setSetting({
@@ -416,11 +432,12 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.GameRewardsOn]: {
             tag: 'GameRewardsOn',
             description: 'Enable the channel rewards that are game specific.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.useGameSpecificRewards = true
-                const speech = Config.controller.speechReferences['GameRewardsOn'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.GameRewardsOn.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
                 Functions.appIdCallback(states.lastSteamAppId ?? '', StatesSingleton.getInstance().lastSteamAppIsVR).then()
             }
@@ -428,11 +445,12 @@ export default class ActionsCallbacks {
         [EnumSystemActionType.GameRewardsOff]: {
             tag: 'GameRewardsOff',
             description: 'Disable the channel rewards that are game specific.',
-            call: (user) => {
+            call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.useGameSpecificRewards = false
-                const speech = Config.controller.speechReferences['GameRewardsOff'] ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.GameRewardsOff.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
                 Functions.appIdCallback('', false).then()
             }
@@ -451,7 +469,8 @@ export default class ActionsCallbacks {
                 const userRedemptions = Object.fromEntries(Object.entries(redemptions ?? {}).filter(
                     row => (row[1].userId.toString() == userData?.id ?? '') && (row[1].status.toLowerCase() == 'unfulfilled')
                 ))
-                const message = Config.controller.chatReferences['RefundRedemption'] ?? []
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.RefundRedemption.valueOf().toString())
+                const chatArr = textPreset?.data?.chat ?? []
                 console.log('REFUND', userName, userTag, userData, userRedemptions, redemptions )
                 if(userRedemptions && Object.keys(userRedemptions).length > 0) {
                     const [lastRedemptionId, lastRedemption] = Object.entries(userRedemptions).reduce(
@@ -464,12 +483,12 @@ export default class ActionsCallbacks {
                         console.log('REFUND', result)
                         if(result) {
                             await DataBaseHelper.save(lastRedemption, lastRedemptionId)
-                            modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
+                            modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( chatArr[0], {targetTag: userTag, cost: lastRedemption.cost.toString()}))
                         } else {
-                            modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[1], {targetTag: userTag}))
+                            modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( chatArr[1], {targetTag: userTag}))
                         }
-                    } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[2], {targetTag: userTag}))
-                } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( message[2], {targetTag: userTag}))
+                    } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( chatArr[2], {targetTag: userTag}))
+                } else modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTags( chatArr[2], {targetTag: userTag}))
             }
         },
         [EnumSystemActionType.ClearRedemptions]: {
@@ -478,8 +497,9 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {}
-                const speech = Config.controller.speechReferences['ClearRedemptions'] ?? []
-                modules.tts.enqueueSpeakSentence(speech[0]).then()
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.ClearRedemptions.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
+                modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 let totalClearable = 0
                 let totalCleared = 0
                 for(const [key, redemption] of Object.entries(redemptions)) {
@@ -503,12 +523,12 @@ export default class ActionsCallbacks {
                 if(totalClearable) {
                     modules.tts.enqueueSpeakSentence(
                         TextHelper.replaceTags(
-                            speech[1],
+                            speechArr[1],
                             {total: totalClearable.toString(), count: totalCleared.toString()}
                         )
                     ).then()
                 }
-                else modules.tts.enqueueSpeakSentence(speech[2]).then()
+                else modules.tts.enqueueSpeakSentence(speechArr[2]).then()
             }
         },
 
@@ -595,8 +615,9 @@ export default class ActionsCallbacks {
             description: 'Reset the incremental reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const speech = Config.controller.speechReferences['ResetIncrementingEvents'] ?? []
-                modules.tts.enqueueSpeakSentence(speech[0]).then()
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.ResetIncrementingEvents.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
+                modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
                 const allRewardKeys = Utils.getAllEventKeys(true)
                 let totalCount = 0
@@ -627,7 +648,7 @@ export default class ActionsCallbacks {
                         }
                     }
                 }
-                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[1], {
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speechArr[1], {
                     total: totalCount.toString(),
                     reset: totalResetCount.toString(),
                     skipped: totalSkippedCount.toString()
@@ -639,8 +660,9 @@ export default class ActionsCallbacks {
             description: 'Reset the accumulating reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const speech = Config.controller.speechReferences['ResetAccumulatingEvents'] ?? []
-                modules.tts.enqueueSpeakSentence(speech[0]).then()
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.ResetAccumulatingEvents.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
+                modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
                 const allRewardKeys = Utils.getAllEventKeys(true)
                 let totalCount = 0
@@ -677,7 +699,7 @@ export default class ActionsCallbacks {
                         }
                     }
                 }
-                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[1], {
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speechArr[1], {
                     total: totalCount.toString(),
                     reset: totalResetCount.toString(),
                     skipped: totalSkippedCount.toString()
@@ -701,13 +723,14 @@ export default class ActionsCallbacks {
             description: 'Posts the last Channel Trophy stats to DiscordUtils.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const speech = Config.controller.speechReferences['ChannelTrophyStats'] ?? []
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.ChannelTrophyStats.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
                 const numberOfStreams = await ChannelTrophyUtils.getNumberOfStreams()
                 const streamNumber = Utils.toInt(user.input)
                 const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
                 const webhook = Utils.ensureObjectNotId(controllerConfig.channelTrophySettings.discordStatistics)
                 if(user.input == "all") {
-                    modules.tts.enqueueSpeakSentence(speech[0]).then()
+                    modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                     for(let i=0; i<numberOfStreams; i++) {
                         const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper, i)
                         DiscordUtils.enqueuePayload(webhook?.url ?? '', {
@@ -715,25 +738,25 @@ export default class ActionsCallbacks {
                             embeds: embeds
                         })
                     }
-                    modules.tts.enqueueSpeakSentence(speech[1]).then()
+                    modules.tts.enqueueSpeakSentence(speechArr[1]).then()
                 } else if (!isNaN(streamNumber)) {
-                    modules.tts.enqueueSpeakSentence(speech[2]).then()
+                    modules.tts.enqueueSpeakSentence(speechArr[2]).then()
                     const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper, streamNumber-1)
                     DiscordUtils.enqueuePayload(webhook?.url ?? '', {
                         content: Utils.numberToDiscordEmote(streamNumber, true),
                         embeds: embeds
                     }, (success) => {
-                        modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4])
+                        modules.tts.enqueueSpeakSentence(speechArr[success ? 3 : 4])
                     })
 
                 } else {
-                    modules.tts.enqueueSpeakSentence(speech[2]).then()
+                    modules.tts.enqueueSpeakSentence(speechArr[2]).then()
                     const embeds = await ChannelTrophyUtils.createStatisticsEmbedsForDiscord(TwitchHelixHelper)
                     DiscordUtils.enqueuePayload(webhook?.url ?? '', {
                         content: Utils.numberToDiscordEmote(numberOfStreams, true),
                         embeds: embeds
                     }, (success) => {
-                        modules.tts.enqueueSpeakSentence(speech[success ? 3 : 4])
+                        modules.tts.enqueueSpeakSentence(speechArr[success ? 3 : 4])
                     })
                 }
             }
@@ -745,7 +768,9 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
-                modules.tts.enqueueSpeakSentence(Config.controller.speechReferences['GameReset'] ?? '').then()
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.GameReset.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
+                modules.tts.enqueueSpeakSentence(speech).then()
                 Functions.appIdCallback('', false).then()
                 states.lastSteamAppId = undefined
                 states.lastSteamAppIsVR = false
@@ -759,7 +784,8 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.runRemoteCommands = true
-                const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOn']) ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.RemoteOn.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(
                     await TextHelper.replaceTagsInText(
                         speech,
@@ -775,7 +801,8 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.runRemoteCommands = false
-                const speech = Utils.ensureValue(Config.controller.speechReferences['RemoteOff']) ?? ''
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.RemoteOff.valueOf().toString())
+                const speech = textPreset?.data?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(
                     await TextHelper.replaceTagsInText(speech, user)
                 ).then()
@@ -842,8 +869,9 @@ export default class ActionsCallbacks {
                 const pageCount = 20
                 let lastCount = pageCount
                 const oldClips = await DataBaseHelper.loadAll(new SettingTwitchClip())
-                const speech = Config.controller.speechReferences['Clips'] ?? []
-                modules.tts.enqueueSpeakSentence(speech[0]).then()
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Clips.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
+                modules.tts.enqueueSpeakSentence(speechArr[0]).then()
 
                 // Get all clips
                 const allClips: ITwitchHelixClipResponseData[] = []
@@ -865,7 +893,7 @@ export default class ActionsCallbacks {
                 })
                 modules.tts.enqueueSpeakSentence(
                     await TextHelper.replaceTagsInText(
-                        speech[1],
+                        speechArr[1],
                         user,
                         {
                             count1: oldClipIds.length.toString(),
@@ -896,7 +924,7 @@ export default class ActionsCallbacks {
                 }
                 modules.tts.enqueueSpeakSentence(
                     await TextHelper.replaceTagsInText(
-                        speech[2],
+                        speechArr[2],
                         user,
                         {count: (count-oldClipIds.length).toString()}
                     )
@@ -916,15 +944,16 @@ export default class ActionsCallbacks {
                 if(channel.includes('https://')) channel = channel.split('/').pop() ?? ''
                 Utils.log(`Command Raid: ${user.input} -> ${channel}`, Color.Blue, true, true)
                 const channelData = await TwitchHelixHelper.getChannelByName(channel)
-                const chat = Config.controller.chatReferences['Raid']
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Raid.valueOf().toString())
+                const chatArr = textPreset?.data?.chat ?? []
                 if(channelData) {
                     TwitchHelixHelper.raidChannel(channelData.broadcaster_id).then()
-                    if(chat) {
-                        if(chat[0] && chat[0].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chat[0], user))
-                        if(chat[1] && chat[1].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chat[1], user))
+                    if(chatArr) {
+                        if(chatArr[0] && chatArr[0].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chatArr[0], user))
+                        if(chatArr[1] && chatArr[1].length > 0) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chatArr[1], user))
                     }
                 } else {
-                    if(chat && chat.length >= 3) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chat[2], user))
+                    if(chatArr && chatArr.length >= 3) modules.twitch._twitchChatOut.sendMessageToChannel(await TextHelper.replaceTagsInText(chatArr[2], user))
                 }
             }
         },
@@ -935,10 +964,11 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const result = await TwitchHelixHelper.cancelRaid()
-                const chat = Config.controller.chatReferences['Unraid']
-                if(chat) {
-                    if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chat[0])
-                    else modules.twitch._twitchChatOut.sendMessageToChannel(chat[1])
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Unraid.valueOf().toString())
+                const chatArr = textPreset?.data?.chat ?? []
+                if(chatArr) {
+                    if(result) modules.twitch._twitchChatOut.sendMessageToChannel(chatArr[0])
+                    else modules.twitch._twitchChatOut.sendMessageToChannel(chatArr[1])
                 }
             }
         },

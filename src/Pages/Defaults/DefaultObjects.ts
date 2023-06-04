@@ -22,6 +22,7 @@ import {ActionAudio} from '../../Objects/Action/ActionAudio.js'
 import {ActionLabel} from '../../Objects/Action/ActionLabel.js'
 import {ActionDiscord} from '../../Objects/Action/ActionDiscord.js'
 import {PresetDiscordWebhook} from '../../Objects/Preset/DiscordWebhook.js'
+import {PresetSystemActionText} from '../../Objects/Preset/SystemActionText.js'
 
 enum EKeys {
     // region Presets
@@ -251,6 +252,282 @@ export default class DefaultObjects {
                     return await DataBaseHelper.save(instance, key)
                 }
             },
+        ],
+        systemActionTextPresets: [
+            {
+                key: EnumSystemActionType.Scale.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'World scale set to %userNumber%',
+                        'World scale will change from %from to %to% over %mins minutes',
+                        'World scale sequence finished',
+                        'World scale sequence not set',
+                        'World scale sequence terminated'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.ChannelTrophyStats.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'Initiating posting all Channel Trophy statistics',
+                        'Completed posting all Channel Trophy statistics',
+                        'Initiating posting of Channel Trophy statistics',
+                        'Completed posting of Channel Trophy statistics',
+                        'Failed to post Channel Trophy statistics'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Clips.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'Starting Twitch clip import.',
+                        'There are %count1 old clips, %count2 new clips.',
+                        'Finished posting %count new clips.'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.ClearRedemptions.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'Initiating clearing of reward redemptions queue',
+                        'Completed clearing %count out of %total in the reward redemptions queue',
+                        'There were no reward redemptions in the queue to clear'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.ResetIncrementingEvents.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'Initiating reset of incremental events',
+                        'Finished resetting %reset out of %total incremental events, skipping %skipped'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.ResetAccumulatingEvents.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'Initiating reset of accumulating events',
+                        'Finished resetting %reset out of %total accumulating events, skipping %skipped'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Quote.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Added a quote by %targetOrUserTag']
+                    instance.chat = ['%targetTag said: "%text" (on: %date, game: %gameName)']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.GameReset.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Currently running Steam game has been reset.']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.ChatOn.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Chat enabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.ChatOff.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Chat disabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.PingOn.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Chat ping enabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.PingOff.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Chat ping disabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.LogOn.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Logging enabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.LogOff.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Logging disabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Brightness.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Headset brightness set to %value%']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.RefreshRate.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Headset refresh rate set to %value hertz']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.VrViewEye.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Output eye mode changed to %value']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.GameRewardsOn.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Game specific rewards enabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.GameRewardsOff.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Game specific rewards disabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.RemoteOn.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Remote commands enabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.RemoteOff.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = ['Remote commands disabled']
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Mod.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        '%targetNick made moderator',
+                        '%targetNick could not be made moderator'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.UnMod.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        '%targetNick removed from moderators',
+                        '%targetNick could not be removed from moderators'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Vip.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        '%targetNick made V I P',
+                        '%targetNick could not be made V I P'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.UnVip.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        '%targetNick removed from V I Ps',
+                        '%targetNick could not be removed from V I Ps'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.RefundRedemption.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.chat = [
+                        '%targetTag was refunded: %cost x boll7708meat',
+                        'Failed to refund %targetTag anything.',
+                        '%targetTag has nothing to refund!'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Raid.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.chat = [
+                        'Initiating raid on %targetTag, currently playing: %targetGame',
+                        'Stream title "%targetTitle", link to avoid preroll: %targetLink',
+                        'I could not find channel: "%userInput"'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EnumSystemActionType.Unraid.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.chat = [
+                        'Raid cancelled.',
+                        'Could not cancel raid.'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            }
         ],
         textToSpeechEvents: [
             // region Actions
@@ -1170,7 +1447,7 @@ export interface IDefaultObjectList {
 }
 
 export interface IDefaultObject {
-    key: EKeys
+    key: EKeys|string|number
     instance: BaseDataObject
     importer: IDefaultObjectImporter<any>
     parentKey?: string

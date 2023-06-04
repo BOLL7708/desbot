@@ -1,6 +1,9 @@
 import {BaseEnum} from '../Objects/BaseEnum.js'
 import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
 
+/**
+ * These are basically things happening in the widget that are not customizable actions, but hard-coded ones.
+ */
 export class EnumSystemActionType extends BaseEnum {
     static readonly None = 0
 

@@ -286,12 +286,11 @@ export default class Functions {
                     game_id: twitchGameData.id
                 }
                 const response = await TwitchHelixHelper.updateChannelInformation(request)
-                const speech = Config.controller.speechReferences['CallbackAppID'] ?? []
                 Utils.log(`Steam title: ${gameData?.name} -> Twitch category: ${twitchGameData.name}`, Color.RoyalBlue)
                 if(response) {
-                    await modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[0], {game: twitchGameData.name}))
+                    await modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(twitchConfig.gameCategoryMatchSpeech, {game: twitchGameData.name}))
                 } else {
-                    await modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech[1], {game: gameData?.name ?? 'N/A'}))
+                    await modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(twitchConfig.gameCategoryNoMatchSpeech, {game: gameData?.name ?? 'N/A'}))
                 }
             } else {
                 Utils.log(`Steam title: ${gameData?.name} did not match any Twitch Category`, Color.Red)

@@ -70,7 +70,7 @@ export default class DefaultsHandler {
     private static async checkIfItemsExists(entries: IDefaultObjectList): Promise<boolean> {
         for(const list of Object.values(entries)) {
             for(const item of list) {
-                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key)
+                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key.toString())
                 if(!existingItem) return false
             }
         }
@@ -82,12 +82,12 @@ export default class DefaultsHandler {
         let ok = 0
         for(const [listName, list] of Object.entries(entries)) {
             for(const item of list) {
-                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key)
+                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key.toString())
                 if(!existingItem) {
                     total++
                     const message = `(${ok}/${total}) ${listName}:${item.instance.constructor.name}:${item.key}`
                     status.innerHTML = `${message} Importing...`
-                    const imported = await item.importer(item.instance, item.key)
+                    const imported = await item.importer(item.instance, item.key.toString())
                     await DefaultsHandler.updateButton(item, imported)
                     if(imported) {
                         ok++
@@ -121,17 +121,17 @@ export default class DefaultsHandler {
             }
         }
         async function navigateToItem() {
-            const id = await DefaultObjects.loadID(item.instance, item.key)
+            const id = await DefaultObjects.loadID(item.instance, item.key.toString())
             window.location.href = `./editor.php?id=${id}`
         }
         function getLabel(exists: boolean) {
             const icon = exists ? '✅' : '❌'
-            return `${icon} ${Utils.camelToTitle(item.key)}`
+            return `${icon} ${Utils.camelToTitle(item.key.toString())}`
         }
     }
 
     private static async buildItem(root: HTMLElement, item: IDefaultObject): Promise<HTMLElement> {
-        const exists = !!(await DataBaseHelper.loadItem(item.instance, item.key))
+        const exists = !!(await DataBaseHelper.loadItem(item.instance, item.key.toString()))
         const button = document.createElement('button') as HTMLButtonElement
         button.id = this.getButtonId(item)
         await this.updateButton(item, exists, button)
