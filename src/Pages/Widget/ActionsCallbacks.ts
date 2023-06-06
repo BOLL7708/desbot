@@ -196,10 +196,10 @@ export default class ActionsCallbacks {
                         const date = new Date(quote.datetime)
                         const userData = await TwitchHelixHelper.getUserById(quote.quoteeUserId)
                         const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), EnumSystemActionType.Quote.valueOf().toString())
-                        const speech = textPreset?.data?.speech[0] ?? ''
+                        const chat = textPreset?.data?.chat[0] ?? ''
                         modules.twitch._twitchChatOut.sendMessageToChannel(
                             await TextHelper.replaceTagsInText(
-                                <string> speech,
+                                chat,
                                 user,
                                 { // We need to add targetTag as there is no user tag in the input.
                                     date: date.toDateString() ?? 'N/A',

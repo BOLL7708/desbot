@@ -31,7 +31,7 @@ export default class DefaultsHandler {
 
         // Checks
         const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.PREREQUISITE_ENTRIES)
-        const systemExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.SYSTEM_ENTRIES)
+        const systemExists = prerequisiteExists && await DefaultsHandler.checkIfItemsExists(DefaultObjects.SYSTEM_ENTRIES)
 
         // Import Buttons
         children.push(await DefaultsHandler.buildImportButton(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
