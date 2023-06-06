@@ -46,8 +46,8 @@ import {SettingUser, SettingUserMute, SettingUserName, SettingUserVoice} from '.
 import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {
-    ITwitchEventSubEventCheer,
-    ITwitchEventSubEventRedemption, ITwitchEventSubEventResubscription,
+    ITwitchEventSubEventCheer, ITwitchEventSubEventGiftSubscription,
+    ITwitchEventSubEventRedemption, ITwitchEventSubEventResubscription, ITwitchEventSubEventSubscription,
     ITwitchEventSubPayloadSubscription
 } from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
@@ -291,15 +291,13 @@ export class Actions {
             rewardCost: 0
         }
     }
-    public static async buildUserDataFromSubscriptionMessage(key: TKeys, event: ITwitchEventSubEventResubscription): Promise<IActionUser> {
-        const id = event.user_id
-        const input = event.message.text
+    public static async buildUserDataFromLimitedData(key: TKeys, id: string, login: string, name: string, input: string): Promise<IActionUser> {
         return {
             source: EEventSource.TwitchSubscription,
             eventKey: key,
             id: parseInt(id),
-            login: event.user_login,
-            name: event.user_name,
+            login: login,
+            name: name,
             input: input,
             inputWords: input.split(' '),
             message: await TextHelper.cleanText(input),

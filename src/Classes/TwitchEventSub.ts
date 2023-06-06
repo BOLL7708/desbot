@@ -38,6 +38,7 @@ export default class TwitchEventSub {
     private _onGiftSubscriptionCallback: ITwitchEventSubGiftSubscriptionCallback = (event) => { console.log('EventSub: Gift Subscription unhandled') }
     private _onResubscriptionCallback: ITwitchEventSubResubscriptionCallback = (event) => { console.log('EventSub: Resubscription unhandled') }
     private _onCheerCallback: ITwitchEventSubCheerCallback = (event) => { console.log('EventSub: Cheer unhandled') }
+    private _onRaidCallback: ITwitchEventSubRaidCallback = (event) => { console.log('EventSub: Raid unhandled') }
 
     // region Triggers & Actions
     private _rewards: Map<string, ITwitchReward> = new Map()
@@ -71,6 +72,9 @@ export default class TwitchEventSub {
     }
     setOnCheerCallback(callback: ITwitchEventSubCheerCallback) {
         this._onCheerCallback = callback
+    }
+    setOnRaidCallback(callback: ITwitchEventSubRaidCallback) {
+        this._onRaidCallback = callback
     }
     // endregion
 
@@ -350,19 +354,7 @@ export default class TwitchEventSub {
             }
             case 'channel.raid': {
                 const event = eventMessage.payload.event as ITwitchEventSubEventRaid
-                const broadcasterId = (await TwitchHelixHelper.getBroadcasterUserId()).toString()
-                if(event.to_broadcaster_user_id == broadcasterId) {
-                    const message = `@${event.from_broadcaster_user_name} raided the channel with ${event.viewers} viewer(s)! (this is a test)`
-                    console.log(message)
-                    // TODO: Make customizable
-                    // ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(message)
-                }
-                if (event.from_broadcaster_user_id == broadcasterId) {
-                    const message = `This channel raided @${event.to_broadcaster_user_name} with ${event.viewers} viewer(s)! (this is a test)`
-                    console.log(message)
-                    // TODO: Make customizable
-                    // ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(message)
-                }
+                this._onRaidCallback(event)
                 break
             }
             default: {
@@ -390,4 +382,7 @@ export interface ITwitchEventSubResubscriptionCallback {
 }
 export interface ITwitchEventSubCheerCallback {
     (event: ITwitchEventSubEventCheer):void
+}
+export interface ITwitchEventSubRaidCallback {
+    (event: ITwitchEventSubEventRaid):void
 }

@@ -34,8 +34,8 @@ import WebSockets from '../../Classes/WebSockets.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/User.js'
 import ConfigOBS from '../../Objects/Config/OBS.js'
-import ConfigTwitch from '../../Objects/Config/Twitch.js'
-import {IAudioAction} from '../../Interfaces/iactions.js'
+import ConfigTwitch, {ConfigTwitchAnnounceRaid} from '../../Objects/Config/Twitch.js'
+import {IActionUser, IAudioAction} from '../../Interfaces/iactions.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
 import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
@@ -179,8 +179,6 @@ export default class Callbacks {
                 label = `${discordConfig.prefixCheer}**Cheered ${bits} ${unit}**: `
             }
             
-            // TODO: Add more things like sub messages? Need to check that from raw logs.
-            // TODO: Reference Jeppe's twitch logger for the other messages! :D
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
             const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
             if(states.logChatToDiscord && webhook) {
@@ -245,50 +243,32 @@ export default class Callbacks {
             }
         })
 
-        const subscriptionHandler = async (tier: number, gift: boolean, multi: boolean)=>{
+        const subscriptionHandler = async (user:IActionUser, tier: number, gift: boolean, multi: boolean)=>{
             const sub = twitchConfig.announceSubs.find((sub)=>
                 sub.tier == tier
                 && sub.tier_gift == gift
                 && sub.tier_multi == multi
             )
-
-            // TODO: Announce sub
             if(sub) {
-                console.warn('Found a sub announcement: ', sub)
-                /*
-                const user = await Actions.buildUserDataFromSubscriptionMessage('Unknown', event)
+                console.log('Found a sub announcement: ', sub)
                 modules.twitch._twitchChatOut.sendMessageToChannel(
                     await TextHelper.replaceTagsInText(sub.message, user)
                 )
-                */
+            } else {
+                console.warn('Did not find a sub announcement: ', tier, gift, multi)
             }
         }
-
         modules.twitchEventSub.setOnSubscriptionCallback( async(event) => {
-            subscriptionHandler(parseInt(event.tier), event.is_gift, false).then()
-            const modules = ModulesSingleton.getInstance()
-            const message = `${event.user_name} subscribed to the channel! (${event.tier}, ${event.is_gift}, this is a test)`
-            console.log('TwitchEventSub: OnSubscription', message)
-            // TODO: Make customizable
-            // modules.twitch._twitchChatOut.sendMessageToChannel(message)
+            const user = await Actions.buildUserDataFromLimitedData('Unknown', event.user_id, event.user_login, event.user_name, '')
+            subscriptionHandler(user, parseInt(event.tier), event.is_gift, false).then()
         })
-
         modules.twitchEventSub.setOnGiftSubscriptionCallback( async(event)=>{
-            subscriptionHandler(parseInt(event.tier), true, event.total > 1).then()
-            const modules = ModulesSingleton.getInstance()
-            const message = `@${event.user_name} gifter ${event.total} subs in the channel! (${event.tier}, ${event.cumulative_total}, this is a test)`
-            console.log('TwitchEventSub: OnGifSubscription', message)
-            // TODO: Make customizable
-            // modules.twitch._twitchChatOut.sendMessageToChannel(message)
+            const user = await Actions.buildUserDataFromLimitedData('Unknown', event.user_id, event.user_login, event.user_name, '')
+            subscriptionHandler(user, parseInt(event.tier), true, event.total > 1).then()
         })
-
         modules.twitchEventSub.setOnResubscriptionCallback( async(event)=>{
-            subscriptionHandler(parseInt(event.tier), false, false).then()
-            const modules = ModulesSingleton.getInstance()
-            const message = `@${event.user_name} resubscribed for a total of ${event.cumulative_months} months! (${event.tier}, ${event.duration_months}, this is a test)`
-            console.log('TwitchEventSub: OnGifSubscription', message)
-            // TODO: Make customizable
-            // modules.twitch._twitchChatOut.sendMessageToChannel(message)
+            const user = await Actions.buildUserDataFromLimitedData('Unknown', event.user_id, event.user_login, event.user_name, event.message.text) // TODO: Also handle emotes?
+            subscriptionHandler(user, parseInt(event.tier), false, false).then()
         })
 
         modules.twitchEventSub.setOnCheerCallback(async (event) => {
@@ -312,6 +292,28 @@ export default class Callbacks {
             }
         })
 
+        modules.twitchEventSub.setOnRaidCallback(async (event) => {
+            const broadcasterId = (await TwitchHelixHelper.getBroadcasterUserId()).toString()
+            let announcement: ConfigTwitchAnnounceRaid|undefined = undefined
+            let currentViewerThreshold = 0
+            for(const raidAnnouncement of twitchConfig.announceRaids) {
+                if(event.viewers >= raidAnnouncement.viewers && raidAnnouncement.viewers >= currentViewerThreshold) {
+                    announcement = raidAnnouncement
+                    currentViewerThreshold = raidAnnouncement.viewers
+                }
+            }
+            if(event.to_broadcaster_user_id == broadcasterId) {
+                const message = `@${event.from_broadcaster_user_name} raided the channel with ${event.viewers} viewer(s)! (this is a test)`
+                console.log(message)
+                // TODO: Make customizable with tags
+                if(announcement) ModulesSingleton.getInstance().twitch._twitchChatOut.sendMessageToChannel(announcement.message)
+                else console.warn(`Did not find any announcement matching ${event.viewers} viewers!`)
+            }
+            if (event.from_broadcaster_user_id == broadcasterId) {
+                const message = `This channel raided @${event.to_broadcaster_user_name} with ${event.viewers} viewer(s)! (this is a test)`
+                console.log(message)
+            }
+        })
         // endregion
 
         // region Screenshots

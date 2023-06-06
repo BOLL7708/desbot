@@ -44,7 +44,12 @@ export default class ConfigTwitch extends BaseDataObject {
         new ConfigTwitchAnnounceCheer(500, '%userTag cheered %userBits bits!'),
         new ConfigTwitchAnnounceCheer(1000, '%userTag cheered %userBits bits!')
     ]
-    announceRaids: ConfigTwitchAnnounceRaid[] = [ // TODO: WIP, this was never properly implemented so no entries for it yet.
+    announceRaids: ConfigTwitchAnnounceRaid[] = [ // TODO: WIP, this was never properly implemented so the text tags don't exist yet.
+        new ConfigTwitchAnnounceRaid(0, '%userTag raided the channel with %viewerCount viewers!'),
+        new ConfigTwitchAnnounceRaid(5, '%userTag raided the channel with %viewerCount viewers!'),
+        new ConfigTwitchAnnounceRaid(10, '%userTag raided the channel with %viewerCount viewers!'),
+        new ConfigTwitchAnnounceRaid(25, '%userTag raided the channel with %viewerCount viewers!'),
+        new ConfigTwitchAnnounceRaid(50, '%userTag raided the channel with %viewerCount viewers!')
     ]
 }
 
