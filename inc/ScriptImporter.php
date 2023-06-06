@@ -31,7 +31,7 @@ usort($js_files, function($a, $b) {
 header('Content-Type: application/javascript');
 ?>
 async function runScriptImports() {
-    console.log('Staring script imports...')
+    console.log('Starting script imports...')
 <?php
 foreach ($js_files as $file) {
     // I did a test with awaiting some imports to try and fix reference errors.

@@ -1,6 +1,7 @@
 import DefaultObjects, {IDefaultObject, IDefaultObjectList} from './DefaultObjects.js'
 import Utils from '../../Classes/Utils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import DataObjectMap, {DataObjectMeta} from '../../Objects/DataObjectMap.js'
 
 export default class DefaultsHandler {
     constructor() {
@@ -120,10 +121,12 @@ export default class DefaultsHandler {
 
     private static async updateButton(item: IDefaultObject, exists: boolean, buttonElement?: HTMLButtonElement) {
         const id = this.getButtonId(item)
+        const meta = DataObjectMap.getMeta(item.instance.constructor.name)
+        const mappedLabel = meta?.keyMap?.[item.key.toString()]
         const button = buttonElement ?? document.querySelector(`#${id}`) as HTMLButtonElement
         if(button) {
             button.classList.add('button')
-            button.innerHTML = getLabel(exists)
+            button.innerHTML = getLabel(exists, mappedLabel)
             if(exists) {
                 button.title = 'Navigate to item'
                 button.classList.remove('disabled')
@@ -141,9 +144,9 @@ export default class DefaultsHandler {
             const id = await DefaultObjects.loadID(item.instance, item.key.toString())
             window.location.href = `./editor.php?id=${id}`
         }
-        function getLabel(exists: boolean) {
+        function getLabel(exists: boolean, mappedLabel?: string) {
             const icon = exists ? '✅' : '❌'
-            return `${icon} ${Utils.camelToTitle(item.key.toString())}`
+            return `${icon} ${Utils.camelToTitle(mappedLabel ?? item.key.toString())}`
         }
     }
 

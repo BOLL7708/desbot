@@ -269,10 +269,14 @@ export default class EditorHandler {
             dropdown.id = 'dropdown'
             dropdownLabel.htmlFor = dropdown.id
             dropdownLabel.innerText = 'Entries: '
+            const keyMap = DataObjectMap.getMeta(group)?.keyMap
+            if(keyMap) dropdown.title = 'Key labels are mapped, the actual key is in the editor.'
             if(this._contentDiv && items) {
                 for(const item of items) {
+                    const mappedKey = keyMap?.[item.key]
                     const option = document.createElement('option') as HTMLOptionElement
-                    option.innerText = item.key
+                    option.innerText = mappedKey ?? item.key
+                    if(mappedKey) option.title = `Key label mapped from: ${item.key}`
                     option.value = item.key
                     if(selectKey == item.key) option.selected = true
                     dropdown.appendChild(option)

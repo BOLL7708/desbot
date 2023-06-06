@@ -1,3 +1,5 @@
+import {IStringDictionary} from '../Interfaces/igeneral.js'
+
 export class BaseEnum {
     /**
      * Get the name of the class appended with the Enum flag.
@@ -5,5 +7,11 @@ export class BaseEnum {
      */
     static ref() {
         return this.name+'|enum'
+    }
+    static keyMap(): IStringDictionary {
+        const entries = Object.entries(this)
+        return Object.fromEntries(
+            entries.map(([key, value]) => [value.toString(), key.toString()])
+        ) as IStringDictionary
     }
 }

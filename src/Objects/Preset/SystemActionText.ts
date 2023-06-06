@@ -1,5 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
+import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
 
 export class PresetSystemActionText extends BaseDataObject {
     speech: string[] = []
@@ -16,5 +17,7 @@ DataObjectMap.addRootInstance(
     {
         speech: 'string',
         chat: 'string'
-    }
+    },
+    undefined,
+    EnumSystemActionType.keyMap()
 )
