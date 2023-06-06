@@ -32,18 +32,19 @@ enum EKeys {
     PermissionsVIPs = '4 VIPs',
     PermissionsEveryone = '5 Everyone',
 
-    RewardSpeak = 'Reward Speak',
-    RewardSetVoice = 'Reward Set Voice',
-    RewardChannelTrophy = 'Reward Channel Trophy',
+    RewardSpeak = 'Speak',
+    RewardSetVoice = 'Set Voice',
+    RewardChannelTrophy = 'Channel Trophy',
 
-    DiscordChannelTrophy = 'Discord Channel Trophy',
-    DiscordChannelTrophyStats = 'Discord Channel Trophy',
-    DiscordClips = 'Discord Clips',
-    DiscordHelp = 'Discord Help',
-    DiscordTodo = 'Discord ToDo',
-    DiscordAchievements = 'Discord Achievements',
-    DiscordChat = 'Discord Chat',
-    DiscordWhisperCommands = 'Discord Whisper Commands',
+    DiscordChannelTrophy = 'Channel Trophy',
+    DiscordChannelTrophyStats = 'Channel Trophy Statistics',
+    DiscordClips = 'Clips',
+    DiscordHelp = 'Help',
+    DiscordTodo = 'ToDo',
+    DiscordAchievements = 'Achievements',
+    DiscordChat = 'Chat Log',
+    DiscordWhisperCommands = 'Whisper Commands',
+    DiscordScreenshots = 'Screenshots',
     // endregion
 
     // region Events
@@ -58,7 +59,7 @@ enum EKeys {
     TtsGender = 'Command TTS Gender',
     TtsSpeak = 'Reward TTS Speak',
     TtsSay = 'Command TTS Say',
-    TtsSetVoice = 'Command & Reward TTS Set Voice',
+    TtsSetVoice = 'Reward & Command TTS Set Voice',
     TtsGetNick = 'Command TTS Get Nick',
     TtsGetVoice = 'Command TTS Get Voice',
     TtsVoices = 'Command TTS Voices',
@@ -251,6 +252,62 @@ export default class DefaultObjects {
                     return await DataBaseHelper.save(instance, key)
                 }
             },
+            {
+                key: EKeys.DiscordChannelTrophyStats,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordClips,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordHelp,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordTodo,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordAchievements,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordChat,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordWhisperCommands,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.DiscordScreenshots,
+                instance: new PresetDiscordWebhook(),
+                importer: async (instance: PresetDiscordWebhook, key)=>{
+                    return await DataBaseHelper.save(instance, key)
+                }
+            }
         ],
         systemActionTextPresets: [
             {
@@ -497,7 +554,7 @@ export default class DefaultObjects {
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.chat = [
-                        '%targetTag was refunded: %cost x boll7708meat',
+                        '%targetTag was refunded: %cost channel points',
                         'Failed to refund %targetTag anything.',
                         '%targetTag has nothing to refund!'
                     ]

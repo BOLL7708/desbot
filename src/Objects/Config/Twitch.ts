@@ -106,7 +106,7 @@ DataObjectMap.addRootInstance(
         remoteCommandPrefix: 'Prefix for triggering remote chat commands.',
         remoteCommandAllowedUsers: 'Only allow remote command for these specific users.',
         proxyChatBotUser: 'When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.',
-        proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: `botname, username, message`',
+        proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: botname, username, message',
         defaultGameCategory: 'The Twitch category that will be used if a game title cannot be automatically matched.',
         gameTitleToCategoryOverride: 'Manual override of game title to Twitch category for when a match is faulty or missing.',
         gameCategoryMatchSpeech: 'Message read out when the Twitch category is set automatically, clear to skip.',

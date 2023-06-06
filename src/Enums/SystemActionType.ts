@@ -29,9 +29,9 @@ export class EnumSystemActionType extends BaseEnum {
     static readonly Scale = 3100
     static readonly ChannelTrophy = 3200
     static readonly ChannelTrophyStats = 3300
-    static readonly Brightness = 3200
-    static readonly RefreshRate = 3300
-    static readonly VrViewEye = 3400
+    static readonly Brightness = 3400
+    static readonly RefreshRate = 3500
+    static readonly VrViewEye = 3600
 
     static readonly HelpToDiscord = 4000
     static readonly HelpToChat = 4100
