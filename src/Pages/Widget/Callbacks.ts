@@ -77,7 +77,7 @@ export default class Callbacks {
                 .filter(v=>v) // Remove empty strings
         modules.twitch.registerAnnouncers({
             userNames: announcerNames,
-            triggers: Object.keys(twitchConfig.announcerTriggers),
+            triggers: twitchConfig.announcerTriggers.map((announcer)=>announcer.trigger),
             callback: async (userData, messageData, firstWord) => {
                 // TTS
                 const audioConfig = Utils.ensureObjectNotId(

@@ -91,8 +91,9 @@ export default abstract class BaseDataObject {
          */
         const possibleProperties = [...Object.keys(this), ...Object.keys(prototype)]
         for(const propertyName of possibleProperties) {
-            const propertyValue = entryMap.has(propertyName) ? entryMap.get(propertyName) : undefined
-            if(propertyName && propertyValue !== undefined) {
+            let propertyValue = entryMap.has(propertyName) ? entryMap.get(propertyName) : undefined
+            propertyValue = BaseDataObject.convertCollection(thisClass, propertyName, propertyValue) // Convert to correct collection type
+            if(propertyName.length > 0 && propertyValue !== undefined) {
                 // We cast to `any` in here to be able to set the props at all.
                 const types = DataObjectMap.getMeta(thisClass)?.types ?? {}
                 const typeValues = BaseDataObject.parseRef(types[propertyName] ?? '')
@@ -161,7 +162,7 @@ export default abstract class BaseDataObject {
                         (this as any)[propertyName] = newProp
                     }
                 } else {
-                    // Fill with single a instance or basic values.
+                    // Fill with single instance or basic values.
                     const singleInstanceType = (this as any)[propertyName]?.constructor.name ?? (prototype as any)[propertyName]?.constructor.name
                     if(DataObjectMap.hasInstance(singleInstanceType) && !typeValues.isIdReference) {
                         // It is a single instance class
@@ -235,6 +236,25 @@ export default abstract class BaseDataObject {
             }
         }
         return refValues
+    }
+
+    static convertCollection(className: string, propertyName: string, collection: any): any {
+        if(!collection) return collection
+        const originalProperty = (DataObjectMap.getMeta(className)?.instance as any)[propertyName]
+        const originalIsArray = Array.isArray(originalProperty)
+        const propertyIsArray = Array.isArray(collection)
+        if(!propertyIsArray && originalIsArray) {
+            console.warn('Property is an object but should be an array!')
+            collection = Object.values(collection)
+        }
+        if(propertyIsArray && !originalIsArray) {
+            console.warn('Property is an array but should be an object!')
+            let i = 0
+            collection = Object.fromEntries(
+                (collection as []).map(v => [i++, v])
+            )
+        }
+        return collection
     }
 }
 
