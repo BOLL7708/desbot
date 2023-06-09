@@ -2,8 +2,6 @@ import Config from './Config.js'
 import {TKeys} from '../_data/!keys.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
-import {SettingUserVoice} from '../Objects/Setting/User.js'
-import {IAudioAction} from '../Interfaces/iactions.js'
 import {EnumEntryUsage} from '../Enums/EntryType.js'
 import Color from './ColorConstants.js'
 

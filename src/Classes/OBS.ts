@@ -24,29 +24,41 @@ export default class OBS {
         this._socket.init()
     }
     private onOpen(evt: Event) {
-        this._socket?.send(this.buildRequest("GetAuthRequired", '1', {}))
+        // this._socket?.send(this.buildRequest("GetAuthRequired", '1', {}))
     }
-    private onMessage(evt: MessageEvent) {
+    private async onMessage(evt: MessageEvent) {
         const data = JSON.parse(evt.data)
-		const id = data["message-id"]
-        const updateType = data['update-type'];
+		const op = data['op'] as number
+        const d = data['d']
+        // const updateType = data['update-type'];
         const error = data['error']
 
         if(error != undefined) return Utils.log(`OBS Return Message Error: ${error}`, 'red')
 
-        switch(id) {
-			case '1':
-                Utils.sha256(this._config.password + data.salt).then(secret => {
-                    Utils.sha256(secret + data.challenge).then(authResponse => {
-                        this._socket?.send(this.buildRequest("Authenticate", '2', {auth: authResponse}));
-                    })
-                })
+        switch(op) {
+			case 0: {
+                const opData = d as IObsOp0
+                let authResponse: IObsOp<IObsOp1> = { op: 1, d: {
+                        rpcVersion: opData.rpcVersion,
+                        eventSubscriptions: 33
+                    }
+                }
+                if(opData.authentication) {
+                    const base64secret = await Utils.sha256(this._config.password+opData.authentication.salt)
+                    const authentication = await Utils.sha256(base64secret + opData.authentication.challenge)
+                    authResponse.d.authentication = authentication
+                }
+                this._socket?.send(JSON.stringify(authResponse))
 				break
-			case '2':
-				console.log(`OBS auth: ${data.status}`)
-				if(data.status != "ok") this._socket?.disconnect()
+            }
+			case 2: {
+                const opData = d as IObsOp2
+				console.log(`OBS auth RPC version: ${opData.negotiatedRpcVersion}`)
+				if(opData.negotiatedRpcVersion <= 0) this._socket?.disconnect()
 				break
-			default: 
+            }
+			default:
+                /*
                 switch(updateType) {
                     case 'SwitchScenes':
                         let sceneName:string = data['scene-name']
@@ -58,15 +70,15 @@ export default class OBS {
                         break
                 }
                 
-                if(this._screenshotRequests.has(id)) {
-                    const screenshotRequestData = this._screenshotRequests.get(id)
+                if(this._screenshotRequests.has(op)) {
+                    const screenshotRequestData = this._screenshotRequests.get(op)
                     const img = data.img
                     if(screenshotRequestData != undefined && img != undefined) {
-                        this._sourceScreenshotCallback(img, screenshotRequestData, id)
+                        this._sourceScreenshotCallback(img, screenshotRequestData, op)
                     }
-                    this._screenshotRequests.delete(id)
+                    this._screenshotRequests.delete(op)
                 }
-
+                */
                 break
 		}
     }
@@ -203,4 +215,26 @@ export default class OBS {
     registerSourceScreenshotCallback(callback:ISourceScreenshotCallback) {
         this._sourceScreenshotCallback = callback
     }
+}
+
+interface IObsOp<T> {
+    op: number
+    d: T
+}
+
+interface IObsOp0 {
+    authentication?: {
+        challenge: string
+        salt: string
+    }
+    obsWebSocketVersion: string
+    rpcVersion: number
+}
+interface IObsOp1 {
+    rpcVersion: number
+    authentication?: string
+    eventSubscriptions: number
+}
+interface IObsOp2 {
+    negotiatedRpcVersion: number
 }
