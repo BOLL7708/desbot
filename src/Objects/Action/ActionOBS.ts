@@ -4,7 +4,7 @@ import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/OBS.js
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionOBS extends BaseDataObject {
-    sceneEntries: number[]|PresetOBSScene[] = []
+    sceneEntries: (number|PresetOBSScene)[] = []
     sceneEntries_use = EnumEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
     sourceEntries_use = EnumEntryUsage.All

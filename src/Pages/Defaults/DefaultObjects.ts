@@ -23,6 +23,9 @@ import {ActionLabel} from '../../Objects/Action/ActionLabel.js'
 import {ActionDiscord} from '../../Objects/Action/ActionDiscord.js'
 import {PresetDiscordWebhook} from '../../Objects/Preset/DiscordWebhook.js'
 import {PresetSystemActionText} from '../../Objects/Preset/SystemActionText.js'
+import {PresetOBSScene, PresetOBSSource} from '../../Objects/Preset/OBS.js'
+import {ActionOBS, ActionOBSSource} from '../../Objects/Action/ActionOBS.js'
+import {ActionLink} from '../../Objects/Action/ActionLink.js'
 
 enum EKeys {
     // region Presets
@@ -108,12 +111,25 @@ enum EKeys {
     CustomShoutOut = 'Command ShoutOut',
     CustomEndStream = 'Command End Stream',
 
-    BollCameraOn = 'Command Camera On',
-    BollCameraOff = 'Command Camera Off',
-    BollLivCam = 'Command Set LIV Camera',
-    BollScaleOn = 'Command Scale On',
-    BollScaleOff = 'Command Scale Off',
+    LinkWidget = 'Command Link Widget',
 
+    // BOLL TODO: Temporary?
+    BollPresetMainScene = 'Main',
+    BollPresetCameraSource = 'Room Camera',
+
+    BollRewardScaleGrow = 'Reward Scale Grow',
+    BollRewardScaleShrink = 'Reward Scale Shrink',
+    BollCommandCameraOn = 'Command Camera On',
+    BollCommandCameraOff = 'Command Camera Off',
+    BollCommandLivCam = 'Command Set LIV Camera',
+    BollCommandScaleOn = 'Command Scale On',
+    BollCommandScaleOff = 'Command Scale Off',
+
+    BollLinkDiscord = 'Command Link Discord',
+    BollLinkSnack = 'Command Link Snack',
+    BollLinkGithub = 'Command Link Github',
+    BollLinkTwitter = 'Command Link Twitter',
+    BollLinkArchive = 'Command Link Archive',
     // endregion
 }
 
@@ -834,7 +850,7 @@ export default class DefaultObjects {
                     const actionSystem = new ActionSystem()
                     const rewardState = new ActionSystemRewardStateForEvent()
                     rewardState.event = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
-                    rewardState.event_visible = EnumTwitchRewardVisible.Disable
+                    rewardState.event_visible = EnumTwitchRewardVisible.Hidden
                     actionSystem.toggle.rewardStatesForEvents.push(rewardState)
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
@@ -856,7 +872,7 @@ export default class DefaultObjects {
                     const actionSystem = new ActionSystem()
                     const rewardState = new ActionSystemRewardStateForEvent()
                     rewardState.event = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
-                    rewardState.event_visible = EnumTwitchRewardVisible.Enable
+                    rewardState.event_visible = EnumTwitchRewardVisible.Visible
                     actionSystem.toggle.rewardStatesForEvents.push(rewardState)
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
@@ -1460,7 +1476,214 @@ export default class DefaultObjects {
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             }
+        ],
+        links: [
+            {
+                key: EKeys.LinkWidget,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries.push('widget')
+                    trigger.helpText = 'Posts a link to the Streaming Widget Github page.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries.push('I can be yours here 👉 https://github.com/BOLL7708/streaming_widget')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                }
+            }
         ]
+    }
+
+    static readonly BOLL_ENTRIES: IDefaultObjectList = { // TODO: Temporary and specific to BOLL
+        presets: [
+            {
+                key: EKeys.BollPresetMainScene,
+                instance: new PresetOBSScene(),
+                importer: async (instance: PresetOBSScene, key)=>{
+                    instance.sceneName = '- Main Overlay'
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.BollPresetCameraSource,
+                instance: new PresetOBSSource(),
+                importer: async (instance: PresetOBSSource, key)=>{
+                    instance.sourceName = 'CAM Logitech Stream Camera'
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+
+        ],
+        commands: [
+            {
+                key: EKeys.BollCommandCameraOn,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('camon')
+                    trigger.helpText = 'Turns ON the room camera.'
+                    const actionOBSSource = new ActionOBSSource()
+                    actionOBSSource.scenePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSScene(), EKeys.BollPresetMainScene)
+                    actionOBSSource.sourcePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSSource(), EKeys.BollPresetCameraSource)
+                    const actionOBS = new ActionOBS()
+                    actionOBS.sourceEntries.push(actionOBSSource)
+                    actionOBS.state = false
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('Camera enabled')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
+                }
+            },
+            {
+                key: EKeys.BollCommandCameraOff,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('camoff')
+                    trigger.helpText = 'Turns OFF the room camera.'
+                    const actionOBSSource = new ActionOBSSource()
+                    actionOBSSource.scenePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSScene(), EKeys.BollPresetMainScene)
+                    actionOBSSource.sourcePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSSource(), EKeys.BollPresetCameraSource)
+                    const actionOBS = new ActionOBS()
+                    actionOBS.sourceEntries.push(actionOBSSource)
+                    actionOBS.state = true
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('Camera disabled')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
+                }
+            },
+            {
+                key: EKeys.BollCommandScaleOn,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('scaleon')
+                    trigger.helpText = 'Turns ON all world scale rewards.'
+                    // TODO: Need to also add the scale events.
+                    const actionSystem = new ActionSystem()
+                    actionSystem.toggle.rewardStatesForEvents.push(
+                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleGrow, true),
+                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleShrink, true)
+                    )
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('Scale rewards enabled.')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                }
+            },
+            {
+                key: EKeys.BollCommandScaleOff,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('scaleoff')
+                    trigger.helpText = 'Turns OFF all world scale rewards.'
+
+                    // TODO: Need to also add the scale events.
+                    const actionSystem = new ActionSystem()
+                    actionSystem.toggle.rewardStatesForEvents.push(
+                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleGrow, false),
+                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleShrink, false)
+                    )
+
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('Scale rewards disabled.')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                }
+            },
+            {
+                key: EKeys.BollCommandLivCam,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries.push('livcam')
+                    trigger.helpInput = ['number']
+                    trigger.helpText = 'Switch the LIV camera profile.'
+                    const actionLink = new ActionLink()
+                    actionLink.entries.push('liv-app://camera/set/%inputNumber')
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries.push('Liv camera set to %inputNumber')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionLink, actionSpeech])
+                }
+            }
+        ],
+        links: [
+            {
+                key: EKeys.BollLinkDiscord,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries.push('discord')
+                    trigger.helpTitle = 'Links'
+                    trigger.helpText = 'Posts a link to the official DiscordUtils server.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries.push('Official DiscordUtils server 👉 https://discord.com/invite/CTj47pmxuT')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                }
+            },
+            {
+                key: EKeys.BollLinkSnack,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries.push('snack')
+                    trigger.helpText = 'Posts a link to Haupt Lakrits, where the snack has been procured from.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries.push('Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                }
+            },
+            {
+                key: EKeys.BollLinkGithub,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries.push('github')
+                    trigger.helpText = 'Posts a link to my main Github page.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries.push('Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                }
+            },
+            {
+                key: EKeys.BollLinkTwitter,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries.push('twitter')
+                    trigger.helpText = 'Posts a link to my Twitter page.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries.push('Twitter, mostly complaints to companies 👉 https://twitter.com/BOLL7708')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                }
+            },
+            {
+                key: EKeys.BollLinkArchive,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries.push('archive', 'youtube', 'yt')
+                    trigger.helpText = 'Posts a link to the YouTube stream archive.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries.push('Stream archive on YouTube 👉 https://youtube.com/playlist?list=PLPpKs-9QAC4UVZZMUsOEM7Ye9cYebvYda')
+                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                }
+            }
+        ],
     }
 
     static async loadID<T>(instance: T&BaseDataObject, key: string): Promise<number> {
@@ -1497,6 +1720,13 @@ export default class DefaultObjects {
             instance.actions.push(actionContainer)
         }
         return await DataBaseHelper.save(instance, key)
+    }
+
+    static async buildToggleForEvent(eventKey: EKeys, visible: boolean): Promise<ActionSystemRewardStateForEvent> {
+        const actionSystemEvent = new ActionSystemRewardStateForEvent()
+        actionSystemEvent.event = await DefaultObjects.loadID(new EventDefault(), eventKey)
+        actionSystemEvent.event_visible = visible ? EnumTwitchRewardVisible.Visible : EnumTwitchRewardVisible.Hidden
+        return actionSystemEvent
     }
 }
 

@@ -16,7 +16,7 @@ export class ActionSystemTrigger extends BaseDataObject {
     systemActionEntries_use = EnumEntryUsage.All
     commandEntries: string[] = []
     commandEntries_use = EnumEntryUsage.All
-    eventEntries: (number|string)[] = []
+    eventEntries: (number|EventDefault)[] = []
     eventEntries_use = EnumEntryUsage.All
 }
 export class ActionSystemToggle extends BaseDataObject {
@@ -25,13 +25,13 @@ export class ActionSystemToggle extends BaseDataObject {
 }
 export class ActionSystemRewardState extends BaseDataObject {
     reward: number|SettingTwitchReward = 0
-    reward_visible = EnumTwitchRewardVisible.Enable
-    reward_usable = EnumTwitchRewardUsable.Unpause
+    reward_visible = EnumTwitchRewardVisible.Visible
+    reward_usable = EnumTwitchRewardUsable.Enabled
 }
 export class ActionSystemRewardStateForEvent extends BaseDataObject {
     event: number|EventDefault = 0
-    event_visible = EnumTwitchRewardVisible.Enable
-    event_usable = EnumTwitchRewardUsable.Unpause
+    event_visible = EnumTwitchRewardVisible.Visible
+    event_usable = EnumTwitchRewardUsable.Enabled
 }
 
 

@@ -28,6 +28,7 @@ export default class DefaultsHandler {
         const LABEL_PREREQUISITE = 'Prerequisite'
         const LABEL_SYSTEM = 'System'
         const LABEL_BONUS = 'Bonus'
+        const LABEL_BOLL = 'BOLL' // TODO: Temporary
 
         // Checks
         const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.PREREQUISITE_ENTRIES)
@@ -36,12 +37,18 @@ export default class DefaultsHandler {
         // Import Buttons
         children.push(await DefaultsHandler.buildImportButton(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
         if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.SYSTEM_ENTRIES, LABEL_SYSTEM))
-        if(systemExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
+        if(systemExists) {
+            children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
+            children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+        }
 
         // Reference Buttons
         children.push(await DefaultsHandler.buildSection(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
         if(prerequisiteExists) children.push(await DefaultsHandler.buildSection(DefaultObjects.SYSTEM_ENTRIES, LABEL_SYSTEM))
-        if(systemExists) children.push(await DefaultsHandler.buildSection(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
+        if(systemExists) {
+            children.push(await DefaultsHandler.buildSection(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
+            children.push(await DefaultsHandler.buildSection(DefaultObjects.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+        }
 
         container.replaceChildren(...children)
     }
