@@ -5,7 +5,7 @@ import {EnumEntryUsage} from '../../Enums/EntryType.js'
 export class ActionLabel extends BaseDataObject{
     fileName: string = ''
     textEntries: string[] = []
-    textEntriesType = EnumEntryUsage.First
+    textEntries_use = EnumEntryUsage.First
     append: boolean = false
 }
 
@@ -19,6 +19,6 @@ DataObjectMap.addRootInstance(
     },
     {
         textEntries: 'string',
-        textEntriesType: EnumEntryUsage.ref()
+        textEntries_use: EnumEntryUsage.ref()
     }
 )

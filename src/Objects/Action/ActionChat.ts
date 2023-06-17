@@ -4,7 +4,7 @@ import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionChat extends BaseDataObject {
     entries: string[] = []
-    entriesType = EnumEntryUsage.First
+    entries_use = EnumEntryUsage.First
 }
 
 DataObjectMap.addRootInstance(
@@ -13,6 +13,6 @@ DataObjectMap.addRootInstance(
     {},
     {
         entries: 'string',
-        entriesType: EnumEntryUsage.ref()
+        entries_use: EnumEntryUsage.ref()
     }
 )

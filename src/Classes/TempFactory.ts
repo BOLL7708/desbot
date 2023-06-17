@@ -18,8 +18,8 @@ export default class TempFactory {
         action.preset = actionInterface.config ?? 0
         action.imageDataEntries = Utils.ensureArray(actionInterface.imageDataEntries) ?? []
         action.imagePathEntries = Utils.ensureArray(actionInterface.imagePathEntries) ?? []
-        action.imageDataEntriesType = TempFactory.arrayType(Utils.ensureArray(actionInterface.imageDataEntries)?.__type ?? 0)
-        action.imagePathEntriesType = TempFactory.arrayType(Utils.ensureArray(actionInterface.imagePathEntries)?.__type ?? 0)
+        action.imageDataEntries_use = TempFactory.arrayType(Utils.ensureArray(actionInterface.imageDataEntries)?.__type ?? 0)
+        action.imagePathEntries_use = TempFactory.arrayType(Utils.ensureArray(actionInterface.imagePathEntries)?.__type ?? 0)
         action.texts = Utils.ensureArray(actionInterface.texts)
         action.durationMs = actionInterface.durationMs
         return action

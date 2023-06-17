@@ -7,7 +7,7 @@ import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
 export class ActionDiscord extends BaseDataObject{
     webhook: number|PresetDiscordWebhook = 0
     entries: string[] = []
-    entriesType = EnumEntryUsage.First
+    entries_use = EnumEntryUsage.First
 }
 
 DataObjectMap.addRootInstance(
@@ -17,6 +17,6 @@ DataObjectMap.addRootInstance(
     {
         webhook: PresetDiscordWebhook.refId(),
         entries: 'string',
-        entriesType: EnumEntryUsage.ref()
+        entries_use: EnumEntryUsage.ref()
     }
 )

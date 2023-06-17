@@ -5,7 +5,7 @@ import {EnumEntryUsage} from '../../Enums/EntryType.js'
 // TODO: Incomplete as it doesn't really work now anyway.
 export class ActionWhisper extends BaseDataObject {
     entries: string[] = []
-    entriesType = EnumEntryUsage.First
+    entries_use = EnumEntryUsage.First
     user: string = '' // TODO: Change to whichever way we reference users in the future.
 }
 
@@ -15,6 +15,6 @@ DataObjectMap.addRootInstance(
     {},
     {
         entries: 'string',
-        entriesType: EnumEntryUsage.ref()
+        entries_use: EnumEntryUsage.ref()
     }
 )

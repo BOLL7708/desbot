@@ -5,9 +5,9 @@ import {PresetPhilipsHueColor} from '../Preset/PhilipsHue.js'
 
 export class ActionPhilipsHueBulb extends BaseDataObject {
     entries: number[] = []
-    entriesType = EnumEntryUsage.All
+    entries_use = EnumEntryUsage.All
     colorEntries: PresetPhilipsHueColor[] = []
-    colorEntriesType = EnumEntryUsage.First
+    colorEntries_use = EnumEntryUsage.First
 }
 
 DataObjectMap.addRootInstance(
@@ -19,8 +19,8 @@ DataObjectMap.addRootInstance(
     },
     {
         entries: 'number',
-        entriesType: EnumEntryUsage.ref(),
+        entries_use: EnumEntryUsage.ref(),
         colorEntries: PresetPhilipsHueColor.refId(),
-        colorEntriesType: EnumEntryUsage.ref()
+        colorEntries_use: EnumEntryUsage.ref()
     }
 )

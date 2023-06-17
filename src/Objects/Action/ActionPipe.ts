@@ -5,9 +5,9 @@ import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionPipe extends BaseDataObject{
     imagePathEntries: string[] = []
-    imagePathEntriesType = EnumEntryUsage.First
+    imagePathEntries_use = EnumEntryUsage.First
     imageDataEntries: string[] = []
-    imageDataEntriesType = EnumEntryUsage.First
+    imageDataEntries_use = EnumEntryUsage.First
     durationMs: number = 1000
     preset: number|PresetPipeCustom = 0
     texts: string[] = []
@@ -24,9 +24,9 @@ DataObjectMap.addRootInstance(
         texts: 'If your custom notification includes text areas, this is where you add the texts that are to be used for it.'
     },{
         imagePathEntries: 'string|file',
-        imagePathEntriesType: EnumEntryUsage.ref(),
+        imagePathEntries_use: EnumEntryUsage.ref(),
         imageDataEntries: 'string',
-        imageDataEntriesType: EnumEntryUsage.ref(),
+        imageDataEntries_use: EnumEntryUsage.ref(),
         preset: PresetPipeCustom.refId(),
         texts: 'string'
     }

@@ -6,7 +6,7 @@ import {SettingUser, SettingUserVoice} from '../Setting/User.js'
 
 export class ActionSpeech extends BaseDataObject {
     entries: string[] = []
-    entriesType = EnumEntryUsage.First
+    entries_use = EnumEntryUsage.First
     skipDictionary: boolean = false
     voiceOfUser: number|SettingUserVoice = 0
     voiceOfUsername: string = ''
@@ -24,7 +24,7 @@ DataObjectMap.addRootInstance(
     },
     {
         entries: 'string',
-        entriesType: EnumEntryUsage.ref(),
+        entries_use: EnumEntryUsage.ref(),
         voiceOfUser: SettingUser.refId(),
         type: EnumTTSType.ref()
     }

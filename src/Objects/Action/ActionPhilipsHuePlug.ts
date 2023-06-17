@@ -1,12 +1,10 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
-import {PresetPhilipsHueColor} from '../Preset/PhilipsHue.js'
-import {ActionPhilipsHueBulb} from './ActionPhilipsHueBulb.js'
 
 export class ActionPhilipsHuePlug extends BaseDataObject {
     entries: number[] = []
-    entriesType = EnumEntryUsage.All
+    entries_use = EnumEntryUsage.All
     originalState: boolean = false
     triggerState: boolean = true
     duration: number = 0
@@ -23,6 +21,6 @@ DataObjectMap.addRootInstance(
     },
     {
         entries: 'number',
-        entriesType: EnumEntryUsage.ref()
+        entries_use: EnumEntryUsage.ref()
     }
 )
