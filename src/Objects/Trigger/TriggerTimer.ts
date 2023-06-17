@@ -3,8 +3,8 @@ import BaseDataObject from '../BaseDataObject.js'
 
 export class TriggerTimer extends BaseDataObject {
     interval: number = 10
-    times: number = 1
-    delay: number = 0
+    repetitions: number = 1
+    initialDelay: number = 0
 }
 
 DataObjectMap.addRootInstance(
@@ -12,7 +12,7 @@ DataObjectMap.addRootInstance(
     'Optional: Have something happen automatically on a timer.',
     {
         interval: 'The time in seconds between each trigger.',
-        times: 'The amount of times to trigger the event.',
-        delay: 'Delay in seconds before first run.'
+        repetitions: 'The amount of times to trigger the event.',
+        initialDelay: 'Delay in seconds before first run.'
     }
 )

@@ -7,7 +7,7 @@ import {PresetPermissions} from '../Preset/Permissions.js'
 
 export class TriggerReward extends BaseDataObject {
     permissions: number|PresetPermissions = 0
-    rewardID: (number|SettingTwitchReward) = 0
+    rewardID: (number|string) = 0
     rewardEntries: (number|BaseDataObject)[] = []
     rewardEntriesType = EnumEntryUsage.All
 }
