@@ -5,6 +5,8 @@ export class SettingDictionaryEntry extends BaseDataObject {
     substitute: string = ''
     editorUserId: number = 0
     datetime: string = ''
-}
 
-DataObjectMap.addRootInstance(new SettingDictionaryEntry())
+    register() {
+        DataObjectMap.addRootInstance(new SettingDictionaryEntry())
+    }
+}

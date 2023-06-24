@@ -1,4 +1,3 @@
-import {IActionUser, IPipeAction} from '../Interfaces/iactions.js'
 import ImageEditor from './ImageEditor.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
 import Config from './Config.js'
@@ -18,6 +17,7 @@ import ConfigTwitchChat from '../Objects/Config/TwitchChat.js'
 import TempFactory from './TempFactory.js'
 import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 import {ConfigController} from '../Objects/Config/Controller.js'
+import {IActionUser} from '../Objects/Action.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()

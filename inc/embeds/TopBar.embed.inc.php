@@ -55,9 +55,3 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
     </ul>
 </div>
 <div id="favorites-bar" class="hbar" <?=$favoritesBarStyle?>><ul><li><a>⌛ Loading...</a></li></ul></div>
-<script type="module">
-    import TopBar from './dist/Pages/TopBar.js'
-    TopBar.attachSignOutClick('#topBarSignOutLink')
-    TopBar.attachPageModeClick('#topBarPageModeLink')
-    TopBar.attachFavorites('#favorites-bar')
-</script>

@@ -17,33 +17,24 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ImageEditor from '../../Classes/ImageEditor.js'
 import Relay, {IRelayTempMessage} from '../../Classes/Relay.js'
-import {TKeys} from '../../_data/!keys.js'
 import {ConfigDiscord} from '../../Objects/Config/Discord.js'
 import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
 import {ConfigPipe} from '../../Objects/Config/Pipe.js'
-import {
-    ITwitchEventSubEventGiftSubscription,
-    ITwitchEventSubEventRedemption,
-    ITwitchEventSubEventSubscription
-} from '../../Interfaces/itwitch_eventsub.js'
-import TwitchChat from '../../Classes/TwitchChat.js'
+import {ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import {ConfigRelay} from '../../Objects/Config/Relay.js'
-import WebSockets from '../../Classes/WebSockets.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/User.js'
-import ConfigOBS from '../../Objects/Config/OBS.js'
 import ConfigTwitch, {ConfigTwitchAnnounceRaid} from '../../Objects/Config/Twitch.js'
-import {IActionUser, IAudioAction} from '../../Interfaces/iactions.js'
-import TempFactory from '../../Classes/TempFactory.js'
 import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
 import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
 import ConfigTwitchChat from '../../Objects/Config/TwitchChat.js'
 import {ConfigController} from '../../Objects/Config/Controller.js'
+import {IActionUser} from '../../Objects/Action.js'
 
 export default class Callbacks {
-    private static _relays: Map<TKeys, IOpenVR2WSRelay> = new Map()
+    private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
     public static registerRelay(relay: IOpenVR2WSRelay) {
         this._relays.set(relay.key, relay)
     }
@@ -87,7 +78,7 @@ export default class Callbacks {
                 )
                 if(audioConfig) {
                     // TODO: Convert to use class instead of interface
-                    modules.tts.enqueueSoundEffect(TempFactory.configAudio(audioConfig))
+                    modules.tts.enqueueSoundEffect(audioConfig)
                 }
                 await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 
@@ -146,7 +137,7 @@ export default class Callbacks {
             } else if(states.pingForChat && twitchChatConfig.soundEffectOnEmptyMessage) {
                 // Chat sound
                 if(soundEffect && !Utils.matchFirstChar(messageData.text, controllerConfig.secretChatSymbols)) {
-                    modules.tts.enqueueSoundEffect(TempFactory.configAudio(soundEffect))
+                    modules.tts.enqueueSoundEffect(soundEffect)
                 }
             }
 

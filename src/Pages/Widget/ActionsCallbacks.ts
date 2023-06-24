@@ -1,4 +1,3 @@
-import {IActionsCallbackStack, IActionUser} from '../../Interfaces/iactions.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import Config from '../../Classes/Config.js'
@@ -25,6 +24,7 @@ import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
 import {ConfigController} from '../../Objects/Config/Controller.js'
 import {PresetSystemActionText} from '../../Objects/Preset/SystemActionText.js'
+import {IActionsCallbackStack, IActionUser} from '../../Objects/Action.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {

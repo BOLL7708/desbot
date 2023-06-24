@@ -21,7 +21,7 @@ class PageUtils {
         <link rel="stylesheet" href="./styles/_shared.css"/>
         <link rel="stylesheet" href="./styles/editor.css"/><!-- TODO: Should likely be split to what needs to go into general... -->
         <link id="link-page-mode-stylesheet" rel="stylesheet" href="./styles/_<?=$pageMode ? 'dark' : 'bright';?>.css"/>
-        <script type="module" src="./inc/ScriptImporter.php"></script>
+        <!--<script type="module" src="./inc/ScriptImporter.php"></script>-->
         <?php
             $filePath = "./styles/<?=$scriptFile?>.css";
             if(file_exists($filePath)) {

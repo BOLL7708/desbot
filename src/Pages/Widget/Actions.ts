@@ -1,10 +1,5 @@
 import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from '../../Interfaces/itwitch.js'
 import {
-    IActionCallback,
-    IActions,
-    IActionsExecutor,
-    IActionsMainCallback,
-    IActionUser,
     IAudioAction,
     IEntriesAction,
     IInputAction,
@@ -17,8 +12,7 @@ import {
     IScreenshotAction,
     ISignAction,
     ISpeechAction,
-    ISystemAction,
-    ITTSAction,
+    ISystemAction, ITTSAction,
     IWhisperAction
 } from '../../Interfaces/iactions.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
@@ -27,7 +21,6 @@ import IKeyBoolRecord from '../../Interfaces/i.js'
 import ExecUtils from '../../Classes/ExecUtils.js'
 import Callbacks from './Callbacks.js'
 import Color from '../../Classes/ColorConstants.js'
-import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
 import Config from '../../Classes/Config.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
@@ -38,38 +31,58 @@ import ActionsCallbacks from './ActionsCallbacks.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataUtils from '../../Classes/DataUtils.js'
-import {IDictionaryEntry} from '../../Classes/Dictionary.js'
 import {TKeys} from '../../_data/!keys.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
 import {SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
-import {SettingUser, SettingUserMute, SettingUserName, SettingUserVoice} from '../../Objects/Setting/User.js'
+import {SettingUser, SettingUserMute, SettingUserName} from '../../Objects/Setting/User.js'
 import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
 import {PresetPipeCustom} from '../../Objects/Preset/Pipe.js'
-import {
-    ITwitchEventSubEventCheer, ITwitchEventSubEventGiftSubscription,
-    ITwitchEventSubEventRedemption, ITwitchEventSubEventResubscription, ITwitchEventSubEventSubscription,
-    ITwitchEventSubPayloadSubscription
-} from '../../Interfaces/itwitch_eventsub.js'
+import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
-import LegacyUtils from '../../Classes/LegacyUtils.js'
 import TempFactory from '../../Classes/TempFactory.js'
-import ConfigOBS from '../../Objects/Config/OBS.js'
 import ConfigScreenshots from '../../Objects/Config/Screenshots.js'
 import ConfigTwitch from '../../Objects/Config/Twitch.js'
+import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
+import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
+import {TriggerCommand} from '../../Objects/Trigger/TriggerCommand.js'
+import {TriggerCheer} from '../../Objects/Trigger/TriggerCheer.js'
+import {TriggerTimer} from '../../Objects/Trigger/TriggerTimer.js'
+import {TriggerRemoteCommand} from '../../Objects/Trigger/TriggerRemoteCommand.js'
+import {TriggerRelay} from '../../Objects/Trigger/TriggerRelay.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
+import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
+import {ActionCustom} from '../../Objects/Action/ActionCustom.js'
+import {ActionSystem} from '../../Objects/Action/ActionSystem.js'
+import {ActionOBS} from '../../Objects/Action/ActionOBS.js'
+import {ActionPhilipsHueBulb} from '../../Objects/Action/ActionPhilipsHueBulb.js'
+import {ActionPhilipsHuePlug} from '../../Objects/Action/ActionPhilipsHuePlug.js'
+import {ActionAudio} from '../../Objects/Action/ActionAudio.js'
+import {ActionPipe} from '../../Objects/Action/ActionPipe.js'
+import {ActionSettingVR} from '../../Objects/Action/ActionSettingVR.js'
+import {ActionSign} from '../../Objects/Action/ActionSign.js'
+import {ActionInput} from '../../Objects/Action/ActionInput.js'
+import {ActionLink} from '../../Objects/Action/ActionLink.js'
+import {ActionScreenshot} from '../../Objects/Action/ActionScreenshot.js'
+import {ActionDiscord} from '../../Objects/Action/ActionDiscord.js'
+import {ActionChat} from '../../Objects/Action/ActionChat.js'
+import {ActionWhisper} from '../../Objects/Action/ActionWhisper.js'
+import {ActionLabel} from '../../Objects/Action/ActionLabel.js'
+import {ActionRemoteCommand} from '../../Objects/Action/ActionRemoteCommand.js'
+import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../Objects/Action.js'
 
 export class ActionHandler {
     constructor(
-        public key: TKeys,
+        public key: string,
         public appId: string = ''
     ) {}
     public async call(user: IActionUser) {
-        let event = Utils.getEventConfig(this.key)
+        let event = await DataBaseHelper.loadOrEmpty(new EventDefault(), this.key)
+        /* TODO: REIMPLEMENT THIS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
         if(this.appId.length > 0) {
             const gameEvent = Utils.getEventForGame(this.key, this.appId)
             if(gameEvent) {
                 event = gameEvent
             }
-
             const newEvent = Utils.clone(event)
             if(gameEvent?.actionsEntries && event?.actionsEntries) {
                 const newActions = []
@@ -85,8 +98,17 @@ export class ActionHandler {
             }
             event = newEvent
         }
-        const options = event?.options ?? {}
-        const actionsEntries = Utils.ensureArray(event?.actionsEntries)
+        */
+
+        // TODO: This should execute collections of actions in order.
+        //   The main callback should take ALL OF THE THINGS?!?!?!?!
+
+
+        const options = event.options
+        // entries is an array of containers that then contains the actions.
+        const actionsEntries = event.actions
+        if(actionsEntries.length == 0) return
+
         let actionsMainCallback: IActionsMainCallback
 
         const states = StatesSingleton.getInstance()
@@ -99,11 +121,12 @@ export class ActionHandler {
             This means we often rebuild the full main callback.
             As well as calculate and provide the index for action entries.
          */
-        switch(options?.behavior) {
-            case EBehavior.Random:
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, [actionsEntries.getRandom() ?? {}])
+        switch(options.behavior) {
+            /*
+            case EnumEventBehavior.Random:
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, [actionsEntries.getRandom()])
                 break
-            case EBehavior.Incrementing:
+            case EnumEventBehavior.Incrementing:
                 // Load incremental counter
                 counter = await DataBaseHelper.load(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
 
@@ -123,7 +146,7 @@ export class ActionHandler {
                 index = (counter?.count ?? 1)-1
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
-            case EBehavior.Accumulating:
+            case EnumEventBehavior.Accumulating:
                 // Load accumulating counter
                 counter = await DataBaseHelper.load(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
                 counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
@@ -158,7 +181,7 @@ export class ActionHandler {
                 // Register index and build callback for this step of the sequence
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
-            case EBehavior.MultiTier:
+            case EnumEventBehavior.MultiTier:
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
 
                 // Increase multi-tier counter
@@ -222,7 +245,8 @@ export class ActionHandler {
                 index = multiTierCounter.count
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
-            default: // No special behavior, only generate the callback if it is missing, but uses the entries by type.
+            */
+            default: // Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(options.specificIndex))
                 break
         }
@@ -233,20 +257,32 @@ export class ActionHandler {
 export class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-        for(const [key, event] of Object.entries(Config.events) as [TKeys, IEvent][]) {
-            if(event.triggers.reward) await this.registerReward(key)
-            if(event.triggers.command) await this.registerCommand(key)
-            if(event.triggers.remoteCommand) await this.registerRemoteCommand(key)
-            if(event.triggers.cheer) await this.registerCheer(key)
-            if(event.triggers.timer) await this.registerTimer(key)
-            if(event.triggers.relay) await this.registerRelay(key)
+
+        const events = await DataBaseHelper.loadAll(new EventDefault())
+        if(events) {
+            for(const [key, event] of Object.entries(events)) {
+                const triggers = Utils.ensureObjectArrayNotId(event.triggers)
+                for(const trigger of triggers) {
+                    switch(trigger.constructor.name) {
+                        case TriggerReward.name: await this.registerReward(trigger as TriggerReward, key); break
+                        case TriggerCommand.name: await this.registerCommand(trigger as TriggerCommand, key); break
+                        case TriggerRemoteCommand.name: await this.registerRemoteCommand(trigger as TriggerRemoteCommand, key); break
+                        case TriggerCheer.name: await this.registerCheer(trigger as TriggerCheer, key); break
+                        case TriggerTimer.name: await this.registerTimer(trigger as TriggerTimer, key); break
+                        case TriggerRelay.name: await this.registerRelay(trigger as TriggerRelay, key); break
+                        default: Utils.log(`Unknown trigger type: ${trigger.constructor.name}`, Color.DarkRed); break
+                    }
+                }
+            }
+        } else {
+            Utils.log('No events found.', Color.DarkRed)
         }
     }
 
     // TODO: Expand all user data stuff to also extract things from user-input etc.
 
     // region User DataUtils Builders
-    public static async buildUserDataFromRedemptionMessage(key: TKeys, event: ITwitchEventSubEventRedemption): Promise<IActionUser> {
+    public static async buildUserDataFromRedemptionMessage(key: string, event: ITwitchEventSubEventRedemption): Promise<IActionUser> {
         const id = event.user_id
         const input = event.user_input
         return {
@@ -269,7 +305,7 @@ export class Actions {
             rewardMessage: event
         }
     }
-    public static async buildUserDataFromCheerMessage(key: TKeys, event: ITwitchEventSubEventCheer): Promise<IActionUser> {
+    public static async buildUserDataFromCheerMessage(key: string, event: ITwitchEventSubEventCheer): Promise<IActionUser> {
         const id = event.user_id
         const input = event.message
         return {
@@ -315,7 +351,7 @@ export class Actions {
      * Used for programmatic command execution not done by an actual user.
      * @returns 
      */
-    public static async buildEmptyUserData(source: EEventSource, key: TKeys, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
+    public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         // TODO: Make this use the user ID instead of username?
         const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         const user = await TwitchHelixHelper.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
@@ -342,87 +378,78 @@ export class Actions {
     // endregion
 
     // region Trigger Registration
-    public static async registerReward(key: TKeys, appId: string = '') {
+    public static async registerReward(triggerReward: TriggerReward, eventKey: string, appId: string = '') {
         const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(key, appId)
-        const reward: ITwitchReward = {
-            id: await LegacyUtils.getRewardId(key),
-            handler: actionHandler
-        }
-        if(reward.id != null) {
+        const actionHandler = new ActionHandler(eventKey, appId)
+        if(typeof triggerReward.rewardID == 'string') {
+            const reward: ITwitchReward = {
+                id: triggerReward.rewardID.toString(),
+                handler: actionHandler
+            }
             modules.twitchEventSub.registerReward(reward)
         } else {
-            Utils.logWithBold(`No Reward ID for <${key}>, it might be missing a reward config.`, 'red')
+            Utils.logWithBold(`No Reward ID for <${eventKey}>, it might be missing a reward config.`, 'red')
         }
     }
 
-    private static async registerCommand(key: TKeys) {
+    private static async registerCommand(triggerCommand: TriggerCommand, key: string) {
         const modules = ModulesSingleton.getInstance()
-        const event = Utils.getEventConfig(key)
-        let command = event?.triggers.command
-        if(command) {
-            const triggers = Utils.ensureArray(command.entries)
-            for(let trigger of triggers) {
+        if(triggerCommand.entries.length > 0) {
+            for(let trigger of triggerCommand.entries) {
                 trigger = TextHelper.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
-                const useThisCommand = <ITwitchCommandConfig> {...(event?.triggers.command ?? {}), trigger: trigger }
-                if(command?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
-                else if(command?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
+                const useThisCommand = <ITwitchCommandConfig> { trigger: trigger }
+                if(triggerCommand.userCooldown) useThisCommand.cooldownUserHandler = actionHandler
+                else if(triggerCommand.globalCooldown) useThisCommand.cooldownHandler = actionHandler
                 else useThisCommand.handler = actionHandler
                 modules.twitch.registerCommand(useThisCommand)
             }
         }
     }
 
-    private static async registerRemoteCommand(key: TKeys) {
+    private static async registerRemoteCommand(triggerRemoteCommand: TriggerRemoteCommand, key: string) {
         const modules = ModulesSingleton.getInstance()
-        const event = Utils.getEventConfig(key)
-        const remoteCommand = event?.triggers.remoteCommand
-        if(remoteCommand) {
+        if(triggerRemoteCommand.entries.length) {
             const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
-            const triggers = Utils.ensureArray(remoteCommand.entries)
-            for(let trigger of triggers) {
+            for(let trigger of triggerRemoteCommand.entries) {
                 trigger = TextHelper.replaceTags(trigger, {eventKey: key})
                 const actionHandler = new ActionHandler(key)
 
                 // Set handler depending on cooldowns
                 const allowedUsers = Utils.ensureObjectArrayNotId(twitchConfig.remoteCommandAllowedUsers).map((user) => user.userName).filter((login) => login)
-                const useThisCommand = <ITwitchCommandConfig> {...event.triggers.remoteCommand, trigger: trigger, allowedUsers: allowedUsers }
-                if(remoteCommand?.userCooldown !== undefined) useThisCommand.cooldownUserHandler = actionHandler
-                else if(remoteCommand?.globalCooldown !== undefined) useThisCommand.cooldownHandler = actionHandler
+                const useThisCommand = <ITwitchCommandConfig> { trigger: trigger, allowedUsers: allowedUsers }
+                if(triggerRemoteCommand.userCooldown) useThisCommand.cooldownUserHandler = actionHandler
+                else if(triggerRemoteCommand.globalCooldown) useThisCommand.cooldownHandler = actionHandler
                 else useThisCommand.handler = actionHandler
                 modules.twitch.registerRemoteCommand(useThisCommand)
             }
         }
     }
 
-    private static async registerCheer(key: TKeys) {
+    private static async registerCheer(triggerCheer: TriggerCheer, key: string) {
         const modules = ModulesSingleton.getInstance()
         const actionHandler = new ActionHandler(key)
-        const event = Utils.getEventConfig(key)
         const cheer: ITwitchCheer = {
-            bits: event?.triggers.cheer ?? 0,
+            bits: triggerCheer.amount,
             handler: actionHandler
         }
         if(cheer.bits > 0) {
             modules.twitchEventSub.registerCheer(cheer)
         } else {
-            Utils.logWithBold(`Cannot register cheer event for: <${key}>, it might be missing a cheer config.`, 'red')
+            Utils.logWithBold(`Cannot register cheer event for: <${key}>.`, 'red')
         }
     }
 
-    private static async registerTimer(key: TKeys) {
+    private static async registerTimer(triggerTimer: TriggerTimer, key: string) {
         const actionHandler = new ActionHandler(key)
         const user = await this.buildEmptyUserData(EEventSource.Timer, key)
-        const event = Utils.getEventConfig(key)
-        const config = event?.triggers.timer
         let handle: number = -1
         let count = 0
-        const times = config?.times ?? 0
-        const interval = config?.interval ?? 10
-        const delay = Math.max(0, (config?.delay ?? 10) - interval)
+        const times = triggerTimer.repetitions ?? 0
+        const interval = triggerTimer.interval
+        const delay = Math.max(0, (triggerTimer.initialDelay ?? 10) - interval)
         setTimeout(()=>{
             handle = setInterval(()=>{
                 actionHandler.call(user)
@@ -434,22 +461,21 @@ export class Actions {
         }, delay*1000)
     }
 
-    private static async registerRelay(key: TKeys) {
-        const event = Utils.getEventConfig(key)
+    private static async registerRelay(triggerRelay: TriggerRelay, key: string) {
         const relay: IOpenVR2WSRelay = {
-            key: <TKeys> TextHelper.replaceTags(event?.triggers.relay ?? 'Unknown', {eventKey: key}),
+            key: TextHelper.replaceTags(triggerRelay.key, {eventKey: key}),
             handler: new ActionHandler(key)
         }
         if(relay.key.length > 0) {
             Callbacks.registerRelay(relay)
         } else {
-            Utils.logWithBold(`Cannot register relay event for: <${key}>, it might be missing a relay config.`, 'red')
+            Utils.logWithBold(`Cannot register relay event for: <${key}>.`, 'red')
         }
     }
     // endregion
 
     // region Main Action Builder
-    public static buildActionsMainCallback(key: TKeys, actionsArr: IActions[]): IActionsMainCallback {
+    public static buildActionsMainCallback(key: string, actionsList: (EventActionContainer|undefined)[]): IActionsMainCallback {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup
@@ -463,60 +489,90 @@ export class Actions {
          * This does not work with timelines.
          */
         const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
-
+        const actionsArr = ArrayUtils.removeUndefined(actionsList)
         const actionsExecutors: IActionsExecutor[] = [] // A list of stacks of actions to execute.
-        if(actionsArr.length == 0) actionsArr.push({}) // We need at least one empty object to register default actions in the loop below.
-        for(const actions of actionsArr) {
+        if(actionsArr.length == 0) actionsArr.push(new EventActionContainer()) // We need at least one empty object to register default actions in the loop below.
+        for(const actionContainer of actionsArr) {
             const actionCallbacks: IActionCallback[] = [] // The stack of actions to execute.
+            for(const action of actionContainer.entries) {
+                // TODO: Actually move this callback constructor INTO the action, so this switch statement becomes redundant.
+                //  Just call "buildCallback" on the action itself. This will open us up to custom actions added after the fact too.
 
-            // Build callbacks
-            actionCallbacks.pushIfExists(this.buildTTSCallback(actions?.tts))
-            actionCallbacks.pushIfExists(actions?.custom)
-            actionCallbacks.pushIfExists(ActionsCallbacks.stack[TempFactory.keyToActionCallbackEnum(key as TKeys)])
-            actionCallbacks.pushIfExists(this.buildOBSCallback(actions?.obs, key))
-            actionCallbacks.pushIfExists(this.buildColorCallback(actions?.lights))
-            actionCallbacks.pushIfExists(this.buildPlugCallback(actions?.plugs))
-            actionCallbacks.pushIfExists(this.buildSoundAndSpeechCallback(
-                actions?.audio, 
-                actions?.speech,
-                nonceTTS, 
-                !!(actions?.speech)
-            ))
-            actionCallbacks.pushIfExists(this.buildPipeCallback(actions?.pipe))
-            actionCallbacks.pushIfExists(this.buildOpenVR2WSSettingCallback(actions?.vrSetting))
-            actionCallbacks.pushIfExists(this.buildOpenVR2WSMoveSpaceCallback(actions?.vrMoveSpace))
-            actionCallbacks.pushIfExists(this.buildSignCallback(actions?.sign))
-            actionCallbacks.pushIfExists(this.buildKeysCallback(actions?.input))
-            actionCallbacks.pushIfExists(this.buildURICallback(actions?.uri))
-            actionCallbacks.pushIfExists(this.buildWebCallback(actions?.web))
-            actionCallbacks.pushIfExists(this.buildScreenshotCallback(actions?.screenshots, key, nonceTTS))
-            actionCallbacks.pushIfExists(this.buildDiscordMessageCallback(actions?.discord, key))
-            actionCallbacks.pushIfExists(this.buildTwitchChatCallback(actions?.chat))
-            actionCallbacks.pushIfExists(this.buildTwitchWhisperCallback(actions?.whisper))
-            actionCallbacks.pushIfExists(this.buildLabelCallback(actions?.label))
-            actionCallbacks.pushIfExists(this.buildSystemCallback(actions?.system))
-            actionCallbacks.pushIfExists(this.buildRemoteCommandCallback(actions?.remoteCommand))
+                // Build callbacks
+                const callback: IActionCallback = (action as Action).buildCallback(key)
+                actionCallbacks.push(callback)
+                /*
+                switch(action.constructor.name) {
+                    case ActionSpeech.name: callback = this.buildTTSCallback(action as ActionSpeech); break
+                    case ActionCustom.name: callback = this.buildTTSCallback(action as ActionCustom); break
+                    case ActionOBS.name: callback = this.buildTTSCallback(action as ActionOBS); break
+                    case ActionPhilipsHueBulb.name: callback = this.buildTTSCallback(action as ActionPhilipsHueBulb); break
+                    case ActionPhilipsHuePlug.name: callback = this.buildTTSCallback(action as ActionPhilipsHuePlug); break
+                    case ActionAudio.name: callback = this.buildTTSCallback(action as ActionAudio); break
+                    case ActionPipe.name: callback = this.buildTTSCallback(action as ActionPipe); break
+                    case ActionSettingVR.name: callback = this.buildTTSCallback(action as ActionSettingVR); break
+                    case ActionSign.name: callback = this.buildTTSCallback(action as ActionSign); break
+                    case ActionInput.name: callback = this.buildTTSCallback(action as ActionInput); break
+                    case ActionLink.name: callback = this.buildTTSCallback(action as ActionLink); break
+                    case ActionScreenshot.name: callback = this.buildTTSCallback(action as ActionScreenshot); break
+                    case ActionDiscord.name: callback = this.buildTTSCallback(action as ActionDiscord); break
+                    case ActionChat.name: callback = this.buildTTSCallback(action as ActionChat); break
+                    case ActionWhisper.name: callback = this.buildTTSCallback(action as ActionWhisper); break
+                    case ActionLabel.name: callback = this.buildTTSCallback(action as ActionLabel); break
+                    case ActionSystem.name: callback = this.buildTTSCallback(action as ActionSystem); break
+                    case ActionRemoteCommand.name: callback = this.buildTTSCallback(action as ActionRemoteCommand); break
+                }
+                ArrayUtils.pushIfExists(actionCallbacks, callback)
 
-            // Logging
-            if(actionCallbacks.length == 1) {
-                Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks[0].tag} "${actionCallbacks[0].description}"`, Color.Green)
-            } else {
-                Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks.map(ac => ac.tag).join(', ')}`, Color.Green)
-            }
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildTTSCallback(actionContainer?.tts))
+                ArrayUtils.pushIfExists(actionCallbacks, actionContainer?.custom)
+                ArrayUtils.pushIfExists(actionCallbacks, ActionsCallbacks.stack[TempFactory.keyToActionCallbackEnum(key as TKeys)])      // TODO ??
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildOBSCallback(actionContainer?.obs, key))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildColorCallback(actionContainer?.lights))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildPlugCallback(actionContainer?.plugs))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildSoundAndSpeechCallback(
+                    actionContainer?.audio,
+                    actionContainer?.speech,
+                    nonceTTS,
+                    !!(actionContainer?.speech)
+                ))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildPipeCallback(actionContainer?.pipe))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildOpenVR2WSSettingCallback(actionContainer?.vrSetting))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildOpenVR2WSMoveSpaceCallback(actionContainer?.vrMoveSpace))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildSignCallback(actionContainer?.sign))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildKeysCallback(actionContainer?.input))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildURICallback(actionContainer?.uri))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildWebCallback(actionContainer?.web))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildScreenshotCallback(actionContainer?.screenshots, key, nonceTTS))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildDiscordMessageCallback(actionContainer?.discord, key))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildTwitchChatCallback(actionContainer?.chat))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildTwitchWhisperCallback(actionContainer?.whisper))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildLabelCallback(actionContainer?.label))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildSystemCallback(actionContainer?.system))
+                ArrayUtils.pushIfExists(actionCallbacks, this.buildRemoteCommandCallback(actionContainer?.remoteCommand))
+                */
 
-            // Push item with callback that triggers all the actions generated.
-            actionsExecutors.push({
-                timeMs: actions._timeMs,
-                delayMs: actions._delayMs,
-                execute: async (user: IActionUser, index?: number) => {
-                    for (const stackCallback of actionCallbacks) {
-                        if (stackCallback.call) {
-                            if(stackCallback.awaitCall) await stackCallback.call(user, index)
-                            else stackCallback.call(user, index)
+                // Logging
+                if(actionCallbacks.length == 1) {
+                    Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks[0].tag} "${actionCallbacks[0].description}"`, Color.Green)
+                } else {
+                    Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks.map(ac => ac.tag).join(', ')}`, Color.Green)
+                }
+
+                // Push item with callback that triggers all the actions generated.
+                actionsExecutors.push({
+                    timeMs: actionContainer.delayMs_orTimeMs,
+                    delayMs: actionContainer.delayMs,
+                    execute: async (user: IActionUser, index?: number) => {
+                        for (const stackCallback of actionCallbacks) {
+                            if (stackCallback.call) {
+                                if(stackCallback.awaitCall) await stackCallback.call(user, index)
+                                else stackCallback.call(user, index)
+                            }
                         }
                     }
-                }
-            })
+                })
+            }
         }
 
         // Return a callback that will execute all the actions in the stack of each item.
@@ -607,8 +663,9 @@ export class Actions {
                         Utils.ensureArray(config.srcEntries).getAsType(index), // Need to read entries from config here as cloning drops __type
                         user
                     )
-                    if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
-                    else modules.audioPlayer.enqueueAudio(configClone)
+                    // TODO: Soon redundant anyway
+                    // if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
+                    // else modules.audioPlayer.enqueueAudio(configClone)
                 }
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {

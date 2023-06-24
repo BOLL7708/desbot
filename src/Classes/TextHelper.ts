@@ -1,4 +1,3 @@
-import {IActionUser, ITextTags} from '../Interfaces/iactions.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import SteamStoreHelper from './SteamStoreHelper.js'
@@ -11,6 +10,8 @@ import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
 import {ConfigCleanText} from '../Objects/Config/CleanText.js'
 import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {ConfigSpeech} from '../Objects/Config/Speech.js'
+import {IActionUser} from '../Objects/Action.js'
+import {ITextTags} from '../Interfaces/iactions.js'
 
 export default class TextHelper {
     static async loadCleanName(userIdOrName: string|number):Promise<string> {

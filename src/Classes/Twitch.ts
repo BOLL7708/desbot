@@ -1,4 +1,3 @@
-import {IActionUser} from '../Interfaces/iactions.js'
 import {
     ITwitchAnnouncement,
     ITwitchChatCallback,
@@ -23,6 +22,7 @@ import DiscordUtils from './DiscordUtils.js'
 import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
 import TextHelper from './TextHelper.js'
 import ConfigTwitch from '../Objects/Config/Twitch.js'
+import {IActionUser} from '../Objects/Action.js'
 
 export default class Twitch{
     // Constants

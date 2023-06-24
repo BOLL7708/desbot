@@ -9,6 +9,17 @@ import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
 export class ActionSystem extends BaseDataObject {
     trigger = new ActionSystemTrigger()
     toggle = new ActionSystemToggle()
+
+    register() {
+        DataObjectMap.addRootInstance(
+            new ActionSystem(),
+            'Trigger or change state of things, propagating input.',
+            {
+                trigger: 'Things to trigger.',
+                toggle: 'Things to toggle.',
+            }
+        )
+    }
 }
 export class ActionSystemTrigger extends BaseDataObject {
     interval: number = 0
@@ -18,78 +29,80 @@ export class ActionSystemTrigger extends BaseDataObject {
     commandEntries_use = EnumEntryUsage.All
     eventEntries: (number|EventDefault)[] = []
     eventEntries_use = EnumEntryUsage.All
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ActionSystemTrigger(),
+            {
+                interval: 'Set the trigger entries to be triggered at an interval in seconds to space things out in time.',
+                systemActionEntries: 'Trigger system features that are not separate actions.',
+                commandEntries: 'Command(s) to trigger.',
+                eventEntries: 'Event(s) to trigger.'
+            },
+            {
+                systemActionEntries: EnumSystemActionType.ref(),
+                systemActionEntries_use: EnumEntryUsage.ref(),
+                commandEntries: 'string',
+                commandEntries_use: EnumEntryUsage.ref(),
+                eventEntries: EventDefault.refIdKey(),
+                eventEntries_use: EnumEntryUsage.ref()
+            }
+        )
+    }
 }
 export class ActionSystemToggle extends BaseDataObject {
     rewardStates: ActionSystemRewardState[] = []
     rewardStatesForEvents: ActionSystemRewardStateForEvent[] = []
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ActionSystemToggle(),
+            {
+                rewardStates: 'Set the states for a number of rewards.',
+                rewardStatesForEvents: 'Set the states for a number of rewards in events.'
+            },
+            {
+                rewardStates: ActionSystemRewardState.ref(),
+                rewardStatesForEvents: ActionSystemRewardStateForEvent.ref()
+            }
+        )
+    }
 }
 export class ActionSystemRewardState extends BaseDataObject {
     reward: number|SettingTwitchReward = 0
     reward_visible = EnumTwitchRewardVisible.Visible
     reward_usable = EnumTwitchRewardUsable.Enabled
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ActionSystemRewardState(),
+            {
+                reward: 'The reward to update, if it should be visible and/or redeemable.'
+            },
+            {
+                reward: SettingTwitchReward.refIdLabel(),
+                reward_visible: EnumTwitchRewardVisible.ref(),
+                reward_usable: EnumTwitchRewardUsable.ref()
+            }
+        )
+    }
 }
 export class ActionSystemRewardStateForEvent extends BaseDataObject {
     event: number|EventDefault = 0
     event_visible = EnumTwitchRewardVisible.Visible
     event_usable = EnumTwitchRewardUsable.Enabled
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ActionSystemRewardStateForEvent(),
+            {
+                event: 'The event to look for a reward to update in, if it should be visible and/or redeemable.'
+            },
+            {
+                event: EventDefault.refIdKey(),
+                event_visible: EnumTwitchRewardVisible.ref(),
+                event_usable: EnumTwitchRewardVisible.ref()
+            }
+        )
+    }
 }
-
-
-DataObjectMap.addRootInstance(
-    new ActionSystem(),
-    'Trigger or change state of things, propagating input.',
-    {
-        trigger: 'Things to trigger.',
-        toggle: 'Things to toggle.',
-    }
-)
-DataObjectMap.addSubInstance(
-    new ActionSystemTrigger(),
-    {
-        interval: 'Set the trigger entries to be triggered at an interval in seconds to space things out in time.',
-        systemActionEntries: 'Trigger system features that are not separate actions.',
-        commandEntries: 'Command(s) to trigger.',
-        eventEntries: 'Event(s) to trigger.'
-    },
-    {
-        systemActionEntries: EnumSystemActionType.ref(),
-        systemActionEntries_use: EnumEntryUsage.ref(),
-        commandEntries: 'string',
-        commandEntries_use: EnumEntryUsage.ref(),
-        eventEntries: EventDefault.refIdKey(),
-        eventEntries_use: EnumEntryUsage.ref()
-    }
-)
-DataObjectMap.addSubInstance(
-    new ActionSystemToggle(),
-    {
-        rewardStates: 'Set the states for a number of rewards.',
-        rewardStatesForEvents: 'Set the states for a number of rewards in events.'
-    },
-    {
-        rewardStates: ActionSystemRewardState.ref(),
-        rewardStatesForEvents: ActionSystemRewardStateForEvent.ref()
-    }
-)
-DataObjectMap.addSubInstance(
-    new ActionSystemRewardState(),
-    {
-        reward: 'The reward to update, if it should be visible and/or redeemable.'
-    },
-    {
-        reward: SettingTwitchReward.refIdLabel(),
-        reward_visible: EnumTwitchRewardVisible.ref(),
-        reward_usable: EnumTwitchRewardUsable.ref()
-    }
-)
-DataObjectMap.addSubInstance(
-    new ActionSystemRewardStateForEvent(),
-    {
-        event: 'The event to look for a reward to update in, if it should be visible and/or redeemable.'
-    },
-    {
-        event: EventDefault.refIdKey(),
-        event_visible: EnumTwitchRewardVisible.ref(),
-        event_usable: EnumTwitchRewardVisible.ref()
-    }
-)

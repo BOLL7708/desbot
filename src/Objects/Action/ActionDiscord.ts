@@ -8,15 +8,17 @@ export class ActionDiscord extends BaseDataObject{
     webhook: number|PresetDiscordWebhook = 0
     entries: string[] = []
     entries_use = EnumEntryUsage.First
-}
 
-DataObjectMap.addRootInstance(
-    new ActionDiscord(),
-    'Send a message to a Discord channel, make sure to set a webhook URL in DiscordWebhooks for the same key.',
-    {},
-    {
-        webhook: PresetDiscordWebhook.refId(),
-        entries: 'string',
-        entries_use: EnumEntryUsage.ref()
+    register() {
+        DataObjectMap.addRootInstance(
+            new ActionDiscord(),
+            'Send a message to a Discord channel, make sure to set a webhook URL in DiscordWebhooks for the same key.',
+            {},
+            {
+                webhook: PresetDiscordWebhook.refId(),
+                entries: 'string',
+                entries_use: EnumEntryUsage.ref()
+            }
+        )
     }
-)
+}

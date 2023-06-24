@@ -7,6 +7,8 @@ export class SettingStreamQuote extends BaseDataObject {
     quote: string = ''
     datetime: string = ''
     game: string = ''
-}
 
-DataObjectMap.addRootInstance(new SettingStreamQuote())
+    register() {
+        DataObjectMap.addRootInstance(new SettingStreamQuote())
+    }
+}

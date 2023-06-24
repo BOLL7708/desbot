@@ -24,16 +24,18 @@ import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
 import {ConfigSteam} from '../../Objects/Config/Steam.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {ConfigController} from '../../Objects/Config/Controller.js'
+import RegisterObjects from '../../Objects/RegisterObjects.js'
 
 export default class MainController {
     public static async init() {
+        RegisterObjects.register()
         DataBaseHelper.setFillReferences(true)
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()
             return
         }
-        if(Config.controller.saveConsoleOutputToSettings) LogWriter.init().then()
+        // if(Config.controller.saveConsoleOutputToSettings) LogWriter.init().then()
 
         // Check configs
         const cfgPropCount = Object.keys(Config).length
@@ -43,6 +45,7 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
+        console.log(new SettingUser())
         await DataBaseHelper.loadAll(new SettingUser())
         await DataBaseHelper.loadAll(new SettingTwitchTokens())
         await DataBaseHelper.loadAll(new SettingTwitchReward())

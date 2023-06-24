@@ -1,7 +1,7 @@
 import {ActionAudio} from '../Action/ActionAudio.js'
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
-import {SettingUser, SettingUserName} from '../Setting/User.js'
+import {SettingUser} from '../Setting/User.js'
 import {SettingSteamGame} from '../Setting/Steam.js'
 import {EnumTwitchSubTier} from '../../Enums/Twitch.js'
 import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
@@ -51,12 +51,64 @@ export default class ConfigTwitch extends BaseDataObject {
         new ConfigTwitchAnnounceRaid(25, '%userTag raided the channel with %viewerCount viewers!'),
         new ConfigTwitchAnnounceRaid(50, '%userTag raided the channel with %viewerCount viewers!')
     ]
+
+    register() {
+        DataObjectMap.addRootInstance(
+            new ConfigTwitch(),
+            'Settings for Twitch.',
+            {
+                commandPrefix: 'Prefix for triggering chat commands.',
+                ignoreModerators: 'List of moderators that should not be able to execute commands, useful for bots.',
+                allowWhisperCommands: 'Will allow users with the right permissions to execute commands by whispering the chatbot.',
+                logWhisperCommandsToDiscord: 'Will push whisper commands to separate Discord channel for audit purposes.',
+                remoteCommandChannel: 'Set this to a Twitch channel name if you want to allow remote commands from a different channel.',
+                remoteCommandPrefix: 'Prefix for triggering remote chat commands.',
+                remoteCommandAllowedUsers: 'Only allow remote command for these specific users.',
+                proxyChatBotUser: 'When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.',
+                proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: botname, username, message',
+                defaultGameCategory: 'The Twitch category that will be used if a game title cannot be automatically matched.',
+                gameTitleToCategoryOverride: 'Manual override of game title to Twitch category for when a match is faulty or missing.',
+                gameCategoryMatchSpeech: 'Message read out when the Twitch category is set automatically, clear to skip.',
+                gameCategoryNoMatchSpeech: 'Message read out when the Twitch category failed to match, clear to skip.',
+                announcerUsers: 'Any user that should be treated as an announcer in chat.\n\nThis means most messages are muted from text to speech, unless specified in announcer triggers, and some prefixes can trigger sound effects.',
+                announcerTriggers: 'Things triggered by matching the start of an announcements message by any designated announcer.',
+                announceSubs: 'Subscription types to announce in chat.',
+                announceCheers: 'Cheer levels to announce in chat.',
+                announceRaids: 'Raid sizes to announce in chat.'
+            },
+            {
+                ignoreModerators: SettingUser.refIdLabel(),
+                logWhisperCommandsToDiscord: PresetDiscordWebhook.refId(),
+                remoteCommandChannel: SettingUser.refIdLabel(),
+                remoteCommandAllowedUsers: SettingUser.refIdLabel(),
+                proxyChatBotUser: SettingUser.refIdLabel(),
+                gameTitleToCategoryOverride: ConfigTwitchCategoryOverride.ref(),
+                announcerUsers: SettingUser.refIdLabel(),
+                announcerTriggers: ConfigTwitchAnnouncerTriggers.ref(),
+                announceSubs: ConfigTwitchAnnounceSub.ref(),
+                announceCheers: ConfigTwitchAnnounceCheer.ref(),
+                announceRaids: ConfigTwitchAnnounceRaid.ref(),
+            }
+        )
+    }
 }
 
 export class ConfigTwitchAnnouncerTriggers extends BaseDataObject {
     trigger: string = ''
     trigger_audio: number|ActionAudio = 0
     trigger_speech = true
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ConfigTwitchAnnouncerTriggers(),
+            {
+                trigger: 'A prefix that triggers a sound effect and optionally speaks the message.'
+            },
+            {
+                trigger_audio: ActionAudio.refId()
+            }
+        )
+    }
 }
 export class ConfigTwitchAnnounceSub extends BaseDataObject {
     tier = EnumTwitchSubTier.Prime
@@ -70,6 +122,18 @@ export class ConfigTwitchAnnounceSub extends BaseDataObject {
         if(multi !== undefined) this.tier_multi = multi
         if(message !== undefined) this.message = message
     }
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ConfigTwitchAnnounceSub(),
+            {
+                tier: 'The tier of subscription made.',
+                message: 'The message to be posted to chat.'
+            }, {
+                tier: EnumTwitchSubTier.ref()
+            }
+        )
+    }
 }
 export class ConfigTwitchAnnounceCheer extends BaseDataObject {
     bits: number = 1
@@ -78,6 +142,16 @@ export class ConfigTwitchAnnounceCheer extends BaseDataObject {
         super()
         if(bits !== undefined) this.bits = bits
         if(message !== undefined) this.message = message
+    }
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ConfigTwitchAnnounceCheer(),
+            {
+                bits: 'Will be used for bit amounts from this value up to the next level.',
+                message: 'The message to be posted to chat.'
+            }
+        )
     }
 }
 export class ConfigTwitchAnnounceRaid extends BaseDataObject {
@@ -88,89 +162,31 @@ export class ConfigTwitchAnnounceRaid extends BaseDataObject {
         if(viewers !== undefined) this.viewers = viewers
         if(message !== undefined) this.message = message
     }
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ConfigTwitchAnnounceRaid(),
+            {
+                viewers: 'Will be used for this amount of viewers up to the next level.',
+                message: 'The message to be posted to chat.'
+            }
+        )
+    }
 }
 export class ConfigTwitchCategoryOverride extends BaseDataObject {
-    game: number|SettingSteamGame = 0
+    game: number | SettingSteamGame = 0
     category: string = ''
+
+    register() {
+        DataObjectMap.addSubInstance(
+            new ConfigTwitchCategoryOverride(),
+            {
+                game: 'A Steam game where the title does not match the Twitch game category.',
+                category: 'The category as seen on Twitch.'
+            },
+            {
+                game: SettingSteamGame.refIdLabel()
+            }
+        )
+    }
 }
-
-DataObjectMap.addRootInstance(
-    new ConfigTwitch(),
-    'Settings for Twitch.',
-    {
-        commandPrefix: 'Prefix for triggering chat commands.',
-        ignoreModerators: 'List of moderators that should not be able to execute commands, useful for bots.',
-        allowWhisperCommands: 'Will allow users with the right permissions to execute commands by whispering the chatbot.',
-        logWhisperCommandsToDiscord: 'Will push whisper commands to separate Discord channel for audit purposes.',
-        remoteCommandChannel: 'Set this to a Twitch channel name if you want to allow remote commands from a different channel.',
-        remoteCommandPrefix: 'Prefix for triggering remote chat commands.',
-        remoteCommandAllowedUsers: 'Only allow remote command for these specific users.',
-        proxyChatBotUser: 'When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.',
-        proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: botname, username, message',
-        defaultGameCategory: 'The Twitch category that will be used if a game title cannot be automatically matched.',
-        gameTitleToCategoryOverride: 'Manual override of game title to Twitch category for when a match is faulty or missing.',
-        gameCategoryMatchSpeech: 'Message read out when the Twitch category is set automatically, clear to skip.',
-        gameCategoryNoMatchSpeech: 'Message read out when the Twitch category failed to match, clear to skip.',
-        announcerUsers: 'Any user that should be treated as an announcer in chat.\n\nThis means most messages are muted from text to speech, unless specified in announcer triggers, and some prefixes can trigger sound effects.',
-        announcerTriggers: 'Things triggered by matching the start of an announcements message by any designated announcer.',
-        announceSubs: 'Subscription types to announce in chat.',
-        announceCheers: 'Cheer levels to announce in chat.',
-        announceRaids: 'Raid sizes to announce in chat.'
-    },
-    {
-        ignoreModerators: SettingUser.refIdLabel(),
-        logWhisperCommandsToDiscord: PresetDiscordWebhook.refId(),
-        remoteCommandChannel: SettingUser.refIdLabel(),
-        remoteCommandAllowedUsers: SettingUser.refIdLabel(),
-        proxyChatBotUser: SettingUser.refIdLabel(),
-        gameTitleToCategoryOverride: ConfigTwitchCategoryOverride.ref(),
-        announcerUsers: SettingUser.refIdLabel(),
-        announcerTriggers: ConfigTwitchAnnouncerTriggers.ref(),
-        announceSubs: ConfigTwitchAnnounceSub.ref(),
-        announceCheers: ConfigTwitchAnnounceCheer.ref(),
-        announceRaids: ConfigTwitchAnnounceRaid.ref(),
-    }
-)
-
-DataObjectMap.addSubInstance(
-    new ConfigTwitchAnnouncerTriggers(),
-    {
-        trigger: 'A prefix that triggers a sound effect and optionally speaks the message.'
-    },
-    {
-        trigger_audio: ActionAudio.refId()
-    }
-)
-DataObjectMap.addSubInstance(
-    new ConfigTwitchAnnounceSub(),
-    {
-        tier: 'The tier of subscription made.',
-        message: 'The message to be posted to chat.'
-    }, {
-        tier: EnumTwitchSubTier.ref()
-    }
-)
-DataObjectMap.addSubInstance(
-    new ConfigTwitchAnnounceCheer(),
-    {
-        bits: 'Will be used for bit amounts from this value up to the next level.',
-        message: 'The message to be posted to chat.'
-    }
-)
-DataObjectMap.addSubInstance(
-    new ConfigTwitchAnnounceRaid(),
-    {
-        viewers: 'Will be used for this amount of viewers up to the next level.',
-        message: 'The message to be posted to chat.'
-    }
-)
-DataObjectMap.addSubInstance(
-    new ConfigTwitchCategoryOverride(),
-    {
-        game: 'A Steam game where the title does not match the Twitch game category.',
-        category: 'The category as seen on Twitch.'
-    },
-    {
-        game: SettingSteamGame.refIdLabel()
-    }
-)

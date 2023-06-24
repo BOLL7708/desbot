@@ -5,15 +5,16 @@ import BaseDataObject from '../../Objects/BaseDataObject.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
 import {ConfigEditor} from '../../Objects/Config/Editor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
+import RegisterObjects from '../../Objects/RegisterObjects.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
 
-    private readonly _labelSaveButton = '💾 Save (ctrl+s)'
-    private readonly _labelSaveAndCloseButton = '💾 Save & close (ctrl+s)'
-    private readonly _labelDeleteButton = '💥 Delete (shift+del)'
-    private readonly _labelDeleteAndCloseButton = '💥 Delete & close (shift+del)'
-    private readonly _labelDeleteResetButton = '💥 Reset (shift+del)'
+    private readonly _labelSaveButton: string = '💾 Save (ctrl+s)'
+    private readonly _labelSaveAndCloseButton: string = '💾 Save & close (ctrl+s)'
+    private readonly _labelDeleteButton: string = '💥 Delete (shift+del)'
+    private readonly _labelDeleteAndCloseButton: string = '💥 Delete & close (shift+del)'
+    private readonly _labelDeleteResetButton: string = '💥 Reset (shift+del)'
     private _unsavedChanges: boolean = false
 
     public constructor() {
@@ -24,6 +25,7 @@ export default class EditorHandler {
     private _coverDiv: HTMLDivElement|undefined
 
     private async init() {
+        RegisterObjects.register()
         TwitchHelixHelper.loadNamesForUsersWhoLackThem().then()
 
         window.onunload = (event)=>{

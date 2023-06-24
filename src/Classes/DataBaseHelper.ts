@@ -4,6 +4,7 @@ import Color from './ColorConstants.js'
 import BaseDataObject from '../Objects/BaseDataObject.js'
 import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import {ConfigEditor} from '../Objects/Config/Editor.js'
+import DataObjectMap from '../Objects/DataObjectMap.js'
 
 /*
 TODO
@@ -506,7 +507,10 @@ export default class DataBaseHelper {
         // TODO: Add callstack?
         const isProblem = className == 'Object'
         if(isProblem) {
-            Utils.log(`DB: ${action} got ${className} which is invalid.`, Color.DarkRed, true, true)
+            Utils.log(`DB: "${action}" got class "${className}" which is invalid.`, Color.DarkRed, true, true)
+        }
+        if(!DataObjectMap.hasInstance(className)) {
+            Utils.log(`DB: "${action}" got class "${className}" which does not exist in the DataObjectMap! Is it added to RegisterObjects?`, Color.DarkRed, true, true)
         }
         return isProblem
     }

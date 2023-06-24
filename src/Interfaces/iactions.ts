@@ -6,22 +6,7 @@ import {IRunCommandConfig} from './iexec.js'
 import {EEventSource, ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
 import {PresetPipeCustom} from '../Objects/Preset/Pipe.js'
 import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
-
-export interface IActionCallback {
-    tag: string
-    description: string
-    awaitCall?: boolean
-    call: (user: IActionUser, index?: number) => void // Index is used for entries-fields, provided by handler.
-}
-export interface IActionsExecutor {
-    timeMs?: number,
-    delayMs?: number,
-    execute: (user: IActionUser, index?: number) => void
-}
-export interface IActionsMainCallback {
-    (user: IActionUser, index?: number): void
-}
-export interface IActionsCallbackStack extends Partial<Record<number, IActionCallback|undefined>> {}
+import {IActionCallback} from '../Objects/Action.js'
 export interface IActions {
     /**
      * Optional: Set this to execute this batch of actions at a specific time in a timeline, overrides `_delayMs`.
@@ -136,30 +121,6 @@ export interface IActions {
      * Optional: Performs functions in the TTS system.
      */
     tts?: ITTSAction
-}
-
-/**
- * Combined Reward and Command result object for shared actions.
- */
-export interface IActionUser {
-    source: EEventSource
-    eventKey: TKeys
-    id: number
-    login: string
-    name: string
-    input: string
-    inputWords: string[]
-    message: string
-    color: string
-    isBroadcaster: boolean
-    isModerator: boolean
-    isVIP: boolean
-    isSubscriber: boolean,
-    bits: number,
-    bitsTotal: number
-    rewardCost: number
-    commandConfig?: ITwitchActionCommandConfig
-    rewardMessage?: ITwitchEventSubEventRedemption
 }
 
 export interface ISystemAction {

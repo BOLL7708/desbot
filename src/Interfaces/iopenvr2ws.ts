@@ -97,7 +97,7 @@ export interface Vec3 {
     z: number
 }
 export interface IOpenVR2WSRelay {
-    key: TKeys
+    key: string
     handler?: ActionHandler
 }
 export interface IOpenVRWSCommandMessage {

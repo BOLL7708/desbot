@@ -211,6 +211,9 @@ export default class Functions {
                 const rewardId = await LegacyUtils.getRewardId(key)
                 Utils.logWithBold(`Updating Game Reward: <${key}:${rewardId}>`, Color.Purple)
 
+                // TODO: UPDATE TO WORK WITH NEW SYSTEM YEAH?
+                continue
+
                 // Update game rewards on Twitch
                 TwitchHelixHelper.updateReward(rewardId, {
                     ...defaultRewardConfig,
@@ -218,7 +221,7 @@ export default class Functions {
                     ...{is_enabled: true}
                 }).then()
                 // Update game reward actions
-                Actions.registerReward(key, appId).then()
+                // Actions.registerReward(key, appId).then() // TODO: Borked now
             }
         }
 

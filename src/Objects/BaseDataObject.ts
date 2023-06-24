@@ -12,6 +12,11 @@ export type TBaseDataCategory =
     | 'Action'
 
 export default abstract class BaseDataObject {
+    /**
+     * Should register this class in a suitable list.
+     */
+    abstract register(): void
+
     // region References
 
     /**
@@ -258,7 +263,7 @@ export default abstract class BaseDataObject {
     }
 }
 
-export class EmptyDataObject extends BaseDataObject {}
+export class EmptyDataObject extends BaseDataObject { register() {} }
 
 export interface IBaseDataObjectRefValues {
     original: string

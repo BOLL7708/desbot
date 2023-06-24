@@ -55,96 +55,101 @@ export class ConfigExample extends BaseDataObject {
     partnerMultiple_or = 0
     partnerMultiple_plus = false
     partnerMultiple_butNot = ''
+
+    register() {
+        DataObjectMap.addRootInstance(
+            new ConfigExample(),
+            'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
+            {
+                singleBoolean: 'A single boolean flag',
+                singleNumber: 'A single number value',
+                singleString: 'A single string value',
+                singleSecretString: 'A single secret string value, use for passwords or API keys, etc.',
+                singleSubInstance: 'A single instance of a sub-class',
+                singleIdReference: 'A single ID reference to any other object',
+                singleIdReferenceUsingLabel: 'A single ID reference displayed with a label',
+                singleIdToKeyReference: 'A single ID reference to any other object key',
+                singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
+                singleIdToGenericReference: 'Contains a single generic entry.',
+                singleEnum: '',
+                arrayOfBooleans: 'This is an array property with a partner field.',
+                arrayOfBooleans_use: 'This is a separate property acting as the partner field.',
+                arrayOfNumbers: '',
+                arrayOfStrings: '',
+                arrayOfSubInstances: '',
+                arrayOfIdReferences: '',
+                arrayOfIdReferencesUsingLabels: '',
+                arrayOfIdToKeyReferences: '',
+                arrayOfIdToKeyReferencesUsingLabels: '',
+                arrayOfIdToGenericReferences: 'Contains an array of generic entries.',
+                arrayOfEnum: '',
+                dictionaryOfBooleans: '',
+                dictionaryOfNumbers: '',
+                dictionaryOfStrings: '',
+                dictionaryOfSubInstances: '',
+                dictionaryOfIdReferences: '',
+                dictionaryOfIdReferencesUsingLabels: '',
+                dictionaryOfIdToKeyReferences: '',
+                dictionaryOfIdToKeyReferencesUsingLabels: '',
+                dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.',
+                dictionaryOfEnums: ''
+            },
+            {
+                singleSecretString: 'string|secret',
+                singleFileString: 'string|file',
+                singleIdReference: PresetPipeBasic.refId(),
+                singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel(),
+                singleIdToKeyReference: PresetPipeBasic.refIdKey(),
+                singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel(),
+                singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
+                singleEnum: EnumEntryUsage.ref(),
+                arrayOfBooleans: 'boolean',
+                arrayOfBooleans_use: EnumEntryUsage.ref(),
+                arrayOfNumbers: 'number',
+                arrayOfStrings: 'string',
+                arrayOfSecretStrings: 'string|secret',
+                arrayOfFileStrings: 'string|file',
+                arrayOfSubInstances: ConfigExampleSub.ref(),
+                arrayOfIdReferences: PresetPipeBasic.refId(),
+                arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
+                arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
+                arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
+                arrayOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
+                arrayOfEnum: EnumEntryUsage.ref(),
+                dictionaryOfBooleans: 'boolean',
+                dictionaryOfNumbers: 'number',
+                dictionaryOfStrings: 'string',
+                dictionaryOfSubInstances: ConfigExampleSub.ref(),
+                dictionaryOfIdReferences: PresetPipeBasic.refId(),
+                dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
+                dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
+                dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
+                dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
+                dictionaryOfEnums: EnumEntryUsage.ref(),
+                partnerToSingleAdvanced_enum: EnumEntryUsage.ref(),
+                partnerToArray: 'string',
+                partnerToDictionary: 'string',
+                partnerToEnum: EnumEntryUsage.ref()
+            }
+        )
+    }
 }
 export class ConfigExampleSub extends BaseDataObject {
     singleString: string = ''
     singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
     singleEnum: number = EnumEntryUsage.All
-}
 
-DataObjectMap.addRootInstance(
-    new ConfigExample(),
-    'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
-    {
-        singleBoolean: 'A single boolean flag',
-        singleNumber: 'A single number value',
-        singleString: 'A single string value',
-        singleSecretString: 'A single secret string value, use for passwords or API keys, etc.',
-        singleSubInstance: 'A single instance of a sub-class',
-        singleIdReference: 'A single ID reference to any other object',
-        singleIdReferenceUsingLabel: 'A single ID reference displayed with a label',
-        singleIdToKeyReference: 'A single ID reference to any other object key',
-        singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
-        singleIdToGenericReference: 'Contains a single generic entry.',
-        singleEnum: '',
-        arrayOfBooleans: 'This is an array property with a partner field.',
-        arrayOfBooleans_use: 'This is a separate property acting as the partner field.',
-        arrayOfNumbers: '',
-        arrayOfStrings: '',
-        arrayOfSubInstances: '',
-        arrayOfIdReferences: '',
-        arrayOfIdReferencesUsingLabels: '',
-        arrayOfIdToKeyReferences: '',
-        arrayOfIdToKeyReferencesUsingLabels: '',
-        arrayOfIdToGenericReferences: 'Contains an array of generic entries.',
-        arrayOfEnum: '',
-        dictionaryOfBooleans: '',
-        dictionaryOfNumbers: '',
-        dictionaryOfStrings: '',
-        dictionaryOfSubInstances: '',
-        dictionaryOfIdReferences: '',
-        dictionaryOfIdReferencesUsingLabels: '',
-        dictionaryOfIdToKeyReferences: '',
-        dictionaryOfIdToKeyReferencesUsingLabels: '',
-        dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.',
-        dictionaryOfEnums: ''
-    },
-    {
-        singleSecretString: 'string|secret',
-        singleFileString: 'string|file',
-        singleIdReference: PresetPipeBasic.refId(),
-        singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel(),
-        singleIdToKeyReference: PresetPipeBasic.refIdKey(),
-        singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel(),
-        singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
-        singleEnum: EnumEntryUsage.ref(),
-        arrayOfBooleans: 'boolean',
-        arrayOfBooleans_use: EnumEntryUsage.ref(),
-        arrayOfNumbers: 'number',
-        arrayOfStrings: 'string',
-        arrayOfSecretStrings: 'string|secret',
-        arrayOfFileStrings: 'string|file',
-        arrayOfSubInstances: ConfigExampleSub.ref(),
-        arrayOfIdReferences: PresetPipeBasic.refId(),
-        arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
-        arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
-        arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
-        arrayOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-        arrayOfEnum: EnumEntryUsage.ref(),
-        dictionaryOfBooleans: 'boolean',
-        dictionaryOfNumbers: 'number',
-        dictionaryOfStrings: 'string',
-        dictionaryOfSubInstances: ConfigExampleSub.ref(),
-        dictionaryOfIdReferences: PresetPipeBasic.refId(),
-        dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
-        dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
-        dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
-        dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-        dictionaryOfEnums: EnumEntryUsage.ref(),
-        partnerToSingleAdvanced_enum: EnumEntryUsage.ref(),
-        partnerToArray: 'string',
-        partnerToDictionary: 'string',
-        partnerToEnum: EnumEntryUsage.ref()
+    register() {
+        DataObjectMap.addSubInstance(
+            new ConfigExampleSub(),
+            {
+                singleString: 'A string value',
+                singleIdReference: 'A reference to an object'
+            },
+            {
+                singleIdReference: PresetPipeBasic.refId(),
+                singleEnum: EnumEntryUsage.ref()
+            }
+        )
     }
-)
-DataObjectMap.addSubInstance(
-    new ConfigExampleSub(),
-    {
-        singleString: 'A string value',
-        singleIdReference: 'A reference to an object'
-    },
-    {
-        singleIdReference: PresetPipeBasic.refId(),
-        singleEnum: EnumEntryUsage.ref()
-    }
-)
+}

@@ -6,8 +6,8 @@ import {
     ITwitchEventSubEventGiftSubscription,
     ITwitchEventSubEventRaid,
     ITwitchEventSubEventRedemption,
-    ITwitchEventSubEventSubscription,
     ITwitchEventSubEventResubscription,
+    ITwitchEventSubEventSubscription,
     ITwitchEventSubMessageKeepAlive,
     ITwitchEventSubMessageNotification,
     ITwitchEventSubMessageRevocation,
@@ -19,7 +19,6 @@ import {
     TTwitchEventSubSubscriptionType
 } from '../Interfaces/itwitch_eventsub.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
-import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import {ITwitchCheer, ITwitchReward} from '../Interfaces/itwitch.js'
 import {SettingTwitchRedemption} from '../Objects/Setting/Twitch.js'
 import DataBaseHelper from './DataBaseHelper.js'

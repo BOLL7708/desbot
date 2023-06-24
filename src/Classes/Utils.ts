@@ -325,13 +325,13 @@ export default class Utils {
      * @param onlyRewards
      * @returns 
      */
-    static getAllEventKeysForGames(onlyRewards: boolean): TKeys[] {
-        const allEventKeysForGames = (Object.entries(Config.eventsForGames) as [TKeys, IEvent][])
+    static getAllEventKeysForGames(onlyRewards: boolean): string[] {
+        const allEventKeysForGames = (Object.entries(Config.eventsForGames) as [string, IEventsConfig][])
             .map(event => event[1])
             .flatMap(event => Object.keys(event))
-        const uniqueKeys = [...new Set(allEventKeysForGames)] as TKeys[]
+        const uniqueKeys = [...new Set(allEventKeysForGames)] as string[]
         if(onlyRewards) {
-			const rewardEvents = (Object.entries(Config.events) as [TKeys, IEvent][])
+			const rewardEvents = (Object.entries(Config.events) as [string, IEvent][])
                 .filter(event => event[1].triggers.reward !== undefined)
             const rewardEventKeys = rewardEvents.map(e => e[0])
 			return rewardEventKeys.filter((key => uniqueKeys.indexOf(key) > -1))
@@ -342,7 +342,7 @@ export default class Utils {
     /**
      * Get event config from any pool
      */
-    static getEventConfig(key: TKeys|undefined): IEvent|undefined {
+    static getEventConfig(key: string|undefined): IEvent|undefined {
         if(key === undefined) return undefined
         return Config.events[key] ?? undefined
     }

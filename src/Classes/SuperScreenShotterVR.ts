@@ -1,11 +1,11 @@
 import WebSockets from './WebSockets.js'
-import {IActionUser} from '../Interfaces/iactions.js'
 import Config from './Config.js'
 import {ISSSVRCallback, ISSSVRRequest, ISSSVRResponse} from '../Interfaces/isssvr.js'
 import {IScreenshotConfig, IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import {TKeys} from '../_data/!keys.js'
 import ConfigScreenshots from '../Objects/Config/Screenshots.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import {IActionUser} from '../Objects/Action.js'
 
 export default class SuperScreenShotterVR {
     private _socket?: WebSockets

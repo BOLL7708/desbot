@@ -18,6 +18,8 @@ import {SettingDictionaryEntry} from '../Objects/Setting/Dictionary.js'
 import TwitchChat from './TwitchChat.js'
 import ConfigTwitchChat from '../Objects/Config/TwitchChat.js'
 import {ConfigController} from '../Objects/Config/Controller.js'
+import {ActionAudio} from '../Objects/Action/ActionAudio.js'
+import TempFactory from './TempFactory.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -282,8 +284,9 @@ export default class GoogleTTS {
         }
     }
 
-    enqueueSoundEffect(audio: IAudioAction|undefined) {
-        if(audio) {
+    enqueueSoundEffect(actionAudio: ActionAudio|undefined) {
+        if(actionAudio) {
+            const audio = TempFactory.configAudio(actionAudio)
             this._preloadQueue[++this._count] = audio
         }
     }

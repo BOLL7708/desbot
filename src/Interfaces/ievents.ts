@@ -6,7 +6,7 @@ import {ITwitchHelixRewardConfig, ITwitchHelixRewardUpdate} from './itwitch_heli
 /**
  * Config for events
  */
-export interface IEventsConfig extends Partial<Record<TKeys, IEvent>> {}
+export interface IEventsConfig extends Partial<Record<string, IEvent>> {}
 
 /**
  * Various types of special event behavior.

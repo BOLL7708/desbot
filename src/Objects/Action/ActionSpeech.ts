@@ -11,21 +11,23 @@ export class ActionSpeech extends BaseDataObject {
     voiceOfUser: number|SettingUserVoice = 0
     voiceOfUsername: string = ''
     type = EnumTTSType.Announcement
-}
 
-DataObjectMap.addRootInstance(
-    new ActionSpeech(),
-    'Trigger the TTS to read a message.',
-    {
-        entries: 'The strings of text to read out loud.',
-        skipDictionary: 'Set to true to not use the word replacement dictionary.',
-        voiceOfUser: 'User the voice of a specific user, leave empty to use the trigger value.',
-        voiceOfUsername: 'Voice of the user with this name, if possible.'
-    },
-    {
-        entries: 'string',
-        entries_use: EnumEntryUsage.ref(),
-        voiceOfUser: SettingUser.refId(),
-        type: EnumTTSType.ref()
+    register() {
+        DataObjectMap.addRootInstance(
+            new ActionSpeech(),
+            'Trigger the TTS to read a message.',
+            {
+                entries: 'The strings of text to read out loud.',
+                skipDictionary: 'Set to true to not use the word replacement dictionary.',
+                voiceOfUser: 'User the voice of a specific user, leave empty to use the trigger value.',
+                voiceOfUsername: 'Voice of the user with this name, if possible.'
+            },
+            {
+                entries: 'string',
+                entries_use: EnumEntryUsage.ref(),
+                voiceOfUser: SettingUser.refIdKeyLabel(),
+                type: EnumTTSType.ref()
+            }
+        )
     }
-)
+}

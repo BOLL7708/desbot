@@ -7,14 +7,16 @@ export class ActionWhisper extends BaseDataObject {
     entries: string[] = []
     entries_use = EnumEntryUsage.First
     user: string = '' // TODO: Change to whichever way we reference users in the future.
-}
 
-DataObjectMap.addRootInstance(
-    new ActionWhisper(),
-    'Send a whisper message to a Twitch user.',
-    {},
-    {
-        entries: 'string',
-        entries_use: EnumEntryUsage.ref()
+    register() {
+        DataObjectMap.addRootInstance(
+            new ActionWhisper(),
+            'Send a whisper message to a Twitch user.',
+            {},
+            {
+                entries: 'string',
+                entries_use: EnumEntryUsage.ref()
+            }
+        )
     }
-)
+}

@@ -10,19 +10,22 @@ export default class ConfigTwitchChat extends BaseDataObject {
     soundEffectOnEmptyMessage: (number|ActionAudio) = 0
     speechTemplate: string = '%userNick said: %userInput'
     logToDiscord: number|PresetDiscordWebhook = 0
-}
-DataObjectMap.addRootInstance(
-    new ConfigTwitchChat(),
-    'Settings for how to handle Twitch Chat for various systems.',
-    {
-        pipePreset: 'The Pipe preset for chat messages. Duration to display the headset overlay for in milliseconds.',
-        soundEffectOnEmptyMessage: 'Sound that will play if a chat message does not have any content that should be read out.',
-        speechTemplate: 'String used for TTS, `%userNick` is the name of the user, `%userInput` is the message.',
-        logToDiscord: 'Mirror all chat to a discord channel.'
-    },
-    {
-        pipePreset: PresetPipeCustom.refId(),
-        soundEffectOnEmptyMessage: ActionAudio.refId(),
-        logToDiscord: PresetDiscordWebhook.refId()
+
+    register() {
+        DataObjectMap.addRootInstance(
+            new ConfigTwitchChat(),
+            'Settings for how to handle Twitch Chat for various systems.',
+            {
+                pipePreset: 'The Pipe preset for chat messages. Duration to display the headset overlay for in milliseconds.',
+                soundEffectOnEmptyMessage: 'Sound that will play if a chat message does not have any content that should be read out.',
+                speechTemplate: 'String used for TTS, `%userNick` is the name of the user, `%userInput` is the message.',
+                logToDiscord: 'Mirror all chat to a discord channel.'
+            },
+            {
+                pipePreset: PresetPipeCustom.refId(),
+                soundEffectOnEmptyMessage: ActionAudio.refId(),
+                logToDiscord: PresetDiscordWebhook.refId()
+            }
+        )
     }
-)
+}
