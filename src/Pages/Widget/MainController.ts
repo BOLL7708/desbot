@@ -45,7 +45,6 @@ export default class MainController {
         }
 
         // Make sure settings are pre-cached
-        console.log(new SettingUser())
         await DataBaseHelper.loadAll(new SettingUser())
         await DataBaseHelper.loadAll(new SettingTwitchTokens())
         await DataBaseHelper.loadAll(new SettingTwitchReward())

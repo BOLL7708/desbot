@@ -4,6 +4,7 @@ import Action, {IActionCallback} from '../Action.js'
 import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionAudio extends Action {
     srcEntries: string[] = []
@@ -40,7 +41,7 @@ export class ActionAudio extends Action {
             call: async (user, index) => {
                 const clone = Utils.clone(this) as ActionAudio
                 clone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
-                    Utils.ensureArray(clone.srcEntries).getAsType(index), // Need to read entries from config here as cloning drops __type
+                    ArrayUtils.getAsType(Utils.ensureArray(clone.srcEntries), clone.srcEntries_use, index), // Need to read entries from config here as cloning drops __type
                     user
                 )
                 const modules = ModulesSingleton.getInstance()

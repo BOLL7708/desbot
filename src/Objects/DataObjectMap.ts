@@ -1,6 +1,8 @@
 import {IStringDictionary} from '../Interfaces/igeneral.js'
 import BaseDataObject from './BaseDataObject.js'
 import {BaseMeta} from './BaseMeta.js'
+import Utils from '../Classes/Utils.js'
+import Color from '../Classes/ColorConstants.js'
 
 // Types
 export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
@@ -60,7 +62,7 @@ export default class DataObjectMap {
     ): Promise<BaseDataObject|undefined> {
         const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return undefined
-        if(className && this._map.has(className)) {
+        if(className && this.hasInstance(className)) {
             const instance = this._map.get(className)?.instance
             if(instance) {
                 return await instance.__new(props, fillReferences)
@@ -72,7 +74,12 @@ export default class DataObjectMap {
     public static hasInstance(
         className: string|undefined
     ): boolean {
-        return className ? this._map.has(className) : false
+        const invalidClasses = ['string', 'number', 'array', 'boolean', 'basedataobject', '']
+        if(invalidClasses.indexOf(className?.toLowerCase() ?? '') != -1 || className?.startsWith('Enum')) return false
+
+        const has = className ? this._map.has(className) : false
+        if(!has) Utils.log(`Object: "${className}" does not exist in DataObjectMap!`, Color.DarkRed, true, true)
+        return has
     }
 
     public static getNames(likeFilter?: string, onlyRootNames: boolean = true): string[] {
@@ -91,7 +98,7 @@ export default class DataObjectMap {
     }
 
     public static getMeta(className: string): DataObjectMeta|undefined {
-        return this._map.get(className)
+        return this.hasInstance(className) ? this._map.get(className) : undefined
     }
 }
 

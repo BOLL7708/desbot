@@ -559,20 +559,20 @@ export class Actions {
                     Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks.map(ac => ac.tag).join(', ')}`, Color.Green)
                 }
 
-                // Push item with callback that triggers all the actions generated.
-                actionsExecutors.push({
-                    timeMs: actionContainer.delayMs_orTimeMs,
-                    delayMs: actionContainer.delayMs,
-                    execute: async (user: IActionUser, index?: number) => {
-                        for (const stackCallback of actionCallbacks) {
-                            if (stackCallback.call) {
-                                if(stackCallback.awaitCall) await stackCallback.call(user, index)
-                                else stackCallback.call(user, index)
-                            }
+            }
+            // Push item with callback that triggers all the actions generated.
+            actionsExecutors.push({
+                timeMs: actionContainer.delayMs_orTimeMs,
+                delayMs: actionContainer.delayMs,
+                execute: async (user: IActionUser, index?: number) => {
+                    for (const stackCallback of actionCallbacks) {
+                        if (stackCallback.call) {
+                            if(stackCallback.awaitCall) await stackCallback.call(user, index)
+                            else stackCallback.call(user, index)
                         }
                     }
-                })
-            }
+                }
+            })
         }
 
         // Return a callback that will execute all the actions in the stack of each item.

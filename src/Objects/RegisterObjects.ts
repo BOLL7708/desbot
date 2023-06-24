@@ -56,7 +56,7 @@ import ConfigTwitch, {
     ConfigTwitchAnnounceSub, ConfigTwitchCategoryOverride
 } from './Config/Twitch.js'
 import ConfigTwitchChat from './Config/TwitchChat.js'
-import {EventDefault} from './Event/EventDefault.js'
+import {EventActionContainer, EventDefault, EventOptions} from './Event/EventDefault.js'
 import {PresetDiscordWebhook} from './Preset/DiscordWebhook.js'
 import {PresetOBSScene, PresetOBSSource} from './Preset/OBS.js'
 import {PresetPermissions} from './Preset/Permissions.js'
@@ -168,6 +168,8 @@ export default class RegisterObjects {
             new ConfigTwitchChat(),
 
             new EventDefault(),
+            new EventOptions(),
+            new EventActionContainer(),
 
             new PresetDiscordWebhook(),
             new PresetOBSScene(),
