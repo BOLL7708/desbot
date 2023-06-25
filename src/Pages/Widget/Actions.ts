@@ -779,20 +779,6 @@ export class Actions {
         }
     }
 
-    private static buildRemoteCommandCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🤝',
-            description: 'Callback that triggers a Remote Command action',
-            call: (user: IActionUser, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                const entries = Utils.ensureArray(config.entries).getAsType(index)
-                for(const entry of entries) {
-                    modules.twitch.sendRemoteCommand(entry).then()
-                }
-            }
-        }
-    }
-
     private static buildTTSCallback(config: ITTSAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🗣',
