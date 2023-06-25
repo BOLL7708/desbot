@@ -65,7 +65,7 @@ import ConfigTwitch, {
 import ConfigTwitchChat from './Config/ConfigTwitchChat.js'
 import {EventActionContainer, EventDefault, EventOptions} from './Event/EventDefault.js'
 import {PresetDiscordWebhook} from './Preset/PresetDiscordWebhook.js'
-import {PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
+import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
 import {PresetPermissions} from './Preset/PresetPermissions.js'
 import {PresetPhilipsHueColor} from './Preset/PresetPhilipsHue.js'
 import {
@@ -189,6 +189,7 @@ export default class EnlistData {
             new PresetDiscordWebhook(),
             new PresetOBSScene(),
             new PresetOBSSource(),
+            new PresetOBSFilter(),
             new PresetPermissions(),
             new PresetPhilipsHueColor(),
             new PresetPipeBasic(),

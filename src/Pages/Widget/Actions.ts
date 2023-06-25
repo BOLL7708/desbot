@@ -230,7 +230,6 @@ export class ActionHandler {
 export class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-
         const events = await DataBaseHelper.loadAll(new EventDefault())
         if(events) {
             for(const [key, event] of Object.entries(events)) {
@@ -458,20 +457,6 @@ export class Actions {
     // endregion
 
     // region Action Builders
-    private static buildOBSCallback(config: IObsAction|undefined, key: TKeys): IActionCallback|undefined {
-        if(config) return {
-            tag: '🎬',
-            description: 'Callback that triggers an OBS action',
-            call: () => {
-                const modules = ModulesSingleton.getInstance()
-                config.key = key
-                const state = config.state ?? true
-                console.log("OBS Reward triggered")
-                modules.obs.toggle(config, state)
-            }
-        }
-    }
-
     private static buildColorCallback(config: IPhilipsHueColorAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🎨',

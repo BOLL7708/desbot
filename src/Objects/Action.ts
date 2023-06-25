@@ -4,7 +4,7 @@ import {ITwitchActionCommandConfig} from '../Interfaces/itwitch.js'
 import {ITwitchEventSubEventRedemption} from '../Interfaces/itwitch_eventsub.js'
 
 export default abstract class Action extends Data {
-    abstract build<T>(key: string): IActionCallback
+    abstract build(key: string): IActionCallback
 }
 
 export interface IActionCallback {

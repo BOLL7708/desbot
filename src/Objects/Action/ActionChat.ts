@@ -21,7 +21,7 @@ export class ActionChat extends Action {
         )
     }
 
-    build<T>(key: string): IActionCallback {
+    build(key: string): IActionCallback {
         return {
             tag: '📄',
             description: 'Callback that triggers a Twitch chat message action',

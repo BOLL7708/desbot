@@ -6,8 +6,9 @@ import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import ConfigOBS from '../Objects/Config/ConfigOBS.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {OptionScreenshotFileType} from '../Options/OptionScreenshotFileType.js'
-import {IObsAction} from '../Interfaces/iactions.js'
 import {IActionUser} from '../Objects/Action.js'
+import {ActionOBS} from '../Objects/Action/ActionOBS.js'
+import ArrayUtils from './ArrayUtils.js'
 
 export default class OBS {
     private _socket?: WebSockets
@@ -84,80 +85,80 @@ export default class OBS {
 		}
     }
 
-    show(config: IObsAction|undefined, ignoreDuration: boolean = false) {
-        if(config?.sceneNames != undefined) { // If we have scenes, it would be sources we toggle.
-            // TODO: Make this work with the keys for events, not the old keys.
-            const group = Object.values(this._config.sourceEventGroups).find(group => group.members.includes(config.key ?? 'Unknown'))
-            if(group) { // If this source is in a group, hide all other sources in the group. Useful for sources sharing a single position on screen.
-                for(const k of group.members) {
-                    if(k != config.key) {
-                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k as TKeys)?.actionsEntries)
-                        for(const actions of actionsArr) {
-                            this.hide(actions?.obs)
-                        }
-                    }
-                }
+    show(action: ActionOBS, ignoreDuration: boolean = false) {
+        if(action.sceneEntries) {
+            for(const scene of ArrayUtils.getAsType(action.sceneEntries, action.sceneEntries_use)) {
+                // TODO: Implement
+                console.log(`Should switch to specific OBS scene: ${Utils.ensureObjectNotId(scene)?.sceneName}`)
             }
-            for(const sceneName of config.sceneNames) {
-                for(const src of Utils.ensureArray(config.sourceName)) {
+        }
+        if(action.sourceEntries) {
+            // TODO: Implement the grouped sources here, where we toggle one on and toggle the rest off.
+            for(const group of ArrayUtils.getAsType(action.sourceEntries, action.sourceEntries_use)) {
+                const scene = Utils.ensureObjectNotId(group.scenePreset)
+                const source = Utils.ensureObjectNotId(group.sourcePreset)
+                if(scene && source) {
                     this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
-                        "scene-name": sceneName,
-                        "item": src,
+                        "scene-name": scene.sceneName,
+                        "item": source.sourceName,
                         "visible": true
                     }))
                 }
             }
-        } else if(config?.filterName != undefined) {
-            // If this filter is in a group, hide all the other ones, useful for audio filters that should not overlap.
-            // TODO: Make this work with the keys for events, not the old keys.
-            const group = Object.values(this._config.filterEventGroups).find(group => group.members.includes(config.key ?? 'Unknown'))
-            if(group) {
-                for(const k of group.members) {
-                    if(k != config.key) {
-                        const actionsArr = Utils.ensureArray(Utils.getEventConfig(k as TKeys)?.actionsEntries)
-                        for(const actions of actionsArr) {
-                            this.hide(actions?.obs)
-                        }
-                    }
+        }
+        if(action.filterEntries) {
+            // TODO: Implement the grouped filters here, where we toggle one on and toggle the rest off.
+            for(const group of ArrayUtils.getAsType(action.filterEntries, action.filterEntries_use)) {
+                const source = Utils.ensureObjectNotId(group.sourcePreset)
+                const filter = Utils.ensureObjectNotId(group.filterPreset)
+                if(source && filter) {
+                    this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
+                        "sourceName": source.sourceName,
+                        "filterName": filter.filterName,
+                        "filterEnabled": true
+                    }))
                 }
             }
-            for(const src of Utils.ensureArray(config.sourceName)) {
-                this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
-                    "sourceName": src,
-                    "filterName": config.filterName,
-                    "filterEnabled": true
-                }))
-            }
         }
-        if(config?.durationMs != undefined && !ignoreDuration) {
+        if(action?.durationMs != undefined && !ignoreDuration) {
             setTimeout(() => {
-                this.hide(config)
-            }, config.durationMs)
+                this.hide(action)
+            }, action.durationMs)
         }
     }
-    hide(config: IObsAction|undefined) {
-        if(config?.sceneNames) {
-            for(const sceneName of config.sceneNames) {
-                for(const src of Utils.ensureArray(config.sourceName)) {
-                    this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSHideSource'), {
-                        "scene-name": sceneName,
-                        "item": src,
+    hide(action: ActionOBS) {
+        if(action.sceneEntries) {
+            // TODO: Implement? Actually not sure if this should do anything at all, we cannot hide a scene, just switch to a new one.
+        }
+        if(action.sourceEntries) {
+            for(const group of ArrayUtils.getAsType(action.sourceEntries, action.sourceEntries_use)) {
+                const scene = Utils.ensureObjectNotId(group.scenePreset)
+                const source = Utils.ensureObjectNotId(group.sourcePreset)
+                if(scene && source) {
+                    this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
+                        "scene-name": scene.sceneName,
+                        "item": source.sourceName,
                         "visible": false
                     }))
                 }
             }
-        } else if (config?.filterName) {
-            for(const src of Utils.ensureArray(config.sourceName)) {
-                this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSHideFilter'), {
-                    "sourceName": src,
-                    "filterName": config.filterName,
-                    "filterEnabled": false
-                }))
+        }
+        if(action.filterEntries) {
+            for(const group of ArrayUtils.getAsType(action.filterEntries, action.filterEntries_use)) {
+                const source = Utils.ensureObjectNotId(group.sourcePreset)
+                const filter = Utils.ensureObjectNotId(group.filterPreset)
+                if(source && filter) {
+                    this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
+                        "sourceName": source.sourceName,
+                        "filterName": filter.filterName,
+                        "filterEnabled": false
+                    }))
+                }
             }
         }
     }
 
-    toggle(config: IObsAction, visible: boolean) {
+    toggle(config: ActionOBS, visible: boolean) {
         if(visible) this.show(config) 
         else this.hide(config)
     }

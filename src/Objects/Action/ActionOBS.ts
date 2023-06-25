@@ -2,8 +2,11 @@ import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import Action from '../Action.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import Utils from '../../Classes/Utils.js'
 
-export class ActionOBS extends Data {
+export class ActionOBS extends Action {
     sceneEntries: (number|PresetOBSScene)[] = []
     sceneEntries_use = OptionEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
@@ -33,6 +36,21 @@ export class ActionOBS extends Data {
                 filterEntries_use: OptionEntryUsage.ref()
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return {
+            tag: '🎬',
+            description: 'Callback that triggers an OBS action',
+            call: () => {
+                const clone = Utils.clone(this) as ActionOBS
+                const modules = ModulesSingleton.getInstance()
+                clone.key = key
+                const state = clone.state
+                console.log("OBS Reward triggered")
+                modules.obs.toggle(clone, state)
+            }
+        }
     }
 }
 export class ActionOBSSource extends Data {
