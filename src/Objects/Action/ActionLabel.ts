@@ -1,8 +1,12 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import DataUtils from '../../Classes/DataUtils.js'
+import TextHelper from '../../Classes/TextHelper.js'
+import Utils from '../../Classes/Utils.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
 
-export class ActionLabel extends Data{
+export class ActionLabel extends Action {
     fileName: string = ''
     textEntries: string[] = []
     textEntries_use = OptionEntryUsage.First
@@ -11,7 +15,7 @@ export class ActionLabel extends Data{
     enlist() {
         DataMap.addRootInstance(
             new ActionLabel(),
-            'Writes text to a file in the data folder, can be used as a label your broadcaster suite.',
+            'Writes text to a file in the data folder, can be used as a label in your broadcaster suite.',
             {
                 fileName: 'The filename to use, this includes the extension.',
                 textEntries: 'Value(s) to write to the file.',
@@ -22,6 +26,23 @@ export class ActionLabel extends Data{
                 textEntries_use: OptionEntryUsage.ref()
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return  {
+            tag: '🏷',
+            description: 'Callback that triggers a Label action',
+            call: async (user: IActionUser) => {
+                const clone = Utils.clone<ActionLabel>(this)
+                for(const text of ArrayUtils.getAsType(clone.textEntries, clone.textEntries_use)) {
+                    if(clone.append) {
+                        await DataUtils.appendText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
+                    } else {
+                        await DataUtils.writeText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
+                    }
+                }
+            }
+        }
     }
 }
 

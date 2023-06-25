@@ -717,20 +717,6 @@ export class Actions {
         }
     }
 
-    private static buildLabelCallback(config: ILabelAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🏷',
-            description: 'Callback that triggers a Label action',
-            call: async (user: IActionUser) => {
-                if(config.append) {
-                    await DataUtils.appendText(config.fileName, await TextHelper.replaceTagsInText(config.text, user))
-                } else {
-                    await DataUtils.writeText(config.fileName, await TextHelper.replaceTagsInText(config.text, user))
-                }
-            }
-        }
-    }
-
     private static buildSystemCallback(config: ISystemAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🖐',
