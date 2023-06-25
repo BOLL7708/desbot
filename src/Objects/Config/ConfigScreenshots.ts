@@ -1,9 +1,9 @@
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
-import {PresetPipeCustom} from '../Preset/Pipe.js'
-import {SettingTwitchReward} from '../Setting/Twitch.js'
+import {PresetPipeCustom} from '../Preset/PresetPipe.js'
+import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
-import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
 
 export default class ConfigScreenshots extends BaseDataObject {

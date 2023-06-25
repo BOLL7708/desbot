@@ -7,7 +7,7 @@ import {Actions} from './Actions.js'
 import {EEventSource} from './Enums.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {SettingTwitchReward} from '../../Objects/Setting/Twitch.js'
+import {SettingTwitchReward} from '../../Objects/Setting/SettingTwitch.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 

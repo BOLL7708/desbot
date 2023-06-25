@@ -1,8 +1,8 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetPipeCustom} from '../Preset/Pipe.js'
+import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
-import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
 export default class ConfigTwitchChat extends BaseDataObject {
     pipePreset: (number|PresetPipeCustom) = 0

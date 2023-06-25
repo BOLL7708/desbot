@@ -1,10 +1,10 @@
 import {ActionAudio} from '../Action/ActionAudio.js'
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
-import {SettingUser} from '../Setting/User.js'
-import {SettingSteamGame} from '../Setting/Steam.js'
+import {SettingUser} from '../Setting/SettingUser.js'
+import {SettingSteamGame} from '../Setting/SettingSteam.js'
 import {EnumTwitchSubTier} from '../../Enums/Twitch.js'
-import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
 export default class ConfigTwitch extends BaseDataObject {
     commandPrefix: string = '!'

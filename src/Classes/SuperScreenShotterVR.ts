@@ -3,7 +3,7 @@ import Config from './Config.js'
 import {ISSSVRCallback, ISSSVRRequest, ISSSVRResponse} from '../Interfaces/isssvr.js'
 import {IScreenshotConfig, IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import {TKeys} from '../_data/!keys.js'
-import ConfigScreenshots from '../Objects/Config/Screenshots.js'
+import ConfigScreenshots from '../Objects/Config/ConfigScreenshots.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {IActionUser} from '../Objects/Action.js'
 

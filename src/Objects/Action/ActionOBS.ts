@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/OBS.js'
+import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionOBS extends BaseDataObject {

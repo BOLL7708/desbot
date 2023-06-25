@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
 export class ConfigController extends BaseDataObject {
     secretChatSymbols: string[] = ['!', 'ℹ']

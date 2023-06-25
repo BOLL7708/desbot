@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetPipeCustom} from '../Preset/Pipe.js'
+import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ActionPipe extends BaseDataObject{

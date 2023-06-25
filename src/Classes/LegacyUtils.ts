@@ -1,5 +1,5 @@
 import DataBaseHelper from './DataBaseHelper.js'
-import {SettingTwitchReward} from '../Objects/Setting/Twitch.js'
+import {SettingTwitchReward} from '../Objects/Setting/SettingTwitch.js'
 import {TKeys} from '../_data/!keys.js'
 
 export default class LegacyUtils {

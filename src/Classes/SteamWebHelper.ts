@@ -7,7 +7,7 @@ import {
 } from '../Interfaces/isteam_webapi.js'
 import Config from './Config.js'
 import Color from './ColorConstants.js'
-import {ConfigSteam} from '../Objects/Config/Steam.js'
+import {ConfigSteam} from '../Objects/Config/ConfigSteam.js'
 import DataBaseHelper from './DataBaseHelper.js'
 
 /**

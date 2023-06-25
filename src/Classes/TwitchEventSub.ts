@@ -20,7 +20,7 @@ import {
 } from '../Interfaces/itwitch_eventsub.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {ITwitchCheer, ITwitchReward} from '../Interfaces/itwitch.js'
-import {SettingTwitchRedemption} from '../Objects/Setting/Twitch.js'
+import {SettingTwitchRedemption} from '../Objects/Setting/SettingTwitch.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {Actions} from '../Pages/Widget/Actions.js'
 

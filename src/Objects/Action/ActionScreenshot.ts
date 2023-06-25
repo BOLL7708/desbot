@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetOBSSource} from '../Preset/OBS.js'
+import {PresetOBSSource} from '../Preset/PresetOBS.js'
 import {EnumScreenshotType} from '../../Enums/ScreenshotType.js'
 
 export class ActionScreenshot extends BaseDataObject {

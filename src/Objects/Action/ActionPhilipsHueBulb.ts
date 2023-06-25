@@ -1,7 +1,7 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
-import {PresetPhilipsHueColor} from '../Preset/PhilipsHue.js'
+import {PresetPhilipsHueColor} from '../Preset/PresetPhilipsHue.js'
 
 export class ActionPhilipsHueBulb extends BaseDataObject {
     entries: number[] = []

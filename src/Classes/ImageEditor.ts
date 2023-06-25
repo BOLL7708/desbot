@@ -6,7 +6,7 @@ import {
     ConfigImageEditorFontSettings,
     ConfigImageEditorOutline,
     ConfigImageEditorRect
-} from '../Objects/Config/ImageEditor.js'
+} from '../Objects/Config/ConfigImageEditor.js'
 import Twitch from './Twitch.js'
 
 export default class ImageEditor {

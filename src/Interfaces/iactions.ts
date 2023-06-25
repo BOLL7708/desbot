@@ -4,7 +4,7 @@ import {IPhilipsHueBulb} from './iphilipshue.js'
 import {ITwitchActionCommandConfig} from './itwitch.js'
 import {IRunCommandConfig} from './iexec.js'
 import {EEventSource, ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
-import {PresetPipeCustom} from '../Objects/Preset/Pipe.js'
+import {PresetPipeCustom} from '../Objects/Preset/PresetPipe.js'
 import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
 import {IActionCallback} from '../Objects/Action.js'
 export interface IActions {

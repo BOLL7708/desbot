@@ -10,7 +10,7 @@ import DataUtils, {
 } from '../../Classes/DataUtils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
-import {SettingTwitchClient, SettingTwitchTokens} from '../../Objects/Setting/Twitch.js'
+import {SettingTwitchClient, SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
 
 type TForm =
     'Register'

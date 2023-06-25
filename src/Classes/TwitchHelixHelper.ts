@@ -19,10 +19,10 @@ import Color from './ColorConstants.js'
 import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
+import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
 import LegacyUtils from './LegacyUtils.js'
-import {SettingUser} from '../Objects/Setting/User.js'
+import {SettingUser} from '../Objects/Setting/SettingUser.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'

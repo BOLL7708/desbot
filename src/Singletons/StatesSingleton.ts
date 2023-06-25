@@ -1,6 +1,6 @@
 import Config from '../Classes/Config.js'
 import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js'
-import {ConfigController} from '../Objects/Config/Controller.js'
+import {ConfigController} from '../Objects/Config/ConfigController.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
 /**

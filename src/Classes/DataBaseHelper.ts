@@ -3,7 +3,7 @@ import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import BaseDataObject from '../Objects/BaseDataObject.js'
 import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
-import {ConfigEditor} from '../Objects/Config/Editor.js'
+import {ConfigEditor} from '../Objects/Config/ConfigEditor.js'
 import DataObjectMap from '../Objects/DataObjectMap.js'
 
 /*

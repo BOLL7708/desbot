@@ -4,7 +4,7 @@ import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.j
 import DataObjectMap from '../../Objects/DataObjectMap.js'
 import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
 import {BaseMeta} from '../../Objects/BaseMeta.js'
-import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/Editor.js'
+import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/ConfigEditor.js'
 import Config from '../../Classes/Config.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
 import AudioPlayer from '../../Classes/AudioPlayer.js'

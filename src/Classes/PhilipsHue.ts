@@ -3,7 +3,7 @@ import Config from './Config.js'
 import Color from './ColorConstants.js'
 import {IPhilipsHuePlugAction} from '../Interfaces/iactions.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigPhilipsHue} from '../Objects/Config/PhilipsHue.js'
+import {ConfigPhilipsHue} from '../Objects/Config/ConfigPhilipsHue.js'
 
 export default class PhilipsHue {
     private _config = new ConfigPhilipsHue()

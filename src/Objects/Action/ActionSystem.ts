@@ -2,7 +2,7 @@ import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
 import {EventDefault} from '../Event/EventDefault.js'
-import {SettingTwitchReward} from '../Setting/Twitch.js'
+import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {EnumTwitchRewardUsable, EnumTwitchRewardVisible} from '../../Enums/Twitch.js'
 import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
 

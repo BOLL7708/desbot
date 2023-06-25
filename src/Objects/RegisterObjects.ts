@@ -25,69 +25,69 @@ import {
     ActionSystemTrigger
 } from './Action/ActionSystem.js'
 import {ActionWhisper} from './Action/ActionWhisper.js'
-import {ConfigCleanText} from './Config/CleanText.js'
+import {ConfigCleanText} from './Config/ConfigCleanText.js'
 import {
     ConfigController, ConfigControllerChannelTrophyNumber,
     ConfigControllerChannelTrophySettings,
     ConfigControllerStateDefaults,
     ConfigControllerWebsocketsUsed
-} from './Config/Controller.js'
-import {ConfigDiscord} from './Config/Discord.js'
-import {ConfigEditor, ConfigEditorFavorite} from './Config/Editor.js'
-import {ConfigExample, ConfigExampleSub} from './Config/Example.js'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './Config/ImageEditor.js'
-import ConfigOBS, {ConfigOBSEventGroups} from './Config/OBS.js'
-import {ConfigOpenVR2WS} from './Config/OpenVR2WS.js'
-import {ConfigPhilipsHue} from './Config/PhilipsHue.js'
+} from './Config/ConfigController.js'
+import {ConfigDiscord} from './Config/ConfigDiscord.js'
+import {ConfigEditor, ConfigEditorFavorite} from './Config/ConfigEditor.js'
+import {ConfigExample, ConfigExampleSub} from './Config/ConfigExample.js'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './Config/ConfigImageEditor.js'
+import ConfigOBS, {ConfigOBSEventGroups} from './Config/ConfigOBS.js'
+import {ConfigOpenVR2WS} from './Config/ConfigOpenVR2WS.js'
+import {ConfigPhilipsHue} from './Config/ConfigPhilipsHue.js'
 import {
     ConfigPipe,
     ConfigPipeCustomMessage,
     ConfigPipeCustomMessageAvatar,
     ConfigPipeCustomMessageName
-} from './Config/Pipe.js'
-import {ConfigRelay} from './Config/Relay.js'
-import ConfigScreenshots, {ConfigScreenshotsCallback} from './Config/Screenshots.js'
-import {ConfigSign} from './Config/Sign.js'
-import {ConfigSpeech, ConfigSpeechDictionary, ConfigSpeechWordToAudio} from './Config/Speech.js'
-import {ConfigSteam} from './Config/Steam.js'
+} from './Config/ConfigPipe.js'
+import {ConfigRelay} from './Config/ConfigRelay.js'
+import ConfigScreenshots, {ConfigScreenshotsCallback} from './Config/ConfigScreenshots.js'
+import {ConfigSign} from './Config/ConfigSign.js'
+import {ConfigSpeech, ConfigSpeechDictionary, ConfigSpeechWordToAudio} from './Config/ConfigSpeech.js'
+import {ConfigSteam} from './Config/ConfigSteam.js'
 import ConfigTwitch, {
     ConfigTwitchAnnounceCheer,
     ConfigTwitchAnnounceRaid, ConfigTwitchAnnouncerTriggers,
     ConfigTwitchAnnounceSub, ConfigTwitchCategoryOverride
-} from './Config/Twitch.js'
-import ConfigTwitchChat from './Config/TwitchChat.js'
+} from './Config/ConfigTwitch.js'
+import ConfigTwitchChat from './Config/ConfigTwitchChat.js'
 import {EventActionContainer, EventDefault, EventOptions} from './Event/EventDefault.js'
-import {PresetDiscordWebhook} from './Preset/DiscordWebhook.js'
-import {PresetOBSScene, PresetOBSSource} from './Preset/OBS.js'
-import {PresetPermissions} from './Preset/Permissions.js'
-import {PresetPhilipsHueColor} from './Preset/PhilipsHue.js'
+import {PresetDiscordWebhook} from './Preset/PresetDiscordWebhook.js'
+import {PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
+import {PresetPermissions} from './Preset/PresetPermissions.js'
+import {PresetPhilipsHueColor} from './Preset/PresetPhilipsHue.js'
 import {
     PresetPipeBasic,
     PresetPipeCustom,
     PresetPipeCustomAnimation,
     PresetPipeCustomFollow, PresetPipeCustomProperties, PresetPipeCustomTextArea,
     PresetPipeCustomTransition
-} from './Preset/Pipe.js'
-import {PresetReward} from './Preset/Reward.js'
-import {PresetSystemActionText} from './Preset/SystemActionText.js'
-import {PresetText} from './Preset/Text.js'
+} from './Preset/PresetPipe.js'
+import {PresetReward} from './Preset/PresetReward.js'
+import {PresetSystemActionText} from './Preset/PresetSystemActionText.js'
+import {PresetText} from './Preset/PresetText.js'
 import {TriggerCheer} from './Trigger/TriggerCheer.js'
 import {TriggerCommand} from './Trigger/TriggerCommand.js'
 import {TriggerRelay} from './Trigger/TriggerRelay.js'
 import {TriggerRemoteCommand} from './Trigger/TriggerRemoteCommand.js'
 import {TriggerReward} from './Trigger/TriggerReward.js'
 import {TriggerTimer} from './Trigger/TriggerTimer.js'
-import {SettingChannelTrophyStat} from './Setting/Channel.js'
-import {SettingCounterBase} from './Setting/Counters.js'
-import {SettingDictionaryEntry} from './Setting/Dictionary.js'
-import {SettingSteamAchievements, SettingSteamGame} from './Setting/Steam.js'
+import {SettingChannelTrophyStat} from './Setting/SettingChannel.js'
+import {SettingCounterBase} from './Setting/SettingCounters.js'
+import {SettingDictionaryEntry} from './Setting/SettingDictionary.js'
+import {SettingSteamAchievements, SettingSteamGame} from './Setting/SettingSteam.js'
 import {
     SettingTwitchClient,
     SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchReward,
     SettingTwitchTokens
-} from './Setting/Twitch.js'
+} from './Setting/SettingTwitch.js'
 import {
     SettingUser,
     SettingUserCheer,
@@ -95,8 +95,8 @@ import {
     SettingUserName, SettingUserRaid,
     SettingUserSub,
     SettingUserVoice
-} from './Setting/User.js'
-import {SettingStreamQuote} from './Setting/Stream.js'
+} from './Setting/SettingUser.js'
+import {SettingStreamQuote} from './Setting/SettingStream.js'
 
 export default class RegisterObjects {
     static register() {

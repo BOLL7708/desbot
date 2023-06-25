@@ -1,7 +1,7 @@
 import BaseDataObject from '../BaseDataObject.js'
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetPipeBasic} from '../Preset/Pipe.js'
+import {PresetPipeBasic} from '../Preset/PresetPipe.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
 
 export class ConfigExample extends BaseDataObject {

@@ -1,5 +1,5 @@
 import BaseDataObject from '../../Objects/BaseDataObject.js'
-import {PresetPermissions} from '../../Objects/Preset/Permissions.js'
+import {PresetPermissions} from '../../Objects/Preset/PresetPermissions.js'
 import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {TriggerCommand} from '../../Objects/Trigger/TriggerCommand.js'
@@ -9,7 +9,7 @@ import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {ActionChat} from '../../Objects/Action/ActionChat.js'
-import {PresetReward} from '../../Objects/Preset/Reward.js'
+import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {
     ActionSystem,
     ActionSystemRewardState,
@@ -21,9 +21,9 @@ import {ActionSign} from '../../Objects/Action/ActionSign.js'
 import {ActionAudio} from '../../Objects/Action/ActionAudio.js'
 import {ActionLabel} from '../../Objects/Action/ActionLabel.js'
 import {ActionDiscord} from '../../Objects/Action/ActionDiscord.js'
-import {PresetDiscordWebhook} from '../../Objects/Preset/DiscordWebhook.js'
-import {PresetSystemActionText} from '../../Objects/Preset/SystemActionText.js'
-import {PresetOBSScene, PresetOBSSource} from '../../Objects/Preset/OBS.js'
+import {PresetDiscordWebhook} from '../../Objects/Preset/PresetDiscordWebhook.js'
+import {PresetSystemActionText} from '../../Objects/Preset/PresetSystemActionText.js'
+import {PresetOBSScene, PresetOBSSource} from '../../Objects/Preset/PresetOBS.js'
 import {ActionOBS, ActionOBSSource} from '../../Objects/Action/ActionOBS.js'
 import {ActionLink} from '../../Objects/Action/ActionLink.js'
 

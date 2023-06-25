@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {ConfigCleanText} from './CleanText.js'
+import {ConfigCleanText} from './ConfigCleanText.js'
 
 export class ConfigSpeech extends BaseDataObject {
     googleApiKey: string = ''

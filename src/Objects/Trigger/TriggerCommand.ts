@@ -1,6 +1,6 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetPermissions} from '../Preset/Permissions.js'
+import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
 export class TriggerCommand extends BaseDataObject {
     entries: string[] = []

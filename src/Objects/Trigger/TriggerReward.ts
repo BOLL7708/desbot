@@ -1,9 +1,9 @@
 import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {PresetReward} from '../Preset/Reward.js'
+import {PresetReward} from '../Preset/PresetReward.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
-import {SettingTwitchReward} from '../Setting/Twitch.js'
-import {PresetPermissions} from '../Preset/Permissions.js'
+import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
+import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
 export class TriggerReward extends BaseDataObject {
     permissions: number|PresetPermissions = 0

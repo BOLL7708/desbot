@@ -1,7 +1,7 @@
 import DataObjectMap from '../DataObjectMap.js'
 import BaseDataObject from '../BaseDataObject.js'
-import {SettingSteamGame} from '../Setting/Steam.js'
-import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
+import {SettingSteamGame} from '../Setting/SettingSteam.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
 export class ConfigSteam extends BaseDataObject {
     steamWebApiKey: string = ''

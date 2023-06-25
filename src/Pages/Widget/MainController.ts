@@ -11,19 +11,19 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
-import {SettingUser} from '../../Objects/Setting/User.js'
+import {SettingUser} from '../../Objects/Setting/SettingUser.js'
 import {
     SettingTwitchClip,
     SettingTwitchRedemption,
     SettingTwitchReward,
     SettingTwitchTokens
-} from '../../Objects/Setting/Twitch.js'
-import {SettingDictionaryEntry} from '../../Objects/Setting/Dictionary.js'
-import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/Counters.js'
-import {SettingStreamQuote} from '../../Objects/Setting/Stream.js'
-import {ConfigSteam} from '../../Objects/Config/Steam.js'
+} from '../../Objects/Setting/SettingTwitch.js'
+import {SettingDictionaryEntry} from '../../Objects/Setting/SettingDictionary.js'
+import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
+import {SettingStreamQuote} from '../../Objects/Setting/SettingStream.js'
+import {ConfigSteam} from '../../Objects/Config/ConfigSteam.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {ConfigController} from '../../Objects/Config/Controller.js'
+import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import RegisterObjects from '../../Objects/RegisterObjects.js'
 
 export default class MainController {

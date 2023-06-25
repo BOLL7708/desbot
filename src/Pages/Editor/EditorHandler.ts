@@ -3,7 +3,7 @@ import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
 import BaseDataObject from '../../Objects/BaseDataObject.js'
 import DataObjectMap from '../../Objects/DataObjectMap.js'
-import {ConfigEditor} from '../../Objects/Config/Editor.js'
+import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import RegisterObjects from '../../Objects/RegisterObjects.js'
 

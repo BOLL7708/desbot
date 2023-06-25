@@ -19,9 +19,9 @@ import {EEventSource} from '../Pages/Widget/Enums.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import DiscordUtils from './DiscordUtils.js'
-import {SettingTwitchTokens} from '../Objects/Setting/Twitch.js'
+import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import TextHelper from './TextHelper.js'
-import ConfigTwitch from '../Objects/Config/Twitch.js'
+import ConfigTwitch from '../Objects/Config/ConfigTwitch.js'
 import {IActionUser} from '../Objects/Action.js'
 
 export default class Twitch{

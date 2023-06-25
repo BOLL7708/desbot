@@ -2,7 +2,7 @@ import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {EnumTTSType} from '../../Enums/TTS.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
-import {SettingUser, SettingUserVoice} from '../Setting/User.js'
+import {SettingUser, SettingUserVoice} from '../Setting/SettingUser.js'
 
 export class ActionSpeech extends BaseDataObject {
     entries: string[] = []

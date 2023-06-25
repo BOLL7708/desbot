@@ -2,7 +2,7 @@ import BaseDataObject from '../BaseDataObject.js'
 import DataObjectMap from '../DataObjectMap.js'
 import {EnumEntryUsage} from '../../Enums/EntryType.js'
 import {ActionChat} from './ActionChat.js'
-import {PresetDiscordWebhook} from '../Preset/DiscordWebhook.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
 export class ActionDiscord extends BaseDataObject{
     webhook: number|PresetDiscordWebhook = 0

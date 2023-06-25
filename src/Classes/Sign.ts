@@ -2,7 +2,7 @@ import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import {ISignAction} from '../Interfaces/iactions.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigSign} from '../Objects/Config/Sign.js'
+import {ConfigSign} from '../Objects/Config/ConfigSign.js'
 
 export default class Sign {
     private _div: HTMLDivElement

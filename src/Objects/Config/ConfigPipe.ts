@@ -1,8 +1,8 @@
 import BaseDataObject from '../BaseDataObject.js'
-import {ConfigCleanText} from './CleanText.js'
+import {ConfigCleanText} from './ConfigCleanText.js'
 import {TKeys} from '../../_data/!keys.js'
 import DataObjectMap from '../DataObjectMap.js'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ImageEditor.js'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.js'
 
 export class ConfigPipe extends BaseDataObject {
     port: number = 8077
