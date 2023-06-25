@@ -1,14 +1,14 @@
-import {BaseEnum} from './BaseEnum.js'
-import {TNoFunctions} from './DataObjectMap.js'
+import {Option} from './Option.js'
+import {TNoFunctions} from '../Objects/DataMap.js'
 import {IStringDictionary} from '../Interfaces/igeneral.js'
-import {BaseMeta} from './BaseMeta.js'
+import {DataMeta} from '../Objects/DataMeta.js'
 import Utils from '../Classes/Utils.js'
 import Color from '../Classes/ColorConstants.js'
 
-export class EnumObjectMap {
+export class OptionsMap {
     private static _map = new Map<string, EnumMeta>()
 
-    static getPrototype(className: string|undefined): BaseEnum|undefined {
+    static getPrototype(className: string|undefined): Option|undefined {
         if(className && this.hasPrototype(className)) {
             const meta = this._map.get(className)
             if(meta) return meta.prototype
@@ -17,7 +17,7 @@ export class EnumObjectMap {
     }
 
     static addPrototype<T>(
-        prototype: T&BaseEnum&Function,
+        prototype: T&Option&Function,
         description?: string|undefined,
         documentation?: Partial<Record<TNoFunctions<T>, string>>
     ) {
@@ -43,9 +43,9 @@ export class EnumObjectMap {
     }
 }
 
-export class EnumMeta extends BaseMeta {
+export class EnumMeta extends DataMeta {
     constructor(
-        public prototype: BaseEnum,
+        public prototype: Option,
         public description?: string,
         public documentation?: IStringDictionary
     ) {

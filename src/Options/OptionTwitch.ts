@@ -1,39 +1,39 @@
-import {BaseEnum} from '../Objects/BaseEnum.js'
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
+import {Option} from './Option.js'
+import {OptionsMap} from './OptionsMap.js'
 
-export class EnumTwitchRewardVisible extends BaseEnum {
+export class OptionTwitchRewardVisible extends Option {
     static readonly Visible = 100
     static readonly Hidden = 200
 }
-export class EnumTwitchRewardUsable extends BaseEnum {
+export class OptionTwitchRewardUsable extends Option {
     static readonly Enabled = 100
     static readonly Disabled = 200
 
 }
-export class EnumTwitchSubTier extends BaseEnum {
+export class OptionTwitchSubTier extends Option {
     static readonly Prime = 0
     static readonly Tier1 = 1000
     static readonly Tier2 = 2000
     static readonly Tier3 = 3000
 }
 
-EnumObjectMap.addPrototype(
-    EnumTwitchRewardVisible,
+OptionsMap.addPrototype(
+    OptionTwitchRewardVisible,
     'The visibility of a Twitch reward.',
     {
         Visible: 'The reward will be visible.',
         Hidden: 'The reward will be hidden.'
     }
 )
-EnumObjectMap.addPrototype(
-    EnumTwitchRewardUsable,
+OptionsMap.addPrototype(
+    OptionTwitchRewardUsable,
     'The usability of a Twitch reward.',
     {
         Enabled: 'The reward will be available to redeem.',
         Disabled: 'The reward will not be possible to redeem.'
     }
 )
-EnumObjectMap.addPrototype(
-    EnumTwitchSubTier,
+OptionsMap.addPrototype(
+    OptionTwitchSubTier,
     'The tier of a Twitch subscription.'
 )

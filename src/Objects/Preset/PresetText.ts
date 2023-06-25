@@ -1,11 +1,11 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class PresetText extends BaseDataObject {
+export class PresetText extends Data {
     collection: string[] = []
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetText(),
             'A basic collection of text strings used in multiple places.',
             {

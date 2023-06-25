@@ -1,22 +1,22 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class PresetPipeBasic extends BaseDataObject {
+export class PresetPipeBasic extends Data {
     imageData: string = ''
     basicTitle: string = 'OpenVRNotificationPipe'
     basicMessage: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(new PresetPipeBasic(), '', {}, {}, 'basicTitle')
+        DataMap.addRootInstance(new PresetPipeBasic(), '', {}, {}, 'basicTitle')
     }
 }
-export class PresetPipeCustom extends BaseDataObject {
+export class PresetPipeCustom extends Data {
     imageData: string = ''
     imagePath: string = ''
     customProperties = new PresetPipeCustomProperties()
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetPipeCustom(),
             'This is what is sent to the Pipe application',
             {
@@ -34,7 +34,7 @@ export class PresetPipeCustom extends BaseDataObject {
 /**
  * Properties for the general state of the notification
  */
-export class PresetPipeCustomProperties extends BaseDataObject {
+export class PresetPipeCustomProperties extends Data {
     enabled: boolean = true
     nonce: string = ''
     anchorType: number = 1
@@ -59,7 +59,7 @@ export class PresetPipeCustomProperties extends BaseDataObject {
     textAreas: PresetPipeCustomTextArea[] = []
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new PresetPipeCustomProperties(),
             {
                 enabled: 'Set to true to show a custom notification instead of a basic one.',
@@ -97,14 +97,14 @@ export class PresetPipeCustomProperties extends BaseDataObject {
 /**
  * Follow
  */
-export class PresetPipeCustomFollow extends BaseDataObject {
+export class PresetPipeCustomFollow extends Data {
     enabled: boolean = false
     triggerAngle: number = 65
     durationMs: number = 250
     tweenType: number = 5
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new PresetPipeCustomFollow(),
             {
                 triggerAngle: 'Triggering cone angle',
@@ -113,7 +113,7 @@ export class PresetPipeCustomFollow extends BaseDataObject {
     }
 }
 
-export class PresetPipeCustomAnimation extends BaseDataObject {
+export class PresetPipeCustomAnimation extends Data {
     property: number = 0
     amplitude: number = 1
     frequency: number = 1
@@ -122,7 +122,7 @@ export class PresetPipeCustomAnimation extends BaseDataObject {
     flipWaveform: boolean = false
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new PresetPipeCustomAnimation(),
             {
                 property: '0: None (disabled)\n1: Yaw\n2: Pitch\n3: Roll\n4: Z\n5: Y\n6: X\n7: Scale\n8: Opacity',
@@ -137,7 +137,7 @@ export class PresetPipeCustomAnimation extends BaseDataObject {
  * Transition properties for the in/out animations
  * A value is transitioned from, then we display the image, then to
  */
-export class PresetPipeCustomTransition extends BaseDataObject {
+export class PresetPipeCustomTransition extends Data {
     scalePer: number = 1
     opacityPer: number = 0
     zDistanceM: number = 0
@@ -150,7 +150,7 @@ export class PresetPipeCustomTransition extends BaseDataObject {
     tweenType: number = 5
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new PresetPipeCustomTransition(),
             {
                 zDistanceM: 'Translational offset',
@@ -164,7 +164,7 @@ export class PresetPipeCustomTransition extends BaseDataObject {
 /**
  * Layout properties for text areas
  */
-export class PresetPipeCustomTextArea extends BaseDataObject {
+export class PresetPipeCustomTextArea extends Data {
     text: string = ''
     xPositionPx: number = 0
     yPositionPx: number = 0
@@ -177,7 +177,7 @@ export class PresetPipeCustomTextArea extends BaseDataObject {
     verticalAlignment: number = 0
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new PresetPipeCustomTextArea(),
             {
                 horizontalAlignment: '0: Left\n1: Center\n2: Right',

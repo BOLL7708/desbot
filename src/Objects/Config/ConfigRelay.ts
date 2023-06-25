@@ -1,13 +1,13 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigRelay extends BaseDataObject {
+export class ConfigRelay extends Data {
     port: number = 7788
     streamDeckChannel: string = 'streaming_widget'
     overlayImagesChannel: string = 'overlay_images'
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigRelay(),
             'Settings to connect to the WSRelay accessory application.',
             {

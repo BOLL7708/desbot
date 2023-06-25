@@ -1,14 +1,14 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class  ConfigImageEditorRect extends BaseDataObject {
+export class  ConfigImageEditorRect extends Data {
     x: number = 0
     y: number = 0
     w: number = 0
     h: number = 0
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigImageEditorRect(),
             {
                 x: 'Horizontal position.',
@@ -22,7 +22,7 @@ export class  ConfigImageEditorRect extends BaseDataObject {
 /**
  * Font settings for text to be drawn on the canvas.
  */
-export class ConfigImageEditorFontSettings extends BaseDataObject {
+export class ConfigImageEditorFontSettings extends Data {
     family: string = ''
     size: number = 0
     color: string = ''
@@ -31,7 +31,7 @@ export class ConfigImageEditorFontSettings extends BaseDataObject {
     lineSpacing: number = 0
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigImageEditorFontSettings(),
             {
                 family: 'The font family of any font that exists on the system.',
@@ -46,12 +46,12 @@ export class ConfigImageEditorFontSettings extends BaseDataObject {
         )
     }
 }
-export class ConfigImageEditorOutline extends BaseDataObject {
+export class ConfigImageEditorOutline extends Data {
     color: string = ''
     width: number = 0
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigImageEditorOutline(),
             {
                 color: 'A HTML color, can be a text representation or a hex value. Leave empty to use Twitch user color if available.',

@@ -1,12 +1,12 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
 // TODO: Retire or replace this feature.
-export class ActionCustom extends BaseDataObject {
+export class ActionCustom extends Data {
     codeBlob: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionCustom(),
             'Provide a custom action callback, this can execute any arbitrary code you provide.\n\nOBS: This will likely be removed in the future, or only kept as an experimental feature.',
             {

@@ -1,9 +1,9 @@
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
-import BaseDataObject, {EmptyDataObject, IBaseDataObjectRefValues,} from '../../Objects/BaseDataObject.js'
+import Data, {EmptyData, IDataRefValues,} from '../../Objects/Data.js'
 import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
-import DataObjectMap from '../../Objects/DataObjectMap.js'
-import {EnumObjectMap} from '../../Objects/EnumObjectMap.js'
-import {BaseMeta} from '../../Objects/BaseMeta.js'
+import DataMap from '../../Objects/DataMap.js'
+import {OptionsMap} from '../../Options/OptionsMap.js'
+import {DataMeta} from '../../Objects/DataMeta.js'
 import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/ConfigEditor.js'
 import Config from '../../Classes/Config.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
@@ -19,7 +19,7 @@ enum EOrigin {
 export interface IStepDataOptions {
     root: HTMLElement
     data: string|number|boolean|object
-    instanceMeta: BaseMeta|undefined
+    instanceMeta: DataMeta|undefined
     path: IJsonEditorPath
     key: string|undefined
     origin: EOrigin
@@ -30,8 +30,8 @@ export interface IStepDataOptions {
 export default class JsonEditor {
     private _key: string = ''
     private _originalKey: string = ''
-    private _instance: object&BaseDataObject = new EmptyDataObject()
-    private _originalInstance: object&BaseDataObject = new EmptyDataObject()
+    private _instance: object&Data = new EmptyData()
+    private _originalInstance: object&Data = new EmptyData()
     private _originalInstanceType: string|undefined
     private _root: HTMLUListElement|undefined = undefined
     private _labels: HTMLSpanElement[] = []
@@ -56,7 +56,7 @@ export default class JsonEditor {
 
     async build(
         key: string,
-        instance: object&BaseDataObject,
+        instance: object&Data,
         rowId?: number,
         parentId?: number,
         hideKey?: boolean,
@@ -77,7 +77,7 @@ export default class JsonEditor {
         }
 
         this._labels = []
-        const instanceMeta = DataObjectMap.getMeta(this._originalInstanceType ?? '')
+        const instanceMeta = DataMap.getMeta(this._originalInstanceType ?? '')
         const tempParent = this.buildUL()
 
         // region Extra Children
@@ -220,9 +220,9 @@ export default class JsonEditor {
 
         // Sort out type values for ID references
         const thisType = options.instanceMeta?.types ? options.instanceMeta.types[key] ?? '' : ''
-        const thisTypeValues = BaseDataObject.parseRef(thisType)
+        const thisTypeValues = Data.parseRef(thisType)
         const parentType = options.instanceMeta?.types ? options.instanceMeta.types[previousKey] ?? '' : ''
-        const parentTypeValues = BaseDataObject.parseRef(parentType)
+        const parentTypeValues = Data.parseRef(parentType)
 
         // Root element
         let newRoot = document.createElement('li') as HTMLElement
@@ -487,8 +487,8 @@ export default class JsonEditor {
             const enumClass = thisTypeValues.enum
                 ? thisTypeValues.class // Single enum
                 : parentTypeValues.class  // List of enums
-            const enumPrototype = EnumObjectMap.getPrototype(enumClass)
-            const enumMeta = EnumObjectMap.getMeta(enumClass)
+            const enumPrototype = OptionsMap.getPrototype(enumClass)
+            const enumMeta = OptionsMap.getMeta(enumClass)
             if(enumMeta && enumPrototype) {
                 const enumSelect = document.createElement('select') as HTMLSelectElement
                 for(const [enumKey,enumValue] of Object.entries(enumPrototype)) {
@@ -530,7 +530,7 @@ export default class JsonEditor {
                 if(overrideClass.length > 0) {
                     items = await DataBaseHelper.loadIDsWithLabelForClass(overrideClass, undefined, isGeneric ? this._rowId : undefined)
                 } else {
-                    const labelField = values.useLabel ? await DataObjectMap.getMeta(values.class)?.label : undefined
+                    const labelField = values.useLabel ? await DataMap.getMeta(values.class)?.label : undefined
                     items = await DataBaseHelper.loadIDsWithLabelForClass(values.class, labelField, isGeneric ? this._rowId : undefined)
                 }
                 if(!this._config.includeOrphansInGenericLists) {
@@ -573,7 +573,7 @@ export default class JsonEditor {
             if(isGeneric) {
                 newRoot.appendChild(selectGeneric)
                 const setNewReference = this.appendNewReferenceItemButton(newRoot, values, options.path, this._rowId) // Button after items in groups of generic references
-                const items = DataObjectMap.getNames(values.genericLike, true)
+                const items = DataMap.getNames(values.genericLike, true)
                 const genericClasses = await DataBaseHelper.loadIDClasses([options.data.toString()])
                 const genericClass = genericClasses[options.data.toString()] ?? ''
                 let isNewReferenceItemButtonInitialized = false
@@ -586,7 +586,7 @@ export default class JsonEditor {
                     if(clazz) {
                         const option = document.createElement('option') as HTMLOptionElement
                         option.innerHTML = Utils.camelToTitle(clazz, EUtilsTitleReturnOption.SkipFirstWord)
-                        const meta = DataObjectMap.getMeta(clazz)
+                        const meta = DataMap.getMeta(clazz)
                         option.title = `${clazz} : ${meta?.description ?? 'No description.'}`
                         option.value = clazz
                         if(genericClass == clazz) { // Make selected if a match
@@ -701,7 +701,7 @@ export default class JsonEditor {
 
         // Sort out type values for ID references
         const thisType = options.instanceMeta?.types ? options.instanceMeta.types[pathKey] ?? '' : ''
-        const thisTypeValues = BaseDataObject.parseRef(thisType)
+        const thisTypeValues = Data.parseRef(thisType)
         const instanceType = instance.constructor.name
 
         if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
@@ -774,10 +774,10 @@ export default class JsonEditor {
         // if(thisTypeValues.class && DataObjectMap.hasInstance(thisTypeValues.class)) { // For lists class instances
         //     newInstanceMeta = isList ? options.instanceMeta : DataObjectMap.getMeta(thisTypeValues.class) ?? options.instanceMeta
 
-        if(thisType && DataObjectMap.hasInstance(thisType)) { // For lists class instances
-            newInstanceMeta = DataObjectMap.getMeta(thisType) ?? options.instanceMeta
-        } else if (instanceType && DataObjectMap.hasInstance(instanceType)) { // For single class instances
-            newInstanceMeta = DataObjectMap.getMeta(instanceType) ?? options.instanceMeta
+        if(thisType && DataMap.hasInstance(thisType)) { // For lists class instances
+            newInstanceMeta = DataMap.getMeta(thisType) ?? options.instanceMeta
+        } else if (instanceType && DataMap.hasInstance(instanceType)) { // For single class instances
+            newInstanceMeta = DataMap.getMeta(instanceType) ?? options.instanceMeta
         }
         const newOptions: IStepDataOptions = {
             root: newUL,
@@ -871,7 +871,7 @@ export default class JsonEditor {
      * @param parentId // Add parent IDs for generic items that should belong to a single parent.
      * @private
      */
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IBaseDataObjectRefValues, path: IJsonEditorPath, parentId?: number): Function {
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IDataRefValues, path: IJsonEditorPath, parentId?: number): Function {
         let button: HTMLButtonElement|undefined = undefined
         const updateLink = (clazz: string)=>{
             if(button) {
@@ -909,7 +909,7 @@ export default class JsonEditor {
         }
     }
 
-    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: BaseMeta|undefined) {
+    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: DataMeta|undefined) {
         const key = keyValue.toString()
         const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
         if(docStr.length > 0 && this._config.showHelpIcons) {
@@ -1094,7 +1094,7 @@ export default class JsonEditor {
         return this._instance
     }
     async setData(data: any) {
-        const freshInstance = await DataObjectMap.getInstance(this._originalInstanceType, data)
+        const freshInstance = await DataMap.getInstance(this._originalInstanceType, data)
         if(freshInstance) {
             this._instance = freshInstance
             await this.rebuild()
@@ -1106,7 +1106,7 @@ export default class JsonEditor {
         return this._key
     }
 
-    private async appendAddButton(newRoot: HTMLLIElement, typeValues: IBaseDataObjectRefValues, instance: object, path: IJsonEditorPath) {
+    private async appendAddButton(newRoot: HTMLLIElement, typeValues: IDataRefValues, instance: object, path: IJsonEditorPath) {
         if(typeValues.class.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'
@@ -1123,11 +1123,11 @@ export default class JsonEditor {
                                 instance.push(0)
                                 break
                             }
-                            if(DataObjectMap.hasInstance(typeValues.class)) {
-                                const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
+                            if(DataMap.hasInstance(typeValues.class)) {
+                                const newInstance = await DataMap.getInstance(typeValues.class, undefined)
                                 if(newInstance) instance.push(await newInstance.__clone()) // For some reason this would do nothing unless cloned.
-                            } else if(EnumObjectMap.hasPrototype(typeValues.class)) {
-                                const enumPrototype = await EnumObjectMap.getPrototype(typeValues.class)
+                            } else if(OptionsMap.hasPrototype(typeValues.class)) {
+                                const enumPrototype = await OptionsMap.getPrototype(typeValues.class)
                                 if(enumPrototype) instance.push(enumPrototype)
                             }
                             else console.warn('Unhandled type:', typeValues.class, ' from value: ', typeValues.original)
@@ -1146,11 +1146,11 @@ export default class JsonEditor {
                                     (instance as any)[newKey] = 0
                                     break
                                 }
-                                if(DataObjectMap.hasInstance(typeValues.class)) {
-                                    const newInstance = await DataObjectMap.getInstance(typeValues.class, undefined)
+                                if(DataMap.hasInstance(typeValues.class)) {
+                                    const newInstance = await DataMap.getInstance(typeValues.class, undefined)
                                     if(newInstance) (instance as any)[newKey] = await newInstance.__clone()
-                                } else if(EnumObjectMap.hasPrototype(typeValues.class)) {
-                                    const enumPrototype = EnumObjectMap.getPrototype(typeValues.class)
+                                } else if(OptionsMap.hasPrototype(typeValues.class)) {
+                                    const enumPrototype = OptionsMap.getPrototype(typeValues.class)
                                     if(enumPrototype) (instance as any)[newKey] = enumPrototype
                                 }
                                 else console.warn('Unhandled type:', typeValues.class)

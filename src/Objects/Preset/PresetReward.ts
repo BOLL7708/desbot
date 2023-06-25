@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class PresetReward extends BaseDataObject {
+export class PresetReward extends Data {
     title: string = ''
     cost: number = 1
     prompt: string = ''
@@ -18,7 +18,7 @@ export class PresetReward extends BaseDataObject {
     should_redemptions_skip_request_queue: boolean = false
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetReward(),
             'This is the exact payload that will go to Twitch to configure the reward.',
             {

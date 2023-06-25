@@ -1,13 +1,13 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class TriggerRemoteCommand extends BaseDataObject{
+export class TriggerRemoteCommand extends Data{
     entries: string[] = []
     globalCooldown: number = 0
     userCooldown: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new TriggerRemoteCommand(),
             'The most basic command, used for remote execution.',
             {

@@ -1,10 +1,10 @@
-import BaseDataObject from '../../Objects/BaseDataObject.js'
+import Data from '../../Objects/Data.js'
 import {PresetPermissions} from '../../Objects/Preset/PresetPermissions.js'
 import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {TriggerCommand} from '../../Objects/Trigger/TriggerCommand.js'
 import {ActionSettingTTS} from '../../Objects/Action/ActionSettingTTS.js'
-import {EnumTTSFunctionType} from '../../Enums/TTS.js'
+import {OptionTTSFunctionType} from '../../Options/OptionTTS.js'
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
@@ -15,8 +15,8 @@ import {
     ActionSystemRewardState,
     ActionSystemRewardStateForEvent
 } from '../../Objects/Action/ActionSystem.js'
-import {EnumTwitchRewardUsable, EnumTwitchRewardVisible} from '../../Enums/Twitch.js'
-import {EnumSystemActionType} from '../../Enums/SystemActionType.js'
+import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
+import {OptionSystemActionType} from '../../Options/OptionSystemActionType.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
 import {ActionAudio} from '../../Objects/Action/ActionAudio.js'
 import {ActionLabel} from '../../Objects/Action/ActionLabel.js'
@@ -327,7 +327,7 @@ export default class DefaultObjects {
         ],
         systemActionTextPresets: [
             {
-                key: EnumSystemActionType.Scale.valueOf(),
+                key: OptionSystemActionType.Scale.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -341,7 +341,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.ChannelTrophyStats.valueOf(),
+                key: OptionSystemActionType.ChannelTrophyStats.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -355,7 +355,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Clips.valueOf(),
+                key: OptionSystemActionType.Clips.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -367,7 +367,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.ClearRedemptions.valueOf(),
+                key: OptionSystemActionType.ClearRedemptions.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -379,7 +379,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.ResetIncrementingEvents.valueOf(),
+                key: OptionSystemActionType.ResetIncrementingEvents.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -390,7 +390,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.ResetAccumulatingEvents.valueOf(),
+                key: OptionSystemActionType.ResetAccumulatingEvents.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -401,7 +401,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Quote.valueOf(),
+                key: OptionSystemActionType.Quote.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Added a quote by %targetOrUserTag']
@@ -410,7 +410,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.GameReset.valueOf(),
+                key: OptionSystemActionType.GameReset.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Currently running Steam game has been reset.']
@@ -418,7 +418,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.ChatOn.valueOf(),
+                key: OptionSystemActionType.ChatOn.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Chat enabled']
@@ -426,7 +426,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.ChatOff.valueOf(),
+                key: OptionSystemActionType.ChatOff.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Chat disabled']
@@ -434,7 +434,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.PingOn.valueOf(),
+                key: OptionSystemActionType.PingOn.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Chat ping enabled']
@@ -442,7 +442,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.PingOff.valueOf(),
+                key: OptionSystemActionType.PingOff.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Chat ping disabled']
@@ -450,7 +450,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.LogOn.valueOf(),
+                key: OptionSystemActionType.LogOn.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Logging enabled']
@@ -458,7 +458,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.LogOff.valueOf(),
+                key: OptionSystemActionType.LogOff.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Logging disabled']
@@ -466,7 +466,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Brightness.valueOf(),
+                key: OptionSystemActionType.Brightness.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Headset brightness set to %value%']
@@ -474,7 +474,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.RefreshRate.valueOf(),
+                key: OptionSystemActionType.RefreshRate.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Headset refresh rate set to %value hertz']
@@ -482,7 +482,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.VrViewEye.valueOf(),
+                key: OptionSystemActionType.VrViewEye.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Output eye mode changed to %value']
@@ -490,7 +490,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.GameRewardsOn.valueOf(),
+                key: OptionSystemActionType.GameRewardsOn.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Game specific rewards enabled']
@@ -498,7 +498,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.GameRewardsOff.valueOf(),
+                key: OptionSystemActionType.GameRewardsOff.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Game specific rewards disabled']
@@ -506,7 +506,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.RemoteOn.valueOf(),
+                key: OptionSystemActionType.RemoteOn.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Remote commands enabled']
@@ -514,7 +514,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.RemoteOff.valueOf(),
+                key: OptionSystemActionType.RemoteOff.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = ['Remote commands disabled']
@@ -522,7 +522,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Mod.valueOf(),
+                key: OptionSystemActionType.Mod.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -533,7 +533,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.UnMod.valueOf(),
+                key: OptionSystemActionType.UnMod.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -544,7 +544,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Vip.valueOf(),
+                key: OptionSystemActionType.Vip.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -555,7 +555,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.UnVip.valueOf(),
+                key: OptionSystemActionType.UnVip.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
@@ -566,7 +566,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.RefundRedemption.valueOf(),
+                key: OptionSystemActionType.RefundRedemption.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.chat = [
@@ -578,7 +578,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Raid.valueOf(),
+                key: OptionSystemActionType.Raid.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.chat = [
@@ -590,7 +590,7 @@ export default class DefaultObjects {
                 }
             },
             {
-                key: EnumSystemActionType.Unraid.valueOf(),
+                key: OptionSystemActionType.Unraid.valueOf(),
                 instance: new PresetSystemActionText(),
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.chat = [
@@ -615,7 +615,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Silence the current speaking TTS entry.'
 
                     const action = new ActionSettingTTS()
-                    action.functionType = EnumTTSFunctionType.StopCurrent
+                    action.functionType = OptionTTSFunctionType.StopCurrent
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
@@ -629,7 +629,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Empties the queue and silences what is currently spoken.'
 
                     const action= new ActionSettingTTS()
-                    action.functionType = EnumTTSFunctionType.StopAll
+                    action.functionType = OptionTTSFunctionType.StopAll
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
@@ -645,7 +645,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Set the TTS nick name for the tagged user, skip the tag to set your own, available for VIPs and subs.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetUserNick
+                    actionTTS.functionType = OptionTTSFunctionType.SetUserNick
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute')
 
@@ -662,7 +662,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Resets the TTS nick name for the tagged user, skip the tag to reset your own, available for, available for VIPs and subs.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.ClearUserNick
+                    actionTTS.functionType = OptionTTSFunctionType.ClearUserNick
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute')
 
@@ -679,7 +679,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Mutes the tagged user so they will not speak with TTS, persists, reason is optional.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetUserDisabled
+                    actionTTS.functionType = OptionTTSFunctionType.SetUserDisabled
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetTag has lost their voice.')
 
@@ -696,7 +696,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Unmutes the tagged user so they can again speak with TTS.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetUserEnabled
+                    actionTTS.functionType = OptionTTSFunctionType.SetUserEnabled
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetTag has regained their voice.')
 
@@ -713,7 +713,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Swap the TTS voice gender for the tagged user, skip the tag to swap your own, available for VIPs & subs, optionally specify a gender.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetUserEnabled
+                    actionTTS.functionType = OptionTTSFunctionType.SetUserEnabled
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this')
                     actionSpeech.voiceOfUsername = '%targetOrUserLogin'
@@ -764,7 +764,7 @@ export default class DefaultObjects {
                     triggerCommand.helpText = 'Set the TTS voice for the tagged user, skip the tag to set your own.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetUserVoice
+                    actionTTS.functionType = OptionTTSFunctionType.SetUserVoice
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this.')
                     actionSpeech.voiceOfUsername = '%targetOrUserLogin'
@@ -788,7 +788,7 @@ export default class DefaultObjects {
                     trigger.userCooldown = 30
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.GetUserNick
+                    actionTTS.functionType = OptionTTSFunctionType.GetUserNick
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this.')
                     actionSpeech.voiceOfUsername = '%targetOrUserLogin'
@@ -809,7 +809,7 @@ export default class DefaultObjects {
                     trigger.userCooldown = 30
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.GetUserVoice
+                    actionTTS.functionType = OptionTTSFunctionType.GetUserVoice
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this.')
                     actionSpeech.voiceOfUsername = '%targetOrUserLogin'
@@ -844,13 +844,13 @@ export default class DefaultObjects {
                     trigger.helpText = 'Turn ON global TTS for Twitch chat.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.Enable
+                    actionTTS.functionType = OptionTTSFunctionType.Enable
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('TTS enabled.')
                     const actionSystem = new ActionSystem()
                     const rewardState = new ActionSystemRewardStateForEvent()
                     rewardState.event = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
-                    rewardState.event_visible = EnumTwitchRewardVisible.Hidden
+                    rewardState.event_visible = OptionTwitchRewardVisible.Hidden
                     actionSystem.toggle.rewardStatesForEvents.push(rewardState)
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
@@ -866,13 +866,13 @@ export default class DefaultObjects {
                     trigger.helpText = 'Turn OFF global TTS for Twitch chat.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.Disable
+                    actionTTS.functionType = OptionTTSFunctionType.Disable
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('TTS disabled.')
                     const actionSystem = new ActionSystem()
                     const rewardState = new ActionSystemRewardStateForEvent()
                     rewardState.event = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
-                    rewardState.event_visible = EnumTwitchRewardVisible.Visible
+                    rewardState.event_visible = OptionTwitchRewardVisible.Visible
                     actionSystem.toggle.rewardStatesForEvents.push(rewardState)
 
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
@@ -893,7 +893,7 @@ export default class DefaultObjects {
                     trigger.requireMinimumWordCount = 2
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetDictionaryEntry
+                    actionTTS.functionType = OptionTTSFunctionType.SetDictionaryEntry
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%lastDictionaryWord is now said as %lastDictionarySubstitute')
                     actionSpeech.skipDictionary = true
@@ -910,7 +910,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Gets the current value for a dictionary entry, available for everyone.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.GetDictionaryEntry
+                    actionTTS.functionType = OptionTTSFunctionType.GetDictionaryEntry
                     const actionChat = new ActionChat()
                     actionChat.entries.push('Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"')
 
@@ -927,7 +927,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Clears a dictionary entry so it is no longer substituted.'
 
                     const actionTTS = new ActionSettingTTS()
-                    actionTTS.functionType = EnumTTSFunctionType.SetDictionaryEntry
+                    actionTTS.functionType = OptionTTSFunctionType.SetDictionaryEntry
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%lastDictionaryWord was cleared from the dictionary')
                     actionSpeech.skipDictionary = true
@@ -949,7 +949,7 @@ export default class DefaultObjects {
                     trigger.helpInput = ['message']
                     trigger.helpText = 'Displays an anonymous text message as a VR overlay, available for VIPs.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -962,7 +962,7 @@ export default class DefaultObjects {
                     trigger.entries.push('chaton')
                     trigger.helpText = 'Turns ON the chat popups in VR.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -975,7 +975,7 @@ export default class DefaultObjects {
                     trigger.entries.push('chatoff')
                     trigger.helpText = 'Turns OFF the chat popups in VR.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -988,7 +988,7 @@ export default class DefaultObjects {
                     trigger.entries.push('pingon')
                     trigger.helpText = 'Turns ON the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1001,7 +1001,7 @@ export default class DefaultObjects {
                     trigger.entries.push('pingoff')
                     helpText: 'Turns OFF the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1013,7 +1013,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('logon')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1025,7 +1025,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('logoff')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.LogOff)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOff)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1039,7 +1039,7 @@ export default class DefaultObjects {
                     trigger.helpInput = ['usertag', 'quote text']
                     trigger.helpText = 'Save a quote by the tagger user, or if the tag is skipped, the streamer.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.Quote)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Quote)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1053,7 +1053,7 @@ export default class DefaultObjects {
                     trigger.helpInput = ['world scale|start scale', 'end scale', 'minutes']
                     trigger.helpText = 'Sets the world scale for the running VR game and cancels any sequence, range is 10-1000%, provide 3 numbers to start a sequence (from, to, minutes), no value resets to default.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.Scale)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Scale)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1065,7 +1065,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('update')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.UpdateRewards)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.UpdateRewards)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1078,7 +1078,7 @@ export default class DefaultObjects {
                     trigger.entries.push('rewardson')
                     trigger.helpText = 'Turn ON game specific rewards.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.GameRewardsOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.GameRewardsOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1091,7 +1091,7 @@ export default class DefaultObjects {
                     trigger.entries.push('rewardsoff')
                     trigger.helpText = 'Turn OFF game specific rewards.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.GameRewardsOff)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.GameRewardsOff)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1106,7 +1106,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Refund the last reward in the redemptions queue for the tagged user.'
                     trigger.globalCooldown = 30
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.RefundRedemption)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.RefundRedemption)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1119,7 +1119,7 @@ export default class DefaultObjects {
                     trigger.entries.push('clearqueue')
                     trigger.globalCooldown = 60
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.ClearRedemptions)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ClearRedemptions)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1132,7 +1132,7 @@ export default class DefaultObjects {
                     trigger.entries.push('resetinc')
                     trigger.globalCooldown = 20
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.ResetIncrementingEvents)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ResetIncrementingEvents)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1145,7 +1145,7 @@ export default class DefaultObjects {
                     trigger.entries.push('resetacc')
                     trigger.globalCooldown = 20
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.ResetAccumulatingEvents)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ResetAccumulatingEvents)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1157,7 +1157,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('reload')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.ReloadWidget)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ReloadWidget)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1169,7 +1169,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('clips')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.Clips)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Clips)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1181,7 +1181,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('nogame')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.GameReset)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1196,7 +1196,7 @@ export default class DefaultObjects {
                     trigger.helpInput = ['usertag|channel link']
                     trigger.helpText = 'Will initiate a raid if a valid user tag or channel link is provided.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.Raid)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Raid)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1209,7 +1209,7 @@ export default class DefaultObjects {
                     trigger.entries.push('unraid')
                     trigger.helpText = 'Will cancel the currently active raid.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.GameReset)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1222,7 +1222,7 @@ export default class DefaultObjects {
                     trigger.entries.push('remoteon')
                     trigger.helpText = 'Turn ON remote channel commands.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.RemoteOn)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.RemoteOn)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1235,7 +1235,7 @@ export default class DefaultObjects {
                     trigger.entries.push('remoteoff')
                     trigger.helpText = 'Turn OFF remote channel commands.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.RemoteOff)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.RemoteOff)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1247,7 +1247,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('posthelp')
                     const actionSystem = new ActionSystem()
-                    actionSystem.trigger.systemActionEntries.push(EnumSystemActionType.HelpToDiscord)
+                    actionSystem.trigger.systemActionEntries.push(OptionSystemActionType.HelpToDiscord)
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Help was posted to Discord')
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
@@ -1264,7 +1264,7 @@ export default class DefaultObjects {
                     trigger.helpText = 'Posts help information about specific commands. Come on now, this is the help! Why even ask about help about the help! Sheesh!',
                     trigger.userCooldown = 30
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.HelpToChat)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.HelpToChat)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1276,7 +1276,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('mod')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.Mod)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Mod)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1288,7 +1288,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('unmod')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.UnMod)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.UnMod)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1300,7 +1300,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('vip')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.Vip)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Vip)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1312,7 +1312,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('unvip')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.UnVip)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.UnVip)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1325,7 +1325,7 @@ export default class DefaultObjects {
                     trigger.rewardEntries.push(await DefaultObjects.loadID(new PresetReward(), EKeys.RewardChannelTrophy))
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.ChannelTrophy)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ChannelTrophy)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             },
@@ -1337,7 +1337,7 @@ export default class DefaultObjects {
                     trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('trophy')
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(EnumSystemActionType.GameReset)
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
             }
@@ -1467,11 +1467,11 @@ export default class DefaultObjects {
                     trigger.entries.push('endstream')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(
-                        EnumSystemActionType.ChannelTrophyStats,
-                        EnumSystemActionType.Clips,
-                        EnumSystemActionType.ClearRedemptions,
-                        EnumSystemActionType.ResetIncrementingEvents,
-                        EnumSystemActionType.ResetAccumulatingEvents
+                        OptionSystemActionType.ChannelTrophyStats,
+                        OptionSystemActionType.Clips,
+                        OptionSystemActionType.ClearRedemptions,
+                        OptionSystemActionType.ResetIncrementingEvents,
+                        OptionSystemActionType.ResetAccumulatingEvents
                     )
                     return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
                 }
@@ -1686,27 +1686,27 @@ export default class DefaultObjects {
         ],
     }
 
-    static async loadID<T>(instance: T&BaseDataObject, key: string): Promise<number> {
+    static async loadID<T>(instance: T&Data, key: string): Promise<number> {
         const item = await DataBaseHelper.loadItem(instance, key)
         return item?.id ?? 0
     }
-    static async saveSubAndGetID<T>(instance: T&BaseDataObject, key: string, parentId: number = 0): Promise<number> {
+    static async saveSubAndGetID<T>(instance: T&Data, key: string, parentId: number = 0): Promise<number> {
         const subKey = this.buildKey(instance, key)
         return await this.saveAndGetID(instance, subKey, parentId)
     }
-    static async saveAndGetID<T>(instance: T&BaseDataObject, key: string, parentId: number = 0): Promise<number> {
+    static async saveAndGetID<T>(instance: T&Data, key: string, parentId: number = 0): Promise<number> {
         await DataBaseHelper.save(instance, key, undefined, parentId)
         const item = await DataBaseHelper.loadItem(instance, key)
         return item?.id ?? 0
     }
-    static buildKey<T>(instance: T&BaseDataObject, key: string): string {
+    static buildKey<T>(instance: T&Data, key: string): string {
         return `${key} ${Utils.camelToTitle(instance.constructor.name, EUtilsTitleReturnOption.SkipFirstWord)}`
     }
     static async registerEvent(
         instance: EventDefault,
         key: string,
-        triggers: BaseDataObject[],
-        actions: BaseDataObject[]
+        triggers: Data[],
+        actions: Data[]
     ): Promise<boolean> {
         const parentId = await DefaultObjects.saveAndGetID(instance, key)
         if(parentId > 0) {
@@ -1725,7 +1725,7 @@ export default class DefaultObjects {
     static async buildToggleForEvent(eventKey: EKeys, visible: boolean): Promise<ActionSystemRewardStateForEvent> {
         const actionSystemEvent = new ActionSystemRewardStateForEvent()
         actionSystemEvent.event = await DefaultObjects.loadID(new EventDefault(), eventKey)
-        actionSystemEvent.event_visible = visible ? EnumTwitchRewardVisible.Visible : EnumTwitchRewardVisible.Hidden
+        actionSystemEvent.event_visible = visible ? OptionTwitchRewardVisible.Visible : OptionTwitchRewardVisible.Hidden
         return actionSystemEvent
     }
 }
@@ -1736,9 +1736,9 @@ export interface IDefaultObjectList {
 
 export interface IDefaultObject {
     key: EKeys|string|number
-    instance: BaseDataObject
+    instance: Data
     importer: IDefaultObjectImporter<any>
     parentKey?: string
     parentClass?: string
 }
-export type IDefaultObjectImporter<T extends BaseDataObject> = (item: T, key: string) => Promise<boolean>
+export type IDefaultObjectImporter<T extends Data> = (item: T, key: string) => Promise<boolean>

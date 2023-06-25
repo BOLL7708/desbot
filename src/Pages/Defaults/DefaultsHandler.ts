@@ -1,7 +1,7 @@
 import DefaultObjects, {IDefaultObject, IDefaultObjectList} from './DefaultObjects.js'
 import Utils from '../../Classes/Utils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import DataObjectMap, {DataObjectMeta} from '../../Objects/DataObjectMap.js'
+import DataMap, {DataObjectMeta} from '../../Objects/DataMap.js'
 
 export default class DefaultsHandler {
     constructor() {
@@ -128,7 +128,7 @@ export default class DefaultsHandler {
 
     private static async updateButton(item: IDefaultObject, exists: boolean, buttonElement?: HTMLButtonElement) {
         const id = this.getButtonId(item)
-        const meta = DataObjectMap.getMeta(item.instance.constructor.name)
+        const meta = DataMap.getMeta(item.instance.constructor.name)
         const mappedLabel = meta?.keyMap?.[item.key.toString()]
         const button = buttonElement ?? document.querySelector(`#${id}`) as HTMLButtonElement
         if(button) {

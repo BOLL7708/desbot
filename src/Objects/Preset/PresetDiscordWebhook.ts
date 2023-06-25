@@ -1,12 +1,12 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class PresetDiscordWebhook extends BaseDataObject {
+export class PresetDiscordWebhook extends Data {
     url: string = ''
     isForum: boolean = false
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetDiscordWebhook(),
             'You can get webhooks for any channel in a server your have rights in, this can be used to post various types of content to that channel.',
             {

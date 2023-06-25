@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigCleanText extends BaseDataObject {
+export class ConfigCleanText extends Data {
     removeBitEmotes: boolean = false
     keepCase: boolean = false
     replaceUserTags: boolean = true
@@ -16,7 +16,7 @@ export class ConfigCleanText extends BaseDataObject {
     removeUnicodeEmojis: boolean = true
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigCleanText(),
             {
                 removeBitEmotes: 'Removes [word][number] in Twitch cher messages.',

@@ -1,12 +1,12 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigPhilipsHue extends BaseDataObject {
+export class ConfigPhilipsHue extends Data {
     serverPath: string = 'http://'
     username: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigPhilipsHue(),
             'Control Philips Hue lights or sockets.',
             {

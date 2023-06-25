@@ -1,14 +1,14 @@
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
-import {EnumEventBehavior} from '../../Enums/EventBehavior.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
+import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 
-export class EventDefault extends BaseDataObject {
+export class EventDefault extends Data {
     options: EventOptions = new EventOptions()
-    triggers: (number|BaseDataObject)[] = []
+    triggers: (number|Data)[] = []
     actions: EventActionContainer[] = []
 
     register() {
-        DataObjectMap.addRootInstance(new EventDefault(),
+        DataMap.addRootInstance(new EventDefault(),
             'The event that contains triggers and actions.',
             {
                 options: 'Set various options for event behavior.',
@@ -16,15 +16,15 @@ export class EventDefault extends BaseDataObject {
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
             {
-                triggers: BaseDataObject.genericRef('Trigger'),
+                triggers: Data.genericRef('Trigger'),
                 actions: EventActionContainer.ref()
             }
         )
     }
 }
 
-export class EventOptions extends BaseDataObject {
-    behavior = EnumEventBehavior.All
+export class EventOptions extends Data {
+    behavior = OptionEventBehavior.All
     accumulationGoal: number = 0
     multiTierTimeout: number = 0
     multiTierMaxLevel: number = 0
@@ -40,7 +40,7 @@ export class EventOptions extends BaseDataObject {
     relayCanTrigger: boolean = true
 
     register() {
-        DataObjectMap.addSubInstance(new EventOptions(),
+        DataMap.addSubInstance(new EventOptions(),
             {
                 behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.',
                 accumulationGoal: 'The goal to reach if behavior is set to accumulating.',
@@ -58,24 +58,24 @@ export class EventOptions extends BaseDataObject {
                 relayCanTrigger: 'If this event can be triggered by messages from WSRelay.'
             },
             {
-                behavior: EnumEventBehavior.ref()
+                behavior: OptionEventBehavior.ref()
             }
         )
     }
 }
-export class EventActionContainer extends BaseDataObject {
+export class EventActionContainer extends Data {
     delayMs: number = 0
     delayMs_orTimeMs: number = 0
-    entries: (number|BaseDataObject)[] = []
+    entries: (number|Data)[] = []
 
     register() {
-        DataObjectMap.addSubInstance(new EventActionContainer(),
+        DataMap.addSubInstance(new EventActionContainer(),
             {
                 delayMs: 'Set delay to execute this batch a certain amount of time after the previous batch, or set time to execute it at an absolute point in time.',
                 entries: 'The actions that will run.'
             },
             {
-                entries: BaseDataObject.genericRef('Action')
+                entries: Data.genericRef('Action')
             }
         )
     }

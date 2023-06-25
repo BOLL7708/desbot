@@ -1,6 +1,6 @@
 import {IStringDictionary} from '../Interfaces/igeneral.js'
-import BaseDataObject from './BaseDataObject.js'
-import {BaseMeta} from './BaseMeta.js'
+import Data from './Data.js'
+import {DataMeta} from './DataMeta.js'
 import Utils from '../Classes/Utils.js'
 import Color from '../Classes/ColorConstants.js'
 
@@ -8,11 +8,11 @@ import Color from '../Classes/ColorConstants.js'
 export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
 export type TTypes = 'number'|'boolean'|'string'|'string|secret'|'string|file'|string
 
-export default class DataObjectMap {
+export default class DataMap {
     private static _map = new Map<string, DataObjectMeta>()
     private static addInstance<T>(
         isRoot: boolean = false,
-        instance: T&BaseDataObject,
+        instance: T&Data,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
@@ -32,7 +32,7 @@ export default class DataObjectMap {
         this._map.set(className, meta)
     }
     public static addRootInstance<T>(
-        instance: T&BaseDataObject,
+        instance: T&Data,
         description: string|undefined = undefined,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
@@ -42,7 +42,7 @@ export default class DataObjectMap {
         this.addInstance(true, instance, description, documentation, types, label, keyMap)
     }
     public static addSubInstance<T>(
-        instance: T&BaseDataObject,
+        instance: T&Data,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>
     ) {
@@ -59,26 +59,26 @@ export default class DataObjectMap {
         className: string|undefined,
         props: object|undefined = undefined,
         fillReferences: boolean = false
-    ): Promise<BaseDataObject|undefined> {
+    ): Promise<Data|undefined> {
         const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return undefined
         if(className && this.hasInstance(className)) {
             const instance = this._map.get(className)?.instance
             if(instance) {
                 return await instance.__new(props, fillReferences)
-            } else console.warn(`Class instance was invalid: ${className}`)
-        } else console.warn(`Class instance does not exist: ${className}`)
+            } else console.warn(`DataMap: Class instance was invalid: ${className}`)
+        } else console.warn(`DataMap: Class instance does not exist: ${className}`)
         return undefined
     }
 
     public static hasInstance(
         className: string|undefined
     ): boolean {
-        const invalidClasses = ['string', 'number', 'array', 'boolean', 'basedataobject', '']
-        if(invalidClasses.indexOf(className?.toLowerCase() ?? '') != -1 || className?.startsWith('Enum')) return false
+        const invalidClasses = ['string', 'number', 'array', 'boolean', 'data', '']
+        if(invalidClasses.indexOf(className?.toLowerCase() ?? '') != -1 || className?.startsWith('Option')) return false
 
         const has = className ? this._map.has(className) : false
-        if(!has) Utils.log(`Object: "${className}" does not exist in DataObjectMap!`, Color.DarkRed, true, true)
+        if(!has) Utils.log(`DataMap: "${className}" does not exist!`, Color.DarkRed, true, true)
         return has
     }
 
@@ -102,9 +102,9 @@ export default class DataObjectMap {
     }
 }
 
-export class DataObjectMeta extends BaseMeta {
+export class DataObjectMeta extends DataMeta {
     constructor(
-        public instance: BaseDataObject,
+        public instance: Data,
         public isRoot: boolean,
         public description?: string,
         public documentation?: IStringDictionary,

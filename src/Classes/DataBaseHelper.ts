@@ -1,10 +1,10 @@
 import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
-import BaseDataObject from '../Objects/BaseDataObject.js'
+import Data from '../Objects/Data.js'
 import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import {ConfigEditor} from '../Objects/Config/ConfigEditor.js'
-import DataObjectMap from '../Objects/DataObjectMap.js'
+import DataMap from '../Objects/DataMap.js'
 
 /*
 TODO
@@ -148,7 +148,7 @@ export default class DataBaseHelper {
      * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadAll<T>(
-        emptyInstance: T&BaseDataObject,
+        emptyInstance: T&Data,
         parentId?: number,
         ignoreCache?: boolean
     ): Promise<{ [key: string]: T }|undefined> {
@@ -191,7 +191,7 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
      */
-    static async loadMain<T>(emptyInstance: T&BaseDataObject, ignoreCache: boolean = false): Promise<T> {
+    static async loadMain<T>(emptyInstance: T&Data, ignoreCache: boolean = false): Promise<T> {
         return await this.load(emptyInstance, this.OBJECT_MAIN_KEY, undefined, ignoreCache) ?? emptyInstance
     }
 
@@ -203,7 +203,7 @@ export default class DataBaseHelper {
      * @param ignoreCache
      */
     static async load<T>(
-        emptyInstance: T&BaseDataObject,
+        emptyInstance: T&Data,
         key: string,
         parentId?: number,
         ignoreCache?: boolean
@@ -216,7 +216,7 @@ export default class DataBaseHelper {
     }
 
     static async loadOrEmpty<T>(
-        emptyInstance: T&BaseDataObject,
+        emptyInstance: T&Data,
         key: string,
         parentId?: number,
         ignoreCache?: boolean
@@ -232,7 +232,7 @@ export default class DataBaseHelper {
      * @param ignoreCache Will not use the in-memory cache.
      */
     static async loadItem<T>(
-        emptyInstance: T&BaseDataObject,
+        emptyInstance: T&Data,
         key: string,
         parentId?: number,
         ignoreCache?: boolean
@@ -412,7 +412,7 @@ export default class DataBaseHelper {
      * @param newKey
      * @param parentId
      */
-    static async save<T>(setting: T&BaseDataObject, key?: string, newKey?: string, parentId?: number): Promise<boolean> {
+    static async save<T>(setting: T&Data, key?: string, newKey?: string, parentId?: number): Promise<boolean> {
         const className = setting.constructor.name
         if(this.checkAndReportClassError(className, 'saveSingle')) return false
 
@@ -434,7 +434,7 @@ export default class DataBaseHelper {
         return !!key
     }
 
-    static async saveMain<T>(setting: T&BaseDataObject, parentId?: number): Promise<boolean> {
+    static async saveMain<T>(setting: T&Data, parentId?: number): Promise<boolean> {
         return this.save(setting, this.OBJECT_MAIN_KEY, undefined, parentId)
     }
 
@@ -443,7 +443,7 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to delete.
      * @param key The key for the row to delete. // TODO: Could do this optional to delete a whole group, but that is scary... wait with adding until we need it.
      */
-    static async delete<T>(emptyInstance: T&BaseDataObject|string, key: string): Promise<boolean> {
+    static async delete<T>(emptyInstance: T&Data|string, key: string): Promise<boolean> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'deleteSingle')) return false
 
@@ -509,7 +509,7 @@ export default class DataBaseHelper {
         if(isProblem) {
             Utils.log(`DB: "${action}" got class "${className}" which is invalid.`, Color.DarkRed, true, true)
         }
-        if(!DataObjectMap.hasInstance(className)) {
+        if(!DataMap.hasInstance(className)) {
             Utils.log(`DB: "${action}" got class "${className}" which does not exist in the DataObjectMap! Is it added to RegisterObjects?`, Color.DarkRed, true, true)
         }
         return isProblem
@@ -548,7 +548,7 @@ export interface IDataBaseItem<T> {
     class: string
     key: string
     pid: number|null
-    data: (T&BaseDataObject)|null
+    data: (T&Data)|null
 }
 export interface IDataBaseItemRaw extends IDataBaseItem<any> {
     data: string

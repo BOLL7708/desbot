@@ -1,4 +1,4 @@
-import {EnumEntryUsage} from '../Enums/EntryType.js'
+import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 
 export default class ArrayUtils {
     /**
@@ -10,17 +10,17 @@ export default class ArrayUtils {
     static getAsType<T>(array: T[], type: number, index?: number): T[] {
         if(array.length <= 1) return array
         switch(type) {
-            case EnumEntryUsage.First: return [array[0]]
-            case EnumEntryUsage.Last: return [array[array.length - 1]]
-            case EnumEntryUsage.All: return array
-            case EnumEntryUsage.OneRandom: {
+            case OptionEntryUsage.First: return [array[0]]
+            case OptionEntryUsage.Last: return [array[array.length - 1]]
+            case OptionEntryUsage.All: return array
+            case OptionEntryUsage.OneRandom: {
                 const random = ArrayUtils.getRandom(array)
                 return random !== undefined ? [random] : []
             }
-            case EnumEntryUsage.AllRandom: {
+            case OptionEntryUsage.AllRandom: {
                 return ArrayUtils.shuffle(array)
             }
-            case EnumEntryUsage.OneSpecific: {
+            case OptionEntryUsage.OneSpecific: {
                 const specific = ArrayUtils.getSpecific(array, index)
                 return specific !== undefined ? [specific] : []
             }

@@ -1,12 +1,12 @@
 import {ActionAudio} from '../Action/ActionAudio.js'
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
 import {SettingUser} from '../Setting/SettingUser.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
-import {EnumTwitchSubTier} from '../../Enums/Twitch.js'
+import {OptionTwitchSubTier} from '../../Options/OptionTwitch.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
-export default class ConfigTwitch extends BaseDataObject {
+export default class ConfigTwitch extends Data {
     commandPrefix: string = '!'
     ignoreModerators: number[]|SettingUser[] = []
     allowWhisperCommands: boolean = true
@@ -23,16 +23,16 @@ export default class ConfigTwitch extends BaseDataObject {
     announcerUsers: (number|SettingUser)[] = []
     announcerTriggers: ConfigTwitchAnnouncerTriggers[] = []
     announceSubs: ConfigTwitchAnnounceSub[] = [
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Prime, false, false, '%userTag subscribed with Prime! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier1, false, false, '%userTag subscribed with Tier1! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier2, false, false, '%userTag subscribed with Tier2! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier3, false, false, '%userTag subscribed with Tier3! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier1, true, false, '%userTag gifted %targetTag a Tier1 subscription! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier2, true, false, '%userTag gifted %targetTag a Tier2 subscription! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier3, true, false, '%userTag gifted %targetTag a Tier3 subscription! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier1, true, true, '%userTag gifted %giftCount Tier1 subscriptions! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier2, true, true, '%userTag gifted %giftCount Tier2 subscriptions! %userInput'),
-        new ConfigTwitchAnnounceSub(EnumTwitchSubTier.Tier3, true, true, '%userTag gifted %giftCount Tier3 subscriptions! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Prime, false, false, '%userTag subscribed with Prime! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier1, false, false, '%userTag subscribed with Tier1! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier2, false, false, '%userTag subscribed with Tier2! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier3, false, false, '%userTag subscribed with Tier3! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier1, true, false, '%userTag gifted %targetTag a Tier1 subscription! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier2, true, false, '%userTag gifted %targetTag a Tier2 subscription! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier3, true, false, '%userTag gifted %targetTag a Tier3 subscription! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier1, true, true, '%userTag gifted %giftCount Tier1 subscriptions! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier2, true, true, '%userTag gifted %giftCount Tier2 subscriptions! %userInput'),
+        new ConfigTwitchAnnounceSub(OptionTwitchSubTier.Tier3, true, true, '%userTag gifted %giftCount Tier3 subscriptions! %userInput'),
     ]
     announceCheers: ConfigTwitchAnnounceCheer[] = [
         new ConfigTwitchAnnounceCheer(1, '%userTag cheered!'),
@@ -53,7 +53,7 @@ export default class ConfigTwitch extends BaseDataObject {
     ]
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigTwitch(),
             'Settings for Twitch.',
             {
@@ -93,13 +93,13 @@ export default class ConfigTwitch extends BaseDataObject {
     }
 }
 
-export class ConfigTwitchAnnouncerTriggers extends BaseDataObject {
+export class ConfigTwitchAnnouncerTriggers extends Data {
     trigger: string = ''
     trigger_audio: number|ActionAudio = 0
     trigger_speech = true
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigTwitchAnnouncerTriggers(),
             {
                 trigger: 'A prefix that triggers a sound effect and optionally speaks the message.'
@@ -110,8 +110,8 @@ export class ConfigTwitchAnnouncerTriggers extends BaseDataObject {
         )
     }
 }
-export class ConfigTwitchAnnounceSub extends BaseDataObject {
-    tier = EnumTwitchSubTier.Prime
+export class ConfigTwitchAnnounceSub extends Data {
+    tier = OptionTwitchSubTier.Prime
     tier_gift: boolean = false
     tier_multi: boolean = false
     message: string = ''
@@ -124,18 +124,18 @@ export class ConfigTwitchAnnounceSub extends BaseDataObject {
     }
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigTwitchAnnounceSub(),
             {
                 tier: 'The tier of subscription made.',
                 message: 'The message to be posted to chat.'
             }, {
-                tier: EnumTwitchSubTier.ref()
+                tier: OptionTwitchSubTier.ref()
             }
         )
     }
 }
-export class ConfigTwitchAnnounceCheer extends BaseDataObject {
+export class ConfigTwitchAnnounceCheer extends Data {
     bits: number = 1
     message: string = ''
     constructor(bits?: number, message?: string) {
@@ -145,7 +145,7 @@ export class ConfigTwitchAnnounceCheer extends BaseDataObject {
     }
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigTwitchAnnounceCheer(),
             {
                 bits: 'Will be used for bit amounts from this value up to the next level.',
@@ -154,7 +154,7 @@ export class ConfigTwitchAnnounceCheer extends BaseDataObject {
         )
     }
 }
-export class ConfigTwitchAnnounceRaid extends BaseDataObject {
+export class ConfigTwitchAnnounceRaid extends Data {
     viewers: number = 0
     message: string = ''
     constructor(viewers?: number, message?: string) {
@@ -164,7 +164,7 @@ export class ConfigTwitchAnnounceRaid extends BaseDataObject {
     }
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigTwitchAnnounceRaid(),
             {
                 viewers: 'Will be used for this amount of viewers up to the next level.',
@@ -173,12 +173,12 @@ export class ConfigTwitchAnnounceRaid extends BaseDataObject {
         )
     }
 }
-export class ConfigTwitchCategoryOverride extends BaseDataObject {
+export class ConfigTwitchCategoryOverride extends Data {
     game: number | SettingSteamGame = 0
     category: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigTwitchCategoryOverride(),
             {
                 game: 'A Steam game where the title does not match the Twitch game category.',

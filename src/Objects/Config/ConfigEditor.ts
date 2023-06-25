@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigEditor extends BaseDataObject {
+export class ConfigEditor extends Data {
     autoGenerateKeys: boolean = true
     autoGenerateKeys_andShorten: boolean = true
     showHelpIcons: boolean = true
@@ -13,7 +13,7 @@ export class ConfigEditor extends BaseDataObject {
     favorites: { [key:string]: ConfigEditorFavorite } = {}
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigEditor(),
             'Configuration values for this very editor that you are using right now.',
             {
@@ -32,12 +32,12 @@ export class ConfigEditor extends BaseDataObject {
         )
     }
 }
-export class ConfigEditorFavorite extends BaseDataObject {
+export class ConfigEditorFavorite extends Data {
     class: string = ''
     class_withKey: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigEditorFavorite(),
             {
                 class: 'Class and key of the favorite.'

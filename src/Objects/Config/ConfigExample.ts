@@ -1,10 +1,10 @@
-import BaseDataObject from '../BaseDataObject.js'
+import Data from '../Data.js'
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
-import DataObjectMap from '../DataObjectMap.js'
+import DataMap from '../DataMap.js'
 import {PresetPipeBasic} from '../Preset/PresetPipe.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
-export class ConfigExample extends BaseDataObject {
+export class ConfigExample extends Data {
     singleBoolean = false
     singleNumber = 0
     singleString = ''
@@ -15,8 +15,8 @@ export class ConfigExample extends BaseDataObject {
     singleIdReferenceUsingLabel: number|PresetPipeBasic = 0
     singleIdToKeyReference: number|string = ''
     singleIdToKeyReferenceUsingLabel: number|string = ''
-    singleIdToGenericReference: number|BaseDataObject = 0
-    singleEnum = EnumEntryUsage.First
+    singleIdToGenericReference: number|Data = 0
+    singleEnum = OptionEntryUsage.First
     arrayOfBooleans: boolean[] = []
     arrayOfBooleans_use: number = 0
     arrayOfNumbers: number[] = []
@@ -28,8 +28,8 @@ export class ConfigExample extends BaseDataObject {
     arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
     arrayOfIdToKeyReferences: (number|string)[] = []
     arrayOfIdToKeyReferencesUsingLabels: (number|string)[] = []
-    arrayOfIdToGenericReferences: (number|BaseDataObject)[] = []
-    arrayOfEnum: EnumEntryUsage[] = []
+    arrayOfIdToGenericReferences: (number|Data)[] = []
+    arrayOfEnum: OptionEntryUsage[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
@@ -38,17 +38,17 @@ export class ConfigExample extends BaseDataObject {
     dictionaryOfIdReferencesUsingLabels: {[key:string]: number|PresetPipeBasic} = {}
     dictionaryOfIdToKeyReferences: {[key:string]: number|string} = {}
     dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|string} = {}
-    dictionaryOfIdToGenericReferences: {[key:string]: number|BaseDataObject} = {}
-    dictionaryOfEnums: { [key:string]: EnumEntryUsage } = {}
+    dictionaryOfIdToGenericReferences: {[key:string]: number|Data} = {}
+    dictionaryOfEnums: { [key:string]: OptionEntryUsage } = {}
     partnerToSingle = ''
     partnerToSingle_active = false
     partnerToSingleAdvanced = ''
-    partnerToSingleAdvanced_enum = EnumEntryUsage.First
+    partnerToSingleAdvanced_enum = OptionEntryUsage.First
     partnerToArray: string[] = []
     partnerToArray_withTitle = ''
     partnerToDictionary: IStringDictionary = {}
     partnerToDictionary_repeatsCount = 0
-    partnerToEnum = EnumEntryUsage.First
+    partnerToEnum = OptionEntryUsage.First
     partnerToEnum_label = ''
     partnerMultiple = false
     partnerMultiple_and = false
@@ -57,7 +57,7 @@ export class ConfigExample extends BaseDataObject {
     partnerMultiple_butNot = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigExample(),
             'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
             {
@@ -101,10 +101,10 @@ export class ConfigExample extends BaseDataObject {
                 singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel(),
                 singleIdToKeyReference: PresetPipeBasic.refIdKey(),
                 singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel(),
-                singleIdToGenericReference: BaseDataObject.genericRef('Setting'),
-                singleEnum: EnumEntryUsage.ref(),
+                singleIdToGenericReference: Data.genericRef('Setting'),
+                singleEnum: OptionEntryUsage.ref(),
                 arrayOfBooleans: 'boolean',
-                arrayOfBooleans_use: EnumEntryUsage.ref(),
+                arrayOfBooleans_use: OptionEntryUsage.ref(),
                 arrayOfNumbers: 'number',
                 arrayOfStrings: 'string',
                 arrayOfSecretStrings: 'string|secret',
@@ -114,8 +114,8 @@ export class ConfigExample extends BaseDataObject {
                 arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
                 arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
                 arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
-                arrayOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-                arrayOfEnum: EnumEntryUsage.ref(),
+                arrayOfIdToGenericReferences: Data.genericRef('Setting'),
+                arrayOfEnum: OptionEntryUsage.ref(),
                 dictionaryOfBooleans: 'boolean',
                 dictionaryOfNumbers: 'number',
                 dictionaryOfStrings: 'string',
@@ -124,23 +124,23 @@ export class ConfigExample extends BaseDataObject {
                 dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
                 dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
                 dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
-                dictionaryOfIdToGenericReferences: BaseDataObject.genericRef('Setting'),
-                dictionaryOfEnums: EnumEntryUsage.ref(),
-                partnerToSingleAdvanced_enum: EnumEntryUsage.ref(),
+                dictionaryOfIdToGenericReferences: Data.genericRef('Setting'),
+                dictionaryOfEnums: OptionEntryUsage.ref(),
+                partnerToSingleAdvanced_enum: OptionEntryUsage.ref(),
                 partnerToArray: 'string',
                 partnerToDictionary: 'string',
-                partnerToEnum: EnumEntryUsage.ref()
+                partnerToEnum: OptionEntryUsage.ref()
             }
         )
     }
 }
-export class ConfigExampleSub extends BaseDataObject {
+export class ConfigExampleSub extends Data {
     singleString: string = ''
     singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
-    singleEnum: number = EnumEntryUsage.All
+    singleEnum: number = OptionEntryUsage.All
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigExampleSub(),
             {
                 singleString: 'A string value',
@@ -148,7 +148,7 @@ export class ConfigExampleSub extends BaseDataObject {
             },
             {
                 singleIdReference: PresetPipeBasic.refId(),
-                singleEnum: EnumEntryUsage.ref()
+                singleEnum: OptionEntryUsage.ref()
             }
         )
     }

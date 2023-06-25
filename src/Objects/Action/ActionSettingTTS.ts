@@ -1,13 +1,13 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumTTSFunctionType} from '../../Enums/TTS.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionTTSFunctionType} from '../../Options/OptionTTS.js'
 
-export class ActionSettingTTS extends BaseDataObject {
-    functionType = EnumTTSFunctionType.Enable
+export class ActionSettingTTS extends Data {
+    functionType = OptionTTSFunctionType.Enable
     inputOverride: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionSettingTTS(),
             'Performs functions in the TTS system.',
             {
@@ -15,7 +15,7 @@ export class ActionSettingTTS extends BaseDataObject {
                 inputOverride: 'This uses trigger input unless this is set.'
             },
             {
-                functionType: EnumTTSFunctionType.ref()
+                functionType: OptionTTSFunctionType.ref()
             }
         )
     }

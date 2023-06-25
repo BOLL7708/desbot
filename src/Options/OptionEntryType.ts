@@ -1,7 +1,7 @@
-import {BaseEnum} from '../Objects/BaseEnum.js'
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
+import {Option} from './Option.js'
+import {OptionsMap} from './OptionsMap.js'
 
-export class EnumEntryUsage extends BaseEnum {
+export class OptionEntryUsage extends Option {
     static readonly First = 0
     static readonly Last = 100
     static readonly All = 200
@@ -9,8 +9,8 @@ export class EnumEntryUsage extends BaseEnum {
     static readonly AllRandom = 500
     static readonly OneSpecific = 600
 }
-EnumObjectMap.addPrototype(
-    EnumEntryUsage,
+OptionsMap.addPrototype(
+    OptionEntryUsage,
     'Universal behavior type for entry lists.',
     {
         First: 'Will only use the first value.',

@@ -1,11 +1,11 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class TriggerCheer extends BaseDataObject {
+export class TriggerCheer extends Data {
     amount: number = 1
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new TriggerCheer(),
             'A channel cheer',
             {

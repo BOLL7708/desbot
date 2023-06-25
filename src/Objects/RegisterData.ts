@@ -1,5 +1,5 @@
 import {ActionAudio} from './Action/ActionAudio.js'
-import BaseDataObject from './BaseDataObject.js'
+import Data from './Data.js'
 import {ActionChat} from './Action/ActionChat.js'
 import {ActionCustom} from './Action/ActionCustom.js'
 import {ActionDiscord} from './Action/ActionDiscord.js'
@@ -98,9 +98,9 @@ import {
 } from './Setting/SettingUser.js'
 import {SettingStreamQuote} from './Setting/SettingStream.js'
 
-export default class RegisterObjects {
-    static register() {
-        const objects: BaseDataObject[] = [
+export default class RegisterData {
+    static run() {
+        const objects: Data[] = [
             new ActionAudio(),
             new ActionChat(),
             new ActionCustom(),

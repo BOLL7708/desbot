@@ -1,6 +1,6 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
@@ -9,15 +9,15 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionChat extends Action {
     entries: string[] = []
-    entries_use = EnumEntryUsage.First
+    entries_use = OptionEntryUsage.First
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionChat(),
             'Send message(s) to Twitch chat.',
             {},
             {
                 entries: 'string',
-                entries_use: EnumEntryUsage.ref()
+                entries_use: OptionEntryUsage.ref()
             }
         )
     }

@@ -28,7 +28,7 @@ import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/SettingUser.js'
 import ConfigTwitch, {ConfigTwitchAnnounceRaid} from '../../Objects/Config/ConfigTwitch.js'
 import ConfigScreenshots from '../../Objects/Config/ConfigScreenshots.js'
-import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
+import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
 import ConfigTwitchChat from '../../Objects/Config/ConfigTwitchChat.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {IActionUser} from '../../Objects/Action.js'
@@ -344,7 +344,7 @@ export default class Callbacks {
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
             // Post screenshot to Sign and Discord
-            const blob = screenshotsConfig.callback.discordEmbedImageFormat == EnumScreenshotFileType.JPG
+            const blob = screenshotsConfig.callback.discordEmbedImageFormat == OptionScreenshotFileType.JPG
                 ? await ImageEditor.convertPngDataUrlToJpegBlobForDiscord(dataUrl)
                 : Utils.b64toBlob(dataUrl)
             if(requestData) { // A screenshot from a reward

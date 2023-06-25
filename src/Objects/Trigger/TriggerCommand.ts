@@ -1,8 +1,8 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
-export class TriggerCommand extends BaseDataObject {
+export class TriggerCommand extends Data {
     entries: string[] = []
     permissions: number|PresetPermissions = 0
     requireUserTag = false
@@ -15,7 +15,7 @@ export class TriggerCommand extends BaseDataObject {
     userCooldown: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(new TriggerCommand(),
+        DataMap.addRootInstance(new TriggerCommand(),
             'A chat command.',
             {
                 entries: 'The commands that can be used with this trigger.',

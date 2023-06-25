@@ -1,16 +1,16 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {PresetPhilipsHueColor} from '../Preset/PresetPhilipsHue.js'
 
-export class ActionPhilipsHueBulb extends BaseDataObject {
+export class ActionPhilipsHueBulb extends Data {
     entries: number[] = []
-    entries_use = EnumEntryUsage.All
+    entries_use = OptionEntryUsage.All
     colorEntries: PresetPhilipsHueColor[] = []
-    colorEntries_use = EnumEntryUsage.First
+    colorEntries_use = OptionEntryUsage.First
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionPhilipsHueBulb(),
             'Trigger Philips Hue bulb changes.',
             {
@@ -19,9 +19,9 @@ export class ActionPhilipsHueBulb extends BaseDataObject {
             },
             {
                 entries: 'number',
-                entries_use: EnumEntryUsage.ref(),
+                entries_use: OptionEntryUsage.ref(),
                 colorEntries: PresetPhilipsHueColor.refId(),
-                colorEntries_use: EnumEntryUsage.ref()
+                colorEntries_use: OptionEntryUsage.ref()
             }
         )
     }

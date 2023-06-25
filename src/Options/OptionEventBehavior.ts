@@ -1,15 +1,15 @@
-import {BaseEnum} from '../Objects/BaseEnum.js'
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
+import {Option} from './Option.js'
+import {OptionsMap} from './OptionsMap.js'
 
-export class EnumEventBehavior extends BaseEnum {
+export class OptionEventBehavior extends Option {
     static readonly All = 0
     static readonly Random = 100
     static readonly Incrementing = 200
     static readonly Accumulating = 300
     static readonly MultiTier = 400
 }
-EnumObjectMap.addPrototype(
-    EnumEventBehavior,
+OptionsMap.addPrototype(
+    OptionEventBehavior,
     'Will affect how this event uses each entry of actions set on it.',
     {
         All: 'Will run all the actions.',

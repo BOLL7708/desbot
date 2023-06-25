@@ -1,12 +1,12 @@
-import {BaseEnum} from '../Objects/BaseEnum.js'
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
+import {Option} from './Option.js'
+import {OptionsMap} from './OptionsMap.js'
 
-export class EnumScreenshotType extends BaseEnum {
+export class OptionScreenshotType extends Option {
     static readonly SuperScreenShotterVR = 100
     static readonly OBSSource = 200
 }
-EnumObjectMap.addPrototype(
-    EnumScreenshotType,
+OptionsMap.addPrototype(
+    OptionScreenshotType,
     'The type of screenshot to capture.',
     {
         SuperScreenShotterVR: 'Will trigger a screenshot by SuperScreenShotterVR of the currently running VR game.',

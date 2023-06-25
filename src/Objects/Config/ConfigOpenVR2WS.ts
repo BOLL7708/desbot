@@ -1,12 +1,12 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigOpenVR2WS extends BaseDataObject {
+export class ConfigOpenVR2WS extends Data {
     port: number = 7708
     password: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigOpenVR2WS(),
             'Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS.',
             {

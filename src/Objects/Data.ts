@@ -1,8 +1,8 @@
 import Utils from '../Classes/Utils.js'
-import DataObjectMap, {TNoFunctions} from './DataObjectMap.js'
+import DataMap, {TNoFunctions} from './DataMap.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
-export type TBaseDataCategory =
+export type TDataCategory =
     string
     | 'Setting'
     | 'Config'
@@ -11,7 +11,7 @@ export type TBaseDataCategory =
     | 'Trigger'
     | 'Action'
 
-export default abstract class BaseDataObject {
+export default abstract class Data {
     /**
      * Should register this class in a suitable list.
      */
@@ -63,8 +63,8 @@ export default abstract class BaseDataObject {
      * Used to denote a generic object field that can contain any variant.
      * @param like Will show a list in the editor filtered on this as a starting word.
      */
-    static genericRef(like: TBaseDataCategory) {
-        return BaseDataObject.refId()+'|like='+like
+    static genericRef(like: TDataCategory) {
+        return Data.refId()+'|like='+like
     }
 
     // endregion
@@ -97,13 +97,13 @@ export default abstract class BaseDataObject {
         const possibleProperties = [...Object.keys(this), ...Object.keys(prototype)]
         for(const propertyName of possibleProperties) {
             let propertyValue = entryMap.has(propertyName) ? entryMap.get(propertyName) : undefined
-            propertyValue = BaseDataObject.convertCollection(thisClass, propertyName, propertyValue) // Convert to correct collection type
+            propertyValue = Data.convertCollection(thisClass, propertyName, propertyValue) // Convert to correct collection type
             if(propertyName.length > 0 && propertyValue !== undefined) {
                 // We cast to `any` in here to be able to set the props at all.
-                const types = DataObjectMap.getMeta(thisClass)?.types ?? {}
-                const typeValues = BaseDataObject.parseRef(types[propertyName] ?? '')
-                const hasSubInstance = DataObjectMap.hasInstance(typeValues.class)
-                const isBaseDataObject = typeValues.class == BaseDataObject.ref()
+                const types = DataMap.getMeta(thisClass)?.types ?? {}
+                const typeValues = Data.parseRef(types[propertyName] ?? '')
+                const hasSubInstance = DataMap.hasInstance(typeValues.class)
+                const isBaseDataObject = typeValues.class == Data.ref()
                 if((hasSubInstance || isBaseDataObject) && typeValues.isIdReference && fillReferences) {
                     // Populate reference list of IDs with the referenced object.
                     if (Array.isArray(propertyValue)) {
@@ -111,13 +111,13 @@ export default abstract class BaseDataObject {
                         const newProp: any[] = []
                         for (const id of propertyValue) {
                             const dbItem = await DataBaseHelper.loadById(id.toString())
-                            const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
+                            const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
                             if(typeValues.idToKey) {
                                 newProp.push(dbItem?.key ?? id)
                             } else if(emptyInstance && dbItem?.data) {
                                 newProp.push(await emptyInstance.__new(dbItem?.data ?? undefined, fillReferences))
                             } else {
-                                console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
+                                console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
                             }
                         }
                         (this as any)[propertyName] = newProp
@@ -127,26 +127,26 @@ export default abstract class BaseDataObject {
                         const newProp: { [key: string]: any } = {}
                         for (const [k, id] of Object.entries(propertyValue)) {
                             const dbItem = await DataBaseHelper.loadById(id?.toString())
-                            const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
+                            const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
                             if(typeValues.idToKey) {
                                 newProp[k] = dbItem?.key ?? id
                             } else if(emptyInstance) {
                                 newProp[k] = await emptyInstance.__new(dbItem?.data ?? undefined, fillReferences)
                             } else {
-                                console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}`)
+                                console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
                             }
                         }
                         (this as any)[propertyName] = newProp
                     } else {
                         // It is single instance
                         const dbItem = await DataBaseHelper.loadById(propertyValue)
-                        const emptyInstance = await DataObjectMap.getInstance(dbItem?.class ?? typeValues.class)
+                        const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
                         if(typeValues.idToKey) {
                             (this as any)[propertyName] = dbItem?.key ?? propertyValue
                         } else if(emptyInstance) {
                             (this as any)[propertyName] = await emptyInstance.__new(dbItem?.data ?? undefined, fillReferences)
                         } else {
-                            console.warn(`BaseDataObjects.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`)
+                            console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`)
                         }
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {
@@ -155,23 +155,23 @@ export default abstract class BaseDataObject {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
                         for(const v of propertyValue) {
-                            newProp.push(await DataObjectMap.getInstance(typeValues.class, v, fillReferences))
+                            newProp.push(await DataMap.getInstance(typeValues.class, v, fillReferences))
                         }
                         (this as any)[propertyName] = newProp
                     } else if (typeof propertyValue == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
                         for(const [k, v] of Object.entries(propertyValue)) {
-                            newProp[k] = await DataObjectMap.getInstance(typeValues.class, v as object|undefined, fillReferences)
+                            newProp[k] = await DataMap.getInstance(typeValues.class, v as object|undefined, fillReferences)
                         }
                         (this as any)[propertyName] = newProp
                     }
                 } else {
                     // Fill with single instance or basic values.
                     const singleInstanceType = (this as any)[propertyName]?.constructor.name ?? (prototype as any)[propertyName]?.constructor.name
-                    if(DataObjectMap.hasInstance(singleInstanceType) && !typeValues.isIdReference) {
+                    if(DataMap.hasInstance(singleInstanceType) && !typeValues.isIdReference) {
                         // It is a single instance class
-                        (this as any)[propertyName] = await DataObjectMap.getInstance(singleInstanceType, propertyValue, fillReferences)
+                        (this as any)[propertyName] = await DataMap.getInstance(singleInstanceType, propertyValue, fillReferences)
                     } else {
                         // It is a basic value, just set it.
                         const expectedType = typeof (this as any)[propertyName]
@@ -182,7 +182,7 @@ export default abstract class BaseDataObject {
                                 case 'string': correctedProp = propertyValue?.toString() ?? ''; break;
                                 case 'number': correctedProp = parseFloat(propertyValue?.toString() ?? 0); break;
                                 case 'boolean': correctedProp = Utils.toBool(propertyValue); break;
-                                default: console.warn(`BaseDataObjects.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`)
+                                default: console.warn(`Data.__apply: Unhandled field type for prop [${propertyName}] in [${thisClass}]: ${expectedType}`)
                             }
                         }
                         (this as any)[propertyName] = correctedProp
@@ -205,8 +205,8 @@ export default abstract class BaseDataObject {
      * @param props Optional properties to apply to the new instance, usually a plain object cast to the same class which is why we need to do this.
      * @param fillReferences Replace reference IDs with the referenced object.
      */
-    async __new<T>(props?: T&object, fillReferences: boolean = false): Promise<T&BaseDataObject> {
-        const obj = Object.create(this) as T&BaseDataObject // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
+    async __new<T>(props?: T&object, fillReferences: boolean = false): Promise<T&Data> {
+        const obj = Object.create(this) as T&Data // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
         await obj.__apply(props ?? {}, fillReferences) // Will run with empty just to lift properties from the prototype up to the class instance.
         return obj
     }
@@ -215,9 +215,9 @@ export default abstract class BaseDataObject {
         return await this.__new(Utils.clone(this), fillReferences)
     }
 
-    static parseRef(refStr: string): IBaseDataObjectRefValues {
+    static parseRef(refStr: string): IDataRefValues {
         const refArr = refStr.split('|')
-        const refValues: IBaseDataObjectRefValues = {
+        const refValues: IDataRefValues = {
             original: refStr,
             class: refArr.shift() ?? '',
             isIdReference: false,
@@ -245,7 +245,7 @@ export default abstract class BaseDataObject {
 
     static convertCollection(className: string, propertyName: string, collection: any): any {
         if(!collection) return collection
-        const originalProperty = (DataObjectMap.getMeta(className)?.instance as any)[propertyName]
+        const originalProperty = (DataMap.getMeta(className)?.instance as any)[propertyName]
         const originalIsArray = Array.isArray(originalProperty)
         const propertyIsArray = Array.isArray(collection)
         if(!propertyIsArray && originalIsArray) {
@@ -263,9 +263,9 @@ export default abstract class BaseDataObject {
     }
 }
 
-export class EmptyDataObject extends BaseDataObject { register() {} }
+export class EmptyData extends Data { register() {} }
 
-export interface IBaseDataObjectRefValues {
+export interface IDataRefValues {
     original: string
     class: string
     isIdReference: boolean

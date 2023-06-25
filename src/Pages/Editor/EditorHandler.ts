@@ -1,11 +1,11 @@
 import DataBaseHelper, {IDataBaseItem} from '../../Classes/DataBaseHelper.js'
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
-import BaseDataObject from '../../Objects/BaseDataObject.js'
-import DataObjectMap from '../../Objects/DataObjectMap.js'
+import Data from '../../Objects/Data.js'
+import DataMap from '../../Objects/DataMap.js'
 import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import RegisterObjects from '../../Objects/RegisterObjects.js'
+import RegisterData from '../../Objects/RegisterData.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -25,7 +25,7 @@ export default class EditorHandler {
     private _coverDiv: HTMLDivElement|undefined
 
     private async init() {
-        RegisterObjects.register()
+        RegisterData.run()
         TwitchHelixHelper.loadNamesForUsersWhoLackThem().then()
 
         window.onunload = (event)=>{
@@ -95,7 +95,7 @@ export default class EditorHandler {
             }
             const newKey = await prompt(`Provide a new key for this ${this._state.groupClass}:`, defaultKey)
             if(newKey && newKey.length > 0) {
-                const instance = await DataObjectMap.getInstance(this._state.groupClass)
+                const instance = await DataMap.getInstance(this._state.groupClass)
                 if(instance) {
                     const didSave = await DataBaseHelper.save(instance, newKey, undefined, this._state.parentId)
                     if(didSave) {
@@ -139,7 +139,7 @@ export default class EditorHandler {
         if(!this._sideMenuDiv) return // Side menu does not exist in minimal mode.
 
         const classesAndCounts = await DataBaseHelper.loadClassesWithCounts(this._state.likeFilter)
-        for(const className of DataObjectMap.getNames(this._state.likeFilter)) {
+        for(const className of DataMap.getNames(this._state.likeFilter)) {
             if(!classesAndCounts.hasOwnProperty(className)) {
                 // Add missing classes so they can still be edited
                 classesAndCounts[className] = 0
@@ -190,7 +190,7 @@ export default class EditorHandler {
 
         // Description
         const description = document.createElement('p') as HTMLParagraphElement
-        const descriptionText = DataObjectMap.getMeta(group)?.description ?? 'No description.'
+        const descriptionText = DataMap.getMeta(group)?.description ?? 'No description.'
         description.innerHTML = this.linkifyDescription(descriptionText)
 
         // Dropdown & editor
@@ -207,7 +207,7 @@ export default class EditorHandler {
             newKey: string = ''
         ): Promise<boolean> =>{
             await this.confirmSaveIfReplacingOrLeaving()
-            let instance: BaseDataObject|undefined
+            let instance: Data|undefined
             const resultingKey = newKey.length > 0
                 ? newKey
                 : this._state.forceMainKey
@@ -215,9 +215,9 @@ export default class EditorHandler {
                     : dropdown.value
             if(resultingKey.length > 0) {
                 const item = (items as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
-                instance = await DataObjectMap.getInstance(group, item?.data ?? {}) ?? item?.data ?? {} // The last ?? is for test settings that has no class.
+                instance = await DataMap.getInstance(group, item?.data ?? {}) ?? item?.data ?? {} // The last ?? is for test settings that has no class.
             } else {
-                instance = await DataObjectMap.getInstance(group, {})
+                instance = await DataMap.getInstance(group, {})
             }
             editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
             editorDeleteButton.innerHTML = this._state.forceMainKey
@@ -271,7 +271,7 @@ export default class EditorHandler {
             dropdown.id = 'dropdown'
             dropdownLabel.htmlFor = dropdown.id
             dropdownLabel.innerText = 'Entries: '
-            const keyMap = DataObjectMap.getMeta(group)?.keyMap
+            const keyMap = DataMap.getMeta(group)?.keyMap
             if(keyMap) dropdown.title = 'Key labels are mapped, the actual key is in the editor.'
             if(this._contentDiv && items) {
                 for(const item of items) {

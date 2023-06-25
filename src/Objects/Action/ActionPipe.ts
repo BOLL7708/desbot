@@ -1,19 +1,19 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
-export class ActionPipe extends BaseDataObject{
+export class ActionPipe extends Data{
     imagePathEntries: string[] = []
-    imagePathEntries_use = EnumEntryUsage.First
+    imagePathEntries_use = OptionEntryUsage.First
     imageDataEntries: string[] = []
-    imageDataEntries_use = EnumEntryUsage.First
+    imageDataEntries_use = OptionEntryUsage.First
     durationMs: number = 1000
     preset: number|PresetPipeCustom = 0
     texts: string[] = []
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionPipe(),
             'Trigger one or multiple pipe overlays.',
             {
@@ -24,9 +24,9 @@ export class ActionPipe extends BaseDataObject{
                 texts: 'If your custom notification includes text areas, this is where you add the texts that are to be used for it.'
             },{
                 imagePathEntries: 'string|file',
-                imagePathEntries_use: EnumEntryUsage.ref(),
+                imagePathEntries_use: OptionEntryUsage.ref(),
                 imageDataEntries: 'string',
-                imageDataEntries_use: EnumEntryUsage.ref(),
+                imageDataEntries_use: OptionEntryUsage.ref(),
                 preset: PresetPipeCustom.refId(),
                 texts: 'string'
             }

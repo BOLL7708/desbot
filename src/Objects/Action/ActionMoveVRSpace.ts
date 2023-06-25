@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ActionMoveVRSpace extends BaseDataObject{
+export class ActionMoveVRSpace extends Data{
     x: number = 0
     y: number = 0
     z: number = 0
@@ -9,7 +9,7 @@ export class ActionMoveVRSpace extends BaseDataObject{
     duration: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionMoveVRSpace(),
             'Used to move the SteamVR play space.',
             {

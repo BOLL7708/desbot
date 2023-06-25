@@ -1,13 +1,13 @@
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
 
-export class TriggerTimer extends BaseDataObject {
+export class TriggerTimer extends Data {
     interval: number = 10
     repetitions: number = 1
     initialDelay: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new TriggerTimer(),
             'Optional: Have something happen automatically on a timer.',
             {

@@ -1,20 +1,20 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
-export class ActionOBS extends BaseDataObject {
+export class ActionOBS extends Data {
     sceneEntries: (number|PresetOBSScene)[] = []
-    sceneEntries_use = EnumEntryUsage.All
+    sceneEntries_use = OptionEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
-    sourceEntries_use = EnumEntryUsage.All
+    sourceEntries_use = OptionEntryUsage.All
     filterEntries: ActionOBSFilter[] = []
-    filterEntries_use = EnumEntryUsage.All
+    filterEntries_use = OptionEntryUsage.All
     durationMs: number = 0
     state: boolean = true
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionOBS(),
             'Used to toggle OBS sources or filters.',
             {
@@ -26,21 +26,21 @@ export class ActionOBS extends BaseDataObject {
             },
             {
                 sceneEntries: PresetOBSScene.refId(),
-                sceneEntries_use: EnumEntryUsage.ref(),
+                sceneEntries_use: OptionEntryUsage.ref(),
                 sourceEntries: ActionOBSSource.ref(),
-                sourceEntries_use: EnumEntryUsage.ref(),
+                sourceEntries_use: OptionEntryUsage.ref(),
                 filterEntries: ActionOBSFilter.ref(),
-                filterEntries_use: EnumEntryUsage.ref()
+                filterEntries_use: OptionEntryUsage.ref()
             }
         )
     }
 }
-export class ActionOBSSource extends BaseDataObject {
+export class ActionOBSSource extends Data {
     scenePreset: number|PresetOBSScene = 0
     sourcePreset: number|PresetOBSSource = 0
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ActionOBSSource(),
             {
                 scenePreset: 'The scene the source is in.'
@@ -51,12 +51,12 @@ export class ActionOBSSource extends BaseDataObject {
         )
     }
 }
-export class ActionOBSFilter extends BaseDataObject {
+export class ActionOBSFilter extends Data {
     sourcePreset: number|PresetOBSSource = 0
     filterPreset: number|PresetOBSFilter = 0
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ActionOBSFilter(),
             {
                 sourcePreset: 'The source the filter attached to.'

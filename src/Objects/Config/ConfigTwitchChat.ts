@@ -1,10 +1,10 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
-export default class ConfigTwitchChat extends BaseDataObject {
+export default class ConfigTwitchChat extends Data {
     pipePreset: (number|PresetPipeCustom) = 0
     pipePreset_forMs: number = 5000
     soundEffectOnEmptyMessage: (number|ActionAudio) = 0
@@ -12,7 +12,7 @@ export default class ConfigTwitchChat extends BaseDataObject {
     logToDiscord: number|PresetDiscordWebhook = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigTwitchChat(),
             'Settings for how to handle Twitch Chat for various systems.',
             {

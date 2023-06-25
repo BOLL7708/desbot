@@ -1,5 +1,5 @@
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback} from '../Action.js'
 import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
@@ -8,7 +8,7 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionAudio extends Action {
     srcEntries: string[] = []
-    srcEntries_use = EnumEntryUsage.First
+    srcEntries_use = OptionEntryUsage.First
     volume: number = 1.0
     nonce: string = ''
     repeat: number = 1
@@ -16,7 +16,7 @@ export class ActionAudio extends Action {
     onTTSQueue: boolean = true
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionAudio(),
             'Trigger audio clips.',
             {
@@ -28,7 +28,7 @@ export class ActionAudio extends Action {
                 onTTSQueue: 'If true, the audio will be queued with TTS to play after the current speech is finished.'
             }, {
                 srcEntries: 'string|file',
-                srcEntries_use: EnumEntryUsage.ref()
+                srcEntries_use: OptionEntryUsage.ref()
             }
         )
     }

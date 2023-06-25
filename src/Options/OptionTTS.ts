@@ -1,14 +1,14 @@
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
-import {BaseEnum} from '../Objects/BaseEnum.js'
+import {OptionsMap} from './OptionsMap.js'
+import {Option} from './Option.js'
 
-export class EnumTTSType extends BaseEnum {
+export class OptionTTSType extends Option {
     static readonly Said = 100 //
     static readonly Action = 200 // [name] [text]
     static readonly Announcement = 300 // [text]
     static readonly Cheer = 400// [name] cheered: [text]
 }
-EnumObjectMap.addPrototype(
-    EnumTTSType,
+OptionsMap.addPrototype(
+    OptionTTSType,
     'The various forms of TTS speech.',
     {
         Said: 'Will be read as -> [name] said: [text]',
@@ -18,7 +18,7 @@ EnumObjectMap.addPrototype(
     }
 )
 
-export class EnumTTSFunctionType extends BaseEnum {
+export class OptionTTSFunctionType extends Option {
     static readonly Enable = 100
     static readonly Disable = 101
     static readonly StopCurrent = 110
@@ -34,8 +34,8 @@ export class EnumTTSFunctionType extends BaseEnum {
     static readonly SetDictionaryEntry = 300
     static readonly GetDictionaryEntry = 301
 }
-EnumObjectMap.addPrototype(
-    EnumTTSFunctionType,
+OptionsMap.addPrototype(
+    OptionTTSFunctionType,
     'The different functions an action can trigger for the TTS system.',
     {
         Enable: 'Will enable the TTS as a whole.',

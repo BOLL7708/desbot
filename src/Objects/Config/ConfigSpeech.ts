@@ -1,8 +1,8 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
 
-export class ConfigSpeech extends BaseDataObject {
+export class ConfigSpeech extends Data {
     googleApiKey: string = ''
     speakerTimeoutMs: number = 10000
     randomizeVoice: boolean = true
@@ -14,7 +14,7 @@ export class ConfigSpeech extends BaseDataObject {
     dictionaryConfig = new ConfigSpeechDictionary()
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigSpeech(),
             'These are settings for the Google Text-to-Speech API.\nGo here for more details: https://cloud.google.com/text-to-speech/docs/before-you-begin',
             {
@@ -34,13 +34,13 @@ export class ConfigSpeech extends BaseDataObject {
         )
     }
 }
-export class ConfigSpeechDictionary extends BaseDataObject {
+export class ConfigSpeechDictionary extends Data {
     skipForAnnouncements: boolean = true
     replaceWordsWithAudio: boolean = true
     wordToAudioConfig: { [key:string]: ConfigSpeechWordToAudio } = {}
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigSpeechDictionary(),
             {
                 skipForAnnouncements: 'Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.',
@@ -53,11 +53,11 @@ export class ConfigSpeechDictionary extends BaseDataObject {
         )
     }
 }
-export class ConfigSpeechWordToAudio extends BaseDataObject {
+export class ConfigSpeechWordToAudio extends Data {
     src: string[] = []
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigSpeechWordToAudio(),
             {},
             {

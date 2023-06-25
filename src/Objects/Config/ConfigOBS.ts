@@ -1,8 +1,8 @@
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
 import {EventDefault} from '../Event/EventDefault.js'
 
-export default class ConfigOBS extends BaseDataObject {
+export default class ConfigOBS extends Data {
     port: number = 4455
     password: string = ''
     saveScreenshotsToFilePath: string = ''
@@ -10,7 +10,7 @@ export default class ConfigOBS extends BaseDataObject {
     filterEventGroups: { [key: string]: ConfigOBSEventGroups } = {}
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigOBS(),
             'Enables a secure connection to OBS Studio for remote functions through the OBS WebSockets plugin.',
             {
@@ -28,11 +28,11 @@ export default class ConfigOBS extends BaseDataObject {
         )
     }
 }
-export class ConfigOBSEventGroups extends BaseDataObject {
+export class ConfigOBSEventGroups extends Data {
     members: (number|string)[] = []
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigOBSEventGroups(),
             {},
             {

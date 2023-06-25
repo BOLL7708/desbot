@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class SettingStreamQuote extends BaseDataObject {
+export class SettingStreamQuote extends Data {
     quoterUserId: number = 0
     quoteeUserId: number = 0
     quote: string = ''
@@ -9,6 +9,6 @@ export class SettingStreamQuote extends BaseDataObject {
     game: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(new SettingStreamQuote())
+        DataMap.addRootInstance(new SettingStreamQuote())
     }
 }

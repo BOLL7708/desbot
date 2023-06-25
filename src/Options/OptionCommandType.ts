@@ -1,12 +1,12 @@
-import {BaseEnum} from '../Objects/BaseEnum.js'
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
+import {Option} from './Option.js'
+import {OptionsMap} from './OptionsMap.js'
 
-export class EnumCommandType extends BaseEnum {
+export class OptionCommandType extends Option {
     static readonly Keys = 100
     static readonly Mouse = 200
 }
-EnumObjectMap.addPrototype(
-    EnumCommandType,
+OptionsMap.addPrototype(
+    OptionCommandType,
     'What type of input to trigger with in the action.',
     {
         Keys: 'Will simulate keyboard input.',

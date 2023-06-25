@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class SettingUser extends BaseDataObject {
+export class SettingUser extends Data {
     userName: string = ''
     displayName: string = ''
     voice = new SettingUserVoice()
@@ -12,7 +12,7 @@ export class SettingUser extends BaseDataObject {
     raid = new SettingUserRaid()
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new SettingUser(),
             'Main settings object for a Twitch user.',
             {
@@ -26,59 +26,59 @@ export class SettingUser extends BaseDataObject {
     }
 }
 
-export class SettingUserVoice extends BaseDataObject {
+export class SettingUserVoice extends Data {
     languageCode: string = ''
     voiceName: string = ''
     gender: string = ''
     datetime: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(new SettingUserVoice())
+        DataMap.addSubInstance(new SettingUserVoice())
     }
 }
-export class SettingUserName extends BaseDataObject {
+export class SettingUserName extends Data {
     shortName: string = ''
     editorUserId: number = 0
     datetime: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(new SettingUserName())
+        DataMap.addSubInstance(new SettingUserName())
     }
 }
-export class SettingUserMute extends BaseDataObject {
+export class SettingUserMute extends Data {
     active: boolean = false
     reason: string = ''
     moderatorUserId: number = 0
     datetime: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(new SettingUserMute())
+        DataMap.addSubInstance(new SettingUserMute())
     }
 }
-export class SettingUserSub extends BaseDataObject {
+export class SettingUserSub extends Data {
     totalMonths: number = 0
     streakMonths: number = 0
     datetime: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(new SettingUserSub())
+        DataMap.addSubInstance(new SettingUserSub())
     }
 }
-export class SettingUserCheer extends BaseDataObject {
+export class SettingUserCheer extends Data {
     totalBits: number = 0
     lastBits: number = 0
     datetime: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(new SettingUserCheer())
+        DataMap.addSubInstance(new SettingUserCheer())
     }
 }
-export class SettingUserRaid extends BaseDataObject {
+export class SettingUserRaid extends Data {
     totalRaiders: number = 0
     lastRaid: number = 0
     datetime: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(new SettingUserRaid())
+        DataMap.addSubInstance(new SettingUserRaid())
     }
 }

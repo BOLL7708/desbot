@@ -1,9 +1,9 @@
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
-export class ConfigSteam extends BaseDataObject {
+export class ConfigSteam extends Data {
     steamWebApiKey: string = ''
     steamUserId: string = ''
     playerSummaryIntervalMs: number = 60000
@@ -15,7 +15,7 @@ export class ConfigSteam extends BaseDataObject {
     ignoredAppIds: string[] = []
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigSteam(),
             'Loading player and game data from the Steam Web API requires API keys set in credentials.\nGet your Steam Web API Key here: https://steamcommunity.com/dev\nGet your Steam User ID from https://steamid.io or https://www.steamidfinder.com.',
             {

@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigSign extends BaseDataObject {
+export class ConfigSign extends Data {
     direction: string = 'left'
     enabled: boolean = true
     fontColor: string = '#FFFFFF'
@@ -12,7 +12,7 @@ export class ConfigSign extends BaseDataObject {
     transitionDurationMs: number = 500
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigSign(),
             'The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.',
             {

@@ -1,8 +1,8 @@
 import {IStringDictionary} from '../Interfaces/igeneral.js'
-import {DataObjectMeta} from './DataObjectMap.js'
-import {EnumMeta} from './EnumObjectMap.js'
+import {DataObjectMeta} from './DataMap.js'
+import {EnumMeta} from '../Options/OptionsMap.js'
 
-export class BaseMeta {
+export class DataMeta {
     description?: string
     documentation?: IStringDictionary
     types?: IStringDictionary

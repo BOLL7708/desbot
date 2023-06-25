@@ -2,9 +2,9 @@ import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 import {IAudioAction, IPipeAction} from '../Interfaces/iactions.js'
 import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
-import {EnumSystemActionType} from '../Enums/SystemActionType.js'
+import {OptionSystemActionType} from '../Options/OptionSystemActionType.js'
 import {ActionPipe} from '../Objects/Action/ActionPipe.js'
-import {EnumEntryUsage} from '../Enums/EntryType.js'
+import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 
 export default class TempFactory {
     static configAudio(audioConfig: ActionAudio): IAudioAction {
@@ -27,50 +27,50 @@ export default class TempFactory {
 
     static arrayType(type: number): number {
         switch(type) {
-            case 0: return EnumEntryUsage.All.valueOf()
-            case 1: return EnumEntryUsage.OneRandom.valueOf()
-            case 2: return EnumEntryUsage.AllRandom.valueOf()
-            case 3: return EnumEntryUsage.OneSpecific.valueOf()
+            case 0: return OptionEntryUsage.All.valueOf()
+            case 1: return OptionEntryUsage.OneRandom.valueOf()
+            case 2: return OptionEntryUsage.AllRandom.valueOf()
+            case 3: return OptionEntryUsage.OneSpecific.valueOf()
         }
-        return EnumEntryUsage.All.valueOf()
+        return OptionEntryUsage.All.valueOf()
     }
 
     static keyToActionCallbackEnum(key: TKeys): number {
         switch(key) {
-            case 'Chat': return EnumSystemActionType.Chat
-            case 'ChatOn': return EnumSystemActionType.ChatOn
-            case 'ChatOff': return EnumSystemActionType.ChatOff
-            case 'PingOn': return EnumSystemActionType.PingOn
-            case 'PingOff': return EnumSystemActionType.PingOff
-            case 'Mod': return EnumSystemActionType.Mod
-            case 'UnMod': return EnumSystemActionType.UnMod
-            case 'Vip': return EnumSystemActionType.Vip
-            case 'UnVip': return EnumSystemActionType.UnVip
-            case 'Quote': return EnumSystemActionType.Quote
-            case 'LogOn': return EnumSystemActionType.LogOn
-            case 'LogOff': return EnumSystemActionType.LogOff
-            case 'Scale': return EnumSystemActionType.Scale
-            case 'Brightness': return EnumSystemActionType.Brightness
-            case 'RefreshRate': return EnumSystemActionType.RefreshRate
-            case 'VrViewEye': return EnumSystemActionType.VrViewEye
-            case 'UpdateRewards': return EnumSystemActionType.UpdateRewards
-            case 'GameRewardsOn': return EnumSystemActionType.GameRewardsOn
-            case 'GameRewardsOff': return EnumSystemActionType.GameRewardsOff
-            case 'RefundRedemption': return EnumSystemActionType.RefundRedemption
-            case 'ClearRedemptions': return EnumSystemActionType.ClearRedemptions
-            case 'ChannelTrophy': return EnumSystemActionType.ChannelTrophy
-            case 'ResetIncrementingEvents': return EnumSystemActionType.ResetIncrementingEvents
-            case 'ResetAccumulatingEvents': return EnumSystemActionType.ResetAccumulatingEvents
-            case 'ReloadWidget': return EnumSystemActionType.ReloadWidget
-            case 'ChannelTrophyStats': return EnumSystemActionType.ChannelTrophyStats
-            case 'GameReset': return EnumSystemActionType.GameReset
-            case 'RemoteOn': return EnumSystemActionType.RemoteOn
-            case 'RemoteOff': return EnumSystemActionType.RemoteOff
-            case 'HelpToDiscord': return EnumSystemActionType.HelpToDiscord
-            case 'HelpToChat': return EnumSystemActionType.HelpToChat
-            case 'Clips': return EnumSystemActionType.Clips
-            case 'Raid': return EnumSystemActionType.Raid
-            case 'Unraid': return EnumSystemActionType.Unraid
+            case 'Chat': return OptionSystemActionType.Chat
+            case 'ChatOn': return OptionSystemActionType.ChatOn
+            case 'ChatOff': return OptionSystemActionType.ChatOff
+            case 'PingOn': return OptionSystemActionType.PingOn
+            case 'PingOff': return OptionSystemActionType.PingOff
+            case 'Mod': return OptionSystemActionType.Mod
+            case 'UnMod': return OptionSystemActionType.UnMod
+            case 'Vip': return OptionSystemActionType.Vip
+            case 'UnVip': return OptionSystemActionType.UnVip
+            case 'Quote': return OptionSystemActionType.Quote
+            case 'LogOn': return OptionSystemActionType.LogOn
+            case 'LogOff': return OptionSystemActionType.LogOff
+            case 'Scale': return OptionSystemActionType.Scale
+            case 'Brightness': return OptionSystemActionType.Brightness
+            case 'RefreshRate': return OptionSystemActionType.RefreshRate
+            case 'VrViewEye': return OptionSystemActionType.VrViewEye
+            case 'UpdateRewards': return OptionSystemActionType.UpdateRewards
+            case 'GameRewardsOn': return OptionSystemActionType.GameRewardsOn
+            case 'GameRewardsOff': return OptionSystemActionType.GameRewardsOff
+            case 'RefundRedemption': return OptionSystemActionType.RefundRedemption
+            case 'ClearRedemptions': return OptionSystemActionType.ClearRedemptions
+            case 'ChannelTrophy': return OptionSystemActionType.ChannelTrophy
+            case 'ResetIncrementingEvents': return OptionSystemActionType.ResetIncrementingEvents
+            case 'ResetAccumulatingEvents': return OptionSystemActionType.ResetAccumulatingEvents
+            case 'ReloadWidget': return OptionSystemActionType.ReloadWidget
+            case 'ChannelTrophyStats': return OptionSystemActionType.ChannelTrophyStats
+            case 'GameReset': return OptionSystemActionType.GameReset
+            case 'RemoteOn': return OptionSystemActionType.RemoteOn
+            case 'RemoteOff': return OptionSystemActionType.RemoteOff
+            case 'HelpToDiscord': return OptionSystemActionType.HelpToDiscord
+            case 'HelpToChat': return OptionSystemActionType.HelpToChat
+            case 'Clips': return OptionSystemActionType.Clips
+            case 'Raid': return OptionSystemActionType.Raid
+            case 'Unraid': return OptionSystemActionType.Unraid
         }
         return 0
     }

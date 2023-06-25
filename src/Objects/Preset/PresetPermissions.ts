@@ -1,7 +1,7 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class PresetPermissions extends BaseDataObject {
+export class PresetPermissions extends Data {
     streamer: boolean = true
     moderators: boolean = false
     VIPs: boolean = false
@@ -9,7 +9,7 @@ export class PresetPermissions extends BaseDataObject {
     everyone: boolean = false
 
     register() {
-        DataObjectMap.addRootInstance(new PresetPermissions(),
+        DataMap.addRootInstance(new PresetPermissions(),
             'Permission regarding who can trigger this command in the chat.',
             {
                 streamer: 'The channel owner/streamer.',

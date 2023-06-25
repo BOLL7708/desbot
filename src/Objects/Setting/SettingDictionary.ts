@@ -1,12 +1,12 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class SettingDictionaryEntry extends BaseDataObject {
+export class SettingDictionaryEntry extends Data {
     substitute: string = ''
     editorUserId: number = 0
     datetime: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(new SettingDictionaryEntry())
+        DataMap.addRootInstance(new SettingDictionaryEntry())
     }
 }

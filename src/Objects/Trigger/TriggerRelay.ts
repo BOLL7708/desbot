@@ -1,12 +1,12 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {TriggerCheer} from './TriggerCheer.js'
 
-export class TriggerRelay extends BaseDataObject {
+export class TriggerRelay extends Data {
     key: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new TriggerRelay(),
             'A relay message from WSRelay',
             {

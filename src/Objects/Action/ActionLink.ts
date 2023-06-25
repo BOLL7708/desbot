@@ -1,13 +1,13 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
-export class ActionLink extends BaseDataObject {
+export class ActionLink extends Data {
     entries: string[] = []
-    entries_use = EnumEntryUsage.First
+    entries_use = OptionEntryUsage.First
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionLink(),
             'Loads http/https or custom URI schema link(s) silently in the background.',
             {
@@ -15,7 +15,7 @@ export class ActionLink extends BaseDataObject {
             },
             {
                 entries: 'string',
-                entries_use: EnumEntryUsage.ref()
+                entries_use: OptionEntryUsage.ref()
             }
         )
     }

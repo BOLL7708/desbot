@@ -1,18 +1,18 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetReward} from '../Preset/PresetReward.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
-export class TriggerReward extends BaseDataObject {
+export class TriggerReward extends Data {
     permissions: number|PresetPermissions = 0
     rewardID: (number|string) = 0
-    rewardEntries: (number|BaseDataObject)[] = []
-    rewardEntriesType = EnumEntryUsage.All
+    rewardEntries: (number|Data)[] = []
+    rewardEntriesType = OptionEntryUsage.All
 
     register() {
-        DataObjectMap.addRootInstance(new TriggerReward(),
+        DataMap.addRootInstance(new TriggerReward(),
             'This is a Twitch Channel Point Reward, triggered by a redemption on your channel page.',
             {
                 permissions: 'Permission for who can redeem this reward.',
@@ -22,8 +22,8 @@ export class TriggerReward extends BaseDataObject {
             {
                 permissions: PresetPermissions.refId(),
                 rewardID: SettingTwitchReward.refIdKeyLabel(),
-                rewardEntries: BaseDataObject.genericRef('PresetReward'),
-                rewardEntriesType: EnumEntryUsage.ref()
+                rewardEntries: Data.genericRef('PresetReward'),
+                rewardEntriesType: OptionEntryUsage.ref()
             }
         )
     }

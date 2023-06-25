@@ -1,16 +1,16 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumCommandType} from '../../Enums/CommandType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionCommandType} from '../../Options/OptionCommandType.js'
 
-export class ActionInput extends BaseDataObject{
+export class ActionInput extends Data{
     window: string = ''
     commands: ActionInputCommand[] = []
-    type = EnumCommandType.Keys
+    type = OptionCommandType.Keys
     duration: number = 0
     postfixEnterStroke: boolean = false
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionInput(),
             'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
             {
@@ -22,19 +22,19 @@ export class ActionInput extends BaseDataObject{
             },
             {
                 commands: ActionInputCommand.ref(),
-                type: EnumCommandType.ref()
+                type: OptionCommandType.ref()
             }
         )
     }
 }
 
-export class ActionInputCommand extends BaseDataObject {
+export class ActionInputCommand extends Data {
     command: string[] = []
     value: string = ''
     defaultValue: string = ''
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ActionInputCommand(),
             {
                 command: 'Full command(s).',

@@ -1,21 +1,21 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
 // TODO: Incomplete as it doesn't really work now anyway.
-export class ActionWhisper extends BaseDataObject {
+export class ActionWhisper extends Data {
     entries: string[] = []
-    entries_use = EnumEntryUsage.First
+    entries_use = OptionEntryUsage.First
     user: string = '' // TODO: Change to whichever way we reference users in the future.
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionWhisper(),
             'Send a whisper message to a Twitch user.',
             {},
             {
                 entries: 'string',
-                entries_use: EnumEntryUsage.ref()
+                entries_use: OptionEntryUsage.ref()
             }
         )
     }

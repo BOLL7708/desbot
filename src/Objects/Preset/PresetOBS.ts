@@ -1,11 +1,11 @@
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
 
-export class PresetOBSScene extends BaseDataObject {
+export class PresetOBSScene extends Data {
     sceneName: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetOBSScene(),
             'An OBS scene referenced by name.',
             {
@@ -14,11 +14,11 @@ export class PresetOBSScene extends BaseDataObject {
         )
     }
 }
-export class PresetOBSSource extends BaseDataObject {
+export class PresetOBSSource extends Data {
     sourceName: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetOBSSource(),
             'An OBS source referenced by name.',
             {
@@ -27,11 +27,11 @@ export class PresetOBSSource extends BaseDataObject {
         )
     }
 }
-export class PresetOBSFilter extends BaseDataObject {
+export class PresetOBSFilter extends Data {
     filterName: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new PresetOBSFilter(),
             'An OBS filter referenced by name.',
             {

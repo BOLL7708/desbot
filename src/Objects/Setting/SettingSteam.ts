@@ -1,11 +1,11 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class SettingSteamAchievements extends BaseDataObject {
+export class SettingSteamAchievements extends Data {
     achieved: string[] = []
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new SettingSteamAchievements(),
             undefined,
             undefined,
@@ -13,11 +13,11 @@ export class SettingSteamAchievements extends BaseDataObject {
         )
     }
 }
-export class SettingSteamGame extends BaseDataObject {
+export class SettingSteamGame extends Data {
     title: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new SettingSteamGame(), '', {}, {}, 'title'
         )
     }

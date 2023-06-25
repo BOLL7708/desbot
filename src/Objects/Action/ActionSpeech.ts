@@ -1,19 +1,19 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumTTSType} from '../../Enums/TTS.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionTTSType} from '../../Options/OptionTTS.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {SettingUser, SettingUserVoice} from '../Setting/SettingUser.js'
 
-export class ActionSpeech extends BaseDataObject {
+export class ActionSpeech extends Data {
     entries: string[] = []
-    entries_use = EnumEntryUsage.First
+    entries_use = OptionEntryUsage.First
     skipDictionary: boolean = false
     voiceOfUser: number|SettingUserVoice = 0
     voiceOfUsername: string = ''
-    type = EnumTTSType.Announcement
+    type = OptionTTSType.Announcement
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionSpeech(),
             'Trigger the TTS to read a message.',
             {
@@ -24,9 +24,9 @@ export class ActionSpeech extends BaseDataObject {
             },
             {
                 entries: 'string',
-                entries_use: EnumEntryUsage.ref(),
+                entries_use: OptionEntryUsage.ref(),
                 voiceOfUser: SettingUser.refIdKeyLabel(),
-                type: EnumTTSType.ref()
+                type: OptionTTSType.ref()
             }
         )
     }

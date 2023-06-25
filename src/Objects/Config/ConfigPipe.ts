@@ -1,10 +1,10 @@
-import BaseDataObject from '../BaseDataObject.js'
+import Data from '../Data.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
 import {TKeys} from '../../_data/!keys.js'
-import DataObjectMap from '../DataObjectMap.js'
+import DataMap from '../DataMap.js'
 import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.js'
 
-export class ConfigPipe extends BaseDataObject {
+export class ConfigPipe extends Data {
     port: number = 8077
     showRewardsWithKeys: TKeys[] = [] // TODO: Switch to IDs later.
     useCustomChatNotification: boolean = false
@@ -14,7 +14,7 @@ export class ConfigPipe extends BaseDataObject {
     cleanTextConfig = new ConfigCleanText()
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigPipe(),
             'In-VR-overlays and notifications with: https://github.com/BOLL7708/OpenVRNotificationPipe',
             {
@@ -33,7 +33,7 @@ export class ConfigPipe extends BaseDataObject {
     }
 }
 
-export class ConfigPipeCustomMessage extends BaseDataObject {
+export class ConfigPipeCustomMessage extends Data {
     width: number = 1024
     top: number = 128
     margin: number = 32
@@ -42,24 +42,24 @@ export class ConfigPipeCustomMessage extends BaseDataObject {
     font = new ConfigImageEditorFontSettings()
 
     register() {
-        DataObjectMap.addSubInstance(new ConfigPipeCustomMessage())
+        DataMap.addSubInstance(new ConfigPipeCustomMessage())
     }
 }
-export class ConfigPipeCustomMessageName extends BaseDataObject {
+export class ConfigPipeCustomMessageName extends Data {
     rect = new ConfigImageEditorRect()
     font = new ConfigImageEditorFontSettings()
 
     register() {
-        DataObjectMap.addSubInstance(new ConfigPipeCustomMessageName())
+        DataMap.addSubInstance(new ConfigPipeCustomMessageName())
     }
 }
-export class ConfigPipeCustomMessageAvatar extends BaseDataObject {
+export class ConfigPipeCustomMessageAvatar extends Data {
     cornerRadius: number = 24
     rect = new ConfigImageEditorRect()
     outlines: ConfigImageEditorOutline[] = []
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigPipeCustomMessageAvatar(),
             {
                 cornerRadius: 'The corner radius of the user avatar.\n-1 = Circle.\n0 = Square.\n\>0 = Pixel radius of the rounded corner.',

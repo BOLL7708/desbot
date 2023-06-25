@@ -1,14 +1,14 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ActionSign extends BaseDataObject{
+export class ActionSign extends Data{
     title: string = ''
     imageSrc: string = ''
     subtitle: string = ''
     durationMs: number = 5000
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionSign(),
             'Show a pop-in message in the browser source for the widget.',
             {

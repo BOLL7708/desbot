@@ -1,15 +1,15 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetOBSSource} from '../Preset/PresetOBS.js'
-import {EnumScreenshotType} from '../../Enums/ScreenshotType.js'
+import {OptionScreenshotType} from '../../Options/OptionScreenshotType.js'
 
-export class ActionScreenshot extends BaseDataObject {
-    screenshot_use = EnumScreenshotType.SuperScreenShotterVR
+export class ActionScreenshot extends Data {
+    screenshot_use = OptionScreenshotType.SuperScreenShotterVR
     sourcePreset: number|PresetOBSSource = 0
     delay: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionScreenshot(),
             'Trigger OBS or VR screenshots.',
             {
@@ -18,7 +18,7 @@ export class ActionScreenshot extends BaseDataObject {
                 delay: 'A delay in seconds before triggering the screenshot.'
             },
             {
-                screenshot_use: EnumScreenshotType.ref(),
+                screenshot_use: OptionScreenshotType.ref(),
                 sourcePreset: PresetOBSSource.refId()
             }
         )

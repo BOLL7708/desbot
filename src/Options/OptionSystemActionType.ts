@@ -1,10 +1,10 @@
-import {BaseEnum} from '../Objects/BaseEnum.js'
-import {EnumObjectMap} from '../Objects/EnumObjectMap.js'
+import {Option} from './Option.js'
+import {OptionsMap} from './OptionsMap.js'
 
 /**
  * These are basically things happening in the widget that are not customizable actions, but hard-coded ones.
  */
-export class EnumSystemActionType extends BaseEnum {
+export class OptionSystemActionType extends Option {
     static readonly None = 0
 
     static readonly Chat = 1000
@@ -46,7 +46,7 @@ export class EnumSystemActionType extends BaseEnum {
     static readonly ResetIncrementingEvents = 9600
     static readonly ResetAccumulatingEvents = 9700
 }
-EnumObjectMap.addPrototype(
-    EnumSystemActionType,
+OptionsMap.addPrototype(
+    OptionSystemActionType,
     'References to system features that are not individual actions.',
 )

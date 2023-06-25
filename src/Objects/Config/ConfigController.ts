@@ -1,15 +1,15 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
-export class ConfigController extends BaseDataObject {
+export class ConfigController extends Data {
     secretChatSymbols: string[] = ['!', 'ℹ']
     stateDefaults = new ConfigControllerStateDefaults()
     useWebsockets = new ConfigControllerWebsocketsUsed()
     channelTrophySettings = new ConfigControllerChannelTrophySettings()
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigController(),
             'These are the settings for MainController, the main class that connects all the different modules together.',
             {
@@ -22,7 +22,7 @@ export class ConfigController extends BaseDataObject {
         )
     }
 }
-export class ConfigControllerStateDefaults extends BaseDataObject {
+export class ConfigControllerStateDefaults extends Data {
     pipeAllChat: boolean = true
     ttsForAll: boolean = true
     pingForChat: boolean = true
@@ -32,7 +32,7 @@ export class ConfigControllerStateDefaults extends BaseDataObject {
     runRemoteCommands: boolean = true
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigControllerStateDefaults(),
             {
                 pipeAllChat: 'Turn this on to get chat messages as notifications in SteamVR.',
@@ -46,7 +46,7 @@ export class ConfigControllerStateDefaults extends BaseDataObject {
         )
     }
 }
-export class ConfigControllerWebsocketsUsed extends BaseDataObject {
+export class ConfigControllerWebsocketsUsed extends Data {
     twitchChat: boolean = true
     twitchEventSub: boolean = true
     obs: boolean = true
@@ -57,7 +57,7 @@ export class ConfigControllerWebsocketsUsed extends BaseDataObject {
     // sdrelay: boolean = true // TODO
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigControllerWebsocketsUsed(),
             {
                 twitchChat: 'Twitch Chat connection, for chat messages.',
@@ -73,7 +73,7 @@ export class ConfigControllerWebsocketsUsed extends BaseDataObject {
         )
     }
 }
-export class ConfigControllerChannelTrophySettings extends BaseDataObject {
+export class ConfigControllerChannelTrophySettings extends Data {
     label: string = '🏆 Channel Trophy #%number\n%userName'
     rewardTitle: string = '🏆 Held by %userName!'
     rewardPrompt: string = 'Currently held by %userName! %prompt Now costs %number points!'
@@ -85,7 +85,7 @@ export class ConfigControllerChannelTrophySettings extends BaseDataObject {
     uniqueNumbers: { [number: number]: ConfigControllerChannelTrophyNumber } = {}
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigControllerChannelTrophySettings(),
             {
                 label: 'The label that is written to disk.\n\nThe tag %number is the trophy number, and %name is the name of the redeemer.',
@@ -105,12 +105,12 @@ export class ConfigControllerChannelTrophySettings extends BaseDataObject {
         )
     }
 }
-export class ConfigControllerChannelTrophyNumber extends BaseDataObject {
+export class ConfigControllerChannelTrophyNumber extends Data {
     speech: string = '%start is a good trophy, number %number!'
     label: string = '😀 A Happy Trophy!'
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigControllerChannelTrophyNumber(),
             {
                 speech: 'The tag %start is based on ttsName and %number is the number of the trophy.',

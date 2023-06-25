@@ -1,16 +1,16 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
-export class ActionPhilipsHuePlug extends BaseDataObject {
+export class ActionPhilipsHuePlug extends Data {
     entries: number[] = []
-    entries_use = EnumEntryUsage.All
+    entries_use = OptionEntryUsage.All
     originalState: boolean = false
     triggerState: boolean = true
     duration: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionPhilipsHuePlug(),
             'Trigger Philips Hue plug changes.',
             {
@@ -21,7 +21,7 @@ export class ActionPhilipsHuePlug extends BaseDataObject {
             },
             {
                 entries: 'number',
-                entries_use: EnumEntryUsage.ref()
+                entries_use: OptionEntryUsage.ref()
             }
         )
     }

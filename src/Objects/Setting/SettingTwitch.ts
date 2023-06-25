@@ -1,17 +1,17 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 import {TTwitchEventSubEventStatus} from '../../Interfaces/itwitch_eventsub.js'
 
-export class SettingTwitchClient extends BaseDataObject {
+export class SettingTwitchClient extends Data {
     clientId: string = ''
     clientSecret: string = ''
     redirectUri: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(new SettingTwitchClient())
+        DataMap.addRootInstance(new SettingTwitchClient())
     }
 }
-export class SettingTwitchTokens extends BaseDataObject {
+export class SettingTwitchTokens extends Data {
     userLogin: string = ''
     userId: number = 0
     refreshToken: string = ''
@@ -19,15 +19,15 @@ export class SettingTwitchTokens extends BaseDataObject {
     scopes: string = ''
 
     register() {
-        DataObjectMap.addRootInstance(new SettingTwitchTokens())
+        DataMap.addRootInstance(new SettingTwitchTokens())
     }
 }
-export class SettingTwitchReward extends BaseDataObject {
+export class SettingTwitchReward extends Data {
     key: string = ''
     // TODO: This can get extended in the future when we stop relying on keys, might add a title, note, etc.
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new SettingTwitchReward(),
             'Twitch Reward',
             {
@@ -38,12 +38,12 @@ export class SettingTwitchReward extends BaseDataObject {
         )
     }
 }
-export class SettingTwitchClip extends BaseDataObject {
+export class SettingTwitchClip extends Data {
     register() {
-        DataObjectMap.addRootInstance(new SettingTwitchClip())
+        DataMap.addRootInstance(new SettingTwitchClip())
     }
 }
-export class SettingTwitchRedemption extends BaseDataObject {
+export class SettingTwitchRedemption extends Data {
     userId: number = 0
     rewardId: string = ''
     time: string = ''
@@ -51,6 +51,6 @@ export class SettingTwitchRedemption extends BaseDataObject {
     cost: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(new SettingTwitchRedemption())
+        DataMap.addRootInstance(new SettingTwitchRedemption())
     }
 }

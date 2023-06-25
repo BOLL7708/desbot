@@ -1,17 +1,17 @@
-import DataObjectMap from '../DataObjectMap.js'
-import BaseDataObject from '../BaseDataObject.js'
+import DataMap from '../DataMap.js'
+import Data from '../Data.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
-import {EnumScreenshotFileType} from '../../Enums/EnumScreenshotFileType.js'
+import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
 
-export default class ConfigScreenshots extends BaseDataObject {
+export default class ConfigScreenshots extends Data {
     SSSVRPort: number = 8807
     callback = new ConfigScreenshotsCallback()
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigScreenshots(),
             'Trigger and transmit screenshots from SuperScreenShotterVR or OBS Studio sources.',
             {
@@ -21,12 +21,12 @@ export default class ConfigScreenshots extends BaseDataObject {
         )
     }
 }
-export class ConfigScreenshotsCallback extends BaseDataObject {
+export class ConfigScreenshotsCallback extends Data {
     discordManualTitle: string = 'Manual Screenshot'
     discordRewardTitle: string = 'Photograph: %text'
     discordRewardInstantTitle: string = 'Instant shot! 📸'
     discordDefaultGameTitle: string = 'N/A'
-    discordEmbedImageFormat: string = EnumScreenshotFileType.PNG
+    discordEmbedImageFormat: string = OptionScreenshotFileType.PNG
     discordWebhooksOBS: number[]|PresetDiscordWebhook[] = []
     discordWebhooksSSSVR: number[]|PresetDiscordWebhook[] = []
     signTitle: string = 'Screenshot'
@@ -40,7 +40,7 @@ export class ConfigScreenshotsCallback extends BaseDataObject {
     // TODO: Add the ability to post discord threads in various ways, see Trello.
 
     register() {
-        DataObjectMap.addSubInstance(
+        DataMap.addSubInstance(
             new ConfigScreenshotsCallback(),
             {
                 discordManualTitle: 'Title for the Discord post for manually taken screenshots.',
@@ -58,7 +58,7 @@ export class ConfigScreenshotsCallback extends BaseDataObject {
                 captureSoundEffect: 'As there is not built in audio effect for OBS screenshots an option for that is provided here.\nWhy this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.'
             },
             {
-                discordEmbedImageFormat: EnumScreenshotFileType.ref(),
+                discordEmbedImageFormat: OptionScreenshotFileType.ref(),
                 discordWebhooksOBS: PresetDiscordWebhook.refId(),
                 discordWebhooksSSSVR: PresetDiscordWebhook.refId(),
                 pipeEnabledForRewards: SettingTwitchReward.refIdKeyLabel(),

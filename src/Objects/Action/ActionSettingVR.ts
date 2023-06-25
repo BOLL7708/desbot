@@ -1,16 +1,16 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumSteamVRSettingCategory, EnumSteamVRSettingType} from '../../Enums/SteamVRSetting.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionSteamVRSettingCategory, OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
 
-export class ActionSettingVR extends BaseDataObject {
-    category = EnumSteamVRSettingCategory.CurrentAppID
-    setting = EnumSteamVRSettingType.WorldScale
+export class ActionSettingVR extends Data {
+    category = OptionSteamVRSettingCategory.CurrentAppID
+    setting = OptionSteamVRSettingType.WorldScale
     setToValue: string = ''
     resetToValue: string = ''
     duration: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionSettingVR(),
             'Used to change SteamVR settings.',
             {
@@ -20,8 +20,8 @@ export class ActionSettingVR extends BaseDataObject {
                 duration: 'The amount of time in seconds to wait before resetting the setting to default, skipped if set to 0.'
             },
             {
-                category: EnumSteamVRSettingCategory.ref(),
-                setting: EnumSteamVRSettingType.ref()
+                category: OptionSteamVRSettingCategory.ref(),
+                setting: OptionSteamVRSettingType.ref()
             }
         )
     }

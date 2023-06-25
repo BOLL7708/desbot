@@ -1,9 +1,9 @@
-import BaseDataObject from './BaseDataObject.js'
+import Data from './Data.js'
 import {EEventSource} from '../Pages/Widget/Enums.js'
 import {ITwitchActionCommandConfig} from '../Interfaces/itwitch.js'
 import {ITwitchEventSubEventRedemption} from '../Interfaces/itwitch_eventsub.js'
 
-export default abstract class Action extends BaseDataObject {
+export default abstract class Action extends Data {
     abstract buildCallback<T>(key: string): IActionCallback
 }
 

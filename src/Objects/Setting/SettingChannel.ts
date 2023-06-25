@@ -1,11 +1,11 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class SettingChannelTrophyStat extends BaseDataObject {
+export class SettingChannelTrophyStat extends Data {
     userId: number = 0
     index: number = 0
 
     register() {
-        DataObjectMap.addRootInstance(new SettingChannelTrophyStat())
+        DataMap.addRootInstance(new SettingChannelTrophyStat())
     }
 }

@@ -1,15 +1,15 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
-import {EnumEntryUsage} from '../../Enums/EntryType.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 
-export class ActionLabel extends BaseDataObject{
+export class ActionLabel extends Data{
     fileName: string = ''
     textEntries: string[] = []
-    textEntries_use = EnumEntryUsage.First
+    textEntries_use = OptionEntryUsage.First
     append: boolean = false
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ActionLabel(),
             'Writes text to a file in the data folder, can be used as a label your broadcaster suite.',
             {
@@ -19,7 +19,7 @@ export class ActionLabel extends BaseDataObject{
             },
             {
                 textEntries: 'string',
-                textEntries_use: EnumEntryUsage.ref()
+                textEntries_use: OptionEntryUsage.ref()
             }
         )
     }

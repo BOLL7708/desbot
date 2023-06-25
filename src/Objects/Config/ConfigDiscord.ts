@@ -1,14 +1,14 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class ConfigDiscord extends BaseDataObject {
+export class ConfigDiscord extends Data {
     prefixCheer: string = '*Cheer*: '
     prefixReward: string = '*Reward*: '
     screenshotEmbedColorManual: string = '#FFFFFF'
     screenshotEmbedColorRemote: string = '#000000'
 
     register() {
-        DataObjectMap.addRootInstance(
+        DataMap.addRootInstance(
             new ConfigDiscord(),
             'Settings for sending things to Discord channels.',
             {

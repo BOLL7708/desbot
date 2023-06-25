@@ -1,13 +1,13 @@
-import BaseDataObject from '../BaseDataObject.js'
-import DataObjectMap from '../DataObjectMap.js'
+import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
-export class SettingCounterBase extends BaseDataObject {
+export class SettingCounterBase extends Data {
     count: number = 0
 
     register() {
         // This is weird, does it work doing it like this?
-        DataObjectMap.addRootInstance(new SettingAccumulatingCounter())
-        DataObjectMap.addRootInstance(new SettingIncrementingCounter())
+        DataMap.addRootInstance(new SettingAccumulatingCounter())
+        DataMap.addRootInstance(new SettingIncrementingCounter())
     }
 }
 export class SettingAccumulatingCounter extends SettingCounterBase {}
