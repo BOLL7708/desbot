@@ -56,7 +56,7 @@ export class ConfigExample extends Data {
     partnerMultiple_plus = false
     partnerMultiple_butNot = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigExample(),
             'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
@@ -139,7 +139,7 @@ export class ConfigExampleSub extends Data {
     singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
     singleEnum: number = OptionEntryUsage.All
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigExampleSub(),
             {

@@ -8,7 +8,7 @@ export class ActionWhisper extends Data {
     entries_use = OptionEntryUsage.First
     user: string = '' // TODO: Change to whichever way we reference users in the future.
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionWhisper(),
             'Send a whisper message to a Twitch user.',

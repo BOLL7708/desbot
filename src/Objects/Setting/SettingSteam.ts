@@ -4,7 +4,7 @@ import DataMap from '../DataMap.js'
 export class SettingSteamAchievements extends Data {
     achieved: string[] = []
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new SettingSteamAchievements(),
             undefined,
@@ -16,7 +16,7 @@ export class SettingSteamAchievements extends Data {
 export class SettingSteamGame extends Data {
     title: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new SettingSteamGame(), '', {}, {}, 'title'
         )

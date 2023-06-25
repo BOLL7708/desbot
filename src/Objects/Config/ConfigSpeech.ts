@@ -13,7 +13,7 @@ export class ConfigSpeech extends Data {
     cleanTextConfig = new ConfigCleanText()
     dictionaryConfig = new ConfigSpeechDictionary()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigSpeech(),
             'These are settings for the Google Text-to-Speech API.\nGo here for more details: https://cloud.google.com/text-to-speech/docs/before-you-begin',
@@ -39,7 +39,7 @@ export class ConfigSpeechDictionary extends Data {
     replaceWordsWithAudio: boolean = true
     wordToAudioConfig: { [key:string]: ConfigSpeechWordToAudio } = {}
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigSpeechDictionary(),
             {
@@ -56,7 +56,7 @@ export class ConfigSpeechDictionary extends Data {
 export class ConfigSpeechWordToAudio extends Data {
     src: string[] = []
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigSpeechWordToAudio(),
             {},

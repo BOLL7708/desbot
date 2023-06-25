@@ -6,7 +6,7 @@ export class ActionLink extends Data {
     entries: string[] = []
     entries_use = OptionEntryUsage.First
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionLink(),
             'Loads http/https or custom URI schema link(s) silently in the background.',

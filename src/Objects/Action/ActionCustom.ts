@@ -5,7 +5,7 @@ import DataMap from '../DataMap.js'
 export class ActionCustom extends Data {
     codeBlob: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionCustom(),
             'Provide a custom action callback, this can execute any arbitrary code you provide.\n\nOBS: This will likely be removed in the future, or only kept as an experimental feature.',

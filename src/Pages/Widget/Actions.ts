@@ -1,4 +1,3 @@
-import {ITwitchCheer, ITwitchCommandConfig, ITwitchReward} from '../../Interfaces/itwitch.js'
 import {
     IAudioAction,
     IEntriesAction,
@@ -12,14 +11,14 @@ import {
     IScreenshotAction,
     ISignAction,
     ISpeechAction,
-    ISystemAction, ITTSAction,
+    ISystemAction,
+    ITTSAction,
     IWhisperAction
 } from '../../Interfaces/iactions.js'
-import {IOpenVR2WSMoveSpace, IOpenVR2WSRelay, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
+import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSFunction, ETTSType} from './Enums.js'
 import IKeyBoolRecord from '../../Interfaces/i.js'
 import ExecUtils from '../../Classes/ExecUtils.js'
-import Callbacks from './Callbacks.js'
 import Color from '../../Classes/ColorConstants.js'
 import Config from '../../Classes/Config.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
@@ -27,7 +26,6 @@ import DiscordUtils from '../../Classes/DiscordUtils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import {ITwitchHelixRewardUpdate} from '../../Interfaces/itwitch_helix.js'
-import ActionsCallbacks from './ActionsCallbacks.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataUtils from '../../Classes/DataUtils.js'
@@ -41,34 +39,10 @@ import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../I
 import TextHelper from '../../Classes/TextHelper.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigScreenshots from '../../Objects/Config/ConfigScreenshots.js'
-import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
-import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
-import {TriggerCommand} from '../../Objects/Trigger/TriggerCommand.js'
-import {TriggerCheer} from '../../Objects/Trigger/TriggerCheer.js'
-import {TriggerTimer} from '../../Objects/Trigger/TriggerTimer.js'
-import {TriggerRemoteCommand} from '../../Objects/Trigger/TriggerRemoteCommand.js'
-import {TriggerRelay} from '../../Objects/Trigger/TriggerRelay.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
-import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
-import {ActionCustom} from '../../Objects/Action/ActionCustom.js'
-import {ActionSystem} from '../../Objects/Action/ActionSystem.js'
-import {ActionOBS} from '../../Objects/Action/ActionOBS.js'
-import {ActionPhilipsHueBulb} from '../../Objects/Action/ActionPhilipsHueBulb.js'
-import {ActionPhilipsHuePlug} from '../../Objects/Action/ActionPhilipsHuePlug.js'
-import {ActionAudio} from '../../Objects/Action/ActionAudio.js'
-import {ActionPipe} from '../../Objects/Action/ActionPipe.js'
-import {ActionSettingVR} from '../../Objects/Action/ActionSettingVR.js'
-import {ActionSign} from '../../Objects/Action/ActionSign.js'
-import {ActionInput} from '../../Objects/Action/ActionInput.js'
-import {ActionLink} from '../../Objects/Action/ActionLink.js'
-import {ActionScreenshot} from '../../Objects/Action/ActionScreenshot.js'
-import {ActionDiscord} from '../../Objects/Action/ActionDiscord.js'
-import {ActionChat} from '../../Objects/Action/ActionChat.js'
-import {ActionWhisper} from '../../Objects/Action/ActionWhisper.js'
-import {ActionLabel} from '../../Objects/Action/ActionLabel.js'
-import {ActionRemoteCommand} from '../../Objects/Action/ActionRemoteCommand.js'
 import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../Objects/Action.js'
+import Trigger from '../../Objects/Trigger.js'
 
 export class ActionHandler {
     constructor(
@@ -110,7 +84,6 @@ export class ActionHandler {
         if(actionsEntries.length == 0) return
 
         let actionsMainCallback: IActionsMainCallback
-
         const states = StatesSingleton.getInstance()
 
         let index: number|undefined = undefined
@@ -263,15 +236,7 @@ export class Actions {
             for(const [key, event] of Object.entries(events)) {
                 const triggers = Utils.ensureObjectArrayNotId(event.triggers)
                 for(const trigger of triggers) {
-                    switch(trigger.constructor.name) {
-                        case TriggerReward.name: await this.registerReward(trigger as TriggerReward, key); break
-                        case TriggerCommand.name: await this.registerCommand(trigger as TriggerCommand, key); break
-                        case TriggerRemoteCommand.name: await this.registerRemoteCommand(trigger as TriggerRemoteCommand, key); break
-                        case TriggerCheer.name: await this.registerCheer(trigger as TriggerCheer, key); break
-                        case TriggerTimer.name: await this.registerTimer(trigger as TriggerTimer, key); break
-                        case TriggerRelay.name: await this.registerRelay(trigger as TriggerRelay, key); break
-                        default: Utils.log(`Unknown trigger type: ${trigger.constructor.name}`, Color.DarkRed); break
-                    }
+                    (trigger as Trigger).register(key)
                 }
             }
         } else {
@@ -377,103 +342,6 @@ export class Actions {
     }
     // endregion
 
-    // region Trigger Registration
-    public static async registerReward(triggerReward: TriggerReward, eventKey: string, appId: string = '') {
-        const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(eventKey, appId)
-        if(typeof triggerReward.rewardID == 'string') {
-            const reward: ITwitchReward = {
-                id: triggerReward.rewardID.toString(),
-                handler: actionHandler
-            }
-            modules.twitchEventSub.registerReward(reward)
-        } else {
-            Utils.logWithBold(`No Reward ID for <${eventKey}>, it might be missing a reward config.`, 'red')
-        }
-    }
-
-    private static async registerCommand(triggerCommand: TriggerCommand, key: string) {
-        const modules = ModulesSingleton.getInstance()
-        if(triggerCommand.entries.length > 0) {
-            for(let trigger of triggerCommand.entries) {
-                trigger = TextHelper.replaceTags(trigger, {eventKey: key})
-                const actionHandler = new ActionHandler(key)
-
-                // Set handler depending on cooldowns
-                const useThisCommand = <ITwitchCommandConfig> { trigger: trigger }
-                if(triggerCommand.userCooldown) useThisCommand.cooldownUserHandler = actionHandler
-                else if(triggerCommand.globalCooldown) useThisCommand.cooldownHandler = actionHandler
-                else useThisCommand.handler = actionHandler
-                modules.twitch.registerCommand(useThisCommand)
-            }
-        }
-    }
-
-    private static async registerRemoteCommand(triggerRemoteCommand: TriggerRemoteCommand, key: string) {
-        const modules = ModulesSingleton.getInstance()
-        if(triggerRemoteCommand.entries.length) {
-            const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
-            for(let trigger of triggerRemoteCommand.entries) {
-                trigger = TextHelper.replaceTags(trigger, {eventKey: key})
-                const actionHandler = new ActionHandler(key)
-
-                // Set handler depending on cooldowns
-                const allowedUsers = Utils.ensureObjectArrayNotId(twitchConfig.remoteCommandAllowedUsers).map((user) => user.userName).filter((login) => login)
-                const useThisCommand = <ITwitchCommandConfig> { trigger: trigger, allowedUsers: allowedUsers }
-                if(triggerRemoteCommand.userCooldown) useThisCommand.cooldownUserHandler = actionHandler
-                else if(triggerRemoteCommand.globalCooldown) useThisCommand.cooldownHandler = actionHandler
-                else useThisCommand.handler = actionHandler
-                modules.twitch.registerRemoteCommand(useThisCommand)
-            }
-        }
-    }
-
-    private static async registerCheer(triggerCheer: TriggerCheer, key: string) {
-        const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(key)
-        const cheer: ITwitchCheer = {
-            bits: triggerCheer.amount,
-            handler: actionHandler
-        }
-        if(cheer.bits > 0) {
-            modules.twitchEventSub.registerCheer(cheer)
-        } else {
-            Utils.logWithBold(`Cannot register cheer event for: <${key}>.`, 'red')
-        }
-    }
-
-    private static async registerTimer(triggerTimer: TriggerTimer, key: string) {
-        const actionHandler = new ActionHandler(key)
-        const user = await this.buildEmptyUserData(EEventSource.Timer, key)
-        let handle: number = -1
-        let count = 0
-        const times = triggerTimer.repetitions ?? 0
-        const interval = triggerTimer.interval
-        const delay = Math.max(0, (triggerTimer.initialDelay ?? 10) - interval)
-        setTimeout(()=>{
-            handle = setInterval(()=>{
-                actionHandler.call(user)
-                count++
-                if(times > 0) {
-                    if(count >= times) clearInterval(handle)
-                }
-            }, interval*1000)
-        }, delay*1000)
-    }
-
-    private static async registerRelay(triggerRelay: TriggerRelay, key: string) {
-        const relay: IOpenVR2WSRelay = {
-            key: TextHelper.replaceTags(triggerRelay.key, {eventKey: key}),
-            handler: new ActionHandler(key)
-        }
-        if(relay.key.length > 0) {
-            Callbacks.registerRelay(relay)
-        } else {
-            Utils.logWithBold(`Cannot register relay event for: <${key}>.`, 'red')
-        }
-    }
-    // endregion
-
     // region Main Action Builder
     public static buildActionsMainCallback(key: string, actionsList: (EventActionContainer|undefined)[]): IActionsMainCallback {
         /**
@@ -499,7 +367,7 @@ export class Actions {
                 //  Just call "buildCallback" on the action itself. This will open us up to custom actions added after the fact too.
 
                 // Build callbacks
-                const callback: IActionCallback = (action as Action).buildCallback(key)
+                const callback: IActionCallback = (action as Action).build(key)
                 actionCallbacks.push(callback)
                 /*
                 switch(action.constructor.name) {

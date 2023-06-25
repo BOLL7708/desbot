@@ -8,7 +8,7 @@ export class SettingStreamQuote extends Data {
     datetime: string = ''
     game: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingStreamQuote())
     }
 }

@@ -8,7 +8,7 @@ export class PresetPermissions extends Data {
     subscribers: boolean = false
     everyone: boolean = false
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new PresetPermissions(),
             'Permission regarding who can trigger this command in the chat.',
             {

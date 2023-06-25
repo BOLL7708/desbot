@@ -15,7 +15,7 @@ export class ActionAudio extends Action {
     channel: number = 0
     onTTSQueue: boolean = true
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionAudio(),
             'Trigger audio clips.',
@@ -33,7 +33,7 @@ export class ActionAudio extends Action {
         )
     }
 
-    buildCallback(key: string): IActionCallback {
+    build(key: string): IActionCallback {
         return {
             tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',

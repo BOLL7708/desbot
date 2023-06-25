@@ -8,7 +8,7 @@ export class ActionMoveVRSpace extends Data{
     moveChaperone: boolean = true
     duration: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionMoveVRSpace(),
             'Used to move the SteamVR play space.',

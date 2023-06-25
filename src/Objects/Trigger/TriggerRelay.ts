@@ -1,11 +1,15 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
-import {TriggerCheer} from './TriggerCheer.js'
+import {IOpenVR2WSRelay} from '../../Interfaces/iopenvr2ws.js'
+import TextHelper from '../../Classes/TextHelper.js'
+import Callbacks from '../../Pages/Widget/Callbacks.js'
+import Utils from '../../Classes/Utils.js'
+import {ActionHandler} from '../../Pages/Widget/Actions.js'
+import Trigger from '../Trigger.js'
 
-export class TriggerRelay extends Data {
+export class TriggerRelay extends Trigger {
     key: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new TriggerRelay(),
             'A relay message from WSRelay',
@@ -13,5 +17,17 @@ export class TriggerRelay extends Data {
                 key: 'Listen to incoming relay messages supplying this key.'
             }
         )
+    }
+
+    register(eventKey: string) {
+        const relay: IOpenVR2WSRelay = {
+            key: TextHelper.replaceTags(this.key, {eventKey: eventKey}),
+            handler: new ActionHandler(eventKey)
+        }
+        if(relay.key.length > 0) {
+            Callbacks.registerRelay(relay)
+        } else {
+            Utils.logWithBold(`Cannot register relay event for: <${eventKey}>.`, 'red')
+        }
     }
 }

@@ -6,7 +6,7 @@ export class ActionSettingTTS extends Data {
     functionType = OptionTTSFunctionType.Enable
     inputOverride: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionSettingTTS(),
             'Performs functions in the TTS system.',

@@ -52,7 +52,7 @@ export default class ConfigTwitch extends Data {
         new ConfigTwitchAnnounceRaid(50, '%userTag raided the channel with %viewerCount viewers!')
     ]
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigTwitch(),
             'Settings for Twitch.',
@@ -98,7 +98,7 @@ export class ConfigTwitchAnnouncerTriggers extends Data {
     trigger_audio: number|ActionAudio = 0
     trigger_speech = true
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigTwitchAnnouncerTriggers(),
             {
@@ -123,7 +123,7 @@ export class ConfigTwitchAnnounceSub extends Data {
         if(message !== undefined) this.message = message
     }
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigTwitchAnnounceSub(),
             {
@@ -144,7 +144,7 @@ export class ConfigTwitchAnnounceCheer extends Data {
         if(message !== undefined) this.message = message
     }
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigTwitchAnnounceCheer(),
             {
@@ -163,7 +163,7 @@ export class ConfigTwitchAnnounceRaid extends Data {
         if(message !== undefined) this.message = message
     }
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigTwitchAnnounceRaid(),
             {
@@ -177,7 +177,7 @@ export class ConfigTwitchCategoryOverride extends Data {
     game: number | SettingSteamGame = 0
     category: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigTwitchCategoryOverride(),
             {

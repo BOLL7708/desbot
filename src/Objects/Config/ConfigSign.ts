@@ -11,7 +11,7 @@ export class ConfigSign extends Data {
     sizeWidth: number = 240
     transitionDurationMs: number = 500
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigSign(),
             'The sign can display a graphic with title and subtitle as a pop-in in the widget browser source.',

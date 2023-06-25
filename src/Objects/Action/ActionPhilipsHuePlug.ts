@@ -9,7 +9,7 @@ export class ActionPhilipsHuePlug extends Data {
     triggerState: boolean = true
     duration: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionPhilipsHuePlug(),
             'Trigger Philips Hue plug changes.',

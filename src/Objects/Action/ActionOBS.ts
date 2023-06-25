@@ -13,7 +13,7 @@ export class ActionOBS extends Data {
     durationMs: number = 0
     state: boolean = true
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionOBS(),
             'Used to toggle OBS sources or filters.',
@@ -39,7 +39,7 @@ export class ActionOBSSource extends Data {
     scenePreset: number|PresetOBSScene = 0
     sourcePreset: number|PresetOBSSource = 0
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionOBSSource(),
             {
@@ -55,7 +55,7 @@ export class ActionOBSFilter extends Data {
     sourcePreset: number|PresetOBSSource = 0
     filterPreset: number|PresetOBSFilter = 0
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionOBSFilter(),
             {

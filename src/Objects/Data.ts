@@ -15,7 +15,7 @@ export default abstract class Data {
     /**
      * Should register this class in a suitable list.
      */
-    abstract register(): void
+    abstract enlist(): void
 
     // region References
 
@@ -263,7 +263,7 @@ export default abstract class Data {
     }
 }
 
-export class EmptyData extends Data { register() {} }
+export class EmptyData extends Data { enlist() {} }
 
 export interface IDataRefValues {
     original: string

@@ -5,7 +5,7 @@ export class ConfigOpenVR2WS extends Data {
     port: number = 7708
     password: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigOpenVR2WS(),
             'Get things like currently played SteamVR game and change SteamVR settings with OpenVR2WS.',

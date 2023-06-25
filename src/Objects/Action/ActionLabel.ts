@@ -8,7 +8,7 @@ export class ActionLabel extends Data{
     textEntries_use = OptionEntryUsage.First
     append: boolean = false
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionLabel(),
             'Writes text to a file in the data folder, can be used as a label your broadcaster suite.',

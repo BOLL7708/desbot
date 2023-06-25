@@ -5,7 +5,7 @@ export class ConfigPhilipsHue extends Data {
     serverPath: string = 'http://'
     username: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigPhilipsHue(),
             'Control Philips Hue lights or sockets.',

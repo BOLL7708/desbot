@@ -7,7 +7,7 @@ export class SettingTwitchClient extends Data {
     clientSecret: string = ''
     redirectUri: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingTwitchClient())
     }
 }
@@ -18,7 +18,7 @@ export class SettingTwitchTokens extends Data {
     accessToken: string = ''
     scopes: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingTwitchTokens())
     }
 }
@@ -26,7 +26,7 @@ export class SettingTwitchReward extends Data {
     key: string = ''
     // TODO: This can get extended in the future when we stop relying on keys, might add a title, note, etc.
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new SettingTwitchReward(),
             'Twitch Reward',
@@ -39,7 +39,7 @@ export class SettingTwitchReward extends Data {
     }
 }
 export class SettingTwitchClip extends Data {
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingTwitchClip())
     }
 }
@@ -50,7 +50,7 @@ export class SettingTwitchRedemption extends Data {
     status: TTwitchEventSubEventStatus = 'UNFULFILLED'
     cost: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingTwitchRedemption())
     }
 }

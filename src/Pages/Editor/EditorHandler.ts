@@ -5,7 +5,7 @@ import Data from '../../Objects/Data.js'
 import DataMap from '../../Objects/DataMap.js'
 import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import RegisterData from '../../Objects/RegisterData.js'
+import EnlistData from '../../Objects/EnlistData.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -25,7 +25,7 @@ export default class EditorHandler {
     private _coverDiv: HTMLDivElement|undefined
 
     private async init() {
-        RegisterData.run()
+        EnlistData.run()
         TwitchHelixHelper.loadNamesForUsersWhoLackThem().then()
 
         window.onunload = (event)=>{

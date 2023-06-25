@@ -9,7 +9,7 @@ export class ActionInput extends Data{
     duration: number = 0
     postfixEnterStroke: boolean = false
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionInput(),
             'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
@@ -33,7 +33,7 @@ export class ActionInputCommand extends Data {
     value: string = ''
     defaultValue: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionInputCommand(),
             {

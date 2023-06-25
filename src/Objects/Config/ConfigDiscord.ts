@@ -7,7 +7,7 @@ export class ConfigDiscord extends Data {
     screenshotEmbedColorManual: string = '#FFFFFF'
     screenshotEmbedColorRemote: string = '#000000'
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigDiscord(),
             'Settings for sending things to Discord channels.',

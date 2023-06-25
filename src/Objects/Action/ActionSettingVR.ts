@@ -9,7 +9,7 @@ export class ActionSettingVR extends Data {
     resetToValue: string = ''
     duration: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionSettingVR(),
             'Used to change SteamVR settings.',

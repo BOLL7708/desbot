@@ -6,7 +6,7 @@ export class ActionRemoteCommand extends Data {
     entries: string[] = []
     entries_use = OptionEntryUsage.All
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionRemoteCommand(),
             'Send remote command(s) to the remote command channel.',

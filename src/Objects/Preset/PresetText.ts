@@ -4,7 +4,7 @@ import DataMap from '../DataMap.js'
 export class PresetText extends Data {
     collection: string[] = []
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetText(),
             'A basic collection of text strings used in multiple places.',

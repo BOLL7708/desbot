@@ -5,7 +5,7 @@ export class PresetPhilipsHueColor extends Data {
     x: number = 0
     y: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetPhilipsHueColor(),
             'The color value used for a Philips Hue bulb.',

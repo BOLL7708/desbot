@@ -12,7 +12,7 @@ export class ActionSpeech extends Data {
     voiceOfUsername: string = ''
     type = OptionTTSType.Announcement
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionSpeech(),
             'Trigger the TTS to read a message.',

@@ -9,7 +9,7 @@ export default class ConfigOBS extends Data {
     sourceEventGroups: { [key: string]: ConfigOBSEventGroups } = {}
     filterEventGroups: { [key: string]: ConfigOBSEventGroups } = {}
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigOBS(),
             'Enables a secure connection to OBS Studio for remote functions through the OBS WebSockets plugin.',
@@ -31,7 +31,7 @@ export default class ConfigOBS extends Data {
 export class ConfigOBSEventGroups extends Data {
     members: (number|string)[] = []
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigOBSEventGroups(),
             {},

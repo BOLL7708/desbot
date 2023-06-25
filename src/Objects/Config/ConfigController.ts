@@ -8,7 +8,7 @@ export class ConfigController extends Data {
     useWebsockets = new ConfigControllerWebsocketsUsed()
     channelTrophySettings = new ConfigControllerChannelTrophySettings()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigController(),
             'These are the settings for MainController, the main class that connects all the different modules together.',
@@ -31,7 +31,7 @@ export class ConfigControllerStateDefaults extends Data {
     updateTwitchGameCategory: boolean = true
     runRemoteCommands: boolean = true
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigControllerStateDefaults(),
             {
@@ -56,7 +56,7 @@ export class ConfigControllerWebsocketsUsed extends Data {
     sssvr: boolean = true
     // sdrelay: boolean = true // TODO
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigControllerWebsocketsUsed(),
             {
@@ -84,7 +84,7 @@ export class ConfigControllerChannelTrophySettings extends Data {
     discordStatistics: number|PresetDiscordWebhook = 0
     uniqueNumbers: { [number: number]: ConfigControllerChannelTrophyNumber } = {}
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigControllerChannelTrophySettings(),
             {
@@ -109,7 +109,7 @@ export class ConfigControllerChannelTrophyNumber extends Data {
     speech: string = '%start is a good trophy, number %number!'
     label: string = '😀 A Happy Trophy!'
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigControllerChannelTrophyNumber(),
             {

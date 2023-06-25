@@ -7,7 +7,7 @@ export class EventDefault extends Data {
     triggers: (number|Data)[] = []
     actions: EventActionContainer[] = []
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new EventDefault(),
             'The event that contains triggers and actions.',
             {
@@ -39,7 +39,7 @@ export class EventOptions extends Data {
     specificIndex: number = 0
     relayCanTrigger: boolean = true
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new EventOptions(),
             {
                 behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.',
@@ -68,7 +68,7 @@ export class EventActionContainer extends Data {
     delayMs_orTimeMs: number = 0
     entries: (number|Data)[] = []
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new EventActionContainer(),
             {
                 delayMs: 'Set delay to execute this batch a certain amount of time after the previous batch, or set time to execute it at an absolute point in time.',

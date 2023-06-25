@@ -27,7 +27,8 @@ import {
 import {ActionWhisper} from './Action/ActionWhisper.js'
 import {ConfigCleanText} from './Config/ConfigCleanText.js'
 import {
-    ConfigController, ConfigControllerChannelTrophyNumber,
+    ConfigController,
+    ConfigControllerChannelTrophyNumber,
     ConfigControllerChannelTrophySettings,
     ConfigControllerStateDefaults,
     ConfigControllerWebsocketsUsed
@@ -35,7 +36,11 @@ import {
 import {ConfigDiscord} from './Config/ConfigDiscord.js'
 import {ConfigEditor, ConfigEditorFavorite} from './Config/ConfigEditor.js'
 import {ConfigExample, ConfigExampleSub} from './Config/ConfigExample.js'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './Config/ConfigImageEditor.js'
+import {
+    ConfigImageEditorFontSettings,
+    ConfigImageEditorOutline,
+    ConfigImageEditorRect
+} from './Config/ConfigImageEditor.js'
 import ConfigOBS, {ConfigOBSEventGroups} from './Config/ConfigOBS.js'
 import {ConfigOpenVR2WS} from './Config/ConfigOpenVR2WS.js'
 import {ConfigPhilipsHue} from './Config/ConfigPhilipsHue.js'
@@ -52,8 +57,10 @@ import {ConfigSpeech, ConfigSpeechDictionary, ConfigSpeechWordToAudio} from './C
 import {ConfigSteam} from './Config/ConfigSteam.js'
 import ConfigTwitch, {
     ConfigTwitchAnnounceCheer,
-    ConfigTwitchAnnounceRaid, ConfigTwitchAnnouncerTriggers,
-    ConfigTwitchAnnounceSub, ConfigTwitchCategoryOverride
+    ConfigTwitchAnnounceRaid,
+    ConfigTwitchAnnouncerTriggers,
+    ConfigTwitchAnnounceSub,
+    ConfigTwitchCategoryOverride
 } from './Config/ConfigTwitch.js'
 import ConfigTwitchChat from './Config/ConfigTwitchChat.js'
 import {EventActionContainer, EventDefault, EventOptions} from './Event/EventDefault.js'
@@ -65,7 +72,9 @@ import {
     PresetPipeBasic,
     PresetPipeCustom,
     PresetPipeCustomAnimation,
-    PresetPipeCustomFollow, PresetPipeCustomProperties, PresetPipeCustomTextArea,
+    PresetPipeCustomFollow,
+    PresetPipeCustomProperties,
+    PresetPipeCustomTextArea,
     PresetPipeCustomTransition
 } from './Preset/PresetPipe.js'
 import {PresetReward} from './Preset/PresetReward.js'
@@ -92,13 +101,19 @@ import {
     SettingUser,
     SettingUserCheer,
     SettingUserMute,
-    SettingUserName, SettingUserRaid,
+    SettingUserName,
+    SettingUserRaid,
     SettingUserSub,
     SettingUserVoice
 } from './Setting/SettingUser.js'
 import {SettingStreamQuote} from './Setting/SettingStream.js'
 
-export default class RegisterData {
+/**
+ * This class exists to enlist the things stored in the database in a map.
+ * The map is then used to re-instantiate these classes when retrieved from the database.
+ * If a class is not enlisted here, it will not be re-instantiated, and thus throw an error.
+ */
+export default class EnlistData {
     static run() {
         const objects: Data[] = [
             new ActionAudio(),
@@ -215,8 +230,8 @@ export default class RegisterData {
         ]
 
         for(const obj of objects) {
-            console.log('Registering', obj.constructor.name)
-            obj.register()
+            console.log('EnlistData:', obj.constructor.name)
+            obj.enlist()
         }
     }
 }

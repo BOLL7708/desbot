@@ -11,7 +11,7 @@ export class SettingUser extends Data {
     sub = new SettingUserSub()
     raid = new SettingUserRaid()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new SettingUser(),
             'Main settings object for a Twitch user.',
@@ -32,7 +32,7 @@ export class SettingUserVoice extends Data {
     gender: string = ''
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new SettingUserVoice())
     }
 }
@@ -41,7 +41,7 @@ export class SettingUserName extends Data {
     editorUserId: number = 0
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new SettingUserName())
     }
 }
@@ -51,7 +51,7 @@ export class SettingUserMute extends Data {
     moderatorUserId: number = 0
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new SettingUserMute())
     }
 }
@@ -60,7 +60,7 @@ export class SettingUserSub extends Data {
     streakMonths: number = 0
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new SettingUserSub())
     }
 }
@@ -69,7 +69,7 @@ export class SettingUserCheer extends Data {
     lastBits: number = 0
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new SettingUserCheer())
     }
 }
@@ -78,7 +78,7 @@ export class SettingUserRaid extends Data {
     lastRaid: number = 0
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new SettingUserRaid())
     }
 }

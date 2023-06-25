@@ -7,7 +7,7 @@ export class ActionSign extends Data{
     subtitle: string = ''
     durationMs: number = 5000
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionSign(),
             'Show a pop-in message in the browser source for the widget.',

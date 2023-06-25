@@ -1,8 +1,12 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
+import Trigger from '../Trigger.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import TextHelper from '../../Classes/TextHelper.js'
+import {ITwitchCommandConfig} from '../../Interfaces/itwitch.js'
+import {ActionHandler} from '../../Pages/Widget/Actions.js'
 
-export class TriggerCommand extends Data {
+export class TriggerCommand extends Trigger {
     entries: string[] = []
     permissions: number|PresetPermissions = 0
     requireUserTag = false
@@ -14,7 +18,7 @@ export class TriggerCommand extends Data {
     globalCooldown: number = 0
     userCooldown: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new TriggerCommand(),
             'A chat command.',
             {
@@ -35,5 +39,22 @@ export class TriggerCommand extends Data {
                 helpInput: 'string'
             }
         )
+    }
+
+    register(eventKey: string) {
+        const modules = ModulesSingleton.getInstance()
+        if(this.entries.length > 0) {
+            for(let trigger of this.entries) {
+                trigger = TextHelper.replaceTags(trigger, {eventKey: eventKey})
+                const actionHandler = new ActionHandler(eventKey)
+
+                // Set handler depending on cooldowns
+                const useThisCommand = <ITwitchCommandConfig> { trigger: trigger }
+                if(this.userCooldown) useThisCommand.cooldownUserHandler = actionHandler
+                else if(this.globalCooldown) useThisCommand.cooldownHandler = actionHandler
+                else useThisCommand.handler = actionHandler
+                modules.twitch.registerCommand(useThisCommand)
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ import DataMap from '../DataMap.js'
 export class SettingCounterBase extends Data {
     count: number = 0
 
-    register() {
+    enlist() {
         // This is weird, does it work doing it like this?
         DataMap.addRootInstance(new SettingAccumulatingCounter())
         DataMap.addRootInstance(new SettingIncrementingCounter())

@@ -11,7 +11,7 @@ export default class ConfigTwitchChat extends Data {
     speechTemplate: string = '%userNick said: %userInput'
     logToDiscord: number|PresetDiscordWebhook = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigTwitchChat(),
             'Settings for how to handle Twitch Chat for various systems.',

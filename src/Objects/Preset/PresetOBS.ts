@@ -4,7 +4,7 @@ import Data from '../Data.js'
 export class PresetOBSScene extends Data {
     sceneName: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetOBSScene(),
             'An OBS scene referenced by name.',
@@ -17,7 +17,7 @@ export class PresetOBSScene extends Data {
 export class PresetOBSSource extends Data {
     sourceName: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetOBSSource(),
             'An OBS source referenced by name.',
@@ -30,7 +30,7 @@ export class PresetOBSSource extends Data {
 export class PresetOBSFilter extends Data {
     filterName: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetOBSFilter(),
             'An OBS filter referenced by name.',

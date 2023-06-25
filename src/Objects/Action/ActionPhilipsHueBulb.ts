@@ -9,7 +9,7 @@ export class ActionPhilipsHueBulb extends Data {
     colorEntries: PresetPhilipsHueColor[] = []
     colorEntries_use = OptionEntryUsage.First
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionPhilipsHueBulb(),
             'Trigger Philips Hue bulb changes.',

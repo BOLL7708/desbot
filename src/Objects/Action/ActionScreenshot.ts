@@ -8,7 +8,7 @@ export class ActionScreenshot extends Data {
     sourcePreset: number|PresetOBSSource = 0
     delay: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionScreenshot(),
             'Trigger OBS or VR screenshots.',

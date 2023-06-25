@@ -1,4 +1,3 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
@@ -10,7 +9,7 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 export class ActionChat extends Action {
     entries: string[] = []
     entries_use = OptionEntryUsage.First
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionChat(),
             'Send message(s) to Twitch chat.',
@@ -22,7 +21,7 @@ export class ActionChat extends Action {
         )
     }
 
-    buildCallback<T>(key: string): IActionCallback {
+    build<T>(key: string): IActionCallback {
         return {
             tag: '📄',
             description: 'Callback that triggers a Twitch chat message action',

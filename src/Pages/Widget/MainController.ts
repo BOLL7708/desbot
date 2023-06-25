@@ -24,11 +24,11 @@ import {SettingStreamQuote} from '../../Objects/Setting/SettingStream.js'
 import {ConfigSteam} from '../../Objects/Config/ConfigSteam.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
-import RegisterData from '../../Objects/RegisterData.js'
+import EnlistData from '../../Objects/EnlistData.js'
 
 export default class MainController {
     public static async init() {
-        RegisterData.run()
+        EnlistData.run()
         DataBaseHelper.setFillReferences(true)
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {

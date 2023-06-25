@@ -10,7 +10,7 @@ export class ActionSystem extends Data {
     trigger = new ActionSystemTrigger()
     toggle = new ActionSystemToggle()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionSystem(),
             'Trigger or change state of things, propagating input.',
@@ -30,7 +30,7 @@ export class ActionSystemTrigger extends Data {
     eventEntries: (number|EventDefault)[] = []
     eventEntries_use = OptionEntryUsage.All
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionSystemTrigger(),
             {
@@ -54,7 +54,7 @@ export class ActionSystemToggle extends Data {
     rewardStates: ActionSystemRewardState[] = []
     rewardStatesForEvents: ActionSystemRewardStateForEvent[] = []
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionSystemToggle(),
             {
@@ -73,7 +73,7 @@ export class ActionSystemRewardState extends Data {
     reward_visible = OptionTwitchRewardVisible.Visible
     reward_usable = OptionTwitchRewardUsable.Enabled
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionSystemRewardState(),
             {
@@ -92,7 +92,7 @@ export class ActionSystemRewardStateForEvent extends Data {
     event_visible = OptionTwitchRewardVisible.Visible
     event_usable = OptionTwitchRewardUsable.Enabled
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ActionSystemRewardStateForEvent(),
             {

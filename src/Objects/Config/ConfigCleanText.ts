@@ -15,7 +15,7 @@ export class ConfigCleanText extends Data {
     replaceAmpersandWith: string = 'and'
     removeUnicodeEmojis: boolean = true
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigCleanText(),
             {

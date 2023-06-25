@@ -6,7 +6,7 @@ export class SettingDictionaryEntry extends Data {
     editorUserId: number = 0
     datetime: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingDictionaryEntry())
     }
 }

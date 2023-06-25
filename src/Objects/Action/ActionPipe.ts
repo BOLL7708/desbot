@@ -12,7 +12,7 @@ export class ActionPipe extends Data{
     preset: number|PresetPipeCustom = 0
     texts: string[] = []
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ActionPipe(),
             'Trigger one or multiple pipe overlays.',

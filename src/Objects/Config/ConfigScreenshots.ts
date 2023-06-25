@@ -10,7 +10,7 @@ export default class ConfigScreenshots extends Data {
     SSSVRPort: number = 8807
     callback = new ConfigScreenshotsCallback()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigScreenshots(),
             'Trigger and transmit screenshots from SuperScreenShotterVR or OBS Studio sources.',
@@ -39,7 +39,7 @@ export class ConfigScreenshotsCallback extends Data {
     captureSoundEffect: (number|ActionAudio) = 0
     // TODO: Add the ability to post discord threads in various ways, see Trello.
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigScreenshotsCallback(),
             {

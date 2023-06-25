@@ -7,7 +7,7 @@ export class  ConfigImageEditorRect extends Data {
     w: number = 0
     h: number = 0
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigImageEditorRect(),
             {
@@ -30,7 +30,7 @@ export class ConfigImageEditorFontSettings extends Data {
     outlines: ConfigImageEditorOutline[] = []
     lineSpacing: number = 0
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigImageEditorFontSettings(),
             {
@@ -50,7 +50,7 @@ export class ConfigImageEditorOutline extends Data {
     color: string = ''
     width: number = 0
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigImageEditorOutline(),
             {

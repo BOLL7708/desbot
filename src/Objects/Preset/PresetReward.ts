@@ -17,7 +17,7 @@ export class PresetReward extends Data {
     is_paused: boolean = false
     should_redemptions_skip_request_queue: boolean = false
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetReward(),
             'This is the exact payload that will go to Twitch to configure the reward.',

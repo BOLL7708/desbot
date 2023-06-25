@@ -5,7 +5,7 @@ export class SettingChannelTrophyStat extends Data {
     userId: number = 0
     index: number = 0
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new SettingChannelTrophyStat())
     }
 }

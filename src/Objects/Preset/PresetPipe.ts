@@ -6,7 +6,7 @@ export class PresetPipeBasic extends Data {
     basicTitle: string = 'OpenVRNotificationPipe'
     basicMessage: string = ''
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(new PresetPipeBasic(), '', {}, {}, 'basicTitle')
     }
 }
@@ -15,7 +15,7 @@ export class PresetPipeCustom extends Data {
     imagePath: string = ''
     customProperties = new PresetPipeCustomProperties()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new PresetPipeCustom(),
             'This is what is sent to the Pipe application',
@@ -58,7 +58,7 @@ export class PresetPipeCustomProperties extends Data {
     transitions: PresetPipeCustomTransition[] = []
     textAreas: PresetPipeCustomTextArea[] = []
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new PresetPipeCustomProperties(),
             {
@@ -103,7 +103,7 @@ export class PresetPipeCustomFollow extends Data {
     durationMs: number = 250
     tweenType: number = 5
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new PresetPipeCustomFollow(),
             {
@@ -121,7 +121,7 @@ export class PresetPipeCustomAnimation extends Data {
     waveform: number = 0
     flipWaveform: boolean = false
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new PresetPipeCustomAnimation(),
             {
@@ -149,7 +149,7 @@ export class PresetPipeCustomTransition extends Data {
     durationMs: number = 250
     tweenType: number = 5
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new PresetPipeCustomTransition(),
             {
@@ -176,7 +176,7 @@ export class PresetPipeCustomTextArea extends Data {
     horizontalAlignment: number = 0
     verticalAlignment: number = 0
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new PresetPipeCustomTextArea(),
             {

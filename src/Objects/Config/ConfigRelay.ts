@@ -6,7 +6,7 @@ export class ConfigRelay extends Data {
     streamDeckChannel: string = 'streaming_widget'
     overlayImagesChannel: string = 'overlay_images'
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigRelay(),
             'Settings to connect to the WSRelay accessory application.',

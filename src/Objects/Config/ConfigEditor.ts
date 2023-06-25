@@ -12,7 +12,7 @@ export class ConfigEditor extends Data {
     showFavoritesBar: boolean = true
     favorites: { [key:string]: ConfigEditorFavorite } = {}
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigEditor(),
             'Configuration values for this very editor that you are using right now.',
@@ -36,7 +36,7 @@ export class ConfigEditorFavorite extends Data {
     class: string = ''
     class_withKey: string = ''
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigEditorFavorite(),
             {

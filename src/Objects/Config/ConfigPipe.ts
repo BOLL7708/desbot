@@ -13,7 +13,7 @@ export class ConfigPipe extends Data {
     customChatAvatarConfig = new ConfigPipeCustomMessageAvatar()
     cleanTextConfig = new ConfigCleanText()
 
-    register() {
+    enlist() {
         DataMap.addRootInstance(
             new ConfigPipe(),
             'In-VR-overlays and notifications with: https://github.com/BOLL7708/OpenVRNotificationPipe',
@@ -41,7 +41,7 @@ export class ConfigPipeCustomMessage extends Data {
     textMaxHeight: number = 256
     font = new ConfigImageEditorFontSettings()
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new ConfigPipeCustomMessage())
     }
 }
@@ -49,7 +49,7 @@ export class ConfigPipeCustomMessageName extends Data {
     rect = new ConfigImageEditorRect()
     font = new ConfigImageEditorFontSettings()
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(new ConfigPipeCustomMessageName())
     }
 }
@@ -58,7 +58,7 @@ export class ConfigPipeCustomMessageAvatar extends Data {
     rect = new ConfigImageEditorRect()
     outlines: ConfigImageEditorOutline[] = []
 
-    register() {
+    enlist() {
         DataMap.addSubInstance(
             new ConfigPipeCustomMessageAvatar(),
             {
