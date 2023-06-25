@@ -685,26 +685,6 @@ export class Actions {
         }
     }
 
-    private static buildDiscordMessageCallback(config: IEntriesAction|undefined, key: TKeys): IActionCallback|undefined {
-        if(config) return {
-            tag: '💬',
-            description: 'Callback that triggers a DiscordUtils message action',
-            call: async (user: IActionUser, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                const userData = await TwitchHelixHelper.getUserById(user.id)
-                const entries = Utils.ensureArray(config.entries).getAsType(index)
-                for(const entry of entries ) {
-                    DiscordUtils.enqueueMessage(
-                        Config.credentials.DiscordWebhooks[key] ?? '',
-                        user.name,
-                        userData?.profile_image_url,
-                        await TextHelper.replaceTagsInText(entry, user)
-                    )
-                }
-            }
-        }
-    }
-
     private static buildTwitchChatCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '📄',

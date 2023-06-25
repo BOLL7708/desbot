@@ -74,8 +74,12 @@ export default class DataMap {
     public static hasInstance(
         className: string|undefined
     ): boolean {
-        const invalidClasses = ['string', 'number', 'array', 'boolean', 'data', '']
-        if(invalidClasses.indexOf(className?.toLowerCase() ?? '') != -1 || className?.startsWith('Option')) return false
+        const invalidClasses = ['string', 'number', 'array', 'boolean', '']
+        if(
+            invalidClasses.indexOf(className?.toLowerCase() ?? '') != -1
+            || className?.startsWith('Option')
+            || className?.startsWith('Data')
+        ) return false
 
         const has = className ? this._map.has(className) : false
         if(!has) Utils.log(`DataMap: "${className}" does not exist!`, Color.DarkRed, true, true)
