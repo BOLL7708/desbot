@@ -20,6 +20,7 @@ import ConfigTwitchChat from '../Objects/Config/ConfigTwitchChat.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 import TempFactory from './TempFactory.js'
+import {OptionTTSType} from '../Options/OptionTTS.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -126,7 +127,7 @@ export default class GoogleTTS {
     async enqueueSpeakSentence(
         input: string|string[],
         userId: number = 0,
-        type: ETTSType = ETTSType.Announcement,
+        type: number = OptionTTSType.Announcement,
         nonce: string = '',
         meta: any = null,
         clearRanges: ITwitchEmotePosition[]=[],
@@ -187,7 +188,7 @@ export default class GoogleTTS {
 
         // Clean input text
         const cleanTextConfig = Utils.clone(this._config.cleanTextConfig) // TODO: Apparently not a class instance as no __clone available?
-        cleanTextConfig.removeBitEmotes = sentence.type == ETTSType.Cheer
+        cleanTextConfig.removeBitEmotes = sentence.type == OptionTTSType.Cheer
         let cleanText = await TextHelper.cleanText(
             text, 
             cleanTextConfig,
@@ -203,7 +204,7 @@ export default class GoogleTTS {
 
         // If announcement the dictionary can be skipped.
         if(
-            type == ETTSType.Announcement
+            type == OptionTTSType.Announcement
             && this._config.dictionaryConfig.skipForAnnouncements
         ) skipDictionary = true
 
@@ -213,16 +214,16 @@ export default class GoogleTTS {
         // Build message depending on type
         if(Date.now() - this._lastEnqueued > this._speakerTimeoutMs) this._lastSpeaker = 0
         switch(sentence.type) {
-            case ETTSType.Said:
+            case OptionTTSType.Said:
                 const speech = this._chatConfig.speechTemplate
                 cleanText = (this._lastSpeaker == sentence.userId || this._config.skipSaid)
                     ? cleanText 
                     : TextHelper.replaceTags(speech, {userNick: cleanName, userInput: cleanText})
                 break
-            case ETTSType.Action:
+            case OptionTTSType.Action:
                 cleanText = `${cleanName} ${cleanText}`
                 break
-            case ETTSType.Cheer:
+            case OptionTTSType.Cheer:
                 let bitText = sentence.meta > 1 ? 'bits' : 'bit'
                 cleanText = `${cleanName} cheered ${sentence.meta} ${bitText}: ${cleanText}`
                 break

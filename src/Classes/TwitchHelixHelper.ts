@@ -23,6 +23,9 @@ import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from 
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
 import LegacyUtils from './LegacyUtils.js'
 import {SettingUser} from '../Objects/Setting/SettingUser.js'
+import {PresetReward} from '../Objects/Preset/PresetReward.js'
+import {ActionSystemRewardState} from '../Objects/Action/ActionSystem.js'
+import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Options/OptionTwitch.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -184,26 +187,19 @@ export default class TwitchHelixHelper {
         return response
     }
 
-    static async toggleRewards(rewards: ITwitchHelixRewardStates|TKeys[]): Promise<ITwitchHelixRewardStates> {
-        const result: ITwitchHelixRewardStates = {}
-        if(Array.isArray(rewards)) {
-            for(const key of rewards) {
-                const id = await LegacyUtils.getRewardId(key)
-                if(id) {
-                    const reward = await this.getReward(id)
-                    const rewardData = reward?.data?.getSpecific(0)
-                    const isEnabled = rewardData?.is_enabled ?? null
-                    const updated = await this.updateReward(id, {is_enabled: !isEnabled})
-                    if(updated !== null ) result[key] = !isEnabled
-                }
-            }
-        } else {
-            for(const [key, state] of Object.entries(rewards) as [TKeys, boolean][]) {
-                const id = await LegacyUtils.getRewardId(key)
-                if(id) {
-                    const updated = await this.updateReward(id, {is_enabled: state})
-                    if(updated !== null) result[key] = state
-                }
+    static async toggleRewards(rewards: ActionSystemRewardState[]): Promise<ActionSystemRewardState[]> {
+        const result: ActionSystemRewardState[] = []
+        for(const reward of rewards) {
+            const id = Utils.ensureStringNotId(reward.reward)
+            if(id) {
+                const updated = await this.updateReward(
+                    id,
+                    {
+                        is_enabled: reward.reward_visible == OptionTwitchRewardVisible.Visible,
+                        is_paused: reward.reward_usable == OptionTwitchRewardUsable.Enabled
+                    }
+                )
+                if(updated !== null) result.push(reward)
             }
         }
         return result

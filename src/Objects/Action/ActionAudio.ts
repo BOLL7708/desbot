@@ -39,7 +39,7 @@ export class ActionAudio extends Action {
             description: 'Callback that triggers a sound and/or speech action',
             awaitCall: true,
             call: async (user, index) => {
-                const clone = Utils.clone(this) as ActionAudio
+                const clone = Utils.clone<ActionAudio>(this)
                 clone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
                     ArrayUtils.getAsType(Utils.ensureArray(clone.srcEntries), clone.srcEntries_use, index), // Need to read entries from config here as cloning drops __type
                     user

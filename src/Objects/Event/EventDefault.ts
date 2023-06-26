@@ -1,10 +1,12 @@
 import DataMap from '../DataMap.js'
 import Data from '../Data.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
+import Trigger from '../Trigger.js'
+import Action from '../Action.js'
 
 export class EventDefault extends Data {
     options: EventOptions = new EventOptions()
-    triggers: (number|Data)[] = []
+    triggers: (number|Trigger)[] = []
     actions: EventActionContainer[] = []
 
     enlist() {
@@ -66,7 +68,7 @@ export class EventOptions extends Data {
 export class EventActionContainer extends Data {
     delayMs: number = 0
     delayMs_orTimeMs: number = 0
-    entries: (number|Data)[] = []
+    entries: (number|Action)[] = []
 
     enlist() {
         DataMap.addSubInstance(new EventActionContainer(),
@@ -75,7 +77,7 @@ export class EventActionContainer extends Data {
                 entries: 'The actions that will run.'
             },
             {
-                entries: Data.genericRef('Action')
+                entries: Action.genericRef('Action')
             }
         )
     }

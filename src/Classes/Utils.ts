@@ -186,11 +186,24 @@ export default class Utils {
         if(typeof value !== 'object' || value === null) return undefined
         else return value
     }
+    static ensureStringNotId(value: number|string): string|undefined {
+        if(typeof value !== 'string') return undefined
+        else return value
+    }
     static ensureObjectArrayNotId<Type>(arrayOfValues: (number|Type)[]): Type[] {
         const result: Type[] = []
         if(Array.isArray(arrayOfValues)) {
             for(const value of arrayOfValues) {
                 if(value !== null && typeof value === 'object') result.push(value)
+            }
+        }
+        return result
+    }
+    static ensureStringArrayNotId(arrayOfValues: (number|string)[]): string[] {
+        const result: string[] = []
+        if(Array.isArray(arrayOfValues)) {
+            for(const value of arrayOfValues) {
+                if(typeof value === 'string') result.push(value)
             }
         }
         return result

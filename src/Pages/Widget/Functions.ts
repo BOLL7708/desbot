@@ -226,6 +226,7 @@ export default class Functions {
         }
 
         // Apply always on/off filters
+        /* TODO: Reimplement this in some manner.
         for(const rewardKey of Config.twitch.alwaysOnRewards) {
             profileToUse[rewardKey] = true
         }
@@ -236,7 +237,7 @@ export default class Functions {
         Utils.log(`Toggling rewards (${Object.keys(profileToUse).length}) except active game rewards (${availableGameRewardKeys.length}) which are handled separately.`, Color.Green, true, true)
         console.log(profileToUse)
         TwitchHelixHelper.toggleRewards(profileToUse).then()
-
+        */
         // endregion
 
         // region Misc

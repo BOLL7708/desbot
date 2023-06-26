@@ -1,4 +1,4 @@
-import DefaultObjects, {IDefaultObject, IDefaultObjectList} from './DefaultObjects.js'
+import DefaultData, {IDefaultObject, IDefaultObjectList} from './DefaultData.js'
 import Utils from '../../Classes/Utils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataMap, {DataObjectMeta} from '../../Objects/DataMap.js'
@@ -31,23 +31,23 @@ export default class DefaultsHandler {
         const LABEL_BOLL = 'BOLL' // TODO: Temporary
 
         // Checks
-        const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultObjects.PREREQUISITE_ENTRIES)
-        const systemExists = prerequisiteExists && await DefaultsHandler.checkIfItemsExists(DefaultObjects.SYSTEM_ENTRIES)
+        const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultData.PREREQUISITE_ENTRIES)
+        const systemExists = prerequisiteExists && await DefaultsHandler.checkIfItemsExists(DefaultData.SYSTEM_ENTRIES)
 
         // Import Buttons
-        children.push(await DefaultsHandler.buildImportButton(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
-        if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButton(DefaultObjects.SYSTEM_ENTRIES, LABEL_SYSTEM))
+        children.push(await DefaultsHandler.buildImportButton(DefaultData.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
+        if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButton(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
         if(systemExists) {
-            children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
-            children.push(await DefaultsHandler.buildImportButton(DefaultObjects.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+            children.push(await DefaultsHandler.buildImportButton(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
+            children.push(await DefaultsHandler.buildImportButton(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
         }
 
         // Reference Buttons
-        children.push(await DefaultsHandler.buildSection(DefaultObjects.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
-        if(prerequisiteExists) children.push(await DefaultsHandler.buildSection(DefaultObjects.SYSTEM_ENTRIES, LABEL_SYSTEM))
+        children.push(await DefaultsHandler.buildSection(DefaultData.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
+        if(prerequisiteExists) children.push(await DefaultsHandler.buildSection(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
         if(systemExists) {
-            children.push(await DefaultsHandler.buildSection(DefaultObjects.BONUS_ENTRIES, LABEL_BONUS))
-            children.push(await DefaultsHandler.buildSection(DefaultObjects.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+            children.push(await DefaultsHandler.buildSection(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
+            children.push(await DefaultsHandler.buildSection(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
         }
 
         container.replaceChildren(...children)
@@ -148,7 +148,7 @@ export default class DefaultsHandler {
             }
         }
         async function navigateToItem() {
-            const id = await DefaultObjects.loadID(item.instance, item.key.toString())
+            const id = await DefaultData.loadID(item.instance, item.key.toString())
             window.location.href = `./editor.php?id=${id}`
         }
         function getLabel(exists: boolean, mappedLabel?: string) {

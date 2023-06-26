@@ -488,6 +488,7 @@ export default class Callbacks {
         })
 
         modules.openvr2ws.setFindOverlayCallback((overlayKey, overlayHandle) => {
+            /* TODO: Reimplement this
             const rewardsToToggle = Config.twitch.turnOnRewardForOverlays[overlayKey]
             if(Array.isArray(rewardsToToggle)) {
                 const rewards: { [x: string]: boolean } = {}
@@ -498,6 +499,7 @@ export default class Callbacks {
                 })
                 TwitchHelixHelper.toggleRewards(rewards)
             }
+            */
         })
 
         // TODO: Nothing should be using this so possibly redundant.

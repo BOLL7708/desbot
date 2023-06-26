@@ -13,7 +13,9 @@ export class ActionChat extends Action {
         DataMap.addRootInstance(
             new ActionChat(),
             'Send message(s) to Twitch chat.',
-            {},
+            {
+                entries: 'These entries will be sent to chat.'
+            },
             {
                 entries: 'string',
                 entries_use: OptionEntryUsage.ref()
@@ -26,7 +28,7 @@ export class ActionChat extends Action {
             tag: '📄',
             description: 'Callback that triggers a Twitch chat message action',
             call: async (user: IActionUser, index?: number) => {
-                const clone = Utils.clone(this) as ActionChat
+                const clone = Utils.clone<ActionChat>(this)
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(Utils.ensureArray(clone.entries), clone.entries_use, index)
                 for(const entry of entries) {

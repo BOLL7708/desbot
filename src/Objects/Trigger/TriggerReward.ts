@@ -22,7 +22,7 @@ export class TriggerReward extends Trigger {
             {
                 permissions: 'Permission for who can redeem this reward.',
                 rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.',
-                rewardEntries: 'One ore multiple reward presets.'
+                rewardEntries: 'One or multiple reward presets.'
             },
             {
                 permissions: PresetPermissions.refId(),

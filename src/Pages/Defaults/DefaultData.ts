@@ -133,27 +133,7 @@ enum EKeys {
     // endregion
 }
 
-export default class DefaultObjects {
-    /**
-     * TODO:
-     *  1. A list of objects
-     *  2. Loop over list
-     *  3. Create object form list
-     *  4. Fill object with data from template
-     *  5. Loop over template properties
-     *  6. If template property is a reference, create that reference and return the ID.
-     *
-     */
-    /*
-        {
-            category: [
-                {
-                    key: string
-                    builder()
-                }
-            ]
-        }
-     */
+export default class DefaultData {
     static readonly PREREQUISITE_ENTRIES: IDefaultObjectList = {
         permissionPresets: [
             {
@@ -610,35 +590,35 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('silence', 'stop')
                     trigger.helpText = 'Silence the current speaking TTS entry.'
 
                     const action = new ActionSettingTTS()
                     action.functionType = OptionTTSFunctionType.StopCurrent
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },{
                 key: EKeys.TtsDie,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('die', 'ttsdie', 'kill')
                     trigger.helpText = 'Empties the queue and silences what is currently spoken.'
 
                     const action= new ActionSettingTTS()
                     action.functionType = OptionTTSFunctionType.StopAll
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },{
                 key: EKeys.TtsNick,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.requireMinimumWordCount = 1
                     trigger.entries.push('nick', 'setnick', 'name', 'setname')
                     trigger.helpInput.push('usertag', 'nick')
@@ -649,14 +629,14 @@ export default class DefaultObjects {
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
             },{
                 key: EKeys.TtsClearNick,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('clearnick', 'clearname')
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Resets the TTS nick name for the tagged user, skip the tag to reset your own, available for, available for VIPs and subs.'
@@ -666,14 +646,14 @@ export default class DefaultObjects {
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%lastTTSSetNickLogin is now called %lastTTSSetNickSubstitute')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
             },{
                 key: EKeys.TtsMute,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('mute')
                     trigger.helpInput.push('usertag', 'reason text')
                     trigger.helpText = 'Mutes the tagged user so they will not speak with TTS, persists, reason is optional.'
@@ -683,14 +663,14 @@ export default class DefaultObjects {
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetTag has lost their voice.')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
             },{
                 key: EKeys.TtsUnmute,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('unmute')
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Unmutes the tagged user so they can again speak with TTS.'
@@ -700,14 +680,14 @@ export default class DefaultObjects {
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetTag has regained their voice.')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
             },{
                 key: EKeys.TtsGender,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('gender')
                     trigger.helpInput.push('usertag', 'f|m')
                     trigger.helpText = 'Swap the TTS voice gender for the tagged user, skip the tag to swap your own, available for VIPs & subs, optionally specify a gender.'
@@ -718,28 +698,28 @@ export default class DefaultObjects {
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this')
                     actionSpeech.voiceOfUsername = '%targetOrUserLogin'
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
             },{
                 key: EKeys.TtsSpeak,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerReward()
-                    trigger.rewardEntries.push(await DefaultObjects.loadID(new PresetReward(), EKeys.RewardSpeak))
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.rewardEntries.push(await DefaultData.loadID(new PresetReward(), EKeys.RewardSpeak))
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
 
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
                     action.voiceOfUsername = '%userLogin'
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },{
                 key: EKeys.TtsSay,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('say')
                     trigger.helpInput.push('message')
                     trigger.helpText = 'Speaks a message with TTS without announcing any user.'
@@ -748,17 +728,17 @@ export default class DefaultObjects {
                     action.entries.push('%userInput')
                     action.voiceOfUsername = '%userLogin'
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },{
                 key: EKeys.TtsSetVoice,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const triggerReward = new TriggerReward()
-                    triggerReward.rewardEntries.push(await DefaultObjects.loadID(new PresetReward(), EKeys.RewardSetVoice))
-                    triggerReward.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    triggerReward.rewardEntries.push(await DefaultData.loadID(new PresetReward(), EKeys.RewardSetVoice))
+                    triggerReward.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     const triggerCommand = new TriggerCommand()
-                    triggerCommand.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    triggerCommand.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     triggerCommand.entries.push('voice', 'setvoice')
                     triggerCommand.helpInput.push('usertag', 'voice text')
                     triggerCommand.helpText = 'Set the TTS voice for the tagged user, skip the tag to set your own.'
@@ -771,7 +751,7 @@ export default class DefaultObjects {
                     const actionChat = new ActionChat()
                     actionChat.entries.push('TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice')
 
-                    return await DefaultObjects.registerEvent(instance, key,
+                    return await DefaultData.registerEvent(instance, key,
                         [triggerReward, triggerCommand],
                         [actionTTS, actionSpeech, actionChat]
                     )
@@ -781,7 +761,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('getnick')
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Get the current TTS nick name for the tagged user, skip the tag to get your own, available for everyone.'
@@ -795,14 +775,14 @@ export default class DefaultObjects {
                     const actionChat = new ActionChat()
                     actionChat.entries.push('TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionChat])
                 }
             },{
                 key: EKeys.TtsGetVoice,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('getvoice')
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Get the current TTS voice for the tagged user, skip the tag to get your own, available for everyone.'
@@ -816,14 +796,14 @@ export default class DefaultObjects {
                     const actionChat = new ActionChat()
                     actionChat.entries.push('TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionChat])
                 }
             },{
                 key: EKeys.TtsVoices,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('tts', 'voices')
                     trigger.helpText = 'Posts information about how to set your voice.'
                     trigger.userCooldown = 60 * 5
@@ -831,14 +811,14 @@ export default class DefaultObjects {
                     const action = new ActionChat()
                     action.entries.push('Preview Google TTS voices here, pick a Wavenet or Neural2 voice (standard is banned) and use the name with the "Set Your Voice" reward 👉 https://cloud.google.com/text-to-speech/docs/voices')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },{
                 key: EKeys.TtsOn,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('ttson')
                     trigger.helpTitle = 'Text To Speech'
                     trigger.helpText = 'Turn ON global TTS for Twitch chat.'
@@ -849,18 +829,18 @@ export default class DefaultObjects {
                     actionSpeech.entries.push('TTS enabled.')
                     const actionSystem = new ActionSystem()
                     const rewardState = new ActionSystemRewardStateForEvent()
-                    rewardState.event = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
+                    rewardState.event = await DefaultData.loadID(new EventDefault(), EKeys.RewardSpeak)
                     rewardState.event_visible = OptionTwitchRewardVisible.Hidden
                     actionSystem.toggle.rewardStatesForEvents.push(rewardState)
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
                 }
             },{
                 key: EKeys.TtsOff,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('ttsoff')
                     trigger.helpTitle = 'Text To Speech'
                     trigger.helpText = 'Turn OFF global TTS for Twitch chat.'
@@ -871,11 +851,11 @@ export default class DefaultObjects {
                     actionSpeech.entries.push('TTS disabled.')
                     const actionSystem = new ActionSystem()
                     const rewardState = new ActionSystemRewardStateForEvent()
-                    rewardState.event = await DefaultObjects.loadID(new EventDefault(), EKeys.RewardSpeak)
+                    rewardState.event = await DefaultData.loadID(new EventDefault(), EKeys.RewardSpeak)
                     rewardState.event_visible = OptionTwitchRewardVisible.Visible
                     actionSystem.toggle.rewardStatesForEvents.push(rewardState)
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionSystem])
                 }
             },
             // endregion
@@ -886,7 +866,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('word', 'setword')
                     trigger.helpInput = ['original', 'replacement']
                     trigger.helpText = 'Adds a word to the dictionary, comma separated replacement will randomize, prepend original with + to append or - to remove.'
@@ -898,14 +878,14 @@ export default class DefaultObjects {
                     actionSpeech.entries.push('%lastDictionaryWord is now said as %lastDictionarySubstitute')
                     actionSpeech.skipDictionary = true
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
             },{
                 key: EKeys.DictionaryGetWord,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('getword')
                     trigger.helpText = 'Gets the current value for a dictionary entry, available for everyone.'
 
@@ -914,14 +894,14 @@ export default class DefaultObjects {
                     const actionChat = new ActionChat()
                     actionChat.entries.push('Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"')
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionChat])
                 }
             },{
                 key: EKeys.DictionaryClearWord,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('clearword')
                     trigger.requireExactWordCount = 1
                     trigger.helpText = 'Clears a dictionary entry so it is no longer substituted.'
@@ -932,7 +912,7 @@ export default class DefaultObjects {
                     actionSpeech.entries.push('%lastDictionaryWord was cleared from the dictionary')
                     actionSpeech.skipDictionary = true
 
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSpeech])
                 }
             }
             // endregion
@@ -943,14 +923,14 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('chat')
                     trigger.helpTitle = 'Chat Stuff'
                     trigger.helpInput = ['message']
                     trigger.helpText = 'Displays an anonymous text message as a VR overlay, available for VIPs.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.Chat)
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -958,12 +938,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('chaton')
                     trigger.helpText = 'Turns ON the chat popups in VR.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ChatOn)
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -971,12 +951,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('chatoff')
                     trigger.helpText = 'Turns OFF the chat popups in VR.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.ChatOff)
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -984,12 +964,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('pingon')
                     trigger.helpText = 'Turns ON the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.PingOn)
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -997,12 +977,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('pingoff')
                     helpText: 'Turns OFF the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    action.trigger.systemActionEntries.push(OptionSystemActionType.PingOff)
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1010,11 +990,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('logon')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1022,11 +1002,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('logoff')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.LogOff)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1034,13 +1014,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('quote')
                     trigger.helpInput = ['usertag', 'quote text']
                     trigger.helpText = 'Save a quote by the tagger user, or if the tag is skipped, the streamer.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Quote)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1048,13 +1028,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('scale')
                     trigger.helpInput = ['world scale|start scale', 'end scale', 'minutes']
                     trigger.helpText = 'Sets the world scale for the running VR game and cancels any sequence, range is 10-1000%, provide 3 numbers to start a sequence (from, to, minutes), no value resets to default.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Scale)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1062,11 +1042,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('update')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.UpdateRewards)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1074,12 +1054,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('rewardson')
                     trigger.helpText = 'Turn ON game specific rewards.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameRewardsOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1087,12 +1067,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('rewardsoff')
                     trigger.helpText = 'Turn OFF game specific rewards.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameRewardsOff)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1100,14 +1080,14 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('refund')
                     trigger.helpInput = ['usertag']
                     trigger.helpText = 'Refund the last reward in the redemptions queue for the tagged user.'
                     trigger.globalCooldown = 30
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.RefundRedemption)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1115,12 +1095,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('clearqueue')
                     trigger.globalCooldown = 60
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ClearRedemptions)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1128,12 +1108,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('resetinc')
                     trigger.globalCooldown = 20
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ResetIncrementingEvents)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1141,12 +1121,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('resetacc')
                     trigger.globalCooldown = 20
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ResetAccumulatingEvents)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1154,11 +1134,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('reload')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ReloadWidget)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1166,11 +1146,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('clips')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Clips)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1178,11 +1158,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('nogame')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
 
@@ -1191,13 +1171,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('raid')
                     trigger.helpInput = ['usertag|channel link']
                     trigger.helpText = 'Will initiate a raid if a valid user tag or channel link is provided.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Raid)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1205,12 +1185,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('unraid')
                     trigger.helpText = 'Will cancel the currently active raid.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1218,12 +1198,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('remoteon')
                     trigger.helpText = 'Turn ON remote channel commands.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.RemoteOn)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1231,12 +1211,12 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('remoteoff')
                     trigger.helpText = 'Turn OFF remote channel commands.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.RemoteOff)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1244,13 +1224,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('posthelp')
                     const actionSystem = new ActionSystem()
                     actionSystem.trigger.systemActionEntries.push(OptionSystemActionType.HelpToDiscord)
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Help was posted to Discord')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
                 }
             },
             {
@@ -1258,14 +1238,14 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('help')
                     trigger.helpInput = ['command'],
                     trigger.helpText = 'Posts help information about specific commands. Come on now, this is the help! Why even ask about help about the help! Sheesh!',
                     trigger.userCooldown = 30
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.HelpToChat)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1273,11 +1253,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('mod')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Mod)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1285,11 +1265,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('unmod')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.UnMod)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1297,11 +1277,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('vip')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Vip)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1309,11 +1289,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('unvip')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.UnVip)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1322,11 +1302,11 @@ export default class DefaultObjects {
                 importer: async (instance: EventDefault, key)=>{
                     instance.options.rewardIgnoreUpdateCommand = true
                     const trigger = new TriggerReward()
-                    trigger.rewardEntries.push(await DefaultObjects.loadID(new PresetReward(), EKeys.RewardChannelTrophy))
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.rewardEntries.push(await DefaultData.loadID(new PresetReward(), EKeys.RewardChannelTrophy))
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ChannelTrophy)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1334,11 +1314,11 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('trophy')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             }
         ]
@@ -1350,7 +1330,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('game')
                     trigger.helpText = 'Post information about the current game to chat.'
                     trigger.globalCooldown = 3*60
@@ -1361,7 +1341,7 @@ export default class DefaultObjects {
                     actionSign.durationMs = 10000
                     const actionChat = new ActionChat()
                     actionChat.entries.push('Game: %gameName - Released: %gameRelease - Price: %gamePrice - Link: %gameLink')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSign, actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSign, actionChat])
                 }
             },
             {
@@ -1369,14 +1349,14 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('audiourl')
                     trigger.helpInput = ['audio url']
                     trigger.helpText = 'Will play back the audio from the URL, for streamers by default as it\'s a risky command.'
                     const action = new ActionAudio()
                     action.srcEntries.push('%userInput')
                     action.volume = 0.5
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1384,14 +1364,14 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('say')
                     trigger.helpInput = ['message text']
                     trigger.helpText = 'Will read the message aloud, without saying from whom, available for VIPs.'
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
                     // TODO: Can be set to have the voice of a specific account.
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1399,13 +1379,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('lurk')
                     trigger.helpInput = ['message text']
                     trigger.helpText = 'Posts a lurk message, available for everyone.'
                     const action = new ActionChat()
                     action.entries.push('📢 For some reason %userTag felt it necessary to publicly announce that they are in ultra lurk mode! 🤗 %userInput')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1413,7 +1393,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('label', 'txt')
                     trigger.helpInput = ['label contents']
                     trigger.helpText = 'Sets the text of the on-screen bottom label.'
@@ -1422,7 +1402,7 @@ export default class DefaultObjects {
                     const actionLabel = new ActionLabel()
                     actionLabel.fileName = 'obs_info_label.txt'
                     actionLabel.textEntries.push('%userInput')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSpeech, actionLabel])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSpeech, actionLabel])
                 }
             },
             {
@@ -1430,16 +1410,16 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('todo')
                     trigger.helpInput = ['todo text']
                     trigger.helpText = 'Posts a to-do note in the to-do Discord channel.'
                     const actionDiscord = new ActionDiscord()
                     actionDiscord.entries.push('👉 %userInput')
-                    actionDiscord.webhook = await DefaultObjects.loadID(new PresetDiscordWebhook(), EKeys.DiscordTodo)
+                    actionDiscord.webhook = await DefaultData.loadID(new PresetDiscordWebhook(), EKeys.DiscordTodo)
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('To do list appended with: %userInput')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionDiscord, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionDiscord, actionSpeech])
                 }
             },
             {
@@ -1447,7 +1427,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('so', 'shoutout')
                     trigger.helpInput = ['usertag']
                     trigger.helpText = 'Posts a shout-out message for a user, useful for an incoming raider.',
@@ -1455,7 +1435,7 @@ export default class DefaultObjects {
                     trigger.requireUserTag = true
                     const action = new ActionChat()
                     action.entries.push('📢 People gather around and feast your eyes on ❤%targetTag❤ who last streamed "%targetGame", give them your unwanted attention! 🥰 (check out their channel and consider following! 🤣 %targetLink)')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1463,7 +1443,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('endstream')
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(
@@ -1473,7 +1453,7 @@ export default class DefaultObjects {
                         OptionSystemActionType.ResetIncrementingEvents,
                         OptionSystemActionType.ResetAccumulatingEvents
                     )
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             }
         ],
@@ -1483,13 +1463,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('widget')
                     trigger.helpText = 'Posts a link to the Streaming Widget Github page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('I can be yours here 👉 https://github.com/BOLL7708/streaming_widget')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             }
         ]
@@ -1521,7 +1501,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('camon')
                     trigger.helpText = 'Turns ON the room camera.'
                     const actionOBSSource = new ActionOBSSource()
@@ -1532,7 +1512,7 @@ export default class DefaultObjects {
                     actionOBS.state = false
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Camera enabled')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
                 }
             },
             {
@@ -1540,7 +1520,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('camoff')
                     trigger.helpText = 'Turns OFF the room camera.'
                     const actionOBSSource = new ActionOBSSource()
@@ -1551,7 +1531,7 @@ export default class DefaultObjects {
                     actionOBS.state = true
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Camera disabled')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
                 }
             },
             {
@@ -1559,18 +1539,18 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('scaleon')
                     trigger.helpText = 'Turns ON all world scale rewards.'
                     // TODO: Need to also add the scale events.
                     const actionSystem = new ActionSystem()
                     actionSystem.toggle.rewardStatesForEvents.push(
-                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleGrow, true),
-                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleShrink, true)
+                        await DefaultData.buildToggleForEvent(EKeys.BollRewardScaleGrow, true),
+                        await DefaultData.buildToggleForEvent(EKeys.BollRewardScaleShrink, true)
                     )
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Scale rewards enabled.')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
                 }
             },
             {
@@ -1578,20 +1558,20 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('scaleoff')
                     trigger.helpText = 'Turns OFF all world scale rewards.'
 
                     // TODO: Need to also add the scale events.
                     const actionSystem = new ActionSystem()
                     actionSystem.toggle.rewardStatesForEvents.push(
-                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleGrow, false),
-                        await DefaultObjects.buildToggleForEvent(EKeys.BollRewardScaleShrink, false)
+                        await DefaultData.buildToggleForEvent(EKeys.BollRewardScaleGrow, false),
+                        await DefaultData.buildToggleForEvent(EKeys.BollRewardScaleShrink, false)
                     )
 
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Scale rewards disabled.')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
                 }
             },
             {
@@ -1599,7 +1579,7 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('livcam')
                     trigger.helpInput = ['number']
                     trigger.helpText = 'Switch the LIV camera profile.'
@@ -1607,7 +1587,7 @@ export default class DefaultObjects {
                     actionLink.entries.push('liv-app://camera/set/%inputNumber')
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Liv camera set to %inputNumber')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [actionLink, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionLink, actionSpeech])
                 }
             }
         ],
@@ -1617,14 +1597,14 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('discord')
                     trigger.helpTitle = 'Links'
                     trigger.helpText = 'Posts a link to the official DiscordUtils server.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Official DiscordUtils server 👉 https://discord.com/invite/CTj47pmxuT')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1632,13 +1612,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('snack')
                     trigger.helpText = 'Posts a link to Haupt Lakrits, where the snack has been procured from.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1646,13 +1626,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('github')
                     trigger.helpText = 'Posts a link to my main Github page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1660,13 +1640,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('twitter')
                     trigger.helpText = 'Posts a link to my Twitter page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Twitter, mostly complaints to companies 👉 https://twitter.com/BOLL7708')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
             {
@@ -1674,13 +1654,13 @@ export default class DefaultObjects {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultObjects.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('archive', 'youtube', 'yt')
                     trigger.helpText = 'Posts a link to the YouTube stream archive.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Stream archive on YouTube 👉 https://youtube.com/playlist?list=PLPpKs-9QAC4UVZZMUsOEM7Ye9cYebvYda')
-                    return await DefaultObjects.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             }
         ],
@@ -1708,14 +1688,14 @@ export default class DefaultObjects {
         triggers: Data[],
         actions: Data[]
     ): Promise<boolean> {
-        const parentId = await DefaultObjects.saveAndGetID(instance, key)
+        const parentId = await DefaultData.saveAndGetID(instance, key)
         if(parentId > 0) {
             for(const trigger of triggers) {
-                instance.triggers.push(await DefaultObjects.saveSubAndGetID(trigger, key, parentId))
+                instance.triggers.push(await DefaultData.saveSubAndGetID(trigger, key, parentId))
             }
             const actionContainer = new EventActionContainer()
             for(const action of actions) {
-                actionContainer.entries.push(await DefaultObjects.saveSubAndGetID(action, key, parentId))
+                actionContainer.entries.push(await DefaultData.saveSubAndGetID(action, key, parentId))
             }
             instance.actions.push(actionContainer)
         }
@@ -1724,7 +1704,7 @@ export default class DefaultObjects {
 
     static async buildToggleForEvent(eventKey: EKeys, visible: boolean): Promise<ActionSystemRewardStateForEvent> {
         const actionSystemEvent = new ActionSystemRewardStateForEvent()
-        actionSystemEvent.event = await DefaultObjects.loadID(new EventDefault(), eventKey)
+        actionSystemEvent.event = await DefaultData.loadID(new EventDefault(), eventKey)
         actionSystemEvent.event_visible = visible ? OptionTwitchRewardVisible.Visible : OptionTwitchRewardVisible.Hidden
         return actionSystemEvent
     }
