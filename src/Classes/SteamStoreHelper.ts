@@ -1,5 +1,8 @@
 import {ISteamStoreGameData, ISteamStoreGameResponse} from '../Interfaces/isteam_store.js'
 import Utils from './Utils.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {SettingSteamGame} from '../Objects/Setting/SettingSteam.js'
+import Data from '../Objects/Data.js'
 
 export default class SteamStoreHelper {
     static _gameCache: Map<number, ISteamStoreGameData> = new Map()
@@ -13,6 +16,11 @@ export default class SteamStoreHelper {
             if(response != null) {
                 const data = response[id]?.data
                 if(data) {
+                    if(data.name) { // Update name in database, also happens in SteamWebHelper
+                        const setting = await DataBaseHelper.loadOrEmpty(new SettingSteamGame(), appId)
+                        setting.title = data.name
+                        await DataBaseHelper.save(setting, appId)
+                    }
                     this._gameCache.set(id, data)
                     return data
                 }

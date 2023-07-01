@@ -67,17 +67,6 @@ export default class Functions {
             await SteamWebHelper.getGlobalAchievementStats(appId)
             await Functions.loadAchievements()
 
-            // Save reference to current game, for use in the editor.
-            const appIdNumber = Utils.numberFromAppId(appId)
-            if(SteamWebHelper._gameSchemas.has(appIdNumber)) {
-                const gameSchema = SteamWebHelper._gameSchemas.get(appIdNumber)
-                if(gameSchema) {
-                    const steamGame = new SettingSteamGame()
-                    steamGame.title = gameSchema.game.gameName
-                    await DataBaseHelper.save(steamGame, appId)
-                }
-            }
-
 			/**
 			 * Controller defaults loading, various settings including TTS etc.
 			 */

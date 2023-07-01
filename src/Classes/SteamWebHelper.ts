@@ -9,6 +9,7 @@ import Config from './Config.js'
 import Color from './ColorConstants.js'
 import {ConfigSteam} from '../Objects/Config/ConfigSteam.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import {SettingSteamGame} from '../Objects/Setting/SettingSteam.js'
 
 /**
  * These are calls to the Steam Web API to fetch various kinds of data.
@@ -80,11 +81,16 @@ export default class SteamWebHelper {
         if(this._gameSchemas.has(id)) return this._gameSchemas.get(id)
         if(!isNaN(id)) {
             const encodedUrl = await this.getEncodedUrl('ISteamUserStats/GetSchemaForGame/v0002/', id)
-            const response: ISteamWebApiGameSchema = await fetch(`_proxy.php?url=${encodedUrl}`)
-                .then(response => response.json())
-            if(response != null) {
-                this._gameSchemas.set(id,  response)
-                return response
+            const response = await fetch(`_proxy.php?url=${encodedUrl}`)
+            if(response.ok != null) {
+                const json: ISteamWebApiGameSchema = await response.json()
+                this._gameSchemas.set(id, json)
+                if(json.game.gameName) { // Update name in database, also happens in SteamStoreHelper
+                    const setting = await DataBaseHelper.loadOrEmpty(new SettingSteamGame(), appId)
+                    setting.title = json.game.gameName
+                    await DataBaseHelper.save(setting, appId)
+                }
+                return json
             } else {
                 console.warn(`SteamWebApi: Failed to get game schema for ${appId}`)
             }
