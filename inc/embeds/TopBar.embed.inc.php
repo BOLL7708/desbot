@@ -33,6 +33,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
             printMenuItem($scriptFile, $group, 'editor.php?g=a', '🤹 Actions', 'Browse, add, edit or delete actions.');
             printMenuItem($scriptFile, $group, 'editor.php?g=s', '📚 Settings', 'Browse, add, edit or delete settings.');
             printMenuItem($scriptFile, $group, 'dashboard.php', '🚦 Dashboard', 'Show the dashboard which lets you manage events and features live.');
+            printMenuItem($scriptFile, $group, 'tools.php', '🧰 Tools', 'Run various batch jobs to import data from external sources, etc.');
             printMenuItem($scriptFile, $group, 'defaults.php', '🍰 Defaults', 'Import various default commands, rewards, etc.');
             printMenuItem($scriptFile, $group, 'search.php', '🔭 Search', 'Search for items in the database.');
             printMenuItem($scriptFile, $group, 'help.php', '🤖 Help', 'Search for items in the database.');
@@ -54,4 +55,8 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         <li><a href="#" id="topBarPageModeLink" title="Switch between bright and dark mode.">🌕/🌑</a></li>
     </ul>
 </div>
+<?php
+$fileName = pathinfo($_SERVER["SCRIPT_FILENAME"], PATHINFO_FILENAME);
+if($fileName == 'editor') { ?>
 <div id="favorites-bar" class="hbar" <?=$favoritesBarStyle?>><ul><li><a>⌛ Loading...</a></li></ul></div>
+<?php } ?>
