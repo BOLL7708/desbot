@@ -1,9 +1,8 @@
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
-import {IAudioAction, IPipeAction} from '../Interfaces/iactions.js'
+import {IAudioAction} from '../Interfaces/iactions.js'
 import Utils from './Utils.js'
 import {TKeys} from '../_data/!keys.js'
 import {OptionSystemActionType} from '../Options/OptionSystemActionType.js'
-import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 
 export default class TempFactory {
@@ -11,18 +10,6 @@ export default class TempFactory {
         const audio = audioConfig as IAudioAction
         Utils.applyEntryType(Utils.ensureArray(audio.srcEntries), audioConfig.srcEntries_use)
         return audio
-    }
-
-    static pipeActionInterface(actionInterface: IPipeAction): ActionPipe {
-        const action = new ActionPipe()
-        action.preset = actionInterface.config ?? 0
-        action.imageDataEntries = Utils.ensureArray(actionInterface.imageDataEntries) ?? []
-        action.imagePathEntries = Utils.ensureArray(actionInterface.imagePathEntries) ?? []
-        action.imageDataEntries_use = TempFactory.arrayType(Utils.ensureArray(actionInterface.imageDataEntries)?.__type ?? 0)
-        action.imagePathEntries_use = TempFactory.arrayType(Utils.ensureArray(actionInterface.imagePathEntries)?.__type ?? 0)
-        action.texts = Utils.ensureArray(actionInterface.texts)
-        action.durationMs = actionInterface.durationMs
-        return action
     }
 
     static arrayType(type: number): number {

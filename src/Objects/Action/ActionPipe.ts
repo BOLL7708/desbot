@@ -1,16 +1,21 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import Utils from '../../Classes/Utils.js'
+import TextHelper from '../../Classes/TextHelper.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
 
-export class ActionPipe extends Data{
+export class ActionPipe extends Action {
     imagePathEntries: string[] = []
-    imagePathEntries_use = OptionEntryUsage.First
+    imagePathEntries_use = OptionEntryUsage.OneRandom
     imageDataEntries: string[] = []
-    imageDataEntries_use = OptionEntryUsage.First
+    imageDataEntries_use = OptionEntryUsage.OneRandom
     durationMs: number = 1000
     preset: number|PresetPipeCustom = 0
     texts: string[] = []
+    texts_use = OptionEntryUsage.All
 
     enlist() {
         DataMap.addRootInstance(
@@ -28,8 +33,36 @@ export class ActionPipe extends Data{
                 imageDataEntries: 'string',
                 imageDataEntries_use: OptionEntryUsage.ref(),
                 preset: PresetPipeCustom.refId(),
-                texts: 'string'
+                texts: 'string',
+                texts_use: OptionEntryUsage.ref()
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return  {
+            tag: '📺',
+            description: 'Callback that triggers an OpenVRNotificationPipe action',
+            call: async (user: IActionUser, nonce: string, index?: number) => {
+                const clone = Utils.clone<ActionPipe>(this)
+                const modules = ModulesSingleton.getInstance()
+                const preset = Utils.ensureObjectNotId(clone.preset)
+                if(!preset) return console.warn('ActionPipe: No preset chosen, cannot display.')
+
+                // Need to reference the original config arrays here as the __type is dropped in the clone process.
+                clone.imagePathEntries = ArrayUtils.getAsType(clone.imagePathEntries, clone.imagePathEntries_use, index)
+                clone.imageDataEntries = ArrayUtils.getAsType(clone.imageDataEntries, clone.imageDataEntries_use, index)
+
+                // Replace tags in texts, texts in the action will replace ones in the text areas if set.
+                clone.texts = await TextHelper.replaceTagsInTextArray(ArrayUtils.getAsType(clone.texts, clone.texts_use, index), user)
+                clone.imagePathEntries = await TextHelper.replaceTagsInTextArray(clone.imagePathEntries, user) // TODO: Not quite sure why this is needed, figure out why later.
+                for(const textArea of preset.customProperties.textAreas) {
+                    textArea.text = await TextHelper.replaceTagsInText(textArea.text, user)
+                }
+
+                // Show it
+                modules.pipe.showAction(clone, index).then()
+            }
+        }
     }
 }

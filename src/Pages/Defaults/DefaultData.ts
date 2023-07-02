@@ -10,12 +10,8 @@ import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {ActionChat} from '../../Objects/Action/ActionChat.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
-import {
-    ActionSystem,
-    ActionSystemRewardState,
-    ActionSystemRewardStateForEvent
-} from '../../Objects/Action/ActionSystem.js'
-import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
+import {ActionSystem, ActionSystemRewardStateForEvent} from '../../Objects/Action/ActionSystem.js'
+import {OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
 import {ActionAudio} from '../../Objects/Action/ActionAudio.js'
@@ -696,7 +692,7 @@ export default class DefaultData {
                     actionTTS.functionType = OptionTTSFunctionType.SetUserEnabled
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this')
-                    actionSpeech.voiceOfUsername = '%targetOrUserLogin'
+                    actionSpeech.voiceOfUser_orUsername = '%targetOrUserLogin'
 
                     return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech])
                 }
@@ -710,7 +706,7 @@ export default class DefaultData {
 
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
-                    action.voiceOfUsername = '%userLogin'
+                    action.voiceOfUser_orUsername = '%userLogin'
 
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
@@ -726,7 +722,7 @@ export default class DefaultData {
 
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
-                    action.voiceOfUsername = '%userLogin'
+                    action.voiceOfUser_orUsername = '%userLogin'
 
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
@@ -747,7 +743,7 @@ export default class DefaultData {
                     actionTTS.functionType = OptionTTSFunctionType.SetUserVoice
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this.')
-                    actionSpeech.voiceOfUsername = '%targetOrUserLogin'
+                    actionSpeech.voiceOfUser_orUsername = '%targetOrUserLogin'
                     const actionChat = new ActionChat()
                     actionChat.entries.push('TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice')
 
@@ -771,7 +767,7 @@ export default class DefaultData {
                     actionTTS.functionType = OptionTTSFunctionType.GetUserNick
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this.')
-                    actionSpeech.voiceOfUsername = '%targetOrUserLogin'
+                    actionSpeech.voiceOfUser_orUsername = '%targetOrUserLogin'
                     const actionChat = new ActionChat()
                     actionChat.entries.push('TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice')
 
@@ -792,7 +788,7 @@ export default class DefaultData {
                     actionTTS.functionType = OptionTTSFunctionType.GetUserVoice
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('%targetOrUserTag now sounds like this.')
-                    actionSpeech.voiceOfUsername = '%targetOrUserLogin'
+                    actionSpeech.voiceOfUser_orUsername = '%targetOrUserLogin'
                     const actionChat = new ActionChat()
                     actionChat.entries.push('TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice')
 

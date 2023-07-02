@@ -1,11 +1,4 @@
-import {
-    IAudioAction,
-    IEntriesAction,
-    IInputAction,
-    IPipeAction,
-    ISignAction,
-    ISpeechAction
-} from '../../Interfaces/iactions.js'
+import {IAudioAction, IEntriesAction, IInputAction, ISignAction, ISpeechAction} from '../../Interfaces/iactions.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './Enums.js'
 import ExecUtils from '../../Classes/ExecUtils.js'
@@ -19,10 +12,8 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {TKeys} from '../../_data/!keys.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
 import {SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
-import {PresetPipeCustom} from '../../Objects/Preset/PresetPipe.js'
 import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
-import TempFactory from '../../Classes/TempFactory.js'
 import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../Objects/Action.js'
@@ -496,34 +487,6 @@ export class Actions {
                         )
                     }
                 }
-            }
-        }
-    }
-
-    private static buildPipeCallback(config: IPipeAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '📺',
-            description: 'Callback that triggers an OpenVRNotificationPipe action',
-            call: async (user: IActionUser, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                const configClone = Utils.clone(config)
-                configClone.config = await DataBaseHelper.load(new PresetPipeCustom(), config.configRef)
-
-                // Need to reference the original config arrays here as the __type is dropped in the clone process.
-                configClone.imagePathEntries = Utils.ensureArray(config.imagePathEntries).getAsType(index)
-                configClone.imageDataEntries = Utils.ensureArray(config.imageDataEntries).getAsType(index)
-
-                // Replace tags in texts.
-                configClone.texts = await TextHelper.replaceTagsInTextArray(configClone.texts, user)
-                configClone.imagePathEntries = await TextHelper.replaceTagsInTextArray(configClone.imagePathEntries, user)
-                if(configClone.config && configClone.config.customProperties) {
-                    for(const textArea of configClone.config.customProperties.textAreas) {
-                        textArea.text = await TextHelper.replaceTagsInText(textArea.text, user)
-                    }
-                }
-
-                // Show it
-                modules.pipe.showAction(TempFactory.pipeActionInterface(configClone)).then()
             }
         }
     }

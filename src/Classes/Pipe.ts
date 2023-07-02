@@ -1,6 +1,5 @@
 import ImageEditor from './ImageEditor.js'
 import {ITwitchMessageData} from '../Interfaces/itwitch.js'
-import Config from './Config.js'
 import Color from './ColorConstants.js'
 import TwitchFactory from './TwitchFactory.js'
 import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
@@ -8,13 +7,12 @@ import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import ImageHelper from './ImageHelper.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
-import {PresetPipeBasic, PresetPipeCustom, PresetPipeCustomTransition} from '../Objects/Preset/PresetPipe.js'
+import {PresetPipeBasic, PresetPipeCustom} from '../Objects/Preset/PresetPipe.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigPipe} from '../Objects/Config/ConfigPipe.js'
 import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ConfigImageEditor.js'
 import TextHelper from './TextHelper.js'
 import ConfigTwitchChat from '../Objects/Config/ConfigTwitchChat.js'
-import TempFactory from './TempFactory.js'
 import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {IActionUser} from '../Objects/Action.js'
@@ -218,7 +216,7 @@ export default class Pipe {
         const response = await this._socket?.sendMessageWithPromise(JSON.stringify(message), nonce, 10000)
         console.log('Pipe.sendCustom result', response)
     }
-    async showAction(action: ActionPipe) {
+    async showAction(action: ActionPipe, index?: number) {
 	    if(!this._socket?.isConnected()) console.warn('Pipe.showPreset: Websockets instance not initiated.')
         const preset = Utils.ensureObjectNotId(action.preset)
         if(!preset) return console.warn('Pipe.showPreset: Action did not contain a preset.')
@@ -226,35 +224,31 @@ export default class Pipe {
         const states = StatesSingleton.getInstance()
         let imageB64arr: string[] = []
         if(action.imagePathEntries.length > 0) {
-            for(const imagePath of Utils.ensureArray(action.imagePathEntries)) {
+            for(const imagePath of action.imagePathEntries) {
                 const stateKey = preset.customProperties?.anchorType ?? 0
                 states.pipeLastImageFileNamePerAnchor.set(stateKey, imagePath.split('/').pop() ?? '')
                 imageB64arr.push(await ImageHelper.getDataUrl(imagePath))
             }
         } else if (action.imageDataEntries.length > 0) {
-            imageB64arr = Utils.ensureArray(action.imageDataEntries)
+            imageB64arr = action.imageDataEntries
         } else {
             console.warn("Pipe: No image path nor image data found for preset")
         }
         
         // If the above resulted in image data, broadcast it
-        const presetClone = Utils.clone(preset)
         for(const imageB64 of imageB64arr) {
-            presetClone.imageData = Utils.removeImageHeader(imageB64)
-            if (presetClone.customProperties) {
-                presetClone.customProperties.animationHz = -1
-                presetClone.customProperties.durationMs = action.durationMs;
-                if (
-                    presetClone.customProperties.textAreas != undefined
-                    && action.texts != undefined
-                    && action.texts.length >= presetClone.customProperties.textAreas.length
-                ) {
-                    for (let i = 0; i < action.texts.length; i++) {
-                        presetClone.customProperties.textAreas[i].text = action.texts[i]
+            preset.imageData = Utils.removeImageHeader(imageB64)
+            if (preset.customProperties) {
+                preset.customProperties.animationHz = -1
+                preset.customProperties.durationMs = action.durationMs;
+                const textAreaCount = preset.customProperties.textAreas.length
+                if (action.texts.length >= textAreaCount) {
+                    for (let i = 0; i < textAreaCount; i++) {
+                        preset.customProperties.textAreas[i].text = action.texts[i]
                     }
                 }
             }
-            this.sendCustom(presetClone).then()
+            this.sendCustom(preset).then()
         }
         if(imageB64arr.length == 0) {
             console.warn('Pipe: Show Custom, could not find image!')
