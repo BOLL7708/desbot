@@ -502,17 +502,6 @@ export class Actions {
         }
     }
 
-    private static buildOpenVR2WSMoveSpaceCallback(config: IOpenVR2WSMoveSpace|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '⚖',
-            description: 'Callback that triggers an OpenVR2WSMoveSpace action',
-            call: () => {
-                const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.moveSpace(config).then()
-            }
-        }
-    }
-
     private static buildSignCallback(config: ISignAction|undefined): IActionCallback|undefined {
         if(config) return {
             tag: '🚦',

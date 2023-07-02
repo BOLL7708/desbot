@@ -19,6 +19,7 @@ import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigOpenVR2WS} from '../Objects/Config/ConfigOpenVR2WS.js'
+import {ActionMoveVRSpace} from '../Objects/Action/ActionMoveVRSpace.js'
 
 export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }
@@ -188,25 +189,25 @@ export default class OpenVR2WS {
         }
     }
 
-    public async moveSpace(config: IOpenVR2WSMoveSpace) {
+    public async moveSpace(action: ActionMoveVRSpace) {
         const password = await Utils.sha256(this._config.password)
         const message: IOpenVRWSCommandMessage = {
             key: 'MoveSpace',
             value: password,
-            value2: (config.x ?? 0).toString(),
-            value3: (config.y ?? 0).toString(),
-            value4: (config.z ?? 0).toString(),
-            value5: (config.moveChaperone ?? true).toString()
+            value2: (action.x ?? 0).toString(),
+            value3: (action.y ?? 0).toString(),
+            value4: (action.z ?? 0).toString(),
+            value5: (action.moveChaperone ?? true).toString()
         }
         this.sendMessage(message)
-        console.log(`OpenVR2WS: Moving space: ${JSON.stringify(config)}`)
-        if(config.duration) {
-            message.value2 = (-(config.x ?? 0)).toString()
-            message.value3 = (-(config.y ?? 0)).toString()
-            message.value4 = (-(config.z ?? 0)).toString()
+        console.log(`OpenVR2WS: Moving space: ${JSON.stringify(action)}`)
+        if(action.duration) {
+            message.value2 = (-(action.x ?? 0)).toString()
+            message.value3 = (-(action.y ?? 0)).toString()
+            message.value4 = (-(action.z ?? 0)).toString()
             setTimeout(() => {
                 this.sendMessage(message)
-            }, config.duration*1000)
+            }, action.duration*1000)
         }
     }
 

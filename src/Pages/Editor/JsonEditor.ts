@@ -348,7 +348,7 @@ export default class JsonEditor {
                     let num = parseFloat(text)
                     if(isNaN(num)) num = 0
                     if(input.innerHTML.indexOf('.') > -1) {
-                        num = Math.round(num)
+                        num = Math.round(num) // TODO: Uh, should we always do this if there are decimals?
                     }
                     text = `${num}`
                     break
@@ -438,6 +438,8 @@ export default class JsonEditor {
                     const isValidPeriod = key == '.' && input.innerHTML.indexOf('.') == -1
                     const isValidKey = validKeys.indexOf(key) != -1
                     const isHoldingModifierKey = event.altKey || event.shiftKey || event.ctrlKey
+                    const isMinus = key == '-'
+                    const isPlus = key == '+'
                     if (
                         !isDigit
                         && !isValidPeriod
@@ -445,6 +447,14 @@ export default class JsonEditor {
                         && !isHoldingModifierKey
                     ) {
                         event.preventDefault()
+                        if(isMinus && input.innerHTML.indexOf('-') == -1) {
+                            input.innerHTML = `-${input.innerHTML}`
+                            handle(event)
+                        }
+                        if(isPlus && input.innerHTML.indexOf('-') == 0) {
+                            input.innerHTML = input.innerHTML.replace('-', '')
+                            handle(event)
+                        }
                     }
                 }
                 handle = (event)=>{
