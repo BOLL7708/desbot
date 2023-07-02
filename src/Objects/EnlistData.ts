@@ -67,7 +67,7 @@ import {EventActionContainer, EventDefault, EventOptions} from './Event/EventDef
 import {PresetDiscordWebhook} from './Preset/PresetDiscordWebhook.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
 import {PresetPermissions} from './Preset/PresetPermissions.js'
-import {PresetPhilipsHueColor} from './Preset/PresetPhilipsHue.js'
+import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState, PresetPhilipsHuePlug} from './Preset/PresetPhilipsHue.js'
 import {
     PresetPipeBasic,
     PresetPipeCustom,
@@ -191,7 +191,9 @@ export default class EnlistData {
             new PresetOBSSource(),
             new PresetOBSFilter(),
             new PresetPermissions(),
-            new PresetPhilipsHueColor(),
+            new PresetPhilipsHueBulbState(),
+            new PresetPhilipsHueBulb(),
+            new PresetPhilipsHuePlug(),
             new PresetPipeBasic(),
             new PresetPipeCustom(),
             new PresetPipeCustomFollow(),

@@ -2,13 +2,9 @@ import {
     IAudioAction,
     IEntriesAction,
     IInputAction,
-    IPhilipsHueColorAction,
-    IPhilipsHuePlugAction,
     IPipeAction,
-    IScreenshotAction,
     ISignAction,
-    ISpeechAction,
-    IWhisperAction
+    ISpeechAction
 } from '../../Interfaces/iactions.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './Enums.js'
@@ -27,7 +23,6 @@ import {PresetPipeCustom} from '../../Objects/Preset/PresetPipe.js'
 import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import TempFactory from '../../Classes/TempFactory.js'
-import ConfigScreenshots from '../../Objects/Config/ConfigScreenshots.js'
 import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../Objects/Action.js'
@@ -447,32 +442,6 @@ export class Actions {
     // endregion
 
     // region Action Builders
-    private static buildColorCallback(config: IPhilipsHueColorAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🎨',
-            description: 'Callback that triggers a Philips Hue color action',
-            call: (user, index) => {
-                const modules = ModulesSingleton.getInstance()
-                const colors = Utils.ensureArray(config.entries).getAsType(index)
-                const color = colors.pop() // No reason to set more than one color at the same time for the same bulb.
-                for(const bulb of config.bulbs) {
-                    if(color) modules.hue.setLightState(bulb, color.x, color.y).then()
-                }
-            }
-        }
-    }
-
-    private static buildPlugCallback(config: IPhilipsHuePlugAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🔌',
-            description: 'Callback that triggers a Philips Hue plug action',
-            call: () => {
-                const modules = ModulesSingleton.getInstance()
-                modules.hue.runPlugConfig(config)
-            }
-        }
-    }
-    
     /**
      * Will play back a sound and/or speak.
      * @param config The config for the sound effect to be played.
@@ -632,44 +601,6 @@ export class Actions {
                 for(const entry of entries) {
                     const result = await fetch(entry, {mode: 'no-cors'})
                     console.log(result)
-                }
-            }
-        }
-    }
-
-    private static buildScreenshotCallback(config: IScreenshotAction|undefined, key: TKeys, nonce: string): IActionCallback|undefined {
-        if(config) return {
-            tag: '📸',
-            description: 'Callback that triggers a Screenshot action',
-            call: async (user: IActionUser) => {
-                const states = StatesSingleton.getInstance()
-                const modules = ModulesSingleton.getInstance()
-                const userInput = user.input
-                const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
-                const soundConfig = Utils.ensureObjectNotId(screenshotsConfig.callback.captureSoundEffect)
-                if(userInput) {
-                    // This is executed after the TTS with the same nonce has finished.
-                    states.nonceCallbacks.set(nonce, ()=>{
-                        if(config.obsSource) {
-                            // OBS Source Screenshot
-                            const messageId = modules.obs.takeSourceScreenshot(key, user, config.obsSource, config.delay ?? 0)
-                            states.nonceCallbacks.set(messageId, ()=>{
-                                if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
-                            })
-                        } else {
-                            // SuperScreenShotterVR
-                            modules.sssvr.sendScreenshotRequest(key, user, config.delay ?? 0)
-                        }    
-                    })
-                } else {
-                    if(config.obsSource) {
-                        // OBS Source Screenshot
-                        if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
-                        modules.obs.takeSourceScreenshot(key, user, config.obsSource)
-                    } else {
-                        // SuperScreenShotterVR
-                        modules.sssvr.sendScreenshotRequest(key, user)
-                    }
                 }
             }
         }

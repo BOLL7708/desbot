@@ -1,12 +1,15 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import {PresetPhilipsHueColor} from '../Preset/PresetPhilipsHue.js'
+import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState} from '../Preset/PresetPhilipsHue.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import Utils from '../../Classes/Utils.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
+import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
 
-export class ActionPhilipsHueBulb extends Data {
-    entries: number[] = []
+export class ActionPhilipsHueBulb extends Action {
+    entries: (number|string)[] = []
     entries_use = OptionEntryUsage.All
-    colorEntries: PresetPhilipsHueColor[] = []
+    colorEntries: (number|PresetPhilipsHueBulbState)[] = []
     colorEntries_use = OptionEntryUsage.First
 
     enlist() {
@@ -14,16 +17,32 @@ export class ActionPhilipsHueBulb extends Data {
             new ActionPhilipsHueBulb(),
             'Trigger Philips Hue bulb changes.',
             {
-                colorEntries: 'The color(s) to set the bulb(s) to.',
-                entries: 'The bulb IDs to affect.',
+                colorEntries: 'The color(s) to set the bulb(s) to, as all bulbs are set in a batch only one color will be used even if you pick something that returns multiples.',
+                entries: 'The bulbs to affect.',
             },
             {
-                entries: 'number',
+                entries: PresetPhilipsHueBulb.refIdKeyLabel(),
                 entries_use: OptionEntryUsage.ref(),
-                colorEntries: PresetPhilipsHueColor.refId(),
+                colorEntries: PresetPhilipsHueBulbState.refId(),
                 colorEntries_use: OptionEntryUsage.ref()
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return  {
+            tag: '🎨',
+            description: 'Callback that triggers a Philips Hue bulb action',
+            call: async (user: IActionUser, nonce: string, index?: number) => {
+                const clone = Utils.clone<ActionPhilipsHueBulb>(this)
+                const ids = Utils.ensureStringArrayNotId(ArrayUtils.getAsType(clone.entries, clone.entries_use, index))
+                const colors = Utils.ensureObjectArrayNotId(ArrayUtils.getAsType(clone.colorEntries, clone.colorEntries_use, index))
+                const color = colors.pop() // No reason to set more than one color at the same time for the same bulb.
+                if(color) {
+                    PhilipsHueHelper.runBulbs(ids, color.brightness, color.hue, color.saturation)
+                }
+            }
+        }
     }
 }
 

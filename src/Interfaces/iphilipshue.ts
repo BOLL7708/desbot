@@ -4,22 +4,6 @@ export interface IPhilipsHueBulb {
 }
 
 // Response
-export interface IPhilipsHueLightState {
-    on: boolean
-    bri: number
-    hue: number
-    sat: number
-    effect: string
-    xy: number[]
-    ct: number
-    alert: string
-    mode: string
-    reachable: boolean
-}
-export interface IPhilipsHueLightSWUpdate {
-    state: string
-    lastinstall: string
-}
 export interface IPhilipsHueLight {
     state: IPhilipsHueLightState
     swupdate: IPhilipsHueLightSWUpdate
@@ -29,7 +13,27 @@ export interface IPhilipsHueLight {
     manufacturername: string
     productname: string
     capabilities: IPhilipsHueLightCapabilities
-    
+    config: IPhilipsHueLightConfig
+    uniqueid: string
+    swversion: string
+    swconfigid: string
+    productid: string
+}
+export interface IPhilipsHueLightState {
+    on: boolean
+    alert: string
+    mode: string
+    reachable: boolean
+    bri?: number
+    hue?: number
+    sat?: number
+    effect?: string
+    xy?: number[]
+    ct?: number
+}
+export interface IPhilipsHueLightSWUpdate {
+    state: string
+    lastinstall: string
 }
 export interface IPhilipsHueLightCapabilities {
     certified: boolean,
@@ -37,20 +41,30 @@ export interface IPhilipsHueLightCapabilities {
     streaming: IPhilipsHueLightCapabilitiesStreaming
 }
 export interface IPhilipsHueLightCapabilitiesControl {
-    mindimlevel: number
-    maxlumen: number
-    colorgamuttype: string
-    colorgamut: number[][]
-    ct: {
+    mindimlevel?: number
+    maxlumen?: number
+    colorgamuttype?: string
+    colorgamut?: number[][]
+    ct?: {
         min: number,
         max: number
     }
 }
-export interface IPhilipsHueLightCapabilitiesControlCT {
-    min: number
-    max: number
-}
 export interface IPhilipsHueLightCapabilitiesStreaming {
     renderer: boolean
     proxy: boolean
+}
+export interface IPhilipsHueLightConfig {
+    archetype: string
+    function: string
+    direction: string
+    startup: {
+        mode: string
+        configured: boolean
+    }
+}
+
+export interface IPhilipsHueLightCapabilitiesControlCT {
+    min: number
+    max: number
 }

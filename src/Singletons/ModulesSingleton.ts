@@ -6,7 +6,6 @@ import AudioPlayer from '../Classes/AudioPlayer.js'
 import SuperScreenShotterVR from '../Classes/SuperScreenShotterVR.js'
 import Sign from '../Classes/Sign.js'
 import Pipe from '../Classes/Pipe.js'
-import PhilipsHue from '../Classes/PhilipsHue.js'
 import GoogleTTS from '../Classes/GoogleTTS.js'
 import StreamDeckRelay from '../Classes/StreamDeckRelay.js'
 import Relay from '../Classes/Relay.js'
@@ -30,7 +29,6 @@ export default class ModulesSingleton {
     public pipe = new Pipe()
     public obs = new OBS()
     public sssvr = new SuperScreenShotterVR()
-    public hue = new PhilipsHue()
     public openvr2ws = new OpenVR2WS()
     public audioPlayer = new AudioPlayer()
     public sign = new Sign()
