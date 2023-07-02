@@ -66,8 +66,8 @@ export default class DataMap {
             const instance = this._map.get(className)?.instance
             if(instance) {
                 return await instance.__new(props, fillReferences)
-            } else console.warn(`DataMap: Class instance was invalid: ${className}`)
-        } else console.warn(`DataMap: Class instance does not exist: ${className}`)
+            } else console.warn(`DataMap: Class instance was invalid: ${className}`, props)
+        } else console.warn(`DataMap: Class instance does not exist: ${className}`, props)
         return undefined
     }
 

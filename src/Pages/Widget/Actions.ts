@@ -344,7 +344,7 @@ export class Actions {
          * Other action setups after this will then inherit from the original.
          * This does not work with timelines.
          */
-        const nonceTTS = Utils.getNonce('TTS') // Used to reference the TTS finishing before taking a screenshot.
+        const nonce = Utils.getNonce('Action') // Used when some things should wait for some other things, currently used to reference the TTS finishing before taking a screenshot, might not work well when multiple things are awaited...
         const actionsArr = ArrayUtils.removeUndefined(actionsList)
         const actionsExecutors: IActionsExecutor[] = [] // A list of stacks of actions to execute.
         if(actionsArr.length == 0) actionsArr.push(new EventActionContainer()) // We need at least one empty object to register default actions in the loop below.
@@ -420,11 +420,12 @@ export class Actions {
             actionsExecutors.push({
                 timeMs: actionContainer.delayMs_orTimeMs,
                 delayMs: actionContainer.delayMs,
+                nonce: nonce,
                 execute: async (user: IActionUser, index?: number) => {
                     for (const stackCallback of actionCallbacks) {
                         if (stackCallback.call) {
-                            if(stackCallback.awaitCall) await stackCallback.call(user, index)
-                            else stackCallback.call(user, index)
+                            if(stackCallback.awaitCall) await stackCallback.call(user, nonce, index)
+                            else stackCallback.call(user, nonce, index)
                         }
                     }
                 }
@@ -669,38 +670,6 @@ export class Actions {
                         // SuperScreenShotterVR
                         modules.sssvr.sendScreenshotRequest(key, user)
                     }
-                }
-            }
-        }
-    }
-
-    private static buildTwitchChatCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '📄',
-            description: 'Callback that triggers a Twitch chat message action',
-            call: async (user: IActionUser, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                const entries = Utils.ensureArray(config.entries).getAsType(index)
-                for(const entry of entries) {
-                    modules.twitch._twitchChatOut.sendMessageToChannel(
-                        await TextHelper.replaceTagsInText(entry, user)
-                    )
-                }
-            }
-        }
-    }
-    private static buildTwitchWhisperCallback(config: IWhisperAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '💭',
-            description: 'Callback that triggers a Twitch whisper action',
-            call: async (user: IActionUser, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                const entries = Utils.ensureArray<string>(config.entries).getAsType(index)
-                for(const entry of entries) {
-                    modules.twitch._twitchChatOut.sendMessageToUser(
-                        await TextHelper.replaceTagsInText(config.user, user),
-                        await TextHelper.replaceTagsInText(entry, user)
-                    )
                 }
             }
         }

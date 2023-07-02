@@ -171,7 +171,7 @@ export default class OBS {
      * @param delaySeconds Amount of time to delay the capture
      * @returns The message ID that is referenced in the result callback
      */
-    takeSourceScreenshot(rewardKey: TKeys, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
+    takeSourceScreenshot(rewardKey: string, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
         const requestData: IScreenshotRequestData = { 
             rewardKey: rewardKey, 
             userId: userData.id,

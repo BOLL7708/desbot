@@ -32,7 +32,7 @@ export class ActionLabel extends Action {
         return  {
             tag: '🏷',
             description: 'Callback that triggers a Label action',
-            call: async (user: IActionUser) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionLabel>(this)
                 for(const text of ArrayUtils.getAsType(clone.textEntries, clone.textEntries_use)) {
                     if(clone.append) {

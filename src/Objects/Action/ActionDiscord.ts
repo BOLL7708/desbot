@@ -32,7 +32,7 @@ export class ActionDiscord extends Action {
         return {
             tag: '💬',
             description: 'Callback that triggers a DiscordUtils message action',
-            call: async (user: IActionUser, index?: number) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionDiscord>(this)
                 const modules = ModulesSingleton.getInstance()
                 const userData = await TwitchHelixHelper.getUserById(user.id)

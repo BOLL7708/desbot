@@ -14,7 +14,7 @@ export default class Relay {
     private readonly _prefix = ':::'
     private readonly _channel: string
     private readonly _password: string
-    private _onMessageCallback: IOnRelayMessageCallback = (result)=>{ console.warn(`Unhandled Relay message: ${JSON.stringify(result)}`) }
+    private _onMessageCallback: IOnRelayMessageCallback = (result)=>{ console.warn(`Unhandled Relay (${this._channel}) message: ${JSON.stringify(result)}`) }
     constructor(channel?: string, password?: string, onMessageCallback?: IOnRelayMessageCallback) {
         this._channel = channel ?? ''
         this._password = password ?? ''

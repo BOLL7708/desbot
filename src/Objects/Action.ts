@@ -11,11 +11,12 @@ export interface IActionCallback {
     tag: string
     description: string
     awaitCall?: boolean
-    call: (user: IActionUser, index?: number) => void // Index is used for entries-fields, provided by handler.
+    call: (user: IActionUser, nonce: string, index?: number) => void // Index is used for entries-fields, provided by handler.
 }
 export interface IActionsExecutor {
     timeMs?: number,
     delayMs?: number,
+    nonce?: string,
     execute: (user: IActionUser, index?: number) => void
 }
 export interface IActionsMainCallback {

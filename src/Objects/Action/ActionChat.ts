@@ -27,7 +27,7 @@ export class ActionChat extends Action {
         return {
             tag: '📄',
             description: 'Callback that triggers a Twitch chat message action',
-            call: async (user: IActionUser, index?: number) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionChat>(this)
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(Utils.ensureArray(clone.entries), clone.entries_use, index)

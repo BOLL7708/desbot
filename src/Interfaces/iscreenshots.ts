@@ -23,7 +23,7 @@ export interface IScreenshotConfig {
     /**
      * Key for the reward that triggered the screenshot.
      */
-    rewardKey: TKeys
+    rewardKey: string
     /**
      * Twitch user ID for the redeemer.
      */

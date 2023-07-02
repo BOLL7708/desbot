@@ -25,7 +25,7 @@ export class ActionRemoteCommand extends Action {
         return {
             tag: '🤝',
             description: 'Callback that triggers a Remote Command action',
-            call: (user: IActionUser, index?: number) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionRemoteCommand>(this)
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)

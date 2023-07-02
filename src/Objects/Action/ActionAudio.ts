@@ -1,6 +1,6 @@
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import Action, {IActionCallback} from '../Action.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
 import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
@@ -38,7 +38,7 @@ export class ActionAudio extends Action {
             tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',
             awaitCall: true,
-            call: async (user, index) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionAudio>(this)
                 clone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
                     ArrayUtils.getAsType(Utils.ensureArray(clone.srcEntries), clone.srcEntries_use, index), // Need to read entries from config here as cloning drops __type

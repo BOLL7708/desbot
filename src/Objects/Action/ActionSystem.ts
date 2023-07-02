@@ -5,7 +5,7 @@ import {EventDefault} from '../Event/EventDefault.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.js'
-import Action, {IActionCallback} from '../Action.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import Color from '../../Classes/ColorConstants.js'
@@ -36,7 +36,7 @@ export class ActionSystem extends Action {
         return {
             tag: '🖐',
             description: 'Callback that triggers or toggles events',
-            call: async(user, index) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSystem>(this)
                 const modules = ModulesSingleton.getInstance()
                 const settings = await DataBaseHelper.loadMain(new ConfigTwitch())
@@ -50,7 +50,7 @@ export class ActionSystem extends Action {
                     if(callback) {
                         Utils.log(`Executing system action: ${callback.tag} in ${delay} seconds...`, Color.Grey)
                         setTimeout(()=>{
-                            callback.call(user, index)
+                            callback.call(user, nonce, index)
                         }, delay*1000)
                         delay += interval
                     }

@@ -35,7 +35,7 @@ export class ActionSettingTTS extends Action {
             tag: '🗣',
             awaitCall: true,
             description: 'Callback that executes a TTS function',
-            call: async (user: IActionUser) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSettingTTS>(this)
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()

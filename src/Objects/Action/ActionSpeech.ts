@@ -42,7 +42,7 @@ export class ActionSpeech extends Action {
         return {
             tag: '🗣',
             description: 'Callback that triggers something spoken with TTS.',
-            call: async (user: IActionUser, index?: number) => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSpeech>(this)
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)

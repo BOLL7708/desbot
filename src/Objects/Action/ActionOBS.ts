@@ -2,7 +2,7 @@ import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import Action from '../Action.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 
@@ -42,10 +42,10 @@ export class ActionOBS extends Action {
         return {
             tag: '🎬',
             description: 'Callback that triggers an OBS action',
-            call: () => {
+            call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone(this) as ActionOBS
                 const modules = ModulesSingleton.getInstance()
-                clone.key = key
+                // clone.key = key TODO: Is this needed for the group toggling?
                 const state = clone.state
                 console.log("OBS Reward triggered")
                 modules.obs.toggle(clone, state)
