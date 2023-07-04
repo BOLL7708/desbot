@@ -21,7 +21,7 @@ import {PresetDiscordWebhook} from '../../Objects/Preset/PresetDiscordWebhook.js
 import {PresetSystemActionText} from '../../Objects/Preset/PresetSystemActionText.js'
 import {PresetOBSScene, PresetOBSSource} from '../../Objects/Preset/PresetOBS.js'
 import {ActionOBS, ActionOBSSource} from '../../Objects/Action/ActionOBS.js'
-import {ActionLink} from '../../Objects/Action/ActionLink.js'
+import {ActionURI} from '../../Objects/Action/ActionURI.js'
 
 enum EKeys {
     // region Presets
@@ -1579,7 +1579,7 @@ export default class DefaultData {
                     trigger.entries.push('livcam')
                     trigger.helpInput = ['number']
                     trigger.helpText = 'Switch the LIV camera profile.'
-                    const actionLink = new ActionLink()
+                    const actionLink = new ActionURI()
                     actionLink.entries.push('liv-app://camera/set/%inputNumber')
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Liv camera set to %inputNumber')

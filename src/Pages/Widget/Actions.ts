@@ -1,5 +1,5 @@
-import {IAudioAction, IEntriesAction, IInputAction, ISignAction, ISpeechAction} from '../../Interfaces/iactions.js'
-import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
+import {IAudioAction, IInputAction, ISignAction, ISpeechAction} from '../../Interfaces/iactions.js'
+import {IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './Enums.js'
 import ExecUtils from '../../Classes/ExecUtils.js'
 import Color from '../../Classes/ColorConstants.js'
@@ -529,33 +529,6 @@ export class Actions {
                 ExecUtils.runKeyPressesFromPreset(config)
             }
         } 
-    }
-
-    private static buildURICallback(config: IEntriesAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🦾',
-            description: 'Callback that triggers an URI action',
-            call: async (user: IActionUser, index?: number) => {
-                const entries = Utils.ensureArray(config.entries).getAsType(index)
-                for(const entry of entries) {
-                    ExecUtils.loadCustomURI(await TextHelper.replaceTagsInText(entry, user))
-                }
-            }
-        }
-    }
-
-    private static buildWebCallback(config: IEntriesAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🌐',
-            description: 'Callback that triggers a Web action',
-            call: async (user: IActionUser, index?: number) => {
-                const entries = Utils.ensureArray(config.entries).getAsType(index)
-                for(const entry of entries) {
-                    const result = await fetch(entry, {mode: 'no-cors'})
-                    console.log(result)
-                }
-            }
-        }
     }
     // endregion
 }
