@@ -1,7 +1,6 @@
-import {IAudioAction, IInputAction, ISignAction, ISpeechAction} from '../../Interfaces/iactions.js'
+import {IAudioAction, ISignAction, ISpeechAction} from '../../Interfaces/iactions.js'
 import {IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './Enums.js'
-import ExecUtils from '../../Classes/ExecUtils.js'
 import Color from '../../Classes/ColorConstants.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
@@ -519,16 +518,6 @@ export class Actions {
                 })
             }
         }
-    }
-
-    private static buildKeysCallback(config: IInputAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🎓',
-            description: 'Callback that triggers an ExecUtils action',
-            call: async () => {
-                ExecUtils.runKeyPressesFromPreset(config)
-            }
-        } 
     }
     // endregion
 }

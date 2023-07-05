@@ -1,8 +1,10 @@
 import Utils from './Utils.js'
-import {IInputAction, TRunType} from '../Interfaces/iactions.js'
+import {TRunType} from '../Interfaces/iactions.js'
+import {ActionInput} from '../Objects/Action/ActionInput.js'
+import {OptionCommandType} from '../Options/OptionCommandType.js'
 
 export default class ExecUtils {
-    static runKeyPresses(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {
+    static runCommand(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {
         const windowb64 = Utils.encode(window)
         const commandb64 = Utils.encode(command)
         Utils.getAuth()
@@ -12,34 +14,35 @@ export default class ExecUtils {
         ).then()
     }
 
-    static runKeyPressesFromPreset(preset: IInputAction) {
+    static runCommandsFromAction(action: ActionInput) {
         // Store command strings for possible reset
         const commands: string[] = []
         
         // Build command string
+        const isKeys = action.type == OptionCommandType.Keys
+        const glue = isKeys && action.postfixEnterStroke ? '{ENTER}' : ''
         let index = 0
-        const commandString = preset.commands.map((cmd)=>{
-            const command = Array.isArray(cmd.command) ? Utils.randomFromArray(cmd.command) : cmd.command
-            commands[index] = command // Store command without value for possible reset
+        const commandString = action.commands.map((cmd)=>{
+            commands[index] = cmd.command // Store command without value for possible reset
             index++
-            return cmd.value != undefined ? `${command} ${cmd.value}` : command
-        }).join(preset.type == 'keys' && preset.postfixEnterStroke ? '{ENTER}' : '')
+            return cmd.value.length > 0 ? `${cmd.command} ${cmd.value}` : cmd.command
+        }).join(glue)
 
         // Execute command
-        this.runKeyPresses(preset.window, preset.type, commandString, preset.postfixEnterStroke)
+        this.runCommand(action.window, action.type, commandString, action.postfixEnterStroke)
 
         // Reset if we should
-        if(preset.duration !== undefined) {
+        if(action.duration > 0) {
             setTimeout(()=>{               
                 // Build command string with reset values
                 index = 0
-                const defaultCommandString = preset.commands.map((cmd)=>{
-                    const command = commands[index]
+                const defaultCommandString = action.commands.map((cmd)=>{
+                    const command = commands[index] // Retrieve command for reset
                     index++
-                    return cmd.defaultValue != undefined ? `${command} ${cmd.defaultValue}` : command
-                }).join(preset.type == 'keys' && preset.postfixEnterStroke ? '{ENTER}' : '')
-                this.runKeyPresses(preset.window, preset.type, defaultCommandString, preset.postfixEnterStroke)
-            }, preset.duration*1000)
+                    return cmd.defaultValue.length > 0 ? `${command} ${cmd.defaultValue}` : command
+                }).join(glue)
+                this.runCommand(action.window, action.type, defaultCommandString, action.postfixEnterStroke)
+            }, action.duration*1000)
         }
     }
 

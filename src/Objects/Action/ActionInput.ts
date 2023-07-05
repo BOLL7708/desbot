@@ -1,12 +1,18 @@
 import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {OptionCommandType} from '../../Options/OptionCommandType.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import ExecUtils from '../../Classes/ExecUtils.js'
+import Utils from '../../Classes/Utils.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
 
-export class ActionInput extends Data{
+export class ActionInput extends Action {
     window: string = ''
-    commands: ActionInputCommand[] = []
     type = OptionCommandType.Keys
     duration: number = 0
+    commands: ActionInputCommand[] = []
+    commands_use = OptionEntryUsage.All
     postfixEnterStroke: boolean = false
 
     enlist() {
@@ -15,21 +21,34 @@ export class ActionInput extends Data{
             'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
             {
                 window: 'The title of the window to send the key press to.',
-                commands: 'A list of commands to execute.',
                 type: 'Type of execution',
                 duration: 'Seconds before running an optional reset to default, if defined in the command.',
+                commands: 'A list of commands to execute.',
                 postfixEnterStroke: 'Press enter at the end of every command, useful for console commands.'
             },
             {
+                type: OptionCommandType.ref(),
                 commands: ActionInputCommand.ref(),
-                type: OptionCommandType.ref()
+                commands_use: OptionEntryUsage.ref()
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return  {
+            tag: '🎓',
+            description: 'Callback that triggers an input action',
+            call: async (user: IActionUser, nonce: string, index?: number) => {
+                const clone = Utils.clone<ActionInput>(this)
+                clone.commands = ArrayUtils.getAsType(clone.commands, clone.commands_use, index)
+                ExecUtils.runCommandsFromAction(clone)
+            }
+        }
     }
 }
 
 export class ActionInputCommand extends Data {
-    command: string[] = []
+    command: string = ''
     value: string = ''
     defaultValue: string = ''
 
@@ -37,13 +56,11 @@ export class ActionInputCommand extends Data {
         DataMap.addSubInstance(
             new ActionInputCommand(),
             {
-                command: 'Full command(s).',
-                value: 'Value to append, make sure to supply this if you are planning to reset to default.',
-                defaultValue: 'Will reset to this if value and this is provided.'
+                command: 'Text command with or without value.\nIf keys it will be typed in the window.\nIf mouse provide a string with any combination of these characters:\nu: mouse wheel up\nd: mouse wheel down\nl: left mouse button\nr: right mouse button\np: primary mouse button\ns: secondary mouse button',
+                value: 'Value to append if you want a reset after a duration, if so also set the default value.',
+                defaultValue: 'Will reset to this if value and this and a duration is provided.'
             },
-            {
-                command: 'string'
-            }
+            {}
         )
     }
 }
