@@ -1,10 +1,13 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
-import {OptionSteamVRSettingCategory, OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
+import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import Utils from '../../Classes/Utils.js'
 
-export class ActionSettingVR extends Data {
-    category = OptionSteamVRSettingCategory.CurrentAppID
-    setting = OptionSteamVRSettingType.WorldScale
+export class ActionSettingVR extends Action {
+    settingPreset = OptionSteamVRSettingType.WorldScale
+    settingPreset_orCustom = ''
+    settingPreset_inCategory = ''
     setToValue: string = ''
     resetToValue: string = ''
     duration: number = 0
@@ -14,15 +17,28 @@ export class ActionSettingVR extends Data {
             new ActionSettingVR(),
             'Used to change SteamVR settings.',
             {
-                setting: 'The format is [category]|[setting]|[default], where an empty category will use the app ID for game specific settings.',
+                settingPreset: 'The format is [category]|[setting]|[default], where an empty category will use the app ID for game specific settings.',
+                settingPreset_orCustom: '',
+                settingPreset_inCategory: '',
                 setToValue: 'The value to set the setting to, takes various formats, will use possible default if missing.',
-                resetToValue: 'The value to reset to after the duration has expired, will fall back on hard coded value if missing.',
+                resetToValue: 'The value to reset to after the duration has expired, will fall back on a default value if empty.',
                 duration: 'The amount of time in seconds to wait before resetting the setting to default, skipped if set to 0.'
             },
             {
-                category: OptionSteamVRSettingCategory.ref(),
-                setting: OptionSteamVRSettingType.ref()
+                settingPreset: OptionSteamVRSettingType.ref()
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return  {
+            tag: '🔧',
+            description: 'Callback that triggers an OpenVR2WSSetting action',
+            call: async (user: IActionUser, nonce: string, index?: number) => {
+                const clone = Utils.clone<ActionSettingVR>(this)
+                const modules = ModulesSingleton.getInstance()
+                modules.openvr2ws.setSetting(clone).then()
+            }
+        }
     }
 }

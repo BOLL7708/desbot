@@ -20,6 +20,7 @@ import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigOpenVR2WS} from '../Objects/Config/ConfigOpenVR2WS.js'
 import {ActionMoveVRSpace} from '../Objects/Action/ActionMoveVRSpace.js'
+import {ActionSettingVR} from '../Objects/Action/ActionSettingVR.js'
 
 export default class OpenVR2WS {
     static get SETTING_WORLD_SCALE() { return '|worldScale|1' }
@@ -165,27 +166,34 @@ export default class OpenVR2WS {
         this._statusCallback(false)
     }
 
-    public async setSetting(config: IOpenVR2WSSetting) {
+    public async setSetting(action: ActionSettingVR) {
         const password = await Utils.sha256(this._config.password)
-        const settingArr: string[] = config.setting.split('|') ?? []
-        if(settingArr.length != 3) return Utils.log(`OpenVR2WS: Malformed setting, did not split into 3 on '|': ${config.setting}`, Color.Red)
-        if(settingArr[0].length == 0) settingArr[0] = this._currentAppId?.toString() ?? ''
+        let [category = '', setting = '', defaultValue = ''] = action.settingPreset.split('|')
+        if(action.settingPreset_orCustom.length > 0) setting = action.settingPreset_orCustom
+        if(action.settingPreset_inCategory.length > 0) category = action.settingPreset_inCategory
+        if(action.resetToValue.length > 0) defaultValue = action.resetToValue
+        if(setting.length == 0) return Utils.log(`OpenVR2WS: Invalid setting, was empty.`, Color.Red)
+        if(category.length == 0) category = this._currentAppId?.toString() ?? ''
+        const value = action.setToValue.length == 0 ? defaultValue : action.setToValue
         const message: IOpenVRWSCommandMessage = {
             key: 'RemoteSetting',
             value: password,
-            value2: settingArr[0],
-            value3: settingArr[1],
-            value4: config.value?.toString() ?? settingArr[2].toString() ?? ''
+            value2: category,
+            value3: setting,
+            value4: value
         }
         this.sendMessage(message)
-        console.log(`OpenVR2WS: Setting ${config.setting} to ${config.value}`)
-        if(config.duration && (config.resetToValue != null || settingArr[2].length > 0)) {
-            message.value4 = (config.resetToValue ?? settingArr[2]).toString()
-            this._resetSettingTimers.set(config.setting,  config.duration)
-            this._resetSettingMessages.set(config.setting, message)
+        console.log(`OpenVR2WS: Setting ${category} : ${setting} to ${value}`)
+        const settingKey = `${category}|${setting}`
+        if(action.duration > 0) {
+            // Registers a new resetting timer for this specific setting category.
+            message.value4 = defaultValue
+            this._resetSettingTimers.set(settingKey, action.duration)
+            this._resetSettingMessages.set(settingKey, message)
         } else {
-            this._resetSettingTimers.set(config.setting, -1)
-            this._resetSettingMessages.delete(config.setting)
+            // Resets a specific setting category reset timer in case a new one was triggered.
+            this._resetSettingTimers.set(settingKey, -1)
+            this._resetSettingMessages.delete(settingKey)
         }
     }
 
@@ -232,7 +240,10 @@ export default class OpenVR2WS {
             this._resetSettingTimers.set(key, timer)
             if(timer <= 0) {
                 const message = this._resetSettingMessages.get(key)
-                if(message) this.sendMessage(message)
+                if(message) {
+                    console.log(`OpenVR2WS: Resetting ${message.value2} : ${message.value3} to ${message.value4}`)
+                    this.sendMessage(message)
+                }
                 this._resetSettingTimers.delete(key)
                 this._resetSettingMessages.delete(key)
             }

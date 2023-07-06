@@ -1579,11 +1579,11 @@ export default class DefaultData {
                     trigger.entries.push('livcam')
                     trigger.helpInput = ['number']
                     trigger.helpText = 'Switch the LIV camera profile.'
-                    const actionLink = new ActionURI()
-                    actionLink.entries.push('liv-app://camera/set/%inputNumber')
+                    const actionURI = new ActionURI()
+                    actionURI.entries.push('liv-app://camera/set/%inputNumber')
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Liv camera set to %inputNumber')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionLink, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionURI, actionSpeech])
                 }
             }
         ],
