@@ -489,35 +489,5 @@ export class Actions {
             }
         }
     }
-
-    private static buildOpenVR2WSSettingCallback(config: IOpenVR2WSSetting|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🔧',
-            description: 'Callback that triggers an OpenVR2WSSetting action',
-            call: () => {
-                const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.setSetting(config).then()
-            }
-        }
-    }
-
-    private static buildSignCallback(config: ISignAction|undefined): IActionCallback|undefined {
-        if(config) return {
-            tag: '🚦',
-            description: 'Callback that triggers a Sign action',
-            call: (user: IActionUser) => {
-                const modules = ModulesSingleton.getInstance()
-                TwitchHelixHelper.getUserById(user.id).then(async userData => {
-                    const modules = ModulesSingleton.getInstance()
-                    const clonedConfig = Utils.clone(config)
-                    clonedConfig.title = await TextHelper.replaceTagsInText(clonedConfig.title ?? '', user)
-                    if(clonedConfig.image == undefined) clonedConfig.image = userData?.profile_image_url
-                    clonedConfig.image = await TextHelper.replaceTagsInText(clonedConfig.image ?? '', user)
-                    clonedConfig.subtitle = await TextHelper.replaceTagsInText(clonedConfig.subtitle ?? '', user)
-                    modules.sign.enqueueSign(clonedConfig)
-                })
-            }
-        }
-    }
     // endregion
 }

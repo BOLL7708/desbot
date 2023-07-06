@@ -3,13 +3,14 @@ import Color from './ColorConstants.js'
 import {ISignAction} from '../Interfaces/iactions.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigSign} from '../Objects/Config/ConfigSign.js'
+import {ActionSign} from '../Objects/Action/ActionSign.js'
 
 export default class Sign {
     private _div: HTMLDivElement
     private _img: HTMLImageElement
     private _title: HTMLParagraphElement
     private _subtitle: HTMLParagraphElement
-    private _queue: ISignAction[] = []
+    private _queue: ActionSign[] = []
     private _queueLoopHandle: number = 0
     private _isVisible: boolean = false
     private _config: ConfigSign = new ConfigSign()
@@ -65,13 +66,13 @@ export default class Sign {
         this._queueLoopHandle = setInterval(this.tryShowNext.bind(this), 500)
     }
 
-    enqueueSign(config: ISignAction) {
-        if(!config.title && !config.image && !config.subtitle) {
+    enqueueSign(action: ActionSign) {
+        if(action.title.length == 0 && action.imageSrc.length == 0 && action.subtitle.length == 0) {
             Utils.log(
-                `Could not enqueue sign, config incomplete: ${JSON.stringify(config)}`, 
+                `Could not enqueue sign, config incomplete: ${JSON.stringify(action)}`,
                 Color.Red
             )
-        } else this._queue.push(config)
+        } else this._queue.push(action)
     }
 
     tryShowNext() {
@@ -81,11 +82,11 @@ export default class Sign {
         this.show(config)
     }
 
-    private show(config: ISignAction) {
+    private show(config: ActionSign) {
         this._isVisible = true
         this._img.onload = ()=>{ // Wait for image to load
-            this._title.innerText = config.title ?? ''
-            this._subtitle.innerText = config.subtitle ?? ''
+            this._title.innerText = config.title
+            this._subtitle.innerText = config.subtitle
             this.setVisible(true)
             setTimeout(()=>{ // Wait before hiding
                 this.setVisible(false)
@@ -97,6 +98,6 @@ export default class Sign {
         this._img.onerror = ()=>{
             this._isVisible = false
         }
-        this._img.src = config.image ?? ''
+        this._img.src = config.imageSrc
     }
 }

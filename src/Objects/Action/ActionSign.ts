@@ -1,7 +1,11 @@
-import Data from '../Data.js'
 import DataMap from '../DataMap.js'
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
+import Utils from '../../Classes/Utils.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
-export class ActionSign extends Data{
+export class ActionSign extends Action {
     title: string = ''
     imageSrc: string = ''
     subtitle: string = ''
@@ -21,5 +25,24 @@ export class ActionSign extends Data{
                 imageSrc: 'string|file'
             }
         )
+    }
+
+    build(key: string): IActionCallback {
+        return  {
+            tag: '🚦',
+            description: 'Callback that triggers a Sign action',
+            call: async (user: IActionUser, nonce: string, index?: number) => {
+                const clone = Utils.clone<ActionSign>(this)
+                const modules = ModulesSingleton.getInstance()
+                TwitchHelixHelper.getUserById(user.id).then(async userData => {
+                    const modules = ModulesSingleton.getInstance()
+                    clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                    if(clone.imageSrc.length == 0) clone.imageSrc = userData?.profile_image_url ?? ''
+                    clone.imageSrc = await TextHelper.replaceTagsInText(clone.imageSrc, user)
+                    clone.subtitle = await TextHelper.replaceTagsInText(clone.subtitle, user)
+                    modules.sign.enqueueSign(clone)
+                })
+            }
+        }
     }
 }
