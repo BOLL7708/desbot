@@ -504,7 +504,7 @@ export default class JsonEditor {
                 for(const [enumKey,enumValue] of Object.entries(enumPrototype)) {
                     const option = document.createElement('option') as HTMLOptionElement
                     option.value = enumValue
-                    option.innerHTML = enumKey
+                    option.innerHTML = Utils.camelToTitle(enumKey)
                     if(enumMeta.documentation?.hasOwnProperty(enumKey)) option.title = enumMeta.documentation[enumKey]
                     if(enumValue == Utils.ensureNumber(options.data)) {
                         option.selected = true

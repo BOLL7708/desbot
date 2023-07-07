@@ -3,6 +3,7 @@ import Data from '../Data.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import Trigger from '../Trigger.js'
 import Action from '../Action.js'
+import {OptionEventRun} from '../../Options/OptionEventRun.js'
 
 export class EventDefault extends Data {
     options: EventOptions = new EventOptions()
@@ -66,17 +67,18 @@ export class EventOptions extends Data {
     }
 }
 export class EventActionContainer extends Data {
-    delayMs: number = 0
-    delayMs_orTimeMs: number = 0
+    run = OptionEventRun.immediately
+    run_ms: number = 0
     entries: (number|Action)[] = []
 
     enlist() {
         DataMap.addSubInstance(new EventActionContainer(),
             {
-                delayMs: 'Set delay to execute this batch a certain amount of time after the previous batch, or set time to execute it at an absolute point in time.',
+                run: 'Choose when to run this set.',
                 entries: 'The actions that will run.'
             },
             {
+                run: OptionEventRun.ref(),
                 entries: Action.genericRef('Action')
             }
         )

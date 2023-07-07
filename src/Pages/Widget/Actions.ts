@@ -1,5 +1,4 @@
-import {IAudioAction, ISignAction, ISpeechAction} from '../../Interfaces/iactions.js'
-import {IOpenVR2WSSetting} from '../../Interfaces/iopenvr2ws.js'
+import {IAudioAction, ISpeechAction} from '../../Interfaces/iactions.js'
 import {EEventSource, ETTSType} from './Enums.js'
 import Color from '../../Classes/ColorConstants.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
@@ -17,6 +16,8 @@ import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefau
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../Objects/Action.js'
 import Trigger from '../../Objects/Trigger.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import {OptionEventRun} from '../../Options/OptionEventRun.js'
 
 export class ActionHandler {
     constructor(
@@ -54,8 +55,8 @@ export class ActionHandler {
 
         const options = event.options
         // entries is an array of containers that then contains the actions.
-        const actionsEntries = event.actions
-        if(actionsEntries.length == 0) return
+        const eventActionContainers = event.actions
+        if(eventActionContainers.length == 0) return
 
         let actionsMainCallback: IActionsMainCallback
         const states = StatesSingleton.getInstance()
@@ -194,7 +195,7 @@ export class ActionHandler {
                 break
             */
             default: // Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(options.specificIndex))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, options.specificIndex))
                 break
         }
         if(actionsMainCallback) actionsMainCallback(user, index ?? options.specificIndex) // Index is included here to supply it to entries-handling
@@ -316,7 +317,7 @@ export class Actions {
     // endregion
 
     // region Main Action Builder
-    public static buildActionsMainCallback(key: string, actionsList: (EventActionContainer|undefined)[]): IActionsMainCallback {
+    public static buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[]): IActionsMainCallback {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup
@@ -330,68 +331,15 @@ export class Actions {
          * This does not work with timelines.
          */
         const nonce = Utils.getNonce('Action') // Used when some things should wait for some other things, currently used to reference the TTS finishing before taking a screenshot, might not work well when multiple things are awaited...
-        const actionsArr = ArrayUtils.removeUndefined(actionsList)
+        const actionsArr = ArrayUtils.removeUndefined(actionContainerList)
         const actionsExecutors: IActionsExecutor[] = [] // A list of stacks of actions to execute.
         if(actionsArr.length == 0) actionsArr.push(new EventActionContainer()) // We need at least one empty object to register default actions in the loop below.
         for(const actionContainer of actionsArr) {
             const actionCallbacks: IActionCallback[] = [] // The stack of actions to execute.
             for(const action of actionContainer.entries) {
-                // TODO: Actually move this callback constructor INTO the action, so this switch statement becomes redundant.
-                //  Just call "buildCallback" on the action itself. This will open us up to custom actions added after the fact too.
-
                 // Build callbacks
                 const callback: IActionCallback = (action as Action).build(key)
                 actionCallbacks.push(callback)
-                /*
-                switch(action.constructor.name) {
-                    case ActionSpeech.name: callback = this.buildTTSCallback(action as ActionSpeech); break
-                    case ActionCustom.name: callback = this.buildTTSCallback(action as ActionCustom); break
-                    case ActionOBS.name: callback = this.buildTTSCallback(action as ActionOBS); break
-                    case ActionPhilipsHueBulb.name: callback = this.buildTTSCallback(action as ActionPhilipsHueBulb); break
-                    case ActionPhilipsHuePlug.name: callback = this.buildTTSCallback(action as ActionPhilipsHuePlug); break
-                    case ActionAudio.name: callback = this.buildTTSCallback(action as ActionAudio); break
-                    case ActionPipe.name: callback = this.buildTTSCallback(action as ActionPipe); break
-                    case ActionSettingVR.name: callback = this.buildTTSCallback(action as ActionSettingVR); break
-                    case ActionSign.name: callback = this.buildTTSCallback(action as ActionSign); break
-                    case ActionInput.name: callback = this.buildTTSCallback(action as ActionInput); break
-                    case ActionLink.name: callback = this.buildTTSCallback(action as ActionLink); break
-                    case ActionScreenshot.name: callback = this.buildTTSCallback(action as ActionScreenshot); break
-                    case ActionDiscord.name: callback = this.buildTTSCallback(action as ActionDiscord); break
-                    case ActionChat.name: callback = this.buildTTSCallback(action as ActionChat); break
-                    case ActionWhisper.name: callback = this.buildTTSCallback(action as ActionWhisper); break
-                    case ActionLabel.name: callback = this.buildTTSCallback(action as ActionLabel); break
-                    case ActionSystem.name: callback = this.buildTTSCallback(action as ActionSystem); break
-                    case ActionRemoteCommand.name: callback = this.buildTTSCallback(action as ActionRemoteCommand); break
-                }
-                ArrayUtils.pushIfExists(actionCallbacks, callback)
-
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildTTSCallback(actionContainer?.tts))
-                ArrayUtils.pushIfExists(actionCallbacks, actionContainer?.custom)
-                ArrayUtils.pushIfExists(actionCallbacks, ActionsCallbacks.stack[TempFactory.keyToActionCallbackEnum(key as TKeys)])      // TODO ??
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildOBSCallback(actionContainer?.obs, key))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildColorCallback(actionContainer?.lights))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildPlugCallback(actionContainer?.plugs))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildSoundAndSpeechCallback(
-                    actionContainer?.audio,
-                    actionContainer?.speech,
-                    nonceTTS,
-                    !!(actionContainer?.speech)
-                ))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildPipeCallback(actionContainer?.pipe))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildOpenVR2WSSettingCallback(actionContainer?.vrSetting))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildOpenVR2WSMoveSpaceCallback(actionContainer?.vrMoveSpace))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildSignCallback(actionContainer?.sign))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildKeysCallback(actionContainer?.input))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildURICallback(actionContainer?.uri))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildWebCallback(actionContainer?.web))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildScreenshotCallback(actionContainer?.screenshots, key, nonceTTS))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildDiscordMessageCallback(actionContainer?.discord, key))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildTwitchChatCallback(actionContainer?.chat))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildTwitchWhisperCallback(actionContainer?.whisper))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildLabelCallback(actionContainer?.label))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildSystemCallback(actionContainer?.system))
-                ArrayUtils.pushIfExists(actionCallbacks, this.buildRemoteCommandCallback(actionContainer?.remoteCommand))
-                */
 
                 // Logging
                 if(actionCallbacks.length == 1) {
@@ -403,8 +351,8 @@ export class Actions {
             }
             // Push item with callback that triggers all the actions generated.
             actionsExecutors.push({
-                timeMs: actionContainer.delayMs_orTimeMs,
-                delayMs: actionContainer.delayMs,
+                run: actionContainer.run,
+                ms: actionContainer.run_ms,
                 nonce: nonce,
                 execute: async (user: IActionUser, index?: number) => {
                     for (const stackCallback of actionCallbacks) {
@@ -421,11 +369,20 @@ export class Actions {
         return async (user: IActionUser, index?: number) => {
             let timeout = 0
             for(const actionsExecutor of actionsExecutors) {
-                if(actionsExecutor.timeMs !== undefined) timeout = actionsExecutor.timeMs // Overrides delay
-                else if(actionsExecutor.delayMs !== undefined) timeout += actionsExecutor.delayMs // Adds to previous time
+                let delay = false
+                switch(actionsExecutor.run) {
+                    case OptionEventRun.msAfterPrevious:
+                        timeout += actionsExecutor.ms
+                        delay = true
+                        break
+                    case OptionEventRun.msAfterStart:
+                        timeout = actionsExecutor.ms
+                        delay = true
+                        break
+                }
                 setTimeout(()=>{
                     actionsExecutor.execute(user, index)
-                }, timeout)
+                }, delay ? timeout : 0)
             }
         }
     }

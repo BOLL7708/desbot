@@ -14,9 +14,9 @@ export interface IActionCallback {
     call: (user: IActionUser, nonce: string, index?: number) => void // Index is used for entries-fields, provided by handler.
 }
 export interface IActionsExecutor {
-    timeMs?: number,
-    delayMs?: number,
-    nonce?: string,
+    run: number,
+    ms: number,
+    nonce: string,
     execute: (user: IActionUser, index?: number) => void
 }
 export interface IActionsMainCallback {
