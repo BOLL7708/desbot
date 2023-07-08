@@ -832,7 +832,7 @@ export default class JsonEditor {
     private appendDragButton(element: HTMLElement, origin: EOrigin, path: (string | number)[]) {
         if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
             const span = document.createElement('span') as HTMLSpanElement
-            span.innerHTML = '🤚'
+            span.innerHTML = '✋'
             span.title = 'Drag & drop in list'
             span.classList.add('drag-icon')
             span.draggable = true
@@ -842,6 +842,14 @@ export default class JsonEditor {
                     event.dataTransfer.setData('application/json', JSON.stringify(path))
                     event.dataTransfer.effectAllowed = 'move'
                 }
+                const parent = span.parentElement?.parentElement
+                document.querySelectorAll('.drag-icon').forEach(icon => {
+                    if(icon != span && parent && icon.parentElement?.parentElement === parent) {
+                        icon.innerHTML = '🖐'
+                        icon.classList.add('drag-target')
+                    }
+                })
+                span.innerHTML = '✊'
             }
             span.ondragenter = (event)=>{
                 if(event.dataTransfer) event.dataTransfer.dropEffect = 'move'
@@ -850,6 +858,10 @@ export default class JsonEditor {
                 event.preventDefault() // Apparently we need to do this to allow for the drop to happen.
             }
             span.ondragend = (event)=>{
+                document.querySelectorAll('.drag-icon').forEach(icon => {
+                    icon.innerHTML = '✋'
+                    icon.classList.remove('drag-target')
+                })
                 span.style.cursor = 'grabbing'
             }
             span.ondrop = async (event)=>{
