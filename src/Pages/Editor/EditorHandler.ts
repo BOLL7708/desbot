@@ -10,11 +10,13 @@ import EnlistData from '../../Objects/EnlistData.js'
 export default class EditorHandler {
     private _state = new EditorPageState()
 
-    private readonly _labelSaveButton: string = '💾 Save (ctrl+s)'
-    private readonly _labelSaveAndCloseButton: string = '💾 Save & close (ctrl+s)'
     private readonly _labelDeleteButton: string = '💥 Delete (shift+del)'
     private readonly _labelDeleteAndCloseButton: string = '💥 Delete & close (shift+del)'
     private readonly _labelDeleteResetButton: string = '💥 Reset (shift+del)'
+    private readonly _labelDefaultsButton: string = '📕 Defaults'
+    private readonly _labelCancelButton: string = '🧹 Cancel'
+    private readonly _labelSaveButton: string = '💾 Save (ctrl+s)'
+    private readonly _labelSaveAndCloseButton: string = '💾 Save & close (ctrl+s)'
     private _unsavedChanges: boolean = false
 
     public constructor() {
@@ -221,10 +223,10 @@ export default class EditorHandler {
             }
             editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
             editorDeleteButton.innerHTML = this._state.forceMainKey
-                ? this._labelDeleteResetButton
+                ? this._labelDeleteResetButton // Config
                 : this._state.minimal
-                    ? this._labelDeleteAndCloseButton
-                    : this._labelDeleteButton
+                    ? this._labelDeleteAndCloseButton // Child editor
+                    : this._labelDeleteButton // All other items
             if(instance && instance?.constructor.name !== 'Object') {
                 // Update URL to enable refreshes and bookmarks.
                 Utils.setUrlParam({
@@ -235,7 +237,7 @@ export default class EditorHandler {
                 this._state.groupKey = resultingKey
                 let item = await DataBaseHelper.loadItem(instance, resultingKey)
 
-                if(this._state.forceMainKey && !item) {
+                if(this._state.forceMainKey && !item) { // Pre-initialize Config
                     const didSave = await DataBaseHelper.save(instance, resultingKey)
                     if(didSave) {
                         item = await DataBaseHelper.loadItem(instance, resultingKey)
@@ -256,6 +258,8 @@ export default class EditorHandler {
                     ) ?? ''
                 )
                 editorDeleteButton.classList.remove('hidden')
+                editorDefaultsButton.classList.remove('hidden')
+                editorCancelButton.classList.remove('hidden')
                 editorSaveButton.classList.remove('hidden')
             } else {
                 console.warn(`Could not load instance for ${group}, class is: ${instance?.constructor.name}`)
@@ -309,7 +313,6 @@ export default class EditorHandler {
         // Delete button
         const editorDeleteButton = document.createElement('button') as HTMLButtonElement
         editorDeleteButton.classList.add('main-button', 'delete-button', 'hidden')
-        editorDeleteButton.style.marginRight = '10em'
         editorDeleteButton.innerHTML = this._state.minimal ? this._labelDeleteAndCloseButton : this._labelDeleteButton
         editorDeleteButton.tabIndex = -1
         editorDeleteButton.onclick = async(event)=>{
@@ -338,6 +341,24 @@ export default class EditorHandler {
             }
         }
         this._editorDeleteButton = editorDeleteButton
+
+        // Defaults button
+        const editorDefaultsButton = document.createElement('button') as HTMLButtonElement
+        editorDefaultsButton.classList.add('main-button', 'hidden')
+        editorDefaultsButton.innerHTML = this._labelDefaultsButton
+        editorDefaultsButton.onclick = async (event)=>{
+            const ok = confirm('Do you want to reset to defaults?')
+            if(ok) this._editor?.setData(undefined)
+        }
+
+        // Cancel button
+        const editorCancelButton = document.createElement('button') as HTMLButtonElement
+        editorCancelButton.classList.add('main-button', 'hidden')
+        editorCancelButton.innerHTML = this._labelCancelButton
+        editorCancelButton.onclick = (event)=>{
+            const ok = confirm('Do you want to cancel current changes?')
+            if(ok) this._editor?.setData(this._editor?.getOriginalData())
+        }
 
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
@@ -389,6 +410,8 @@ export default class EditorHandler {
         if(hasAnyItems) this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)
         this._contentDiv.appendChild(editorContainer)
         this._contentDiv.appendChild(editorDeleteButton)
+        this._contentDiv.appendChild(editorDefaultsButton)
+        this._contentDiv.appendChild(editorCancelButton)
         this._contentDiv.appendChild(editorSaveButton)
         if(hasAnyItems || this._state.forceMainKey) {
             this._contentDiv.appendChild(document.createElement('hr') as HTMLHRElement)

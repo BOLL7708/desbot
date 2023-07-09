@@ -1148,6 +1148,9 @@ export default class JsonEditor {
     getData(): any {
         return this._instance
     }
+    getOriginalData(): any {
+        return this._originalInstance
+    }
     async setData(data: any) {
         const freshInstance = await DataMap.getInstance(this._originalInstanceType, data)
         if(freshInstance) {
