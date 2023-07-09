@@ -1,4 +1,4 @@
-import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
+import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import Data from '../Objects/Data.js'

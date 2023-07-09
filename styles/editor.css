@@ -93,6 +93,10 @@ code {
 .boolean-input:hover {
     border: 1px solid var(--editor-boolean-input-border-hover);
 }
+.number-range {
+    display: inline-block;
+    padding: 0 4px !important;
+}
 
 .modified {
     background-color: var(--editor-modified-background-color);

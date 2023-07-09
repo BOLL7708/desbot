@@ -1,6 +1,6 @@
 import Utils from '../Classes/Utils.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import DataUtils from '../Classes/DataUtils.js'
+import DataFileUtils from '../Classes/DataFileUtils.js'
 import {ConfigEditor} from '../Objects/Config/ConfigEditor.js'
 
 export default class TopBar {
@@ -21,8 +21,8 @@ export default class TopBar {
             const styleTag = document.querySelector<HTMLLinkElement>('#link-page-mode-stylesheet')
             async function togglePageMode() {
                 if(styleTag) {
-                    const currentMode = Utils.toBool(await DataUtils.readData(dataFile))
-                    await DataUtils.writeData(dataFile, currentMode ? 0 : 1)
+                    const currentMode = Utils.toBool(await DataFileUtils.readData(dataFile))
+                    await DataFileUtils.writeData(dataFile, currentMode ? 0 : 1)
                     styleTag.href = `./styles/_${currentMode ? 'bright' : 'dark'}.css`
                 }
             }

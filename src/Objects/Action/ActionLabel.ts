@@ -1,7 +1,7 @@
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import DataUtils from '../../Classes/DataUtils.js'
+import DataFileUtils from '../../Classes/DataFileUtils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
@@ -36,9 +36,9 @@ export class ActionLabel extends Action {
                 const clone = Utils.clone<ActionLabel>(this)
                 for(const text of ArrayUtils.getAsType(clone.textEntries, clone.textEntries_use)) {
                     if(clone.append) {
-                        await DataUtils.appendText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
+                        await DataFileUtils.appendText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
                     } else {
-                        await DataUtils.writeText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
+                        await DataFileUtils.writeText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
                     }
                 }
             }

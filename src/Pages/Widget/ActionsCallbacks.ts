@@ -13,7 +13,7 @@ import DiscordUtils from '../../Classes/DiscordUtils.js'
 import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import DataUtils from '../../Classes/DataUtils.js'
+import DataFileUtils from '../../Classes/DataFileUtils.js'
 import {TKeys} from '../../_data/!keys.js'
 import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
 import {SettingStreamQuote} from '../../Objects/Setting/SettingStream.js'
@@ -292,13 +292,13 @@ export default class ActionsCallbacks {
                                     settingPreset: OpenVR2WS.SETTING_WORLD_SCALE,
                                     value: currentScale/100.0
                                 })
-                                DataUtils.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
+                                DataFileUtils.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
                                     modules.tts.enqueueSpeakSentence(speechArr[2])
                                     clearInterval(states.scaleIntervalHandle)
                                     setTimeout(async ()=>{
-                                        await DataUtils.writeText(fileName, '')
+                                        await DataFileUtils.writeText(fileName, '')
                                         // TODO: Enable the right scale rewards again? Maybe
                                     }, intervalMs)
                                 }
@@ -313,7 +313,7 @@ export default class ActionsCallbacks {
                     if(states.scaleIntervalHandle > -1) {
                         clearInterval(states.scaleIntervalHandle)
                         states.scaleIntervalHandle = -1
-                        await DataUtils.writeText(fileName, '')
+                        await DataFileUtils.writeText(fileName, '')
                         modules.tts.enqueueSpeakSentence(speechArr[4]).then()
                     }
                     const value = Math.max(10, Math.min(1000, scale || 100))
@@ -570,7 +570,7 @@ export default class ActionsCallbacks {
                         ).then()
                     }
                     // Update label in overlay
-                    const labelUpdated = await DataUtils.writeText(
+                    const labelUpdated = await DataFileUtils.writeText(
                         'trophy_label.txt', // TODO: Save as a constant or something?
                         await TextHelper.replaceTagsInText(
                             controllerConfig.channelTrophySettings.label,

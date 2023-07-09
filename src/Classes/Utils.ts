@@ -1,7 +1,7 @@
 import Config from './Config.js'
 import {TKeys} from '../_data/!keys.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
-import {LOCAL_STORAGE_AUTH_KEY} from './DataUtils.js'
+import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
 import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 import Color from './ColorConstants.js'
 

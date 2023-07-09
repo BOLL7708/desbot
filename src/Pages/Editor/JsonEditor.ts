@@ -1,13 +1,12 @@
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
-import Data, {EmptyData, IDataRefValues,} from '../../Objects/Data.js'
+import Data, {DataRefValues, EmptyData,} from '../../Objects/Data.js'
 import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
 import DataMap from '../../Objects/DataMap.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
 import {DataMeta} from '../../Objects/DataMeta.js'
 import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/ConfigEditor.js'
-import Config from '../../Classes/Config.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
-import AudioPlayer from '../../Classes/AudioPlayer.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
 
 enum EOrigin {
     Unknown,
@@ -220,9 +219,9 @@ export default class JsonEditor {
 
         // Sort out type values for ID references
         const thisType = options.instanceMeta?.types ? options.instanceMeta.types[key] ?? '' : ''
-        const thisTypeValues = Data.parseRef(thisType)
+        const thisTypeValues = DataUtils.parseRef(thisType)
         const parentType = options.instanceMeta?.types ? options.instanceMeta.types[previousKey] ?? '' : ''
-        const parentTypeValues = Data.parseRef(parentType)
+        const parentTypeValues = DataUtils.parseRef(parentType)
 
         // Root element
         let newRoot = document.createElement('li') as HTMLElement
@@ -389,6 +388,7 @@ export default class JsonEditor {
             }
         }
 
+        let range: HTMLInputElement|undefined
         switch (type) {
             case EJsonEditorFieldType.String:
                 if(thisTypeValues.secret || parentTypeValues.secret) {
@@ -409,7 +409,7 @@ export default class JsonEditor {
                     updatePreview()
                     this.handleValue(Utils.unescapeHTML(input.innerHTML), options.path, label)
                 }
-                updatePreview()
+                updatePreview().then()
                 break
             case EJsonEditorFieldType.Boolean:
                 const on = this._config.hideBooleanNames ? '✅' : '✅ True'
@@ -429,6 +429,19 @@ export default class JsonEditor {
                 handle = (event) => {}
                 break
             case EJsonEditorFieldType.Number:
+                if(thisTypeValues.range.length) {
+                    range = document.createElement('input') as HTMLInputElement
+                }
+                function clampToRange(skipUpdate = false) {
+                    let num = parseFloat(input.innerHTML)
+                    if(range) {
+                        if(num < thisTypeValues.range[0]) input.innerHTML = `${thisTypeValues.range[0]}`
+                        if(num > thisTypeValues.range[1]) input.innerHTML = `${thisTypeValues.range[1]}`
+                        num = parseFloat(input.innerHTML)
+                        if(range && !skipUpdate) range.value = input.innerHTML
+                    }
+                    return num
+                }
                 input.contentEditable = 'true'
                 input.innerHTML = `${options.data}`
                 input.onkeydown = (event)=>{
@@ -458,7 +471,7 @@ export default class JsonEditor {
                     }
                 }
                 handle = (event)=>{
-                    const num = parseFloat(input.innerHTML)
+                    let num = clampToRange(event.type == 'skip')
                     this.handleValue(isNaN(num) ? 0 : num, options.path, label)
                 }
                 break
@@ -485,6 +498,26 @@ export default class JsonEditor {
             input.oninput = handle
 
             newRoot.appendChild(input)
+        }
+
+        /**
+         * This number should have a range slider.
+         */
+        if(range) {
+            range.type = 'range'
+            range.min = `${thisTypeValues.range[0]}`
+            range.max = `${thisTypeValues.range[1]}`
+            range.value = `${options.data}`
+            
+            input.classList.add('number-range')
+            const maxLength = Math.max(range.min.length, range.max.length)
+            input.style.width = `${maxLength}ch`
+
+            range.oninput = (event)=>{
+                input.innerHTML = range?.value ?? '0'
+                handle(new Event('skip'))
+            }
+            newRoot.appendChild(range)
         }
 
         /*
@@ -711,7 +744,7 @@ export default class JsonEditor {
 
         // Sort out type values for ID references
         const thisType = options.instanceMeta?.types ? options.instanceMeta.types[pathKey] ?? '' : ''
-        const thisTypeValues = Data.parseRef(thisType)
+        const thisTypeValues = DataUtils.parseRef(thisType)
         const instanceType = instance.constructor.name
 
         if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
@@ -893,7 +926,7 @@ export default class JsonEditor {
      * @param parentId // Add parent IDs for generic items that should belong to a single parent.
      * @private
      */
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: IDataRefValues, path: IJsonEditorPath, parentId?: number): Function {
+    private appendNewReferenceItemButton(element: HTMLElement, typeValues: DataRefValues, path: IJsonEditorPath, parentId?: number): Function {
         let button: HTMLButtonElement|undefined = undefined
         const updateLink = (clazz: string)=>{
             if(button) {
@@ -908,7 +941,7 @@ export default class JsonEditor {
         if(typeValues.class && typeValues.isIdReference) {
             button = document.createElement('button') as HTMLButtonElement
             button.innerHTML = '👶'
-            button.classList.add('inline-button')
+            button.classList.add('inline-button', 'save-button')
             button.tabIndex = -1
             updateLink(typeValues.class)
             element.appendChild(button)
@@ -1128,7 +1161,7 @@ export default class JsonEditor {
         return this._key
     }
 
-    private async appendAddButton(newRoot: HTMLLIElement, typeValues: IDataRefValues, instance: object, path: IJsonEditorPath) {
+    private async appendAddButton(newRoot: HTMLLIElement, typeValues: DataRefValues, instance: object, path: IJsonEditorPath) {
         if(typeValues.class.length > 0) {
             const newButton = document.createElement('button') as HTMLButtonElement
             newButton.innerHTML = '✨'

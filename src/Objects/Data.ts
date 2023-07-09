@@ -1,6 +1,7 @@
 import Utils from '../Classes/Utils.js'
 import DataMap, {TNoFunctions} from './DataMap.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import {DataUtils} from './DataUtils.js'
 
 export type TDataCategory =
     string
@@ -97,11 +98,11 @@ export default abstract class Data {
         const possibleProperties = [...Object.keys(this), ...Object.keys(prototype)]
         for(const propertyName of possibleProperties) {
             let propertyValue = entryMap.has(propertyName) ? entryMap.get(propertyName) : undefined
-            propertyValue = Data.convertCollection(thisClass, propertyName, propertyValue) // Convert to correct collection type
+            propertyValue = DataUtils.convertCollection(thisClass, propertyName, propertyValue) // Convert to correct collection type
             if(propertyName.length > 0 && propertyValue !== undefined) {
                 // We cast to `any` in here to be able to set the props at all.
                 const types = DataMap.getMeta(thisClass)?.types ?? {}
-                const typeValues = Data.parseRef(types[propertyName] ?? '')
+                const typeValues = DataUtils.parseRef(types[propertyName] ?? '')
                 const hasSubInstance = DataMap.hasInstance(typeValues.class)
                 const isBaseDataObject = typeValues.class == Data.ref()
                 if((hasSubInstance || isBaseDataObject) && typeValues.isIdReference && fillReferences) {
@@ -214,65 +215,19 @@ export default abstract class Data {
     async __clone(fillReferences: boolean = false) {
         return await this.__new(Utils.clone(this), fillReferences)
     }
-
-    static parseRef(refStr: string): IDataRefValues {
-        const refArr = refStr.split('|')
-        const refValues: IDataRefValues = {
-            original: refStr,
-            class: refArr.shift() ?? '',
-            isIdReference: false,
-            useLabel: false,
-            idToKey: false,
-            genericLike: '',
-            enum: false,
-            secret: false,
-            file: false
-        }
-        for(const t of refArr) {
-            const [k, v] = t.split('=')
-            switch(k) {
-                case 'id': refValues.isIdReference = true; break
-                case 'key': refValues.idToKey = true; break
-                case 'label': refValues.useLabel = true; break
-                case 'like': refValues.genericLike = v; break
-                case 'enum': refValues.enum = true; break
-                case 'secret': refValues.secret = true; break;
-                case 'file': refValues.file = true; break;
-            }
-        }
-        return refValues
-    }
-
-    static convertCollection(className: string, propertyName: string, collection: any): any {
-        if(!collection) return collection
-        const originalProperty = (DataMap.getMeta(className)?.instance as any)[propertyName]
-        const originalIsArray = Array.isArray(originalProperty)
-        const propertyIsArray = Array.isArray(collection)
-        if(!propertyIsArray && originalIsArray) {
-            console.warn('Property is an object but should be an array!')
-            collection = Object.values(collection)
-        }
-        if(propertyIsArray && !originalIsArray) {
-            console.warn('Property is an array but should be an object!')
-            let i = 0
-            collection = Object.fromEntries(
-                (collection as []).map(v => [i++, v])
-            )
-        }
-        return collection
-    }
 }
 
 export class EmptyData extends Data { enlist() {} }
 
-export interface IDataRefValues {
-    original: string
-    class: string
-    isIdReference: boolean
-    useLabel: boolean
-    idToKey: boolean
-    genericLike: string
-    enum: boolean,
-    secret: boolean,
-    file: boolean
+export class DataRefValues {
+    original = ''
+    class = ''
+    isIdReference = false
+    useLabel = false
+    idToKey = false
+    genericLike = ''
+    enum = false
+    secret = false
+    file = false
+    range: number[] = []
 }

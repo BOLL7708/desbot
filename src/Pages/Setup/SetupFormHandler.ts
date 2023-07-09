@@ -1,13 +1,13 @@
 import Utils from '../../Classes/Utils.js'
 import SetupSectionHandler from './SetupSectionHandler.js'
-import DataUtils, {
+import DataFileUtils, {
     AuthData,
     DBData,
     GitVersion,
     LOCAL_STORAGE_AUTH_KEY,
     MigrationData,
     MigrationVersion
-} from '../../Classes/DataUtils.js'
+} from '../../Classes/DataFileUtils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import {SettingTwitchClient, SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
@@ -51,7 +51,7 @@ export default class SetupFormHandler {
 
     async setup() {
         // Decide what to show first depending on if we have a password stored.
-        const authData = await DataUtils.readData<AuthData>('auth.php')
+        const authData = await DataFileUtils.readData<AuthData>('auth.php')
 
         // No auth data on disk, we need to register a password.
         if(!authData) return this._sections.show('Register')
@@ -61,7 +61,7 @@ export default class SetupFormHandler {
         if(localAuth.length == 0 || !await AuthUtils.checkIfAuthed()) return this._sections.show('Login')
 
         // No database data stored on disk, we need to register that.
-        const dbData = await DataUtils.readData<DBData>('db.php')
+        const dbData = await DataFileUtils.readData<DBData>('db.php')
         if(!dbData) return this._sections.show('DBSetup')
 
         // Database migration
@@ -127,7 +127,7 @@ export default class SetupFormHandler {
         const password = inputData.password ?? ''
         if(password.length == 0) alert('Password field is empty.')
         else {
-            const ok = await DataUtils.writeData('auth.php', inputData)
+            const ok = await DataFileUtils.writeData('auth.php', inputData)
             if(ok) {
                 this.storeAuth(password)
                 this.setup().then()
@@ -147,7 +147,7 @@ export default class SetupFormHandler {
     async submitDBSetup(event: SubmitEvent) {
         event.preventDefault()
         const inputData = this.getFormInputData(event.target, new DBData())
-        const ok = await DataUtils.writeData('db.php', inputData)
+        const ok = await DataFileUtils.writeData('db.php', inputData)
         if(ok) {
             const dbOk = await DataBaseHelper.testConnection()
             if(dbOk) this.setup().then()
@@ -219,7 +219,7 @@ export default class SetupFormHandler {
         const highestPossibleVersion = migrationVersion.version
 
         // Get previous widget version stored on disk
-        let versionData = (await DataUtils.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
+        let versionData = (await DataFileUtils.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
         let databaseVersion = versionData?.current ?? 0
 
         // Migrate database if accepted.
@@ -235,7 +235,7 @@ export default class SetupFormHandler {
                 const migrateResult = await migrateResponse.json() as MigrationData
                 alert(`Database migrations done: ${migrateResult.count}, reached version: ${migrateResult.id}.`)
                 versionData = {current: migrateResult.id}
-                const ok = await DataUtils.writeData('version.json', versionData).then()
+                const ok = await DataFileUtils.writeData('version.json', versionData).then()
                 if(!ok) alert('Could not store new database version on disk.')
             }
         }

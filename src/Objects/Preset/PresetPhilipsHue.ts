@@ -1,5 +1,6 @@
 import Data from '../Data.js'
 import DataMap from '../DataMap.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class PresetPhilipsHueBulbState extends Data {
     brightness: number = 255
@@ -11,11 +12,13 @@ export class PresetPhilipsHueBulbState extends Data {
             new PresetPhilipsHueBulbState(),
             'The values used to set the state for a Philips Hue bulb.',
             {
-                brightness: '0-255',
-                hue: '0-65535',
-                saturation: '0-255'
+                brightness: 'Brightness of the bulb.',
+                hue: 'Hue of the bulb.',
+                saturation: 'Saturation of the bulb, set to 0 for white.'
             }, {
-                brightness: 'number' // TODO: Add back in some way to supply values so we can add sliders to these clamped values?
+                brightness: DataUtils.getNumberRangeRef(0,255),
+                hue: DataUtils.getNumberRangeRef(0,65535),
+                saturation: DataUtils.getNumberRangeRef(0,255)
             }
         )
     }

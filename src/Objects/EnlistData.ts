@@ -233,7 +233,6 @@ export default class EnlistData {
         ]
 
         for(const obj of objects) {
-            console.log('EnlistData:', obj.constructor.name)
             obj.enlist()
         }
     }

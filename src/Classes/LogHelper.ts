@@ -1,4 +1,4 @@
-import DataUtils from './DataUtils.js'
+import DataFileUtils from './DataFileUtils.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 
 export default class LogWriter {
@@ -8,7 +8,7 @@ export default class LogWriter {
 
     public static async init() {
         // Clear the log
-        await DataUtils.writeText(this._fileName, '')
+        await DataFileUtils.writeText(this._fileName, '')
         this.override()
     }
 
@@ -72,6 +72,6 @@ export default class LogWriter {
     }
 
     private static async write(message: string) {
-        await DataUtils.appendText(this._fileName, message)
+        await DataFileUtils.appendText(this._fileName, message)
     }
 }
