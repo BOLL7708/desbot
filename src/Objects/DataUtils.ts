@@ -5,6 +5,15 @@ export class DataUtils {
     static getNumberRangeRef(min: number, max: number, step: number = 1): string {
         return `number|range=${min},${max},${step}`
     }
+    static getStringFileImageRef() {
+        return 'string|file=apng,avif,gif,jpg,jpeg,png,svg,webp'
+    }
+    static getStringFileAudioRef() {
+        return 'string|file=mp3,wav,ogg'
+    }
+    static getStringFileVideoRef() {
+        return 'string|file=mp4,webm'
+    }
 
     static parseRef(refStr: string): DataRefValues {
         const refArr = refStr.split('|')
@@ -33,7 +42,7 @@ export class DataUtils {
                     refValues.secret = true
                     break
                 case 'file':
-                    refValues.file = true
+                    refValues.file = v.split(',')
                     break
                 case 'range':
                     refValues.range = v.split(',').map(v => parseInt(v))

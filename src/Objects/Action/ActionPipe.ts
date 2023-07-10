@@ -6,6 +6,7 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionPipe extends Action {
     imagePathEntries: string[] = []
@@ -28,7 +29,7 @@ export class ActionPipe extends Action {
                 preset: 'Preset config for the custom notification, which can be generated with the Editor that comes with OpenVRNotificationPipe.',
                 texts: 'If your custom notification includes text areas, this is where you add the texts that are to be used for it.'
             },{
-                imagePathEntries: 'string|file',
+                imagePathEntries: DataUtils.getStringFileImageRef(),
                 imagePathEntries_use: OptionEntryUsage.ref(),
                 imageDataEntries: 'string',
                 imageDataEntries_use: OptionEntryUsage.ref(),

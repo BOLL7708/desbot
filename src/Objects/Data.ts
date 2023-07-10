@@ -228,7 +228,7 @@ export class DataRefValues {
     genericLike = ''
     enum = false
     secret = false
-    file = false
+    file: string[] = []
     range: number[] = []
     code = false
 }

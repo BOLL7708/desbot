@@ -5,6 +5,7 @@ import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionAudio extends Action {
     srcEntries: string[] = []
@@ -27,7 +28,7 @@ export class ActionAudio extends Action {
                 channel: 'Channel to play on, it is a separate instance of the audio player.',
                 onTTSQueue: 'If true, the audio will be queued with TTS to play after the current speech is finished.'
             }, {
-                srcEntries: 'string|file',
+                srcEntries: DataUtils.getStringFileAudioRef(),
                 srcEntries_use: OptionEntryUsage.ref()
             }
         )

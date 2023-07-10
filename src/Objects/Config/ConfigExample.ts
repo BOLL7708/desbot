@@ -3,10 +3,12 @@ import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../In
 import DataMap from '../DataMap.js'
 import {PresetPipeBasic} from '../Preset/PresetPipe.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ConfigExample extends Data {
     singleBoolean = false
     singleNumber = 0
+    singleNumberRange = 0
     singleString = ''
     singleSecretString = ''
     singleFileString = ''
@@ -63,6 +65,7 @@ export class ConfigExample extends Data {
             {
                 singleBoolean: 'A single boolean flag',
                 singleNumber: 'A single number value',
+                singleNumberRange: 'A single number value with a range',
                 singleString: 'A single string value',
                 singleSecretString: 'A single secret string value, use for passwords or API keys, etc.',
                 singleSubInstance: 'A single instance of a sub-class',
@@ -95,8 +98,9 @@ export class ConfigExample extends Data {
                 dictionaryOfEnums: ''
             },
             {
+                singleNumberRange: DataUtils.getNumberRangeRef(-100, 100, 5),
                 singleSecretString: 'string|secret',
-                singleFileString: 'string|file',
+                singleFileString: DataUtils.getStringFileImageRef(),
                 singleIdReference: PresetPipeBasic.refId(),
                 singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel(),
                 singleIdToKeyReference: PresetPipeBasic.refIdKey(),
@@ -108,7 +112,7 @@ export class ConfigExample extends Data {
                 arrayOfNumbers: 'number',
                 arrayOfStrings: 'string',
                 arrayOfSecretStrings: 'string|secret',
-                arrayOfFileStrings: 'string|file',
+                arrayOfFileStrings: DataUtils.getStringFileImageRef(),
                 arrayOfSubInstances: ConfigExampleSub.ref(),
                 arrayOfIdReferences: PresetPipeBasic.refId(),
                 arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),

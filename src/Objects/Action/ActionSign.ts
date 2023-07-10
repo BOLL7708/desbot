@@ -4,6 +4,7 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionSign extends Action {
     title: string = ''
@@ -22,7 +23,7 @@ export class ActionSign extends Action {
                 durationMs: 'The duration for the Sign to be visible for, in milliseconds.'
             },
             {
-                imageSrc: 'string|file'
+                imageSrc: DataUtils.getStringFileImageRef()
             }
         )
     }

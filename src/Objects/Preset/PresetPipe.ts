@@ -1,5 +1,6 @@
 import Data from '../Data.js'
 import DataMap from '../DataMap.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class PresetPipeBasic extends Data {
     imageData: string = ''
@@ -25,7 +26,7 @@ export class PresetPipeCustom extends Data {
                 customProperties: 'Properties for the custom notification.'
             },
             {
-                imagePath: 'string|file'
+                imagePath: DataUtils.getStringFileImageRef()
             }
         )
     }

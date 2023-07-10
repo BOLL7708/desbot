@@ -13,20 +13,22 @@ export default class AssetsHelper {
      * @param end The end of the filepath string, usually for extensions, can be an array.
      * @returns A string array with matching file-paths.
      */
-    static /* async */ get(start: string, end: string|string[]): /* Promise<string[]>*/ string[] {
-        // TODO: Cannot be async until we stop using configs.
-        // await this.getAll() // Make sure list is loaded.
-        const extensions = Utils.ensureArray(end)
-        const key = `${start}|${extensions.join('&')}`
+    static async get(start: string, end: string[]): Promise<string[]> {
+        await this.getAll() // Make sure list is loaded.
+        const leading = start.toLowerCase()
+        const trailing = end.map((e) => e.toLowerCase())
+        const key = `${leading}|${trailing.join('&')}`
         let files: string[]
         if(this._filePathCache.hasOwnProperty(key)) {
+            // Return cache
             files = this._filePathCache[key]
         } else {
+            // Create cache
             files = this._filePaths.filter((filePath) => {
-                const FilePathLowerCase = (<String>filePath).toLowerCase()
-                if(!FilePathLowerCase.startsWith(start.toLowerCase())) return false
-                for(const extension of extensions) {
-                    if(FilePathLowerCase.endsWith(extension.toLowerCase())) {
+                const filePathLowerCase = filePath.toLowerCase()
+                if(!filePathLowerCase.startsWith(leading)) return false
+                for(const extension of end) {
+                    if(filePathLowerCase.endsWith(extension.toLowerCase())) {
                         return true
                     }
                 }

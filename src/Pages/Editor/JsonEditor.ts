@@ -518,6 +518,7 @@ export default class JsonEditor {
             range.type = 'range'
             range.min = `${thisTypeValues.range[0]}`
             range.max = `${thisTypeValues.range[1]}`
+            range.step = `${thisTypeValues.range[2]}`
             range.value = `${options.data}`
             
             input.classList.add('number-range')
@@ -688,12 +689,12 @@ export default class JsonEditor {
         /*
          * This is if we are picking a file
          */
-        if(thisTypeValues.file || parentTypeValues.file) {
+        if(thisTypeValues.file.length || parentTypeValues.file.length) {
             input.contentEditable = 'false'
             input.classList.add('disabled')
             input.classList.add('hidden') // Always hidden as it can get long.
 
-            const files = await AssetsHelper.getAll()
+            const files = await AssetsHelper.get('', thisTypeValues.file.length ? thisTypeValues.file : parentTypeValues.file)
             const id = `${thisType}-datalist`
             const inputFile: HTMLInputElement = document.createElement('input') as HTMLInputElement
             inputFile.setAttribute('list', id)
@@ -712,7 +713,7 @@ export default class JsonEditor {
                 const filePath = inputFile.value
                 input.innerHTML = filePath
                 inputFile.title = filePath
-                updatePreview()
+                updatePreview().then()
                 handle(event)
             }
             newRoot.appendChild(inputFile)
