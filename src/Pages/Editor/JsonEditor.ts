@@ -432,16 +432,6 @@ export default class JsonEditor {
                 if(thisTypeValues.range.length) {
                     range = document.createElement('input') as HTMLInputElement
                 }
-                function clampToRange(skipUpdate = false) {
-                    let num = parseFloat(input.innerHTML)
-                    if(range) {
-                        if(num < thisTypeValues.range[0]) input.innerHTML = `${thisTypeValues.range[0]}`
-                        if(num > thisTypeValues.range[1]) input.innerHTML = `${thisTypeValues.range[1]}`
-                        num = parseFloat(input.innerHTML)
-                        if(range && !skipUpdate) range.value = input.innerHTML
-                    }
-                    return num
-                }
                 input.contentEditable = 'true'
                 input.innerHTML = `${options.data}`
                 input.onkeydown = (event)=>{
@@ -471,7 +461,20 @@ export default class JsonEditor {
                     }
                 }
                 handle = (event)=>{
-                    let num = clampToRange(event.type == 'skip')
+                    // Ensure minus is leading
+                    let value = input.innerHTML
+                    if(value.indexOf('-') > 0) {
+                        input.innerHTML = '-'+value.replace('-', '')
+                    }
+                    // Clamp to optional range
+                    let num = parseFloat(input.innerHTML)
+                    if(range) {
+                        if(num < thisTypeValues.range[0]) input.innerHTML = `${thisTypeValues.range[0]}`
+                        if(num > thisTypeValues.range[1]) input.innerHTML = `${thisTypeValues.range[1]}`
+                        num = parseFloat(input.innerHTML)
+                        if(range && event.type != 'skip') range.value = input.innerHTML
+                    }
+                    // Handle
                     this.handleValue(isNaN(num) ? 0 : num, options.path, label)
                 }
                 break
