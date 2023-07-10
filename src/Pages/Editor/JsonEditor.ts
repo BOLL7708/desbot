@@ -335,7 +335,15 @@ export default class JsonEditor {
         // Input
         let skip = false
         let handle = (event: Event) => {}
-        let input: HTMLSpanElement = document.createElement('code') as HTMLSpanElement
+        let input = thisTypeValues.code
+            ? document.createElement('textarea') as HTMLTextAreaElement
+            : document.createElement('code') as HTMLSpanElement
+        const isTextArea = input.constructor.name == HTMLTextAreaElement.name
+        if(isTextArea) {
+            input.classList.add('code-textarea')
+            input.spellcheck = false;
+            (input as HTMLTextAreaElement).rows = this._config.codeAreaRows
+        }
         input.onpaste = (event)=>{
             event.preventDefault()
             let text = event.clipboardData?.getData('text/plain') ?? ''
@@ -401,7 +409,7 @@ export default class JsonEditor {
                 input.contentEditable = 'true'
                 input.innerHTML = Utils.escapeHTML(`${options.data}`)
                 input.onkeydown = (event)=>{
-                    if (event.key === 'Enter') {
+                    if (event.key === 'Enter' && !isTextArea) {
                         event.preventDefault()
                     }
                 }

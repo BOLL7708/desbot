@@ -6,7 +6,7 @@ import Color from '../Classes/ColorConstants.js'
 
 // Types
 export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
-export type TTypes = 'number'|'boolean'|'string'|'string|secret'|'string|file'|string
+export type TTypes = 'number'|'boolean'|'string'|'string|secret'|'string|file'|'string|code'|string
 
 export default class DataMap {
     private static _map = new Map<string, DataObjectMeta>()

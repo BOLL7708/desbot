@@ -230,4 +230,5 @@ export class DataRefValues {
     secret = false
     file = false
     range: number[] = []
+    code = false
 }

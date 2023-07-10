@@ -38,6 +38,9 @@ export class DataUtils {
                 case 'range':
                     refValues.range = v.split(',').map(v => parseInt(v))
                     break
+                case 'code':
+                    refValues.code = true
+                    break
             }
         }
         return refValues

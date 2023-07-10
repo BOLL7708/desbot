@@ -12,6 +12,9 @@ export class ActionCustom extends Action {
             'Provide a custom action callback, this can execute any arbitrary code you provide.\n\nOBS: If you put anything that breaks in here it will wreck the whole thing when executed.',
             {
                 code: 'Should be valid JavaScript code.'
+            },
+            {
+                code: 'string|code'
             }
         )
     }
