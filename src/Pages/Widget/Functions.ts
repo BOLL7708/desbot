@@ -22,6 +22,7 @@ import ConfigTwitchChat from '../../Objects/Config/ConfigTwitchChat.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
+import {ActionSign} from '../../Objects/Action/ActionSign.js'
 
 export default class Functions {
     /*
@@ -231,25 +232,17 @@ export default class Functions {
 
         // region Misc
 
-		/*
-		.##...##..######...####....####..
-		.###.###....##....##......##..##.
-		.##.#.##....##.....####...##.....
-		.##...##....##........##..##..##.
-		.##...##..######...####....####..
-		*/
-
         // Show game in sign
         if(appId.length > 0) {
             const gameData = await SteamStoreHelper.getGameMeta(appId)
             const price = SteamStoreHelper.getPrice(gameData)
             const name = gameData?.name ?? 'N/A'
-            modules.sign.enqueueSign({
-                title: 'Current Game',
-                image: gameData?.header_image,
-                subtitle: `${name}\n${price}`,
-                durationMs: 20000
-            })
+            const action = new ActionSign()
+            action.title = 'Current Game'
+            action.imageSrc = gameData?.header_image ?? ''
+            action.subtitle = `${name}\n${price}`
+            action.durationMs = 20000
+            modules.sign.enqueueSign(action)
         }
 
         // Update category on Twitch

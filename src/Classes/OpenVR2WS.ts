@@ -23,16 +23,6 @@ import {ActionMoveVRSpace} from '../Objects/Action/ActionMoveVRSpace.js'
 import {ActionSettingVR} from '../Objects/Action/ActionSettingVR.js'
 
 export default class OpenVR2WS {
-    static get SETTING_WORLD_SCALE() { return '|worldScale|1' }
-    static get SETTING_ANALOG_GAIN() { return 'steamvr|analogGain|1.30' }
-    static get SETTING_PREFERRED_REFRESH_RATE() { return 'steamvr|preferredRefreshRate|120' }
-    static get SETTING_MIRROR_VIEW_EYE() { return 'steamvr|mirrorViewEye|4' }
-    static get SETTING_LEFT_THUMBSTICK_ROTATION_KNUCKLES() { return 'input|leftThumbstickRotation_knuckles|0' }
-    static get SETTING_RIGHT_THUMBSTICK_ROTATION_KNUCKLES() { return 'input|rightThumbstickRotation_knuckles|0' }
-    static get SETTING_HMD_DISPLAY_COLOR_GAIN_R() { return 'steamvr|hmdDisplayColorGainR|1.0' }
-    static get SETTING_HMD_DISPLAY_COLOR_GAIN_G() { return 'steamvr|hmdDisplayColorGainG|1.0' }
-    static get SETTING_HMD_DISPLAY_COLOR_GAIN_B() { return 'steamvr|hmdDisplayColorGainB|1.0' }
-
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }
 
     private _config = new ConfigOpenVR2WS()

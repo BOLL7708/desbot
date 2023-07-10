@@ -21,9 +21,9 @@ export interface IScreenshotConfig {
  */
  export interface IScreenshotRequestData {
     /**
-     * Key for the reward that triggered the screenshot.
+     * Key for the event that triggered the screenshot.
      */
-    rewardKey: string
+    eventKey: string
     /**
      * Twitch user ID for the redeemer.
      */

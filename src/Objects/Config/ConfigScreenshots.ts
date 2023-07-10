@@ -5,6 +5,7 @@ import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
+import {EventDefault} from '../Event/EventDefault.js'
 
 export default class ConfigScreenshots extends Data {
     SSSVRPort: number = 8807
@@ -33,7 +34,7 @@ export class ConfigScreenshotsCallback extends Data {
     signTitle_forMs: number = 5000
     signManualSubtitle: string = 'Manual shot!'
     pipeEnabledForManual: boolean = true
-    pipeEnabledForRewards: (number|string)[] = []
+    pipeEnabledForEvents: (number|string)[] = []
     pipePreset: (number|PresetPipeCustom) = 0
     pipePreset_forMs: number = 5000
     captureSoundEffect: (number|ActionAudio) = 0
@@ -53,7 +54,7 @@ export class ConfigScreenshotsCallback extends Data {
                 signTitle: 'Title of the Sign pop-in, goes above the image, with a duration in milliseconds.',
                 signManualSubtitle: 'Sub-title of the Sign pop-in for manual shots, goes beneath the image.\n\nRedeemed shots will have the subtitle be the redeemers username.',
                 pipeEnabledForManual: 'Enable manual screenshots to be output to VR through the Pipe.',
-                pipeEnabledForRewards: 'Keys for screenshot rewards that should be output to VR through the Pipe.',
+                pipeEnabledForEvents: 'Keys for events with VR screenshot actions that should be output to VR through the Pipe.',
                 pipePreset: 'The Pipe preset for screenshots. Duration to display the headset overlay for in milliseconds.',
                 captureSoundEffect: 'As there is not built in audio effect for OBS screenshots an option for that is provided here.\nWhy this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.'
             },
@@ -61,7 +62,7 @@ export class ConfigScreenshotsCallback extends Data {
                 discordEmbedImageFormat: OptionScreenshotFileType.ref(),
                 discordWebhooksOBS: PresetDiscordWebhook.refId(),
                 discordWebhooksSSSVR: PresetDiscordWebhook.refId(),
-                pipeEnabledForRewards: SettingTwitchReward.refIdKeyLabel(),
+                pipeEnabledForEvents: EventDefault.refIdKeyLabel(),
                 pipePreset: PresetPipeCustom.refId(),
                 captureSoundEffect: ActionAudio.refId()
             }

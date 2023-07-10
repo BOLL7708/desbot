@@ -25,6 +25,8 @@ import {OptionSystemActionType} from '../../Options/OptionSystemActionType.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {PresetSystemActionText} from '../../Objects/Preset/PresetSystemActionText.js'
 import {IActionsCallbackStack, IActionUser} from '../../Objects/Action.js'
+import {ActionSettingVR} from '../../Objects/Action/ActionSettingVR.js'
+import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -288,10 +290,10 @@ export default class ActionsCallbacks {
                         states.scaleIntervalHandle = setInterval(
                             ()=>{
                                 const fileName = 'word_scale_label.txt'
-                                modules.openvr2ws.setSetting({
-                                    settingPreset: OpenVR2WS.SETTING_WORLD_SCALE,
-                                    value: currentScale/100.0
-                                })
+                                const action = new ActionSettingVR()
+                                action.settingPreset = OptionSteamVRSettingType.WorldScale
+                                action.setToValue = (currentScale/100.0).toString()
+                                modules.openvr2ws.setSetting(action).then()
                                 DataFileUtils.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
@@ -326,10 +328,10 @@ export default class ActionsCallbacks {
                             }
                         )
                     ).then()
-                    modules.openvr2ws.setSetting({
-                        settingPreset: OpenVR2WS.SETTING_WORLD_SCALE,
-                        value: value/100.0
-                    }).then()
+                    const action = new ActionSettingVR()
+                    action.settingPreset = OptionSteamVRSettingType.WorldScale
+                    action.setToValue = (value/100.0).toString()
+                    modules.openvr2ws.setSetting(action).then()
                 }
             }
         },
@@ -347,10 +349,10 @@ export default class ActionsCallbacks {
                 const speech = textPreset?.data?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, brightness)) // TODO: There are properties in SteamVR to read out for safe min/max values or if available at all! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L475
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
-                modules.openvr2ws.setSetting({
-                    settingPreset: OpenVR2WS.SETTING_ANALOG_GAIN,
-                    value: value/100.0
-                }).then()
+                const action = new ActionSettingVR()
+                action.settingPreset = OptionSteamVRSettingType.HMDAnalogGain
+                action.setToValue = (value/100.0).toString()
+                modules.openvr2ws.setSetting(action).then()
             }
         },
 
@@ -367,10 +369,10 @@ export default class ActionsCallbacks {
                 const speech = textPreset?.data?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(160, refreshRate)) // TODO: Are there also properties for supported frame-rates?! https://github.com/ValveSoftware/openvr/blob/4c85abcb7f7f1f02adaf3812018c99fc593bc341/headers/openvr.h#L470
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
-                modules.openvr2ws.setSetting({
-                    settingPreset: OpenVR2WS.SETTING_PREFERRED_REFRESH_RATE,
-                    value: value
-                }).then()
+                const action = new ActionSettingVR()
+                action.settingPreset = OptionSteamVRSettingType.HMDRefreshRate
+                action.setToValue = value.toString()
+                modules.openvr2ws.setSetting(action).then()
             }
         },
 
@@ -385,10 +387,10 @@ export default class ActionsCallbacks {
                 const speech = textPreset?.data?.speech[0] ?? ''
                 const value = Math.max(0, Math.min(5, eyeMode))
                 modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speech, {value: value.toString()})).then()
-                modules.openvr2ws.setSetting({
-                    settingPreset: OpenVR2WS.SETTING_MIRROR_VIEW_EYE,
-                    value: value
-                }).then()
+                const action = new ActionSettingVR()
+                action.settingPreset = OptionSteamVRSettingType.MirrorViewEye
+                action.setToValue = value.toString()
+                modules.openvr2ws.setSetting(action).then()
             }
         },
         // endregion

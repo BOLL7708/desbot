@@ -32,6 +32,7 @@ import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.j
 import ConfigTwitchChat from '../../Objects/Config/ConfigTwitchChat.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {IActionUser} from '../../Objects/Action.js'
+import {ActionSign} from '../../Objects/Action/ActionSign.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
@@ -312,10 +313,9 @@ export default class Callbacks {
             const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
 
             // Pipe manual screenshots into VR if configured.
-            // TODO: Figure out how to associate this with either events or actions in the future... probably events?
             if(
-                Config.screenshots.callback.pipeEnabledForRewards.includes(requestData?.rewardKey ?? 'Unknown')
-                || (requestData == null && screenshotsConfig.callback.pipeEnabledForManual)
+                screenshotsConfig.callback.pipeEnabledForEvents.includes(requestData?.eventKey ?? '') ||
+                (!requestData && screenshotsConfig.callback.pipeEnabledForManual)
             ) {
                 const preset = Utils.ensureObjectNotId(screenshotsConfig.callback.pipePreset)
                 if(preset !== undefined) {
@@ -352,12 +352,12 @@ export default class Callbacks {
                 const authorName = userData?.display_name ?? ''
 
                 // Sign
-                modules.sign.enqueueSign({
-                    title: screenshotsConfig.callback.signTitle,
-                    image: dataUrl,
-                    subtitle: authorName,
-                    durationMs: screenshotsConfig.callback.signTitle_forMs
-                })
+                const action = new ActionSign()
+                action.title = screenshotsConfig.callback.signTitle
+                action.imageSrc = dataUrl
+                action.subtitle = authorName
+                action.durationMs = screenshotsConfig.callback.signTitle_forMs
+                modules.sign.enqueueSign(action)
 
                 // Discord
                 for(const webhook of webhooks) {
@@ -376,12 +376,12 @@ export default class Callbacks {
                 }
             } else { // A manually taken screenshot
                 // Sign
-                modules.sign.enqueueSign({
-                    title: screenshotsConfig.callback.signTitle,
-                    image: dataUrl,
-                    subtitle: screenshotsConfig.callback.signManualSubtitle,
-                    durationMs: screenshotsConfig.callback.signTitle_forMs
-                })
+                const action = new ActionSign()
+                action.title = screenshotsConfig.callback.signTitle
+                action.imageSrc = dataUrl
+                action.subtitle = screenshotsConfig.callback.signManualSubtitle
+                action.durationMs = screenshotsConfig.callback.signTitle_forMs
+                modules.sign.enqueueSign(action)
 
                 // Discord
                 for(const webhook of webhooks) {
@@ -407,12 +407,12 @@ export default class Callbacks {
                 const authorName = userData?.display_name ?? ''
 
                 // Sign
-                modules.sign.enqueueSign({
-                    title: screenshotsConfig.callback.signTitle,
-                    image: dataUrl,
-                    subtitle: authorName,
-                    durationMs: screenshotsConfig.callback.signTitle_forMs
-                })
+                const action = new ActionSign()
+                action.title = screenshotsConfig.callback.signTitle
+                action.imageSrc = dataUrl
+                action.subtitle = authorName
+                action.durationMs = screenshotsConfig.callback.signTitle_forMs
+                modules.sign.enqueueSign(action)
 
                 // Discord
                 const webhooks = Utils.ensureObjectArrayNotId(screenshotsConfig.callback.discordWebhooksSSSVR)

@@ -165,15 +165,15 @@ export default class OBS {
 
     /**
      * Triggers the screenshot capture of an OBS source
-     * @param rewardKey The internal key for the reward
+     * @param eventKey The key for the event that triggered the screenshot
      * @param userData Data from the Twitch reward
      * @param sourceName What source in OBS to capture
      * @param delaySeconds Amount of time to delay the capture
      * @returns The message ID that is referenced in the result callback
      */
-    takeSourceScreenshot(rewardKey: string, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
+    takeSourceScreenshot(eventKey: string, userData: IActionUser, sourceName: string, delaySeconds: number = 0): string {
         const requestData: IScreenshotRequestData = { 
-            rewardKey: rewardKey, 
+            eventKey: eventKey,
             userId: userData.id,
             userName: userData.login, 
             userInput: userData.input,
