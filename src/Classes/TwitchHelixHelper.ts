@@ -9,7 +9,6 @@ import {
     ITwitchHelixGamesResponseData,
     ITwitchHelixRewardConfig,
     ITwitchHelixRewardResponse,
-    ITwitchHelixRewardStates,
     ITwitchHelixRewardUpdate,
     ITwitchHelixRoleResponse,
     ITwitchHelixUsersResponse,
@@ -17,13 +16,11 @@ import {
 } from '../Interfaces/itwitch_helix.js'
 import Color from './ColorConstants.js'
 import Utils from './Utils.js'
-import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
 import LegacyUtils from './LegacyUtils.js'
 import {SettingUser} from '../Objects/Setting/SettingUser.js'
-import {PresetReward} from '../Objects/Preset/PresetReward.js'
 import {ActionSystemRewardState} from '../Objects/Action/ActionSystem.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Options/OptionTwitch.js'
 

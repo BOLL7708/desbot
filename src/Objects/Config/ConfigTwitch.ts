@@ -5,9 +5,11 @@ import {SettingUser} from '../Setting/SettingUser.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
 import {OptionTwitchSubTier} from '../../Options/OptionTwitch.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
 export default class ConfigTwitch extends Data {
     commandPrefix: string = '!'
+    defaultCommandPermissions: number|PresetPermissions = 0
     ignoreModerators: number[]|SettingUser[] = []
     allowWhisperCommands: boolean = true
     logWhisperCommandsToDiscord: number|PresetDiscordWebhook = 0
@@ -58,6 +60,7 @@ export default class ConfigTwitch extends Data {
             'Settings for Twitch.',
             {
                 commandPrefix: 'Prefix for triggering chat commands.',
+                defaultCommandPermissions: 'Default permissions for commands that do not have any set.',
                 ignoreModerators: 'List of moderators that should not be able to execute commands, useful for bots.',
                 allowWhisperCommands: 'Will allow users with the right permissions to execute commands by whispering the chatbot.',
                 logWhisperCommandsToDiscord: 'Will push whisper commands to separate Discord channel for audit purposes.',
@@ -77,6 +80,7 @@ export default class ConfigTwitch extends Data {
                 announceRaids: 'Raid sizes to announce in chat.'
             },
             {
+                defaultCommandPermissions: PresetPermissions.refId(),
                 ignoreModerators: SettingUser.refIdLabel(),
                 logWhisperCommandsToDiscord: PresetDiscordWebhook.refId(),
                 remoteCommandChannel: SettingUser.refIdLabel(),

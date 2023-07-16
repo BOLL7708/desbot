@@ -1,6 +1,4 @@
-import {TKeys} from '../_data/!keys.js'
 import {ICommandPermissions} from './itwitch.js'
-import {ConfigControllerStateDefaults} from '../Objects/Config/ConfigController.js'
 
 /**
  * These are the settings for `MainController`, the main class that connects all the different modules together.

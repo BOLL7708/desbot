@@ -1,7 +1,6 @@
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
-import {TKeys} from '../_data/!keys.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigRelay} from '../Objects/Config/ConfigRelay.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
@@ -109,6 +108,6 @@ export interface IOnRelayMessageCallback {
 }
 
 export interface IRelayTempMessage {
-    key: TKeys,
+    key: string,
     data: string
 }

@@ -1,12 +1,10 @@
-import {TKeys} from '../_data/!keys.js'
 import {IOpenVR2WSMoveSpace, IOpenVR2WSSetting} from './iopenvr2ws.js'
 import {IPhilipsHueBulb} from './iphilipshue.js'
-import {ITwitchActionCommandConfig} from './itwitch.js'
 import {IRunCommandConfig} from './iexec.js'
-import {EEventSource, ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
+import {ETTSFunction, ETTSType} from '../Pages/Widget/Enums.js'
 import {PresetPipeCustom} from '../Objects/Preset/PresetPipe.js'
-import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
 import {IActionCallback} from '../Objects/Action.js'
+
 export interface IActions {
     /**
      * Optional: Set this to execute this batch of actions at a specific time in a timeline, overrides `_delayMs`.
@@ -131,7 +129,7 @@ export interface ISystemAction {
     /**
      * Optional: Event(s) to trigger by key, referenced from {@link TKeys}.
      */
-    triggerEventEntries?: TKeys|TKeys[]
+    triggerEventEntries?: string|string[]
     /**
      * Optional: Set the trigger entries to be triggered at an interval to space things out in time.
      */
@@ -250,7 +248,7 @@ export interface IRewardStatesConfig {
      */
     override?: boolean
 }
-export interface IRewardStates extends Partial<Record<TKeys, IRewardStatesConfig>> {}
+export interface IRewardStates extends Partial<Record<string, IRewardStatesConfig>> {}
 
 // Data
 export interface IAudioAction {
@@ -347,7 +345,7 @@ export interface IObsAction {
     /**
      * Optional: Set in code to reference the key that triggered it for group toggling.
      */
-    key?: TKeys
+    key?: string
 }
 
 /**

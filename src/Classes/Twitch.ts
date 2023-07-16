@@ -3,12 +3,10 @@ import {
     ITwitchChatCallback,
     ITwitchChatCheerCallback,
     ITwitchChatMessageCallback,
-    ITwitchCommandConfig,
     ITwitchMessageData,
     ITwitchWhisperMessageCallback
 } from '../Interfaces/itwitch.js'
-import {Actions} from '../Pages/Widget/Actions.js'
-import Config from './Config.js'
+import {ActionHandler, Actions} from '../Pages/Widget/Actions.js'
 import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
 import Color from './ColorConstants.js'
 import TwitchChat from './TwitchChat.js'
@@ -23,6 +21,8 @@ import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import TextHelper from './TextHelper.js'
 import ConfigTwitch from '../Objects/Config/ConfigTwitch.js'
 import {IActionUser} from '../Objects/Action.js'
+import {TriggerCommand} from '../Objects/Trigger/TriggerCommand.js'
+import {TriggerRemoteCommand} from '../Objects/Trigger/TriggerRemoteCommand.js'
 
 export default class Twitch{
     // Constants
@@ -63,41 +63,49 @@ export default class Twitch{
 
     private _globalCooldowns: Map<string, number> = new Map()
     private _userCooldowns: Map<string, number> = new Map()
-    private _commands: ITwitchCommandConfig[] = []
-    registerCommand(command: ITwitchCommandConfig) {
-		if(command.trigger.length != 0) {
-            // Use Default permission if none were provided.
-            const originalPermissions = command.permissions ?? {}
-            command.permissions = { ...Config.controller.commandPermissionsDefault, ...originalPermissions }
-           
-            // Store the command
+    private _commands: ITwitchCommand[] = []
+    registerCommandTrigger(trigger: TriggerCommand, eventKey: string) {
+        if(trigger.entries.length > 0) {
+            trigger.entries = trigger.entries.map((entry) => {
+                return TextHelper.replaceTags(entry, {eventKey: eventKey}).toLowerCase()
+            })
+            const actionHandler = new ActionHandler(eventKey)
+
+            // Store the command(s)
+            const command = <ITwitchCommand> { eventKey, trigger, handler: actionHandler }
             this._commands.push(command)
 
             // Log the command
             const who: string[] = []
-            if(command.permissions?.everyone) who.push('everyone')
-            if(command.permissions?.subscribers) who.push('subs')
-            if(command.permissions?.VIPs) who.push('VIPs')
-            if(command.permissions?.moderators) who.push('mods')
-            if(command.permissions?.streamer) who.push('streamer')
-            const message = `Registering command: <${command.trigger}> for ${who.join(' + ')}`
+            const permissions = Utils.ensureObjectNotId(command.trigger.permissions)
+            if(permissions?.everyone) who.push('everyone')
+            else {
+                if(permissions?.subscribers) who.push('subs')
+                if(permissions?.VIPs) who.push('VIPs')
+                if(permissions?.moderators) who.push('mods')
+                if(permissions?.streamer) who.push('streamer')
+            }
+            const message = `Registering command(s): <${command.trigger.entries.join(', ')}> for ${who.join(' + ')}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
-        } else {
-            Utils.logWithBold('Skipped registering a command!', this.LOG_COLOR_COMMAND)
         }
     }
 
     private _remoteGlobalCooldowns: Map<string, number> = new Map()
     private _remoteUserCooldowns: Map<string, number> = new Map()
-    private _remoteCommands: ITwitchCommandConfig[] = []
-    registerRemoteCommand(remoteCommand: ITwitchCommandConfig) {
-        if(remoteCommand.trigger.length != 0) {
-            // Store the command
+    private _remoteCommands: ITwitchCommand[] = []
+    registerRemoteCommand(triggerRemote: TriggerRemoteCommand, eventKey: string) {
+        if(triggerRemote.entries.length != 0) {
+            triggerRemote.entries = triggerRemote.entries.map((entry) => {
+                return TextHelper.replaceTags(entry, {eventKey: eventKey}).toLowerCase()
+            })
+            const handler = new ActionHandler(eventKey)
+
+            // Store the command(s)
+            const remoteCommand = <ITwitchCommand> { eventKey, triggerRemote, handler }
             this._remoteCommands.push(remoteCommand)
 
             // Log the command
-            const who = remoteCommand.allowedUsers?.join(', ') ?? 'nobody'
-            const message = `Registering remote command: <${remoteCommand.trigger}> for ${who}`
+            const message = `Registering remote command: <${remoteCommand.triggerRemote.entries.join(', ')}>`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
         } else {
             Utils.logWithBold('Skipped registering a command!', this.LOG_COLOR_COMMAND)
@@ -204,27 +212,28 @@ export default class Twitch{
                 return
             }
             let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()
-            let command = this._commands.find(cmd => commandStr == cmd.trigger.toLowerCase())
+            let command = this._commands.find(cmd => cmd.trigger.entries.includes(commandStr ?? ''))
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
             // Word count
             const wordCount = textStr.split(' ').length
-            if(command?.requireMinimumWordCount && wordCount < command.requireMinimumWordCount) {
-                Utils.log(`Twitch Chat: Skipped command as word count it too low: ${wordCount} < ${command.requireMinimumWordCount}`, this.LOG_COLOR_COMMAND)
+            if(command && command.trigger.requireMinimumWordCount && wordCount < command.trigger.requireMinimumWordCount) {
+                Utils.log(`Twitch Chat: Skipped command as word count it too low: ${wordCount} < ${command.trigger.requireMinimumWordCount}`, this.LOG_COLOR_COMMAND)
                 return
             }
-            if(command?.requireExactWordCount && wordCount !== command.requireExactWordCount) {
-                Utils.log(`Twitch Chat: Skipped command as word count is incorrect: ${wordCount} != ${command.requireMinimumWordCount}`, this.LOG_COLOR_COMMAND)
+            if(command && command.trigger.requireExactWordCount && wordCount !== command.trigger.requireExactWordCount) {
+                Utils.log(`Twitch Chat: Skipped command as word count is incorrect: ${wordCount} != ${command.trigger.requireMinimumWordCount}`, this.LOG_COLOR_COMMAND)
                 return
             }
 
             // Role check
-            const allowedRole = command && (
-                (command.permissions?.streamer && isBroadcaster)
-                || (command.permissions?.moderators && isModerator) 
-                || (command.permissions?.VIPs && isVIP) 
-                || (command.permissions?.subscribers && isSubscriber)
-                || command.permissions?.everyone
+            const permissions = Utils.ensureObjectNotId(command?.trigger.permissions) ?? Utils.ensureObjectNotId(this._config.defaultCommandPermissions)
+            const allowedRole = permissions && (
+                (permissions.streamer && isBroadcaster)
+                || (permissions.moderators && isModerator)
+                || (permissions.VIPs && isVIP)
+                || (permissions.subscribers && isSubscriber)
+                || permissions.everyone
             )
 
             // Execute command
@@ -288,12 +297,13 @@ export default class Twitch{
 
         // Commands
         if(text && text.indexOf(this._config.remoteCommandPrefix) == 0) {
-            let commandStr = text.split(' ').shift()?.substring(1).toLowerCase()
-            let command = this._remoteCommands.find(cmd => commandStr == cmd.trigger.toLowerCase())
+            let commandStr = text.split(' ').shift()?.substring(1).toLowerCase() ?? ''
+            let command = this._remoteCommands.find(cmd => cmd.triggerRemote.entries.includes(commandStr))
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
             // User check
-            const allowedUser = command && (command.allowedUsers ?? []).find((allowedUserName) => allowedUserName.toLowerCase() == userName)
+            const allowedUsers = Utils.ensureObjectArrayNotId(this._config.remoteCommandAllowedUsers)
+            const allowedUser = allowedUsers.find((user) => user.userName == userName)
 
             // Execute command
             if(command && commandStr && allowedUser) {
@@ -310,79 +320,53 @@ export default class Twitch{
      * Will execute the command handler if it is allowed by the cooldowns.
      * @param command
      * @param user
-     * @param pool
-     * @param poolUsers
+     * @param globalCooldowns
+     * @param userCooldowns
      * @param override
      * @private
      */
-    private handleCommand(command: ITwitchCommandConfig, user: IActionUser, pool: Map<string, number>, poolUsers: Map<string, number>, override: boolean) {
-        const allowedByGlobalCooldown = command && (
+    private handleCommand(command: ITwitchCommand, user: IActionUser, globalCooldowns: Map<string, number>, userCooldowns: Map<string, number>, override: boolean) {
+        const globalCooldown = command.trigger?.globalCooldown ?? command.triggerRemote?.globalCooldown ?? 0
+        const userCooldown = command.trigger?.userCooldown ?? command.triggerRemote?.userCooldown ?? 0
+        const hasGlobalCooldown = globalCooldown > 0
+        const allowedByGlobalCooldown =
             override
-            || command.globalCooldown == undefined
-            || new Date().getTime() > (pool.get(command.trigger) ?? 0)
-        )
-        const cooldownUserKey = `${command.trigger}_${user.login}`
-        const allowedByUserCooldown = command && (
+            || !hasGlobalCooldown
+            || Date.now() > (globalCooldowns.get(command.eventKey) ?? 0)
+
+        const hasUserCooldown = userCooldown > 0
+        const cooldownUserKey = `${command.eventKey}_${user.login}`
+        const allowedByUserCooldown =
             override
-            || command.userCooldown == undefined
-            || new Date().getTime() > (poolUsers.get(cooldownUserKey) ?? 0)
-        )
-        user.eventKey = command.handler?.key ?? command.cooldownHandler?.key ?? command.cooldownUserHandler?.key ?? 'Unknown'
+            || !hasUserCooldown
+            || Date.now() > (userCooldowns.get(cooldownUserKey) ?? 0)
+
+        // Update user object
+        user.eventKey = command.eventKey
         user.commandConfig = command
 
-        // Standard
-        if(command.handler) {
+        // Handle
+        if(allowedByGlobalCooldown && allowedByUserCooldown) {
+            if(hasGlobalCooldown) globalCooldowns.set(command.eventKey, Date.now()+globalCooldown*1000)
+            if(hasUserCooldown) userCooldowns.set(cooldownUserKey, Date.now()+userCooldown*1000)
             command.handler.call(user).then()
         }
-
-        // Cooldown
-        if(
-            allowedByGlobalCooldown
-            && command.cooldownHandler // If this is set, it means we have no user cooldown.
-        ) {
-            command.cooldownHandler.call(user).then()
-        }
-        if(
-            !override // Prevent overriding users from activating the cooldown for others.
-            && command.globalCooldown !== undefined
-            && allowedByGlobalCooldown
-            && command.userCooldown === undefined // If we have a user cooldown we set this further down to avoid false positives.
-        ) {
-            pool.set(command.trigger, new Date().getTime()+(command.globalCooldown*1000))
-        }
-
-        // Cooldown User
-        if(
-            allowedByUserCooldown
-            && command.cooldownUserHandler
-            && allowedByGlobalCooldown // This will be true if there is no global cooldown, so only affects this if that is also present.
-        ) {
-            command.cooldownUserHandler.call(user).then()
-        }
-        if(
-            !override // Prevent overriding users from activating the cooldown for others.
-            && command.userCooldown !== undefined
-            && allowedByUserCooldown
-            && allowedByGlobalCooldown // If we were blocked by the global cooldown, we should not set the user cooldown either.
-        ) {
-            poolUsers.set(cooldownUserKey, new Date().getTime()+(command.userCooldown*1000))
-            if(command.globalCooldown !== undefined) {
-                // As we call a user cooldown, we set the global cooldown here as well, if we have one.
-                pool.set(command.trigger, new Date().getTime()+(command.globalCooldown*1000))
-            }
-        }
-
-        return
     }
 
     async runCommand(commandStr: string, userData?: IActionUser) {
         Utils.log(`Run command: ${commandStr}`, Color.Purple)
-        let command = this._commands.find(cmd => commandStr.toLowerCase() == cmd.trigger.toLowerCase())
+        let command = this._commands.find(cmd => cmd.trigger.entries.includes(commandStr.toLowerCase()))
         if(command?.handler) command.handler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown')).then()
-        else if(command?.cooldownHandler) command?.cooldownHandler.call(userData ?? await Actions.buildEmptyUserData(EEventSource.AutoCommand, 'Unknown')).then()
     }
 
     async sendRemoteCommand(commandStr: string) {
         this._twitchChatRemote.sendMessageToChannel(commandStr)
     }
+}
+
+export interface ITwitchCommand {
+    eventKey: string
+    trigger: TriggerCommand
+    triggerRemote: TriggerRemoteCommand
+    handler: ActionHandler
 }

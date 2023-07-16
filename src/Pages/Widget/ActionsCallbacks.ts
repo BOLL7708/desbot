@@ -6,7 +6,6 @@ import Utils from '../../Classes/Utils.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import Color from '../../Classes/ColorConstants.js'
 import {ETTSType} from './Enums.js'
-import OpenVR2WS from '../../Classes/OpenVR2WS.js'
 import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
 import ChannelTrophyUtils from '../../Classes/ChannelTrophyUtils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
@@ -14,7 +13,6 @@ import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataFileUtils from '../../Classes/DataFileUtils.js'
-import {TKeys} from '../../_data/!keys.js'
 import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
 import {SettingStreamQuote} from '../../Objects/Setting/SettingStream.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
@@ -816,7 +814,7 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 let messageText = ''
                 const url = Config.credentials?.DiscordWebhooks.HelpToDiscord ?? ''
-                for(const [key, event] of Object.entries(Config.events) as [TKeys, IEvent][]) {
+                for(const [key, event] of Object.entries(Config.events) as [string, IEvent][]) {
                     const entries = event.triggers.command?.entries
 
                     let helpTitle = (event.triggers.command?.helpTitle) ?? ''

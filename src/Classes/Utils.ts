@@ -1,5 +1,4 @@
 import Config from './Config.js'
-import {TKeys} from '../_data/!keys.js'
 import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
 import {OptionEntryUsage} from '../Options/OptionEntryType.js'
@@ -324,13 +323,13 @@ export default class Utils {
      * @param onlyRewards
      * @returns
      */
-    static getAllEventKeys(onlyRewards: boolean): TKeys[] {
+    static getAllEventKeys(onlyRewards: boolean): string[] {
         if(onlyRewards) {
-            const rewardEvents = (Object.entries(Config.events) as [TKeys, IEvent][])
+            const rewardEvents = (Object.entries(Config.events) as [string, IEvent][])
                 .filter(e => e[1].triggers.reward !== undefined)
             return rewardEvents.map(e => e[0])
         }
-        return Object.keys(Config.events) as TKeys[]
+        return Object.keys(Config.events) as string[]
     }
 
     /**
@@ -360,7 +359,7 @@ export default class Utils {
         return Config.events[key] ?? undefined
     }
 
-    static getEventForGame(key: TKeys, appId: string): IEvent|undefined {
+    static getEventForGame(key: string, appId: string): IEvent|undefined {
         const events = this.getEventsForGame(appId)
         if(events) return events[key]
         else return undefined

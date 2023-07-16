@@ -1,5 +1,4 @@
 import {ITwitchEmote, ITwitchMessageCmd} from './itwitch_chat.js'
-import {TKeys} from '../_data/!keys.js'
 import {IEventOptions} from './ievents.js'
 import {ActionHandler} from '../Pages/Widget/Actions.js'
 import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
@@ -14,11 +13,11 @@ export interface ITwitchConfig {
      * 
      * The only override is if they are also listed in {@link ITwitchConfig.alwaysOffRewards}.
      */
-    alwaysOnRewards: TKeys[]
+    alwaysOnRewards: string[]
     /**
      * These rewards will always be switched off at widget load as well as on game change.
      */
-    alwaysOffRewards: TKeys[]
+    alwaysOffRewards: string[]
     
     /**
      * Default for turning rewards on or off depending on Steam game.
@@ -53,7 +52,7 @@ export interface ITwitchConfig {
      * Turn on rewards for specific overlays, can be used to toggle rewards on 
      * things like LIV running as it has an overlay that is always enabled.
      */
-    turnOnRewardForOverlays: { [key: string]: TKeys[] }
+    turnOnRewardForOverlays: { [key: string]: string[] }
 
     /**
      * The default options values for an event if it needs to be reset on change to unlisted game.
@@ -65,8 +64,8 @@ export interface ITwitchConfig {
     eventOptionsPerGame: { [game: string]: IEventOptionsOverrides }
 }
 
-export interface IToggleRewardsOnGame extends Partial<Record<TKeys, string[]>> {}
-export interface IEventOptionsOverrides extends Partial<Record<TKeys, IEventOptions>> {}
+export interface IToggleRewardsOnGame extends Partial<Record<string, string[]>> {}
+export interface IEventOptionsOverrides extends Partial<Record<string, IEventOptions>> {}
 
 export interface ITwitchReward {
     id?: string

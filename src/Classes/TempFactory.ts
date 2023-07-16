@@ -1,7 +1,6 @@
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
 import Utils from './Utils.js'
-import {TKeys} from '../_data/!keys.js'
 import {OptionSystemActionType} from '../Options/OptionSystemActionType.js'
 import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 
@@ -22,7 +21,7 @@ export default class TempFactory {
         return OptionEntryUsage.All.valueOf()
     }
 
-    static keyToActionCallbackEnum(key: TKeys): number {
+    static keyToActionCallbackEnum(key: string): number {
         switch(key) {
             case 'Chat': return OptionSystemActionType.Chat
             case 'ChatOn': return OptionSystemActionType.ChatOn

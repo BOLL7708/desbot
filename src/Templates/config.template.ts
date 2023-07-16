@@ -2,7 +2,6 @@ import Config from '../Classes/Config.js'
 import {ICredentialsConfig} from '../Interfaces/icredentials.js'
 import {ITwitchConfig} from '../Interfaces/itwitch.js'
 import {IControllerConfig} from '../Interfaces/icontroller.js'
-import {IScreenshotConfig} from '../Interfaces/iscreenshots.js'
 
 /*
 ..######..########..########.########..########.##....##.########.####....###....##........######.
@@ -131,23 +130,6 @@ Config.controller = <IControllerConfig> { // Set defaults for the widget
         ]
     },
     saveConsoleOutputToSettings: false,
-}
-
-/*
-..######...######..########..########.########.##....##..######..##.....##..#######..########
-.##....##.##....##.##.....##.##.......##.......###...##.##....##.##.....##.##.....##....##...
-.##.......##.......##.....##.##.......##.......####..##.##.......##.....##.##.....##....##...
-..######..##.......########..######...######...##.##.##..######..#########.##.....##....##...
-.......##.##.......##...##...##.......##.......##..####.......##.##.....##.##.....##....##...
-.##....##.##....##.##....##..##.......##.......##...###.##....##.##.....##.##.....##....##...
-..######...######..##.....##.########.########.##....##..######..##.....##..#######.....##...
-*/
-Config.screenshots = <IScreenshotConfig> {
-    callback: {
-        pipeEnabledForRewards: [
-            'Unknown' // Your screenshot reward key
-        ]
-    }
 }
 
 /*

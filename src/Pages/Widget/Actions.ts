@@ -7,7 +7,6 @@ import Utils from '../../Classes/Utils.js'
 import {ITwitchHelixRewardUpdate} from '../../Interfaces/itwitch_helix.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import {TKeys} from '../../_data/!keys.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
 import {SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
 import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
@@ -266,7 +265,7 @@ export class Actions {
             rewardCost: 0
         }
     }
-    public static async buildUserDataFromLimitedData(key: TKeys, id: string, login: string, name: string, input: string): Promise<IActionUser> {
+    public static async buildUserDataFromLimitedData(key: string, id: string, login: string, name: string, input: string): Promise<IActionUser> {
         return {
             source: EEventSource.TwitchSubscription,
             eventKey: key,
@@ -406,7 +405,7 @@ export class Actions {
         if(config || speechConfig) return {
             tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',
-            call: async (user: IActionUser, index?: number) => {
+            call: async (user: IActionUser, nonce, index?: number) => {
                 const modules = ModulesSingleton.getInstance()
                 let ttsStrings: string[] = []
                 if(speechConfig?.entries) {

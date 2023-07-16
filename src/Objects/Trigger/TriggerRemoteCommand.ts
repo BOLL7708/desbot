@@ -1,11 +1,6 @@
 import DataMap from '../DataMap.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import ConfigTwitch from '../Config/ConfigTwitch.js'
-import TextHelper from '../../Classes/TextHelper.js'
 import Utils from '../../Classes/Utils.js'
-import {ITwitchCommandConfig} from '../../Interfaces/itwitch.js'
-import {ActionHandler} from '../../Pages/Widget/Actions.js'
 import Trigger from '../Trigger.js'
 
 export class TriggerRemoteCommand extends Trigger {
@@ -30,19 +25,10 @@ export class TriggerRemoteCommand extends Trigger {
 
     async register(eventKey: string) {
         const modules = ModulesSingleton.getInstance()
+        const clone = Utils.clone<TriggerRemoteCommand>(this)
         if(this.entries.length) {
-            const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
-            for(let trigger of this.entries) {
-                trigger = TextHelper.replaceTags(trigger, {eventKey: eventKey})
-                const actionHandler = new ActionHandler(eventKey)
-
-                // Set handler depending on cooldowns
-                const allowedUsers = Utils.ensureObjectArrayNotId(twitchConfig.remoteCommandAllowedUsers).map((user) => user.userName).filter((login) => login)
-                const useThisCommand = <ITwitchCommandConfig> { trigger: trigger, allowedUsers: allowedUsers }
-                if(this.userCooldown) useThisCommand.cooldownUserHandler = actionHandler
-                else if(this.globalCooldown) useThisCommand.cooldownHandler = actionHandler
-                else useThisCommand.handler = actionHandler
-                modules.twitch.registerRemoteCommand(useThisCommand)
+            for(let trigger of clone.entries) {
+                modules.twitch.registerRemoteCommand(clone, eventKey)
             }
         }
     }

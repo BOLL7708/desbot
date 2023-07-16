@@ -1,7 +1,7 @@
 import Data from './Data.js'
 import {EEventSource} from '../Pages/Widget/Enums.js'
-import {ITwitchActionCommandConfig} from '../Interfaces/itwitch.js'
 import {ITwitchEventSubEventRedemption} from '../Interfaces/itwitch_eventsub.js'
+import {ITwitchCommand} from '../Classes/Twitch.js'
 
 export default abstract class Action extends Data {
     abstract build(key: string): IActionCallback
@@ -45,6 +45,6 @@ export interface IActionUser {
     bits: number,
     bitsTotal: number
     rewardCost: number
-    commandConfig?: ITwitchActionCommandConfig
+    commandConfig?: ITwitchCommand
     rewardMessage?: ITwitchEventSubEventRedemption
 }

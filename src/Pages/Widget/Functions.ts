@@ -13,8 +13,7 @@ import DiscordUtils from '../../Classes/DiscordUtils.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {TKeys} from '../../_data/!keys.js'
-import {SettingSteamAchievements, SettingSteamGame} from '../../Objects/Setting/SettingSteam.js'
+import {SettingSteamAchievements} from '../../Objects/Setting/SettingSteam.js'
 import {ConfigSteam} from '../../Objects/Config/ConfigSteam.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
@@ -25,15 +24,6 @@ import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
 
 export default class Functions {
-    /*
-    .########.##.....##.##....##..######..########.####..#######..##....##..######.
-    .##.......##.....##.###...##.##....##....##.....##..##.....##.###...##.##....##
-    .##.......##.....##.####..##.##..........##.....##..##.....##.####..##.##......
-    .######...##.....##.##.##.##.##..........##.....##..##.....##.##.##.##..######.
-    .##.......##.....##.##..####.##..........##.....##..##.....##.##..####.......##
-    .##.......##.....##.##...###.##....##....##.....##..##.....##.##...###.##....##
-    .##........#######..##....##..######.....##....####..#######..##....##..######.
-    */
     public static async setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
@@ -100,8 +90,8 @@ export default class Functions {
         const allEventOptionsKeys = [
             ...new Set( // All unique keys
                 [
-                    ...Object.keys(Config.twitch.eventOptionsDefault) as TKeys[],
-                    ...Object.keys(eventOptions) as TKeys[]
+                    ...Object.keys(Config.twitch.eventOptionsDefault) as string[],
+                    ...Object.keys(eventOptions) as string[]
                 ]
             )
         ]
@@ -165,13 +155,13 @@ export default class Functions {
          * I've changed it so we set a value if the game is included, then we only set the opposite value if the key is not set yet.
          */
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
-            let games = Config.twitch.turnOnRewardForGames[rewardKey as TKeys] ?? []
+            let games = Config.twitch.turnOnRewardForGames[rewardKey as string] ?? []
             Utils.log(`--> will turn on reward '${rewardKey}' depending on game.`, Color.Gray)
             if(games.includes(appId)) profileToUse[rewardKey] = true
             else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = false
         }
         for(const rewardKey of Object.keys(Config.twitch.turnOffRewardForGames)) {
-            let games = Config.twitch.turnOffRewardForGames[rewardKey as TKeys] ?? []
+            let games = Config.twitch.turnOffRewardForGames[rewardKey as string] ?? []
             Utils.log(`--> will turn off reward '${rewardKey}' depending on game.`, Color.Gray)
             if(games.includes(appId)) profileToUse[rewardKey] = false
             else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = true
@@ -192,7 +182,7 @@ export default class Functions {
 
         if(gameSpecificRewards) {
             // Update and enable all reusable generic rewards in use.
-            for(const [key, event] of Object.entries(gameSpecificRewards) as [TKeys, IEvent][]) {
+            for(const [key, event] of Object.entries(gameSpecificRewards) as [string, IEvent][]) {
                 const thisEvent = event ?? {triggers: {}}
                 const defaultEvent = Config.events[key] ?? {triggers: {}}
                 const rewardConfig = thisEvent.triggers.reward ?? {}

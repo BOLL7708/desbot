@@ -1,4 +1,3 @@
-import {TKeys} from '../_data/!keys.js'
 import {IActions} from './iactions.js'
 import {ITwitchActionCommandConfig, ITwitchActionRemoteCommandConfig} from './itwitch.js'
 import {ITwitchHelixRewardConfig, ITwitchHelixRewardUpdate} from './itwitch_helix.js'
@@ -142,7 +141,7 @@ export interface IEventTriggers {
     /**
      * Optional: Listen to incoming relay messages from OpenVR2WS.
      */
-    relay?: TKeys
+    relay?: string
 }
 
 export interface ITimerConfig {

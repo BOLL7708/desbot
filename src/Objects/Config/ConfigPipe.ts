@@ -1,12 +1,11 @@
 import Data from '../Data.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
-import {TKeys} from '../../_data/!keys.js'
 import DataMap from '../DataMap.js'
 import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.js'
 
 export class ConfigPipe extends Data {
     port: number = 8077
-    showRewardsWithKeys: TKeys[] = [] // TODO: Switch to IDs later.
+    showRewardsWithKeys: string[] = [] // TODO: Is this working?
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()
     customChatNameConfig = new ConfigPipeCustomMessageName()

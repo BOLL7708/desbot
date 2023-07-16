@@ -1,5 +1,3 @@
-import {TKeys} from '../_data/!keys.js'
-
 /**
  * A separate config for things that are best to keep private.
  *
@@ -11,5 +9,5 @@ export interface ICredentialsConfig {
     /**
      * Webhooks from Discord to which we pipe various things.
      */
-    DiscordWebhooks: Partial<Record<TKeys, string>>
+    DiscordWebhooks: Partial<Record<string, string>>
 }

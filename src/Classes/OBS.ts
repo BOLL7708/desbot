@@ -1,7 +1,6 @@
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'
 import {ISceneChangeCallback, ISourceScreenshotCallback} from '../Interfaces/iobs.js'
-import {TKeys} from '../_data/!keys.js'
 import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
 import ConfigOBS from '../Objects/Config/ConfigOBS.js'
 import DataBaseHelper from './DataBaseHelper.js'

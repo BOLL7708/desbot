@@ -1,5 +1,4 @@
 import Config from '../../Classes/Config.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import {ITwitchHelixRewardConfig} from '../../Interfaces/itwitch_helix.js'
@@ -13,16 +12,6 @@ import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export default class Rewards {
     public static async init() {
-        /*
-        .########..########.##......##....###....########..########...######.
-        .##.....##.##.......##..##..##...##.##...##.....##.##.....##.##....##
-        .##.....##.##.......##..##..##..##...##..##.....##.##.....##.##......
-        .########..######...##..##..##.##.....##.########..##.....##..######.
-        .##...##...##.......##..##..##.#########.##...##...##.....##.......##
-        .##....##..##.......##..##..##.##.....##.##....##..##.....##.##....##
-        .##.....##.########..###..###..##.....##.##.....##.########...######.
-        */
-        const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
 
         // Load reward IDs from settings

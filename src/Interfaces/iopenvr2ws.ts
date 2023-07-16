@@ -1,4 +1,3 @@
-import {TKeys} from '../_data/!keys.js'
 import {ActionHandler} from '../Pages/Widget/Actions.js'
 
 /**
@@ -69,7 +68,7 @@ export interface IOpenVR2WSFindOverlayData {
 export interface IOpenVR2WSRelayData {
     password: string
     user: string
-    key: TKeys
+    key: string
     data: string
 }
 export interface IOpenVR2WSGenericResponseData {
