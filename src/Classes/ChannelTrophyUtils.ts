@@ -1,6 +1,5 @@
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import Utils from './Utils.js'
-import Config from './Config.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../Interfaces/idiscord.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Color from './ColorConstants.js'

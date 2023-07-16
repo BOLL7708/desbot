@@ -35,7 +35,6 @@ export default class MainController {
             PasswordForm.spawn()
             return
         }
-        // if(Config.controller.saveConsoleOutputToSettings) LogWriter.init().then()
 
         // Check configs
         const cfgPropCount = Object.keys(Config).length

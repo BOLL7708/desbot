@@ -1,5 +1,4 @@
 import WebSockets from './WebSockets.js'
-import Config from './Config.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import {TKeys} from '../_data/!keys.js'

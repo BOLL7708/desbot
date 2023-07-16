@@ -8,12 +8,9 @@ import {
     IOpenVR2WSInputPoseCallback,
     IOpenVR2WSInputPoseResponseData,
     IOpenVR2WSMessage,
-    IOpenVR2WSMoveSpace,
-    IOpenVR2WSSetting,
     IOpenVR2WSStatusCallback,
     IOpenVRWSCommandMessage
 } from '../Interfaces/iopenvr2ws.js'
-import Config from './Config.js'
 import Color from './ColorConstants.js'
 import WebSockets from './WebSockets.js'
 import Utils from './Utils.js'

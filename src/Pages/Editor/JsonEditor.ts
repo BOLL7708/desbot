@@ -267,7 +267,7 @@ export default class JsonEditor {
         previewBox.style.display = 'none'
         newRoot.appendChild(previewBox)
         let player: HTMLAudioElement|null
-        async function updatePreview() {
+        async function updatePreview(config: ConfigEditor) {
             player = null
             previewBox.classList.remove('no-border')
             previewBox.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;'
@@ -286,9 +286,10 @@ export default class JsonEditor {
                     previewBox.style.display = ''
                 } else if(Utils.isAudio(contentType)) {
                     previewBox.classList.add('no-border')
-                    previewBox.title = `${contentType}, ${Utils.formatShortNumber(contentLength)}B, click to play`
+                    previewBox.title = `${contentType}, ${Utils.formatShortNumber(contentLength)}B, click to play at ${config.audioPreviewVolume}% preview volume`
                     player = new Audio(value)
                     const icon = '🔊'
+                    player.volume = config.audioPreviewVolume/100
                     player.onpause = ()=>{
                         playLink.innerHTML = icon
                     }
@@ -414,10 +415,10 @@ export default class JsonEditor {
                     }
                 }
                 handle = (event) => {
-                    updatePreview()
+                    updatePreview(this._config).then()
                     this.handleValue(Utils.unescapeHTML(input.innerHTML), options.path, label)
                 }
-                updatePreview().then()
+                updatePreview(this._config).then()
                 break
             case EJsonEditorFieldType.Boolean:
                 const on = this._config.hideBooleanNames ? '✅' : '✅ True'
@@ -713,7 +714,7 @@ export default class JsonEditor {
                 const filePath = inputFile.value
                 input.innerHTML = filePath
                 inputFile.title = filePath
-                updatePreview().then()
+                updatePreview(this._config).then()
                 handle(event)
             }
             newRoot.appendChild(inputFile)

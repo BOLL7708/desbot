@@ -10,7 +10,7 @@ export default class AssetsHelper {
     /**
      * Load a selection of the available asset file-paths.
      * @param start The start of the filepath string, usually `_assets/SOMETHING/`.
-     * @param end The end of the filepath string, usually for extensions, can be an array.
+     * @param end The ends of the filepath string, usually a selection of extensions.
      * @returns A string array with matching file-paths.
      */
     static async get(start: string, end: string[]): Promise<string[]> {
