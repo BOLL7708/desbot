@@ -6,6 +6,8 @@ import DataMap from '../../Objects/DataMap.js'
 import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import EnlistData from '../../Objects/EnlistData.js'
+import {EditorUtils} from './EditorUtils.js'
+import PageUtils from '../PageUtils.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -114,6 +116,9 @@ export default class EditorHandler {
             }
         }
 
+        if(!this._contentDiv) { // Needed as we can add a button to the content div in updateSideMenu() to support single-group side menus that shows items.
+            this._contentDiv = document.querySelector('#content') as HTMLDivElement
+        }
         this.updateSideMenu().then()
         if(this._state.groupClass.length > 0) this.buildEditorControls(
             this._state.groupClass,
@@ -140,11 +145,47 @@ export default class EditorHandler {
         }
         if(!this._sideMenuDiv) return // Side menu does not exist in minimal mode.
 
-        const classesAndCounts = await DataBaseHelper.loadClassesWithCounts(this._state.likeFilter)
+        let classesAndCounts = await DataBaseHelper.loadClassesWithCounts(this._state.likeFilter)
         for(const className of DataMap.getNames(this._state.likeFilter)) {
             if(!classesAndCounts.hasOwnProperty(className)) {
                 // Add missing classes so they can still be edited
                 classesAndCounts[className] = 0
+            }
+        }
+        let isItems = false
+        let itemClass = ''
+        if(Object.keys(classesAndCounts).length == 1) {
+            // If a data category only has one type of items, we will list that in the side menu directly.
+            const className = Object.keys(classesAndCounts)[0]
+            const meta = DataMap.getMeta(className)
+            if(meta) {
+                itemClass = className
+                const items = await DataBaseHelper.loadAll(meta.instance)
+                if(items) {
+                    isItems = true
+                    classesAndCounts = Object.fromEntries(Object.entries(items).map(([key, value])=>{
+                        return [key, 1]
+                    }))
+
+                    // Add new-button to contents.
+                    const newButton = EditorUtils.getNewButton()
+                    newButton.onclick = async(event)=>{
+                        const newKey = await prompt(`Provide a key for the new ${itemClass}:`) ?? ''
+                        if(newKey && newKey.length > 0) {
+                            const exists = await DataBaseHelper.load(meta.instance, newKey)
+                            if(!exists) {
+                                // Only save a new item if it does not already exist, to prevent overwriting data.
+                                await DataBaseHelper.save(meta.instance, newKey)
+                            }
+                            this.buildEditorControls(
+                                itemClass,
+                                newKey
+                            ).then()
+                        }
+                    }
+                    console.log(this._contentDiv, newButton)
+                    this._contentDiv?.appendChild(newButton)
+                }
             }
         }
 
@@ -153,13 +194,22 @@ export default class EditorHandler {
         this._sideMenuDiv.replaceChildren(title)
         for(const [group,count] of Object.entries(classesAndCounts).sort()) {
             const link = document.createElement('span') as HTMLSpanElement
-            const name = Utils.camelToTitle(group, EUtilsTitleReturnOption.SkipFirstWord)
             const a = document.createElement('a') as HTMLAnchorElement
             a.href = '#'
-            a.innerHTML = `${name}</a>: <strong>${count}</strong>`
-            a.onclick = (event: Event) => {
-                if(event.cancelable) event.preventDefault()
-                this.buildEditorControls(group).then()
+            if(isItems) { // Actually specific items as there is only one group
+                const name = Utils.camelToTitle(group)
+                a.innerHTML = `${name}`
+                a.onclick = (event: Event) => {
+                    if(event.cancelable) event.preventDefault()
+                    this.buildEditorControls(itemClass, group).then()
+                }
+            } else { // Multiple groups (most common behavior)
+                const name = Utils.camelToTitle(group, EUtilsTitleReturnOption.SkipFirstWord)
+                a.innerHTML = `${name}: <strong>${count}</strong>`
+                a.onclick = (event: Event) => {
+                    if(event.cancelable) event.preventDefault()
+                    this.buildEditorControls(group).then()
+                }
             }
             link.appendChild(a)
             link.appendChild(document.createElement('br') as HTMLBRElement)
@@ -293,10 +343,7 @@ export default class EditorHandler {
         }
 
         // New button
-        const editorNewButton = document.createElement('button') as HTMLButtonElement
-        editorNewButton.classList.add('main-button', 'new-button')
-        editorNewButton.innerHTML = '✨ New'
-        editorNewButton.title = 'And new entry'
+        const editorNewButton = EditorUtils.getNewButton()
         editorNewButton.onclick = async (event)=>{
             let newKey: string = ''
             if(this._state.forceMainKey) {
@@ -305,6 +352,8 @@ export default class EditorHandler {
                 newKey = await prompt(`Provide a key for the new ${group}:`) ?? ''
             }
             if(newKey && newKey.length > 0) {
+                // Load editor first in case item already exists.
+                // This means when we save, we will retain any existing data if the key already existed.
                 await updateEditor(undefined, newKey)
                 await this.saveData(group, newKey, parentId)
             }
