@@ -12,13 +12,14 @@ export default class PhilipsHueHelper {
         const config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
         return `${config.serverPath}/api/${config.username}`
     }
-    static async loadLights() {
+    static async loadLights(): Promise<number> {
         const baseUrl = await this.getBaseUrl()
         const url = `${baseUrl}/lights`
         const response = await fetch(url)
+        let lightsLoaded = 0
         if(response.ok) {
             const lights = await response.json() as { [key:string]: IPhilipsHueLight }
-            console.log('PhilipsHue lights: ', Object.keys(lights))
+            lightsLoaded = Object.keys(lights).length
             for(const [key, light] of Object.entries(lights)) {
                 let preset: PresetPhilipsHueBulb|PresetPhilipsHuePlug|undefined = undefined
                 if(light.config.archetype.includes('bulb')) {
@@ -34,6 +35,7 @@ export default class PhilipsHueHelper {
         } else {
             console.warn('PhilipsHue: Unable to load lights.')
         }
+        return lightsLoaded
     }
     static runBulbs(ids: string[], brightness: number, hue: number, saturation: number) {
         for(const id of ids) {

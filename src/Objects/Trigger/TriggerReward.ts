@@ -12,23 +12,23 @@ import {ActionHandler} from '../../Pages/Widget/Actions.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|PresetPermissions = 0
-    rewardID: (number|string) = 0
     rewardEntries: (number|Data)[] = []
-    rewardEntriesType = OptionEntryUsage.All
+    rewardEntries_use = OptionEntryUsage.All
+    rewardID: (number|string) = 0
 
     enlist() {
         DataMap.addRootInstance(new TriggerReward(),
             'This is a Twitch Channel Point Reward, triggered by a redemption on your channel page.',
             {
                 permissions: 'Permission for who can redeem this reward.',
-                rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.',
-                rewardEntries: 'One or multiple reward presets.'
+                rewardEntries: 'One or multiple reward presets.',
+                rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.'
             },
             {
                 permissions: PresetPermissions.refId(),
                 rewardID: SettingTwitchReward.refIdKeyLabel(),
                 rewardEntries: Data.genericRef('PresetReward'),
-                rewardEntriesType: OptionEntryUsage.ref()
+                rewardEntries_use: OptionEntryUsage.ref()
             }
         )
     }

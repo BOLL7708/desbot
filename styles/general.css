@@ -209,9 +209,9 @@ span[contenteditable]:focus, code[contenteditable]:focus {
 }
 span.disabled[contenteditable],
 code.disabled[contenteditable],
-button.disabled, button.disabled:hover {
-    border-color: var(--disabled-border-color);
-    color: var(--disabled-text-color);
+button.disabled, button.disabled:hover, button[disabled], button[disabled]:hover {
+    border-color: var(--disabled-border-color) !important;
+    color: var(--disabled-text-color) !important;
     background-color: var(--disabled-background-color) !important;
 }
 span.censored[contenteditable], code.censored[contenteditable],
