@@ -1461,10 +1461,10 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('widget')
-                    trigger.helpText = 'Posts a link to the Streaming Widget Github page.'
+                    trigger.helpText = 'Posts a link to the bot Github page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries.push('I can be yours here 👉 https://github.com/BOLL7708/streaming_widget')
+                    action.entries.push('I can be yours here 👉 https://github.com/BOLL7708/desbot')
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             }

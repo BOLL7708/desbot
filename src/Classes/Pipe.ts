@@ -42,7 +42,7 @@ export default class Pipe {
     setOverlayTitle(title: string) {
         this._socket?.send(JSON.stringify(<PresetPipeBasic>{
             basicTitle: title,
-            basicMessage: "Initializing Notification Pipe for Streaming Widget"
+            basicMessage: "Initializing Notification Pipe"
         }))
     }
 

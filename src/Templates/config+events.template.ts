@@ -686,26 +686,26 @@ Config.events = {
         triggers: {
             command: {
                 entries: 'widget',
-                helpText: 'Posts a link to the Streaming Widget Github page.',
+                helpText: 'Posts a link to the desbot Github page.',
                 permissions: { everyone: true },
                 globalCooldown: 60 * 5
             }
         },
         actionsEntries: {
-            chat: { entries: 'Streaming Widget Repository -> https://github.com/BOLL7708/streaming_widget' }
+            chat: { entries: 'Streaming Widget Repository -> https://github.com/BOLL7708/desbot' }
         }
     },
     'UserWikiLink': { // A link to the user wiki for the widget
         triggers: {
             command: {
                 entries: 'wiki',
-                helpText: 'Posts a link to the Streaming Widget wiki.',
+                helpText: 'Posts a link to the desbot wiki.',
                 permissions: { everyone: true },
                 globalCooldown: 60 * 5
             }
         },
         actionsEntries: {
-            chat: { entries: 'Streaming Widget Wiki -> https://github.com/BOLL7708/streaming_widget_wiki/wiki' }
+            chat: { entries: 'desbot Wiki -> https://github.com/BOLL7708/desbot_wiki/wiki' }
         }
     },
 

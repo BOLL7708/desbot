@@ -1,6 +1,6 @@
-Write-Output '==============================='
-Write-Output ' Initializing Streaming Widget '
-Write-Output '==============================='
+Write-Output '====================='
+Write-Output ' Initializing desbot '
+Write-Output '====================='
 
 # Reset the current directory to the location of the script
 [System.Environment]::CurrentDirectory = (Get-Location).Path 

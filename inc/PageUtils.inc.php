@@ -15,7 +15,7 @@ class PageUtils {
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Streaming Widget: <?=ucfirst($scriptFile)?>></title>
+        <title>desbot: <?=ucfirst($scriptFile)?>></title>
         <link rel="icon" type="image/x-icon" href="./media/sw_logo.ico" />
         <link rel="stylesheet" href="./styles/general.css"/>
         <link rel="stylesheet" href="./styles/_shared.css"/>

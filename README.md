@@ -1,4 +1,4 @@
-# Streaming Widget
+# desbot
 <!--
 ## Links
 * Check out the [user wiki][wiki] to see how to set this up.
