@@ -412,9 +412,9 @@ export default class DataBaseHelper {
      * @param newKey
      * @param parentId
      */
-    static async save<T>(setting: T&Data, key?: string, newKey?: string, parentId?: number): Promise<boolean> {
+    static async save<T>(setting: T&Data, key?: string, newKey?: string, parentId?: number): Promise<string|undefined> {
         const className = setting.constructor.name
-        if(this.checkAndReportClassError(className, 'saveSingle')) return false
+        if(this.checkAndReportClassError(className, 'saveSingle')) return undefined
 
         // DB
         key = await this.saveJson(JSON.stringify(setting), className, key, newKey, parentId)
@@ -431,10 +431,10 @@ export default class DataBaseHelper {
             key ? `Wrote '${className}' with key '${key}' to DB` : `Failed to write '${className}' with key '${key}' to DB`,
             key ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
         )
-        return !!key
+        return key
     }
 
-    static async saveMain<T>(setting: T&Data, parentId?: number): Promise<boolean> {
+    static async saveMain<T>(setting: T&Data, parentId?: number): Promise<string|undefined> {
         return this.save(setting, this.OBJECT_MAIN_KEY, undefined, parentId)
     }
 

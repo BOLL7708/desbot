@@ -242,3 +242,8 @@ span.no-border {
     border-radius: 0.75em;
     background-color: var(--section-background-color);
 }
+
+.no-list {
+    list-style-type: none;
+    padding: 0;
+}

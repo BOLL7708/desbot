@@ -1683,7 +1683,7 @@ export default class DefaultData {
         key: string,
         triggers: Data[],
         actions: Data[]
-    ): Promise<boolean> {
+    ): Promise<string|undefined> {
         const parentId = await DefaultData.saveAndGetID(instance, key)
         if(parentId > 0) {
             for(const trigger of triggers) {
@@ -1717,4 +1717,4 @@ export interface IDefaultObject {
     parentKey?: string
     parentClass?: string
 }
-export type IDefaultObjectImporter<T extends Data> = (item: T, key: string) => Promise<boolean>
+export type IDefaultObjectImporter<T extends Data> = (item: T, key: string) => Promise<string|undefined>

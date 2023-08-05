@@ -2,11 +2,7 @@
 .idea
 /dist/*
 
-/_configs/*
-/_settings/*
-/_assets/*
-/_backups/*
-/_data/*
+/_*/*
 
 /src/_configs/*
 /src/_data/*

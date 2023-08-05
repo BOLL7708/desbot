@@ -1,4 +1,3 @@
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import EnlistData from '../../Objects/EnlistData.js'
 import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
@@ -9,7 +8,8 @@ import {SettingSteamGame} from '../../Objects/Setting/SettingSteam.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import {SettingUser, SettingUserName} from '../../Objects/Setting/SettingUser.js'
 import TextHelper from '../../Classes/TextHelper.js'
-import Twitch from '../../Classes/Twitch.js'
+import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
+import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 
 export default class ToolsHandler {
     constructor() {
@@ -23,6 +23,11 @@ export default class ToolsHandler {
         const resultDiv = document.querySelector('#toolsResult') as HTMLDivElement
         if(!buttonsList || !resultDiv) return
 
+        function title(label: string) {
+            const h = document.createElement('h3') as HTMLHeadingElement
+            h.innerHTML = label
+            return h
+        }
         function li(label: string, callback: (e: Event)=>Promise<string>) {
             const li = document.createElement('li')
             const button = document.createElement('button')
@@ -35,10 +40,11 @@ export default class ToolsHandler {
                 span.innerHTML = `${padding}Working...`
                 const result = await callback(e)
                 setTimeout(()=>{ // Small delay so we can see the text change
-                    span.innerHTML = `${padding}Done: ${result}`
+                    span.innerHTML = `${padding}<strong>Done</strong>: ${result}`
                     toggleButtons(true)
                 }, 500)
             }
+            li.classList.add('row')
             li.appendChild(button)
             li.append(span)
             return li
@@ -50,8 +56,9 @@ export default class ToolsHandler {
             }
         }
 
-        const items: HTMLLIElement[] = [
-            li('Add Twitch user',  async (e)=>{
+        const items: HTMLElement[] = [
+            title('Twitch'),
+            li('➕ Add Twitch user',  async (e)=>{
                 const user = new SettingUser()
                 const username = await prompt('Enter Twitch username') ?? ''
                 const data = await TwitchHelixHelper.getUserByLogin(username)
@@ -67,11 +74,92 @@ export default class ToolsHandler {
                 const verb = result ? 'Added' : 'Failed to save'
                 return `${verb} Twitch user: ${user.displayName}`
             }),
-            li(`Load missing data for {10} Twitch users`, async (e)=>{
-                // TODO
-                return 'Loaded missing data for all Twitch users TODO'
+            li(`🔃 Load missing data for existing Twitch users`, async (e)=>{
+                const allUsers = await DataBaseHelper.loadAll(new SettingUser())
+                let usersUpdated = 0
+                if(allUsers) {
+                    for(const [userId, user] of Object.entries(allUsers)) {
+                        if(user.userName && user.displayName && user.name) continue // Currently the only values to fill
+                        const data = await TwitchHelixHelper.getUserById(userId)
+                        if(!data) continue
+                        if(!user.userName) user.userName = data.login
+                        if(!user.displayName) user.displayName = data.display_name
+                        if(!user.name) {
+                            user.name = new SettingUserName()
+                            user.name.shortName = TextHelper.cleanName(data.login)
+                            user.name.datetime = Utils.getISOTimestamp()
+                        }
+                        const result = await DataBaseHelper.save(user, data.id)
+                        if(result) usersUpdated++
+                    }
+                }
+                return `Loaded missing data for ${usersUpdated} Twitch user(s)`
             }),
-            li('Add Steam game', async (e)=>{
+            li('🔽 Import rewards from Twitch', async (e)=>{
+                const rewards = await TwitchHelixHelper.getRewards()
+                const existingRewards = await DataBaseHelper.loadAll(new SettingTwitchReward())
+                const existingRewardIDs = Object.keys(existingRewards ?? {})
+                let newRewardCount = 0
+                let couldNotSaveRewardCount = 0
+                let couldNotSavePresetCount = 0
+                let couldNotSaveTriggerCount = 0
+                for(const reward of rewards?.data ?? []) {
+                    if(!existingRewardIDs.includes(reward.id)) {
+                        // Create setting
+                        const newReward = new SettingTwitchReward()
+                        newReward.key = reward.title
+                        const newRewardKey = await DataBaseHelper.save(newReward, reward.id)
+                        if(!newRewardKey) continue
+
+                        // Create preset
+                        const newPreset = new PresetReward()
+                        await newPreset.__apply(reward)
+                        const newPresetKey = await DataBaseHelper.save(newPreset)
+                        if(!newPresetKey) {
+                            await DataBaseHelper.delete(newReward, newRewardKey)
+                            continue
+                        }
+
+                        // Create orphan trigger
+                        const newTrigger = new TriggerReward()
+                        const newRewardItem = await DataBaseHelper.loadItem(newReward, newRewardKey)
+                        const newPresetItem = await DataBaseHelper.loadItem(newPreset, newPresetKey)
+                        newTrigger.rewardID = newRewardItem?.id ?? 0
+                        newTrigger.rewardEntries = [newPresetItem?.id ?? 0]
+                        const newTriggerKey = await DataBaseHelper.save(newTrigger)
+                        if(newTriggerKey) newRewardCount++
+                        else {
+                            await DataBaseHelper.delete(newReward, newRewardKey)
+                            await DataBaseHelper.delete(newPreset, newPresetKey)
+                            couldNotSaveTriggerCount++
+                        }
+                    }
+                }
+                return `Imported ${newRewardCount} rewards from Twitch, failed to save ${couldNotSaveRewardCount} reward(s), ${couldNotSavePresetCount} preset(s), and ${couldNotSaveTriggerCount} trigger(s)`
+            }),
+            li('🔼 Update rewards on Twitch', async (e)=>{
+                // TODO
+
+                return 'Updated X rewards on Twitch'
+            }),
+            title('Rewards'),
+            li('⏮ Reset incrementing rewards', async (e)=>{
+                // TODO
+
+                return 'Reset X incrementing rewards'
+            }),
+            li('⏮ Reset accumulating rewards', async (e)=>{
+                // TODO
+
+                return 'Reset X accumulating rewards'
+            }),
+            li('⏮ Reset multi-tier rewards', async (e)=>{
+                // TODO
+
+                return 'Reset X multi-tier rewards'
+            }),
+            title('Steam'),
+            li('➕ Add Steam game', async (e)=>{
                 const game = new SettingSteamGame()
                 let appId = await prompt('Enter Steam game app ID') ?? ''
                 if(!isNaN(parseInt(appId))) appId = `steam.app.${appId}`
@@ -84,45 +172,25 @@ export default class ToolsHandler {
                 const verb = result ? 'Added' : 'Failed to save'
                 return `${verb} Steam game: ${game.title} (${appId})`
             }),
-            li('Load missing data for Steam games', async (e)=>{
-                // TODO
-                return `Loaded missing data for ${10} Steam games TODO`
-            }),
-            li('Reload Philips Hue lights', async (e)=>{
-                const result = await PhilipsHueHelper.loadLights()
-                return `Reloaded ${result} Philips Hue lights`
-            }),
-            li('Import rewards from Twitch', async (e)=>{
-                const rewards = await TwitchHelixHelper.getRewards()
-                const existingRewards = await DataBaseHelper.loadAll(new SettingTwitchReward())
-                const existingRewardIDs = Object.keys(existingRewards ?? {})
-                let newRewardCount = 0
-                for(const reward of rewards?.data ?? []) {
-                    if(!existingRewardIDs.includes(reward.id)) {
-                        // TODO: Create a TRIGGER and a PRESET as well. Set the parent of the PRESET and SETTING to the TRIGGER.
-                        const newReward = new SettingTwitchReward()
-                        newReward.key = reward.title
-                        const result = await DataBaseHelper.save(newReward, reward.id)
-                        if(result) newRewardCount++
+            li('🔃 Load missing data for existing Steam games', async (e)=>{
+                const allGames = await DataBaseHelper.loadAll(new SettingSteamGame())
+                let gamesUpdated = 0
+                if(allGames) {
+                    for(const [appId, game] of Object.entries(allGames)) {
+                        if(game.title) continue // Currently the only value to fill
+                        const meta = await SteamStoreHelper.getGameMeta(appId)
+                        if(!meta || !meta.name) continue
+                        game.title = meta.name
+                        const result = await DataBaseHelper.save(game, appId)
+                        if(result) gamesUpdated++
                     }
                 }
-                return `Imported ${newRewardCount} rewards from Twitch`
+                return `Loaded missing data for ${gamesUpdated} Steam game(s)`
             }),
-            li('Update rewards on Twitch', async (e)=>{
-                // TODO
-                return 'Updated X rewards on Twitch'
-            }),
-            li('Reset incrementing rewards', async (e)=>{
-                // TODO
-                return 'Reset X incrementing rewards'
-            }),
-            li('Reset accumulating rewards', async (e)=>{
-                // TODO
-                return 'Reset X accumulating rewards'
-            }),
-            li('Reset multi-tier rewards', async (e)=>{
-                // TODO
-                return 'Reset X multi-tier rewards'
+            title('Philips Hue'),
+            li('🔃 Reload Philips Hue lights', async (e)=>{
+                const result = await PhilipsHueHelper.loadLights()
+                return `Reloaded ${result} Philips Hue light(s)`
             })
         ]
         buttonsList.replaceChildren(...items)

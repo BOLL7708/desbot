@@ -113,7 +113,7 @@ export default class DefaultsHandler {
                     const message = `(${ok}/${total}) ${listName}:${item.instance.constructor.name}:${item.key}`
                     status.innerHTML = `${message} Importing...`
                     const imported = await item.importer(item.instance, item.key.toString())
-                    await DefaultsHandler.updateButton(item, imported)
+                    await DefaultsHandler.updateButton(item, !!imported)
                     if(imported) {
                         ok++
                         status.innerHTML = `${message} Imported!`
