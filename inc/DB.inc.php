@@ -54,7 +54,7 @@ class DB {
      * @param array $params
      * @return array|bool Array if there are rows, bool otherwise.
      */
-    private function query(string $query, array $params = []):array|bool {
+    public function query(string $query, array $params = []):array|bool {
         $stmt = $this->mysqli->prepare($query);
         if(!empty($params)) {
             $types = self::getParamTypes($params);
