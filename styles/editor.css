@@ -103,7 +103,7 @@ code {
     width: calc(100% - 6px);
 }
 .modified {
-    background-color: var(--editor-modified-background-color);
+    background-color: var(--editor-modified-background-color) !important;
 }
 
 .debug-border {

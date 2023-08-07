@@ -82,7 +82,7 @@ export default class DataBaseHelper {
         if(newGroupKey && groupKey != newGroupKey) {
             options.newGroupKey = newGroupKey
         }
-        if(parentId && !isNaN(parentId) && parentId > 0) {
+        if(typeof parentId == 'number' && !isNaN(parentId)) {
             options.parentId = parentId
         }
         let url = this.getUrl()

@@ -26,6 +26,11 @@ export interface IStepDataOptions {
     extraChildren: HTMLElement[]
 }
 
+interface IJsonEditorData {
+    parentId: number,
+    instance: any
+}
+
 export default class JsonEditor {
     private _key: string = ''
     private _originalKey: string = ''
@@ -37,7 +42,9 @@ export default class JsonEditor {
     private _hideKey: boolean = false
     private _dirty: boolean = false
     private _rowId: number = 0
+    private _potentialParentId: number = 0
     private _parentId: number = 0
+    private _originalParentId: number = 0
     private _config: ConfigEditor = new ConfigEditor()
 
     private readonly MODIFIED_CLASS = 'modified'
@@ -57,7 +64,8 @@ export default class JsonEditor {
         key: string,
         instance: object&Data,
         rowId?: number,
-        parentId?: number,
+        potentialParentId?: number,
+        currentParentId?: number,
         hideKey?: boolean,
         isRebuild?: boolean
     ): Promise<HTMLElement> {
@@ -66,7 +74,9 @@ export default class JsonEditor {
             this._originalKey = key
             this._hideKey = !!hideKey
             this._rowId = rowId ?? 0
-            this._parentId = parentId ?? 0
+            this._potentialParentId = potentialParentId ?? 0
+            this._parentId = currentParentId ?? 0
+            this._originalParentId = currentParentId ?? 0
             if(instance) {
                 this._instance = await instance.__clone()
                 this._originalInstance = await instance.__clone();
@@ -75,12 +85,17 @@ export default class JsonEditor {
             this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
         }
 
+        const urlParams = Utils.getUrlParams()
+        const isChildEditor = Utils.toBool(urlParams.get('m')) // m as in Minimal
         this._labels = []
         const instanceMeta = DataMap.getMeta(this._originalInstanceType ?? '')
         const tempParent = this.buildUL()
 
         // region Extra Children
         const extraChildren: HTMLElement[] = []
+        let parentIdInfo: HTMLElement|undefined = undefined
+        let makeGlobalButton: HTMLButtonElement|undefined = undefined
+        let makeLocalButton: HTMLButtonElement|undefined = undefined
 
         // ID field
         if(!this._config.hideIDs) {
@@ -101,26 +116,63 @@ export default class JsonEditor {
         }
 
         // Parent ID field
-        if(this._parentId > 0) {
-            if(!this._config.hideIDs) extraChildren.push(
-                ...this.buildInfo('Parent ID', this._parentId.toString(),
-                    'If a parent ID is shown, this data belongs to a different row.',
-                    'The ID of the parent row in the database.'
-                )
+        if(!this._config.hideIDs)  {
+            const parentInfo = this.buildInfo('Parent ID', this._parentId.toString(),
+                'If a parent ID is shown, this data belongs to a different row.',
+                'The ID of the parent row in the database.'
             )
-            const urlParams = Utils.getUrlParams()
-            if(!urlParams.get('m')) { // m as in Minimal
-                const parentButton = document.createElement('button') as HTMLButtonElement
-                parentButton.innerHTML = '👴'
-                parentButton.title = 'Edit the parent item.'
-                parentButton.classList.add('inline-button')
-                parentButton.onclick = (event) => {
-                    window.location.replace(`?id=${this._parentId}`)
-                }
-                extraChildren.push(parentButton)
-            }
+            parentIdInfo = parentInfo[1] ?? undefined
+            extraChildren.push(...parentInfo)
         }
-        // region
+        if(this._parentId > 0 && !isChildEditor) {
+            const parentButton = document.createElement('button') as HTMLButtonElement
+            parentButton.innerHTML = '👴'
+            parentButton.title = 'Edit the parent item.'
+            parentButton.classList.add('inline-button')
+            parentButton.onclick = (event) => {
+                window.location.replace(`?id=${this._parentId}`)
+            }
+            extraChildren.push(parentButton)
+        }
+
+        // Parental buttons
+        if(isChildEditor) {
+            // Make global button
+            makeGlobalButton = document.createElement('button') as HTMLButtonElement
+            makeGlobalButton.style.display = 'none'
+            makeGlobalButton.innerHTML = '🌍'
+            makeGlobalButton.classList.add('inline-button')
+            makeGlobalButton.title = 'Make global by removing the parent reference, meaning it will be listed for any parent.'
+            makeGlobalButton.onclick = async (event) => {
+                this._parentId = 0
+                if(parentIdInfo) parentIdInfo.innerHTML = this._parentId.toString()
+                toggleParentButtons(this._parentId > 0)
+                this.checkIfModified()
+            }
+            extraChildren.push(makeGlobalButton)
+
+            // Make local button
+            makeLocalButton = document.createElement('button') as HTMLButtonElement
+            makeLocalButton.style.display = 'none'
+            makeLocalButton.innerHTML = '🏠'
+            makeLocalButton.classList.add('inline-button')
+            makeLocalButton.title = 'Make local by adding a parent reference, meaning it will only be listed for this parent, this will not break existing references.'
+            makeLocalButton.onclick = async (event) => {
+                if(this._potentialParentId <= 0) confirm('There is no potential parent ID for this item so it cannot be made local.')
+                this._parentId = this._potentialParentId
+                if(parentIdInfo) parentIdInfo.innerHTML = this._potentialParentId.toString()
+                toggleParentButtons(this._parentId > 0)
+                this.checkIfModified()
+            }
+            extraChildren.push(makeLocalButton)
+
+            function toggleParentButtons(showGlobal: boolean) {
+                if(makeGlobalButton) makeGlobalButton.style.display = showGlobal ? '' : 'none'
+                if(makeLocalButton) makeLocalButton.style.display = showGlobal ? 'none' : ''
+            }
+            toggleParentButtons(this._parentId > 0)
+        }
+        // endregion
 
         const options: IStepDataOptions = {
             root: tempParent,
@@ -143,6 +195,7 @@ export default class JsonEditor {
             this._key,
             this._instance,
             this._rowId,
+            this._potentialParentId,
             this._parentId,
             this._hideKey,
             true
@@ -671,7 +724,7 @@ export default class JsonEditor {
             editButton.classList.add('inline-button')
             editButton.onclick = (event)=>{
                 if(selectIDs.value !== '0') {
-                    let link = `editor.php?m=1&id=${selectIDs.value}`
+                    let link = `editor.php?m=1&id=${selectIDs.value}&pp=${this._rowId}`
                     if(isGeneric && dataBaseItem?.pid) link += `&p=${dataBaseItem.pid}`
                     this.openChildEditor(link,
                         thisTypeValues.isIdReference || parentTypeValues.isIdReference ? options.path : []
@@ -1152,19 +1205,33 @@ export default class JsonEditor {
         const dirty =
             JSON.stringify(this._instance) != JSON.stringify(this._originalInstance)
             || this._key != this._originalKey
+            || this._parentId != this._originalParentId
         if(dirty != this._dirty) {
             this._modifiedStatusListener(dirty)
             this._dirty = dirty
+            const topLI = this._root?.querySelector('li')
+            if(dirty) {
+                if(topLI) topLI.classList.add(this.MODIFIED_CLASS)
+            } else {
+                if(topLI) topLI.classList.remove(this.MODIFIED_CLASS)
+            }
         }
     }
 
-    getData(): any {
-        return this._instance
+    getData(): IJsonEditorData {
+        return {
+            parentId: this._parentId,
+            instance: this._instance
+        }
     }
     getOriginalData(): any {
         return this._originalInstance
     }
-    async setData(data: any) {
+    async setData(data: any, resetOriginalKeyAndParentId: boolean = false) {
+        if(resetOriginalKeyAndParentId) {
+            this._key = this._originalKey
+            this._parentId = this._originalParentId
+        }
         const freshInstance = await DataMap.getInstance(this._originalInstanceType, data)
         if(freshInstance) {
             this._instance = freshInstance

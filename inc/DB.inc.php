@@ -192,8 +192,8 @@ class DB {
         $result = $this->query("
             INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (?, ?, ?, ?)
             ON DUPLICATE KEY
-            UPDATE data_json = ?;
-        ", [$groupClass, $groupKey, $parentId, $dataJson, $dataJson]);
+            UPDATE parent_id = ?, data_json = ?;
+        ", [$groupClass, $groupKey, $parentId, $dataJson, $parentId, $dataJson]);
         return $result ? $groupKey : false;
     }
 

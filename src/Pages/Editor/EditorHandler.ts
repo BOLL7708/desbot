@@ -72,6 +72,7 @@ export default class EditorHandler {
         if(urlParams.has('k')) this._state.groupKey = decodeURIComponent(urlParams.get('k') ?? '')
         if(urlParams.has('c')) this._state.groupClass = decodeURIComponent(urlParams.get('c') ?? '')
         if(urlParams.has('p')) this._state.parentId = parseInt(urlParams.get('p') ?? '')
+        if(urlParams.has('pp')) this._state.potentialParentId = parseInt(urlParams.get('pp') ?? '')
         if(urlParams.has('m')) this._state.minimal = !!urlParams.get('m')
         let group = urlParams.get('g') ?? this._state.groupClass.substring(0,1).toLowerCase()
 
@@ -303,6 +304,7 @@ export default class EditorHandler {
                         resultingKey,
                         instance, 
                         item?.id,
+                        this._state.potentialParentId,
                         !!parentId ? parentId : item?.pid ?? undefined,
                         this._state.forceMainKey
                     ) ?? ''
@@ -355,7 +357,7 @@ export default class EditorHandler {
                 // Load editor first in case item already exists.
                 // This means when we save, we will retain any existing data if the key already existed.
                 await updateEditor(undefined, newKey)
-                await this.saveData(group, newKey, parentId)
+                await this.saveData(group, newKey)
             }
         }
 
@@ -406,7 +408,7 @@ export default class EditorHandler {
         editorCancelButton.innerHTML = this._labelCancelButton
         editorCancelButton.onclick = (event)=>{
             const ok = confirm('Do you want to cancel current changes?')
-            if(ok) this._editor?.setData(this._editor?.getOriginalData())
+            if(ok) this._editor?.setData(this._editor?.getOriginalData(), true)
         }
 
         // Save button
@@ -414,7 +416,7 @@ export default class EditorHandler {
         editorSaveButton.classList.add('main-button', 'save-button', 'hidden')
         editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
         editorSaveButton.onclick = async (event)=>{
-            const newKey = await this.saveData(group, this._state.groupKey, this._state.parentId)
+            const newKey = await this.saveData(group, this._state.groupKey)
             const json = await DataBaseHelper.loadJson(this._state.groupClass, newKey ?? this._state.groupKey, this._state.parentId)
             if(this._state.minimal) {
                 const id = json.pop()?.id ?? ''
@@ -469,13 +471,14 @@ export default class EditorHandler {
         }
     }
 
-    private async saveData(groupClass: string, groupKey: string, parentId?: number): Promise<string|null> {
+    private async saveData(groupClass: string, groupKey: string): Promise<string|null> {
         if(this._editor) {
-            const data = this._editor.getData()
+            const editorData = this._editor.getData()
             const newGroupKey = this._editor.getKey()
-            const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(data), groupClass, groupKey, newGroupKey, parentId)
+            const resultingGroupKey = await DataBaseHelper.saveJson(JSON.stringify(editorData.instance), groupClass, groupKey, newGroupKey, editorData.parentId)
             if(resultingGroupKey) {
                 if(newGroupKey) DataBaseHelper.clearReferences(groupClass) // To make reference lists reload with the new/updated item.
+                this._state.parentId = editorData.parentId
                 await this.updateSideMenu()
                 this.updateModifiedState(false)
                 await this.buildEditorControls(groupClass, resultingGroupKey, this._state.parentId)
@@ -504,7 +507,7 @@ export default class EditorHandler {
             // This is ignored if we are called by onbeforeunload, it manages staying on the page with browser features.
             const shouldSave = confirm('There are still unsaved changes, do you want to save?')
             if(shouldSave) {
-                const resultKey = await this.saveData(this._state.groupClass, this._state.groupKey, this._state.parentId)
+                const resultKey = await this.saveData(this._state.groupClass, this._state.groupKey)
                 return resultKey !== null
             }
         }
@@ -557,6 +560,7 @@ class EditorPageState {
     forceMainKey: boolean = false
     groupClass: string = ''
     groupKey: string = ''
+    potentialParentId: number = 0
     parentId: number = 0
     minimal: boolean = false
 }
