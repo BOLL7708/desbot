@@ -2,6 +2,7 @@ import DataMap from '../DataMap.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import Utils from '../../Classes/Utils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 
 export class ActionCustom extends Action {
     code: string = ''
@@ -24,8 +25,14 @@ export class ActionCustom extends Action {
             tag: '❓',
             description: 'Callback that triggers arbitrary code',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionCustom>(this)
-                eval(clone.code)
+                try {
+                    const clone = Utils.clone<ActionCustom>(this)
+                    const modules = ModulesSingleton.getInstance()
+                    eval(clone.code)
+                } catch (error) {
+                    Utils.logWithBold(`Error in custom action <${key}>`, 'red')
+                    console.warn(error)
+                }
             }
         }
     }

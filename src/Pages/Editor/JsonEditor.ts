@@ -326,7 +326,7 @@ export default class JsonEditor {
             previewBox.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;'
             previewBox.style.backgroundImage = ''
             previewBox.style.backgroundColor = ''
-            const value = input.innerHTML
+            const value = input.innerText
             if(thisTypeValues.file || parentTypeValues.file) {
                 const response = await fetch(value, { method: 'HEAD' })
                 const contentType = response.headers.get('Content-Type')
@@ -389,21 +389,17 @@ export default class JsonEditor {
         // Input
         let skip = false
         let handle = (event: Event) => {}
-        let input = thisTypeValues.code
-            ? document.createElement('textarea') as HTMLTextAreaElement
-            : document.createElement('code') as HTMLSpanElement
-        const isTextArea = input.constructor.name == HTMLTextAreaElement.name
-        if(isTextArea) {
+        let input = document.createElement('code') as HTMLSpanElement
+        if(thisTypeValues.code) {
             input.classList.add('code-textarea')
-            input.spellcheck = false;
-            (input as HTMLTextAreaElement).rows = this._config.codeAreaRows
+            input.spellcheck = false
         }
         input.onpaste = (event)=>{
             event.preventDefault()
             let text = event.clipboardData?.getData('text/plain') ?? ''
             switch(type) {
                 case EJsonEditorFieldType.String:
-                    text = text.replace(/\n/g, '\\n').replace(/\r/g, '')
+                    text = thisTypeValues.code ? text : text.replace(/\n/g, '\\n').replace(/\r/g, '')
                     break
                 case EJsonEditorFieldType.Number:
                     let num = parseFloat(text)
@@ -461,15 +457,16 @@ export default class JsonEditor {
                     }
                 }
                 input.contentEditable = 'true'
-                input.innerHTML = Utils.escapeHTML(`${options.data}`)
+                if(thisTypeValues.code) input.innerText = options.data.toString()
+                else input.innerHTML = Utils.escapeHTML(`${options.data}`)
                 input.onkeydown = (event)=>{
-                    if (event.key === 'Enter' && !isTextArea) {
+                    if (event.key === 'Enter' && !thisTypeValues.code) {
                         event.preventDefault()
                     }
                 }
                 handle = (event) => {
                     updatePreview(this._config).then()
-                    this.handleValue(Utils.unescapeHTML(input.innerHTML), options.path, label)
+                    this.handleValue(thisTypeValues.code ? input.innerText : Utils.unescapeHTML(input.innerHTML), options.path, label)
                 }
                 updatePreview(this._config).then()
                 break
@@ -1048,7 +1045,7 @@ export default class JsonEditor {
     }
 
     /**
-     *
+     * Handle values to update in the JSON structure.
      * @param value A value to set, check, or remove. Null will remove.
      * @param path Path to the value in the structure.
      * @param label The HTML element to colorize to indicate if the value changed.

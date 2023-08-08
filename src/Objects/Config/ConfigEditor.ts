@@ -11,7 +11,6 @@ export class ConfigEditor extends Data {
     includeOrphansInGenericLists: boolean = true
     askToRevealSecretInput: boolean = true
     showFavoritesBar: boolean = true
-    codeAreaRows: number = 10
     audioPreviewVolume: number = 100
     favorites: { [key:string]: ConfigEditorFavorite } = {}
 
@@ -27,7 +26,6 @@ export class ConfigEditor extends Data {
                 askToRevealSecretInput: 'Will ask to show and edit a field that is otherwise censored.',
                 includeOrphansInGenericLists: 'In generic lists we by default parent new child items to the current main item, if this is active the dropdown in the editor will also include items in the system without a parent.',
                 showFavoritesBar: 'Show the bar with favorites.',
-                codeAreaRows: 'The number of rows to show for a code text area.',
                 audioPreviewVolume: 'The volume to use when previewing audio in percent.',
                 favorites: 'IDs to favorites in the favorites bar, only a soft reference not depending on the existence of the referenced item.'
             },
