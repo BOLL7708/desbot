@@ -1,6 +1,5 @@
 <?php
 include_once('_init.php');
-$debug = boolval($_REQUEST['debug'] ?? '0');
 ?>
 <!DOCTYPE html>
 <html lang="en">
