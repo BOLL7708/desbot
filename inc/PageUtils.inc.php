@@ -21,7 +21,7 @@ class PageUtils {
         <link rel="stylesheet" href="./styles/_shared.css"/>
         <link rel="stylesheet" href="./styles/editor.css"/><!-- TODO: Should likely be split to what needs to go into general... -->
         <link id="link-page-mode-stylesheet" rel="stylesheet" href="./styles/_<?=$pageMode ? 'dark' : 'bright';?>.css"/>
-        <!--<script type="module" src="./inc/ScriptImporter.php"></script>-->
+        <script type="module" src="./dist/Pages/PageEmbed.js"></script>
         <?php
             $filePath = "./styles/<?=$scriptFile?>.css";
             if(file_exists($filePath)) {
@@ -36,7 +36,7 @@ class PageUtils {
             if($topBar) include_once('inc/embeds/TopBar.embed.inc.php');
             ?>
             <div id="page-container">
-                <?php if($sideBar) { ?><div id="side-bar"></div><?php } ?>
+                <?php if($sideBar) { ?><div id="side-bar" style="flex: 0 0 200px;"></div><?php } ?>
             <?php
     }
 
