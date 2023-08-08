@@ -215,6 +215,10 @@ export default abstract class Data {
     async __clone(fillReferences: boolean = false) {
         return await this.__new(Utils.clone(this), fillReferences)
     }
+
+    __getClass(): string {
+        return this.constructor.name
+    }
 }
 
 export class EmptyData extends Data { enlist() {} }

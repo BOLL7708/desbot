@@ -10,6 +10,10 @@ import {SettingUser, SettingUserName} from '../../Objects/Setting/SettingUser.js
 import TextHelper from '../../Classes/TextHelper.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
+import {EventDefault} from '../../Objects/Event/EventDefault.js'
+import Color from '../../Classes/ColorConstants.js'
+import {ConfigPhilipsHue} from '../../Objects/Config/ConfigPhilipsHue.js'
+import Data from '../../Objects/Data.js'
 
 export default class ToolsHandler {
     constructor() {
@@ -28,13 +32,14 @@ export default class ToolsHandler {
             h.innerHTML = label
             return h
         }
-        function li(label: string, callback: (e: Event)=>Promise<string>) {
+        function li(label: string, tooltip: string, callback: (e: Event)=>Promise<string>) {
             const li = document.createElement('li')
             const button = document.createElement('button')
             const span = document.createElement('span')
             const padding = '&nbsp;&nbsp;'
             button.classList.add('main-button')
             button.innerHTML = label
+            button.title = tooltip
             button.onclick = async (e) => {
                 toggleButtons(false)
                 span.innerHTML = `${padding}Working...`
@@ -58,7 +63,9 @@ export default class ToolsHandler {
 
         const items: HTMLElement[] = [
             title('Twitch'),
-            li('➕ Add Twitch user',  async (e)=>{
+            li('➕ Add Twitch user',
+                'Adds a new Twitch user to the system, this is helpful if you want to change their settings before they have appeared in chat.',
+                async (e)=>{
                 const user = new SettingUser()
                 const username = await prompt('Enter Twitch username') ?? ''
                 const data = await TwitchHelixHelper.getUserByLogin(username)
@@ -74,7 +81,9 @@ export default class ToolsHandler {
                 const verb = result ? 'Added' : 'Failed to save'
                 return `${verb} Twitch user: ${user.displayName}`
             }),
-            li(`🔃 Load missing data for existing Twitch users`, async (e)=>{
+            li(`🔃 Load missing data for existing Twitch users`,
+                'Loads associated data for a Twitch user that is missing it, like their display name and generates a short name for TTS.',
+                async (e)=>{
                 const allUsers = await DataBaseHelper.loadAll(new SettingUser())
                 let usersUpdated = 0
                 if(allUsers) {
@@ -95,7 +104,9 @@ export default class ToolsHandler {
                 }
                 return `Loaded missing data for ${usersUpdated} Twitch user(s)`
             }),
-            li('🔽 Import rewards from Twitch', async (e)=>{
+            li('🔽 Import rewards from Twitch',
+                'Import any rewards that are not in the system yet from Twitch, this will create global triggers with preset and setting filled in.',
+                async (e)=>{
                 const rewards = await TwitchHelixHelper.getRewards()
                 const existingRewards = await DataBaseHelper.loadAll(new SettingTwitchReward())
                 const existingRewardIDs = Object.keys(existingRewards ?? {})
@@ -137,29 +148,74 @@ export default class ToolsHandler {
                 }
                 return `Imported ${newRewardCount} rewards from Twitch, failed to save ${couldNotSaveRewardCount} reward(s), ${couldNotSavePresetCount} preset(s), and ${couldNotSaveTriggerCount} trigger(s)`
             }),
-            li('🔼 Update rewards on Twitch', async (e)=>{
-                // TODO
-
-                return 'Updated X rewards on Twitch'
+            li('🔼 Update rewards on Twitch',
+                'Will apply the first preset for a reward on the rewards on Twitch, will skip updating if set to be skipped.',
+                async (e)=> {
+                DataBaseHelper.setFillReferences(true)
+                const allEvents = await DataBaseHelper.loadAll(new EventDefault())
+                DataBaseHelper.setFillReferences(false)
+                let updatedRewardCount = 0
+                let skippedRewardCount = 0
+                let failedRewardCount = 0
+                for(const [key, eventItem] of Object.entries(allEvents ?? {})) {
+                    if(!eventItem.options.rewardIgnoreUpdateCommand) {
+                        const triggers = Utils.ensureObjectArrayNotId(eventItem.triggers)
+                        for (const trigger of triggers) {
+                            if (trigger.__getClass() == TriggerReward.ref()) {
+                                const triggerReward = (trigger as TriggerReward)
+                                const rewardID = Utils.ensureStringNotId(triggerReward.rewardID)
+                                const rewardPresets = Utils.ensureObjectArrayNotId(triggerReward.rewardEntries)
+                                if (rewardID && rewardPresets.length) {
+                                    const preset = rewardPresets[0] as PresetReward
+                                    const response = await TwitchHelixHelper.updateReward(rewardID, preset)
+                                    if (response?.data) {
+                                        const success = response?.data[0]?.id == rewardID
+                                        if(success) updatedRewardCount++
+                                        else failedRewardCount++
+                                        Utils.logWithBold(`Reward <${key}> updated: <${success ? 'OK' : 'ERR'}>`, success ? Color.Green : Color.Red)
+                                        /*
+                                        // TODO: Figure this out
+                                        // If update was successful, also reset incremental setting as the reward should have been reset.
+                                        if(Array.isArray(rewardSetup)) {
+                                            const reset = new SettingIncrementingCounter()
+                                            await DataBaseHelper.save(reset, pair.key)
+                                        }
+                                        // TODO: Also reset accumulating counters here?!
+                                        */
+                                    } else {
+                                        failedRewardCount++
+                                        Utils.logWithBold(`Reward for <${key}> update unsuccessful: ${response?.error}`, Color.Red)
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        skippedRewardCount++
+                        Utils.logWithBold(`Reward for <${key}> update skipped or unavailable.`, Color.Purple)
+                    }
+                }
+                return `Updated ${updatedRewardCount} reward(s) on Twitch, skipped ${skippedRewardCount}, failed to update ${failedRewardCount}`
             }),
             title('Rewards'),
-            li('⏮ Reset incrementing rewards', async (e)=>{
+            li('⏮ Reset incrementing rewards', '', async (e)=>{
                 // TODO
 
                 return 'Reset X incrementing rewards'
             }),
-            li('⏮ Reset accumulating rewards', async (e)=>{
+            li('⏮ Reset accumulating rewards', '', async (e)=>{
                 // TODO
 
                 return 'Reset X accumulating rewards'
             }),
-            li('⏮ Reset multi-tier rewards', async (e)=>{
+            li('⏮ Reset multi-tier rewards', '', async (e)=>{
                 // TODO
 
                 return 'Reset X multi-tier rewards'
             }),
             title('Steam'),
-            li('➕ Add Steam game', async (e)=>{
+            li('➕ Add Steam game',
+                'Add a Steam game before it has been detected, this so you can reference it before that.',
+                async (e)=>{
                 const game = new SettingSteamGame()
                 let appId = await prompt('Enter Steam game app ID') ?? ''
                 if(!isNaN(parseInt(appId))) appId = `steam.app.${appId}`
@@ -172,7 +228,9 @@ export default class ToolsHandler {
                 const verb = result ? 'Added' : 'Failed to save'
                 return `${verb} Steam game: ${game.title} (${appId})`
             }),
-            li('🔃 Load missing data for existing Steam games', async (e)=>{
+            li('🔃 Load missing data for existing Steam games',
+                'Load meta data for Steam games that are missing things like title.',
+                async (e)=>{
                 const allGames = await DataBaseHelper.loadAll(new SettingSteamGame())
                 let gamesUpdated = 0
                 if(allGames) {
@@ -188,7 +246,28 @@ export default class ToolsHandler {
                 return `Loaded missing data for ${gamesUpdated} Steam game(s)`
             }),
             title('Philips Hue'),
-            li('🔃 Reload Philips Hue lights', async (e)=>{
+            li('🔵 Connect to Philips Hue bridge',
+            '',
+            async (e)=>{
+                const config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
+                if(config.username.length && config.serverPath.length) {
+                    const overwrite = confirm('Already connected to a Philips Hue bridge, do you want to overwrite the connection?')
+                    if(!overwrite) return 'Cancelled due to a config already existing'
+                }
+                let serverPath = await prompt('Enter Philips Hue bridge server path, usually an IP address', config.serverPath) ?? ''
+                serverPath = serverPath.trim()
+                if(!serverPath.startsWith('http://') && !serverPath.startsWith('https://')) serverPath = `http://${serverPath}`
+                alert('Please press the button on your Philips Hue bridge unit, then press OK to continue.')
+                const registerResult = await PhilipsHueHelper.registerBridge(serverPath)
+                if(registerResult.error.length) return `Failed to register Philips Hue bridge: ${registerResult.error}`
+                config.serverPath = serverPath
+                config.username = registerResult.username
+                const saved = await DataBaseHelper.saveMain(config)
+                return !!saved ? 'Connected to Philips Hue bridge' : 'Failed to save Philips Hue bridge connection'
+            }),
+            li('🔃 Reload Philips Hue devices',
+                'Load all Philips Hue bulbs and plugs from your bridge unit.',
+                async (e)=>{
                 const result = await PhilipsHueHelper.loadLights()
                 return `Reloaded ${result} Philips Hue light(s)`
             })

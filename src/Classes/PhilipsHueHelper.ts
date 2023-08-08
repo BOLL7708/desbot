@@ -119,4 +119,25 @@ export default class PhilipsHueHelper {
             return false
         }
     }
+
+    static async registerBridge(serverPath: string): Promise<IPhilipsHueBridgeRegisterResult> {
+        const response = await fetch(`${serverPath}/api`, {
+            method: 'POST',
+            body: JSON.stringify({devicetype: 'desbot.app'})
+        })
+        if(response.ok) {
+            const json = await response.json()
+            const first = json[0]
+            if(first?.success) {
+                return { username: json[0].success.username, error: ''}
+            } else if (first?.error) {
+                return { username: '', error: json[0].error.description }
+            } else {
+                return { username: '', error: 'Unknown error' }
+            }
+        } else {
+            return { username: '', error: response.statusText }
+        }
+    }
 }
+export interface IPhilipsHueBridgeRegisterResult { username: string, error: string }

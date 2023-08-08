@@ -398,6 +398,7 @@ export default class ActionsCallbacks {
             tag: 'UpdateRewards',
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
+                // TODO: This is now deprecated and should be removed in the future.
                 const storedRewards = await LegacyUtils.getRewardPairs()
                 for(const pair of storedRewards) {
                     user.eventKey = pair.key

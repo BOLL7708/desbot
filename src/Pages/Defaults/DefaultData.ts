@@ -90,7 +90,7 @@ enum EKeys {
     SystemHelpToChat = 'Command Help to Chat',
     SystemClips = 'Command Clips',
     SystemReloadWidget = 'Command Reload Widget',
-    SystemUpdateRewards = 'Command Update Rewards',
+    SystemUpdateRewards = 'Command Update Rewards', // TODO: Does not actually work now
     SystemGameRewardsOn = 'Command Game Rewards On',
     SystemGameRewardsOff = 'Command Game Rewards Off',
     SystemRefundRedemption = 'Command Refund Redemption',

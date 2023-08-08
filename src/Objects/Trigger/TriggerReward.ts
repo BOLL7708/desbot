@@ -27,7 +27,7 @@ export class TriggerReward extends Trigger {
             {
                 permissions: PresetPermissions.refId(),
                 rewardID: SettingTwitchReward.refIdKeyLabel(),
-                rewardEntries: Data.genericRef('PresetReward'),
+                rewardEntries: Data.genericRef('PresetReward'), // I believe this was done to give these items a parent
                 rewardEntries_use: OptionEntryUsage.ref()
             }
         )
