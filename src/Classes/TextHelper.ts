@@ -409,4 +409,8 @@ export default class TextHelper {
         const match = text.match(/@(\w+)/)
         return match?.[1] ?? undefined
     }
+
+    static ensureHeaderSafe(text: string): string {
+        return text.replace(/[^a-zA-Z0-9_.,;:#&%!?+=\/\-\s]/g, '')
+    }
 }

@@ -230,7 +230,7 @@ export class DataRefValues {
     useLabel = false
     idToKey = false
     genericLike = ''
-    enum = false
+    option = false
     secret = false
     file: string[] = []
     range: number[] = []

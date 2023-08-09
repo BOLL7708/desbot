@@ -14,6 +14,7 @@ export default class Rewards {
     public static async init() {
         const states = StatesSingleton.getInstance()
 
+        /* TODO: Make this a tool instead.
         // Load reward IDs from settings
         const storedRewards = await DataBaseHelper.loadAll(new SettingTwitchReward()) ?? {}
 
@@ -36,6 +37,7 @@ export default class Rewards {
                 console.warn(`Reward ${key} is missing a setup.`)
             }
         }
+         */
 
         // Toggle TTS rewards
         TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId('Speak'), {is_enabled: !states.ttsForAll}).then()

@@ -125,7 +125,7 @@ export default class ToolsHandler {
                         // Create preset
                         const newPreset = new PresetReward()
                         await newPreset.__apply(reward)
-                        const newPresetKey = await DataBaseHelper.save(newPreset)
+                        const newPresetKey = await DataBaseHelper.save(newPreset, `Preset ${TextHelper.ensureHeaderSafe(reward.title)}`)
                         if(!newPresetKey) {
                             await DataBaseHelper.delete(newReward, newRewardKey)
                             continue
@@ -133,13 +133,20 @@ export default class ToolsHandler {
 
                         // Create orphan trigger
                         const newTrigger = new TriggerReward()
-                        const newRewardItem = await DataBaseHelper.loadItem(newReward, newRewardKey)
-                        const newPresetItem = await DataBaseHelper.loadItem(newPreset, newPresetKey)
+                        const newRewardItem = await DataBaseHelper.loadItem(new SettingTwitchReward(), newRewardKey)
+                        const newPresetItem = await DataBaseHelper.loadItem(new PresetReward(), newPresetKey)
                         newTrigger.rewardID = newRewardItem?.id ?? 0
                         newTrigger.rewardEntries = [newPresetItem?.id ?? 0]
-                        const newTriggerKey = await DataBaseHelper.save(newTrigger)
-                        if(newTriggerKey) newRewardCount++
-                        else {
+                        const newTriggerKey = await DataBaseHelper.save(newTrigger, `Trigger ${TextHelper.ensureHeaderSafe(reward.title)}`)
+                        if(newTriggerKey) {
+                            newRewardCount++
+
+                            // Set parent for preset
+                            const newTriggerItem = await DataBaseHelper.loadItem(new TriggerReward(), newTriggerKey)
+                            if(newTriggerItem) {
+                                await DataBaseHelper.save(newPreset, newPresetKey, undefined, newTriggerItem.id)
+                            }
+                        } else {
                             await DataBaseHelper.delete(newReward, newRewardKey)
                             await DataBaseHelper.delete(newPreset, newPresetKey)
                             couldNotSaveTriggerCount++

@@ -35,8 +35,8 @@ export class DataUtils {
                 case 'like':
                     refValues.genericLike = v
                     break
-                case 'enum':
-                    refValues.enum = true
+                case 'option':
+                    refValues.option = true
                     break
                 case 'secret':
                     refValues.secret = true

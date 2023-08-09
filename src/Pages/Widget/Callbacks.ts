@@ -211,6 +211,7 @@ export default class Callbacks {
                 )
             }
             const key = rewardPair?.key ?? 'Unknown'
+            /* TODO: Reimplement this with some kind of reference per event?!
             const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[key]
             const ignoreWebhook = !!Config.events[key]?.options?.rewardIgnoreAutomaticDiscordPosting
             if(rewardSpecificWebhook && !ignoreWebhook) {
@@ -221,6 +222,7 @@ export default class Callbacks {
                     description
                 )
             }
+            */
 
             // Pipe to VR (basic)
             const pipeConfig = await DataBaseHelper.loadMain(new ConfigPipe())

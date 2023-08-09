@@ -17,6 +17,7 @@ import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IAction
 import Trigger from '../../Objects/Trigger.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
+import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 
 export class ActionHandler {
     constructor(
@@ -25,7 +26,7 @@ export class ActionHandler {
     ) {}
     public async call(user: IActionUser) {
         let event = await DataBaseHelper.loadOrEmpty(new EventDefault(), this.key)
-        /* TODO: REIMPLEMENT THIS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
+        /* TODO: REIMPLEMENT GAME EVENTS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
         if(this.appId.length > 0) {
             const gameEvent = Utils.getEventForGame(this.key, this.appId)
             if(gameEvent) {
@@ -69,11 +70,11 @@ export class ActionHandler {
             As well as calculate and provide the index for action entries.
          */
         switch(options.behavior) {
-            /*
-            case EnumEventBehavior.Random:
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, [actionsEntries.getRandom()])
+            case OptionEventBehavior.Random:
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, options.specificIndex))
                 break
-            case EnumEventBehavior.Incrementing:
+            /*
+            case OptionEventBehavior.Incrementing:
                 // Load incremental counter
                 counter = await DataBaseHelper.load(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
 
@@ -93,7 +94,7 @@ export class ActionHandler {
                 index = (counter?.count ?? 1)-1
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
-            case EnumEventBehavior.Accumulating:
+            case OptionEventBehavior.Accumulating:
                 // Load accumulating counter
                 counter = await DataBaseHelper.load(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
                 counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
@@ -128,7 +129,7 @@ export class ActionHandler {
                 // Register index and build callback for this step of the sequence
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
-            case EnumEventBehavior.MultiTier:
+            case OptionEventBehavior.MultiTier:
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
 
                 // Increase multi-tier counter

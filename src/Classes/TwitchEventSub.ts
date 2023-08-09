@@ -317,7 +317,7 @@ export default class TwitchEventSub {
                     redemptionStatus.cost = event.reward.cost
                     await DataBaseHelper.save(redemptionStatus, event.id)
                 }
-                Utils.log(`TwitchEventSub: Reward redeemed! (${redemptionId})`, this.LOG_COLOR)
+                Utils.log(`TwitchEventSub: Reward redeemed! (${event.reward.id})`, this.LOG_COLOR)
                 if(event.reward.id !== null) this._onRewardCallback(event)
 
                 // Event

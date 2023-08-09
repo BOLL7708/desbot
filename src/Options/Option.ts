@@ -6,12 +6,15 @@ export class Option {
      * If this ID is referenced when instancing a class, it will be a dropdown listing the properties as alternatives.
      */
     static ref() {
-        return this.name+'|enum'
+        return this.name+'|option'
     }
     static keyMap(): IStringDictionary {
         const entries = Object.entries(this)
         return Object.fromEntries(
             entries.map(([key, value]) => [value.toString(), key.toString()])
         ) as IStringDictionary
+    }
+    static nameFromKey(key: string|number): string {
+        return this.keyMap()[key.toString()] ?? key.toString()
     }
 }

@@ -586,11 +586,11 @@ export default class JsonEditor {
         /*
          * An Enum class will have a select showing all the valid options.
          */
-        if(thisTypeValues.enum || parentTypeValues.enum) {
+        if(thisTypeValues.option || parentTypeValues.option) {
             input.contentEditable = 'false'
             input.classList.add('disabled')
             if(this._config.hideIDs) input.classList.add('hidden')
-            const enumClass = thisTypeValues.enum
+            const enumClass = thisTypeValues.option
                 ? thisTypeValues.class // Single enum
                 : parentTypeValues.class  // List of enums
             const enumPrototype = OptionsMap.getPrototype(enumClass)
