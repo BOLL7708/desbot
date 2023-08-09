@@ -12,7 +12,7 @@ export default class ConfigOBS extends Data {
     enlist() {
         DataMap.addRootInstance(
             new ConfigOBS(),
-            'Enables a secure connection to OBS Studio for remote functions through the OBS WebSockets plugin.',
+            'Enables a secure connection to OBS Studio for remote functions through the OBS WebSockets plugin: https://obsproject.com',
             {
                 port: 'The port set for the OBS WebSockets plugin.',
                 password: 'The password used for the OBS WebSockets plugin.',

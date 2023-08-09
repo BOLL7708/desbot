@@ -10,7 +10,7 @@ export class ConfigDiscord extends Data {
     enlist() {
         DataMap.addRootInstance(
             new ConfigDiscord(),
-            'Settings for sending things to Discord channels.',
+            'Settings for sending things to Discord channels: https://discord.com',
             {
                 prefixCheer: 'Prefix added to cheer messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
                 prefixReward: 'Prefix added to reward messages in the log.\n\nNote: This prefix should include a trailing space if you want it to be separated from the message.',
