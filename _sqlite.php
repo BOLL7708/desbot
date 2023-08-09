@@ -1,24 +1,19 @@
 <?php
 include_once('_init.php');
 
-$db = DB::get();
+$db = DB_MySQL::get();
 
 try {
-    // https://www.sqlite.org/foreignkeys.html
-    $sql = new SQLite3('_db/test.sqlite');
+    $sql = new SQLite3('_db/main.sqlite');
 } catch (Exception $exception) {
     echo "<p>The extension might not be available, make sure to uncomment: <code>extension=sqlite3</code> in <code>php.ini</code> and restart Apache.</p>";
     die("<p>".$exception->getMessage()."</p>");
 }
-/*
-TODO
-    Figure out how to replicate the current table, if possible.
-    1. What time format to use, seems TEXT with YYYY-MM-DD HH:MM:SS is the most common way.
-    2. How to handle setting the time, a default exists, but onupdate? Are there triggers?
-    3. How to do the group unique constraint with group_class and group_key?
-    4. How to do the parent_id foreign key constraint med delete coalesce?
- */
+
+// Init
 $sql->exec("PRAGMA foreign_keys = ON;");
+
+// Create table, indices, constraints and triggers
 $sql->exec("
 CREATE TABLE IF NOT EXISTS json_store (
   row_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,11 +34,16 @@ BEGIN
   UPDATE json_store SET row_modified = datetime('now') WHERE row_id = NEW.row_id;
 END;
 ");
+
 echo "<pre>";
-$allRows = $db->query("SELECT * FROM json_store;");
+
+// Load existing data from MySQL
+$allRows = $db->query("SELECT * FROM json_store ORDER BY parent_id, row_id;");
+
+// Insert into SQLite
 foreach($allRows as $row) {
     try {
-        $stmt = $sql->prepare('INSERT INTO json_store VALUES (:row_id,:row_created,:row_modified,:group_class,:group_key,:parent_id,:data_json);');
+        $stmt = $sql->prepare('INSERT OR IGNORE INTO json_store VALUES (:row_id,:row_created,:row_modified,:group_class,:group_key,:parent_id,:data_json);');
         $stmt->bindValue(':row_id', $row['row_id'], SQLITE3_INTEGER);
         $stmt->bindValue(':row_created', $row['row_created']);
         $stmt->bindValue(':row_modified', $row['row_modified']);
@@ -52,8 +52,19 @@ foreach($allRows as $row) {
         $stmt->bindValue(':parent_id', $row['parent_id'], SQLITE3_INTEGER);
         $stmt->bindValue(':data_json', $row['data_json']);
         $result = $stmt->execute();
+        echo "<span style='color: green;'>Successfully inserted! ({$row['row_id']}) : <strong>{$row['group_class']}->{$row['group_key']}</strong></span>\n";
     } catch (Exception $exception) {
-        echo "<p>".$exception->getMessage()."</p>";
+        echo "<span style='color: red;'>{$row['row_id']}<strong>{$row['group_class']}->{$row['group_key']}</strong>: ".$exception->getMessage()."</span>\n";
     }
 }
-$ok = $sql->exec("SELECT * FROM json_store;");
+$sqliteCount = $sql->querySingle("SELECT COUNT(*) as count FROM json_store;");
+if($sqliteCount) {
+    $mysqlCount = count($allRows);
+    if($mysqlCount == $sqliteCount) {
+        echo "<h1 style='color: green;'>SUCCESSFULLY INSERTED ALL $sqliteCount ROWS!</h1>\n";
+    } else {
+        echo "<h1 style='color: red;'>DID NOT MANAGE TO INSERT ALL ROWS! $sqliteCount/$mysqlCount</h1>\n";
+    }
+} else {
+    echo "<h1 style='color: red;'>DID NOT MANAGE TO LOAD ANY ROWS!?</h1>\n";
+}

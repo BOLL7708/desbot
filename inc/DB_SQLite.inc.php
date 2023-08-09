@@ -1,52 +1,20 @@
 <?php
-class DB {
+class DB_SQLite {
     // region Singleton
-    private static DB|null $instance = null;
-    static function get():DB {
-        if(self::$instance == null) self::$instance = new DB();
+    private static DB_SQLite|null $instance = null;
+    static function get():DB_SQLite {
+        if(self::$instance == null) self::$instance = new DB_SQLite();
         return self::$instance;
     }
     // endregion
 
     // region General Database Functions
-    private mysqli $mysqli;
+    private SQLite3 $sqlite;
     public function __construct()
     {
-        $dbData = Files::read('db.php');
-        $database = preg_replace("/[^a-z0-9_-]+/i", '', $dbData->database ?? '');
-        try {
-            // Default connection
-            $this->mysqli = new mysqli(
-                $dbData->host ?? '',
-                $dbData->username ?? '',
-                $dbData->password ?? '',
-                $database,
-                intval($dbData->port ?? '')
-            );
-        } catch (Exception $exception) {
-            // Unknown database, we need to create it, connect again without DB.
-            if($exception->getCode() == 1049) {
-                $this->mysqli = new mysqli(
-                    $dbData->host ?? '',
-                    $dbData->username ?? '',
-                    $dbData->password ?? '',
-                    null,
-                    intval($dbData->port ?? '')
-                );
-                $connectionError = $this->mysqli->connect_error;
-                if($connectionError) Utils::exitWithError($connectionError, 3002);
-
-                // Create the database as defined by the user
-                $query = /** @lang MariaDB */
-                    "CREATE DATABASE IF NOT EXISTS `$database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci";
-                $createResult = $this->mysqli->query($query);
-                if($createResult) $this->mysqli->select_db($database);
-                else Utils::exitWithError($this->mysqli->error ?? 'Unable to create database', 3003);
-            }
-            else Utils::exitWithError($exception->getMessage().', code: '.$exception->getCode(), 3004);
-        }
-        $connectionError = $this->mysqli->connect_error ?? null;
-        if($connectionError) Utils::exitWithError($connectionError, 3001);
+        if(!is_dir('_db')) mkdir('_db');
+        // Default connection
+        $this->sqlite = new SQLite3('_db/main.sqlite');
     }
 
     /**
@@ -55,20 +23,18 @@ class DB {
      * @return array|bool Array if there are rows, bool otherwise.
      */
     public function query(string $query, array $params = []):array|bool {
-        $stmt = $this->mysqli->prepare($query);
+        $stmt = $this->sqlite->prepare($query);
         if(!empty($params)) {
-            $types = self::getParamTypes($params);
-            $stmt->bind_param($types, ...$params);
-        }
-        $executeBool = $stmt->execute();
-        $result = $stmt->get_result();
+            foreach($params as $key => $value) {
+                $stmt->bindValue(":$key", $value);
+            }
 
-        // Bool output
-        if(is_bool($result)) return $executeBool;
+        }
+        $result = $stmt->execute();
 
         // Result output
         $output = [];
-        while ($row = $result->fetch_assoc()) $output[] = $row;
+        while ($row = $result->fetchArray()) $output[] = $row;
         return $output;
     }
     // endregion

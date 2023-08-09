@@ -217,9 +217,14 @@ class Utils {
         }
         return $result;
     }
-    public static function getMigrations(): array {
+
+    /**
+     * @param string $type mysql or sqlite
+     * @return array
+     */
+    public static function getMigrations(string $type = 'mysql'): array {
         $migrations = [];
-        $root = './migrations/';
+        $root = "./migrations/$type/";
         $ext = '.sql';
         $dir = new DirectoryIterator($root);
         foreach($dir as $file) {

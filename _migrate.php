@@ -34,13 +34,13 @@ foreach($migrations as $version => $filePath) {
 }
 
 // Run migrations
-$db = DB::get();
+$db = DB_MySQL::get();
 $lastOk = $from;
 $finishedOk = true;
 $finishedCount = 0;
 $dumpResult = false;
 if(count($files)) {
-    $dumpBytes = DB::dump();
+    $dumpBytes = DB_MySQL::dump();
     $dumpResult = $dumpBytes > 0;
 }
 usort($files, function($a, $b) { return $a[0] <=> $b[0]; });

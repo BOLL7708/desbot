@@ -1,7 +1,17 @@
 <?php
 // Init
 include_once '_init.php';
-$db = DB::get();
+$dbType = getHeaderValue('X-DB-Type') ?? 'mysql';
+switch($dbType) {
+    case 'sqlite':
+        $db = DB_SQLite::get();
+        break;
+    case 'mysql':
+        $db = DB_MySQL::get();
+        break;
+    default:
+        Utils::exitWithError('X-DB-Type must be either sqlite or mysql', 2003);
+}
 
 // Auth
 Utils::checkAuth();

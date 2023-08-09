@@ -41,7 +41,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         }
         // This is not really preferred as it will not get referenced when changing the
         // data object class in TS, but to make the interface not jump we load this here.
-        $db = DB::get();
+        $db = DB_MySQL::get();
         $showFavorites = false;
         if(!str_ends_with($_SERVER['SCRIPT_NAME'], 'index.php')) {
             $entries = $db->getEntries('ConfigEditor', 'Main') ?? [];
