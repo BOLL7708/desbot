@@ -18,6 +18,9 @@ import Trigger from '../../Objects/Trigger.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
+import LegacyUtils from '../../Classes/LegacyUtils.js'
+import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
+import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 
 export class ActionHandler {
     constructor(
@@ -70,30 +73,39 @@ export class ActionHandler {
             As well as calculate and provide the index for action entries.
          */
         switch(options.behavior) {
-            case OptionEventBehavior.Random:
+            case OptionEventBehavior.Random: {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, options.specificIndex))
                 break
-            /*
-            case OptionEventBehavior.Incrementing:
+            }
+            case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
-                counter = await DataBaseHelper.load(new SettingIncrementingCounter(), this.key) ?? new SettingIncrementingCounter()
+                const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
+                counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
 
                 // Switch to the next incremental reward if it has more configs available
-                rewardConfigs = Utils.ensureArray(event?.triggers.reward)
-                if(rewardConfigs.length > 1) {
-                    counter.count++
-                    const newRewardConfig = options.rewardMergeUpdateConfigWithFirst
-                        ? { ...rewardConfigs[0], ...rewardConfigs[counter.count] }
-                        : rewardConfigs[counter.count]
-                    if (newRewardConfig) {
-                        await DataBaseHelper.save(counter, this.key)
-                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfig).then()
+                const triggers = event.getTriggers(new TriggerReward())
+                let hasAdvancedCounter = false
+                for(const trigger of triggers) {
+                    if(trigger.rewardEntries.length > 1) {
+                        if(!hasAdvancedCounter) {
+                            counter.count++
+                            await DataBaseHelper.save(counter, eventId.toString())
+                            hasAdvancedCounter = true
+                        }
+                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[counter.count] ?? undefined)
+                        if(rewardPreset) {
+                            const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), rewardPreset as PresetReward) // TODO: Maybe we can remove this typecast?
+                        }
                     }
                 }
+
                 // Register index and build callback for this step of the sequence
-                index = (counter?.count ?? 1)-1
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
+                index = (counter?.count ?? 1) - 1
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
+            }
+
+            /*
             case OptionEventBehavior.Accumulating:
                 // Load accumulating counter
                 counter = await DataBaseHelper.load(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
@@ -194,9 +206,23 @@ export class ActionHandler {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
                 break
             */
-            default: // Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
+
+
+
+
+
+
+
+
+
+
+
+
+
+            default: {// Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, options.specificIndex))
                 break
+            }
         }
         if(actionsMainCallback) actionsMainCallback(user, index ?? options.specificIndex) // Index is included here to supply it to entries-handling
         else console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${options?.behavior}`)

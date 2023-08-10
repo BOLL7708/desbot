@@ -1,7 +1,6 @@
 import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetReward} from '../Preset/PresetReward.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
 import Trigger from '../Trigger.js'
@@ -13,7 +12,6 @@ import {ActionHandler} from '../../Pages/Widget/Actions.js'
 export class TriggerReward extends Trigger {
     permissions: number|PresetPermissions = 0
     rewardEntries: (number|Data)[] = []
-    rewardEntries_use = OptionEntryUsage.All
     rewardID: (number|string) = 0
 
     enlist() {
@@ -21,14 +19,13 @@ export class TriggerReward extends Trigger {
             'This is a Twitch Channel Point Reward, triggered by a redemption on your channel page.',
             {
                 permissions: 'Permission for who can redeem this reward.',
-                rewardEntries: 'One or multiple reward presets.',
+                rewardEntries: 'One or multiple reward presets. The first will be used on updates/resets, more are only needed when using a non-default event behavior.',
                 rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.'
             },
             {
                 permissions: PresetPermissions.refId(),
                 rewardID: SettingTwitchReward.refIdKeyLabel(),
-                rewardEntries: Data.genericRef('PresetReward'), // I believe this was done to give these items a parent
-                rewardEntries_use: OptionEntryUsage.ref()
+                rewardEntries: Data.genericRef('PresetReward') // I believe this was done to give these items a parent
             }
         )
     }

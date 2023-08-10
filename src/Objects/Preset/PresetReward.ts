@@ -5,7 +5,7 @@ export class PresetReward extends Data {
     title: string = ''
     cost: number = 1
     prompt: string = ''
-    background_color: string = ''
+    background_color: string = '#808080'
     is_enabled: boolean = true
     is_user_input_required: boolean = false
     is_max_per_stream_enabled: boolean = false

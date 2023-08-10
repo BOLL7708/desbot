@@ -308,8 +308,8 @@ export default class Utils {
      * @param boolStr
      * @param defaultValue
      */
-    static toBool(boolStr: string|undefined|null, defaultValue: boolean = false): boolean {
-        if(boolStr === undefined || boolStr === null || boolStr.length == 0) return defaultValue
+    static toBool(boolStr: string|undefined|null|unknown, defaultValue: boolean = false): boolean {
+        if(boolStr === undefined || boolStr === null || typeof boolStr !== 'string' || boolStr.length == 0) return defaultValue
         const firstChar: string = boolStr.toLowerCase()[0]
         const trueIsh: string[] = ['t', 'y', '1']
         const falseIsh: string[] = ['f', 'n', '0']

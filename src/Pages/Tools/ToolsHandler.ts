@@ -14,6 +14,7 @@ import {EventDefault} from '../../Objects/Event/EventDefault.js'
 import Color from '../../Classes/ColorConstants.js'
 import {ConfigPhilipsHue} from '../../Objects/Config/ConfigPhilipsHue.js'
 import Data from '../../Objects/Data.js'
+import Twitch from '../../Classes/Twitch.js'
 
 export default class ToolsHandler {
     constructor() {
@@ -133,18 +134,18 @@ export default class ToolsHandler {
 
                         // Create orphan trigger
                         const newTrigger = new TriggerReward()
-                        const newRewardItem = await DataBaseHelper.loadItem(new SettingTwitchReward(), newRewardKey)
-                        const newPresetItem = await DataBaseHelper.loadItem(new PresetReward(), newPresetKey)
-                        newTrigger.rewardID = newRewardItem?.id ?? 0
-                        newTrigger.rewardEntries = [newPresetItem?.id ?? 0]
+                        const newRewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref(), newRewardKey)
+                        const newPresetID = await DataBaseHelper.loadID(PresetReward.ref(), newPresetKey)
+                        newTrigger.rewardID = newRewardID
+                        newTrigger.rewardEntries = [newPresetID]
                         const newTriggerKey = await DataBaseHelper.save(newTrigger, `Trigger ${TextHelper.ensureHeaderSafe(reward.title)}`)
                         if(newTriggerKey) {
                             newRewardCount++
 
                             // Set parent for preset
-                            const newTriggerItem = await DataBaseHelper.loadItem(new TriggerReward(), newTriggerKey)
-                            if(newTriggerItem) {
-                                await DataBaseHelper.save(newPreset, newPresetKey, undefined, newTriggerItem.id)
+                            const newTriggerID = await DataBaseHelper.loadID(TriggerReward.ref(), newTriggerKey)
+                            if(newTriggerID) {
+                                await DataBaseHelper.save(newPreset, newPresetKey, undefined, newTriggerID)
                             }
                         } else {
                             await DataBaseHelper.delete(newReward, newRewardKey)
@@ -158,50 +159,14 @@ export default class ToolsHandler {
             li('🔼 Update rewards on Twitch',
                 'Will apply the first preset for a reward on the rewards on Twitch, will skip updating if set to be skipped.',
                 async (e)=> {
-                DataBaseHelper.setFillReferences(true)
-                const allEvents = await DataBaseHelper.loadAll(new EventDefault())
-                DataBaseHelper.setFillReferences(false)
-                let updatedRewardCount = 0
-                let skippedRewardCount = 0
-                let failedRewardCount = 0
-                for(const [key, eventItem] of Object.entries(allEvents ?? {})) {
-                    if(!eventItem.options.rewardIgnoreUpdateCommand) {
-                        const triggers = Utils.ensureObjectArrayNotId(eventItem.triggers)
-                        for (const trigger of triggers) {
-                            if (trigger.__getClass() == TriggerReward.ref()) {
-                                const triggerReward = (trigger as TriggerReward)
-                                const rewardID = Utils.ensureStringNotId(triggerReward.rewardID)
-                                const rewardPresets = Utils.ensureObjectArrayNotId(triggerReward.rewardEntries)
-                                if (rewardID && rewardPresets.length) {
-                                    const preset = rewardPresets[0] as PresetReward
-                                    const response = await TwitchHelixHelper.updateReward(rewardID, preset)
-                                    if (response?.data) {
-                                        const success = response?.data[0]?.id == rewardID
-                                        if(success) updatedRewardCount++
-                                        else failedRewardCount++
-                                        Utils.logWithBold(`Reward <${key}> updated: <${success ? 'OK' : 'ERR'}>`, success ? Color.Green : Color.Red)
-                                        /*
-                                        // TODO: Figure this out
-                                        // If update was successful, also reset incremental setting as the reward should have been reset.
-                                        if(Array.isArray(rewardSetup)) {
-                                            const reset = new SettingIncrementingCounter()
-                                            await DataBaseHelper.save(reset, pair.key)
-                                        }
-                                        // TODO: Also reset accumulating counters here?!
-                                        */
-                                    } else {
-                                        failedRewardCount++
-                                        Utils.logWithBold(`Reward for <${key}> update unsuccessful: ${response?.error}`, Color.Red)
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        skippedRewardCount++
-                        Utils.logWithBold(`Reward for <${key}> update skipped or unavailable.`, Color.Purple)
-                    }
-                }
-                return `Updated ${updatedRewardCount} reward(s) on Twitch, skipped ${skippedRewardCount}, failed to update ${failedRewardCount}`
+                const allEvents = await DataBaseHelper.loadAll(
+                    new EventDefault(),
+                    undefined,
+                    false,
+                    true
+                )
+                const result = await TwitchHelixHelper.updateRewards(allEvents)
+                return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
             }),
             title('Rewards'),
             li('⏮ Reset incrementing rewards', '', async (e)=>{

@@ -23,6 +23,9 @@ import LegacyUtils from './LegacyUtils.js'
 import {SettingUser} from '../Objects/Setting/SettingUser.js'
 import {ActionSystemRewardState} from '../Objects/Action/ActionSystem.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Options/OptionTwitch.js'
+import {PresetReward} from '../Objects/Preset/PresetReward.js'
+import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
+import {EventDefault} from '../Objects/Event/EventDefault.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -162,12 +165,13 @@ export default class TwitchHelixHelper {
         return await fetch(url, {headers: await this.getAuthHeaders()}).then(res => res.json())
     }
 
-    static async updateReward(rewardId: string|undefined, updateData: ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|null> {
-        if(rewardId == null) {
+    static async updateReward(eventKey: string|undefined, presetOrData: PresetReward|ITwitchHelixRewardUpdate):Promise<ITwitchHelixRewardResponse|null> {
+        const updateData: ITwitchHelixRewardUpdate = presetOrData // Map preset to data
+        if(eventKey == null) {
             console.warn("Tried to update reward but the ID is null")
             return new Promise<null>(resolve => resolve(null))
         }
-        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}&id=${rewardId}`
+        const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}&id=${eventKey}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
         const request = {
@@ -177,11 +181,59 @@ export default class TwitchHelixHelper {
         }
         let response: ITwitchHelixRewardResponse = await fetch(url, request).then(res => res.json())
         if(response.status == 500) { // Retry once if the server broke
-            Utils.log(`Failed to update Twitch reward ${rewardId}: ${response.error}(${response.status}) [${response.message}] retrying once.`, Color.OrangeRed)
+            Utils.log(`Failed to update Twitch reward ${eventKey}: ${response.error}(${response.status}) [${response.message}] retrying once.`, Color.OrangeRed)
             response = await fetch(url, request).then(res => res.json())
         }
-        if(response.error != undefined) Utils.log(`Failed to update Twitch reward ${rewardId}: ${response.error}(${response.status}) [${response.message}]`, Color.Red)
+        if(response.error != undefined) Utils.log(`Failed to update Twitch reward ${eventKey}: ${response.error}(${response.status}) [${response.message}]`, Color.Red)
         return response
+    }
+
+    static async updateRewards(allEvents: {[key: string]: EventDefault}|undefined) {
+        let updatedRewardCount = 0
+        let skippedRewardCount = 0
+        let failedRewardCount = 0
+        for(const [key, eventItem] of Object.entries(allEvents ?? {})) {
+            if(!eventItem.options.rewardOptions.ignoreUpdateCommand) {
+                const triggers = Utils.ensureObjectArrayNotId(eventItem.triggers)
+                for (const trigger of triggers) {
+                    if (trigger.__getClass() == TriggerReward.ref()) {
+                        const triggerReward = (trigger as TriggerReward)
+                        const rewardID = Utils.ensureStringNotId(triggerReward.rewardID)
+                        const rewardPresets = Utils.ensureObjectArrayNotId(triggerReward.rewardEntries)
+                        if (rewardID && rewardPresets.length) {
+                            const preset = rewardPresets[0] as PresetReward
+                            const response = await TwitchHelixHelper.updateReward(rewardID, preset)
+                            if (response?.data) {
+                                const success = response?.data[0]?.id == rewardID
+                                if(success) updatedRewardCount++
+                                else failedRewardCount++
+                                Utils.logWithBold(`Reward <${key}> updated: <${success ? 'OK' : 'ERR'}>`, success ? Color.Green : Color.Red)
+                                /*
+                                // TODO: Figure this out
+                                // If update was successful, also reset incremental setting as the reward should have been reset.
+                                if(Array.isArray(rewardSetup)) {
+                                    const reset = new SettingIncrementingCounter()
+                                    await DataBaseHelper.save(reset, pair.key)
+                                }
+                                // TODO: Also reset accumulating counters here?!
+                                */
+                            } else {
+                                failedRewardCount++
+                                Utils.logWithBold(`Reward for <${key}> update unsuccessful: ${response?.error}`, Color.Red)
+                            }
+                        }
+                    }
+                }
+            } else {
+                skippedRewardCount++
+                Utils.logWithBold(`Reward for <${key}> update skipped or unavailable.`, Color.Purple)
+            }
+        }
+        return {
+            updated: updatedRewardCount,
+            skipped: skippedRewardCount,
+            failed: failedRewardCount
+        }
     }
 
     static async toggleRewards(rewards: ActionSystemRewardState[]): Promise<ActionSystemRewardState[]> {

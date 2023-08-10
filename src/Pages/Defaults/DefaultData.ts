@@ -90,7 +90,7 @@ enum EKeys {
     SystemHelpToChat = 'Command Help to Chat',
     SystemClips = 'Command Clips',
     SystemReloadWidget = 'Command Reload Widget',
-    SystemUpdateRewards = 'Command Update Rewards', // TODO: Does not actually work now
+    SystemUpdateRewards = 'Command Update Rewards',
     SystemGameRewardsOn = 'Command Game Rewards On',
     SystemGameRewardsOff = 'Command Game Rewards Off',
     SystemRefundRedemption = 'Command Refund Redemption',
@@ -572,6 +572,17 @@ export default class DefaultData {
                     instance.chat = [
                         'Raid cancelled.',
                         'Could not cancel raid.'
+                    ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: OptionSystemActionType.UpdateRewards.valueOf(),
+                instance: new PresetSystemActionText(),
+                importer: async (instance: PresetSystemActionText, key: string) => {
+                    instance.speech = [
+                        'Updating channel rewards.',
+                        'Finished updating %updated, skipped %skipped, failed %failed.'
                     ]
                     return await DataBaseHelper.save(instance, key)
                 }
@@ -1296,7 +1307,7 @@ export default class DefaultData {
                 key: EKeys.SystemChannelTrophy,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
-                    instance.options.rewardIgnoreUpdateCommand = true
+                    instance.options.rewardOptions.ignoreUpdateCommand = true
                     const trigger = new TriggerReward()
                     trigger.rewardEntries.push(await DefaultData.loadID(new PresetReward(), EKeys.RewardChannelTrophy))
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
@@ -1663,8 +1674,7 @@ export default class DefaultData {
     }
 
     static async loadID<T>(instance: T&Data, key: string): Promise<number> {
-        const item = await DataBaseHelper.loadItem(instance, key)
-        return item?.id ?? 0
+        return await DataBaseHelper.loadID(instance.constructor.name, key)
     }
     static async saveSubAndGetID<T>(instance: T&Data, key: string, parentId: number = 0): Promise<number> {
         const subKey = this.buildKey(instance, key)
@@ -1672,8 +1682,7 @@ export default class DefaultData {
     }
     static async saveAndGetID<T>(instance: T&Data, key: string, parentId: number = 0): Promise<number> {
         await DataBaseHelper.save(instance, key, undefined, parentId)
-        const item = await DataBaseHelper.loadItem(instance, key)
-        return item?.id ?? 0
+        return await DataBaseHelper.loadID(instance.constructor.name, key)
     }
     static buildKey<T>(instance: T&Data, key: string): string {
         return `${key} ${Utils.camelToTitle(instance.constructor.name, EUtilsTitleReturnOption.SkipFirstWord)}`

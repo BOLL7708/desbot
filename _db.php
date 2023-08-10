@@ -47,6 +47,7 @@ $noData = !!getHeaderValue('X-No-Data');
 $parentId = getHeaderValue('X-Parent-Id', true);
 $searchQuery = getHeaderValue('X-Search-Query');
 $nextGroupKey = !!getHeaderValue('X-Next-Group-Key');
+$onlyId = !!getHeaderValue('X-Only-Id');
 
 if($parentId == 0) $parentId = null;
 
@@ -86,6 +87,10 @@ switch($method) {
         elseif($searchQuery !== null) {
             // Search
             $output = $db->search($searchQuery);
+        }
+        elseIf($onlyId) {
+            // Only get ID for a row
+            $output = $db->getEntryId($groupClass, $groupKey);
         }
         elseif($rowIdList) {
             // Only row IDs with labels, used in Editor reference dropdowns.

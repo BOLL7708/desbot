@@ -333,6 +333,11 @@ class DB_SQLite {
         return $output;
     }
 
+    public function getEntryId(string $groupClass, string $groupKey) {
+        $result = $this->query("SELECT row_id as id FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $groupKey]);
+        return $result[0]['id'] ?? 0;
+    }
+
     public function search(string $query): array {
         $query = str_replace(['*', '?'], ['%', '_'], $query);
         $output = $this->query('SELECT row_id as id, group_class as `class`, group_key as `key`, parent_id as pid, data_json as data FROM json_store WHERE LOWER(group_key) LIKE LOWER(?) OR LOWER(data_json) LIKE LOWER(?);', [$query, $query]);
@@ -381,14 +386,14 @@ class DB_SQLite {
         return implode('', $result);
     }
 
-    public function output(bool|array|stdClass|null $output): void
+    public function output(bool|int|array|stdClass|null $output): void
     {
         if($output === null) {
             exit(); // Empty response instead of a 404 as that could show an error in the console which will scare some end users.
         } else {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode(
-                is_bool($output)
+                is_numeric($output) || is_bool($output)
                     ? ['result'=>$output]
                     : ($output ?? (object)[])
             );

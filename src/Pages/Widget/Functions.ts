@@ -86,6 +86,7 @@ export default class Functions {
         // endregion
 
         // region Update Event Options
+        /* TODO: Reimplement
         const eventOptions = Config.twitch.eventOptionsPerGame[appId] ?? {}
         const allEventOptionsKeys = [
             ...new Set( // All unique keys
@@ -116,6 +117,7 @@ export default class Functions {
                 }
             }
         }
+        */
         // endregion
 
         // region Reward Toggling
@@ -182,6 +184,7 @@ export default class Functions {
 
         if(gameSpecificRewards) {
             // Update and enable all reusable generic rewards in use.
+            /* TODO: Reimplement this
             for(const [key, event] of Object.entries(gameSpecificRewards) as [string, IEvent][]) {
                 const thisEvent = event ?? {triggers: {}}
                 const defaultEvent = Config.events[key] ?? {triggers: {}}
@@ -203,6 +206,7 @@ export default class Functions {
                 // Update game reward actions
                 // Actions.registerReward(key, appId).then() // TODO: Borked now
             }
+            */
         }
 
         // Apply always on/off filters

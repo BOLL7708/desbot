@@ -25,6 +25,11 @@ import {PresetSystemActionText} from '../../Objects/Preset/PresetSystemActionTex
 import {IActionsCallbackStack, IActionUser} from '../../Objects/Action.js'
 import {ActionSettingVR} from '../../Objects/Action/ActionSettingVR.js'
 import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
+import {EventDefault} from '../../Objects/Event/EventDefault.js'
+import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
+import Data from '../../Objects/Data.js'
+import {PresetReward} from '../../Objects/Preset/PresetReward.js'
+import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -398,35 +403,17 @@ export default class ActionsCallbacks {
             tag: 'UpdateRewards',
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
-                // TODO: This is now deprecated and should be removed in the future.
-                const storedRewards = await LegacyUtils.getRewardPairs()
-                for(const pair of storedRewards) {
-                    user.eventKey = pair.key
-                    const eventConfig = Utils.getEventConfig(pair.key)
-                    const rewardSetup = eventConfig?.triggers?.reward
-                    const config = Array.isArray(rewardSetup) ? rewardSetup[0] : rewardSetup
-                    if(config != undefined && eventConfig?.options?.rewardIgnoreUpdateCommand !== true) {
-                        const configClone = Utils.clone(config)
-                        configClone.title = await TextHelper.replaceTagsInText(configClone.title, user)
-                        configClone.prompt = await TextHelper.replaceTagsInText(configClone.prompt, user)
-                        const response = await TwitchHelixHelper.updateReward(pair.id, configClone)
-                        if(response != null && response.data != null) {
-                            const success = response?.data[0]?.id == pair.id
-                            Utils.logWithBold(`Reward <${pair.key}> updated: <${success?'YES':'NO'}>`, success ? Color.Green : Color.Red)
-
-                            // If update was successful, also reset incremental setting as the reward should have been reset.
-                            if(Array.isArray(rewardSetup)) {
-                                const reset = new SettingIncrementingCounter()
-                                await DataBaseHelper.save(reset, pair.key)
-                            }
-                            // TODO: Also reset accumulating counters here?!
-                        } else {
-                            Utils.logWithBold(`Reward <${pair.key}> update unsuccessful.`, Color.Red)
-                        }
-                    } else {
-                        Utils.logWithBold(`Reward <${pair.key}> update skipped or unavailable.`, Color.Purple)
-                    }
-                }
+                const modules = ModulesSingleton.getInstance()
+                const allEvents = await DataBaseHelper.loadAll(new EventDefault())
+                const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UpdateRewards.valueOf().toString())
+                const speechArr = textPreset?.data?.speech ?? []
+                modules.tts.enqueueSpeakSentence(speechArr[0]).then()
+                const result = await TwitchHelixHelper.updateRewards(allEvents)
+                modules.tts.enqueueSpeakSentence(TextHelper.replaceTags(speechArr[1], {
+                    updated: result.updated.toString(),
+                    skipped: result.skipped.toString(),
+                    failed: result.failed.toString()
+                })).then()
             }
         },
 
@@ -584,6 +571,8 @@ export default class ActionsCallbacks {
                     // Update reward
                     const configArrOrNot = Utils.getEventConfig('ChannelTrophy')?.triggers.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
+                    // TODO: This should be rewritten to use the database data. Or, MOVE ALL OF THE CHANNEL TROPHY TO A UNIQUE ACTION!
+                    /*
                     if(config != undefined) {
                         const newCost = cost+1;
                         const updatedReward = await TwitchHelixHelper.updateReward(rewardId, {
@@ -605,6 +594,7 @@ export default class ActionsCallbacks {
                         })
                         if(!updatedReward) Utils.log(`ChannelTrophy: Was redeemed, but could not be updated: ChannelTrophy->${rewardId}`, Color.Red)
                     } else Utils.log(`ChannelTrophy: Was redeemed, but no config found: ChannelTrophy->${rewardId}`, Color.Red)
+                    */
                 } else Utils.log(`ChannelTrophy: Could not get reward data from helix: ChannelTrophy->${rewardId}`, Color.Red)
             }
         },
@@ -620,28 +610,39 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allRewardKeys = Utils.getAllEventKeys(true)
+                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined, true)
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
-                for(const key of allRewardKeys) {
-                    const eventConfig = Utils.getEventConfig(key)
+                for(const [key, eventConfig] of Object.entries(allEvents ?? {})) {
                     if(
-                        eventConfig?.options?.behavior == EBehavior.Incrementing
-                        && eventConfig?.options?.resetIncrementOnCommand === true
+                        eventConfig.options.behavior == OptionEventBehavior.Incrementing
+                        && eventConfig.options.behaviorOptions.incrementationResetOnCommand
                     ) {
-                        totalCount++
-                        const rewardSetup = eventConfig?.triggers?.reward
-                        if(Array.isArray(rewardSetup)) {
-                            // We check if the reward counter is at zero because then we should not update as it enables
-                            // the reward while it could have been disabled by profiles.
-                            // To update settings for the widget reward, we update it as any normal reward, using !update.
-                            const current = await DataBaseHelper.load(new SettingIncrementingCounter(), key)
-                            if((current?.count ?? 0) > 0) {
+                        const eventID = await DataBaseHelper.loadID(EventDefault.ref(), key)
+                        if(!eventID) {
+                            totalSkippedCount++
+                            continue
+                        }
+
+                        // We check if the reward counter is at zero because then we should not update as it enables
+                        // the reward while it could have been disabled by profiles.
+                        // To update settings for the widget reward, we update it as any normal reward, using !update.
+                        const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventID.toString())
+                        if(counter.count == 0) {
+                            totalSkippedCount++
+                            continue
+                        }
+
+                        const triggers = eventConfig.getTriggers(new TriggerReward())
+                        for(const trigger of triggers) {
+                            totalCount++
+                            const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0])
+                            const rewardID = Utils.ensureStringNotId(trigger.rewardID)
+                            if(preset && rewardID) {
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                                const reset = new SettingIncrementingCounter()
-                                await DataBaseHelper.save(reset, key)
-                                await TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), rewardSetup[0])
+                                await DataBaseHelper.save(new SettingIncrementingCounter(), eventID.toString())
+                                await TwitchHelixHelper.updateReward(rewardID, preset as PresetReward) // TODO: This cast won't be needed if we support parents for things that are not generic...
                                 totalResetCount++
                             } else {
                                 totalSkippedCount++

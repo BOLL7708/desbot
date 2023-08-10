@@ -63,7 +63,13 @@ import ConfigTwitch, {
     ConfigTwitchCategoryOverride
 } from './Config/ConfigTwitch.js'
 import ConfigTwitchChat from './Config/ConfigTwitchChat.js'
-import {EventActionContainer, EventDefault, EventOptions} from './Event/EventDefault.js'
+import {
+    EventActionContainer,
+    EventBehaviorOptions,
+    EventDefault,
+    EventOptions,
+    EventRewardOptions
+} from './Event/EventDefault.js'
 import {PresetDiscordWebhook} from './Preset/PresetDiscordWebhook.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
 import {PresetPermissions} from './Preset/PresetPermissions.js'
@@ -185,6 +191,8 @@ export default class EnlistData {
             new EventDefault(),
             new EventOptions(),
             new EventActionContainer(),
+            new EventBehaviorOptions(),
+            new EventRewardOptions(),
 
             new PresetDiscordWebhook(),
             new PresetOBSScene(),
