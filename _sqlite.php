@@ -43,6 +43,7 @@ $allRows = $db->query("SELECT * FROM json_store ORDER BY parent_id, row_id;");
 // Insert into SQLite
 foreach($allRows as $row) {
     try {
+        json_decode($row['data_json'], null , 512, JSON_THROW_ON_ERROR);
         $stmt = $sql->prepare('INSERT OR IGNORE INTO json_store VALUES (:row_id,:row_created,:row_modified,:group_class,:group_key,:parent_id,:data_json);');
         $stmt->bindValue(':row_id', $row['row_id'], SQLITE3_INTEGER);
         $stmt->bindValue(':row_created', $row['row_created']);
@@ -54,7 +55,7 @@ foreach($allRows as $row) {
         $result = $stmt->execute();
         echo "<span style='color: green;'>Successfully inserted! ({$row['row_id']}) : <strong>{$row['group_class']}->{$row['group_key']}</strong></span>\n";
     } catch (Exception $exception) {
-        echo "<span style='color: red;'>{$row['row_id']}<strong>{$row['group_class']}->{$row['group_key']}</strong>: ".$exception->getMessage()."</span>\n";
+        echo "<span style='color: red;'>Unable to insert! ({$row['row_id']}) : <strong>{$row['group_class']}->{$row['group_key']}</strong>: ".$exception->getMessage()."</span>\n";
     }
 }
 $sqliteCount = $sql->querySingle("SELECT COUNT(*) as count FROM json_store;");
