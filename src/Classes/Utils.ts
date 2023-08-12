@@ -353,18 +353,28 @@ export default class Utils {
 
     /**
      * Get event config from any pool
+     * @deprecated
      */
     static getEventConfig(key: string|undefined): IEvent|undefined {
         if(key === undefined) return undefined
         return Config.events[key] ?? undefined
     }
 
+    /**
+     * @deprecated
+     * @param key
+     * @param appId
+     */
     static getEventForGame(key: string, appId: string): IEvent|undefined {
         const events = this.getEventsForGame(appId)
         if(events) return events[key]
         else return undefined
     }
 
+    /**
+     * @deprecated
+     * @param appId
+     */
     static getEventsForGame(appId: string): IEventsConfig|undefined {
         return Config.eventsForGames[appId]
     }

@@ -12,6 +12,7 @@ import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {ConfigSpeech} from '../Objects/Config/ConfigSpeech.js'
 import {IActionUser} from '../Objects/Action.js'
 import {ITextTags} from '../Interfaces/iactions.js'
+import {EventDefault} from '../Objects/Event/EventDefault.js'
 
 export default class TextHelper {
     static async loadCleanName(userIdOrName: string|number):Promise<string> {
@@ -258,11 +259,12 @@ export default class TextHelper {
         const voice = user.voice
         const now = new Date()
 
-        const eventConfig = Utils.getEventConfig(userData?.eventKey)
-        const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0
-        const eventLevelMax = eventConfig?.options?.multiTierMaxLevel ?? Utils.ensureArray(eventConfig?.triggers?.reward).length
-        const eventCount = (await DataBaseHelper.load(new SettingAccumulatingCounter(), userData?.eventKey ?? ''))?.count ?? 0
-        const eventGoal = eventConfig?.options?.accumulationGoal ?? 0
+        const eventConfig = await DataBaseHelper.loadOrEmpty(new EventDefault(), userData?.eventKey ?? '')
+        const eventID = await DataBaseHelper.loadID(EventDefault.ref(), userData?.eventKey ?? '')
+        const eventLevel = states.multiTierEventCounters.get(userData?.eventKey ?? '')?.count ?? 0 // TODO: This needs updating
+        const eventLevelMax = eventConfig.options.behaviorOptions.multiTierMaxLevel
+        const eventCount = (await DataBaseHelper.load(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
+        const eventGoal = eventConfig.options.behaviorOptions.accumulationGoal
 
         const userBits = (userData?.bits ?? 0) > 0
             ? userData?.bits?.toString() ?? '0'

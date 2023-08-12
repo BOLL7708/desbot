@@ -637,12 +637,15 @@ export default class ActionsCallbacks {
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
-                            const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0])
+                            const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0]) as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
                             const rewardID = Utils.ensureStringNotId(trigger.rewardID)
                             if(preset && rewardID) {
+                                const clone = await preset.__clone()
+                                clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                                clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
                                 await DataBaseHelper.save(new SettingIncrementingCounter(), eventID.toString())
-                                await TwitchHelixHelper.updateReward(rewardID, preset as PresetReward) // TODO: This cast won't be needed if we support parents for things that are not generic...
+                                await TwitchHelixHelper.updateReward(rewardID, clone)
                                 totalResetCount++
                             } else {
                                 totalSkippedCount++
@@ -666,37 +669,45 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allRewardKeys = Utils.getAllEventKeys(true)
+                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined, true)
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
-                for(const key of allRewardKeys) {
-                    const eventConfig = Utils.getEventConfig(key)
+                for(const [key, eventConfig] of Object.entries(allEvents ?? {})) {
                     if(
-                        eventConfig?.options?.behavior === EBehavior.Accumulating
+                        eventConfig.options.behavior == OptionEventBehavior.Accumulating
+                        && eventConfig.options.behaviorOptions.accumulationResetOnCommand
                     ) {
-                        totalCount++
-                        if(eventConfig?.options?.resetAccumulationOnCommand === true) {
-                            const rewardSetup = eventConfig?.triggers?.reward
-                            if(Array.isArray(rewardSetup)) {
-                                // We check if the reward counter is at zero because then we should not update as it enables
-                                // the reward while it could have been disabled by profiles.
-                                // To update settings for the widget reward, we update it as any normal reward, using !update.
-                                const current = await DataBaseHelper.load(new SettingAccumulatingCounter(), key)
-                                if((current?.count ?? 0) > 0) {
-                                    Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
-                                    const reset = new SettingAccumulatingCounter()
-                                    await DataBaseHelper.save(reset, key)
-                                    const setup = Utils.clone(rewardSetup[0])
-                                    user.rewardCost = setup.cost ?? 0
-                                    user.eventKey = key
-                                    setup.title = await TextHelper.replaceTagsInText(setup.title, user)
-                                    setup.prompt = await TextHelper.replaceTagsInText(setup.prompt, user)
-                                    await TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), setup)
-                                    totalResetCount++
-                                } else {
-                                    totalSkippedCount++
-                                }
+                        const eventID = await DataBaseHelper.loadID(EventDefault.ref(), key)
+                        if(!eventID) {
+                            totalSkippedCount++
+                            continue
+                        }
+
+                        // We check if the reward counter is at zero because then we should not update as it enables
+                        // the reward while it could have been disabled by profiles.
+                        // To update settings for the widget reward, we update it as any normal reward, using !update.
+                        const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventID.toString())
+                        if(counter.count == 0) {
+                            totalSkippedCount++
+                            continue
+                        }
+
+                        const triggers = eventConfig.getTriggers(new TriggerReward())
+                        for(const trigger of triggers) {
+                            totalCount++
+                            const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0]) as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
+                            const rewardID = Utils.ensureStringNotId(trigger.rewardID)
+                            if(preset && rewardID) {
+                                const clone = await preset.__clone()
+                                clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                                clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
+                                Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
+                                await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
+                                await TwitchHelixHelper.updateReward(rewardID, clone)
+                                totalResetCount++
+                            } else {
+                                totalSkippedCount++
                             }
                         }
                     }

@@ -94,7 +94,10 @@ export class ActionHandler {
                         }
                         const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[counter.count] ?? undefined)
                         if(rewardPreset) {
-                            const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), rewardPreset as PresetReward) // TODO: Maybe we can remove this typecast?
+                            const clone = await Utils.clone(rewardPreset) as PresetReward // TODO: Maybe we can remove this typecast?
+                            clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                            clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
+                            const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone)
                         }
                     }
                 }
@@ -105,42 +108,61 @@ export class ActionHandler {
                 break
             }
 
-            /*
-            case OptionEventBehavior.Accumulating:
+            case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
-                counter = await DataBaseHelper.load(new SettingAccumulatingCounter(), this.key) ?? new SettingAccumulatingCounter()
-                counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
-                const goalCount = options.accumulationGoal ?? 0
-                const currentCount = counter.count ?? 0
+                const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
+                counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
+                const goalCount = options.behaviorOptions.accumulationGoal
 
                 // Switch to the next accumulating reward if it has more configs available
-                rewardConfigs = Utils.ensureArray(event?.triggers.reward)
-                let rewardIndex = 0
-                if(rewardConfigs.length >= 3 && currentCount >= goalCount) {
-                    // Final reward (when goal has been reached)
-                    index = 1
-                    rewardIndex = 2
-                } else if(rewardConfigs.length >= 2) {
-                    // Intermediate reward (before reaching goal)
-                    rewardIndex = 1
-                }
-                if(rewardIndex > 0) { // Update reward
-                    const newRewardConfigClone = options.rewardMergeUpdateConfigWithFirst
-                        ? Utils.clone({ ...rewardConfigs[0], ...rewardConfigs[rewardIndex] })
-                        : Utils.clone(rewardConfigs[rewardIndex])
-                    if (newRewardConfigClone) {
-                        await DataBaseHelper.save(counter, this.key)
-                        newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
-                        newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        const cost = newRewardConfigClone.cost ?? 0
-                        // Make sure the last reward doesn't cost more points than the total left.
-                        if(rewardIndex < 2 && (currentCount + cost) > goalCount) newRewardConfigClone.cost = goalCount - currentCount
-                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfigClone).then()
+                const triggers = event.getTriggers(new TriggerReward())
+                let hasAdvancedCounter = false
+                for(const trigger of triggers) {
+                    if(trigger.rewardEntries.length > 1) {
+                        if(!hasAdvancedCounter) {
+                            counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
+                            await DataBaseHelper.save(counter, eventId.toString())
+                            hasAdvancedCounter = true
+                        }
+
+                        /*
+                        Always use second to last for progress,
+                        which can be the same as the first one,
+                        and then the last one for the end.
+                         */
+                        index = 0
+                        let rewardIndex = 0
+                        if (counter.count >= goalCount) {
+                            // Final reward (when goal has been reached)
+                            rewardIndex = trigger.rewardEntries.length -1
+                            index = 1
+                        } else {
+                            // Intermediate reward (before reaching goal)
+                            rewardIndex = Math.max(0, trigger.rewardEntries.length-2)
+                        }
+
+                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[rewardIndex] ?? undefined)
+                        if(rewardPreset) {
+                            const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
+                            clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                            clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
+
+                            // Make sure the last reward doesn't cost more points than the total left.
+                            const cost = clone.cost
+                            if (rewardIndex < 2 && (counter.count + cost) > goalCount) {
+                                clone.cost = goalCount - counter.count
+                            }
+                            const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone as PresetReward) // TODO: Maybe we can remove this typecast?
+                        }
                     }
                 }
+
                 // Register index and build callback for this step of the sequence
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
+            }
+
+            /*
             case OptionEventBehavior.MultiTier:
                 rewardConfigs = Utils.ensureArray(event?.triggers.reward)
 
