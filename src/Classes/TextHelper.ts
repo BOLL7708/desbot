@@ -415,4 +415,30 @@ export default class TextHelper {
     static ensureHeaderSafe(text: string): string {
         return text.replace(/[^a-zA-Z0-9_.,;:#&%!?+=\/\-\s]/g, '')
     }
+
+    /**
+     * Highlight tags in text
+     * TODO: this is not currently in use but should be used in the editor eventually.
+     * @param text
+     */
+    static highlightTags(text: string): string {
+        const re = /(%{.*?[^\\]})|(%\w+)/g
+        let parts = text.split(re) ?? []
+        let outputArr = []
+        for(const part of parts) {
+            if(part !== undefined && part.trim().length > 0) {
+                if(part.startsWith('%')) {
+                    if(part.startsWith('%{')) {
+                        if(part.includes('|')) {
+                            part.replace('|', `</span><span style="color:orange">|$part`)
+                        }
+                    }
+                    outputArr.push(`<span style="color:purple;">${part}</span>`)
+                } else {
+                    outputArr.push(part)
+                }
+            }
+        }
+        return outputArr.join(' ')
+    }
 }

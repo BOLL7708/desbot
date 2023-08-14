@@ -44,7 +44,7 @@ export class EventOptions extends Data {
             {
                 relayCanTrigger: 'If this event can be triggered by messages from WSRelay.',
                 specificIndex: 'Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.',
-                behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.',
+                behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.\nThis will change how the actions below are used, specific indices will be used for various things.',
                 behaviorOptions: 'Options related to the behavior of this event.',
                 rewardOptions: 'Options related to the reward triggers of this event.'
             },
@@ -75,6 +75,7 @@ export class EventActionContainer extends Data {
 export class EventBehaviorOptions extends Data {
     accumulationGoal: number = 0
     accumulationResetOnCommand: boolean = true // TODO: Add capability to refund accumulations later.
+    incrementationLoop: boolean = false
     incrementationResetOnCommand: boolean = true
     multiTierTimeout: number = 0
     multiTierMaxLevel: number = 0
@@ -86,6 +87,7 @@ export class EventBehaviorOptions extends Data {
             {
                 accumulationGoal: 'The goal to reach if behavior is set to accumulating.',
                 accumulationResetOnCommand: 'Will reset an accumulating reward when the reset command is run, resetting the index to 0.',
+                incrementationLoop: 'Will loop an incrementing reward when the max index is reached, resetting the index to 0.',
                 incrementationResetOnCommand: 'Will reset an incrementing reward when the reset command is run, resetting the index to 0.',
                 multiTierTimeout: 'The duration in seconds before we reset the multi-tier level unless it is triggered again.',
                 multiTierMaxLevel: 'The maximum level we can reach with the multi-tier behavior. If this is not provided we will use the count of `triggers.reward`.',

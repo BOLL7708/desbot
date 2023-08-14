@@ -92,8 +92,12 @@ export class ActionHandler {
                             await DataBaseHelper.save(counter, eventId.toString())
                             hasAdvancedCounter = true
                         }
-                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[counter.count] ?? undefined)
-                        if(rewardPreset) {
+
+                        const rewardPresetIndex = event.options.behaviorOptions.incrementationLoop
+                            ? counter.count % trigger.rewardEntries.length // Loop
+                            : Math.min(counter.count, trigger.rewardEntries.length-1) // Clamp to max
+                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[rewardPresetIndex])
+                        if (rewardPreset) {
                             const clone = await Utils.clone(rewardPreset) as PresetReward // TODO: Maybe we can remove this typecast?
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
@@ -103,7 +107,9 @@ export class ActionHandler {
                 }
 
                 // Register index and build callback for this step of the sequence
-                index = (counter?.count ?? 1) - 1
+                index = event.options.behaviorOptions.incrementationLoop
+                    ? counter.count % eventActionContainers.length // Loop
+                    : Math.min(counter.count, eventActionContainers.length-1) // Clamp to max
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
