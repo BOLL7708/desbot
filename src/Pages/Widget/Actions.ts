@@ -21,6 +21,8 @@ import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
+import {ActionSystemRewardState} from '../../Objects/Action/ActionSystem.js'
+import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
 
 export class ActionHandler {
     constructor(
@@ -63,10 +65,8 @@ export class ActionHandler {
 
         let actionsMainCallback: IActionsMainCallback
         const states = StatesSingleton.getInstance()
-
         let index: number|undefined = undefined
-        let counter: SettingIncrementingCounter|SettingAccumulatingCounter
-        let rewardConfigs: ITwitchHelixRewardUpdate[] = []
+
         /*
             Here we handle the different types of behavior of the event.
             This means we often rebuild the full main callback.
@@ -80,7 +80,7 @@ export class ActionHandler {
             case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
-                counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
+                const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
 
                 // Switch to the next incremental reward if it has more configs available
                 const triggers = event.getTriggers(new TriggerReward())
@@ -117,7 +117,7 @@ export class ActionHandler {
             case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
-                counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
+                const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
                 const goalCount = options.behaviorOptions.accumulationGoal
 
                 // Switch to the next accumulating reward if it has more configs available
@@ -167,86 +167,100 @@ export class ActionHandler {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
-
-            /*
-            case OptionEventBehavior.MultiTier:
-                rewardConfigs = Utils.ensureArray(event?.triggers.reward)
-
+            case OptionEventBehavior.MultiTier: {
                 // Increase multi-tier counter
-                const multiTierCounter = states.multiTierEventCounters.get(this.key) ?? {count: 0, timeoutHandle: 0}
-                multiTierCounter.count++
-                const multiTierMaxValue = options.multiTierMaxLevel ?? rewardConfigs.length
-                if(multiTierCounter.count > multiTierMaxValue) {
-                    multiTierCounter.count = multiTierMaxValue
+                const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
+                const counter = states.multiTierEventCounters.get(eventId.toString()) ?? {count: 0, timeoutHandle: 0}
+                counter.count++
+                const maxLevel = options.behaviorOptions.multiTierMaxLevel
+                if (counter.count > maxLevel) {
+                    counter.count = maxLevel
                 }
 
                 // Reset timeout
-                clearTimeout(multiTierCounter.timeoutHandle)
-                multiTierCounter.timeoutHandle = setTimeout(async() => {
+                clearTimeout(counter.timeoutHandle)
+                counter.timeoutHandle = setTimeout(async() => {
                     // Run reset actions if enabled.
-                    if(options.multiTierDoResetActions) {
-                        index = 0 // Should always be the first set of actions.
+                    if(options.behaviorOptions.multiTierResetOnTimeout) {
+                        // Will use this specific index to run the hard reset actions.
+                        index = 1
                         Actions.buildActionsMainCallback(
                             this.key,
-                            actionsEntries.getAsType(index)
+                            ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index)
                         ) (user, index)
                     }
 
                     // Reset counter
-                    multiTierCounter.count = 0
-                    multiTierCounter.timeoutHandle = 0
-                    states.multiTierEventCounters.set(this.key, multiTierCounter)
+                    counter.count = 0
+                    counter.timeoutHandle = 0
+                    states.multiTierEventCounters.set(eventId.toString(), counter)
 
                     // Reset reward
-                    if(rewardConfigs.length > 0) {
-                        const newRewardConfigClone = Utils.clone(rewardConfigs[0])
-                        newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
-                        newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        if (newRewardConfigClone) TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfigClone).then()
+                    const triggers = event.getTriggers(new TriggerReward())
+                    for(const trigger of triggers) {
+                        const rewardId = Utils.ensureStringNotId(trigger.rewardID)
+                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[0])
+                        if(!rewardId || !rewardPreset) continue
+
+                        const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
+                        if (clone) {
+                            clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                            clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
+                            TwitchHelixHelper.updateReward(rewardId, clone).then()
+                        }
+
+                        const state = new ActionSystemRewardState()
+                        state.reward = rewardId
+                        state.reward_visible = OptionTwitchRewardVisible.Visible
+                        state.reward_usable = OptionTwitchRewardUsable.Enabled
+                        TwitchHelixHelper.toggleRewards([state]).then()
                     }
-                    TwitchHelixHelper.toggleRewards({[this.key]: true}).then()
-                }, (options.multiTierTimeout ?? 30)*1000)
+                }, (options.behaviorOptions.multiTierTimeout ?? 30)*1000)
 
                 // Store new counter value
-                states.multiTierEventCounters.set(this.key, multiTierCounter)
+                states.multiTierEventCounters.set(eventId.toString(), counter)
 
                 // Switch to the next multi-tier reward if it has more configs available, or disable if maxed and that option is set.
-                const wasLastLevel = multiTierCounter.count === multiTierMaxValue
+                const wasLastLevel = counter.count >= maxLevel
                 if(!wasLastLevel) {
-                    const newRewardConfigClone = Utils.clone(
-                        rewardConfigs.length == 1
-                            ? rewardConfigs[0]
-                            : options.rewardMergeUpdateConfigWithFirst
-                                ? { ...rewardConfigs[0], ...rewardConfigs[multiTierCounter.count] }
-                                : rewardConfigs[multiTierCounter.count]
-                    )
-                    if (newRewardConfigClone) {
-                        newRewardConfigClone.title = await TextHelper.replaceTagsInText(newRewardConfigClone.title, user)
-                        newRewardConfigClone.prompt = await TextHelper.replaceTagsInText(newRewardConfigClone.prompt, user)
-                        TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(this.key), newRewardConfigClone).then()
+                    const triggers = event.getTriggers(new TriggerReward())
+                    for(const trigger of triggers) {
+                        const rewardId = Utils.ensureStringNotId(trigger.rewardID)
+                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[counter.count])
+                        if(!rewardId || !rewardPreset) continue
+
+                        const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
+                        if (clone) {
+                            clone.title = await TextHelper.replaceTagsInText(clone.title, user)
+                            clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
+                            TwitchHelixHelper.updateReward(rewardId, clone).then()
+                        }
                     }
-                } else if(options.multiTierDisableWhenMaxed) {
-                    TwitchHelixHelper.toggleRewards({[this.key]: false}).then()
+                } else if(options.behaviorOptions.multiTierDisableAfterMaxLevel) {
+                    const triggers = event.getTriggers(new TriggerReward())
+                    for(const trigger of triggers) {
+                        const rewardId = Utils.ensureStringNotId(trigger.rewardID)
+                        if(!rewardId) continue
+
+                        const state = new ActionSystemRewardState()
+                        state.reward = rewardId
+                        state.reward_visible = OptionTwitchRewardVisible.Visible
+                        state.reward_usable = OptionTwitchRewardUsable.Disabled
+                        TwitchHelixHelper.toggleRewards([state]).then()
+                    }
                 }
 
                 // Register index and build callback for this step of the sequence
-                index = multiTierCounter.count
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actionsEntries.getAsType(index))
+                index = counter.count+1 // First two indices are soft and hard reset, so we start at index 2
+                const actions: EventActionContainer[] = []
+                if(options.behaviorOptions.multiTierResetOnTrigger) {
+                    // Will use this specific index to run the soft reset actions.
+                    actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, 0))
+                }
+                actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actions)
                 break
-            */
-
-
-
-
-
-
-
-
-
-
-
-
-
+            }
             default: {// Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, options.specificIndex))
                 break
@@ -371,7 +385,14 @@ export class Actions {
     // endregion
 
     // region Main Action Builder
-    public static buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[]): IActionsMainCallback {
+    /**
+     *
+     * @param key
+     * @param actionContainerList
+     * @param use OptionEntryUsage
+     * @param index
+     */
+    public static buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[], use: number=OptionEntryUsage.All, index: number=0): IActionsMainCallback {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup

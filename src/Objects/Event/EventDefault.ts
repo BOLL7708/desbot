@@ -79,8 +79,9 @@ export class EventBehaviorOptions extends Data {
     incrementationResetOnCommand: boolean = true
     multiTierTimeout: number = 0
     multiTierMaxLevel: number = 0
-    multiTierDoResetActions: boolean = false
-    multiTierDisableWhenMaxed: boolean = false
+    multiTierResetOnTrigger: boolean = false
+    multiTierResetOnTimeout: boolean = false
+    multiTierDisableAfterMaxLevel: boolean = false
 
     enlist() {
         DataMap.addSubInstance(new EventBehaviorOptions(),
@@ -90,9 +91,10 @@ export class EventBehaviorOptions extends Data {
                 incrementationLoop: 'Will loop an incrementing reward when the max index is reached, resetting the index to 0.',
                 incrementationResetOnCommand: 'Will reset an incrementing reward when the reset command is run, resetting the index to 0.',
                 multiTierTimeout: 'The duration in seconds before we reset the multi-tier level unless it is triggered again.',
-                multiTierMaxLevel: 'The maximum level we can reach with the multi-tier behavior. If this is not provided we will use the count of `triggers.reward`.',
-                multiTierDoResetActions: 'Also perform actions when resetting this multi-tier event.\n\nThe level after `multiTierMaxLevel` or the level matching the count of `triggers.reward` plus one will be used.',
-                multiTierDisableWhenMaxed: 'Will only allow the last level to be redeemed once before resetting again.',
+                multiTierMaxLevel: 'The maximum level we can reach with the multi-tier behavior.',
+                multiTierResetOnTrigger: 'Perform reset actions before default actions when triggering this multi-tier event.\n\nWill use the action set at max level + 1.',
+                multiTierResetOnTimeout: 'Perform reset actions when resetting this multi-tier event.\n\nWill use action set at max level + 2.',
+                multiTierDisableAfterMaxLevel: 'Will only allow the last level to be redeemed once before resetting again.',
             })
     }
 }

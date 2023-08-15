@@ -241,11 +241,12 @@ export default class TwitchHelixHelper {
         for(const reward of rewards) {
             const id = Utils.ensureStringNotId(reward.reward)
             if(id) {
+                // Set flags depending on matching options
                 const updated = await this.updateReward(
                     id,
                     {
-                        is_enabled: reward.reward_visible == OptionTwitchRewardVisible.Visible,
-                        is_paused: reward.reward_usable == OptionTwitchRewardUsable.Enabled
+                        is_enabled: reward.reward_visible === OptionTwitchRewardVisible.Visible,
+                        is_paused: reward.reward_usable === OptionTwitchRewardUsable.Disabled
                     }
                 )
                 if(updated !== null) result.push(reward)
