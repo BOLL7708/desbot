@@ -6,7 +6,13 @@ enum EResponseState {
     Retry,
     Skip
 }
-
+/*
+TODO: Rewrite this.
+    1. Make it a web worker to offload it to a worker thread.
+    2. Make all messages possible to be forum threads.
+        a. Create a new thread for each message.
+        b. Create a new thread if no thread exists, otherwise add posts to existing thread. This should create a setting.
+ */
 export default class DiscordUtils {
     // region Pipe
     private static _rateLimits: { [bucket: string]: IDiscordRateLimit } = {} // Bucket, limit?

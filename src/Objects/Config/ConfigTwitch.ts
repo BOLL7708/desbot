@@ -13,6 +13,7 @@ export default class ConfigTwitch extends Data {
     ignoreModerators: number[]|SettingUser[] = []
     allowWhisperCommands: boolean = true
     logWhisperCommandsToDiscord: number|PresetDiscordWebhook = 0
+    postTwitchClipsToDiscord: number|PresetDiscordWebhook = 0 // TODO: Is there an EventSub for this so we can just post as they happen? Should still catch unposted once between streams though.
     remoteCommandChannel: number|SettingUser = 0
     remoteCommandPrefix: string = '!'
     remoteCommandAllowedUsers: number[]|SettingUser[] = []
@@ -64,6 +65,7 @@ export default class ConfigTwitch extends Data {
                 ignoreModerators: 'List of moderators that should not be able to execute commands, useful for bots.',
                 allowWhisperCommands: 'Will allow users with the right permissions to execute commands by whispering the chatbot.',
                 logWhisperCommandsToDiscord: 'Will push whisper commands to separate Discord channel for audit purposes.',
+                postTwitchClipsToDiscord: 'Will post Twitch clips to a Discord channel if that command is run.',
                 remoteCommandChannel: 'Set this to a Twitch channel name if you want to allow remote commands from a different channel.',
                 remoteCommandPrefix: 'Prefix for triggering remote chat commands.',
                 remoteCommandAllowedUsers: 'Only allow remote command for these specific users.',

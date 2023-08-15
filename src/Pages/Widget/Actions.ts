@@ -4,7 +4,6 @@ import Color from '../../Classes/ColorConstants.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
-import {ITwitchHelixRewardUpdate} from '../../Interfaces/itwitch_helix.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
@@ -18,7 +17,6 @@ import Trigger from '../../Objects/Trigger.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
-import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {ActionSystemRewardState} from '../../Objects/Action/ActionSystem.js'
@@ -31,6 +29,7 @@ export class ActionHandler {
     ) {}
     public async call(user: IActionUser) {
         let event = await DataBaseHelper.loadOrEmpty(new EventDefault(), this.key)
+
         /* TODO: REIMPLEMENT GAME EVENTS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
         if(this.appId.length > 0) {
             const gameEvent = Utils.getEventForGame(this.key, this.appId)

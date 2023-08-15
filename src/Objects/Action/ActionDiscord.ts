@@ -18,7 +18,7 @@ export class ActionDiscord extends Action {
     enlist() {
         DataMap.addRootInstance(
             new ActionDiscord(),
-            'Send a message to a Discord channel, make sure to set a webhook URL in DiscordWebhooks for the same key.',
+            'Send a message to a Discord channel.',
             {},
             {
                 webhook: PresetDiscordWebhook.refId(),

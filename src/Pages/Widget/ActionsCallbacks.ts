@@ -30,6 +30,7 @@ import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import Data from '../../Objects/Data.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
+import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -879,6 +880,7 @@ export default class ActionsCallbacks {
             description: 'Posts new channel clips to Discord.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
+                const config = await DataBaseHelper.loadMain(new ConfigTwitch())
                 const pageCount = 20
                 let lastCount = pageCount
                 const oldClips = await DataBaseHelper.loadAll(new SettingTwitchClip())
@@ -920,7 +922,8 @@ export default class ActionsCallbacks {
                 for(const clip of sortedClips) {
                     let user = await TwitchHelixHelper.getUserById(parseInt(clip.creator_id))
                     let game = await TwitchHelixHelper.getGameById(parseInt(clip.game_id))
-                    DiscordUtils.enqueuePayload(Config.credentials.DiscordWebhooks['Clips'] ?? '', {
+                    const discordPreset = Utils.ensureObjectNotId(config.postTwitchClipsToDiscord)
+                    DiscordUtils.enqueuePayload(discordPreset?.url ?? '', { // TODO: Support full preset here.
                         username: user?.display_name ?? '[Deleted User]',
                         avatar_url: user?.profile_image_url ?? '',
                         content: [
