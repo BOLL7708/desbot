@@ -5,7 +5,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import Color from './ColorConstants.js'
 import {SettingChannelTrophyStat} from '../Objects/Setting/SettingChannel.js'
 import TextHelper from './TextHelper.js'
-import {ConfigController} from '../Objects/Config/ConfigController.js'
+import {ConfigController, ConfigControllerChannelTrophyNumber} from '../Objects/Config/ConfigController.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
@@ -281,13 +281,13 @@ export default class ChannelTrophyUtils {
         // if(n < 10) return null
         const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
         const nameForDiscord = `%userName (**${n}**)`
-        const nameForTTS = controllerConfig.channelTrophySettings.ttsName
+        const nameForTTS = 'temp' // TODO controllerConfig.channelTrophySettings.ttsName
         const nStr = n.toString()
-        const trophyName = controllerConfig.channelTrophySettings.ttsTrophy
+        const trophyName = 'temp' // TODO controllerConfig.channelTrophySettings.ttsTrophy
         
         
 		// Not sure if this actually works, but let's hope so.
-		const uniqueNumbers = controllerConfig.channelTrophySettings.uniqueNumbers
+		const uniqueNumbers: { [n:number]: ConfigControllerChannelTrophyNumber } = {} // TODO controllerConfig.channelTrophySettings.uniqueNumbers
 		
 		// Detect patterns here, in order of awesomeness or something
 		if(uniqueNumbers.hasOwnProperty(n)) { // Unique values

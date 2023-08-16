@@ -1,4 +1,3 @@
-import Config from '../Classes/Config.js'
 import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
@@ -14,7 +13,7 @@ export default class StatesSingleton {
         this.ttsForAll = config.stateDefaults.ttsForAll
         this.pipeAllChat = config.stateDefaults.pipeAllChat
         this.pingForChat = config.stateDefaults.pingForChat
-        this.useGameSpecificRewards = config.stateDefaults.useGameSpecificRewards
+        // this.useGameSpecificRewards = config.stateDefaults.useGameSpecificRewards TODO
         this.logChatToDiscord = config.stateDefaults.logChatToDiscord
         this.updateTwitchGameCategory = config.stateDefaults.updateTwitchGameCategory
         this.runRemoteCommands = config.stateDefaults.runRemoteCommands

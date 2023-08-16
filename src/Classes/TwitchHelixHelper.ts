@@ -19,13 +19,14 @@ import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
-import LegacyUtils from './LegacyUtils.js'
 import {SettingUser} from '../Objects/Setting/SettingUser.js'
 import {ActionSystemRewardState} from '../Objects/Action/ActionSystem.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Options/OptionTwitch.js'
 import {PresetReward} from '../Objects/Preset/PresetReward.js'
 import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
 import {EventDefault} from '../Objects/Event/EventDefault.js'
+import {TriggerRelay} from '../Objects/Trigger/TriggerRelay.js'
+import EventHelper from './EventHelper.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -315,14 +316,15 @@ export default class TwitchHelixHelper {
      */
     static async updateRedemption(redemptionId: string, redemption: SettingTwitchRedemption):Promise<boolean|null> {
         // https://dev.twitch.tv/docs/api/reference#update-redemption-status
-        const rewardPairs = await LegacyUtils.getRewardPairs()
-        const rewardPair = rewardPairs.find((pair)=>{ return pair.id === redemption.rewardId })
-        if(rewardPair) {
-            const eventConfig = Utils.getEventConfig(rewardPair.key)
-            if(eventConfig && eventConfig.options?.rewardIgnoreClearRedemptionsCommand === true) {
-                Utils.log(`Skipping updating redemption for: ${rewardPair.key}`, Color.BlueViolet)
-                return false
-            }
+        const rewardEvents = await EventHelper.getAllEventsWithTriggersOfType(new TriggerReward(), redemption.rewardId)
+        const events = Object.fromEntries(
+            Object.entries(rewardEvents).filter(
+                ([key, ev]) => { return ev.options.rewardOptions.ignoreClearRedemptionsCommand }
+            )
+        )
+        if(Object.keys(events).length > 0) {
+            Utils.log(`Skipping updating redemption for: ${Object.keys(events).join(', ')}`, Color.BlueViolet)
+            return false
         }
 
         const url = `https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=${await this.getBroadcasterUserId()}&reward_id=${redemption.rewardId}&id=${redemptionId}`

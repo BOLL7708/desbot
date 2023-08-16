@@ -16,6 +16,7 @@ import ActionsCallbacks from '../../Pages/Widget/ActionsCallbacks.js'
 import {TriggerReward} from '../Trigger/TriggerReward.js'
 import ConfigTwitch from '../Config/ConfigTwitch.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import ConfigCommands from '../Config/ConfigCommands.js'
 
 export class ActionSystem extends Action {
     trigger = new ActionSystemTrigger()
@@ -39,7 +40,6 @@ export class ActionSystem extends Action {
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSystem>(this)
                 const modules = ModulesSingleton.getInstance()
-                const settings = await DataBaseHelper.loadMain(new ConfigTwitch())
                 const interval = clone.trigger.interval
                 let delay = 0
 
@@ -57,9 +57,10 @@ export class ActionSystem extends Action {
                 }
 
                 // Trigger Commands
+                const commandsConfig = await DataBaseHelper.loadMain(new ConfigCommands())
                 const commands = ArrayUtils.getAsType(clone.trigger.commandEntries, clone.trigger.commandEntries_use, index)
                 for(let command of commands) {
-                    if(command.startsWith(settings.commandPrefix)) command = command.substring(1)
+                    if(command.startsWith(commandsConfig.commandPrefix)) command = command.substring(1)
                     Utils.log(`Executing command: ${command} in ${delay} seconds...`, Color.Grey)
                     let inputText = user.input
                     if(command.includes(' ')) inputText = Utils.splitOnFirst(' ', inputText)[0]

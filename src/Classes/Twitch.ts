@@ -23,6 +23,8 @@ import ConfigTwitch from '../Objects/Config/ConfigTwitch.js'
 import {IActionUser} from '../Objects/Action.js'
 import {TriggerCommand} from '../Objects/Trigger/TriggerCommand.js'
 import {TriggerRemoteCommand} from '../Objects/Trigger/TriggerRemoteCommand.js'
+import ConfigChat from '../Objects/Config/ConfigChat.js'
+import ConfigCommands from '../Objects/Config/ConfigCommands.js'
 
 export default class Twitch{
     // Constants
@@ -32,6 +34,8 @@ export default class Twitch{
      */
     static readonly EMOTE_URL = 'https://static-cdn.jtvnw.net/emoticons/v1'
     private _config = new ConfigTwitch()
+    private _configChat = new ConfigChat()
+    private _configCommands = new ConfigCommands()
     private _twitchChatIn: TwitchChat = new TwitchChat()
     public _twitchChatOut: TwitchChat = new TwitchChat()
     public _twitchChatRemote: TwitchChat = new TwitchChat()
@@ -39,6 +43,8 @@ export default class Twitch{
 
     async init(initChat: boolean = true) {
         this._config = await DataBaseHelper.loadMain(new ConfigTwitch())
+        this._configChat = await DataBaseHelper.loadMain(new ConfigChat())
+        this._configCommands = await DataBaseHelper.loadMain(new ConfigCommands())
         if(initChat) {
             // In/out for chat in the main channel
             const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
@@ -47,7 +53,7 @@ export default class Twitch{
             this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
             // Remote command channel
-            const remoteChannel = Utils.ensureObjectNotId(this._config.remoteCommandChannel)?.userName ?? ''
+            const remoteChannel = Utils.ensureObjectNotId(this._configCommands.remoteCommandChannel)?.userName ?? ''
             if(remoteChannel.length > 0) this._twitchChatRemote.init(chatbotTokens?.userLogin, remoteChannel)
         }        
         this._twitchChatIn.registerChatMessageCallback((message) => {
@@ -159,15 +165,15 @@ export default class Twitch{
         const isModerator = (
             messageCmd.properties?.mod == '1'
             || (await TwitchHelixHelper.isUserModerator(userId)) // Fallback
-        ) && !Utils.ensureObjectArrayNotId(this._config.ignoreModerators).map(user => user.userName.toLowerCase()).includes(userName)
+        ) && !Utils.ensureObjectArrayNotId(this._configCommands.ignoreModerators).map(user => user.userName.toLowerCase()).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
             || (await TwitchHelixHelper.isUserVIP(userId)) // Fallback
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
 
         // Chat proxy
-        const proxyChatBot = Utils.ensureObjectNotId(this._config.proxyChatBotUser)?.userName ?? ''
+        const proxyChatBot = Utils.ensureObjectNotId(this._configChat.proxyChatBotUser)?.userName ?? ''
         if(proxyChatBot.length > 0 && proxyChatBot.toLowerCase() == userName) {
-            const matches = text.match(Utils.toRegExp(this._config.proxyChatMessageRegex))
+            const matches = text.match(Utils.toRegExp(this._configChat.proxyChatMessageRegex))
             if(matches && matches.length == 4) {
                 userName = matches[2].toLowerCase()
                 text = matches[3]
@@ -205,7 +211,7 @@ export default class Twitch{
         }
 
         // Commands
-        if(text && text.indexOf(this._config.commandPrefix) == 0) {
+        if(text && text.indexOf(this._configCommands.commandPrefix) == 0) {
             const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
             if(user.login.toLowerCase() == chatbotTokens?.userLogin) {
                 Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${chatbotTokens?.userLogin})`, this.LOG_COLOR_COMMAND)
@@ -227,7 +233,7 @@ export default class Twitch{
             }
 
             // Role check
-            const permissions = Utils.ensureObjectNotId(command?.trigger.permissions) ?? Utils.ensureObjectNotId(this._config.defaultCommandPermissions)
+            const permissions = Utils.ensureObjectNotId(command?.trigger.permissions) ?? Utils.ensureObjectNotId(this._configCommands.defaultCommandPermissions)
             const allowedRole = permissions && (
                 (permissions.streamer && isBroadcaster)
                 || (permissions.moderators && isModerator)
@@ -241,10 +247,10 @@ export default class Twitch{
                 user.input = textStr
                 user.inputWords = textStr.split(' ')
                 user.source = EEventSource.TwitchCommand
-                if(!isWhisper || this._config.allowWhisperCommands) {
+                if(!isWhisper || this._configCommands.allowWhisperCommands) {
                     this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 }
-                const webhook = Utils.ensureObjectNotId(this._config.logWhisperCommandsToDiscord)
+                const webhook = Utils.ensureObjectNotId(this._configCommands.logWhisperCommandsToDiscord)
                 if(isWhisper && webhook) {
                     const userData = await TwitchHelixHelper.getUserById(user.id)
                     DiscordUtils.enqueueMessage(
@@ -296,13 +302,13 @@ export default class Twitch{
         user.id = parseInt(messageCmd.properties["user-id"] ?? '')
 
         // Commands
-        if(text && text.indexOf(this._config.remoteCommandPrefix) == 0) {
+        if(text && text.indexOf(this._configCommands.remoteCommandPrefix) == 0) {
             let commandStr = text.split(' ').shift()?.substring(1).toLowerCase() ?? ''
             let command = this._remoteCommands.find(cmd => cmd.triggerRemote.entries.includes(commandStr))
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
             // User check
-            const allowedUsers = Utils.ensureObjectArrayNotId(this._config.remoteCommandAllowedUsers)
+            const allowedUsers = Utils.ensureObjectArrayNotId(this._configCommands.remoteCommandAllowedUsers)
             const allowedUser = allowedUsers.find((user) => user.userName == userName)
 
             // Execute command

@@ -22,6 +22,7 @@ import {PresetSystemActionText} from '../../Objects/Preset/PresetSystemActionTex
 import {PresetOBSScene, PresetOBSSource} from '../../Objects/Preset/PresetOBS.js'
 import {ActionOBS, ActionOBSSource} from '../../Objects/Action/ActionOBS.js'
 import {ActionURI} from '../../Objects/Action/ActionURI.js'
+import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 
 enum EKeys {
     // region Presets
@@ -237,6 +238,7 @@ export default class DefaultData {
             }
         ],
         discordPresets: [
+            /* TODO
             {
                 key: EKeys.DiscordChannelTrophy,
                 instance: new PresetDiscordWebhook(),
@@ -251,6 +253,7 @@ export default class DefaultData {
                     return await DataBaseHelper.save(instance, key)
                 }
             },
+            */
             {
                 key: EKeys.DiscordClips,
                 instance: new PresetDiscordWebhook(),
@@ -258,6 +261,7 @@ export default class DefaultData {
                     return await DataBaseHelper.save(instance, key)
                 }
             },
+            /* TODO
             {
                 key: EKeys.DiscordHelp,
                 instance: new PresetDiscordWebhook(),
@@ -265,6 +269,7 @@ export default class DefaultData {
                     return await DataBaseHelper.save(instance, key)
                 }
             },
+            */
             {
                 key: EKeys.DiscordTodo,
                 instance: new PresetDiscordWebhook(),
@@ -599,6 +604,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('silence', 'stop')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpText = 'Silence the current speaking TTS entry.'
 
                     const action = new ActionSettingTTS()
@@ -613,6 +619,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('die', 'ttsdie', 'kill')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpText = 'Empties the queue and silences what is currently spoken.'
 
                     const action= new ActionSettingTTS()
@@ -628,6 +635,7 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.requireMinimumWordCount = 1
                     trigger.entries.push('nick', 'setnick', 'name', 'setname')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag', 'nick')
                     trigger.helpText = 'Set the TTS nick name for the tagged user, skip the tag to set your own, available for VIPs and subs.'
 
@@ -645,6 +653,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('clearnick', 'clearname')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Resets the TTS nick name for the tagged user, skip the tag to reset your own, available for, available for VIPs and subs.'
 
@@ -662,6 +671,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('mute')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag', 'reason text')
                     trigger.helpText = 'Mutes the tagged user so they will not speak with TTS, persists, reason is optional.'
 
@@ -679,6 +689,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('unmute')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Unmutes the tagged user so they can again speak with TTS.'
 
@@ -696,6 +707,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('gender')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag', 'f|m')
                     trigger.helpText = 'Swap the TTS voice gender for the tagged user, skip the tag to swap your own, available for VIPs & subs, optionally specify a gender.'
 
@@ -728,6 +740,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('say')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('message')
                     trigger.helpText = 'Speaks a message with TTS without announcing any user.'
 
@@ -747,6 +760,7 @@ export default class DefaultData {
                     const triggerCommand = new TriggerCommand()
                     triggerCommand.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     triggerCommand.entries.push('voice', 'setvoice')
+                    triggerCommand.category = OptionCommandCategory.TTS
                     triggerCommand.helpInput.push('usertag', 'voice text')
                     triggerCommand.helpText = 'Set the TTS voice for the tagged user, skip the tag to set your own.'
 
@@ -770,6 +784,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('getnick')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Get the current TTS nick name for the tagged user, skip the tag to get your own, available for everyone.'
                     trigger.userCooldown = 30
@@ -791,6 +806,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('getvoice')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpInput.push('usertag')
                     trigger.helpText = 'Get the current TTS voice for the tagged user, skip the tag to get your own, available for everyone.'
                     trigger.userCooldown = 30
@@ -812,6 +828,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('tts', 'voices')
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpText = 'Posts information about how to set your voice.'
                     trigger.userCooldown = 60 * 5
 
@@ -827,7 +844,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('ttson')
-                    trigger.helpTitle = 'Text To Speech'
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpText = 'Turn ON global TTS for Twitch chat.'
 
                     const actionTTS = new ActionSettingTTS()
@@ -849,7 +866,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('ttsoff')
-                    trigger.helpTitle = 'Text To Speech'
+                    trigger.category = OptionCommandCategory.TTS
                     trigger.helpText = 'Turn OFF global TTS for Twitch chat.'
 
                     const actionTTS = new ActionSettingTTS()
@@ -875,6 +892,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('word', 'setword')
+                    trigger.category = OptionCommandCategory.Dictionary
                     trigger.helpInput = ['original', 'replacement']
                     trigger.helpText = 'Adds a word to the dictionary, comma separated replacement will randomize, prepend original with + to append or - to remove.'
                     trigger.requireMinimumWordCount = 2
@@ -894,6 +912,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('getword')
+                    trigger.category = OptionCommandCategory.Dictionary
                     trigger.helpText = 'Gets the current value for a dictionary entry, available for everyone.'
 
                     const actionTTS = new ActionSettingTTS()
@@ -911,6 +930,7 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('clearword')
                     trigger.requireExactWordCount = 1
+                    trigger.category = OptionCommandCategory.Dictionary
                     trigger.helpText = 'Clears a dictionary entry so it is no longer substituted.'
 
                     const actionTTS = new ActionSettingTTS()
@@ -932,7 +952,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('chat')
-                    trigger.helpTitle = 'Chat Stuff'
+                    trigger.category = OptionCommandCategory.Chat
                     trigger.helpInput = ['message']
                     trigger.helpText = 'Displays an anonymous text message as a VR overlay, available for VIPs.'
                     const action = new ActionSystem()
@@ -947,6 +967,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('chaton')
+                    trigger.category = OptionCommandCategory.Chat
                     trigger.helpText = 'Turns ON the chat popups in VR.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ChatOn)
@@ -960,6 +981,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('chatoff')
+                    trigger.category = OptionCommandCategory.Chat
                     trigger.helpText = 'Turns OFF the chat popups in VR.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ChatOff)
@@ -973,6 +995,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('pingon')
+                    trigger.category = OptionCommandCategory.Chat
                     trigger.helpText = 'Turns ON the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.PingOn)
@@ -986,6 +1009,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('pingoff')
+                    trigger.category = OptionCommandCategory.Chat
                     helpText: 'Turns OFF the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.PingOff)
@@ -999,6 +1023,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('logon')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Turns ON the logging of chat messages to Discord.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.LogOn)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1011,6 +1037,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('logoff')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Turns OFF the logging of chat messages to Discord.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.LogOff)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1023,6 +1051,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('quote')
+                    trigger.category = OptionCommandCategory.Utility
                     trigger.helpInput = ['usertag', 'quote text']
                     trigger.helpText = 'Save a quote by the tagger user, or if the tag is skipped, the streamer.'
                     const action = new ActionSystem()
@@ -1037,6 +1066,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('scale')
+                    trigger.category = OptionCommandCategory.SteamVR
                     trigger.helpInput = ['world scale|start scale', 'end scale', 'minutes']
                     trigger.helpText = 'Sets the world scale for the running VR game and cancels any sequence, range is 10-1000%, provide 3 numbers to start a sequence (from, to, minutes), no value resets to default.'
                     const action = new ActionSystem()
@@ -1051,6 +1081,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('update')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Updates rewards on Twitch.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.UpdateRewards)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1063,6 +1095,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('rewardson')
+                    trigger.category = OptionCommandCategory.Twitch
                     trigger.helpText = 'Turn ON game specific rewards.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameRewardsOn)
@@ -1076,6 +1109,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('rewardsoff')
+                    trigger.category = OptionCommandCategory.Twitch
                     trigger.helpText = 'Turn OFF game specific rewards.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameRewardsOff)
@@ -1090,6 +1124,7 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('refund')
                     trigger.helpInput = ['usertag']
+                    trigger.category = OptionCommandCategory.Twitch
                     trigger.helpText = 'Refund the last reward in the redemptions queue for the tagged user.'
                     trigger.globalCooldown = 30
                     const action = new ActionSystem()
@@ -1104,6 +1139,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('clearqueue')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Clears the queue of unprotected redemptions.'
                     trigger.globalCooldown = 60
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ClearRedemptions)
@@ -1118,6 +1155,8 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('resetinc')
                     trigger.globalCooldown = 20
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Resets all incrementing events.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ResetIncrementingEvents)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1131,6 +1170,8 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('resetacc')
                     trigger.globalCooldown = 20
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Resets all accumulating events.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ResetAccumulatingEvents)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1143,6 +1184,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('reload')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Reloads the widget.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.ReloadWidget)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1155,6 +1198,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('clips')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Posts new Twitch clips to Discord.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Clips)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1167,6 +1212,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('nogame')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Resets the detected Steam game.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1180,6 +1227,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('raid')
+                    trigger.category = OptionCommandCategory.Twitch
                     trigger.helpInput = ['usertag|channel link']
                     trigger.helpText = 'Will initiate a raid if a valid user tag or channel link is provided.'
                     const action = new ActionSystem()
@@ -1192,8 +1240,9 @@ export default class DefaultData {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('unraid')
+                    trigger.category = OptionCommandCategory.Twitch
                     trigger.helpText = 'Will cancel the currently active raid.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.GameReset)
@@ -1207,6 +1256,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('remoteon')
+                    trigger.category = OptionCommandCategory.System
                     trigger.helpText = 'Turn ON remote channel commands.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.RemoteOn)
@@ -1220,6 +1270,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('remoteoff')
+                    trigger.category = OptionCommandCategory.System
                     trigger.helpText = 'Turn OFF remote channel commands.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.RemoteOff)
@@ -1233,6 +1284,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('posthelp')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Posts help information to Discord.'
                     const actionSystem = new ActionSystem()
                     actionSystem.trigger.systemActionEntries.push(OptionSystemActionType.HelpToDiscord)
                     const actionSpeech = new ActionSpeech()
@@ -1247,6 +1300,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('help')
+                    trigger.category = OptionCommandCategory.System
                     trigger.helpInput = ['command'],
                     trigger.helpText = 'Posts help information about specific commands. Come on now, this is the help! Why even ask about help about the help! Sheesh!',
                     trigger.userCooldown = 30
@@ -1262,6 +1316,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('mod')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Mod a user.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Mod)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1274,6 +1330,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('unmod')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Unmod a user.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.UnMod)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1286,6 +1344,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('vip')
+                    trigger.category = OptionCommandCategory.Twitch
+                    trigger.helpText = 'Grant VIP for a user.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.Vip)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1298,11 +1358,14 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('unvip')
+                    trigger.category = OptionCommandCategory.Twitch
+                    trigger.helpText = 'Remove VIP from a user.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(OptionSystemActionType.UnVip)
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },
+            /* TODO make into a module
             {
                 key: EKeys.SystemChannelTrophy,
                 instance: new EventDefault(),
@@ -1328,6 +1391,7 @@ export default class DefaultData {
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             }
+            */
         ]
     }
     static readonly BONUS_ENTRIES: IDefaultObjectList = {
@@ -1339,6 +1403,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('game')
+                    trigger.category = OptionCommandCategory.Utility
                     trigger.helpText = 'Post information about the current game to chat.'
                     trigger.globalCooldown = 3*60
                     const actionSign = new ActionSign()
@@ -1358,6 +1423,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('audiourl')
+                    trigger.category = OptionCommandCategory.Misc
                     trigger.helpInput = ['audio url']
                     trigger.helpText = 'Will play back the audio from the URL, for streamers by default as it\'s a risky command.'
                     const action = new ActionAudio()
@@ -1373,6 +1439,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries.push('say')
+                    trigger.category = OptionCommandCategory.Utility
                     trigger.helpInput = ['message text']
                     trigger.helpText = 'Will read the message aloud, without saying from whom, available for VIPs.'
                     const action = new ActionSpeech()
@@ -1388,6 +1455,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('lurk')
+                    trigger.category = OptionCommandCategory.Utility
                     trigger.helpInput = ['message text']
                     trigger.helpText = 'Posts a lurk message, available for everyone.'
                     const action = new ActionChat()
@@ -1402,6 +1470,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('label', 'txt')
+                    trigger.category = OptionCommandCategory.Utility
                     trigger.helpInput = ['label contents']
                     trigger.helpText = 'Sets the text of the on-screen bottom label.'
                     const actionSpeech = new ActionSpeech()
@@ -1419,6 +1488,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('todo')
+                    trigger.category = OptionCommandCategory.Utility
                     trigger.helpInput = ['todo text']
                     trigger.helpText = 'Posts a to-do note in the to-do Discord channel.'
                     const actionDiscord = new ActionDiscord()
@@ -1436,6 +1506,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('so', 'shoutout')
+                    trigger.category = OptionCommandCategory.Twitch
                     trigger.helpInput = ['usertag']
                     trigger.helpText = 'Posts a shout-out message for a user, useful for an incoming raider.',
                     trigger.globalCooldown = 30
@@ -1452,6 +1523,8 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries.push('endstream')
+                    trigger.category = OptionCommandCategory.Admin
+                    trigger.helpText = 'Will run a range of tasks suitable for after the stream.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries.push(
                         OptionSystemActionType.ChannelTrophyStats,
@@ -1472,6 +1545,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('widget')
+                    trigger.category = OptionCommandCategory.Links
                     trigger.helpText = 'Posts a link to the bot Github page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
@@ -1567,6 +1641,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('scaleoff')
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpText = 'Turns OFF all world scale rewards.'
 
                     // TODO: Need to also add the scale events.
@@ -1588,6 +1663,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries.push('livcam')
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpInput = ['number']
                     trigger.helpText = 'Switch the LIV camera profile.'
                     const actionURI = new ActionURI()
@@ -1606,7 +1682,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('discord')
-                    trigger.helpTitle = 'Links'
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpText = 'Posts a link to the official DiscordUtils server.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
@@ -1621,6 +1697,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('snack')
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpText = 'Posts a link to Haupt Lakrits, where the snack has been procured from.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
@@ -1635,6 +1712,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('github')
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpText = 'Posts a link to my main Github page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
@@ -1649,6 +1727,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('twitter')
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpText = 'Posts a link to my Twitter page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
@@ -1663,6 +1742,7 @@ export default class DefaultData {
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries.push('archive', 'youtube', 'yt')
+                    trigger.category = OptionCommandCategory.Custom
                     trigger.helpText = 'Posts a link to the YouTube stream archive.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()

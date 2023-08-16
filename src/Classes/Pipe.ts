@@ -12,19 +12,19 @@ import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigPipe} from '../Objects/Config/ConfigPipe.js'
 import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ConfigImageEditor.js'
 import TextHelper from './TextHelper.js'
-import ConfigTwitchChat from '../Objects/Config/ConfigTwitchChat.js'
+import ConfigChat from '../Objects/Config/ConfigChat.js'
 import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {IActionUser} from '../Objects/Action.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
-    private _chatConfig: ConfigTwitchChat = new ConfigTwitchChat()
+    private _chatConfig: ConfigChat = new ConfigChat()
     private _socket?: WebSockets = undefined
     constructor() {}
     async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigPipe())
-        this._chatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+        this._chatConfig = await DataBaseHelper.loadMain(new ConfigChat())
         this._socket = new WebSockets(`ws://localhost:${this._config.port}`, 10, true)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)

@@ -6,7 +6,6 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import Utils from '../../Classes/Utils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
-import Config from '../../Classes/Config.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 

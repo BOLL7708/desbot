@@ -1,13 +1,5 @@
-import Config from '../../Classes/Config.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
-import Utils from '../../Classes/Utils.js'
-import {ITwitchHelixRewardConfig} from '../../Interfaces/itwitch_helix.js'
-import {Actions} from './Actions.js'
-import {EEventSource} from './Enums.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {SettingTwitchReward} from '../../Objects/Setting/SettingTwitch.js'
-import TextHelper from '../../Classes/TextHelper.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 
 export default class Rewards {
@@ -42,6 +34,7 @@ export default class Rewards {
         // Toggle TTS rewards
         TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId('Speak'), {is_enabled: !states.ttsForAll}).then()
 
+        /* TODO: Re-implement reward toggling.
         // Enable default rewards
         const enableRewards = Config.twitch.alwaysOnRewards.filter(rewardKey => { return !Config.twitch.alwaysOffRewards.includes(rewardKey) })
         for(const key of enableRewards) {
@@ -52,5 +45,6 @@ export default class Rewards {
         for(const key of Config.twitch.alwaysOffRewards) {
             TwitchHelixHelper.updateReward(await LegacyUtils.getRewardId(key), {is_enabled: false}).then()
         }
+        */
     }
 }

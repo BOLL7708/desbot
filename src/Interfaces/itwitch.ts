@@ -1,5 +1,4 @@
 import {ITwitchEmote, ITwitchMessageCmd} from './itwitch_chat.js'
-import {IEventOptions} from './ievents.js'
 import {ActionHandler} from '../Pages/Widget/Actions.js'
 import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
 import {IActionUser} from '../Objects/Action.js'
@@ -65,7 +64,7 @@ export interface ITwitchConfig {
 }
 
 export interface IToggleRewardsOnGame extends Partial<Record<string, string[]>> {}
-export interface IEventOptionsOverrides extends Partial<Record<string, IEventOptions>> {}
+export interface IEventOptionsOverrides extends Partial<Record<string, undefined>> {}
 
 export interface ITwitchReward {
     id?: string

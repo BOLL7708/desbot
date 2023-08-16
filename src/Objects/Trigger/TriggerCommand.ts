@@ -3,6 +3,8 @@ import {PresetPermissions} from '../Preset/PresetPermissions.js'
 import Trigger from '../Trigger.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
+import {OptionCommandType} from '../../Options/OptionCommandType.js'
+import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 
 export class TriggerCommand extends Trigger {
     entries: string[] = []
@@ -12,7 +14,7 @@ export class TriggerCommand extends Trigger {
     requireMinimumWordCount: number = 0
     globalCooldown: number = 0
     userCooldown: number = 0
-    helpTitle: string = ''
+    category: number = 0
     helpInput: string[] = []
     helpText: string = ''
 
@@ -27,21 +29,22 @@ export class TriggerCommand extends Trigger {
                 requireMinimumWordCount: 'Require this command to include at least this number of words to get triggered.',
                 globalCooldown: 'The number of seconds before this can be used again, by anyone.',
                 userCooldown: 'The number of seconds before this can be used again, by the same user.',
-                helpTitle: 'A title that is used when posting all help to Discord, is inserted above this command.',
+                category: 'A category for grouping this command with others.',
                 helpInput: 'Input values for the command, used to build the help text.',
                 helpText: 'Description that is used for help documentation.'
             },
             {
                 entries: 'string',
                 permissions: PresetPermissions.refId(),
+                category: OptionCommandCategory.ref(),
                 helpInput: 'string'
             }
         )
     }
 
-    register(eventKey: string) {
+    async register(eventKey: string) {
         const modules = ModulesSingleton.getInstance()
-        const clone = Utils.clone<TriggerCommand>(this)
+        const clone = await this.__clone() as TriggerCommand
         if(clone.entries.length > 0) {
             modules.twitch.registerCommandTrigger(clone, eventKey)
         }

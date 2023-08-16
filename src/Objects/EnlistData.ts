@@ -55,14 +55,8 @@ import ConfigScreenshots, {ConfigScreenshotsCallback} from './Config/ConfigScree
 import {ConfigSign} from './Config/ConfigSign.js'
 import {ConfigSpeech, ConfigSpeechDictionary, ConfigSpeechWordToAudio} from './Config/ConfigSpeech.js'
 import {ConfigSteam} from './Config/ConfigSteam.js'
-import ConfigTwitch, {
-    ConfigTwitchAnnounceCheer,
-    ConfigTwitchAnnounceRaid,
-    ConfigTwitchAnnouncerTriggers,
-    ConfigTwitchAnnounceSub,
-    ConfigTwitchCategoryOverride
-} from './Config/ConfigTwitch.js'
-import ConfigTwitchChat from './Config/ConfigTwitchChat.js'
+import ConfigTwitch, {ConfigTwitchCategoryOverride} from './Config/ConfigTwitch.js'
+import ConfigChat from './Config/ConfigChat.js'
 import {
     EventActionContainer,
     EventBehaviorOptions,
@@ -113,6 +107,13 @@ import {
     SettingUserVoice
 } from './Setting/SettingUser.js'
 import {SettingStreamQuote} from './Setting/SettingStream.js'
+import ConfigAnnouncements, {
+    ConfigAnnounceCheer,
+    ConfigAnnounceRaid,
+    ConfigAnnouncerTriggers,
+    ConfigAnnounceSub
+} from './Config/ConfigAnnouncements.js'
+import ConfigCommands from './Config/ConfigCommands.js'
 
 /**
  * This class exists to enlist the things stored in the database in a map.
@@ -150,20 +151,27 @@ export default class EnlistData {
             new ActionSystemRewardStateForEvent(),
             new ActionWhisper(),
 
+            new ConfigAnnounceCheer(),
+            new ConfigAnnounceRaid(),
+            new ConfigAnnounceSub(),
+            new ConfigAnnouncements(),
+            new ConfigAnnouncerTriggers(),
+            new ConfigChat(),
             new ConfigCleanText(),
+            new ConfigCommands(),
             new ConfigController(),
+            new ConfigControllerChannelTrophyNumber(),
+            new ConfigControllerChannelTrophySettings(),
             new ConfigControllerStateDefaults(),
             new ConfigControllerWebsocketsUsed(),
-            new ConfigControllerChannelTrophySettings(),
-            new ConfigControllerChannelTrophyNumber(),
             new ConfigDiscord(),
             new ConfigEditor(),
             new ConfigEditorFavorite(),
             new ConfigExample(),
             new ConfigExampleSub(),
-            new ConfigImageEditorRect(),
             new ConfigImageEditorFontSettings(),
             new ConfigImageEditorOutline(),
+            new ConfigImageEditorRect(),
             new ConfigOBS(),
             new ConfigOBSEventGroups(),
             new ConfigOpenVR2WS(),
@@ -181,12 +189,7 @@ export default class EnlistData {
             new ConfigSpeechWordToAudio(),
             new ConfigSteam(),
             new ConfigTwitch(),
-            new ConfigTwitchAnnouncerTriggers(),
-            new ConfigTwitchAnnounceSub(),
-            new ConfigTwitchAnnounceCheer(),
-            new ConfigTwitchAnnounceRaid(),
             new ConfigTwitchCategoryOverride(),
-            new ConfigTwitchChat(),
 
             new EventDefault(),
             new EventOptions(),

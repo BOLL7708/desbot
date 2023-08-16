@@ -6,7 +6,7 @@ export class ConfigController extends Data {
     secretChatSymbols: string[] = ['!', 'ℹ']
     stateDefaults = new ConfigControllerStateDefaults()
     useWebsockets = new ConfigControllerWebsocketsUsed()
-    channelTrophySettings = new ConfigControllerChannelTrophySettings()
+    // channelTrophySettings = new ConfigControllerChannelTrophySettings() // TODO
 
     enlist() {
         DataMap.addRootInstance(
@@ -16,7 +16,7 @@ export class ConfigController extends Data {
                 secretChatSymbols: 'Messages that start with any of these symbols will not be spoken or piped into VR.',
                 stateDefaults: 'Default settings for controller functions and features.',
                 useWebsockets: 'Turn WebSockets integration on or off, if you do not use something turning it off will prevent log spam.',
-                channelTrophySettings: 'This is the settings for the Channel Trophy, a reward that a viewer can claim until someone else grabs it.\n\nThe reward will get the name of the previous redeemer, both in the title and in the prompt.'
+                // channelTrophySettings: 'This is the settings for the Channel Trophy, a reward that a viewer can claim until someone else grabs it.\n\nThe reward will get the name of the previous redeemer, both in the title and in the prompt.'
             },
             {}
         )
@@ -27,7 +27,7 @@ export class ConfigControllerStateDefaults extends Data {
     ttsForAll: boolean = true
     pingForChat: boolean = true
     logChatToDiscord: boolean = true
-    useGameSpecificRewards: boolean = true
+    // useGameSpecificRewards: boolean = true // TODO
     updateTwitchGameCategory: boolean = true
     runRemoteCommands: boolean = true
 
@@ -39,7 +39,7 @@ export class ConfigControllerStateDefaults extends Data {
                 ttsForAll: 'Turn this on to get messages from chat read out loud.',
                 pingForChat: 'Turn this on to play an audio notification for chat messages if TTS is also off or the message otherwise silent.',
                 logChatToDiscord: 'This pipes chat messages to a Discord webhook for logging purposes.',
-                useGameSpecificRewards: 'Turns on game specific dynamic rewards if they are available, otherwise those will always be disabled.',
+                // useGameSpecificRewards: 'Turns on game specific dynamic rewards if they are available, otherwise those will always be disabled.',
                 updateTwitchGameCategory: 'This will attempt to match the game title from Steam with one on Twitch and set the Twitch game category on game change.',
                 runRemoteCommands: 'This will allow for remote command execution through the remote command channel if provided.'
             }

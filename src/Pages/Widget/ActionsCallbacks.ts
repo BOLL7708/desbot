@@ -1,12 +1,10 @@
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
-import Config from '../../Classes/Config.js'
 import Functions from './Functions.js'
 import Utils from '../../Classes/Utils.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import Color from '../../Classes/ColorConstants.js'
 import {ETTSType} from './Enums.js'
-import {EBehavior, IEvent} from '../../Interfaces/ievents.js'
 import ChannelTrophyUtils from '../../Classes/ChannelTrophyUtils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
 import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
@@ -27,10 +25,14 @@ import {ActionSettingVR} from '../../Objects/Action/ActionSettingVR.js'
 import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
 import {EventDefault} from '../../Objects/Event/EventDefault.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
-import Data from '../../Objects/Data.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
+import {TriggerCommand} from '../../Objects/Trigger/TriggerCommand.js'
+import ConfigCommands from '../../Objects/Config/ConfigCommands.js'
+import EventHelper from '../../Classes/EventHelper.js'
+import {OptionsMap} from '../../Options/OptionsMap.js'
+import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -548,6 +550,7 @@ export default class ActionsCallbacks {
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
 
+                    /* TODO reimplement as a separate module
                     // Do TTS
                     const funnyNumberConfig = await ChannelTrophyUtils.detectFunnyNumber(cost)
                     if(funnyNumberConfig != null && controllerConfig.channelTrophySettings.ttsOn) {
@@ -570,10 +573,9 @@ export default class ActionsCallbacks {
                     if(!labelUpdated) return Utils.log(`ChannelTrophy: Could not write label`, Color.Red)
 
                     // Update reward
+                    // TODO: This should be rewritten to use the database data. Or, MOVE ALL OF THE CHANNEL TROPHY TO A UNIQUE ACTION!
                     const configArrOrNot = Utils.getEventConfig('ChannelTrophy')?.triggers.reward
                     const config = Array.isArray(configArrOrNot) ? configArrOrNot[0] : configArrOrNot
-                    // TODO: This should be rewritten to use the database data. Or, MOVE ALL OF THE CHANNEL TROPHY TO A UNIQUE ACTION!
-                    /*
                     if(config != undefined) {
                         const newCost = cost+1;
                         const updatedReward = await TwitchHelixHelper.updateReward(rewardId, {
@@ -742,6 +744,7 @@ export default class ActionsCallbacks {
                 const numberOfStreams = await ChannelTrophyUtils.getNumberOfStreams()
                 const streamNumber = Utils.toInt(user.input)
                 const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+                /* TODO move this to a separate module
                 const webhook = Utils.ensureObjectNotId(controllerConfig.channelTrophySettings.discordStatistics)
                 if(user.input == "all") {
                     modules.tts.enqueueSpeakSentence(speechArr[0]).then()
@@ -773,6 +776,7 @@ export default class ActionsCallbacks {
                         modules.tts.enqueueSpeakSentence(speechArr[success ? 3 : 4])
                     })
                 }
+                */
             }
         },
 
@@ -827,21 +831,35 @@ export default class ActionsCallbacks {
             description: 'Post help for all commands with documentation to the specified Discord channel.',
             call: async (user) => {
                 let messageText = ''
-                const url = Config.credentials?.DiscordWebhooks.HelpToDiscord ?? ''
-                for(const [key, event] of Object.entries(Config.events) as [string, IEvent][]) {
-                    const entries = event.triggers.command?.entries
 
-                    let helpTitle = (event.triggers.command?.helpTitle) ?? ''
-                    if(helpTitle.length > 0) {
+                const commandsConfig = await DataBaseHelper.loadMain(new ConfigCommands())
+                const url = Utils.ensureObjectNotId(commandsConfig.postCommandHelpToDiscord)?.url // TODO use full preset?
+                if(!url) return console.warn('No Discord webhook URL specified for posting command help.')
+
+                const commandTriggers = await EventHelper.getAllTriggersOfType(new TriggerCommand())
+                commandTriggers.sort((a, b) => {
+                    return a.category === b.category
+                        ? a.entries.join('').localeCompare(b.entries.join(''))
+                        : a.category.toString().localeCompare(b.category.toString())
+                })
+                let previousCategory: number = -1
+                for(const trigger of commandTriggers) {
+                    const entries = trigger.entries
+
+                    let helpTitle = ''
+                    if(trigger.category !== previousCategory) {
+                        const meta = OptionsMap.getMeta(OptionCommandCategory.name)
+                        helpTitle = meta?.getDocumentationFromValue(trigger.category) ?? 'New but unknown category'
                         DiscordUtils.enqueuePayload(url, {content: messageText})
                         messageText = ''
                         helpTitle = `__${helpTitle}__\n`
+                        console.log('meta', meta, 'helpTitle', helpTitle)
                     }
 
-                    let helpInput = (event.triggers.command?.helpInput ?? []).map((input)=>`[${input}]`).join(' ')
+                    let helpInput = (trigger.helpInput).map((input)=>`[${input}]`).join(' ')
                     if(helpInput.length > 0) helpInput = ` ${helpInput}`
 
-                    const helpText = event.triggers.command?.helpText
+                    const helpText = trigger.helpText
                     if(entries && helpText) {
                         const text = `${helpTitle}\`!${Utils.ensureArray(entries).join('|')}${helpInput}\` - ${helpText}`
                         if((messageText.length + text.length) > 2000) {
@@ -851,6 +869,7 @@ export default class ActionsCallbacks {
                         if(messageText.length > 0) messageText += '\n'
                         messageText += text
                     }
+                    previousCategory = trigger.category
                 }
                 DiscordUtils.enqueuePayload(url, {content: messageText})
             }
@@ -861,13 +880,25 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
                 const command = user.input.toLowerCase()
-                const event = (Object.values(Config.events) as IEvent[])
-                    .find((event)=>Utils.ensureArray(event.triggers.command?.entries).includes(command))
-                if(event && event.triggers.command?.helpText) {
-                    let helpInput = (event.triggers.command?.helpInput ?? []).map((input)=>`[${input}]`).join(' ')
-                    if(helpInput.length > 0) helpInput = ` ${helpInput}`
-                    modules.twitch._twitchChatOut.sendMessageToChannel(`!${user.input.toLowerCase()}${helpInput} - ${event.triggers.command?.helpText}`)
-                } else {
+                const allCommandEvents = await EventHelper.getAllEventsWithTriggersOfType(new TriggerCommand())
+                console.log('event keys', Object.keys(allCommandEvents))
+                if(!allCommandEvents) return
+                let foundMatch = false
+                for(const [key, event] of Object.entries(allCommandEvents)) {
+                    const triggers = event.getTriggers(new TriggerCommand())
+                    if(event && triggers.length > 0) {
+                        for(const trigger of triggers) {
+                            console.log('trigger', trigger.entries.join(', '))
+                            if(trigger.entries.includes(command)) {
+                                foundMatch = true
+                                let helpInput = trigger.helpInput.map((input) => `[${input}]`).join(' ')
+                                if (helpInput.length > 0) helpInput = ` ${helpInput}`
+                                modules.twitch._twitchChatOut.sendMessageToChannel(`!${user.input.toLowerCase()}${helpInput} - ${trigger.helpText}`)
+                            }
+                        }
+                    }
+                }
+                if(!foundMatch) {
                     modules.twitch._twitchChatOut.sendMessageToChannel(`${user.input.toLowerCase()} - is not a command.`)
                 }
             }

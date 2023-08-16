@@ -1,6 +1,4 @@
-import {IEvent} from '../../Interfaces/ievents.js'
 import {ActionHandler, Actions} from './Actions.js'
-import Config from '../../Classes/Config.js'
 import OpenVR2WS from '../../Classes/OpenVR2WS.js'
 import Color from '../../Classes/ColorConstants.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
@@ -16,8 +14,7 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {SettingSteamAchievements} from '../../Objects/Setting/SettingSteam.js'
 import {ConfigSteam} from '../../Objects/Config/ConfigSteam.js'
 import TextHelper from '../../Classes/TextHelper.js'
-import LegacyUtils from '../../Classes/LegacyUtils.js'
-import ConfigTwitchChat from '../../Objects/Config/ConfigTwitchChat.js'
+import ConfigChat from '../../Objects/Config/ConfigChat.js'
 import TempFactory from '../../Classes/TempFactory.js'
 import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
@@ -27,7 +24,7 @@ export default class Functions {
     public static async setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
-        const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+        const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
         const audio = states.pingForChat ? Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
         if(audio) modules.tts.setEmptyMessageSound(TempFactory.configAudio(audio))
     }
@@ -61,6 +58,7 @@ export default class Functions {
 			/**
 			 * Controller defaults loading, various settings including TTS etc.
 			 */
+            /* TODO: Game related stuff, re-implement with the new dashboard.
             const controllerGameDefaults = Config.controller.gameDefaults[appId]
             let combinedSettings = controllerConfig.stateDefaults
             if(controllerGameDefaults) {
@@ -82,6 +80,7 @@ export default class Functions {
             states.logChatToDiscord = combinedSettings.logChatToDiscord ?? false
             states.useGameSpecificRewards = combinedSettings.useGameSpecificRewards ?? false // OBS: Running the command for this will create infinite loop.
             states.updateTwitchGameCategory = combinedSettings.updateTwitchGameCategory ?? false
+            */
         }
         // endregion
 
@@ -130,6 +129,7 @@ export default class Functions {
         /**
          * General reward toggling
          */
+        /* TODO: Reward toggling, re-implement with the new dashboard.
         const defaultProfile = isVr ? Config.twitch.rewardProfileDefaultVR : Config.twitch.rewardProfileDefault
         const gameProfile = Config.twitch.rewardProfilePerGame[appId]
         let profileToUse: {[key: string]: boolean} = {}
@@ -146,6 +146,7 @@ export default class Functions {
             profileToUse = defaultProfile
             Utils.log(`--> using [default${isVr?' vr':''}](${Object.keys(defaultProfile).length})`, Color.Gray)
         }
+        */
 
         // Update rewards
 
@@ -156,6 +157,8 @@ export default class Functions {
          * So I switched to setting a fixed value, but this is also not what was originally intended.
          * I've changed it so we set a value if the game is included, then we only set the opposite value if the key is not set yet.
          */
+
+        /* TODO: More reward-toggling, re-implement with the new dashboard.
         for(const rewardKey of Object.keys(Config.twitch.turnOnRewardForGames)) {
             let games = Config.twitch.turnOnRewardForGames[rewardKey as string] ?? []
             Utils.log(`--> will turn on reward '${rewardKey}' depending on game.`, Color.Gray)
@@ -168,10 +171,12 @@ export default class Functions {
             if(games.includes(appId)) profileToUse[rewardKey] = false
             else if (!Object.keys(profileToUse).includes(rewardKey)) profileToUse[rewardKey] = true
         }
+        */
 
         /**
          * Game specific reward configuration
          */
+        /* TODO: Game specific rewards, re-implement at some point.
         const allGameRewardKeys = Utils.getAllEventKeysForGames(true)
         const gameSpecificRewards = states.useGameSpecificRewards ? Utils.getEventsForGame(appId) : undefined
         const availableGameRewardKeys = gameSpecificRewards != undefined ? Object.keys(gameSpecificRewards) : []
@@ -184,7 +189,7 @@ export default class Functions {
 
         if(gameSpecificRewards) {
             // Update and enable all reusable generic rewards in use.
-            /* TODO: Reimplement this
+            // TODO: Reimplement this
             for(const [key, event] of Object.entries(gameSpecificRewards) as [string, IEvent][]) {
                 const thisEvent = event ?? {triggers: {}}
                 const defaultEvent = Config.events[key] ?? {triggers: {}}
@@ -206,8 +211,8 @@ export default class Functions {
                 // Update game reward actions
                 // Actions.registerReward(key, appId).then() // TODO: Borked now
             }
-            */
         }
+        */
 
         // Apply always on/off filters
         /* TODO: Reimplement this in some manner.

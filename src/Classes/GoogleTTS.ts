@@ -13,7 +13,7 @@ import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import {SettingUser, SettingUserVoice} from '../Objects/Setting/SettingUser.js'
 import TextHelper from './TextHelper.js'
 import {SettingDictionaryEntry} from '../Objects/Setting/SettingDictionary.js'
-import ConfigTwitchChat from '../Objects/Config/ConfigTwitchChat.js'
+import ConfigChat from '../Objects/Config/ConfigChat.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 import TempFactory from './TempFactory.js'
@@ -21,7 +21,7 @@ import {OptionTTSType} from '../Options/OptionTTS.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
-    private _chatConfig = new ConfigTwitchChat()
+    private _chatConfig = new ConfigChat()
     private _speakerTimeoutMs: number = 0
     private _audio: AudioPlayerInstance = new AudioPlayerInstance()
     private _voices: IGoogleVoice[] = [] // Cache
@@ -45,7 +45,7 @@ export default class GoogleTTS {
     }
     private async init() {
         this._config = await DataBaseHelper.loadMain(new ConfigSpeech())
-        this._chatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+        this._chatConfig = await DataBaseHelper.loadMain(new ConfigChat())
         this._speakerTimeoutMs = this._config.speakerTimeoutMs
     }
 

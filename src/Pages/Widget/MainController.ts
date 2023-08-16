@@ -1,5 +1,3 @@
-import Config from '../../Classes/Config.js'
-import LogWriter from '../../Classes/LogHelper.js'
 import Callbacks from './Callbacks.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import Utils from '../../Classes/Utils.js'
@@ -36,13 +34,6 @@ export default class MainController {
             return
         }
 
-        // Check configs
-        const cfgPropCount = Object.keys(Config).length
-        const cfgPropTotal = 6
-        if(cfgPropCount < cfgPropTotal) {
-            Utils.log(`Warning: Config is incomplete, only ${cfgPropCount}/${cfgPropTotal} set!`, Color.Red, true, true)
-        }
-
         // Make sure settings are pre-cached
         await DataBaseHelper.loadAll(new SettingUser())
         await DataBaseHelper.loadAll(new SettingTwitchTokens())
@@ -59,15 +50,7 @@ export default class MainController {
 
         await TwitchHelixHelper.loadNamesForUsersWhoLackThem()
 
-        /*
-        .####.##....##.####.########
-        ..##..###...##..##.....##...
-        ..##..####..##..##.....##...
-        ..##..##.##.##..##.....##...
-        ..##..##..####..##.....##...
-        ..##..##...###..##.....##...
-        .####.##....##.####....##...
-        */
+        // region Init
         await StatesSingleton.initInstance() // Init states
         await modules.twitchTokens.refreshToken()
         const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
@@ -93,33 +76,18 @@ export default class MainController {
         await Actions.init()
         await Callbacks.init()
 
-        /*
-        .####.##....##.####.########
-        ..##..###...##..##.....##...
-        ..##..####..##..##.....##...
-        ..##..##.##.##..##.....##...
-        ..##..##..####..##.....##...
-        ..##..##...###..##.....##...
-        .####.##....##.####....##...
-        */
         await modules.twitch.init(controllerConfig.useWebsockets.twitchChat)
         if(controllerConfig.useWebsockets.openvr2ws) modules.openvr2ws.init().then()
         if(controllerConfig.useWebsockets.pipe) modules.pipe.init().then()
         if(controllerConfig.useWebsockets.obs) modules.obs.init()
         if(controllerConfig.useWebsockets.sssvr) modules.sssvr.init()
         // if(controllerConfig.useWebsockets.sdrelay) modules.streamDeckRelay.init().then() // TODO
+
+        // endregion
     }
 
 
-    /*
-    .####.##....##.########.########.########..##.....##....###....##........######.
-    ..##..###...##....##....##.......##.....##.##.....##...##.##...##.......##....##
-    ..##..####..##....##....##.......##.....##.##.....##..##...##..##.......##......
-    ..##..##.##.##....##....######...########..##.....##.##.....##.##........######.
-    ..##..##..####....##....##.......##...##....##...##..#########.##.............##
-    ..##..##...###....##....##.......##....##....##.##...##.....##.##.......##....##
-    .####.##....##....##....########.##.....##....###....##.....##.########..######.
-    */
+    // region Intervals
 
     public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()
@@ -147,4 +115,6 @@ export default class MainController {
             }, steamConfig.achievementsIntervalMs)
         }
     }
+
+    // endregion
 }

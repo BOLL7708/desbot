@@ -1,7 +1,6 @@
 import {IOpenVR2WSRelay} from '../../Interfaces/iopenvr2ws.js'
 import {EEventSource, ETTSType} from './Enums.js'
 import {Actions} from './Actions.js'
-import Config from '../../Classes/Config.js'
 import {ITwitchMessageCmd} from '../../Interfaces/itwitch_chat.js'
 import Color from '../../Classes/ColorConstants.js'
 import AudioPlayer from '../../Classes/AudioPlayer.js'
@@ -26,13 +25,14 @@ import TextHelper from '../../Classes/TextHelper.js'
 import {ConfigRelay} from '../../Objects/Config/ConfigRelay.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/SettingUser.js'
-import ConfigTwitch, {ConfigTwitchAnnounceRaid} from '../../Objects/Config/ConfigTwitch.js'
+import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 import ConfigScreenshots from '../../Objects/Config/ConfigScreenshots.js'
 import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
-import ConfigTwitchChat from '../../Objects/Config/ConfigTwitchChat.js'
+import ConfigChat from '../../Objects/Config/ConfigChat.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {IActionUser} from '../../Objects/Action.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
+import ConfigAnnouncements, {ConfigAnnounceRaid} from '../../Objects/Config/ConfigAnnouncements.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
@@ -43,15 +43,7 @@ export default class Callbacks {
     private static _imageRelay: Relay
 
     public static async init() {   
-        /*
-        ..######.....###....##.......##.......########.....###.....######..##....##..######.
-        .##....##...##.##...##.......##.......##.....##...##.##...##....##.##...##..##....##
-        .##........##...##..##.......##.......##.....##..##...##..##.......##..##...##......
-        .##.......##.....##.##.......##.......########..##.....##.##.......#####.....######.
-        .##.......#########.##.......##.......##.....##.#########.##.......##..##.........##
-        .##....##.##.....##.##.......##.......##.....##.##.....##.##....##.##...##..##....##
-        ..######..##.....##.########.########.########..##.....##..######..##....##..######.
-        */
+        // region Callbacks
 
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
@@ -63,18 +55,18 @@ export default class Callbacks {
         this._imageRelay.init().then()
 
         // region Chat
-        const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
-        const announcerNames = Utils.ensureObjectArrayNotId(twitchConfig.announcerUsers)
+        const announcementsConfig = await DataBaseHelper.loadMain(new ConfigAnnouncements())
+        const announcerNames = Utils.ensureObjectArrayNotId(announcementsConfig.announcerUsers)
                 .map((user)=>{return Utils.ensureObjectNotId(user)?.userName.toLowerCase() ?? ''})
                 .filter(v=>v) // Remove empty strings
         modules.twitch.registerAnnouncers({
             userNames: announcerNames,
-            triggers: twitchConfig.announcerTriggers.map((announcer)=>announcer.trigger),
+            triggers: announcementsConfig.announcerTriggers.map((announcer)=>announcer.trigger),
             callback: async (userData, messageData, firstWord) => {
                 // TTS
                 const audioConfig = Utils.ensureObjectNotId(
                     Utils.ensureObjectNotId(
-                        twitchConfig.announcerTriggers.find((announcer)=> announcer.trigger == firstWord)
+                        announcementsConfig.announcerTriggers.find((announcer)=> announcer.trigger == firstWord)
                     )?.trigger_audio
                 )
                 if(audioConfig) {
@@ -112,7 +104,7 @@ export default class Callbacks {
             if(messageData.isAction) type = ETTSType.Action
 
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
-            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
             const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
             const soundEffect = Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage)
             if(states.ttsForAll) { 
@@ -171,7 +163,7 @@ export default class Callbacks {
                 label = `${discordConfig.prefixCheer}**Cheered ${bits} ${unit}**: `
             }
             
-            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
             const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
             if(states.logChatToDiscord && webhook) {
                 DiscordUtils.enqueueMessage(
@@ -197,7 +189,7 @@ export default class Callbacks {
             // TODO: Not yet available with EventSub, handle it on our own I guess.
             const amount = null // redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
-            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigTwitchChat())
+            const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
             const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
             let description = `${discordConfig.prefixReward}**${event.reward.title}${amountStr}** (${event.reward.cost})`
@@ -238,7 +230,7 @@ export default class Callbacks {
         })
 
         const subscriptionHandler = async (user:IActionUser, tier: number, gift: boolean, multi: boolean)=>{
-            const sub = twitchConfig.announceSubs.find((sub)=>
+            const sub = announcementsConfig.announceSubs.find((sub)=>
                 sub.tier == tier
                 && sub.tier_gift == gift
                 && sub.tier_multi == multi
@@ -273,7 +265,7 @@ export default class Callbacks {
 
             // Announce cheer
             const bits = event.bits
-            const levels = Utils.clone(twitchConfig.announceCheers)
+            const levels = Utils.clone(announcementsConfig.announceCheers)
             let selectedLevel = levels.shift()
             for(const level of levels) {
                 if(bits >= level.bits) selectedLevel = level
@@ -288,9 +280,9 @@ export default class Callbacks {
 
         modules.twitchEventSub.setOnRaidCallback(async (event) => {
             const broadcasterId = (await TwitchHelixHelper.getBroadcasterUserId()).toString()
-            let announcement: ConfigTwitchAnnounceRaid|undefined = undefined
+            let announcement: ConfigAnnounceRaid|undefined = undefined
             let currentViewerThreshold = 0
-            for(const raidAnnouncement of twitchConfig.announceRaids) {
+            for(const raidAnnouncement of announcementsConfig.announceRaids) {
                 if(event.viewers >= raidAnnouncement.viewers && raidAnnouncement.viewers >= currentViewerThreshold) {
                     announcement = raidAnnouncement
                     currentViewerThreshold = raidAnnouncement.viewers
@@ -528,4 +520,5 @@ export default class Callbacks {
         })
         // endregion
     }
+    // endregion
 }

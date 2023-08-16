@@ -34,7 +34,7 @@ export class OptionsMap {
         className: string|undefined
     ): boolean {
         const has = className ? this._map.has(className) : false
-        if(!has) Utils.log(`Enum: "${className}" does not exist in the EnumObjectMap!`, Color.DarkRed, true, true)
+        if(!has) Utils.log(`Option: "${className}" does not exist in the OptionsMap!`, Color.DarkRed, true, true)
         return has
     }
 
@@ -50,5 +50,16 @@ export class EnumMeta extends DataMeta {
         public documentation?: IStringDictionary
     ) {
         super()
+    }
+    getDocumentationFromValue(value: any): string|undefined {
+        if(!this.documentation) return undefined
+        const instance = Object.assign(this.prototype)
+        for(const prop of Object.keys(instance)) {
+            console.log(prop, instance[prop], value, instance[prop] == value)
+            if(instance[prop] == value)  {
+                return this.documentation[prop]
+            }
+        }
+        return undefined
     }
 }

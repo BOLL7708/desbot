@@ -1,5 +1,3 @@
-import Config from './Config.js'
-import {IEvent, IEventsConfig} from '../Interfaces/ievents.js'
 import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
 import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 import Color from './ColorConstants.js'
@@ -316,67 +314,6 @@ export default class Utils {
         if(trueIsh.includes(firstChar)) return true
         if(falseIsh.includes(firstChar)) return false
         return defaultValue
-    }
-
-    /**
-     * Get all event keys
-     * @param onlyRewards
-     * @returns
-     */
-    static getAllEventKeys(onlyRewards: boolean): string[] {
-        if(onlyRewards) {
-            const rewardEvents = (Object.entries(Config.events) as [string, IEvent][])
-                .filter(e => e[1].triggers.reward !== undefined)
-            return rewardEvents.map(e => e[0])
-        }
-        return Object.keys(Config.events) as string[]
-    }
-
-    /**
-     * Lists the event keys of main events that are used for custom game events.
-     * @param onlyRewards
-     * @returns 
-     */
-    static getAllEventKeysForGames(onlyRewards: boolean): string[] {
-        const allEventKeysForGames = (Object.entries(Config.eventsForGames) as [string, IEventsConfig][])
-            .map(event => event[1])
-            .flatMap(event => Object.keys(event))
-        const uniqueKeys = [...new Set(allEventKeysForGames)] as string[]
-        if(onlyRewards) {
-			const rewardEvents = (Object.entries(Config.events) as [string, IEvent][])
-                .filter(event => event[1].triggers.reward !== undefined)
-            const rewardEventKeys = rewardEvents.map(e => e[0])
-			return rewardEventKeys.filter((key => uniqueKeys.indexOf(key) > -1))
-        }
-        return uniqueKeys
-    }
-
-    /**
-     * Get event config from any pool
-     * @deprecated
-     */
-    static getEventConfig(key: string|undefined): IEvent|undefined {
-        if(key === undefined) return undefined
-        return Config.events[key] ?? undefined
-    }
-
-    /**
-     * @deprecated
-     * @param key
-     * @param appId
-     */
-    static getEventForGame(key: string, appId: string): IEvent|undefined {
-        const events = this.getEventsForGame(appId)
-        if(events) return events[key]
-        else return undefined
-    }
-
-    /**
-     * @deprecated
-     * @param appId
-     */
-    static getEventsForGame(appId: string): IEventsConfig|undefined {
-        return Config.eventsForGames[appId]
     }
 
     static removeLastPart(splitOn: string, text: string|undefined): string {
