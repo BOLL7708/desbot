@@ -23,6 +23,7 @@ import {PresetOBSScene, PresetOBSSource} from '../../Objects/Preset/PresetOBS.js
 import {ActionOBS, ActionOBSSource} from '../../Objects/Action/ActionOBS.js'
 import {ActionURI} from '../../Objects/Action/ActionURI.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
+import OptionEventType from '../../Options/OptionEventType.js'
 
 enum EKeys {
     // region Presets
@@ -1413,7 +1414,7 @@ export default class DefaultData {
                     actionSign.durationMs = 10000
                     const actionChat = new ActionChat()
                     actionChat.entries.push('Game: %gameName - Released: %gameRelease - Price: %gamePrice - Link: %gameLink')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSign, actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSign, actionChat], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1429,7 +1430,7 @@ export default class DefaultData {
                     const action = new ActionAudio()
                     action.srcEntries.push('%userInput')
                     action.volume = 0.5
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1445,7 +1446,7 @@ export default class DefaultData {
                     const action = new ActionSpeech()
                     action.entries.push('%userInput')
                     // TODO: Can be set to have the voice of a specific account.
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1460,7 +1461,7 @@ export default class DefaultData {
                     trigger.helpText = 'Posts a lurk message, available for everyone.'
                     const action = new ActionChat()
                     action.entries.push('📢 For some reason %userTag felt it necessary to publicly announce that they are in ultra lurk mode! 🤗 %userInput')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1478,7 +1479,7 @@ export default class DefaultData {
                     const actionLabel = new ActionLabel()
                     actionLabel.fileName = 'obs_info_label.txt'
                     actionLabel.textEntries.push('%userInput')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSpeech, actionLabel])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSpeech, actionLabel], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1496,7 +1497,7 @@ export default class DefaultData {
                     actionDiscord.webhook = await DefaultData.loadID(new PresetDiscordWebhook(), EKeys.DiscordTodo)
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('To do list appended with: %userInput')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionDiscord, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionDiscord, actionSpeech], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1513,7 +1514,7 @@ export default class DefaultData {
                     trigger.requireUserTag = true
                     const action = new ActionChat()
                     action.entries.push('📢 People gather around and feast your eyes on ❤%targetTag❤ who last streamed "%targetGame", give them your unwanted attention! 🥰 (check out their channel and consider following! 🤣 %targetLink)')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             },
             {
@@ -1533,7 +1534,7 @@ export default class DefaultData {
                         OptionSystemActionType.ResetIncrementingEvents,
                         OptionSystemActionType.ResetAccumulatingEvents
                     )
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             }
         ],
@@ -1550,7 +1551,7 @@ export default class DefaultData {
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('I can be yours here 👉 https://github.com/BOLL7708/desbot')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             }
         ]
@@ -1593,7 +1594,7 @@ export default class DefaultData {
                     actionOBS.state = false
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Camera enabled')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1612,7 +1613,7 @@ export default class DefaultData {
                     actionOBS.state = true
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Camera disabled')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionOBS, actionSpeech], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1631,7 +1632,7 @@ export default class DefaultData {
                     )
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Scale rewards enabled.')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1653,7 +1654,7 @@ export default class DefaultData {
 
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Scale rewards disabled.')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionSystem, actionSpeech], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1670,7 +1671,7 @@ export default class DefaultData {
                     actionURI.entries.push('liv-app://camera/set/%inputNumber')
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries.push('Liv camera set to %inputNumber')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionURI, actionSpeech])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionURI, actionSpeech], OptionEventType.Uncategorized)
                 }
             }
         ],
@@ -1687,7 +1688,7 @@ export default class DefaultData {
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Official DiscordUtils server 👉 https://discord.com/invite/CTj47pmxuT')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1702,7 +1703,7 @@ export default class DefaultData {
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1717,7 +1718,7 @@ export default class DefaultData {
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1732,7 +1733,7 @@ export default class DefaultData {
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Twitter, mostly complaints to companies 👉 https://twitter.com/BOLL7708')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             },
             {
@@ -1747,7 +1748,7 @@ export default class DefaultData {
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
                     action.entries.push('Stream archive on YouTube 👉 https://youtube.com/playlist?list=PLPpKs-9QAC4UVZZMUsOEM7Ye9cYebvYda')
-                    return await DefaultData.registerEvent(instance, key, [trigger], [action])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             }
         ],
@@ -1771,8 +1772,10 @@ export default class DefaultData {
         instance: EventDefault,
         key: string,
         triggers: Data[],
-        actions: Data[]
+        actions: Data[],
+        type: number = OptionEventType.DefaultImport
     ): Promise<string|undefined> {
+        instance.type = type
         const parentId = await DefaultData.saveAndGetID(instance, key)
         if(parentId > 0) {
             for(const trigger of triggers) {

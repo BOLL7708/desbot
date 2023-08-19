@@ -5,8 +5,10 @@ import Trigger from '../Trigger.js'
 import Action from '../Action.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import Utils from '../../Classes/Utils.js'
+import OptionEventType from '../../Options/OptionEventType.js'
 
 export class EventDefault extends Data {
+    type: number = OptionEventType.Uncategorized
     options: EventOptions = new EventOptions()
     triggers: (number|Trigger)[] = []
     actions: EventActionContainer[] = []
@@ -15,11 +17,13 @@ export class EventDefault extends Data {
         DataMap.addRootInstance(new EventDefault(),
             'The event that contains triggers and actions.',
             {
+                type: 'The type of this event.',
                 options: 'Set various options for event behavior.',
                 triggers: 'Supply in which ways we should trigger this event.',
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
             {
+                type: OptionEventType.ref(),
                 triggers: Data.genericRef('Trigger'),
                 actions: EventActionContainer.ref()
             }

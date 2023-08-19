@@ -14,7 +14,7 @@ export class TriggerCommand extends Trigger {
     requireMinimumWordCount: number = 0
     globalCooldown: number = 0
     userCooldown: number = 0
-    category: number = 0
+    category: number = OptionCommandCategory.Uncategorized
     helpInput: string[] = []
     helpText: string = ''
 
