@@ -292,7 +292,10 @@ export default class DataBaseHelper {
     }
 
     // TODO: Should this fill references?
-    static async loadById(rowId?: string|number, parentId?: number): Promise<IDataBaseItem<unknown>|undefined> {
+    static async loadById(
+        rowId?: string|number,
+        parentId?: number
+    ): Promise<IDataBaseItem<unknown>|undefined> {
         if(!rowId) return undefined
         let url = this.getUrl()
         const options: IDataBaseHelperHeaders = {rowIds: rowId}

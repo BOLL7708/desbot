@@ -11,10 +11,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {EventDefault} from '../../Objects/Event/EventDefault.js'
-import Color from '../../Classes/ColorConstants.js'
 import {ConfigPhilipsHue} from '../../Objects/Config/ConfigPhilipsHue.js'
-import Data from '../../Objects/Data.js'
-import Twitch from '../../Classes/Twitch.js'
 
 export default class ToolsHandler {
     constructor() {
@@ -167,6 +164,45 @@ export default class ToolsHandler {
                 )
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
                 return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
+            }),
+            li('➕ Create missing rewards on Twitch',
+                'Will create new rewards on Twitch for events missing a reward ID while containing a reward preset.',
+                async (e)=> {
+                const allEvents = await DataBaseHelper.loadAll(
+                    new EventDefault(),
+                    undefined,
+                    false,
+                    false
+                )
+                let createdCount = 0
+                let errorCount = 0
+                let failedCount = 0
+                for(const [eventKey, event] of Object.entries(allEvents ?? {})) {
+                    const rewardTriggers = await event.getTriggersWithKeys(new TriggerReward())
+                    for(const [triggerKey, trigger] of Object.entries(rewardTriggers)) {
+                        if(trigger.rewardID === 0 && trigger.rewardEntries.length > 0) {
+                            const rewardPreset = trigger.rewardEntries[0] as PresetReward // TODO: Might be able to get rid of this cast with more parent support
+                            if(rewardPreset) {
+                                const response = await TwitchHelixHelper.createReward(rewardPreset)
+                                const id = response?.data?.pop()?.id
+                                if(id) {
+                                    const setting = new SettingTwitchReward()
+                                    setting.key = rewardPreset.title
+                                    const newKey = await DataBaseHelper.save(setting, id)
+                                    if(newKey) {
+                                        createdCount++
+                                        trigger.rewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref(), newKey)
+                                        await DataBaseHelper.save(trigger, triggerKey)
+                                    }
+                                    else errorCount++
+                                } else {
+                                    failedCount++
+                                }
+                            }
+                        }
+                    }
+                }
+                return `Created ${createdCount} reward(s) on Twitch, failed to create ${errorCount} reward(s), failed to save ${failedCount} reward(s)`
             }),
             title('Rewards'),
             li('⏮ Reset incrementing rewards', '', async (e)=>{
