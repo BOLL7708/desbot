@@ -21,7 +21,7 @@ html, body {
     border-bottom: 2px solid var(--border-color);
 }
 #menu-bar ul {
-    background-image: url('../media/sw_logo.svg');
+    background-image: url('../media/desbot_logo_mono.svg');
     background-position: center left;
     background-repeat: no-repeat;
     background-size: 32px;
