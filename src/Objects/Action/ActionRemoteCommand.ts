@@ -6,7 +6,7 @@ import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionRemoteCommand extends Action {
-    entries: string[] = []
+    entries: string[] = ['']
     entries_use = OptionEntryUsage.All
 
     enlist() {

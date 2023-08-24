@@ -26,6 +26,7 @@ export interface IActionsCallbackStack extends Partial<Record<number, IActionCal
 
 /**
  * Combined Reward and Command result object for shared actions.
+ *
  * TODO: Replace this with a class later on so we get default values and an easier time initializing it in triggers.
  */
 export interface IActionUser {

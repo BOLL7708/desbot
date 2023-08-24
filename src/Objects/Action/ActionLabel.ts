@@ -8,7 +8,7 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionLabel extends Action {
     fileName: string = ''
-    textEntries: string[] = []
+    textEntries: string[] = ['']
     textEntries_use = OptionEntryUsage.First
     append: boolean = false
 

@@ -1,19 +1,17 @@
 import DataMap from '../DataMap.js'
 import {OptionTTSType} from '../../Options/OptionTTS.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import {SettingUser, SettingUserVoice} from '../Setting/SettingUser.js'
+import {SettingUser} from '../Setting/SettingUser.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {SettingTwitchTokens} from '../Setting/SettingTwitch.js'
-import TextHelper from '../../Classes/TextHelper.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import {ETTSType} from '../../Pages/Widget/Enums.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 
 export class ActionSpeech extends Action {
-    entries: string[] = []
+    entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     skipDictionary: boolean = false
     voiceOfUser: number|string = 0

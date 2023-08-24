@@ -1,5 +1,5 @@
 import Utils from '../Classes/Utils.js'
-import DataMap, {TNoFunctions} from './DataMap.js'
+import DataMap from './DataMap.js'
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
 import {DataUtils} from './DataUtils.js'
 

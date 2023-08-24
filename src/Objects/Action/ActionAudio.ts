@@ -8,7 +8,7 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 import {DataUtils} from '../DataUtils.js'
 
 export class ActionAudio extends Action {
-    srcEntries: string[] = []
+    srcEntries: string[] = ['']
     srcEntries_use = OptionEntryUsage.First
     volume: number = 1.0
     nonce: string = ''

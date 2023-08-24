@@ -4,12 +4,11 @@ import Action, {IActionCallback, IActionUser} from '../Action.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
-import {ActionChat} from './ActionChat.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 // TODO: Incomplete as it doesn't really work now anyway.
 export class ActionWhisper extends Action {
-    entries: string[] = []
+    entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     user: string = '' // TODO: Change to whichever way we reference users in the future.
 

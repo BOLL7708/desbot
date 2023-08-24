@@ -11,7 +11,7 @@ import {ActionHandler} from '../../Pages/Widget/Actions.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|PresetPermissions = 0
-    rewardEntries: (number|Data)[] = []
+    rewardEntries: (number|Data)[] = [] // TODO: This is Data just to give it a parent, need to update this so it's not generic.
     rewardID: (number|string) = 0
 
     enlist() {

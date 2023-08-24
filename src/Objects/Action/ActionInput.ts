@@ -11,7 +11,7 @@ export class ActionInput extends Action {
     window: string = ''
     type = OptionCommandType.Keys
     duration: number = 0
-    commands: ActionInputCommand[] = []
+    commands: ActionInputCommand[] = [new ActionInputCommand()]
     commands_use = OptionEntryUsage.All
     postfixEnterStroke: boolean = false
 

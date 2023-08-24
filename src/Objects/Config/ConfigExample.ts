@@ -23,6 +23,7 @@ export class ConfigExample extends Data {
     arrayOfBooleans_use: number = 0
     arrayOfNumbers: number[] = []
     arrayOfStrings: string[] = []
+    arrayOfStringsWithEmptyEntry: string[] = ['']
     arrayOfSecretStrings: string[] = []
     arrayOfFileStrings: string[] = []
     arrayOfSubInstances: ConfigExampleSub[] = []

@@ -1,7 +1,6 @@
 import DataMap from '../DataMap.js'
 import Data from '../Data.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
-import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'

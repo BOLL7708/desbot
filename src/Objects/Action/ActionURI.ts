@@ -7,7 +7,7 @@ import ExecUtils from '../../Classes/ExecUtils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 
 export class ActionURI extends Action {
-    entries: string[] = []
+    entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     delayMs: number = 0
 

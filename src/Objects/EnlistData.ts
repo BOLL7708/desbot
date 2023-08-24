@@ -41,7 +41,7 @@ import {
     ConfigImageEditorOutline,
     ConfigImageEditorRect
 } from './Config/ConfigImageEditor.js'
-import ConfigOBS, {ConfigOBSEventGroups} from './Config/ConfigOBS.js'
+import ConfigOBS from './Config/ConfigOBS.js'
 import {ConfigOpenVR2WS} from './Config/ConfigOpenVR2WS.js'
 import {ConfigPhilipsHue} from './Config/ConfigPhilipsHue.js'
 import {
@@ -173,7 +173,6 @@ export default class EnlistData {
             new ConfigImageEditorOutline(),
             new ConfigImageEditorRect(),
             new ConfigOBS(),
-            new ConfigOBSEventGroups(),
             new ConfigOpenVR2WS(),
             new ConfigPhilipsHue(),
             new ConfigPipe(),

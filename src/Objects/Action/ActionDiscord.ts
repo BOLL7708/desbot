@@ -11,7 +11,7 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionDiscord extends Action {
     webhook: number|PresetDiscordWebhook = 0
-    entries: string[] = []
+    entries: string[] = ['']
     entries_use = OptionEntryUsage.First
 
     enlist() {

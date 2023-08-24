@@ -1,12 +1,8 @@
-import {ActionAudio} from '../Action/ActionAudio.js'
 import DataMap from '../DataMap.js'
 import Data from '../Data.js'
 import {SettingUser} from '../Setting/SettingUser.js'
-import {SettingSteamGame} from '../Setting/SettingSteam.js'
-import {OptionTwitchSubTier} from '../../Options/OptionTwitch.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
-import {ConfigTwitchCategoryOverride} from './ConfigTwitch.js'
 
 export default class ConfigCommands extends Data {
     commandPrefix: string = '!'

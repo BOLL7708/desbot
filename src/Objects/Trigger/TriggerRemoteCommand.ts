@@ -4,7 +4,7 @@ import Utils from '../../Classes/Utils.js'
 import Trigger from '../Trigger.js'
 
 export class TriggerRemoteCommand extends Trigger {
-    entries: string[] = []
+    entries: string[] = ['']
     globalCooldown: number = 0
     userCooldown: number = 0
 

@@ -1,11 +1,7 @@
-import {ActionAudio} from '../Action/ActionAudio.js'
 import DataMap from '../DataMap.js'
 import Data from '../Data.js'
-import {SettingUser} from '../Setting/SettingUser.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
-import {OptionTwitchSubTier} from '../../Options/OptionTwitch.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
-import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
 export default class ConfigTwitch extends Data {
     postTwitchClipsToDiscord: number|PresetDiscordWebhook = 0 // TODO: Is there an EventSub for this so we can just post as they happen? Should still catch unposted once between streams though.

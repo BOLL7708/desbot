@@ -2,12 +2,10 @@ import DataMap from '../DataMap.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
 import Trigger from '../Trigger.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import Utils from '../../Classes/Utils.js'
-import {OptionCommandType} from '../../Options/OptionCommandType.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 
 export class TriggerCommand extends Trigger {
-    entries: string[] = []
+    entries: string[] = ['']
     permissions: number|PresetPermissions = 0
     requireUserTag = false
     requireExactWordCount: number = 0

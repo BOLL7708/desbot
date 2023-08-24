@@ -7,7 +7,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionChat extends Action {
-    entries: string[] = []
+    entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     enlist() {
         DataMap.addRootInstance(
