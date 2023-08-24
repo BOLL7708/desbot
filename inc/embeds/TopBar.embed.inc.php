@@ -12,6 +12,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
 }
 ?>
 <div id="menu-bar" class="hbar">
+    <img id="corner-logo" src="media/desbot_logo_mono.svg" alt="logo" />
     <ul>
         <?php
         $scriptFile = Utils::getScriptFileName();

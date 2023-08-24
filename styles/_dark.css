@@ -53,3 +53,6 @@
     --cover-background-color: #80808080;
     --cover-modal-background-color: #404040;
 }
+#corner-logo {
+    filter: invert();
+}
