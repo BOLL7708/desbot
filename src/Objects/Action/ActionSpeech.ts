@@ -9,6 +9,7 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export class ActionSpeech extends Action {
     entries: string[] = ['']
@@ -41,7 +42,7 @@ export class ActionSpeech extends Action {
             tag: '🗣',
             description: 'Callback that triggers something spoken with TTS.',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionSpeech>(this)
+                const clone = await this.__clone(true)
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
@@ -52,7 +53,7 @@ export class ActionSpeech extends Action {
                 )
                 for(const ttsStr of entries) {
                     await modules.tts.enqueueSpeakSentence(
-                        ttsStr,
+                        await TextHelper.replaceTagsInText(ttsStr, user),
                         isNaN(voiceUserId) ? chatbotTokens?.userId : voiceUserId,
                         clone.type,
                         '', // TODO: Figure out if we can uses nonces again, I'm sure it's needed for something.

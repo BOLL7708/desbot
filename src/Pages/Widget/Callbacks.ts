@@ -1,5 +1,5 @@
 import {IOpenVR2WSRelay} from '../../Interfaces/iopenvr2ws.js'
-import {EEventSource, ETTSType} from './Enums.js'
+import {EEventSource} from './Enums.js'
 import {Actions} from './Actions.js'
 import {ITwitchMessageCmd} from '../../Interfaces/itwitch_chat.js'
 import Color from '../../Classes/ColorConstants.js'
@@ -25,7 +25,6 @@ import TextHelper from '../../Classes/TextHelper.js'
 import {ConfigRelay} from '../../Objects/Config/ConfigRelay.js'
 import LegacyUtils from '../../Classes/LegacyUtils.js'
 import {SettingUser} from '../../Objects/Setting/SettingUser.js'
-import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 import ConfigScreenshots from '../../Objects/Config/ConfigScreenshots.js'
 import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
 import ConfigChat from '../../Objects/Config/ConfigChat.js'
@@ -33,6 +32,7 @@ import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {IActionUser} from '../../Objects/Action.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
 import ConfigAnnouncements, {ConfigAnnounceRaid} from '../../Objects/Config/ConfigAnnouncements.js'
+import {OptionTTSType} from '../../Options/OptionTTS.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
@@ -44,7 +44,6 @@ export default class Callbacks {
 
     public static async init() {   
         // region Callbacks
-
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
 
@@ -87,7 +86,7 @@ export default class Callbacks {
             await modules.tts.enqueueSpeakSentence(
                 messageData.text, 
                 userData.id,
-                ETTSType.Cheer,
+                OptionTTSType.Cheer,
                 Utils.getNonce('TTS'), 
                 messageData.bits, 
                 clearRanges
@@ -100,14 +99,15 @@ export default class Callbacks {
 
         modules.twitch.setChatCallback(async (userData, messageData) => {
             const clearRanges = TwitchFactory.getEmotePositions(messageData.emotes)
-            let type = ETTSType.Said
-            if(messageData.isAction) type = ETTSType.Action
+            let type = OptionTTSType.Said
+            if(messageData.isAction) type = OptionTTSType.Action
 
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
             const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
             const soundEffect = Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage)
-            if(states.ttsForAll) { 
+            if(states.ttsForAll) {
+                console.log('SPEECH', type)
                 // TTS is on for everyone
                 await modules.tts.enqueueSpeakSentence(
                     messageData.text, 

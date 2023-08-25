@@ -4,7 +4,6 @@ import Functions from './Functions.js'
 import Utils from '../../Classes/Utils.js'
 import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
 import Color from '../../Classes/ColorConstants.js'
-import {ETTSType} from './Enums.js'
 import ChannelTrophyUtils from '../../Classes/ChannelTrophyUtils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
 import {ITwitchHelixClipResponseData} from '../../Interfaces/itwitch_helix.js'
@@ -33,6 +32,7 @@ import ConfigCommands from '../../Objects/Config/ConfigCommands.js'
 import EventHelper from '../../Classes/EventHelper.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
+import {OptionTTSType} from '../../Options/OptionTTS.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -272,7 +272,7 @@ export default class ActionsCallbacks {
                         modules.tts.enqueueSpeakSentence(
                             speechArr[3],
                             chatbotTokens?.userId,
-                            ETTSType.Announcement
+                            OptionTTSType.Announcement
                         ).then()
                     } else {
                         // TODO: Disable all scale rewards

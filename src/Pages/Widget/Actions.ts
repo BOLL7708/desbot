@@ -1,5 +1,5 @@
-import {IAudioAction, ISpeechAction} from '../../Interfaces/iactions.js'
-import {EEventSource, ETTSType} from './Enums.js'
+import {IAudioAction} from '../../Interfaces/iactions.js'
+import {EEventSource} from './Enums.js'
 import Color from '../../Classes/ColorConstants.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
@@ -21,6 +21,8 @@ import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {ActionSystemRewardState} from '../../Objects/Action/ActionSystem.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
+import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
+import {OptionTTSType} from '../../Options/OptionTTS.js'
 
 export class ActionHandler {
     constructor(
@@ -473,7 +475,7 @@ export class Actions {
      */
     private static buildSoundAndSpeechCallback(
         config: IAudioAction|undefined,
-        speechConfig:ISpeechAction|undefined,
+        speechConfig:ActionSpeech|undefined,
         nonceTTS: string,
         onTtsQueue:boolean = false
     ): IActionCallback|undefined {
@@ -503,13 +505,13 @@ export class Actions {
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {
                         const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
-                        const voiceOfUserTagged = await TextHelper.replaceTagsInText(speechConfig.voiceOfUser ?? '', user)
+                        const voiceOfUserTagged = await TextHelper.replaceTagsInText(Utils.ensureStringNotId(speechConfig.voiceOfUser) ?? '', user)
                         const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelixHelper.getUserByLogin(voiceOfUserTagged) : undefined
                         const voiceUserId = parseInt(voiceUser?.id ?? '')
                         await modules.tts.enqueueSpeakSentence(
                             ttsStr,
                             isNaN(voiceUserId) ? chatbotTokens?.userId : voiceUserId,
-                            speechConfig.type ?? ETTSType.Announcement,
+                            speechConfig.type ?? OptionTTSType.Announcement,
                             nonceTTS,
                             undefined,
                             undefined,
