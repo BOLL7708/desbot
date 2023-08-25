@@ -3,7 +3,7 @@ import DataMap from '../DataMap.js'
 
 export class ConfigRelay extends Data {
     port: number = 7788
-    // streamDeckChannel: string = 'streaming_widget'
+    // streamDeckChannel: string = 'desbot_streamdeck
     overlayImagesChannel: string = 'overlay_images'
 
     enlist() {

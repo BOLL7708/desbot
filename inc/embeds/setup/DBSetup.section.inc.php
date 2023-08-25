@@ -7,7 +7,7 @@
 
     $possibleName = array_pop($reqParts);
     if(str_contains($possibleName, '.')) $possibleName = array_pop($reqParts); // Skip index.php
-    $dbName = $possibleName ?? 'streaming_widget'; // Fallback
+    $dbName = $possibleName ?? 'desbot'; // Fallback
 ?>
 <div id="sectionDBSetup">
     <h2>Database Setup</h2>
