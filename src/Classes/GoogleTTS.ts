@@ -16,7 +16,7 @@ import {SettingDictionaryEntry} from '../Objects/Setting/SettingDictionary.js'
 import ConfigChat from '../Objects/Config/ConfigChat.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
-import TempFactory from './TempFactory.js'
+import AudioUtils from './AudioUtils.js'
 import {OptionTTSType} from '../Options/OptionTTS.js'
 
 export default class GoogleTTS {
@@ -284,7 +284,7 @@ export default class GoogleTTS {
 
     enqueueSoundEffect(actionAudio: ActionAudio|undefined) {
         if(actionAudio) {
-            const audio = TempFactory.configAudio(actionAudio)
+            const audio = AudioUtils.configAudio(actionAudio)
             this._preloadQueue[++this._count] = audio
         }
     }

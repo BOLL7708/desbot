@@ -15,7 +15,7 @@ import {SettingSteamAchievements} from '../../Objects/Setting/SettingSteam.js'
 import {ConfigSteam} from '../../Objects/Config/ConfigSteam.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ConfigChat from '../../Objects/Config/ConfigChat.js'
-import TempFactory from '../../Classes/TempFactory.js'
+import AudioUtils from '../../Classes/AudioUtils.js'
 import ConfigTwitch from '../../Objects/Config/ConfigTwitch.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
@@ -26,7 +26,7 @@ export default class Functions {
         const states = StatesSingleton.getInstance()
         const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
         const audio = states.pingForChat ? Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
-        if(audio) modules.tts.setEmptyMessageSound(TempFactory.configAudio(audio))
+        if(audio) modules.tts.setEmptyMessageSound(AudioUtils.configAudio(audio))
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {

@@ -7,7 +7,7 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ConfigScreenshots from '../Config/ConfigScreenshots.js'
 import Utils from '../../Classes/Utils.js'
-import TempFactory from '../../Classes/TempFactory.js'
+import AudioUtils from '../../Classes/AudioUtils.js'
 
 export class ActionScreenshot extends Action {
     screenshotType = OptionScreenshotType.SuperScreenShotterVR
@@ -50,7 +50,7 @@ export class ActionScreenshot extends Action {
                                 if(sourcePreset) {
                                     const messageId = modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName, clone.delay)
                                     states.nonceCallbacks.set(messageId, ()=>{
-                                        if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
+                                        if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
                                     })
                                 } else console.warn("No source preset set for OBS source screenshot.")
                                 break
@@ -63,7 +63,7 @@ export class ActionScreenshot extends Action {
                     switch(clone.screenshotType) {
                         case OptionScreenshotType.OBSSource:
                             if(sourcePreset) {
-                                if(soundConfig) modules.audioPlayer.enqueueAudio(TempFactory.configAudio(soundConfig))
+                                if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
                                 modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName)
                             } else console.warn("No source preset set for OBS source screenshot.")
                             break

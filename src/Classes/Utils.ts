@@ -601,24 +601,6 @@ export default class Utils {
         window.history.replaceState(null, '', `?${urlParams.toString()}`);
     }
 
-    static applyEntryType<T>(entries: T[], type: number) {
-        switch(type) {
-            case OptionEntryUsage.OneSpecific:
-                entries.useSpecific()
-                break
-            case OptionEntryUsage.OneRandom:
-                entries.useRandom()
-                break
-            case OptionEntryUsage.All:
-                entries.useAll()
-                break
-            case OptionEntryUsage.AllRandom:
-                entries.useAllRandom()
-                break
-        }
-        return entries
-    }
-
     /**
      * Check if the string is a color, currently supports:
      *  rgb()
