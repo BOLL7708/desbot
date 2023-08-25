@@ -46,9 +46,10 @@ export class ActionSpeech extends Action {
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
+                const userName = await TextHelper.replaceTagsInText(clone.voiceOfUser_orUsername, user)
                 const voiceUserId = parseInt(
                     Utils.ensureObjectNotId(clone.voiceOfUser)
-                    ?? (await TwitchHelixHelper.getUserByLogin(clone.voiceOfUser_orUsername))?.id
+                    ?? (await TwitchHelixHelper.getUserByLogin(userName))?.id
                     ?? ''
                 )
                 for(const ttsStr of entries) {

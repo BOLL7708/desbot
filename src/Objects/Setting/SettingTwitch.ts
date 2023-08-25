@@ -8,7 +8,15 @@ export class SettingTwitchClient extends Data {
     redirectUri: string = ''
 
     enlist() {
-        DataMap.addRootInstance(new SettingTwitchClient())
+        DataMap.addRootInstance(
+            new SettingTwitchClient(),
+            '',
+            {},
+            {
+                clientId: 'string|secret',
+                clientSecret: 'string|secret'
+            }
+        )
     }
 }
 export class SettingTwitchTokens extends Data {
@@ -19,7 +27,14 @@ export class SettingTwitchTokens extends Data {
     scopes: string = ''
 
     enlist() {
-        DataMap.addRootInstance(new SettingTwitchTokens())
+        DataMap.addRootInstance(
+            new SettingTwitchTokens(),
+            '',
+            {},
+            {
+                refreshToken: 'string|secret',
+                accessToken: 'string|secret'
+            })
     }
 }
 export class SettingTwitchReward extends Data {
