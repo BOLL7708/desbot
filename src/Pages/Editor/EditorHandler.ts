@@ -8,6 +8,8 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import EnlistData from '../../Objects/EnlistData.js'
 import {EditorUtils} from './EditorUtils.js'
 import PageUtils from '../PageUtils.js'
+import {EventDefault} from '../../Objects/Event/EventDefault.js'
+import OptionEventType from '../../Options/OptionEventType.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -146,6 +148,10 @@ export default class EditorHandler {
         }
         if(!this._sideMenuDiv) return // Side menu does not exist in minimal mode.
 
+        const title = document.createElement('h3') as HTMLHeadingElement
+        title.innerHTML = Utils.camelToTitle(this._state.likeFilter, EUtilsTitleReturnOption.OnlyFirstWord) + ' Entries'
+        this._sideMenuDiv.replaceChildren(title)
+
         let classesAndCounts = await DataBaseHelper.loadClassesWithCounts(this._state.likeFilter)
         for(const className of DataMap.getNames(this._state.likeFilter)) {
             if(!classesAndCounts.hasOwnProperty(className)) {
@@ -160,6 +166,19 @@ export default class EditorHandler {
             const className = Object.keys(classesAndCounts)[0]
             const meta = DataMap.getMeta(className)
             if(meta) {
+                if(className == EventDefault.ref()) {
+                    const testSelector = document.createElement('select')
+                    const options = Object.entries(OptionEventType).map(([key, value])=>{
+                        const option = document.createElement('option')
+                        option.value = value
+                        option.innerText = Utils.camelToTitle(key)
+                        return option
+                    })
+                    testSelector.replaceChildren(...options)
+                    // this._sideMenuDiv.appendChild(testSelector)
+                    // TODO: This works, but we should remake the sidebar as a UL and have this selector redraw the whole thing with the picked value.
+                    //  Perhaps also always have an `- empty/all -` entry.
+                }
                 itemClass = className
                 const items = await DataBaseHelper.loadAll(meta.instance)
                 if(items) {
@@ -190,9 +209,6 @@ export default class EditorHandler {
             }
         }
 
-        const title = document.createElement('h3') as HTMLHeadingElement
-        title.innerHTML = Utils.camelToTitle(this._state.likeFilter, EUtilsTitleReturnOption.OnlyFirstWord) + ' Entries'
-        this._sideMenuDiv.replaceChildren(title)
         for(const [group,count] of Object.entries(classesAndCounts).sort()) {
             const link = document.createElement('span') as HTMLSpanElement
             const a = document.createElement('a') as HTMLAnchorElement

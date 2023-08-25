@@ -51,6 +51,9 @@ html, body {
 .hbar li a:hover {
     background-color: var(--topbar-link-hover);
 }
+.hbar .wip {
+    opacity: 50%;
+}
 .menu-bar-current, .menu-bar-current:hover {
     background-color: var(--topbar-link-active) !important;
 }
