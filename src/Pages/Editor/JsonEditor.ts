@@ -327,7 +327,7 @@ export default class JsonEditor {
             previewBox.style.backgroundImage = ''
             previewBox.style.backgroundColor = ''
             const value = input.innerText
-            if(thisTypeValues.file || parentTypeValues.file) {
+            if(thisTypeValues.file.length || parentTypeValues.file.length) {
                 const response = await fetch(value, { method: 'HEAD' })
                 const contentType = response.headers.get('Content-Type')
                 const contentLength = parseInt(response.headers.get('Content-Length') ?? '0')

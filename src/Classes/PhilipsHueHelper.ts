@@ -22,7 +22,10 @@ export default class PhilipsHueHelper {
             lightsLoaded = Object.keys(lights).length
             for(const [key, light] of Object.entries(lights)) {
                 let preset: PresetPhilipsHueBulb|PresetPhilipsHuePlug|undefined = undefined
-                if(light.config.archetype.includes('bulb')) {
+                if(
+                    light.config.archetype.includes('bulb')
+                    || light.config.archetype.includes('hueplay')
+                ) {
                     preset = new PresetPhilipsHueBulb()
                 } else if(light.config.archetype.includes('plug')) {
                     preset = new PresetPhilipsHuePlug()
