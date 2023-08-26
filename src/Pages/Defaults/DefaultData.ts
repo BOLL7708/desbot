@@ -24,6 +24,7 @@ import {ActionOBS, ActionOBSSource} from '../../Objects/Action/ActionOBS.js'
 import {ActionURI} from '../../Objects/Action/ActionURI.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 import OptionEventType from '../../Options/OptionEventType.js'
+import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState} from '../../Objects/Preset/PresetPhilipsHue.js'
 
 enum EKeys {
     // region Presets
@@ -36,6 +37,20 @@ enum EKeys {
     RewardSpeak = 'Speak',
     RewardSetVoice = 'Set Voice',
     RewardChannelTrophy = 'Channel Trophy',
+
+    PhilipsHueColorWhite = 'White',
+    PhilipsHueColorRed = 'Red',
+    PhilipsHueColorOrange = 'Orange',
+    PhilipsHueColorButtercup = 'Buttercup',
+    PhilipsHueColorYellow = 'Yellow',
+    PhilipsHueColorLime = 'Lime',
+    PhilipsHueColorGreen = 'Green',
+    PhilipsHueColorTurquoise = 'Turquoise',
+    PhilipsHueColorCyan = 'Cyan',
+    PhilipsHueColorSky = 'Sky',
+    PhilipsHueColorBlue = 'Blue',
+    PhilipsHueColorPurple = 'Purple',
+    PhilipsHueColorPink = 'Pink',
 
     DiscordChannelTrophy = 'Channel Trophy',
     DiscordChannelTrophyStats = 'Channel Trophy Statistics',
@@ -590,6 +605,112 @@ export default class DefaultData {
                         'Updating channel rewards.',
                         'Finished updating %updated, skipped %skipped, failed %failed.'
                     ]
+                    return await DataBaseHelper.save(instance, key)
+                }
+            }
+        ],
+        philipsHueBulbColorPresets: [
+            {
+                key: EKeys.PhilipsHueColorWhite,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.saturation = 0
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorRed,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 0
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorOrange,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 4*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorButtercup,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 8*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorYellow,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 12*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorLime,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 16*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorGreen,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 20*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorTurquoise,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 30*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorCyan,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 36*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorSky,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 40*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorBlue,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 44*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorPurple,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 48*1024
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PhilipsHueColorPink,
+                instance: new PresetPhilipsHueBulbState(),
+                importer: async (instance: PresetPhilipsHueBulbState, key: string) => {
+                    instance.hue = 56*1024
                     return await DataBaseHelper.save(instance, key)
                 }
             }

@@ -3,9 +3,9 @@ import DataMap from '../DataMap.js'
 import {DataUtils} from '../DataUtils.js'
 
 export class PresetPhilipsHueBulbState extends Data {
-    brightness: number = 255
+    brightness: number = 254
     hue: number = 0
-    saturation: number = 255
+    saturation: number = 254
 
     enlist() {
         DataMap.addRootInstance(
@@ -16,9 +16,9 @@ export class PresetPhilipsHueBulbState extends Data {
                 hue: 'Hue of the bulb.',
                 saturation: 'Saturation of the bulb, set to 0 for white.'
             }, {
-                brightness: DataUtils.getNumberRangeRef(0,255),
+                brightness: DataUtils.getNumberRangeRef(0,254),
                 hue: DataUtils.getNumberRangeRef(0,65535),
-                saturation: DataUtils.getNumberRangeRef(0,255)
+                saturation: DataUtils.getNumberRangeRef(0,254)
             }
         )
     }
