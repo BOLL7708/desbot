@@ -459,7 +459,7 @@ export default class EditorHandler {
         editorImportButton.onclick = async (event)=>{
             const result = await Utils.readFromClipboard(true)
             if(!result) alert('Unable to import, clipboard unavailable or contains invalid JSON data.')
-            else this._editor?.setData(result)
+            else this._editor?.setData(result.instance)
         }
 
         const hasAnyItems = dropdown.children.length > 0

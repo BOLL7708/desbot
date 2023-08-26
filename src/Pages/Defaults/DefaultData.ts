@@ -124,7 +124,7 @@ enum EKeys {
     CustomShoutOut = 'Command ShoutOut',
     CustomEndStream = 'Command End Stream',
 
-    LinkWidget = 'Command Link Widget',
+    LinkBot = 'Command Link Bot Website',
 
     // BOLL TODO: Temporary?
     BollPresetMainScene = 'Main',
@@ -1658,17 +1658,17 @@ export default class DefaultData {
         ],
         links: [
             {
-                key: EKeys.LinkWidget,
+                key: EKeys.LinkBot,
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
-                    trigger.entries = ['widget']
+                    trigger.entries = ['bot']
                     trigger.category = OptionCommandCategory.Links
-                    trigger.helpText = 'Posts a link to the bot Github page.'
+                    trigger.helpText = 'Posts a link to the bot website.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries = ['I can be yours here 👉 https://github.com/BOLL7708/desbot']
+                    action.entries = ['I can be yours here 👉 https://desbot.app']
                     return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.BonusImport)
                 }
             }
@@ -1802,10 +1802,10 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
                     trigger.entries = ['discord']
                     trigger.category = OptionCommandCategory.Custom
-                    trigger.helpText = 'Posts a link to the official DiscordUtils server.'
+                    trigger.helpText = 'Posts a link to the official Discord server.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries = ['Official DiscordUtils server 👉 https://discord.com/invite/CTj47pmxuT']
+                    action.entries = ['Official Discord server 👉 https://discord.com/invite/CTj47pmxuT']
                     return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             },
@@ -1835,7 +1835,7 @@ export default class DefaultData {
                     trigger.helpText = 'Posts a link to my main Github page.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries = ['Snacks procured from Haupt Lakrits 👉 https://www.lakrits.com/']
+                    action.entries = ['Github, where I keep my SteamVR and other projects 👉 https://github.com/BOLL7708']
                     return await DefaultData.registerEvent(instance, key, [trigger], [action], OptionEventType.Uncategorized)
                 }
             },

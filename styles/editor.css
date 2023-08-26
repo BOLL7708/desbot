@@ -21,6 +21,9 @@ code {
 #content li:nth-child(even) {
     background: var(--editor-row-even-color);
 }
+#content li:hover {
+    box-shadow: 0 0 8px var(--editor-focus-shadow);
+}
 
 .cover {
     color: var(--body-text-color);

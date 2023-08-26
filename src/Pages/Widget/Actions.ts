@@ -113,7 +113,6 @@ export class ActionHandler {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
-
             case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
@@ -173,6 +172,12 @@ export class ActionHandler {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
+            /**
+             * Action set indices:
+             * 0 : soft reset that can happen on each redemption
+             * 1 : hard reset that will happen after timeout
+             * 2-* : action sets that are run when redeemed and leveling up
+             */
             case OptionEventBehavior.MultiTier: {
                 // Increase multi-tier counter
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
