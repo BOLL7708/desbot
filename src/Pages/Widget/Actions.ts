@@ -87,13 +87,12 @@ export class ActionHandler {
                 const triggers = event.getTriggers(new TriggerReward())
                 let hasAdvancedCounter = false
                 for(const trigger of triggers) {
-                    if(trigger.rewardEntries.length > 1) {
-                        if(!hasAdvancedCounter) {
-                            counter.count++
-                            await DataBaseHelper.save(counter, eventId.toString())
-                            hasAdvancedCounter = true
-                        }
-
+                    if(!hasAdvancedCounter) {
+                        counter.count++
+                        await DataBaseHelper.save(counter, eventId.toString())
+                        hasAdvancedCounter = true
+                    }
+                    if(trigger.rewardEntries.length) {
                         const rewardPresetIndex = event.options.behaviorOptions.incrementationLoop
                             ? counter.count % trigger.rewardEntries.length // Loop
                             : Math.min(counter.count, trigger.rewardEntries.length-1) // Clamp to max
@@ -109,8 +108,8 @@ export class ActionHandler {
 
                 // Register index and build callback for this step of the sequence
                 index = event.options.behaviorOptions.incrementationLoop
-                    ? counter.count % eventActionContainers.length // Loop
-                    : Math.min(counter.count, eventActionContainers.length-1) // Clamp to max
+                    ? (counter.count - 1) % eventActionContainers.length // Loop
+                    : Math.min(counter.count - 1, eventActionContainers.length-1) // Clamp to max
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
@@ -125,27 +124,32 @@ export class ActionHandler {
                 const triggers = event.getTriggers(new TriggerReward())
                 let hasAdvancedCounter = false
                 for(const trigger of triggers) {
-                    if(trigger.rewardEntries.length > 1) {
-                        if(!hasAdvancedCounter) {
-                            counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
-                            await DataBaseHelper.save(counter, eventId.toString())
-                            hasAdvancedCounter = true
-                        }
-
-                        /*
-                        Always use second to last for progress,
-                        which can be the same as the first one,
-                        and then the last one for the end.
-                         */
+                    if(!hasAdvancedCounter) {
+                        counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
+                        await DataBaseHelper.save(counter, eventId.toString())
+                        hasAdvancedCounter = true
+                    }
+                    /*
+                    For both actions sets and rewards we should use the first one for resets,
+                    the second to last one for progress, and the last one for the final result.
+                    This should work with only one action set, and only one reward.
+                    These should work independently of each other.
+                     */
+                    const goalIsMet = counter.count >= goalCount
+                    if(eventActionContainers.length) {
                         index = 0
+                        if (goalIsMet) { // Final
+                            index = eventActionContainers.length - 1 // Last
+                        } else { // Progress
+                            index = Math.max(0, eventActionContainers.length - 2) // Second to last
+                        }
+                    }
+                    if(trigger.rewardEntries.length) {
                         let rewardIndex = 0
-                        if (counter.count >= goalCount) {
-                            // Final reward (when goal has been reached)
-                            rewardIndex = trigger.rewardEntries.length -1
-                            index = 1
-                        } else {
-                            // Intermediate reward (before reaching goal)
-                            rewardIndex = Math.max(0, trigger.rewardEntries.length-2)
+                        if (goalIsMet) { // Final
+                            rewardIndex = trigger.rewardEntries.length -1 // Last
+                        } else { // Progress
+                            rewardIndex = Math.max(0, trigger.rewardEntries.length - 2) // Second to last
                         }
 
                         const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[rewardIndex] ?? undefined)
@@ -157,8 +161,9 @@ export class ActionHandler {
                             // Make sure the last reward doesn't cost more points than the total left.
                             const cost = clone.cost
                             if (rewardIndex < 2 && (counter.count + cost) > goalCount) {
-                                clone.cost = goalCount - counter.count
+                                clone.cost = Math.max(1, goalCount - counter.count)
                             }
+                            if(goalIsMet) clone.is_paused = true
                             const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone as PresetReward) // TODO: Maybe we can remove this typecast?
                         }
                     }

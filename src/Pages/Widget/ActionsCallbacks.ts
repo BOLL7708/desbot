@@ -702,11 +702,13 @@ export default class ActionsCallbacks {
                             const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0]) as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
                             const rewardID = Utils.ensureStringNotId(trigger.rewardID)
                             if(preset && rewardID) {
-                                const clone = await preset.__clone()
-                                clone.title = await TextHelper.replaceTagsInText(clone.title, user)
-                                clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
-                                Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
                                 await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
+                                const clone = await preset.__clone()
+                                const userClone = Utils.clone(user)
+                                userClone.eventKey = key
+                                clone.title = await TextHelper.replaceTagsInText(clone.title, userClone)
+                                clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, userClone)
+                                Utils.log(`Resetting accumulating reward: ${key}`, Color.Green)
                                 await TwitchHelixHelper.updateReward(rewardID, clone)
                                 totalResetCount++
                             } else {

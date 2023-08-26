@@ -603,7 +603,7 @@ export default class DefaultData {
                 importer: async (instance: PresetSystemActionText, key: string) => {
                     instance.speech = [
                         'Updating channel rewards.',
-                        'Finished updating %updated, skipped %skipped, failed %failed.'
+                        'Finished updating %updated rewards, skipped %skipped, failed %failed.'
                     ]
                     return await DataBaseHelper.save(instance, key)
                 }

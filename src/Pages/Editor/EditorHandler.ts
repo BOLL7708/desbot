@@ -203,7 +203,6 @@ export default class EditorHandler {
                             ).then()
                         }
                     }
-                    console.log(this._contentDiv, newButton)
                     this._contentDiv?.appendChild(newButton)
                 }
             }
