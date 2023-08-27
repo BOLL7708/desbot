@@ -2,10 +2,10 @@ import Data from '../Data.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
 import DataMap from '../DataMap.js'
 import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.js'
+import {EventDefault} from '../Event/EventDefault.js'
 
 export class ConfigPipe extends Data {
     port: number = 8077
-    showRewardsWithKeys: string[] = [] // TODO: Is this working?
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()
     customChatNameConfig = new ConfigPipeCustomMessageName()
@@ -18,15 +18,11 @@ export class ConfigPipe extends Data {
             'In-VR-overlays and notifications with: https://github.com/BOLL7708/OpenVRNotificationPipe',
             {
                 port: 'The port number set in OpenVRNotificationPipe.',
-                showRewardsWithKeys: 'Pipe the input text for these rewards into VR.',
                 useCustomChatNotification: 'If on uses a custom notification graphic for text pipes into VR, instead of the default SteamVR notification.',
                 customChatMessageConfig: 'The text box settings for the custom chat notification text message.',
                 customChatNameConfig: 'The text box settings for the custom chat notification username.\nWill not be drawn if no username was supplied.',
                 customChatAvatarConfig: 'The settings for the custom chat notification avatar image.\nWill not be drawn if the image could not be loaded.',
                 cleanTextConfig: 'Configuration for cleaning the text before it is piped.'
-            },
-            {
-                showRewardsWithKeys: 'string'
             }
         )
     }

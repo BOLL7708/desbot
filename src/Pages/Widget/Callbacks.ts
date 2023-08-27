@@ -182,8 +182,8 @@ export default class Callbacks {
         modules.twitchEventSub.setOnRewardCallback(async (event: ITwitchEventSubEventRedemption) => {
             if(!event) return console.warn('Reward redemption empty', event)
             const user = await TwitchHelixHelper.getUserById(parseInt(event.user_id))
-            const rewardPairs = await LegacyUtils.getRewardPairs()
-            const rewardPair = rewardPairs.find((pair) => { return pair.id === event.reward.id })
+
+            // TODO: Get event(s) from reward ID somehow? event.reward.id
 
             // Discord
             // TODO: Not yet available with EventSub, handle it on our own I guess.
@@ -202,8 +202,8 @@ export default class Callbacks {
                     description
                 )
             }
-            const key = rewardPair?.key ?? 'Unknown'
             /* TODO: Reimplement this with some kind of reference per event?!
+            const key = rewardPair?.key ?? 'Unknown'
             const rewardSpecificWebhook = Config.credentials.DiscordWebhooks[key]
             const ignoreWebhook = !!Config.events[key]?.options?.rewardIgnoreAutomaticDiscordPosting
             if(rewardSpecificWebhook && !ignoreWebhook) {
@@ -215,18 +215,6 @@ export default class Callbacks {
                 )
             }
             */
-
-            // Pipe to VR (basic)
-            const pipeConfig = await DataBaseHelper.loadMain(new ConfigPipe())
-            const showReward = pipeConfig.showRewardsWithKeys.indexOf(rewardPair?.key ?? 'Unknown') > -1
-            if(showReward) {
-                modules.pipe.sendBasic(
-                    event.user_input,
-                    user?.display_name, 
-                    await TwitchHelixHelper.getUserColor(parseInt(event.user_id)) ?? Color.White,
-                    user?.profile_image_url
-                ).then()
-            }
         })
 
         const subscriptionHandler = async (user:IActionUser, tier: number, gift: boolean, multi: boolean)=>{

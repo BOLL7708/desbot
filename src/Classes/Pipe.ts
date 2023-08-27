@@ -180,7 +180,7 @@ export default class Pipe {
 
             // Show it
             const action = new ActionPipe()
-            action.preset = preset
+            action.customPreset = preset
             action.imageDataEntries = [imageEditor.getData()]
             action.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
@@ -218,37 +218,46 @@ export default class Pipe {
     }
     async showAction(action: ActionPipe, index?: number) {
 	    if(!this._socket?.isConnected()) console.warn('Pipe.showPreset: Websockets instance not initiated.')
-        const preset = Utils.ensureObjectNotId(action.preset)
-        if(!preset) return console.warn('Pipe.showPreset: Action did not contain a preset.')
+        const basicPreset = Utils.ensureObjectNotId(action.basicPreset)
+        const customPreset = Utils.ensureObjectNotId(action.customPreset)
+        if(!basicPreset && !customPreset) return console.warn('Pipe.showPreset: Action did not contain any preset.')
+
+        // Basic preset, expand on this later?
+        if(basicPreset) {
+            this.sendBasic(basicPreset.basicMessage, basicPreset.basicTitle).then()
+        }
+
         // If path exists, load image, in all cases output base64 image data
         const states = StatesSingleton.getInstance()
         let imageB64arr: string[] = []
         if(action.imagePathEntries.length > 0) {
             for(const imagePath of action.imagePathEntries) {
-                const stateKey = preset.customProperties?.anchorType ?? 0
+                const stateKey = customPreset?.customProperties?.anchorType ?? 0
                 states.pipeLastImageFileNamePerAnchor.set(stateKey, imagePath.split('/').pop() ?? '')
                 imageB64arr.push(await ImageHelper.getDataUrl(imagePath))
             }
         } else if (action.imageDataEntries.length > 0) {
             imageB64arr = action.imageDataEntries
         } else {
-            console.warn("Pipe: No image path nor image data found for preset")
+            if(customPreset) console.warn("Pipe: No image path nor image data found for preset")
         }
         
         // If the above resulted in image data, broadcast it
         for(const imageB64 of imageB64arr) {
-            preset.imageData = Utils.removeImageHeader(imageB64)
-            if (preset.customProperties) {
-                preset.customProperties.animationHz = -1
-                preset.customProperties.durationMs = action.durationMs;
-                const textAreaCount = preset.customProperties.textAreas.length
-                if (action.texts.length >= textAreaCount) {
-                    for (let i = 0; i < textAreaCount; i++) {
-                        preset.customProperties.textAreas[i].text = action.texts[i]
+            if(customPreset) {
+                customPreset.imageData = Utils.removeImageHeader(imageB64)
+                if (customPreset.customProperties) {
+                    customPreset.customProperties.animationHz = -1
+                    customPreset.customProperties.durationMs = action.durationMs;
+                    const textAreaCount = customPreset.customProperties.textAreas.length
+                    if (action.texts.length >= textAreaCount) {
+                        for (let i = 0; i < textAreaCount; i++) {
+                            customPreset.customProperties.textAreas[i].text = action.texts[i]
+                        }
                     }
                 }
+                this.sendCustom(customPreset).then()
             }
-            this.sendCustom(preset).then()
         }
         if(imageB64arr.length == 0) {
             console.warn('Pipe: Show Custom, could not find image!')

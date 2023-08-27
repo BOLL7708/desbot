@@ -56,8 +56,7 @@ export class ActionHandler {
         */
 
         // TODO: This should execute collections of actions in order.
-        //   The main callback should take ALL OF THE THINGS?!?!?!?!
-
+        //  The main callback should take ALL OF THE THINGS?!?!?!?!
 
         const options = event.options
         // entries is an array of containers that then contains the actions.
@@ -78,6 +77,10 @@ export class ActionHandler {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, options.specificIndex))
                 break
             }
+            /**
+             * Action set indices:
+             * 0 - * : will run from first level for as long as it has sets, repeats last unless reward disables.
+             */
             case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
@@ -102,6 +105,7 @@ export class ActionHandler {
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                             const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone)
+                            if(!result) console.warn('Incrementing Event: Failed to update reward', clone, result)
                         }
                     }
                 }
@@ -113,6 +117,16 @@ export class ActionHandler {
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
+            /**
+             * If you have one reward preset, it will be used for all sets.
+             * If you have two reward presets, the second one will be used when done.
+             * If you have three or more reward presets, the second to last one will be for progress and the last one will be the finish.
+             *
+             * Action set indices:
+             * 0 : start (applied on reset/update)
+             * 1 : progress (second to last, or first if only one set)
+             * 2 : finish (always the last, so works with a single set)
+             */
             case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
@@ -164,6 +178,7 @@ export class ActionHandler {
                             }
                             if(goalIsMet) clone.is_paused = true
                             const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone as PresetReward) // TODO: Maybe we can remove this typecast?
+                            if(!result) console.warn('Accumulating Event: Failed to update reward', clone, result)
                         }
                     }
                 }
@@ -278,7 +293,9 @@ export class ActionHandler {
             }
         }
         if(actionsMainCallback) actionsMainCallback(user, index ?? options.specificIndex) // Index is included here to supply it to entries-handling
-        else console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${options?.behavior}`)
+        else {
+            console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${options?.behavior}`)
+        }
     }
 }
 export class Actions {
