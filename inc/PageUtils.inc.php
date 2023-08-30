@@ -15,7 +15,7 @@ class PageUtils {
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>desbot: <?=ucfirst($scriptFile)?>></title>
+        <title>desbot: <?=ucfirst($scriptFile)?></title>
         <link rel="icon" type="image/png" sizes="16x16" href="./media/desbot_logo_mono_16px.png" />
         <link rel="icon" type="image/svg+xml" href="./media/desbot_logo_mono.svg" />
         <link rel="stylesheet" href="./styles/general.css"/>
