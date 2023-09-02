@@ -244,3 +244,7 @@ export class DataRefValues {
     range: number[] = []
     code = false
 }
+
+export interface IData<T>{
+    [id: number]: T&Data|string|number|boolean
+}
