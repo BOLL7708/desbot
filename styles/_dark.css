@@ -51,9 +51,7 @@
     --editor-drag-icon-border-hover: #ffffff40;
     --editor-modified-background-color: #604849;
     --editor-focus-shadow: #ffffff40;
+    --editor-logo-shadow: #ffffff40;
     --cover-background-color: #80808080;
     --cover-modal-background-color: #404040;
-}
-#corner-logo {
-    filter: invert();
 }

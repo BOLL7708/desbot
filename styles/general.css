@@ -65,8 +65,8 @@ html, body {
 #corner-logo {
     width: 48px;
     height: 48px;
+    filter: drop-shadow(0 0 6px var(--editor-logo-shadow));
 }
-
 
 /* Favorites Bar */
 #favorites-bar {
