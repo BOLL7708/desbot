@@ -23,10 +23,10 @@ export class ActionPhilipsHueBulb extends Action {
                 entries: 'The bulbs to affect.',
             },
             {
-                entries: PresetPhilipsHueBulb.refIdKeyLabel(),
-                entries_use: OptionEntryUsage.ref(),
-                colorEntries: PresetPhilipsHueBulbState.refId(),
-                colorEntries_use: OptionEntryUsage.ref()
+                entries: PresetPhilipsHueBulb.ref.id.key.label.build(),
+                entries_use: OptionEntryUsage.ref,
+                colorEntries: PresetPhilipsHueBulbState.ref.id.build(),
+                colorEntries_use: OptionEntryUsage.ref
             }
         )
     }

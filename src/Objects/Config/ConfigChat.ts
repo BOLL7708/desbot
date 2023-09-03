@@ -27,10 +27,10 @@ export default class ConfigChat extends Data {
                 proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: botname, username, message'
             },
             {
-                pipePreset: PresetPipeCustom.refId(),
-                soundEffectOnEmptyMessage: ActionAudio.refId(),
-                logToDiscord: PresetDiscordWebhook.refId(),
-                proxyChatBotUser: SettingUser.refIdLabel(),
+                pipePreset: PresetPipeCustom.ref.id.build(),
+                soundEffectOnEmptyMessage: ActionAudio.ref.key.id.build(),
+                logToDiscord: PresetDiscordWebhook.ref.id.build(),
+                proxyChatBotUser: SettingUser.ref.id.label.build(),
             }
         )
     }

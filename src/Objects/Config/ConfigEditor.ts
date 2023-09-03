@@ -31,7 +31,7 @@ export class ConfigEditor extends Data {
             },
             {
                 audioPreviewVolume: DataUtils.getNumberRangeRef(1, 100),
-                favorites: ConfigEditorFavorite.ref()
+                favorites: ConfigEditorFavorite.ref.build()
             }
         )
     }

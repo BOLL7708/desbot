@@ -166,7 +166,7 @@ export default class EditorHandler {
             const className = Object.keys(classesAndCounts)[0]
             const meta = DataMap.getMeta(className)
             if(meta) {
-                if(className == EventDefault.ref()) {
+                if(className == EventDefault.ref.build()) {
                     const testSelector = document.createElement('select')
                     const options = Object.entries(OptionEventType).map(([key, value])=>{
                         const option = document.createElement('option')

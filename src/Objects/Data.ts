@@ -23,50 +23,17 @@ export default abstract class Data {
 
     /**
      * Get the name of the class without instantiating it.
-     * If this is used the referenced class will be instanced in place.
+     * If this is used the referenced class will be instantiated in place and stored directly in ths JSON object.
      */
-    static ref(): string {
-        return this.name
+    static get ref(): DataRefBuilder {
+        return new DataRefBuilder(this.name)
     }
-
     /**
-     * Get the name of the class appended with the ID flag.
-     * If this ID is referenced when instancing a class, it will be filled with the object.
+     * Used to denote a generic object field that can contain any variant and is automatically an ID reference.
+     * @param like Will show a list in the editor filtered on this as a starting word for matching classes.
      */
-    static refId() {
-        return this.ref()+'|id'
-    }
-
-    /**
-     * Get the name of the class appended with the ID and label flags.
-     * If this ID is referenced when instancing a class, it will be filled with the object.
-     */
-    static refIdLabel(): string {
-        return this.refId()+`|label`
-    }
-
-    /**
-     * Get the name of the class appended with the ID flag.
-     * If this ID is referenced when instancing a class, it will be filled with the key for the object.
-     */
-    static refIdKey() {
-        return this.refId()+'|key'
-    }
-
-    /**
-     * Get the name of the class appended with the ID and label flags.
-     * If this ID is referenced when instancing a class, it will be filled with the key for the object.
-     */
-    static refIdKeyLabel() {
-        return this.refIdKey()+`|label`
-    }
-
-    /**
-     * Used to denote a generic object field that can contain any variant.
-     * @param like Will show a list in the editor filtered on this as a starting word.
-     */
-    static genericRef(like: TDataCategory) {
-        return Data.refId()+'|like='+like
+    static genericRef(like: TDataCategory): DataRefBuilder {
+        return new DataRefBuilder(Data.name).id.like(like)
     }
 
     // endregion
@@ -105,7 +72,7 @@ export default abstract class Data {
                 const types = DataMap.getMeta(thisClass)?.types ?? {}
                 const typeValues = DataUtils.parseRef(types[propertyName] ?? '')
                 const hasSubInstance = DataMap.hasInstance(typeValues.class)
-                const isBaseDataObject = typeValues.class == Data.ref()
+                const isBaseDataObject = typeValues.class == Data.ref.build()
                 if((hasSubInstance || isBaseDataObject) && typeValues.isIdReference && fillReferences) {
                     // Populate reference list of IDs with the referenced object.
                     if (Array.isArray(propertyValue)) {
@@ -230,6 +197,56 @@ export default abstract class Data {
 }
 
 export class EmptyData extends Data { enlist() {} }
+
+export class DataRefBuilder {
+    private parts: string[] = []
+    constructor(name: string) {
+        this.parts.push(name)
+    }
+    /**
+     * Append the ID flag.
+     * The JSON will store an ID referencing this class, at runtime the ID will be replaced with that class instantiated.
+     */
+    public get id():DataRefBuilder {
+        this.parts.push('id')
+        return this
+    }
+
+    /**
+     * Append the label flag.
+     * The editor will show a specified label value instead of the key when referencing this object in a list.
+     */
+    public get label():DataRefBuilder {
+        this.parts.push('label')
+        return this
+    }
+
+    /**
+     * Append the key flag.
+     * If this object is a reference, when it is loaded it will not be that object but only the key for the object.
+     */
+    public get key():DataRefBuilder {
+        this.parts.push('key')
+        return this
+    }
+
+    /**
+     * Append the like flag.
+     * The pattern to match classes with when using a generic reference.
+     * @param pattern
+     */
+    public like(pattern: TDataCategory):DataRefBuilder {
+        this.parts.push(`like=${pattern}`)
+        return this
+    }
+
+    /**
+     * Outputs the reference string
+     */
+    public build(): string {
+        return this.parts.join('|')
+    }
+}
 
 export class DataRefValues {
     original = ''

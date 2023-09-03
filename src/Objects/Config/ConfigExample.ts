@@ -102,39 +102,39 @@ export class ConfigExample extends Data {
                 singleNumberRange: DataUtils.getNumberRangeRef(-100, 100, 5),
                 singleSecretString: 'string|secret',
                 singleFileString: DataUtils.getStringFileImageRef(),
-                singleIdReference: PresetPipeBasic.refId(),
-                singleIdReferenceUsingLabel: PresetPipeBasic.refIdLabel(),
-                singleIdToKeyReference: PresetPipeBasic.refIdKey(),
-                singleIdToKeyReferenceUsingLabel: PresetPipeBasic.refIdKeyLabel(),
-                singleIdToGenericReference: Data.genericRef('Setting'),
-                singleEnum: OptionEntryUsage.ref(),
+                singleIdReference: PresetPipeBasic.ref.id.build(),
+                singleIdReferenceUsingLabel: PresetPipeBasic.ref.id.label.build(),
+                singleIdToKeyReference: PresetPipeBasic.ref.id.key.build(),
+                singleIdToKeyReferenceUsingLabel: PresetPipeBasic.ref.id.key.label.build(),
+                singleIdToGenericReference: Data.genericRef('Setting').build(),
+                singleEnum: OptionEntryUsage.ref,
                 arrayOfBooleans: 'boolean',
-                arrayOfBooleans_use: OptionEntryUsage.ref(),
+                arrayOfBooleans_use: OptionEntryUsage.ref,
                 arrayOfNumbers: 'number',
                 arrayOfStrings: 'string',
                 arrayOfSecretStrings: 'string|secret',
                 arrayOfFileStrings: DataUtils.getStringFileImageRef(),
-                arrayOfSubInstances: ConfigExampleSub.ref(),
-                arrayOfIdReferences: PresetPipeBasic.refId(),
-                arrayOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
-                arrayOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
-                arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
-                arrayOfIdToGenericReferences: Data.genericRef('Setting'),
-                arrayOfEnum: OptionEntryUsage.ref(),
+                arrayOfSubInstances: ConfigExampleSub.ref.build(),
+                arrayOfIdReferences: PresetPipeBasic.ref.id.build(),
+                arrayOfIdReferencesUsingLabels: PresetPipeBasic.ref.id.label.build(),
+                arrayOfIdToKeyReferences: PresetPipeBasic.ref.id.key.build(),
+                arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.ref.id.key.label.build(),
+                arrayOfIdToGenericReferences: Data.genericRef('Setting').build(),
+                arrayOfEnum: OptionEntryUsage.ref,
                 dictionaryOfBooleans: 'boolean',
                 dictionaryOfNumbers: 'number',
                 dictionaryOfStrings: 'string',
-                dictionaryOfSubInstances: ConfigExampleSub.ref(),
-                dictionaryOfIdReferences: PresetPipeBasic.refId(),
-                dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.refIdLabel(),
-                dictionaryOfIdToKeyReferences: PresetPipeBasic.refIdKey(),
-                dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.refIdKeyLabel(),
-                dictionaryOfIdToGenericReferences: Data.genericRef('Setting'),
-                dictionaryOfEnums: OptionEntryUsage.ref(),
-                partnerToSingleAdvanced_enum: OptionEntryUsage.ref(),
+                dictionaryOfSubInstances: ConfigExampleSub.ref.build(),
+                dictionaryOfIdReferences: PresetPipeBasic.ref.id.build(),
+                dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.ref.id.label.build(),
+                dictionaryOfIdToKeyReferences: PresetPipeBasic.ref.id.key.build(),
+                dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.ref.id.key.label.build(),
+                dictionaryOfIdToGenericReferences: Data.genericRef('Setting').build(),
+                dictionaryOfEnums: OptionEntryUsage.ref,
+                partnerToSingleAdvanced_enum: OptionEntryUsage.ref,
                 partnerToArray: 'string',
                 partnerToDictionary: 'string',
-                partnerToEnum: OptionEntryUsage.ref()
+                partnerToEnum: OptionEntryUsage.ref
             }
         )
     }
@@ -152,8 +152,8 @@ export class ConfigExampleSub extends Data {
                 singleIdReference: 'A reference to an object'
             },
             {
-                singleIdReference: PresetPipeBasic.refId(),
-                singleEnum: OptionEntryUsage.ref()
+                singleIdReference: PresetPipeBasic.ref.id.build(),
+                singleEnum: OptionEntryUsage.ref
             }
         )
     }

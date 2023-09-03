@@ -18,7 +18,7 @@ export class ActionChat extends Action {
             },
             {
                 entries: 'string',
-                entries_use: OptionEntryUsage.ref()
+                entries_use: OptionEntryUsage.ref
             }
         )
     }

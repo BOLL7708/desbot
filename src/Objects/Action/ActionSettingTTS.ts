@@ -25,7 +25,7 @@ export class ActionSettingTTS extends Action {
                 inputOverride: 'This uses trigger input unless this is set.'
             },
             {
-                functionType: OptionTTSFunctionType.ref()
+                functionType: OptionTTSFunctionType.ref
             }
         )
     }

@@ -85,7 +85,7 @@ export class ActionHandler {
              */
             case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
-                const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
+                const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
 
                 // Switch to the next incremental reward if it has more configs available
@@ -132,7 +132,7 @@ export class ActionHandler {
              */
             case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
-                const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
+                const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
                 const goalCount = options.behaviorOptions.accumulationGoal
 
@@ -199,7 +199,7 @@ export class ActionHandler {
              */
             case OptionEventBehavior.MultiTier: {
                 // Increase multi-tier counter
-                const eventId = await DataBaseHelper.loadID(EventDefault.ref(), this.key)
+                const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = states.multiTierEventCounters.get(eventId.toString()) ?? {count: 0, timeoutHandle: 0}
                 counter.count++
                 const maxLevel = options.behaviorOptions.multiTierMaxLevel

@@ -34,8 +34,8 @@ export class TriggerCommand extends Trigger {
             },
             {
                 entries: 'string',
-                permissions: PresetPermissions.refId(),
-                category: OptionCommandCategory.ref(),
+                permissions: PresetPermissions.ref.id.build(),
+                category: OptionCommandCategory.ref,
                 helpInput: 'string'
             }
         )

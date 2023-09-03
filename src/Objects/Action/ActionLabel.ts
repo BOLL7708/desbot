@@ -23,7 +23,7 @@ export class ActionLabel extends Action {
             },
             {
                 textEntries: 'string',
-                textEntries_use: OptionEntryUsage.ref()
+                textEntries_use: OptionEntryUsage.ref
             }
         )
     }

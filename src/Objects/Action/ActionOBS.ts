@@ -28,12 +28,12 @@ export class ActionOBS extends Action {
                 state: 'Define a specific state, true is on/visible.'
             },
             {
-                sceneEntries: PresetOBSScene.refId(),
-                sceneEntries_use: OptionEntryUsage.ref(),
-                sourceEntries: ActionOBSSource.ref(),
-                sourceEntries_use: OptionEntryUsage.ref(),
-                filterEntries: ActionOBSFilter.ref(),
-                filterEntries_use: OptionEntryUsage.ref()
+                sceneEntries: PresetOBSScene.ref.id.build(),
+                sceneEntries_use: OptionEntryUsage.ref,
+                sourceEntries: ActionOBSSource.ref.build(),
+                sourceEntries_use: OptionEntryUsage.ref,
+                filterEntries: ActionOBSFilter.ref.build(),
+                filterEntries_use: OptionEntryUsage.ref
             }
         )
     }
@@ -63,8 +63,8 @@ export class ActionOBSSource extends Data {
             {
                 scenePreset: 'The scene the source is in.'
             },{
-                scenePreset: PresetOBSScene.refId(),
-                sourcePreset: PresetOBSSource.refId()
+                scenePreset: PresetOBSScene.ref.id.build(),
+                sourcePreset: PresetOBSSource.ref.id.build()
             }
         )
     }
@@ -79,8 +79,8 @@ export class ActionOBSFilter extends Data {
             {
                 sourcePreset: 'The source the filter attached to.'
             },{
-                sourcePreset: PresetOBSSource.refId(),
-                filterPreset: PresetOBSFilter.refId()
+                sourcePreset: PresetOBSSource.ref.id.build(),
+                filterPreset: PresetOBSFilter.ref.id.build()
             }
         )
     }

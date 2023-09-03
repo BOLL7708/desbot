@@ -198,7 +198,7 @@ export default class TwitchHelixHelper {
             if(!eventItem.options.rewardOptions.ignoreUpdateCommand) {
                 const triggers = DataUtils.ensureValues(eventItem.triggers) ?? []
                 for (const trigger of triggers) {
-                    if (trigger.__getClass() == TriggerReward.ref()) {
+                    if (trigger.__getClass() == TriggerReward.ref.build()) {
                         const triggerReward = (trigger as TriggerReward)
                         const rewardID = DataUtils.ensureValue(triggerReward.rewardID)
                         const rewardPresets = DataUtils.ensureValues(triggerReward.rewardEntries) ?? []

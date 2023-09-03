@@ -58,12 +58,12 @@ export class ConfigScreenshotsCallback extends Data {
                 captureSoundEffect: 'As there is not built in audio effect for OBS screenshots an option for that is provided here.\nWhy this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.'
             },
             {
-                discordEmbedImageFormat: OptionScreenshotFileType.ref(),
-                discordWebhooksOBS: PresetDiscordWebhook.refId(),
-                discordWebhooksSSSVR: PresetDiscordWebhook.refId(),
-                pipeEnabledForEvents: EventDefault.refIdKeyLabel(),
-                pipePreset: PresetPipeCustom.refId(),
-                captureSoundEffect: ActionAudio.refId()
+                discordEmbedImageFormat: OptionScreenshotFileType.ref,
+                discordWebhooksOBS: PresetDiscordWebhook.ref.id.build(),
+                discordWebhooksSSSVR: PresetDiscordWebhook.ref.id.build(),
+                pipeEnabledForEvents: EventDefault.ref.id.key.label.build(),
+                pipePreset: PresetPipeCustom.ref.id.build(),
+                captureSoundEffect: ActionAudio.ref.id.build()
             }
         )
     }

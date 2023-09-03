@@ -29,7 +29,7 @@ export class ActionAudio extends Action {
                 onTTSQueue: 'If true, the audio will be queued with TTS to play after the current speech is finished.'
             }, {
                 srcEntries: DataUtils.getStringFileAudioRef(),
-                srcEntries_use: OptionEntryUsage.ref()
+                srcEntries_use: OptionEntryUsage.ref
             }
         )
     }

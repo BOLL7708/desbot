@@ -27,9 +27,9 @@ export class ActionInput extends Action {
                 postfixEnterStroke: 'Press enter at the end of every command, useful for console commands.'
             },
             {
-                type: OptionCommandType.ref(),
-                commands: ActionInputCommand.ref(),
-                commands_use: OptionEntryUsage.ref()
+                type: OptionCommandType.ref,
+                commands: ActionInputCommand.ref.build(),
+                commands_use: OptionEntryUsage.ref
             }
         )
     }

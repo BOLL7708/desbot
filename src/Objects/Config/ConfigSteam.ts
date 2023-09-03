@@ -31,8 +31,8 @@ export class ConfigSteam extends Data {
             }, {
                 steamWebApiKey: 'string|secret',
                 steamUserId: 'string|secret',
-                ignoredAppIds: SettingSteamGame.refIdKeyLabel(),
-                achievementToDiscord: PresetDiscordWebhook.refId()
+                ignoredAppIds: SettingSteamGame.ref.id.key.label.build(),
+                achievementToDiscord: PresetDiscordWebhook.ref.id.build()
             }
         )
     }

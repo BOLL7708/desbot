@@ -8,6 +8,7 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import {ITwitchReward} from '../../Interfaces/itwitch.js'
 import Utils from '../../Classes/Utils.js'
 import {ActionHandler} from '../../Pages/Widget/Actions.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|IData<PresetPermissions> = 0
@@ -23,21 +24,19 @@ export class TriggerReward extends Trigger {
                 rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.'
             },
             {
-                permissions: PresetPermissions.refId(),
-                rewardID: SettingTwitchReward.refIdKeyLabel(),
-                rewardEntries: Data.genericRef('PresetReward') // I believe this was done to give these items a parent
+                permissions: PresetPermissions.ref.id.build(),
+                rewardID: SettingTwitchReward.ref.id.key.label.build(),
+                rewardEntries: Data.genericRef('PresetReward').build() // I believe this was done to give these items a parent
             }
         )
     }
 
     register(eventKey: string) {
         const modules = ModulesSingleton.getInstance()
-        const actionHandler = new ActionHandler(eventKey)
-        if(typeof this.rewardID == 'string') {
-            const reward: ITwitchReward = {
-                id: this.rewardID.toString(),
-                handler: actionHandler
-            }
+        const handler = new ActionHandler(eventKey)
+        const id = DataUtils.ensureValue(this.rewardID)
+        if(id) {
+            const reward: ITwitchReward = { id, handler }
             modules.twitchEventSub.registerReward(reward)
         } else {
             Utils.logWithBold(`No Reward ID for <${eventKey}>, it might be missing a reward config.`, 'red')

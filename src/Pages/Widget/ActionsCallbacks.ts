@@ -623,7 +623,7 @@ export default class ActionsCallbacks {
                         eventConfig.options.behavior == OptionEventBehavior.Incrementing
                         && eventConfig.options.behaviorOptions.incrementationResetOnCommand
                     ) {
-                        const eventID = await DataBaseHelper.loadID(EventDefault.ref(), key)
+                        const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), key)
                         if(!eventID) {
                             totalSkippedCount++
                             continue
@@ -683,7 +683,7 @@ export default class ActionsCallbacks {
                         eventConfig.options.behavior == OptionEventBehavior.Accumulating
                         && eventConfig.options.behaviorOptions.accumulationResetOnCommand
                     ) {
-                        const eventID = await DataBaseHelper.loadID(EventDefault.ref(), key)
+                        const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), key)
                         if(!eventID) {
                             totalSkippedCount++
                             continue

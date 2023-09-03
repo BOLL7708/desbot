@@ -48,7 +48,7 @@ export class ConfigSpeechDictionary extends Data {
                 wordToAudioConfig: 'Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.\n\nThe key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"'
             },
             {
-                wordToAudioConfig: ConfigSpeechWordToAudio.ref()
+                wordToAudioConfig: ConfigSpeechWordToAudio.ref.build()
             }
         )
     }

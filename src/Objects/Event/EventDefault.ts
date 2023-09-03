@@ -25,9 +25,9 @@ export class EventDefault extends Data {
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
             {
-                type: OptionEventType.ref(),
-                triggers: Data.genericRef('Trigger'),
-                actions: EventActionContainer.ref()
+                type: OptionEventType.ref,
+                triggers: Data.genericRef('Trigger').build(),
+                actions: EventActionContainer.ref.build()
             }
         )
     }
@@ -67,7 +67,7 @@ export class EventOptions extends Data {
                 rewardOptions: 'Options related to the reward triggers of this event.'
             },
             {
-                behavior: OptionEventBehavior.ref()
+                behavior: OptionEventBehavior.ref
             }
         )
     }
@@ -84,8 +84,8 @@ export class EventActionContainer extends Data {
                 entries: 'The actions that will run.'
             },
             {
-                run: OptionEventRun.ref(),
-                entries: Action.genericRef('Action')
+                run: OptionEventRun.ref,
+                entries: Action.genericRef('Action').build()
             }
         )
     }

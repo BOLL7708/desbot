@@ -31,12 +31,12 @@ export default class ConfigCommands extends Data {
                 postCommandHelpToDiscord: 'Will post a list of available commands to a Discord channel if that command is run.'
             },
             {
-                defaultCommandPermissions: PresetPermissions.refId(),
-                ignoreModerators: SettingUser.refIdLabel(),
-                logWhisperCommandsToDiscord: PresetDiscordWebhook.refId(),
-                remoteCommandChannel: SettingUser.refIdLabel(),
-                remoteCommandAllowedUsers: SettingUser.refIdLabel(),
-                postCommandHelpToDiscord: PresetDiscordWebhook.refId()
+                defaultCommandPermissions: PresetPermissions.ref.id.build(),
+                ignoreModerators: SettingUser.ref.id.label.build(),
+                logWhisperCommandsToDiscord: PresetDiscordWebhook.ref.id.build(),
+                remoteCommandChannel: SettingUser.ref.id.label.build(),
+                remoteCommandAllowedUsers: SettingUser.ref.id.label.build(),
+                postCommandHelpToDiscord: PresetDiscordWebhook.ref.id.build()
             }
         )
     }

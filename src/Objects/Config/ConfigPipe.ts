@@ -62,7 +62,7 @@ export class ConfigPipeCustomMessageAvatar extends Data {
                 outlines: 'Optional: Outline settings for the avatar.\nIf a color is undefined it will be replaced by the user color or if not available, default to white.'
             },
             {
-                outlines: ConfigImageEditorOutline.ref()
+                outlines: ConfigImageEditorOutline.ref.build()
             }
         )
     }

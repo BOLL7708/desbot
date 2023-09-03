@@ -133,12 +133,12 @@ export class ActionSystemTrigger extends Data {
                 eventEntries: 'Event(s) to trigger.'
             },
             {
-                systemActionEntries: OptionSystemActionType.ref(),
-                systemActionEntries_use: OptionEntryUsage.ref(),
+                systemActionEntries: OptionSystemActionType.ref,
+                systemActionEntries_use: OptionEntryUsage.ref,
                 commandEntries: 'string',
-                commandEntries_use: OptionEntryUsage.ref(),
-                eventEntries: EventDefault.refIdKey(),
-                eventEntries_use: OptionEntryUsage.ref()
+                commandEntries_use: OptionEntryUsage.ref,
+                eventEntries: EventDefault.ref.id.key.build(),
+                eventEntries_use: OptionEntryUsage.ref
             }
         )
     }
@@ -155,8 +155,8 @@ export class ActionSystemToggle extends Data {
                 rewardStatesForEvents: 'Set the states for a number of rewards in events.'
             },
             {
-                rewardStates: ActionSystemRewardState.ref(),
-                rewardStatesForEvents: ActionSystemRewardStateForEvent.ref()
+                rewardStates: ActionSystemRewardState.ref.build(),
+                rewardStatesForEvents: ActionSystemRewardStateForEvent.ref.build()
             }
         )
     }
@@ -173,9 +173,9 @@ export class ActionSystemRewardState extends Data {
                 reward: 'The reward to update, if it should be visible and/or redeemable.'
             },
             {
-                reward: SettingTwitchReward.refIdKeyLabel(),
-                reward_visible: OptionTwitchRewardVisible.ref(),
-                reward_usable: OptionTwitchRewardUsable.ref()
+                reward: SettingTwitchReward.ref.id.key.label.build(),
+                reward_visible: OptionTwitchRewardVisible.ref,
+                reward_usable: OptionTwitchRewardUsable.ref
             }
         )
     }
@@ -192,9 +192,9 @@ export class ActionSystemRewardStateForEvent extends Data {
                 event: 'The event to look for a reward to update in, if it should be visible and/or redeemable.'
             },
             {
-                event: EventDefault.refIdKey(),
-                event_visible: OptionTwitchRewardVisible.ref(),
-                event_usable: OptionTwitchRewardUsable.ref()
+                event: EventDefault.ref.id.key.build(),
+                event_visible: OptionTwitchRewardVisible.ref,
+                event_usable: OptionTwitchRewardUsable.ref
             }
         )
     }

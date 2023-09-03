@@ -26,8 +26,8 @@ export class ActionScreenshot extends Action {
                 delay: 'A delay in seconds before triggering the screenshot.'
             },
             {
-                screenshotType: OptionScreenshotType.ref(),
-                sourcePreset: PresetOBSSource.refId()
+                screenshotType: OptionScreenshotType.ref,
+                sourcePreset: PresetOBSSource.ref.id.build()
             }
         )
     }

@@ -26,8 +26,8 @@ export class ActionPhilipsHuePlug extends Action {
                 duration: 'Duration of plug action in seconds, 0 means it is permanent.'
             },
             {
-                entries: PresetPhilipsHuePlug.refIdKeyLabel(),
-                entries_use: OptionEntryUsage.ref()
+                entries: PresetPhilipsHuePlug.ref.id.key.label.build(),
+                entries_use: OptionEntryUsage.ref
             }
         )
     }

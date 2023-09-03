@@ -1705,8 +1705,8 @@ export default class DefaultData {
                     trigger.entries = ['camon']
                     trigger.helpText = 'Turns ON the room camera.'
                     const actionOBSSource = new ActionOBSSource()
-                    actionOBSSource.scenePreset = await DataBaseHelper.loadID(PresetOBSScene.ref(), EKeys.BollPresetMainScene)
-                    actionOBSSource.sourcePreset = await DataBaseHelper.loadID(PresetOBSSource.ref(), EKeys.BollPresetCameraSource)
+                    actionOBSSource.scenePreset = await DataBaseHelper.loadID(PresetOBSScene.ref.build(), EKeys.BollPresetMainScene)
+                    actionOBSSource.sourcePreset = await DataBaseHelper.loadID(PresetOBSSource.ref.build(), EKeys.BollPresetCameraSource)
                     const actionOBS = new ActionOBS()
                     actionOBS.sourceEntries = [actionOBSSource]
                     actionOBS.state = false
@@ -1724,8 +1724,8 @@ export default class DefaultData {
                     trigger.entries = ['camoff']
                     trigger.helpText = 'Turns OFF the room camera.'
                     const actionOBSSource = new ActionOBSSource()
-                    actionOBSSource.scenePreset = await DataBaseHelper.loadID(PresetOBSScene.ref(), EKeys.BollPresetMainScene)
-                    actionOBSSource.sourcePreset = await DataBaseHelper.loadID(PresetOBSSource.ref(), EKeys.BollPresetCameraSource)
+                    actionOBSSource.scenePreset = await DataBaseHelper.loadID(PresetOBSScene.ref.build(), EKeys.BollPresetMainScene)
+                    actionOBSSource.sourcePreset = await DataBaseHelper.loadID(PresetOBSSource.ref.build(), EKeys.BollPresetCameraSource)
                     const actionOBS = new ActionOBS()
                     actionOBS.sourceEntries = [actionOBSSource]
                     actionOBS.state = true

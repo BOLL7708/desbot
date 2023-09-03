@@ -131,8 +131,8 @@ export default class ToolsHandler {
 
                         // Create orphan trigger
                         const newTrigger = new TriggerReward()
-                        const newRewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref(), newRewardKey)
-                        const newPresetID = await DataBaseHelper.loadID(PresetReward.ref(), newPresetKey)
+                        const newRewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref.build(), newRewardKey)
+                        const newPresetID = await DataBaseHelper.loadID(PresetReward.ref.build(), newPresetKey)
                         newTrigger.rewardID = newRewardID
                         newTrigger.rewardEntries = [newPresetID]
                         const newTriggerKey = await DataBaseHelper.save(newTrigger, `Trigger ${TextHelper.ensureHeaderSafe(reward.title)}`)
@@ -140,7 +140,7 @@ export default class ToolsHandler {
                             newRewardCount++
 
                             // Set parent for preset
-                            const newTriggerID = await DataBaseHelper.loadID(TriggerReward.ref(), newTriggerKey)
+                            const newTriggerID = await DataBaseHelper.loadID(TriggerReward.ref.build(), newTriggerKey)
                             if(newTriggerID) {
                                 await DataBaseHelper.save(newPreset, newPresetKey, undefined, newTriggerID)
                             }
@@ -191,7 +191,7 @@ export default class ToolsHandler {
                                     const newKey = await DataBaseHelper.save(setting, id)
                                     if(newKey) {
                                         createdCount++
-                                        trigger.rewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref(), newKey)
+                                        trigger.rewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref.build(), newKey)
                                         await DataBaseHelper.save(trigger, triggerKey)
                                     }
                                     else errorCount++

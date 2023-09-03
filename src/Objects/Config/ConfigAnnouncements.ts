@@ -49,11 +49,11 @@ export default class ConfigAnnouncements extends Data {
                 announceRaids: 'Raid sizes to announce in chat.'
             },
             {
-                announcerUsers: SettingUser.refIdLabel(),
-                announcerTriggers: ConfigAnnouncerTriggers.ref(),
-                announceSubs: ConfigAnnounceSub.ref(),
-                announceCheers: ConfigAnnounceCheer.ref(),
-                announceRaids: ConfigAnnounceRaid.ref(),
+                announcerUsers: SettingUser.ref.id.label.build(),
+                announcerTriggers: ConfigAnnouncerTriggers.ref.build(),
+                announceSubs: ConfigAnnounceSub.ref.build(),
+                announceCheers: ConfigAnnounceCheer.ref.build(),
+                announceRaids: ConfigAnnounceRaid.ref.build(),
             }
         )
     }
@@ -71,7 +71,7 @@ export class ConfigAnnouncerTriggers extends Data {
                 trigger: 'A prefix that triggers a sound effect and optionally speaks the message.'
             },
             {
-                trigger_audio: ActionAudio.refId()
+                trigger_audio: ActionAudio.ref.id.build()
             }
         )
     }
@@ -96,7 +96,7 @@ export class ConfigAnnounceSub extends Data {
                 tier: 'The tier of subscription made.',
                 message: 'The message to be posted to chat.'
             }, {
-                tier: OptionTwitchSubTier.ref()
+                tier: OptionTwitchSubTier.ref
             }
         )
     }

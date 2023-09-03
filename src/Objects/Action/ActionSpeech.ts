@@ -36,11 +36,11 @@ export class ActionSpeech extends Action {
             },
             {
                 entries: 'string',
-                entries_use: OptionEntryUsage.ref(),
-                entryPreset: PresetText.refId(),
-                entryPreset_use: OptionEntryUsage.ref(),
-                voiceOfUser: SettingUser.refIdKeyLabel(),
-                type: OptionTTSType.ref()
+                entries_use: OptionEntryUsage.ref,
+                entryPreset: PresetText.ref.id.build(),
+                entryPreset_use: OptionEntryUsage.ref,
+                voiceOfUser: SettingUser.ref.id.key.label.build(),
+                type: OptionTTSType.ref
             }
         )
     }

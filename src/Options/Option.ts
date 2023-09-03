@@ -5,7 +5,7 @@ export class Option {
      * Get the name of the class appended with the Enum flag.
      * If this ID is referenced when instancing a class, it will be a dropdown listing the properties as alternatives.
      */
-    static ref() {
+    static get ref() {
         return this.name+'|option'
     }
     static keyMap(): IStringDictionary {

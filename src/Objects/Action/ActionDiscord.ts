@@ -22,9 +22,9 @@ export class ActionDiscord extends Action {
             'Send a message to a Discord channel.',
             {},
             {
-                webhook: PresetDiscordWebhook.refId(),
+                webhook: PresetDiscordWebhook.ref.id.build(),
                 entries: 'string',
-                entries_use: OptionEntryUsage.ref()
+                entries_use: OptionEntryUsage.ref
             }
         )
     }

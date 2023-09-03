@@ -87,9 +87,9 @@ export class PresetPipeCustomProperties extends Data {
                 textAreas: 'Define any number of text areas to be displayed on the image.'
             },
             {
-                animations: PresetPipeCustomAnimation.ref(),
-                textAreas: PresetPipeCustomTextArea.ref(),
-                transitions: PresetPipeCustomTransition.ref() // This is needed or else types won't be converted after an import as they are unknown.
+                animations: PresetPipeCustomAnimation.ref.build(),
+                textAreas: PresetPipeCustomTextArea.ref.build(),
+                transitions: PresetPipeCustomTransition.ref.build() // This is needed or else types won't be converted after an import as they are unknown.
             }
         )
     }

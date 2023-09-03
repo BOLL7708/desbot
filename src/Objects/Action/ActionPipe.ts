@@ -32,13 +32,13 @@ export class ActionPipe extends Action {
                 texts: 'If your custom notification includes text areas, this is where you add the texts that are to be used for it.'
             },{
                 imagePathEntries: DataUtils.getStringFileImageRef(),
-                imagePathEntries_use: OptionEntryUsage.ref(),
+                imagePathEntries_use: OptionEntryUsage.ref,
                 imageDataEntries: 'string',
-                imageDataEntries_use: OptionEntryUsage.ref(),
-                customPreset: PresetPipeCustom.refId(),
-                basicPreset: PresetPipeBasic.refId(),
+                imageDataEntries_use: OptionEntryUsage.ref,
+                customPreset: PresetPipeCustom.ref.id.build(),
+                basicPreset: PresetPipeBasic.ref.id.build(),
                 texts: 'string',
-                texts_use: OptionEntryUsage.ref()
+                texts_use: OptionEntryUsage.ref
             }
         )
     }

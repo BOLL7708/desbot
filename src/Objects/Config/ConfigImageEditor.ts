@@ -41,7 +41,7 @@ export class ConfigImageEditorFontSettings extends Data {
                 outlines: 'Optional text outlines.\nThe outlines are drawn in the order they are in the array, so the second item is drawn on top of the first item.',
                 lineSpacing: 'Line spacing as a percentage of the font size. 1.0 = 100%'
             },{
-                outlines: ConfigImageEditorOutline.ref()
+                outlines: ConfigImageEditorOutline.ref.build()
             }
         )
     }

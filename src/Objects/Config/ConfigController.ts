@@ -99,8 +99,8 @@ export class ConfigControllerChannelTrophySettings extends Data {
                 uniqueNumbers: 'Channel Trophy numbers that override the pattern matched ones.'
             },
             {
-                discordStatistics: PresetDiscordWebhook.refId(),
-                uniqueNumbers: ConfigControllerChannelTrophyNumber.ref()
+                discordStatistics: PresetDiscordWebhook.ref.id.build(),
+                uniqueNumbers: ConfigControllerChannelTrophyNumber.ref.build()
             }
         )
     }

@@ -23,7 +23,7 @@ export default class EventHelper {
             const matches = rewards.filter((reward)=>{
                 return matchRewardId === undefined
                     || (
-                        triggerInstance.__getClass() == TriggerReward.ref()
+                        triggerInstance.__getClass() == TriggerReward.ref.build()
                         && DataUtils.ensureValue((triggerInstance as TriggerReward).rewardID) == matchRewardId
                     )
             })

@@ -25,7 +25,7 @@ export class ActionSettingVR extends Action {
                 duration: 'The amount of time in seconds to wait before resetting the setting to default, skipped if set to 0.'
             },
             {
-                settingPreset: OptionSteamVRSettingType.ref()
+                settingPreset: OptionSteamVRSettingType.ref
             }
         )
     }

@@ -22,8 +22,8 @@ export default class ConfigTwitch extends Data {
                 gameCategoryNoMatchSpeech: 'Message read out when the Twitch category failed to match, clear to skip.'
             },
             {
-                postTwitchClipsToDiscord: PresetDiscordWebhook.refId(),
-                gameTitleToCategoryOverride: ConfigTwitchCategoryOverride.ref(),
+                postTwitchClipsToDiscord: PresetDiscordWebhook.ref.id.build(),
+                gameTitleToCategoryOverride: ConfigTwitchCategoryOverride.ref.build(),
             }
         )
     }
@@ -41,7 +41,7 @@ export class ConfigTwitchCategoryOverride extends Data {
                 category: 'The category as seen on Twitch.'
             },
             {
-                game: SettingSteamGame.refIdLabel()
+                game: SettingSteamGame.ref.id.label.build()
             }
         )
     }
