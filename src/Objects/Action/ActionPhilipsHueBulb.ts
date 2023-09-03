@@ -5,11 +5,13 @@ import Action, {IActionCallback, IActionUser} from '../Action.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
+import {IData} from '../Data.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionPhilipsHueBulb extends Action {
-    entries: (number|string)[] = []
+    entries: number[]|IData<string> = []
     entries_use = OptionEntryUsage.All
-    colorEntries: (number|PresetPhilipsHueBulbState)[] = []
+    colorEntries: number[]|IData<PresetPhilipsHueBulbState> = []
     colorEntries_use = OptionEntryUsage.First
 
     enlist() {
@@ -35,8 +37,8 @@ export class ActionPhilipsHueBulb extends Action {
             description: 'Callback that triggers a Philips Hue bulb action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPhilipsHueBulb>(this)
-                const ids = Utils.ensureStringArrayNotId(ArrayUtils.getAsType(clone.entries, clone.entries_use, index))
-                const colors = Utils.ensureObjectArrayNotId(ArrayUtils.getAsType(clone.colorEntries, clone.colorEntries_use, index))
+                const ids = ArrayUtils.getAsType(DataUtils.ensureValues(clone.entries) ?? [], clone.entries_use, index)
+                const colors = ArrayUtils.getAsType(DataUtils.ensureValues(clone.colorEntries) ?? [], clone.colorEntries_use, index)
                 const color = colors.pop() // No reason to set more than one color at the same time for the same bulb.
                 if(color) {
                     PhilipsHueHelper.runBulbs(ids, color.brightness, color.hue, color.saturation)

@@ -1705,8 +1705,8 @@ export default class DefaultData {
                     trigger.entries = ['camon']
                     trigger.helpText = 'Turns ON the room camera.'
                     const actionOBSSource = new ActionOBSSource()
-                    actionOBSSource.scenePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSScene(), EKeys.BollPresetMainScene)
-                    actionOBSSource.sourcePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSSource(), EKeys.BollPresetCameraSource)
+                    actionOBSSource.scenePreset = await DataBaseHelper.loadID(PresetOBSScene.ref(), EKeys.BollPresetMainScene)
+                    actionOBSSource.sourcePreset = await DataBaseHelper.loadID(PresetOBSSource.ref(), EKeys.BollPresetCameraSource)
                     const actionOBS = new ActionOBS()
                     actionOBS.sourceEntries = [actionOBSSource]
                     actionOBS.state = false
@@ -1724,8 +1724,8 @@ export default class DefaultData {
                     trigger.entries = ['camoff']
                     trigger.helpText = 'Turns OFF the room camera.'
                     const actionOBSSource = new ActionOBSSource()
-                    actionOBSSource.scenePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSScene(), EKeys.BollPresetMainScene)
-                    actionOBSSource.sourcePreset = await DataBaseHelper.loadOrEmpty(new PresetOBSSource(), EKeys.BollPresetCameraSource)
+                    actionOBSSource.scenePreset = await DataBaseHelper.loadID(PresetOBSScene.ref(), EKeys.BollPresetMainScene)
+                    actionOBSSource.sourcePreset = await DataBaseHelper.loadID(PresetOBSSource.ref(), EKeys.BollPresetCameraSource)
                     const actionOBS = new ActionOBS()
                     actionOBS.sourceEntries = [actionOBSSource]
                     actionOBS.state = true
@@ -1897,11 +1897,13 @@ export default class DefaultData {
         const parentId = await DefaultData.saveAndGetID(instance, key)
         if(parentId > 0) {
             for(const trigger of triggers) {
-                instance.triggers.push(await DefaultData.saveSubAndGetID(trigger, key, parentId))
+                if(Array.isArray(instance.triggers)) instance.triggers.push(await DefaultData.saveSubAndGetID(trigger, key, parentId))
+                else console.warn('EventDefault.triggers is not an array')
             }
             const actionContainer = new EventActionContainer()
             for(const action of actions) {
-                actionContainer.entries.push(await DefaultData.saveSubAndGetID(action, key, parentId))
+                if(Array.isArray(actionContainer.entries)) actionContainer.entries.push(await DefaultData.saveSubAndGetID(action, key, parentId))
+                else console.warn('EventActionContainer.entries is not an array')
             }
             instance.actions = [actionContainer]
         }

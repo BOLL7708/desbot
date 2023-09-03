@@ -4,6 +4,7 @@ import {EventDefault} from '../Objects/Event/EventDefault.js'
 import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
 import Utils from './Utils.js'
 import {TriggerRelay} from '../Objects/Trigger/TriggerRelay.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&Trigger): Promise<T[]> {
@@ -23,7 +24,7 @@ export default class EventHelper {
                 return matchRewardId === undefined
                     || (
                         triggerInstance.__getClass() == TriggerReward.ref()
-                        && Utils.ensureStringNotId((triggerInstance as TriggerReward).rewardID) == matchRewardId
+                        && DataUtils.ensureValue((triggerInstance as TriggerReward).rewardID) == matchRewardId
                     )
             })
             return matches.length > 0

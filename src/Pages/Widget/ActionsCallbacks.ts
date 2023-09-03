@@ -33,6 +33,7 @@ import EventHelper from '../../Classes/EventHelper.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 import {OptionTTSType} from '../../Options/OptionTTS.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
@@ -640,8 +641,9 @@ export default class ActionsCallbacks {
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
-                            const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0]) as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
-                            const rewardID = Utils.ensureStringNotId(trigger.rewardID)
+                            const rewardEntries = DataUtils.ensureValues(trigger.rewardEntries) ?? []
+                            const preset = rewardEntries[0] as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
+                            const rewardID = DataUtils.ensureValue(trigger.rewardID)
                             if(preset && rewardID) {
                                 const clone = await preset.__clone()
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, user)
@@ -699,8 +701,9 @@ export default class ActionsCallbacks {
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
-                            const preset = Utils.ensureObjectNotId(trigger.rewardEntries[0]) as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
-                            const rewardID = Utils.ensureStringNotId(trigger.rewardID)
+                            const rewardEntries = DataUtils.ensureValues(trigger.rewardEntries) ?? []
+                            const preset = rewardEntries[0] as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
+                            const rewardID = DataUtils.ensureValue(trigger.rewardID)
                             if(preset && rewardID) {
                                 await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
                                 const clone = await preset.__clone()
@@ -747,7 +750,7 @@ export default class ActionsCallbacks {
                 const streamNumber = Utils.toInt(user.input)
                 const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
                 /* TODO move this to a separate module
-                const webhook = Utils.ensureObjectNotId(controllerConfig.channelTrophySettings.discordStatistics)
+                const webhook = DataUtils.ensureDataSingle(controllerConfig.channelTrophySettings.discordStatistics)?.data
                 if(user.input == "all") {
                     modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                     for(let i=0; i<numberOfStreams; i++) {
@@ -835,7 +838,7 @@ export default class ActionsCallbacks {
                 let messageText = ''
 
                 const commandsConfig = await DataBaseHelper.loadMain(new ConfigCommands())
-                const url = Utils.ensureObjectNotId(commandsConfig.postCommandHelpToDiscord)?.url // TODO use full preset?
+                const url = DataUtils.ensureValue(commandsConfig.postCommandHelpToDiscord)?.url // TODO use full preset?
                 if(!url) return console.warn('No Discord webhook URL specified for posting command help.')
 
                 const commandTriggers = await EventHelper.getAllTriggersOfType(new TriggerCommand())
@@ -955,7 +958,7 @@ export default class ActionsCallbacks {
                 for(const clip of sortedClips) {
                     let user = await TwitchHelixHelper.getUserById(parseInt(clip.creator_id))
                     let game = await TwitchHelixHelper.getGameById(parseInt(clip.game_id))
-                    const discordPreset = Utils.ensureObjectNotId(config.postTwitchClipsToDiscord)
+                    const discordPreset = DataUtils.ensureValue(config.postTwitchClipsToDiscord)
                     DiscordUtils.enqueuePayload(discordPreset?.url ?? '', { // TODO: Support full preset here.
                         username: user?.display_name ?? '[Deleted User]',
                         avatar_url: user?.profile_image_url ?? '',

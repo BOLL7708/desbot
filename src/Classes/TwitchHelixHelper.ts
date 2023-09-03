@@ -27,6 +27,7 @@ import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
 import {EventDefault} from '../Objects/Event/EventDefault.js'
 import {TriggerRelay} from '../Objects/Trigger/TriggerRelay.js'
 import EventHelper from './EventHelper.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -195,12 +196,12 @@ export default class TwitchHelixHelper {
         let failedRewardCount = 0
         for(const [key, eventItem] of Object.entries(allEvents ?? {})) {
             if(!eventItem.options.rewardOptions.ignoreUpdateCommand) {
-                const triggers = Utils.ensureObjectArrayNotId(eventItem.triggers)
+                const triggers = DataUtils.ensureValues(eventItem.triggers) ?? []
                 for (const trigger of triggers) {
                     if (trigger.__getClass() == TriggerReward.ref()) {
                         const triggerReward = (trigger as TriggerReward)
-                        const rewardID = Utils.ensureStringNotId(triggerReward.rewardID)
-                        const rewardPresets = Utils.ensureObjectArrayNotId(triggerReward.rewardEntries)
+                        const rewardID = DataUtils.ensureValue(triggerReward.rewardID)
+                        const rewardPresets = DataUtils.ensureValues(triggerReward.rewardEntries) ?? []
                         if (rewardID && rewardPresets.length) {
                             const preset = rewardPresets[0] as PresetReward
                             const response = await TwitchHelixHelper.updateReward(rewardID, preset)
@@ -240,7 +241,7 @@ export default class TwitchHelixHelper {
     static async toggleRewards(rewards: ActionSystemRewardState[]): Promise<ActionSystemRewardState[]> {
         const result: ActionSystemRewardState[] = []
         for(const reward of rewards) {
-            const id = Utils.ensureStringNotId(reward.reward)
+            const id = DataUtils.ensureValue(reward.reward)
             if(id) {
                 // Set flags depending on matching options
                 const updated = await this.updateReward(

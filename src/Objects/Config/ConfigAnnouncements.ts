@@ -1,11 +1,11 @@
 import {ActionAudio} from '../Action/ActionAudio.js'
 import DataMap from '../DataMap.js'
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import {SettingUser} from '../Setting/SettingUser.js'
 import {OptionTwitchSubTier} from '../../Options/OptionTwitch.js'
 
 export default class ConfigAnnouncements extends Data {
-    announcerUsers: (number|SettingUser)[] = []
+    announcerUsers: number[]|IData<SettingUser> = []
     announcerTriggers: ConfigAnnouncerTriggers[] = []
     announceSubs: ConfigAnnounceSub[] = [
         new ConfigAnnounceSub(OptionTwitchSubTier.Prime, false, false, '%userTag subscribed with Prime! %userInput'),
@@ -61,7 +61,7 @@ export default class ConfigAnnouncements extends Data {
 
 export class ConfigAnnouncerTriggers extends Data {
     trigger: string = ''
-    trigger_audio: number|ActionAudio = 0
+    trigger_audio: number|IData<ActionAudio> = 0
     trigger_speech = true
 
     enlist() {

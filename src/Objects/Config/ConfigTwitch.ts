@@ -1,10 +1,10 @@
 import DataMap from '../DataMap.js'
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
 export default class ConfigTwitch extends Data {
-    postTwitchClipsToDiscord: number|PresetDiscordWebhook = 0 // TODO: Is there an EventSub for this so we can just post as they happen? Should still catch unposted once between streams though.
+    postTwitchClipsToDiscord: number|IData<PresetDiscordWebhook> = 0 // TODO: Is there an EventSub for this so we can just post as they happen? Should still catch unposted once between streams though.
     defaultGameCategory: string = 'Games + Demos'
     gameTitleToCategoryOverride: ConfigTwitchCategoryOverride[] = []
     gameCategoryMatchSpeech: string = 'Twitch game updated: %game'
@@ -30,7 +30,7 @@ export default class ConfigTwitch extends Data {
 }
 
 export class ConfigTwitchCategoryOverride extends Data {
-    game: number | SettingSteamGame = 0
+    game: number|IData<SettingSteamGame> = 0
     category: string = ''
 
     enlist() {

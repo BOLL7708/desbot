@@ -11,14 +11,16 @@ import ArrayUtils from '../../Classes/ArrayUtils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import {PresetText} from '../Preset/PresetText.js'
+import {IData} from '../Data.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionSpeech extends Action {
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
-    entryPreset: number|PresetText = 0
+    entryPreset: number|IData<PresetText> = 0
     entryPreset_use = OptionEntryUsage.OneRandom
     skipDictionary: boolean = false
-    voiceOfUser: number|string = 0
+    voiceOfUser: number|IData<string> = 0
     voiceOfUser_orUsername: string = ''
     type = OptionTTSType.Announcement
 
@@ -54,7 +56,7 @@ export class ActionSpeech extends Action {
 
                 // TODO: This is not quite working yeah. Seems to be a fault in the data loading and cloning above.
                 //  Will hopefully be fixed in the rewrite of all of that... soon!
-                // const entryPreset = Utils.ensureObjectNotId(clone.entryPreset)
+                // const entryPreset = DataUtils.ensureDataSingle(clone.entryPreset)?.data
                 // const entries = entryPreset && entryPreset.collection.length > 0
                 //     ? ArrayUtils.getAsType(entryPreset.collection, clone.entryPreset_use, index)
                 //     : ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
@@ -64,7 +66,7 @@ export class ActionSpeech extends Action {
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
                 const userName = await TextHelper.replaceTagsInText(clone.voiceOfUser_orUsername, user)
                 const voiceUserId = parseInt(
-                    Utils.ensureStringNotId(clone.voiceOfUser)
+                    DataUtils.ensureValue(clone.voiceOfUser)
                     ?? (await TwitchHelixHelper.getUserByLogin(userName))?.id
                     ?? ''
                 )

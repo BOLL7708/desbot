@@ -1,5 +1,5 @@
 import DataMap from '../DataMap.js'
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import Trigger from '../Trigger.js'
 import Action from '../Action.js'
@@ -7,11 +7,12 @@ import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import Utils from '../../Classes/Utils.js'
 import OptionEventType from '../../Options/OptionEventType.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class EventDefault extends Data {
     type: number = OptionEventType.Uncategorized
     options: EventOptions = new EventOptions()
-    triggers: (number|Trigger)[] = []
+    triggers: number[]|IData<Trigger> = []
     actions: EventActionContainer[] = []
 
     enlist() {
@@ -32,36 +33,20 @@ export class EventDefault extends Data {
     }
 
     /**
-     * This requires the root object to BE filled with instances.
      * @param instance
      */
     getTriggers<T>(instance: T&Trigger): T[] {
-        const potentialTriggers = Utils.ensureObjectArrayNotId(this.triggers)
+        const potentialTriggers = DataUtils.ensureValues(this.triggers) ?? []
         return potentialTriggers.filter(trigger => trigger.__getClass() == instance.__getClass()) as T[]
     }
 
-    /**
-     * This requires the root object to NOT be filled with instances.
-     */
-    async getTriggersWithKeys<T>(instance: T&Trigger): Promise<{ [key: string]: T }> {
-        const output: { [key:string]: T } = {}
-        for(const id of this.triggers) {
-            const triggerId = Utils.ensureNumber(id)
-            if(triggerId) {
-                const flatItem = await DataBaseHelper.loadById(triggerId) // Not filled
-                const deepItem = await DataBaseHelper.loadItem( // Filled
-                    await instance.__new(),
-                    flatItem?.key ?? '',
-                    undefined,
-                    undefined,
-                    true
-                )
-                if(deepItem && deepItem.key && deepItem.class == instance.__getClass()) {
-                    output[deepItem.key] = deepItem.data as T
-                }
-            }
-        }
-        return output
+    async getTriggersWithKeys<T>(instance: T&Trigger): Promise<IData<T>> {
+        const potentialTriggers = Object.entries(DataUtils.ensureEntries(this.triggers) ?? {}) as [string, T&Trigger][]
+        return Object.fromEntries(
+            potentialTriggers.filter(
+                triggerEntry => triggerEntry[1].__getClass() == instance.__getClass()
+            )
+        )
     }
 }
 
@@ -90,7 +75,7 @@ export class EventOptions extends Data {
 export class EventActionContainer extends Data {
     run = OptionEventRun.immediately
     run_ms: number = 0
-    entries: (number|Action)[] = []
+    entries: number[]|IData<Action> = []
 
     enlist() {
         DataMap.addSubInstance(new EventActionContainer(),

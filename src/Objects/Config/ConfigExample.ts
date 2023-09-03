@@ -1,4 +1,4 @@
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataMap from '../DataMap.js'
 import {PresetPipeBasic} from '../Preset/PresetPipe.js'
@@ -13,11 +13,11 @@ export class ConfigExample extends Data {
     singleSecretString = ''
     singleFileString = ''
     singleSubInstance = new ConfigExampleSub()
-    singleIdReference: number|PresetPipeBasic = 0
-    singleIdReferenceUsingLabel: number|PresetPipeBasic = 0
-    singleIdToKeyReference: number|string = ''
-    singleIdToKeyReferenceUsingLabel: number|string = ''
-    singleIdToGenericReference: number|Data = 0
+    singleIdReference: number|IData<PresetPipeBasic> = 0
+    singleIdReferenceUsingLabel: number|IData<PresetPipeBasic> = 0
+    singleIdToKeyReference: number|IData<string> = ''
+    singleIdToKeyReferenceUsingLabel: number|IData<string> = ''
+    singleIdToGenericReference: number|IData<Data> = 0
     singleEnum = OptionEntryUsage.First
     arrayOfBooleans: boolean[] = []
     arrayOfBooleans_use: number = 0
@@ -27,21 +27,21 @@ export class ConfigExample extends Data {
     arrayOfSecretStrings: string[] = []
     arrayOfFileStrings: string[] = []
     arrayOfSubInstances: ConfigExampleSub[] = []
-    arrayOfIdReferences: (number|PresetPipeBasic)[] = []
-    arrayOfIdReferencesUsingLabels: (number|PresetPipeBasic)[] = []
-    arrayOfIdToKeyReferences: (number|string)[] = []
-    arrayOfIdToKeyReferencesUsingLabels: (number|string)[] = []
-    arrayOfIdToGenericReferences: (number|Data)[] = []
+    arrayOfIdReferences: number[]|IData<PresetPipeBasic> = []
+    arrayOfIdReferencesUsingLabels: number[]|IData<PresetPipeBasic> = []
+    arrayOfIdToKeyReferences: number[]|IData<string> = []
+    arrayOfIdToKeyReferencesUsingLabels: number[]|IData<string> = []
+    arrayOfIdToGenericReferences: number[]|IData<Data> = []
     arrayOfEnum: OptionEntryUsage[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
     dictionaryOfSubInstances: {[key:string]: ConfigExampleSub} = {}
-    dictionaryOfIdReferences: {[key:string]: number|PresetPipeBasic} = {}
-    dictionaryOfIdReferencesUsingLabels: {[key:string]: number|PresetPipeBasic} = {}
-    dictionaryOfIdToKeyReferences: {[key:string]: number|string} = {}
-    dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|string} = {}
-    dictionaryOfIdToGenericReferences: {[key:string]: number|Data} = {}
+    dictionaryOfIdReferences: {[key:string]: number|IData<PresetPipeBasic>} = {}
+    dictionaryOfIdReferencesUsingLabels: {[key:string]: number|IData<PresetPipeBasic>} = {}
+    dictionaryOfIdToKeyReferences: {[key:string]: number|IData<string>} = {}
+    dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|IData<string>} = {}
+    dictionaryOfIdToGenericReferences: {[key:string]: number|IData<Data>} = {}
     dictionaryOfEnums: { [key:string]: OptionEntryUsage } = {}
     partnerToSingle = ''
     partnerToSingle_active = false
@@ -141,7 +141,7 @@ export class ConfigExample extends Data {
 }
 export class ConfigExampleSub extends Data {
     singleString: string = ''
-    singleIdReference: {[key:string]: number|PresetPipeBasic} = {}
+    singleIdReference: {[key:string]: number|IData<PresetPipeBasic>} = {}
     singleEnum: number = OptionEntryUsage.All
 
     enlist() {

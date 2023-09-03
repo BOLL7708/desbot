@@ -1,4 +1,4 @@
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetReward} from '../Preset/PresetReward.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
@@ -10,9 +10,9 @@ import Utils from '../../Classes/Utils.js'
 import {ActionHandler} from '../../Pages/Widget/Actions.js'
 
 export class TriggerReward extends Trigger {
-    permissions: number|PresetPermissions = 0
-    rewardEntries: (number|Data)[] = [] // TODO: This is Data just to give it a parent, need to update this so it's not generic.
-    rewardID: (number|string) = 0
+    permissions: number|IData<PresetPermissions> = 0
+    rewardEntries: number[]|IData<Data> = [] // TODO: This is Data just to give it a parent, need to update this so it's not generic.
+    rewardID: number|IData<string> = 0
 
     enlist() {
         DataMap.addRootInstance(new TriggerReward(),

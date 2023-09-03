@@ -5,9 +5,11 @@ import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
 import Utils from '../../Classes/Utils.js'
 import {PresetPhilipsHuePlug} from '../Preset/PresetPhilipsHue.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
+import {IData} from '../Data.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionPhilipsHuePlug extends Action {
-    entries: (number|string)[] = []
+    entries: number[]|IData<string> = []
     entries_use = OptionEntryUsage.All
     originalState: boolean = false
     triggerState: boolean = true
@@ -36,7 +38,7 @@ export class ActionPhilipsHuePlug extends Action {
             description: 'Callback that triggers a Philips Hue plug action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPhilipsHuePlug>(this)
-                const ids = Utils.ensureStringArrayNotId(ArrayUtils.getAsType(clone.entries, clone.entries_use, index))
+                const ids = ArrayUtils.getAsType(DataUtils.ensureValues(clone.entries) ?? [], clone.entries_use, index)
                 PhilipsHueHelper.runPlugs(ids, clone.triggerState, clone.originalState, clone.duration)
             }
         }

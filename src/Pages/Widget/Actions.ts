@@ -23,6 +23,8 @@ import {ActionSystemRewardState} from '../../Objects/Action/ActionSystem.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
 import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
 import {OptionTTSType} from '../../Options/OptionTTS.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
+import Data from '../../Objects/Data.js'
 
 export class ActionHandler {
     constructor(
@@ -95,16 +97,17 @@ export class ActionHandler {
                         await DataBaseHelper.save(counter, eventId.toString())
                         hasAdvancedCounter = true
                     }
-                    if(trigger.rewardEntries.length) {
+                    const rewardEntries = DataUtils.ensureValues(trigger.rewardEntries) ?? []
+                    if(rewardEntries.length) {
                         const rewardPresetIndex = event.options.behaviorOptions.incrementationLoop
-                            ? counter.count % trigger.rewardEntries.length // Loop
-                            : Math.min(counter.count, trigger.rewardEntries.length-1) // Clamp to max
-                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[rewardPresetIndex])
+                            ? counter.count % rewardEntries.length // Loop
+                            : Math.min(counter.count, rewardEntries.length-1) // Clamp to max
+                        const rewardPreset = rewardEntries[rewardPresetIndex]
                         if (rewardPreset) {
                             const clone = await Utils.clone(rewardPreset) as PresetReward // TODO: Maybe we can remove this typecast?
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
-                            const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone)
+                            const result = await TwitchHelixHelper.updateReward(DataUtils.ensureValue(trigger.rewardID), clone)
                             if(!result) console.warn('Incrementing Event: Failed to update reward', clone, result)
                         }
                     }
@@ -157,15 +160,16 @@ export class ActionHandler {
                             index = Math.max(0, eventActionContainers.length - 2) // Second to last
                         }
                     }
-                    if(trigger.rewardEntries.length) {
+                    const rewardEntries = DataUtils.ensureValues(trigger.rewardEntries) ?? []
+                    if(rewardEntries.length) {
                         let rewardIndex = 0
                         if (goalIsMet) { // Final
-                            rewardIndex = trigger.rewardEntries.length -1 // Last
+                            rewardIndex = rewardEntries.length -1 // Last
                         } else { // Progress
-                            rewardIndex = Math.max(0, trigger.rewardEntries.length - 2) // Second to last
+                            rewardIndex = Math.max(0, rewardEntries.length - 2) // Second to last
                         }
 
-                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[rewardIndex] ?? undefined)
+                        const rewardPreset = rewardEntries[rewardIndex]
                         if(rewardPreset) {
                             const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
@@ -177,7 +181,7 @@ export class ActionHandler {
                                 clone.cost = Math.max(1, goalCount - counter.count)
                             }
                             if(goalIsMet) clone.is_paused = true
-                            const result = await TwitchHelixHelper.updateReward(Utils.ensureStringNotId(trigger.rewardID), clone as PresetReward) // TODO: Maybe we can remove this typecast?
+                            const result = await TwitchHelixHelper.updateReward(DataUtils.ensureValue(trigger.rewardID), clone as PresetReward) // TODO: Maybe we can remove this typecast?
                             if(!result) console.warn('Accumulating Event: Failed to update reward', clone, result)
                         }
                     }
@@ -224,8 +228,9 @@ export class ActionHandler {
                     // Reset reward
                     const triggers = event.getTriggers(new TriggerReward())
                     for(const trigger of triggers) {
-                        const rewardId = Utils.ensureStringNotId(trigger.rewardID)
-                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[0])
+                        const rewardId = DataUtils.ensureValue(trigger.rewardID)
+                        const rewardData = DataUtils.ensureValues(trigger.rewardEntries)
+                        const rewardPreset = rewardData ? rewardData[0] : undefined
                         if(!rewardId || !rewardPreset) continue
 
                         const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
@@ -251,8 +256,9 @@ export class ActionHandler {
                 if(!wasLastLevel) {
                     const triggers = event.getTriggers(new TriggerReward())
                     for(const trigger of triggers) {
-                        const rewardId = Utils.ensureStringNotId(trigger.rewardID)
-                        const rewardPreset = Utils.ensureObjectNotId(trigger.rewardEntries[counter.count])
+                        const rewardId = DataUtils.ensureValue(trigger.rewardID)
+                        const rewardData = DataUtils.ensureValues(trigger.rewardEntries)
+                        const rewardPreset = rewardData ? rewardData[counter.count] : undefined
                         if(!rewardId || !rewardPreset) continue
 
                         const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
@@ -265,7 +271,7 @@ export class ActionHandler {
                 } else if(options.behaviorOptions.multiTierDisableAfterMaxLevel) {
                     const triggers = event.getTriggers(new TriggerReward())
                     for(const trigger of triggers) {
-                        const rewardId = Utils.ensureStringNotId(trigger.rewardID)
+                        const rewardId = DataUtils.ensureValue(trigger.rewardID)
                         if(!rewardId) continue
 
                         const state = new ActionSystemRewardState()
@@ -304,7 +310,7 @@ export class Actions {
         const events = await DataBaseHelper.loadAll(new EventDefault())
         if(events) {
             for(const [key, event] of Object.entries(events)) {
-                const triggers = Utils.ensureObjectArrayNotId(event.triggers)
+                const triggers = DataUtils.ensureValues(event.triggers) ?? []
                 for(const trigger of triggers) {
                     (trigger as Trigger).register(key)
                 }
@@ -439,7 +445,8 @@ export class Actions {
         if(actionsArr.length == 0) actionsArr.push(new EventActionContainer()) // We need at least one empty object to register default actions in the loop below.
         for(const actionContainer of actionsArr) {
             const actionCallbacks: IActionCallback[] = [] // The stack of actions to execute.
-            for(const action of actionContainer.entries) {
+            const actions = DataUtils.ensureValues(actionContainer.entries) ?? []
+            for(const action of actions) {
                 // Build callbacks
                 const callback: IActionCallback = (action as Action).build(key)
                 actionCallbacks.push(callback)
@@ -532,7 +539,7 @@ export class Actions {
                 if(speechConfig && ttsStrings.length > 0) {
                     for(const ttsStr of ttsStrings) {
                         const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
-                        const voiceOfUserTagged = await TextHelper.replaceTagsInText(Utils.ensureStringNotId(speechConfig.voiceOfUser) ?? '', user)
+                        const voiceOfUserTagged = await TextHelper.replaceTagsInText(DataUtils.ensureValue(speechConfig.voiceOfUser) ?? '', user)
                         const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelixHelper.getUserByLogin(voiceOfUserTagged) : undefined
                         const voiceUserId = parseInt(voiceUser?.id ?? '')
                         await modules.tts.enqueueSpeakSentence(

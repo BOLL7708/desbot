@@ -1,4 +1,4 @@
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
@@ -6,12 +6,12 @@ import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {SettingUser} from '../Setting/SettingUser.js'
 
 export default class ConfigChat extends Data {
-    pipePreset: (number|PresetPipeCustom) = 0
+    pipePreset: number|IData<PresetPipeCustom> = 0
     pipePreset_forMs: number = 5000
-    soundEffectOnEmptyMessage: (number|ActionAudio) = 0
+    soundEffectOnEmptyMessage: number|IData<ActionAudio> = 0
     speechTemplate: string = '%userNick said: %userInput'
-    logToDiscord: number|PresetDiscordWebhook = 0
-    proxyChatBotUser: number|SettingUser = 0
+    logToDiscord: number|IData<PresetDiscordWebhook> = 0
+    proxyChatBotUser: number|IData<SettingUser> = 0
     proxyChatMessageRegex: string = '/\\[(\\w*):\\s(.+)\\]\\s(.+)/'
 
     enlist() {

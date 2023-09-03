@@ -3,10 +3,11 @@ import {PresetPermissions} from '../Preset/PresetPermissions.js'
 import Trigger from '../Trigger.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
+import {IData} from '../Data.js'
 
 export class TriggerCommand extends Trigger {
     entries: string[] = ['']
-    permissions: number|PresetPermissions = 0
+    permissions: number|IData<PresetPermissions> = 0
     requireUserTag = false
     requireExactWordCount: number = 0
     requireMinimumWordCount: number = 0

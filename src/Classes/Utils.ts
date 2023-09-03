@@ -174,38 +174,6 @@ export default class Utils {
         }
     }
 
-    /**
-     * Used to check if an object from the database has filled an ID reference with an object or not.
-     * @param value
-     * @return The original value or undefined if it wasn't an object.
-     */
-    static ensureObjectNotId<Type>(value: number|Type): Type|undefined {
-        if(typeof value !== 'object' || value === null) return undefined
-        else return value
-    }
-    static ensureStringNotId(value: number|string): string|undefined {
-        if(typeof value !== 'string') return undefined
-        else return value
-    }
-    static ensureObjectArrayNotId<Type>(arrayOfValues: (number|Type)[]): Type[] {
-        const result: Type[] = []
-        if(Array.isArray(arrayOfValues)) {
-            for(const value of arrayOfValues) {
-                if(value !== null && typeof value === 'object') result.push(value)
-            }
-        }
-        return result
-    }
-    static ensureStringArrayNotId(arrayOfValues: (number|string)[]): string[] {
-        const result: string[] = []
-        if(Array.isArray(arrayOfValues)) {
-            for(const value of arrayOfValues) {
-                if(typeof value === 'string') result.push(value)
-            }
-        }
-        return result
-    }
-
     static encode(str: string): string {
         let base64 = btoa(str)
         base64 = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')

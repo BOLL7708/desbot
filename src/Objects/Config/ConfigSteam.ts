@@ -1,5 +1,5 @@
 import DataMap from '../DataMap.js'
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
@@ -9,10 +9,10 @@ export class ConfigSteam extends Data {
     playerSummaryIntervalMs: number = 60000
     achievementsIntervalMs: number = 60000
     ignoreAchievementsOlderThanHours: number = 72
-    achievementToDiscord: number|PresetDiscordWebhook = 0
+    achievementToDiscord: number|IData<PresetDiscordWebhook> = 0
     achievementDiscordFooter: string = 'Progress: %progress, global rate: %rate'
     achievementTwitchChatMessage: string = '🔓 Achievement %progress unlocked: %name (%text, 🌍 %rate)'
-    ignoredAppIds: string[] = []
+    ignoredAppIds: number[]|IData<string> = []
 
     enlist() {
         DataMap.addRootInstance(

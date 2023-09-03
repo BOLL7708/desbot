@@ -33,6 +33,7 @@ import {IActionUser} from '../../Objects/Action.js'
 import {ActionSign} from '../../Objects/Action/ActionSign.js'
 import ConfigAnnouncements, {ConfigAnnounceRaid} from '../../Objects/Config/ConfigAnnouncements.js'
 import {OptionTTSType} from '../../Options/OptionTTS.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
@@ -55,19 +56,16 @@ export default class Callbacks {
 
         // region Chat
         const announcementsConfig = await DataBaseHelper.loadMain(new ConfigAnnouncements())
-        const announcerNames = Utils.ensureObjectArrayNotId(announcementsConfig.announcerUsers)
-                .map((user)=>{return Utils.ensureObjectNotId(user)?.userName.toLowerCase() ?? ''})
+        const announcerNames = (DataUtils.ensureValues(announcementsConfig.announcerUsers) ?? [])
+                .map((user)=>{return user.userName.toLowerCase() ?? ''})
                 .filter(v=>v) // Remove empty strings
         modules.twitch.registerAnnouncers({
             userNames: announcerNames,
             triggers: announcementsConfig.announcerTriggers.map((announcer)=>announcer.trigger),
             callback: async (userData, messageData, firstWord) => {
                 // TTS
-                const audioConfig = Utils.ensureObjectNotId(
-                    Utils.ensureObjectNotId(
-                        announcementsConfig.announcerTriggers.find((announcer)=> announcer.trigger == firstWord)
-                    )?.trigger_audio
-                )
+                const announcerTrigger = announcementsConfig.announcerTriggers.find((announcer)=> announcer.trigger == firstWord)
+                const audioConfig = announcerTrigger ? DataUtils.ensureEntry(announcerTrigger.trigger_audio)?.data : undefined
                 if(audioConfig) {
                     // TODO: Convert to use class instead of interface
                     modules.tts.enqueueSoundEffect(audioConfig)
@@ -105,7 +103,7 @@ export default class Callbacks {
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
             const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
-            const soundEffect = Utils.ensureObjectNotId(twitchChatConfig.soundEffectOnEmptyMessage)
+            const soundEffect = DataUtils.ensureValue(twitchChatConfig.soundEffectOnEmptyMessage)
             if(states.ttsForAll) {
                 console.log('SPEECH', type)
                 // TTS is on for everyone
@@ -164,7 +162,7 @@ export default class Callbacks {
             }
             
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
-            const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
+            const webhook = DataUtils.ensureEntry(twitchChatConfig.logToDiscord)?.data
             if(states.logChatToDiscord && webhook) {
                 DiscordUtils.enqueueMessage(
                     webhook.url ?? '',
@@ -190,7 +188,7 @@ export default class Callbacks {
             const amount = null // redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
-            const webhook = Utils.ensureObjectNotId(twitchChatConfig.logToDiscord)
+            const webhook = DataUtils.ensureEntry(twitchChatConfig.logToDiscord)?.data
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
             let description = `${discordConfig.prefixReward}**${event.reward.title}${amountStr}** (${event.reward.cost})`
             if(event.user_input.length > 0) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(event.user_input))}`
@@ -295,11 +293,12 @@ export default class Callbacks {
             const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
 
             // Pipe manual screenshots into VR if configured.
+            const pipeEnabledForEvents = DataUtils.ensureValues(screenshotsConfig.callback.pipeEnabledForEvents) ?? []
             if(
-                screenshotsConfig.callback.pipeEnabledForEvents.includes(requestData?.eventKey ?? '') ||
+                pipeEnabledForEvents.includes(requestData?.eventKey ?? '') ||
                 (!requestData && screenshotsConfig.callback.pipeEnabledForManual)
             ) {
-                const preset = Utils.ensureObjectNotId(screenshotsConfig.callback.pipePreset)
+                const preset = DataUtils.ensureEntry(screenshotsConfig.callback.pipePreset)?.data
                 if(preset !== undefined) {
                     const configClone: PresetPipeCustom = Utils.clone(preset)
                     configClone.imageData = responseData.image
@@ -321,7 +320,7 @@ export default class Callbacks {
                 }
             }
 
-            const webhooks = Utils.ensureObjectArrayNotId(screenshotsConfig.callback.discordWebhooksSSSVR)
+            const webhooks = DataUtils.ensureValues(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
@@ -397,7 +396,7 @@ export default class Callbacks {
                 modules.sign.enqueueSign(action)
 
                 // Discord
-                const webhooks = Utils.ensureObjectArrayNotId(screenshotsConfig.callback.discordWebhooksSSSVR)
+                const webhooks = DataUtils.ensureValues(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
                 for(const webhook of webhooks) {
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData ? gameData.name : screenshotsConfig.callback.discordDefaultGameTitle

@@ -1,4 +1,4 @@
-import Data from '../Data.js'
+import Data, {IData} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {EventDefault} from '../Event/EventDefault.js'
@@ -17,6 +17,7 @@ import {TriggerReward} from '../Trigger/TriggerReward.js'
 import ConfigTwitch from '../Config/ConfigTwitch.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ConfigCommands from '../Config/ConfigCommands.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionSystem extends Action {
     trigger = new ActionSystemTrigger()
@@ -71,7 +72,7 @@ export class ActionSystem extends Action {
                 }
 
                 // Trigger Events by Keys
-                const keys = Utils.ensureStringArrayNotId(ArrayUtils.getAsType(clone.trigger.eventEntries, clone.trigger.eventEntries_use, index))
+                const keys = ArrayUtils.getAsType(DataUtils.ensureValues(clone.trigger.eventEntries) ?? [], clone.trigger.eventEntries_use, index)
                 for(const key of keys) {
                     Utils.log(`Executing event: ${key} in ${delay} seconds...`, Color.Grey)
                     if(key == user.eventKey) continue // Prevent infinite loop
@@ -82,18 +83,20 @@ export class ActionSystem extends Action {
                 }
 
                 // Toggle Rewards
-                const rewardStates = Utils.ensureObjectArrayNotId(clone.toggle.rewardStates)
+                const rewardStates = DataUtils.ensureValues(clone.toggle.rewardStates) ?? []
 
                 // Grab reward triggers from events and convert them to reward states.
-                for(const eventStates of Utils.ensureObjectArrayNotId(clone.toggle.rewardStatesForEvents)) {
-                    const eventId = Utils.ensureStringNotId(eventStates.event) ?? ''
+                for(const eventStates of DataUtils.ensureValues(clone.toggle.rewardStatesForEvents) ?? []) {
+                    const eventId = DataUtils.ensureValue(eventStates.event) ?? ''
                     const event = await DataBaseHelper.load(new EventDefault(), eventId)
                     if(event) {
-                        const rewards = Utils.ensureObjectArrayNotId(event.triggers).filter(e =>
+                        const rewards = (DataUtils.ensureValues(event.triggers) ?? []).filter(e =>
                             e.constructor.name == TriggerReward.name
                         )
                         for(const reward of rewards) {
-                            const rewardID = Utils.ensureStringNotId((reward as TriggerReward).rewardID)
+                            const rewardID = DataUtils.ensureValue(
+                                (reward as TriggerReward).rewardID
+                            )
                             if(rewardID) {
                                 const newState = new ActionSystemRewardState()
                                 newState.reward = rewardID
@@ -117,7 +120,7 @@ export class ActionSystemTrigger extends Data {
     systemActionEntries_use = OptionEntryUsage.All
     commandEntries: string[] = []
     commandEntries_use = OptionEntryUsage.All
-    eventEntries: (number|string)[] = []
+    eventEntries: number[]|IData<string> = []
     eventEntries_use = OptionEntryUsage.All
 
     enlist() {
@@ -159,7 +162,7 @@ export class ActionSystemToggle extends Data {
     }
 }
 export class ActionSystemRewardState extends Data {
-    reward: number|string = 0
+    reward: number|IData<string> = 0
     reward_visible = OptionTwitchRewardVisible.Visible
     reward_usable = OptionTwitchRewardUsable.Enabled
 
@@ -178,7 +181,7 @@ export class ActionSystemRewardState extends Data {
     }
 }
 export class ActionSystemRewardStateForEvent extends Data {
-    event: number|string = 0
+    event: number|IData<string> = 0
     event_visible = OptionTwitchRewardVisible.Visible
     event_usable = OptionTwitchRewardUsable.Enabled
 
