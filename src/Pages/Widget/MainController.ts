@@ -27,7 +27,6 @@ import EnlistData from '../../Objects/EnlistData.js'
 export default class MainController {
     public static async init() {
         EnlistData.run()
-        DataBaseHelper.setFillReferences(true)
         const authed = await AuthUtils.checkIfAuthed()
         if(!authed) {
             PasswordForm.spawn()

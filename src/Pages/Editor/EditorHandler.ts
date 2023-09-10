@@ -6,10 +6,9 @@ import DataMap from '../../Objects/DataMap.js'
 import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import EnlistData from '../../Objects/EnlistData.js'
-import {EditorUtils} from './EditorUtils.js'
-import PageUtils from '../PageUtils.js'
 import {EventDefault} from '../../Objects/Event/EventDefault.js'
 import OptionEventType from '../../Options/OptionEventType.js'
+import EditorHandlerUtils from './EditorHandlerUtils.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -188,7 +187,7 @@ export default class EditorHandler {
                     }))
 
                     // Add new-button to contents.
-                    const newButton = EditorUtils.getNewButton()
+                    const newButton = EditorHandlerUtils.getNewButton()
                     newButton.onclick = async(event)=>{
                         const newKey = await prompt(`Provide a key for the new ${itemClass}:`) ?? ''
                         if(newKey && newKey.length > 0) {
@@ -360,7 +359,7 @@ export default class EditorHandler {
         }
 
         // New button
-        const editorNewButton = EditorUtils.getNewButton()
+        const editorNewButton = EditorHandlerUtils.getNewButton()
         editorNewButton.onclick = async (event)=>{
             let newKey: string = ''
             if(this._state.forceMainKey) {

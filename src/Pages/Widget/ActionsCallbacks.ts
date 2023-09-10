@@ -614,7 +614,7 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined, true)
+                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined)
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
@@ -645,7 +645,7 @@ export default class ActionsCallbacks {
                             const preset = rewardEntries[0] as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
                             const rewardID = DataUtils.ensureValue(trigger.rewardID)
                             if(preset && rewardID) {
-                                const clone = await preset.__clone()
+                                const clone = Utils.clone(preset)
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                                 clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
@@ -674,7 +674,7 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined, true)
+                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined)
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
@@ -706,7 +706,7 @@ export default class ActionsCallbacks {
                             const rewardID = DataUtils.ensureValue(trigger.rewardID)
                             if(preset && rewardID) {
                                 await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
-                                const clone = await preset.__clone()
+                                const clone = Utils.clone(preset)
                                 const userClone = Utils.clone(user)
                                 userClone.eventKey = key
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, userClone)

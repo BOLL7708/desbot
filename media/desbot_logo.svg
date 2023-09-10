@@ -11,27 +11,32 @@
   <!-- ELEMENTS -->
   <defs> 
    <!-- CROWN -->
-   <circle id="tip" cy="20" r="10" />
+   <circle id="tip" r="10" />
+   <g id="tips">
+	  <use href="#tip" x="0" class="orange" />
+	  <use href="#tip" x="50" class="purple" />
+	  <use href="#tip" x="100" class="orange" />
+	  <use href="#tip" x="150" class="purple" />
+	  <use href="#tip" x="200" class="orange" />
+   </g>
    
    <!-- MOUTH -->
    <rect id="tooth" x="0" y="0" width="20" height="20" class="purple" />
    <g id="mouth">
     <path d="M20 0 L140 0 A20 20,0,0 1,140 40 L20 40 A20 20,0,0 1,20 0 Z" class="orange"/>
+	<!-- TEETH -->
 	<path d="M20 10 L30 10 L30 30 L20 30 A10 10,0,0 1,20 10 Z" class="purple" />
     <use href="#tooth" x="40" y="10" />
     <use href="#tooth" x="70" y="10" />
-    <use href="#tooth" x="100" y="10" />
-    <path d="M130 10 L140 10 A10 10,0,0 1,140 30 L130 30 Z" class="purple" />
+	<use href="#tooth" x="100" y="10" />
+	<path d="M130 10 L140 10 A10 10,0,0 1,140 30 L130 30 Z" class="purple" />
    </g>
    
    <!-- EYE -->
    <g id="eye">
     <circle cx="0" cy="0" r="30" class="orange" />
     <circle cx="0" cy="0" r="20" class="purple" />
-	<circle cx="0" cy="0" r="10" class="orange">
-	 <animate id="op" attributeName="fill-opacity" values="1;0;1" dur="100ms" begin="24s;op.end+24s" />
-	 <animate id="pos" attributeName="cy" values="0;5;5;5;5;5;5;0" dur="750ms" begin="32s;pos.end+32s" />
-	</circle>
+	<circle cx="0" cy="0" r="10" class="orange" />
    </g>
   </defs>
   
@@ -40,14 +45,8 @@
   <path d="M25 50 A56.667 56.667,0,0 0,75 20 A56.667 56.667,0,0 0,175 20 A56.667 56.667,0,0 0,225 50 L225 60 L25 60 Z" class="purple" />
   <!-- foreground -->
   <path d="M25 20 A56.667 56.667,0,0 0,125 20 A56.667 56.667,0,0 0,225 20 L225 80 L25 80 Z" class="orange" />
-    
   <!-- tips -->
-  <use href="#tip" x="25" class="orange" />
-  <use href="#tip" x="75" class="purple" />
-  <use href="#tip" x="125" class="orange" />
-  <use href="#tip" x="175" class="purple" />
-  <use href="#tip" x="225" class="orange" />
-  
+  <use href="#tips" x="25" y="20" />  
   <!-- jewel -->
   <circle cx="125" cy="60" r="10" class="purple" />
   

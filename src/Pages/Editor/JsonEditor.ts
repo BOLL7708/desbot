@@ -1,5 +1,5 @@
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
-import Data, {DataRefValues, EmptyData,} from '../../Objects/Data.js'
+import Data, {DataRefValues, EmptyData, IData,} from '../../Objects/Data.js'
 import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
 import DataMap from '../../Objects/DataMap.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
@@ -7,8 +7,9 @@ import {DataMeta} from '../../Objects/DataMeta.js'
 import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/ConfigEditor.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
 import {DataUtils} from '../../Objects/DataUtils.js'
+import {JsonEditorUtils} from './JsonEditorUtils.js'
 
-enum EOrigin {
+export enum EOrigin {
     Unknown,
     ListArray,
     ListDictionary,
@@ -60,6 +61,16 @@ export default class JsonEditor {
 
     constructor() {}
 
+    /**
+     * Build the editor, this traverses the JSON structure and populates the editor with elements.
+     * @param key
+     * @param instance
+     * @param rowId
+     * @param potentialParentId
+     * @param currentParentId
+     * @param hideKey
+     * @param isRebuild
+     */
     async build(
         key: string,
         instance: object&Data,
@@ -78,8 +89,8 @@ export default class JsonEditor {
             this._parentId = currentParentId ?? 0
             this._originalParentId = currentParentId ?? 0
             if(instance) {
-                this._instance = await instance.__clone()
-                this._originalInstance = await instance.__clone();
+                this._instance = Utils.clone(instance)
+                this._originalInstance = Utils.clone(instance)
             }
             this._originalInstanceType = instance.constructor.name
             this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
@@ -190,7 +201,7 @@ export default class JsonEditor {
         this._root.replaceChildren(...tempParent.children)
         return this._root
     }
-    private async rebuild(): Promise<HTMLElement> {
+    public async rebuild(): Promise<HTMLElement> {
         return await this.build(
             this._key,
             this._instance,
@@ -377,7 +388,7 @@ export default class JsonEditor {
 
         // Append
         if(options.originListCount > 1) {
-            this.appendDragButton(newRoot, options.origin, options.path)
+            JsonEditorUtils.appendDragButton(this, newRoot, options.origin, options.path)
         }
         if(keyInput) {
             // Optional editable key
@@ -678,7 +689,7 @@ export default class JsonEditor {
             const selectGeneric = document.createElement('select') as HTMLSelectElement
             if(isGeneric) {
                 newRoot.appendChild(selectGeneric)
-                const setNewReference = this.appendNewReferenceItemButton(newRoot, values, options.path, this._rowId) // Button after items in groups of generic references
+                const setNewReference = JsonEditorUtils.appendNewReferenceItemButton(this, newRoot, values, options.path, this._key, this._rowId) // Button after items in groups of generic references
                 const items = DataMap.getNames(values.genericLike, true)
                 const genericClasses = await DataBaseHelper.loadIDClasses([options.data.toString()])
                 const genericClass = genericClasses[options.data.toString()] ?? ''
@@ -772,14 +783,14 @@ export default class JsonEditor {
         }
 
         // Append partner field slot
-        this.appendPartnerFieldSlot(newRoot, this._instance.constructor.name, key.toString())
+        JsonEditorUtils.appendPartnerFieldSlot(this, newRoot, this._instance.constructor.name, key.toString())
 
         // Append buttons and icons
         if(thisTypeValues.isIdReference && thisTypeValues.genericLike.length == 0) {
-            this.appendNewReferenceItemButton(newRoot, thisTypeValues, options.path) // The button that goes onto single non-generic reference items.
+            JsonEditorUtils.appendNewReferenceItemButton(this, newRoot, thisTypeValues, options.path, this._key) // The button that goes onto single non-generic reference items.
         }
-        this.appendRemoveButton(newRoot, options.origin, options.path, label)
-        this.appendDocumentationIcon(newRoot, key, options.instanceMeta)
+        JsonEditorUtils.appendRemoveButton(this, newRoot, options.origin, options.path, label)
+        JsonEditorUtils.appendDocumentationIcon(newRoot, key, this._config.showHelpIcons, options.instanceMeta)
         if(options.extraChildren.length > 0) for(const child of options.extraChildren) newRoot.appendChild(child)
 
         // Append to parent
@@ -795,6 +806,11 @@ export default class JsonEditor {
         }
     }
 
+    /**
+     * Traverses an object of the JSON structure.
+     * @param options
+     * @private
+     */
     private async buildFields(
         options: IStepDataOptions
     ): Promise<void> {
@@ -810,12 +826,9 @@ export default class JsonEditor {
         const thisTypeValues = DataUtils.parseRef(thisType)
         const instanceType = instance.constructor.name
 
-        if(options.originListCount > 1) this.appendDragButton(newRoot, options.origin, options.path)
+        if(options.originListCount > 1) JsonEditorUtils.appendDragButton(this, newRoot, options.origin, options.path)
 
         if(isRoot) { // Root object generates a key field
-            const bookmarkButton = document.createElement('button') as HTMLButtonElement
-            bookmarkButton.innerHTML = '⭐'
-            bookmarkButton.classList.add('inline-button')
             const toggleFavorite = async(event: Event)=>{
                 const tag = await prompt('Set a bookmark title for this object')
                 if(tag && tag.length > 0) {
@@ -826,8 +839,7 @@ export default class JsonEditor {
                     await DataBaseHelper.saveMain(this._config)
                 }
             }
-            bookmarkButton.onclick = toggleFavorite
-            bookmarkButton.ontouchstart = toggleFavorite
+            const bookmarkButton = JsonEditorUtils.getBookmarkButton(toggleFavorite)
 
             const optionsClone = Utils.clone(options)
             optionsClone.root = options.root
@@ -862,15 +874,15 @@ export default class JsonEditor {
         }
 
         // Append partner field slot
-        if(!isRoot) this.appendPartnerFieldSlot(newRoot, this._instance.constructor.name, pathKey.toString())
+        if(!isRoot) JsonEditorUtils.appendPartnerFieldSlot(this, newRoot, this._instance.constructor.name, pathKey.toString())
 
         // Add new item button if we have a type defined
-        await this.appendAddButton(newRoot, thisTypeValues, instance, options.path)
-        this.appendRemoveButton(newRoot, options.origin, options.path, undefined)
+        await JsonEditorUtils.appendAddButton(this, newRoot, thisTypeValues, instance, options.path)
+        JsonEditorUtils.appendRemoveButton(this, newRoot, options.origin, options.path, undefined)
         if(thisTypeValues.genericLike.length == 0) {
-            this.appendNewReferenceItemButton(newRoot, thisTypeValues, []) // The new button for groups of generic reference items
+            JsonEditorUtils.appendNewReferenceItemButton(this, newRoot, thisTypeValues, [], this._key) // The new button for groups of generic reference items
         }
-        this.appendDocumentationIcon(newRoot, pathKey, options.instanceMeta)
+        JsonEditorUtils.appendDocumentationIcon(newRoot, pathKey, this._config.showHelpIcons, options.instanceMeta)
 
         // Get new instance meta if we are going deeper.
         let newInstanceMeta = options.instanceMeta
@@ -924,121 +936,6 @@ export default class JsonEditor {
         options.root.appendChild(newRoot)
         return
     }
-    // region Buttons
-    private appendDragButton(element: HTMLElement, origin: EOrigin, path: (string | number)[]) {
-        if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
-            const span = document.createElement('span') as HTMLSpanElement
-            span.innerHTML = '✋'
-            span.title = 'Drag & drop in list'
-            span.classList.add('drag-icon')
-            span.draggable = true
-            span.ondragstart = (event)=>{
-                span.style.cursor = 'grabbing'
-                if(event.dataTransfer) {
-                    event.dataTransfer.setData('application/json', JSON.stringify(path))
-                    event.dataTransfer.effectAllowed = 'move'
-                }
-                const parent = span.parentElement?.parentElement
-                document.querySelectorAll('.drag-icon').forEach(icon => {
-                    if(icon != span && parent && icon.parentElement?.parentElement === parent) {
-                        icon.innerHTML = '🖐'
-                        icon.classList.add('drag-target')
-                    }
-                })
-                span.innerHTML = '✊'
-            }
-            span.ondragenter = (event)=>{
-                if(event.dataTransfer) event.dataTransfer.dropEffect = 'move'
-            }
-            span.ondragover = (event)=>{
-                event.preventDefault() // Apparently we need to do this to allow for the drop to happen.
-            }
-            span.ondragend = (event)=>{
-                document.querySelectorAll('.drag-icon').forEach(icon => {
-                    icon.innerHTML = '✋'
-                    icon.classList.remove('drag-target')
-                })
-                span.style.cursor = 'grabbing'
-            }
-            span.ondrop = async (event)=>{
-                const data = event.dataTransfer?.getData('application/json')
-                if(data) {
-                    const fromPath = JSON.parse(data) as IJsonEditorPath
-                    if(origin == EOrigin.ListArray) {
-                        await this.handleArrayMove(fromPath, path)
-                    } else if(origin == EOrigin.ListDictionary) {
-                        await this.handleDictionaryMove(fromPath, path)
-                    }
-                }
-            }
-            element.appendChild(span)
-        }
-    }
-
-    private appendPartnerFieldSlot(element: HTMLElement, clazz: string, key: string) {
-        const partnerSlot = document.createElement('span') as HTMLSpanElement
-        partnerSlot.id = this.getPartnerSlotID(clazz, key)
-        element.appendChild(partnerSlot)
-    }
-
-    /**
-     * Adds the button but also returns a lambda that can update the link of the button to lead to a different class.
-     * @param element
-     * @param typeValues
-     * @param path // Only include the path if the item is supposed to be replaced with the new one.
-     * @param parentId // Add parent IDs for generic items that should belong to a single parent.
-     * @private
-     */
-    private appendNewReferenceItemButton(element: HTMLElement, typeValues: DataRefValues, path: IJsonEditorPath, parentId?: number): Function {
-        let button: HTMLButtonElement|undefined = undefined
-        const updateLink = (clazz: string)=>{
-            if(button) {
-                button.title = `Create new item of type: ${clazz}`+(parentId ? ` for parent: ${this._key} (${parentId})` : '')
-                button.onclick = (event)=>{
-                    let link = `editor.php?c=${clazz}&m=1&n=1`
-                    if(parentId) link += `&p=${parentId}`
-                    this.openChildEditor(link, path)
-                }
-            }
-        }
-        if(typeValues.class && typeValues.isIdReference) {
-            button = document.createElement('button') as HTMLButtonElement
-            button.innerHTML = '👶'
-            button.classList.add('inline-button', 'save-button')
-            button.tabIndex = -1
-            updateLink(typeValues.class)
-            element.appendChild(button)
-        }
-        return updateLink
-    }
-
-    private appendRemoveButton(element: HTMLElement, origin: EOrigin, path: IJsonEditorPath, label: HTMLElement|undefined) {
-        if(origin == EOrigin.ListArray || origin == EOrigin.ListDictionary) {
-            const button = document.createElement('button') as HTMLButtonElement
-            button.innerHTML = '💥'
-            button.title = 'Remove item'
-            button.classList.add('inline-button', 'delete-button')
-            button.tabIndex = -1
-            button.onclick = async (event)=>{
-                this.handleValue(null,  path, label)
-                await this.rebuild()
-            }
-            element.appendChild(button)
-        }
-    }
-
-    private appendDocumentationIcon(element: HTMLElement, keyValue: string|number, instanceMeta: DataMeta|undefined) {
-        const key = keyValue.toString()
-        const docStr = (instanceMeta?.documentation ?? {})[key] ?? ''
-        if(docStr.length > 0 && this._config.showHelpIcons) {
-            const span = document.createElement('span') as HTMLSpanElement
-            span.classList.add('documentation-icon')
-            span.innerHTML = '💬'
-            span.title = docStr
-            element.appendChild(span)
-        }
-    }
-    // endregion
 
     private clone<T>(value: T): T {
         return JSON.parse(JSON.stringify(value)) as T
@@ -1052,7 +949,7 @@ export default class JsonEditor {
      * @param onlyCheckModified Will not set, only check and color label.
      * @private
      */
-    private handleValue(
+    public handleValue(
         value: string|number|boolean|object|null,
         path: IJsonEditorPath,
         label: HTMLElement|undefined = undefined,
@@ -1119,7 +1016,7 @@ export default class JsonEditor {
         this.checkIfModified()
     }
 
-    private async handleArrayMove(
+    public async handleArrayMove(
         fromPath: IJsonEditorPath,
         toPath: IJsonEditorPath
     ) {
@@ -1146,7 +1043,7 @@ export default class JsonEditor {
         this.checkIfModified()
     }
 
-    private async handleDictionaryMove(
+    public async handleDictionaryMove(
         fromPath: IJsonEditorPath,
         toPath: IJsonEditorPath
     ) {
@@ -1241,66 +1138,10 @@ export default class JsonEditor {
         return this._key
     }
 
-    private async appendAddButton(newRoot: HTMLLIElement, typeValues: DataRefValues, instance: object, path: IJsonEditorPath) {
-        if(typeValues.class.length > 0) {
-            const newButton = document.createElement('button') as HTMLButtonElement
-            newButton.innerHTML = '✨'
-            newButton.title = 'Add new item'
-            newButton.classList.add('inline-button', 'new-button')
-            newButton.onclick = async (event)=>{
-                if(Array.isArray(instance)) {
-                    switch(typeValues.class) {
-                        case 'number': instance.push(0); break
-                        case 'boolean': instance.push(false); break
-                        case 'string': instance.push(''); break
-                        default:
-                            if(typeValues.isIdReference) {
-                                instance.push(0)
-                                break
-                            }
-                            if(DataMap.hasInstance(typeValues.class)) {
-                                const newInstance = await DataMap.getInstance(typeValues.class, undefined)
-                                if(newInstance) instance.push(await newInstance.__clone()) // For some reason this would do nothing unless cloned.
-                            } else if(OptionsMap.hasPrototype(typeValues.class)) {
-                                const enumPrototype = await OptionsMap.getPrototype(typeValues.class)
-                                if(enumPrototype) instance.push(enumPrototype)
-                            }
-                            else console.warn('Unhandled type:', typeValues.class, ' from value: ', typeValues.original)
-                    }
-                    this.handleValue(instance, path, newRoot)
-                    await this.rebuild()
-                } else {
-                    const newKey = prompt(`Provide a key for the new ${typeValues.class}:`)
-                    if(newKey && newKey.length > 0) {
-                        switch(typeValues.original) {
-                            case 'number': (instance as any)[newKey] = 0; break
-                            case 'boolean': (instance as any)[newKey] = false; break
-                            case 'string': (instance as any)[newKey] = ''; break
-                            default:
-                                if(typeValues.isIdReference) {
-                                    (instance as any)[newKey] = 0
-                                    break
-                                }
-                                if(DataMap.hasInstance(typeValues.class)) {
-                                    const newInstance = await DataMap.getInstance(typeValues.class, undefined)
-                                    if(newInstance) (instance as any)[newKey] = await newInstance.__clone()
-                                } else if(OptionsMap.hasPrototype(typeValues.class)) {
-                                    const enumPrototype = OptionsMap.getPrototype(typeValues.class)
-                                    if(enumPrototype) (instance as any)[newKey] = enumPrototype
-                                }
-                                else console.warn('Unhandled type:', typeValues.class)
-                        }
-                        this.handleValue(instance, path, newRoot)
-                        await this.rebuild()
-                    }
-                }
-            }
-            newRoot.appendChild(newButton)
-        }
-    }
+
 
     private _childEditorPath: IJsonEditorPath = []
-    private openChildEditor(url: string, path: IJsonEditorPath) {
+    public openChildEditor(url: string, path: IJsonEditorPath) {
         this._childEditorPath = path
         const childEditorWindow = window.open(url)
         this._childEditorLaunchedListener(childEditorWindow)
@@ -1318,7 +1159,7 @@ export default class JsonEditor {
         }
     }
 
-    private getPartnerSlotID(partnerClass: string, key: string | number) {
+    public getPartnerSlotID(partnerClass: string, key: string | number) {
         return `editorPartnerSlot-${partnerClass}-${key}`
     }
 }
@@ -1329,7 +1170,7 @@ enum EJsonEditorFieldType {
     Null
 }
 
-interface IJsonEditorPath extends Array<string|number> {}
+export interface IJsonEditorPath extends Array<string|number> {}
 
 interface IJsonEditorModifiedStatusListener {
     (modified: boolean): void

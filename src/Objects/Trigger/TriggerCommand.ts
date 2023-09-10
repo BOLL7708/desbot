@@ -43,9 +43,8 @@ export class TriggerCommand extends Trigger {
 
     async register(eventKey: string) {
         const modules = ModulesSingleton.getInstance()
-        const clone = await this.__clone() as TriggerCommand
-        if(clone.entries.length > 0) {
-            modules.twitch.registerCommandTrigger(clone, eventKey)
+        if(this.entries.length > 0) {
+            modules.twitch.registerCommandTrigger(this, eventKey)
         }
     }
 }

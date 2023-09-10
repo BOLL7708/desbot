@@ -53,19 +53,17 @@ export default class DataMap {
      * Get an instance from referencing the class name.
      * @param className
      * @param props
-     * @param fillReferences
      */
     public static async getInstance(
         className: string|undefined,
-        props: object|undefined = undefined,
-        fillReferences: boolean = false
+        props: object|undefined = undefined
     ): Promise<Data|undefined> {
         const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return undefined
         if(className && this.hasInstance(className)) {
             const instance = this._map.get(className)?.instance
             if(instance) {
-                return await instance.__new(props, fillReferences)
+                return await instance.__new(props)
             } else console.warn(`DataMap: Class instance was invalid: ${className}`, props)
         } else console.warn(`DataMap: Class instance does not exist: ${className}`, props)
         return undefined

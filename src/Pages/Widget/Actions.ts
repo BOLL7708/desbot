@@ -171,7 +171,7 @@ export class ActionHandler {
 
                         const rewardPreset = rewardEntries[rewardIndex]
                         if(rewardPreset) {
-                            const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
+                            const clone = Utils.clone(rewardPreset) as PresetReward // TODO: Maybe we can remove this typecast?
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
 
@@ -233,7 +233,7 @@ export class ActionHandler {
                         const rewardPreset = rewardData ? rewardData[0] : undefined
                         if(!rewardId || !rewardPreset) continue
 
-                        const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
+                        const clone = Utils.clone(rewardPreset) as PresetReward // TODO: Maybe we can remove this typecast?
                         if (clone) {
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
@@ -261,7 +261,7 @@ export class ActionHandler {
                         const rewardPreset = rewardData ? rewardData[counter.count] : undefined
                         if(!rewardId || !rewardPreset) continue
 
-                        const clone = await rewardPreset.__clone() as PresetReward // TODO: Maybe we can remove this typecast?
+                        const clone = Utils.clone(rewardPreset) as PresetReward // TODO: Maybe we can remove this typecast?
                         if (clone) {
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)

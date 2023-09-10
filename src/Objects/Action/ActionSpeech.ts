@@ -50,8 +50,7 @@ export class ActionSpeech extends Action {
             tag: '🗣',
             description: 'Callback that triggers something spoken with TTS.',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = await this.__clone(true)
-                console.log('tts debug, entry preset original', this.entryPreset, clone.entryPreset)
+                console.log('tts debug, entry preset', this.entryPreset)
                 const modules = ModulesSingleton.getInstance()
 
                 // TODO: This is not quite working yeah. Seems to be a fault in the data loading and cloning above.
@@ -62,11 +61,11 @@ export class ActionSpeech extends Action {
                 //     : ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
                 // console.log('tts debug, entries', entryPreset?.collection, clone.entries, entries)
 
-                const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
+                const entries = ArrayUtils.getAsType(this.entries, this.entries_use, index)
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
-                const userName = await TextHelper.replaceTagsInText(clone.voiceOfUser_orUsername, user)
+                const userName = await TextHelper.replaceTagsInText(this.voiceOfUser_orUsername, user)
                 const voiceUserId = parseInt(
-                    DataUtils.ensureValue(clone.voiceOfUser)
+                    DataUtils.ensureValue(this.voiceOfUser)
                     ?? (await TwitchHelixHelper.getUserByLogin(userName))?.id
                     ?? ''
                 )
@@ -74,11 +73,11 @@ export class ActionSpeech extends Action {
                     await modules.tts.enqueueSpeakSentence(
                         await TextHelper.replaceTagsInText(ttsStr, user),
                         isNaN(voiceUserId) ? chatbotTokens?.userId : voiceUserId,
-                        clone.type,
+                        this.type,
                         '', // TODO: Figure out if we can uses nonces again, I'm sure it's needed for something.
                         undefined,
                         undefined,
-                        clone.skipDictionary
+                        this.skipDictionary
                     )
                 }
             }

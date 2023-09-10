@@ -29,9 +29,6 @@ export default class DataBaseHelper {
     private static _groupKeyTupleToMetaMap: Map<[string, string], IDataBaseItem<any>> = new Map()
     private static _idToMetaMap: Map<number, IDataBaseItem<any>> = new Map()
 
-    // Global flags
-    private static _fillReferences: boolean = false
-
     static async testConnection(): Promise<boolean> {
         const response = await fetch(this.getUrl(), {
             method: 'HEAD',
@@ -40,9 +37,6 @@ export default class DataBaseHelper {
             }
         })
         return response.ok
-    }
-    static setFillReferences(fill: boolean) {
-        this._fillReferences = fill
     }
 
     // region Json Store
@@ -146,24 +140,21 @@ export default class DataBaseHelper {
      * @param emptyInstance Instance of the class to load.
      * @param parentId Filter on items with this parent id.
      * @param ignoreCache Will not use the in-memory cache.
-     * @param fillReferences Will override the global setting.
      */
     static async loadAll<T>(
         emptyInstance: T&Data,
         parentId?: number,
         ignoreCache?: boolean,
-        fillReferences?: boolean
     ): Promise<{ [key: string]: T }|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
-        if (fillReferences === undefined) fillReferences = this._fillReferences
 
         // Cache
         if(!ignoreCache && this._dataStore.has(className)) {
             const cacheDictionary = this._dataStore.get(className) as { [key: string]: T }
             const resultDictionary: { [key:string]: T } = {}
             for(const [key, setting] of Object.entries(cacheDictionary)) {
-                resultDictionary[key] = await emptyInstance.__new(setting as T&object, fillReferences)
+                resultDictionary[key] = await emptyInstance.__new(setting as T&object)
             }
             return resultDictionary
         }
@@ -177,7 +168,7 @@ export default class DataBaseHelper {
             // Convert plain objects to class instances and cache them
             for(const item of jsonResult) {
                 const plainObject = this.handleDataBaseItem(item) as T&object
-                const filledObject = await emptyInstance.__new(plainObject, fillReferences)
+                const filledObject = await emptyInstance.__new(plainObject)
                 if(filledObject) {
                     cacheDictionary[item.key] = await emptyInstance.__new(plainObject)
                     resultDictionary[item.key] = filledObject
@@ -252,12 +243,11 @@ export default class DataBaseHelper {
     ): Promise<IDataBaseItem<T>|undefined> {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
-        if (fillReferences === undefined) fillReferences = this._fillReferences
         // Cache
         if (!ignoreCache && this._dataStore.has(className)) {
             const dictionary = this._dataStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
-                const data = await emptyInstance.__new(dictionary[key] ?? undefined, fillReferences)
+                const data = await emptyInstance.__new(dictionary[key] ?? undefined)
                 const item = this._groupKeyTupleToMetaMap.get([className, key])
                 if(item) {
                     const itemClone = Utils.clone(item)
@@ -274,7 +264,7 @@ export default class DataBaseHelper {
             // Convert plain object to class instance
             const item = jsonResult[0]
             const plainObject = this.handleDataBaseItem(item) as T&object
-            const filledObject = await emptyInstance.__new(plainObject, fillReferences)
+            const filledObject = await emptyInstance.__new(plainObject)
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {

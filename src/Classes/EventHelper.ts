@@ -8,7 +8,7 @@ import {DataUtils} from '../Objects/DataUtils.js'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&Trigger): Promise<T[]> {
-        const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined, true)
+        const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined)
         const triggers: T[][] = []
         for(const ev of Object.values(allEvents ?? {})) {
             triggers.push(ev.getTriggers(triggerInstance))
@@ -17,7 +17,7 @@ export default class EventHelper {
     }
 
     static async getAllEventsWithTriggersOfType(triggerInstance: Trigger, matchRewardId?: string): Promise<{ [key:string]: EventDefault }> {
-        const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined, true)
+        const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined)
         const matchedEvents = Object.entries(allEvents ?? {}).filter(([key, e])=>{
             const rewards = e.getTriggers(triggerInstance)
             const matches = rewards.filter((reward)=>{

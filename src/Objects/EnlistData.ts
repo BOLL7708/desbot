@@ -114,6 +114,7 @@ import ConfigAnnouncements, {
     ConfigAnnounceSub
 } from './Config/ConfigAnnouncements.js'
 import ConfigCommands from './Config/ConfigCommands.js'
+import {ConfigTest} from './Config/ConfigTest.js'
 
 /**
  * This class exists to enlist the things stored in the database in a map.
@@ -189,6 +190,7 @@ export default class EnlistData {
             new ConfigSteam(),
             new ConfigTwitch(),
             new ConfigTwitchCategoryOverride(),
+            new ConfigTest(),
 
             new EventDefault(),
             new EventOptions(),

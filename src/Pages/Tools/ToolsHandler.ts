@@ -159,8 +159,7 @@ export default class ToolsHandler {
                 const allEvents = await DataBaseHelper.loadAll(
                     new EventDefault(),
                     undefined,
-                    false,
-                    true
+                    false
                 )
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
                 return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
@@ -171,7 +170,6 @@ export default class ToolsHandler {
                 const allEvents = await DataBaseHelper.loadAll(
                     new EventDefault(),
                     undefined,
-                    false,
                     false
                 )
                 let createdCount = 0
