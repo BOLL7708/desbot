@@ -8,12 +8,12 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ConfigScreenshots from '../Config/ConfigScreenshots.js'
 import Utils from '../../Classes/Utils.js'
 import AudioUtils from '../../Classes/AudioUtils.js'
-import {IData} from '../Data.js'
 import {DataUtils} from '../DataUtils.js'
+import {DataEntries} from '../Data.js'
 
 export class ActionScreenshot extends Action {
     screenshotType = OptionScreenshotType.SuperScreenShotterVR
-    sourcePreset: number|IData<PresetOBSSource> = 0
+    sourcePreset: number|DataEntries<PresetOBSSource> = 0
     delay: number = 0
 
     enlist() {
@@ -42,8 +42,8 @@ export class ActionScreenshot extends Action {
                 const modules = ModulesSingleton.getInstance()
                 const userInput = user.input
                 const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
-                const soundConfig = DataUtils.ensureValue(screenshotsConfig.callback.captureSoundEffect)
-                const sourcePreset = DataUtils.ensureValue(clone.sourcePreset)
+                const soundConfig = DataUtils.ensureData(screenshotsConfig.callback.captureSoundEffect)
+                const sourcePreset = DataUtils.ensureData(clone.sourcePreset)
                 if(userInput) {
                     // This is executed after the TTS with the same nonce has finished.
                     states.nonceCallbacks.set(nonce ?? '', ()=>{

@@ -210,7 +210,12 @@ export class ActionSettingTTS extends Action {
                             states.textTagCache.lastDictionarySubstitute = word
                             await DataBaseHelper.save(entry, word)
                         }
-                        const fullDictionary = await DataBaseHelper.loadAll(new SettingDictionaryEntry())
+                        const fullDictionaryItems = await DataBaseHelper.loadAll(new SettingDictionaryEntry()) ?? {}
+                        const fullDictionary = Object.fromEntries(
+                            Object.values(fullDictionaryItems).map(
+                                item => [item.key, item.filledData]
+                            ).filter(pair => !!pair[1])
+                        )
                         if (fullDictionary) {
                             modules.tts.setDictionary(fullDictionary)
                         } else {

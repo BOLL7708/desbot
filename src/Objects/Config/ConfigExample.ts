@@ -1,4 +1,4 @@
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataMap from '../DataMap.js'
 import {PresetPipeBasic} from '../Preset/PresetPipe.js'
@@ -13,11 +13,9 @@ export class ConfigExample extends Data {
     singleSecretString = ''
     singleFileString = ''
     singleSubInstance = new ConfigExampleSub()
-    singleIdReference: number|IData<PresetPipeBasic> = 0
-    singleIdReferenceUsingLabel: number|IData<PresetPipeBasic> = 0
-    singleIdToKeyReference: number|IData<string> = ''
-    singleIdToKeyReferenceUsingLabel: number|IData<string> = ''
-    singleIdToGenericReference: number|IData<Data> = 0
+    singleIdReference: number|DataEntries<PresetPipeBasic> = 0
+    singleIdReferenceUsingLabel: number|DataEntries<PresetPipeBasic> = 0
+    singleIdToGenericReference: number|DataEntries<Data> = 0
     singleEnum = OptionEntryUsage.First
     arrayOfBooleans: boolean[] = []
     arrayOfBooleans_use: number = 0
@@ -27,21 +25,17 @@ export class ConfigExample extends Data {
     arrayOfSecretStrings: string[] = []
     arrayOfFileStrings: string[] = []
     arrayOfSubInstances: ConfigExampleSub[] = []
-    arrayOfIdReferences: number[]|IData<PresetPipeBasic> = []
-    arrayOfIdReferencesUsingLabels: number[]|IData<PresetPipeBasic> = []
-    arrayOfIdToKeyReferences: number[]|IData<string> = []
-    arrayOfIdToKeyReferencesUsingLabels: number[]|IData<string> = []
-    arrayOfIdToGenericReferences: number[]|IData<Data> = []
+    arrayOfIdReferences: number[]|DataEntries<PresetPipeBasic> = []
+    arrayOfIdReferencesUsingLabels: number[]|DataEntries<PresetPipeBasic> = []
+    arrayOfIdToGenericReferences: number[]|DataEntries<Data> = []
     arrayOfEnum: OptionEntryUsage[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
     dictionaryOfSubInstances: {[key:string]: ConfigExampleSub} = {}
-    dictionaryOfIdReferences: {[key:string]: number|IData<PresetPipeBasic>} = {}
-    dictionaryOfIdReferencesUsingLabels: {[key:string]: number|IData<PresetPipeBasic>} = {}
-    dictionaryOfIdToKeyReferences: {[key:string]: number|IData<string>} = {}
-    dictionaryOfIdToKeyReferencesUsingLabels: {[key:string]: number|IData<string>} = {}
-    dictionaryOfIdToGenericReferences: {[key:string]: number|IData<Data>} = {}
+    dictionaryOfIdReferences: {[key:string]: number|DataEntries<PresetPipeBasic>} = {}
+    dictionaryOfIdReferencesUsingLabels: {[key:string]: number|DataEntries<PresetPipeBasic>} = {}
+    dictionaryOfIdToGenericReferences: {[key:string]: number|DataEntries<Data>} = {}
     dictionaryOfEnums: { [key:string]: OptionEntryUsage } = {}
     partnerToSingle = ''
     partnerToSingle_active = false
@@ -72,8 +66,6 @@ export class ConfigExample extends Data {
                 singleSubInstance: 'A single instance of a sub-class',
                 singleIdReference: 'A single ID reference to any other object',
                 singleIdReferenceUsingLabel: 'A single ID reference displayed with a label',
-                singleIdToKeyReference: 'A single ID reference to any other object key',
-                singleIdToKeyReferenceUsingLabel: 'A single ID reference to any other object kwy with a label',
                 singleIdToGenericReference: 'Contains a single generic entry.',
                 singleEnum: '',
                 arrayOfBooleans: 'This is an array property with a partner field.',
@@ -83,8 +75,6 @@ export class ConfigExample extends Data {
                 arrayOfSubInstances: '',
                 arrayOfIdReferences: '',
                 arrayOfIdReferencesUsingLabels: '',
-                arrayOfIdToKeyReferences: '',
-                arrayOfIdToKeyReferencesUsingLabels: '',
                 arrayOfIdToGenericReferences: 'Contains an array of generic entries.',
                 arrayOfEnum: '',
                 dictionaryOfBooleans: '',
@@ -93,8 +83,6 @@ export class ConfigExample extends Data {
                 dictionaryOfSubInstances: '',
                 dictionaryOfIdReferences: '',
                 dictionaryOfIdReferencesUsingLabels: '',
-                dictionaryOfIdToKeyReferences: '',
-                dictionaryOfIdToKeyReferencesUsingLabels: '',
                 dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.',
                 dictionaryOfEnums: ''
             },
@@ -104,8 +92,6 @@ export class ConfigExample extends Data {
                 singleFileString: DataUtils.getStringFileImageRef(),
                 singleIdReference: PresetPipeBasic.ref.id.build(),
                 singleIdReferenceUsingLabel: PresetPipeBasic.ref.id.label.build(),
-                singleIdToKeyReference: PresetPipeBasic.ref.id.key.build(),
-                singleIdToKeyReferenceUsingLabel: PresetPipeBasic.ref.id.key.label.build(),
                 singleIdToGenericReference: Data.genericRef('Setting').build(),
                 singleEnum: OptionEntryUsage.ref,
                 arrayOfBooleans: 'boolean',
@@ -117,8 +103,6 @@ export class ConfigExample extends Data {
                 arrayOfSubInstances: ConfigExampleSub.ref.build(),
                 arrayOfIdReferences: PresetPipeBasic.ref.id.build(),
                 arrayOfIdReferencesUsingLabels: PresetPipeBasic.ref.id.label.build(),
-                arrayOfIdToKeyReferences: PresetPipeBasic.ref.id.key.build(),
-                arrayOfIdToKeyReferencesUsingLabels: PresetPipeBasic.ref.id.key.label.build(),
                 arrayOfIdToGenericReferences: Data.genericRef('Setting').build(),
                 arrayOfEnum: OptionEntryUsage.ref,
                 dictionaryOfBooleans: 'boolean',
@@ -127,8 +111,6 @@ export class ConfigExample extends Data {
                 dictionaryOfSubInstances: ConfigExampleSub.ref.build(),
                 dictionaryOfIdReferences: PresetPipeBasic.ref.id.build(),
                 dictionaryOfIdReferencesUsingLabels: PresetPipeBasic.ref.id.label.build(),
-                dictionaryOfIdToKeyReferences: PresetPipeBasic.ref.id.key.build(),
-                dictionaryOfIdToKeyReferencesUsingLabels: PresetPipeBasic.ref.id.key.label.build(),
                 dictionaryOfIdToGenericReferences: Data.genericRef('Setting').build(),
                 dictionaryOfEnums: OptionEntryUsage.ref,
                 partnerToSingleAdvanced_enum: OptionEntryUsage.ref,
@@ -141,7 +123,7 @@ export class ConfigExample extends Data {
 }
 export class ConfigExampleSub extends Data {
     singleString: string = ''
-    singleIdReference: {[key:string]: number|IData<PresetPipeBasic>} = {}
+    singleIdReference: INumberDictionary|DataEntries<PresetPipeBasic> = {}
     singleEnum: number = OptionEntryUsage.All
 
     enlist() {

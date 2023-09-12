@@ -2,7 +2,6 @@ import Data from '../Data.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
 import DataMap from '../DataMap.js'
 import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.js'
-import {EventDefault} from '../Event/EventDefault.js'
 
 export class ConfigPipe extends Data {
     port: number = 8077

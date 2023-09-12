@@ -7,3 +7,6 @@ export interface INumberDictionary {
 export interface IBooleanDictionary {
     [key: string]: boolean
 }
+export interface IDictionary<T> {
+    [key: string]: T
+}

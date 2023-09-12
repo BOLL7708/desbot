@@ -1,4 +1,4 @@
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
@@ -7,7 +7,7 @@ import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
 
 export class ActionOBS extends Action {
-    sceneEntries: number[]|IData<PresetOBSScene> = []
+    sceneEntries: number[]|DataEntries<PresetOBSScene> = []
     sceneEntries_use = OptionEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
     sourceEntries_use = OptionEntryUsage.All
@@ -54,8 +54,8 @@ export class ActionOBS extends Action {
     }
 }
 export class ActionOBSSource extends Data {
-    scenePreset: number|IData<PresetOBSScene> = 0
-    sourcePreset: number|IData<PresetOBSSource> = 0
+    scenePreset: number|DataEntries<PresetOBSScene> = 0
+    sourcePreset: number|DataEntries<PresetOBSSource> = 0
 
     enlist() {
         DataMap.addSubInstance(
@@ -70,8 +70,8 @@ export class ActionOBSSource extends Data {
     }
 }
 export class ActionOBSFilter extends Data {
-    sourcePreset: number|IData<PresetOBSSource> = 0
-    filterPreset: number|IData<PresetOBSFilter> = 0
+    sourcePreset: number|DataEntries<PresetOBSSource> = 0
+    filterPreset: number|DataEntries<PresetOBSFilter> = 0
 
     enlist() {
         DataMap.addSubInstance(

@@ -5,13 +5,13 @@ import Action, {IActionCallback, IActionUser} from '../Action.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
-import {IData} from '../Data.js'
 import {DataUtils} from '../DataUtils.js'
+import {DataEntries} from '../Data.js'
 
 export class ActionPhilipsHueBulb extends Action {
-    entries: number[]|IData<string> = []
+    entries: number[]|DataEntries<PresetPhilipsHueBulb> = []
     entries_use = OptionEntryUsage.All
-    colorEntries: number[]|IData<PresetPhilipsHueBulbState> = []
+    colorEntries: number[]|DataEntries<PresetPhilipsHueBulbState> = []
     colorEntries_use = OptionEntryUsage.First
 
     enlist() {
@@ -23,7 +23,7 @@ export class ActionPhilipsHueBulb extends Action {
                 entries: 'The bulbs to affect.',
             },
             {
-                entries: PresetPhilipsHueBulb.ref.id.key.label.build(),
+                entries: PresetPhilipsHueBulb.ref.id.label.build(),
                 entries_use: OptionEntryUsage.ref,
                 colorEntries: PresetPhilipsHueBulbState.ref.id.build(),
                 colorEntries_use: OptionEntryUsage.ref
@@ -37,8 +37,8 @@ export class ActionPhilipsHueBulb extends Action {
             description: 'Callback that triggers a Philips Hue bulb action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPhilipsHueBulb>(this)
-                const ids = ArrayUtils.getAsType(DataUtils.ensureValues(clone.entries) ?? [], clone.entries_use, index)
-                const colors = ArrayUtils.getAsType(DataUtils.ensureValues(clone.colorEntries) ?? [], clone.colorEntries_use, index)
+                const ids = ArrayUtils.getAsType(DataUtils.ensureKeyArray(clone.entries) ?? [], clone.entries_use, index)
+                const colors = ArrayUtils.getAsType(DataUtils.ensureDataArray(clone.colorEntries) ?? [], clone.colorEntries_use, index)
                 const color = colors.pop() // No reason to set more than one color at the same time for the same bulb.
                 if(color) {
                     PhilipsHueHelper.runBulbs(ids, color.brightness, color.hue, color.saturation)

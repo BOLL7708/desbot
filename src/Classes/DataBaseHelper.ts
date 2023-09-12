@@ -2,9 +2,10 @@ import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import Data from '../Objects/Data.js'
-import {INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import DataMap from '../Objects/DataMap.js'
 import {SettingIncrementingCounter} from '../Objects/Setting/SettingCounters.js'
+import {DataMeta} from '../Objects/DataMeta.js'
 
 /*
 TODO
@@ -20,7 +21,7 @@ export default class DataBaseHelper {
     private static readonly LOG_BAD_COLOR: string = Color.DarkRed
 
     // Main storage
-    private static _dataStore: Map<string, { [key:string]: any }> = new Map() // Used for storing keyed entries in memory before saving to disk
+    private static _dataStore: Map<string, IDictionary<IDataBaseItem<any>>> = new Map() // Used for storing keyed entries in memory before saving to disk
 
     // Editor specific storage
     private static _idKeyLabelStore: Map<[string, number], IDataBaseListItems> = new Map() // Used to store ID reference lists used in the editor
@@ -127,11 +128,18 @@ export default class DataBaseHelper {
      * @param item
      * @private
      */
-    private static handleDataBaseItem<T>(item: IDataBaseItem<T>):T|undefined {
+    private static async handleDataBaseItem<T>(item: IDataBaseItem<T>):Promise<T|undefined> {
         const itemClone = Utils.clone<IDataBaseItem<T>>(item)
         itemClone.data = null
+
+        // We cache things so we can quickly list them later, thus data is nulled.
         this._idToMetaMap.set(item.id, itemClone)
         this._groupKeyTupleToMetaMap.set([item.class, item.key], itemClone)
+
+        // Add filled version
+        const meta = DataMap.getMeta(item.class)
+        if(meta) item.filledData = await meta.instance.__new(item.data ?? undefined)
+
         return item.data ? item.data as T : undefined
     }
 
@@ -145,37 +153,31 @@ export default class DataBaseHelper {
         emptyInstance: T&Data,
         parentId?: number,
         ignoreCache?: boolean,
-    ): Promise<{ [key: string]: T }|undefined> {
+    ): Promise<IDictionary<IDataBaseItem<T>>|undefined> {
         const className = emptyInstance.constructor.name
         if(this.checkAndReportClassError(className, 'loadDictionary')) return undefined
 
-        // Cache
+        // Cache // TODO: Rework?
         if(!ignoreCache && this._dataStore.has(className)) {
-            const cacheDictionary = this._dataStore.get(className) as { [key: string]: T }
-            const resultDictionary: { [key:string]: T } = {}
-            for(const [key, setting] of Object.entries(cacheDictionary)) {
-                resultDictionary[key] = await emptyInstance.__new(setting as T&object)
-            }
-            return resultDictionary
+            return this._dataStore.get(className) as IDictionary<IDataBaseItem<T>>
         }
 
         // DB
         const jsonResult = await this.loadJson(className) as IDataBaseItem<T>[]|undefined
         if(Array.isArray(jsonResult)) {
-            const resultDictionary: { [key: string]: T } = {}
-            const cacheDictionary: { [key: string]: T } = {}
+            const cacheDictionary: IDictionary<IDataBaseItem<T>> = {}
 
             // Convert plain objects to class instances and cache them
             for(const item of jsonResult) {
-                const plainObject = this.handleDataBaseItem(item) as T&object
-                const filledObject = await emptyInstance.__new(plainObject)
+                // const plainObject = await this.handleDataBaseItem(item) as T&object
+                const filledObject = await emptyInstance.__new(item.data ?? undefined)
                 if(filledObject) {
-                    cacheDictionary[item.key] = await emptyInstance.__new(plainObject)
-                    resultDictionary[item.key] = filledObject
+                    item.filledData = filledObject
+                    cacheDictionary[item.key] = item
                 }
             }
             this._dataStore.set(className, cacheDictionary)
-            return resultDictionary
+            return cacheDictionary
         }
         return undefined
     }
@@ -184,14 +186,14 @@ export default class DataBaseHelper {
      * Load a main blob from the database, or cache if it exists.
      * @param emptyInstance Instance of the class to load.
      * @param ignoreCache Will not use the in-memory cache.
-     * @param fillReferences Will override the global setting.
+     * @param filled
      */
     static async loadMain<T>(
         emptyInstance: T&Data,
         ignoreCache: boolean = false,
-        fillReferences?: boolean
+        filled: boolean = true
     ): Promise<T> {
-        return await this.load(emptyInstance, this.OBJECT_MAIN_KEY, undefined, ignoreCache, fillReferences) ?? emptyInstance
+        return await this.load(emptyInstance, this.OBJECT_MAIN_KEY, undefined, ignoreCache, filled) ?? emptyInstance
     }
 
     /**
@@ -200,18 +202,18 @@ export default class DataBaseHelper {
      * @param key
      * @param parentId
      * @param ignoreCache
-     * @param fillReferences Will override the global setting.
+     * @param filled
      */
     static async load<T>(
         emptyInstance: T&Data,
         key: string,
         parentId?: number,
         ignoreCache?: boolean,
-        fillReferences?: boolean
+        filled?: boolean
     ): Promise<T|undefined> {
-        const item = await this.loadItem(emptyInstance, key, parentId, ignoreCache, fillReferences)
+        const item = await this.loadItem(emptyInstance, key, parentId, ignoreCache)
         if(item) {
-            return item.data as T
+            return filled ? item.filledData as T : item.data as T
         }
         return undefined
     }
@@ -220,10 +222,9 @@ export default class DataBaseHelper {
         emptyInstance: T&Data,
         key: string,
         parentId?: number,
-        ignoreCache?: boolean,
-        fillReferences?: boolean
+        ignoreCache?: boolean
     ): Promise<T> {
-        return await this.load(emptyInstance, key, parentId, ignoreCache, fillReferences) ?? emptyInstance
+        return await this.load(emptyInstance, key, parentId, ignoreCache) ?? emptyInstance
     }
 
     /**
@@ -232,22 +233,21 @@ export default class DataBaseHelper {
      * @param key The key for the row to load.
      * @param parentId Only load the item if it has this parent id.
      * @param ignoreCache Will not use the in-memory cache.
-     * @param fillReferences Will override the global setting.
      */
     static async loadItem<T>(
         emptyInstance: T&Data,
         key: string,
         parentId?: number,
-        ignoreCache?: boolean,
-        fillReferences?: boolean
+        ignoreCache?: boolean
     ): Promise<IDataBaseItem<T>|undefined> {
         const className = emptyInstance.constructor.name
         if (this.checkAndReportClassError(className, 'loadSingle')) return undefined
         // Cache
+        /*
         if (!ignoreCache && this._dataStore.has(className)) {
             const dictionary = this._dataStore.get(className) as { [key: string]: T }
             if (dictionary && Object.keys(dictionary).indexOf(key) !== -1) {
-                const data = await emptyInstance.__new(dictionary[key] ?? undefined)
+                const data = await emptyInstance.__new(dictionary[key] ?? undefined) // TODO: We should not use __new when loading from cache, in theory, possibly change how caching works.
                 const item = this._groupKeyTupleToMetaMap.get([className, key])
                 if(item) {
                     const itemClone = Utils.clone(item)
@@ -256,32 +256,37 @@ export default class DataBaseHelper {
                 }
             }
         }
+        */
+
+        // Check if cached, if so return that
+        if(!ignoreCache && this._dataStore.has(className)) {
+            const cache = this._dataStore.get(className)
+            if(cache && cache.hasOwnProperty(key)) {
+                return cache[key]
+            }
+        }
 
         // DB
         const jsonResult = await this.loadJson(className, key, parentId) as IDataBaseItem<T>[]|undefined
         if(jsonResult && jsonResult.length == 1) {
-
             // Convert plain object to class instance
             const item = jsonResult[0]
-            const plainObject = this.handleDataBaseItem(item) as T&object
-            const filledObject = await emptyInstance.__new(plainObject)
+            item.filledData = await emptyInstance.__new(item.data ?? undefined)
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
-                const newDic: { [key: string]: T } = {}
+                const newDic: IDictionary<IDataBaseItem<T>> = {}
                 this._dataStore.set(className, newDic)
             }
             const cacheDictionary = this._dataStore.get(className)
 
-            // Save a new instance in the cache so the returned instance can be modified without affecting the cache.
-            if (cacheDictionary) cacheDictionary[key] = await emptyInstance.__new(plainObject)
-            item.data = filledObject
+            // Save cache
+            if (cacheDictionary) cacheDictionary[key] = item
             return item
         }
         return undefined
     }
 
-    // TODO: Should this fill references?
     static async loadById(
         rowId?: string|number,
         parentId?: number
@@ -297,8 +302,10 @@ export default class DataBaseHelper {
         })
         const jsonResult = await response.json()
         if(jsonResult && jsonResult.length > 0) {
+            // TODO: Redo caching and stuff.
             const item = jsonResult[0]
-            this.handleDataBaseItem(item)
+            const emptyInstance = await DataMap.getInstance(item.class)
+            if(emptyInstance) item.filledData = await emptyInstance.__new(item.data ?? undefined)
             return item
         }
         return undefined
@@ -444,7 +451,8 @@ export default class DataBaseHelper {
         if(key) {
             if(!this._dataStore.has(className)) this._dataStore.set(className, {})
             const dictionary = this._dataStore.get(className)
-            if(dictionary) dictionary[key] = setting
+            const item: IDataBaseItem<T> = await this.loadItem(setting, key, parentId) as IDataBaseItem<T>
+            if(dictionary && item) dictionary[key] = item
         }
 
         // Result
@@ -572,6 +580,7 @@ export interface IDataBaseItem<T> {
     key: string
     pid: number|null
     data: (T&Data)|null
+    filledData: (T&Data)|null
 }
 export interface IDataBaseItemRaw extends IDataBaseItem<any> {
     data: string

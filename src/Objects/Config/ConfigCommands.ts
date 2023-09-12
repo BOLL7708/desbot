@@ -1,19 +1,19 @@
 import DataMap from '../DataMap.js'
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import {SettingUser} from '../Setting/SettingUser.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
 export default class ConfigCommands extends Data {
     commandPrefix: string = '!'
-    defaultCommandPermissions: number|IData<PresetPermissions> = 0
-    ignoreModerators: number[]|IData<SettingUser> = []
+    defaultCommandPermissions: number|DataEntries<PresetPermissions> = 0
+    ignoreModerators: number[]|DataEntries<SettingUser> = []
     allowWhisperCommands: boolean = true
-    logWhisperCommandsToDiscord: number|IData<PresetDiscordWebhook> = 0
-    remoteCommandChannel: number|IData<SettingUser> = 0
+    logWhisperCommandsToDiscord: number|DataEntries<PresetDiscordWebhook> = 0
+    remoteCommandChannel: number|DataEntries<SettingUser> = 0
     remoteCommandPrefix: string = '!'
-    remoteCommandAllowedUsers: number[]|IData<SettingUser> = []
-    postCommandHelpToDiscord: number|IData<PresetDiscordWebhook> = 0
+    remoteCommandAllowedUsers: number[]|DataEntries<SettingUser> = []
+    postCommandHelpToDiscord: number|DataEntries<PresetDiscordWebhook> = 0
 
     enlist() {
         DataMap.addRootInstance(

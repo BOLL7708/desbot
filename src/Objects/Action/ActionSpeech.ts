@@ -6,21 +6,20 @@ import Action, {IActionCallback, IActionUser} from '../Action.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {SettingTwitchTokens} from '../Setting/SettingTwitch.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import {PresetText} from '../Preset/PresetText.js'
-import {IData} from '../Data.js'
 import {DataUtils} from '../DataUtils.js'
+import {DataEntries} from '../Data.js'
 
 export class ActionSpeech extends Action {
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
-    entryPreset: number|IData<PresetText> = 0
+    entryPreset: number|DataEntries<PresetText> = 0
     entryPreset_use = OptionEntryUsage.OneRandom
     skipDictionary: boolean = false
-    voiceOfUser: number|IData<string> = 0
+    voiceOfUser: number|DataEntries<SettingUser> = 0
     voiceOfUser_orUsername: string = ''
     type = OptionTTSType.Announcement
 
@@ -39,7 +38,7 @@ export class ActionSpeech extends Action {
                 entries_use: OptionEntryUsage.ref,
                 entryPreset: PresetText.ref.id.build(),
                 entryPreset_use: OptionEntryUsage.ref,
-                voiceOfUser: SettingUser.ref.id.key.label.build(),
+                voiceOfUser: SettingUser.ref.id.label.build(),
                 type: OptionTTSType.ref
             }
         )
@@ -65,7 +64,7 @@ export class ActionSpeech extends Action {
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
                 const userName = await TextHelper.replaceTagsInText(this.voiceOfUser_orUsername, user)
                 const voiceUserId = parseInt(
-                    DataUtils.ensureValue(this.voiceOfUser)
+                    DataUtils.ensureKey(this.voiceOfUser)
                     ?? (await TwitchHelixHelper.getUserByLogin(userName))?.id
                     ?? ''
                 )

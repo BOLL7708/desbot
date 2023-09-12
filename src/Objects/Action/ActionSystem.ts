@@ -1,4 +1,4 @@
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {EventDefault} from '../Event/EventDefault.js'
@@ -14,10 +14,10 @@ import {ActionHandler} from '../../Pages/Widget/Actions.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import ActionsCallbacks from '../../Pages/Widget/ActionsCallbacks.js'
 import {TriggerReward} from '../Trigger/TriggerReward.js'
-import ConfigTwitch from '../Config/ConfigTwitch.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ConfigCommands from '../Config/ConfigCommands.js'
 import {DataUtils} from '../DataUtils.js'
+import {PresetReward} from '../Preset/PresetReward.js'
 
 export class ActionSystem extends Action {
     trigger = new ActionSystemTrigger()
@@ -72,7 +72,7 @@ export class ActionSystem extends Action {
                 }
 
                 // Trigger Events by Keys
-                const keys = ArrayUtils.getAsType(DataUtils.ensureValues(clone.trigger.eventEntries) ?? [], clone.trigger.eventEntries_use, index)
+                const keys = ArrayUtils.getAsType(DataUtils.ensureKeyArray(clone.trigger.eventEntries) ?? [], clone.trigger.eventEntries_use, index)
                 for(const key of keys) {
                     Utils.log(`Executing event: ${key} in ${delay} seconds...`, Color.Grey)
                     if(key == user.eventKey) continue // Prevent infinite loop
@@ -83,20 +83,16 @@ export class ActionSystem extends Action {
                 }
 
                 // Toggle Rewards
-                const rewardStates = DataUtils.ensureValues(clone.toggle.rewardStates) ?? []
+                const rewardStates = clone.toggle.rewardStates
 
                 // Grab reward triggers from events and convert them to reward states.
-                for(const eventStates of DataUtils.ensureValues(clone.toggle.rewardStatesForEvents) ?? []) {
-                    const eventId = DataUtils.ensureValue(eventStates.event) ?? ''
-                    const event = await DataBaseHelper.load(new EventDefault(), eventId)
+                for(const eventStates of clone.toggle.rewardStatesForEvents) {
+                    const eventEntry = DataUtils.ensureItem(eventStates.event)
+                    const event = eventEntry?.dataSingle.filledData
                     if(event) {
-                        const rewards = (DataUtils.ensureValues(event.triggers) ?? []).filter(e =>
-                            e.constructor.name == TriggerReward.name
-                        )
+                        const rewards = DataUtils.ensureDataArray(event.triggers).filter(trigger => trigger.__getClass() == TriggerReward.name) as TriggerReward[]
                         for(const reward of rewards) {
-                            const rewardID = DataUtils.ensureValue(
-                                (reward as TriggerReward).rewardID
-                            )
+                            const rewardID = DataUtils.ensureItem(reward.rewardID)
                             if(rewardID) {
                                 const newState = new ActionSystemRewardState()
                                 newState.reward = rewardID
@@ -120,7 +116,7 @@ export class ActionSystemTrigger extends Data {
     systemActionEntries_use = OptionEntryUsage.All
     commandEntries: string[] = []
     commandEntries_use = OptionEntryUsage.All
-    eventEntries: number[]|IData<string> = []
+    eventEntries: number[]|DataEntries<EventDefault> = []
     eventEntries_use = OptionEntryUsage.All
 
     enlist() {
@@ -137,7 +133,7 @@ export class ActionSystemTrigger extends Data {
                 systemActionEntries_use: OptionEntryUsage.ref,
                 commandEntries: 'string',
                 commandEntries_use: OptionEntryUsage.ref,
-                eventEntries: EventDefault.ref.id.key.build(),
+                eventEntries: EventDefault.ref.id.build(),
                 eventEntries_use: OptionEntryUsage.ref
             }
         )
@@ -162,7 +158,7 @@ export class ActionSystemToggle extends Data {
     }
 }
 export class ActionSystemRewardState extends Data {
-    reward: number|IData<string> = 0
+    reward: number|DataEntries<SettingTwitchReward> = 0
     reward_visible = OptionTwitchRewardVisible.Visible
     reward_usable = OptionTwitchRewardUsable.Enabled
 
@@ -173,7 +169,7 @@ export class ActionSystemRewardState extends Data {
                 reward: 'The reward to update, if it should be visible and/or redeemable.'
             },
             {
-                reward: SettingTwitchReward.ref.id.key.label.build(),
+                reward: SettingTwitchReward.ref.id.label.build(),
                 reward_visible: OptionTwitchRewardVisible.ref,
                 reward_usable: OptionTwitchRewardUsable.ref
             }
@@ -181,7 +177,7 @@ export class ActionSystemRewardState extends Data {
     }
 }
 export class ActionSystemRewardStateForEvent extends Data {
-    event: number|IData<string> = 0
+    event: number|DataEntries<EventDefault> = 0
     event_visible = OptionTwitchRewardVisible.Visible
     event_usable = OptionTwitchRewardUsable.Enabled
 
@@ -192,7 +188,7 @@ export class ActionSystemRewardStateForEvent extends Data {
                 event: 'The event to look for a reward to update in, if it should be visible and/or redeemable.'
             },
             {
-                event: EventDefault.ref.id.key.build(),
+                event: EventDefault.ref.id.build(),
                 event_visible: OptionTwitchRewardVisible.ref,
                 event_usable: OptionTwitchRewardUsable.ref
             }

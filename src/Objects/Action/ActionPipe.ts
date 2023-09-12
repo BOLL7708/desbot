@@ -7,7 +7,7 @@ import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import {DataUtils} from '../DataUtils.js'
-import {IData} from '../Data.js'
+import {DataEntries} from '../Data.js'
 
 export class ActionPipe extends Action {
     imagePathEntries: string[] = []
@@ -15,8 +15,8 @@ export class ActionPipe extends Action {
     imageDataEntries: string[] = []
     imageDataEntries_use = OptionEntryUsage.OneRandom
     durationMs: number = 1000
-    customPreset: number|IData<PresetPipeCustom> = 0
-    basicPreset: number|IData<PresetPipeBasic> = 0
+    customPreset: number|DataEntries<PresetPipeCustom> = 0
+    basicPreset: number|DataEntries<PresetPipeBasic> = 0
     texts: string[] = []
     texts_use = OptionEntryUsage.All
 
@@ -50,8 +50,8 @@ export class ActionPipe extends Action {
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPipe>(this)
                 const modules = ModulesSingleton.getInstance()
-                const customPreset = DataUtils.ensureValue(clone.customPreset)
-                const basicPreset = DataUtils.ensureValue(clone.basicPreset)
+                const customPreset = DataUtils.ensureData(clone.customPreset)
+                const basicPreset = DataUtils.ensureData(clone.basicPreset)
                 if(!customPreset && !basicPreset) return console.warn('ActionPipe: No preset set, cannot display.')
 
                 // Need to reference the original config arrays here as the __type is dropped in the clone process.

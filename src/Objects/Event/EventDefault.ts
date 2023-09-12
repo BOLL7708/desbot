@@ -1,18 +1,17 @@
 import DataMap from '../DataMap.js'
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import Trigger from '../Trigger.js'
 import Action from '../Action.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
-import Utils from '../../Classes/Utils.js'
 import OptionEventType from '../../Options/OptionEventType.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {DataUtils} from '../DataUtils.js'
+import {IDataBaseItem} from '../../Classes/DataBaseHelper.js'
 
 export class EventDefault extends Data {
     type: number = OptionEventType.Uncategorized
     options: EventOptions = new EventOptions()
-    triggers: number[]|IData<Trigger> = []
+    triggers: number[]|DataEntries<Trigger> = []
     actions: EventActionContainer[] = []
 
     enlist() {
@@ -36,17 +35,16 @@ export class EventDefault extends Data {
      * @param instance
      */
     getTriggers<T>(instance: T&Trigger): T[] {
-        const potentialTriggers = DataUtils.ensureValues(this.triggers) ?? []
+        const potentialTriggers = DataUtils.ensureDataArray(this.triggers)
         return potentialTriggers.filter(trigger => trigger.__getClass() == instance.__getClass()) as T[]
     }
 
-    async getTriggersWithKeys<T>(instance: T&Trigger): Promise<IData<T>> {
-        const potentialTriggers = Object.entries(DataUtils.ensureEntries(this.triggers) ?? {}) as [string, T&Trigger][]
-        return Object.fromEntries(
-            potentialTriggers.filter(
-                triggerEntry => triggerEntry[1].__getClass() == instance.__getClass()
-            )
+    async getTriggersWithKeys<T>(instance: T&Trigger): Promise<IDataBaseItem<T>[]> {
+        const potentialTriggers = DataUtils.ensureItemArray(this.triggers)?.dataArray ?? []
+        const result = potentialTriggers.filter(
+            (item) => {return item.class == instance.__getClass()}
         )
+        return result as IDataBaseItem<T>[]
     }
 }
 
@@ -75,7 +73,7 @@ export class EventOptions extends Data {
 export class EventActionContainer extends Data {
     run = OptionEventRun.immediately
     run_ms: number = 0
-    entries: number[]|IData<Action> = []
+    entries: number[]|DataEntries<Action> = []
 
     enlist() {
         DataMap.addSubInstance(new EventActionContainer(),

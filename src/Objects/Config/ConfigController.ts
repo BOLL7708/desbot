@@ -1,4 +1,4 @@
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 
@@ -81,8 +81,8 @@ export class ConfigControllerChannelTrophySettings extends Data {
     ttsOn: boolean = true
     ttsName: string = '@%userName grabbed'
     ttsTrophy: string = 'trophy'
-    discordStatistics: number|IData<PresetDiscordWebhook> = 0
-    uniqueNumbers: { [number: number]: IData<ConfigControllerChannelTrophyNumber> } = {}
+    discordStatistics: number|DataEntries<PresetDiscordWebhook> = 0
+    uniqueNumbers: { [number: number]: DataEntries<ConfigControllerChannelTrophyNumber> } = {}
 
     enlist() {
         DataMap.addSubInstance(

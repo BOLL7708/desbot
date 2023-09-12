@@ -1,5 +1,7 @@
 import DataMap from './DataMap.js'
-import {DataRefValues, IData} from './Data.js'
+import {DataEntries, DataRefValues} from './Data.js'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
+import Trigger from './Trigger.js'
 
 export class DataUtils {
     // region Referencing
@@ -79,40 +81,79 @@ export class DataUtils {
     // endregion
 
     // region Validation
-    static ensureEntries<T>(value: number|number[]|IData<T>): IData<T>|undefined {
-        if(typeof value !== 'object' || value === null || Array.isArray(value)) return undefined
-        else return value
+    static ensureData<T>(entries: number|DataEntries<T>, filled: boolean = true): T|undefined {
+        if(typeof entries === 'number') return undefined
+        return filled
+            ? (entries.dataSingle.filledData ?? undefined)
+            : (entries.dataSingle.data ?? undefined)
     }
-    static ensureValues<T>(value: number|number[]|IData<T>): T[]|undefined {
-        const data = DataUtils.ensureEntries(value)
-        if(!data) return undefined
-        else return Object.values(data)
+    static ensureDataArray<T>(entries: number[]|DataEntries<T>, filled: boolean = true): T[] {
+        if(Array.isArray(entries)) return []
+        const result: T[] = []
+        for(const entry of entries.dataArray) {
+            if(filled && entry.filledData) result.push(entry.filledData)
+            else if(entry.data) result.push(entry.data)
+        }
+        return result
     }
-    static ensureKeys<T>(value: number|number[]|IData<T>): number[]|undefined {
-        const data = DataUtils.ensureEntries(value)
-        if(!data) return undefined
-        else return Object.keys(data).map(v => parseInt(v))
+    static ensureDataDictionary<T>(entries: INumberDictionary|DataEntries<T>, filled: boolean = true): IDictionary<T> {
+        if(entries.constructor.name !== DataEntries.name) return {}
+        const result: {[key:string]:T} = {}
+        for(const [key, entry] of Object.entries(entries.dataDictionary)) {
+            result[key] = filled ? entry.filledData : entry.data
+        }
+        return result
     }
 
-    static ensureEntry<T>(value: number|number[]|IData<T>): {id: number, data: T}|undefined {
-        if(typeof value !== 'object' || value === null || Array.isArray(value)) return undefined
-        else {
-            const entries = Object.entries(value)
-            if(entries.length === 0) return undefined
-            const id = parseInt(entries[0][0])
-            const data = entries[0][1]
-            return {id, data}
+    static ensureID(entries: number|DataEntries<any>): number|undefined {
+        if(typeof entries == 'number') return entries
+        return entries.dataSingle.id
+    }
+    static ensureIDArray(entries: number[]|DataEntries<any>): number[] {
+        if(Array.isArray(entries)) return entries
+        const result: number[] = []
+        for(const entry of entries.dataArray) {
+            result.push(entry.id)
         }
+        return result
     }
-    static ensureValue<T>(value: number|number[]|IData<T>): T|undefined {
-        const data = DataUtils.ensureEntry(value)
-        if(!data) return undefined
-        else return data.data
+    static ensureIDDictionary(entries: INumberDictionary|DataEntries<any>): INumberDictionary {
+        if(entries.constructor.name !== DataEntries.name) return entries as INumberDictionary
+        const result: {[key:string]:number} = {}
+        for(const [key, entry] of Object.entries(entries.dataDictionary)) {
+            result[key] = entry.id
+        }
+        return result
     }
-    static ensureKey<T>(value: number|number[]|IData<T>): number|undefined {
-        const data = DataUtils.ensureEntry(value)
-        if(!data) return undefined
-        else return data.id
+
+    static ensureKey(entries: number|DataEntries<any>): string {
+        if(typeof entries === 'number') return ''
+        return entries.dataSingle.key
+    }
+    static ensureKeyArray(entries: number[]|DataEntries<any>): string[] {
+        if(Array.isArray(entries)) return []
+        return entries.dataArray.map(v => v.key)
+    }
+    static ensureKeyDictionary(entries: INumberDictionary|DataEntries<any>): IStringDictionary {
+        if(entries.constructor.name !== DataEntries.name) return {}
+        const result: {[key:string]:string} = {}
+        for(const [key, entry] of Object.entries(entries.dataDictionary)) {
+            result[key] = entry.key
+        }
+        return result
+    }
+
+    static ensureItem<T>(entries: number|DataEntries<T>): DataEntries<T>|undefined {
+        if(typeof entries === 'number') return undefined
+        else return entries
+    }
+    static ensureItemArray<T>(entries: number[]|DataEntries<T>): DataEntries<T>|undefined {
+        if(Array.isArray(entries)) return undefined
+        else return entries
+    }
+    static ensureItemDictionary<T>(entries: INumberDictionary|DataEntries<T>): DataEntries<T>|undefined {
+        if(entries.constructor.name !== DataEntries.name) return undefined
+        else return entries as DataEntries<T>
     }
     // endregion
 }

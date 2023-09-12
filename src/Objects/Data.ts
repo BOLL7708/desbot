@@ -1,6 +1,6 @@
 import Utils from '../Classes/Utils.js'
 import DataMap from './DataMap.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
+import DataBaseHelper, {IDataBaseItem} from '../Classes/DataBaseHelper.js'
 import {DataUtils} from './DataUtils.js'
 import {PresetText} from './Preset/PresetText.js'
 
@@ -72,51 +72,37 @@ export default abstract class Data {
                 const typeValues = DataUtils.parseRef(types[propertyName] ?? '')
                 const hasSubInstance = DataMap.hasInstance(typeValues.class)
                 const isBaseDataObject = typeValues.class == Data.ref.build()
+                const newProp = new DataEntries()
                 if((hasSubInstance || isBaseDataObject) && typeValues.isIdReference) {
                     // Populate reference list of IDs with the referenced object.
                     if (Array.isArray(propertyValue)) {
                         // It is an array of subclasses, instantiate.
-                        const newProp: IData<any> = {}
+                        newProp.type = EDataType.Array
                         for (const id of propertyValue) {
                             const dbItem = await DataBaseHelper.loadById(id.toString())
-                            const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
-                            if(typeValues.idToKey) {
-                                newProp[id] = dbItem?.key ?? id
-                            } else if(emptyInstance && dbItem?.data) {
-                                newProp[id] = await emptyInstance.__new(dbItem?.data ?? undefined)
-                            } else {
-                                console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
-                            }
+                            console.log('Array Load', dbItem)
+                            if(dbItem?.data && dbItem?.filledData) newProp.dataArray.push(dbItem)
+                            else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
                         }
                         (this as any)[propertyName] = newProp
-
                     } else if (typeof propertyValue == 'object') {
                         // It is a dictionary of subclasses, instantiate.
-                        const newProp: { [key: string]: IData<any> } = {}
+                        newProp.type = EDataType.Dictionary
                         for (const [k, idValue] of Object.entries(propertyValue)) {
                             const id = Utils.ensureNumber(idValue)
                             const dbItem = await DataBaseHelper.loadById(id.toString())
-                            const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
-                            if(typeValues.idToKey) {
-                                newProp[k] = {[id.toString()]: dbItem?.key ?? id}
-                            } else if(emptyInstance) {
-                                newProp[k] = {[id.toString()]: await emptyInstance.__new(dbItem?.data ?? undefined)}
-                            } else {
-                                console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
-                            }
+                            if(dbItem?.data && dbItem?.filledData) newProp.dataDictionary[k] = dbItem
+                            else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
                         }
                         (this as any)[propertyName] = newProp
                     } else {
                         // It is single instance
                         const dbItem = await DataBaseHelper.loadById(propertyValue)
                         const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
-                        if(typeValues.idToKey) {
-                            (this as any)[propertyName] = {[propertyValue]: dbItem?.key ?? propertyValue}
-                        } else if(emptyInstance) {
-                            (this as any)[propertyName] = {[propertyValue]: await emptyInstance.__new(dbItem?.data ?? undefined)}
-                        } else {
-                            console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`)
-                        }
+                        newProp.type = EDataType.Single
+                        if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
+                        else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`);
+                        (this as any)[propertyName] = newProp
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {
                     // Fill list with new instances filled with the incoming data.
@@ -217,15 +203,6 @@ export class DataRefBuilder {
     }
 
     /**
-     * Append the key flag.
-     * If this object is a reference, when it is loaded it will not be that object but only the key for the object.
-     */
-    public get key():DataRefBuilder {
-        this.parts.push('key')
-        return this
-    }
-
-    /**
      * Append the like flag.
      * The pattern to match classes with when using a generic reference.
      * @param pattern
@@ -257,6 +234,15 @@ export class DataRefValues {
     code = false
 }
 
-export interface IData<T>{
-    [id: number]: T&Data|string|number|boolean
+export enum EDataType {
+    Single,
+    Array,
+    Dictionary
+}
+
+export class DataEntries<T>{
+    type: EDataType = EDataType.Single
+    dataSingle: IDataBaseItem<T> = {id: 0, key: '', class: '', pid: null, data: null, filledData: null}
+    dataArray: IDataBaseItem<T>[] = []
+    dataDictionary: { [key:string]: IDataBaseItem<T>} = {}
 }

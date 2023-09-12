@@ -18,6 +18,7 @@ import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 import AudioUtils from './AudioUtils.js'
 import {OptionTTSType} from '../Options/OptionTTS.js'
+import {IDictionary} from '../Interfaces/igeneral.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -102,7 +103,7 @@ export default class GoogleTTS {
         this._audio.stop(andClearQueue)
     }
 
-    setDictionary(dictionary?: {[key:string]: SettingDictionaryEntry}) {
+    setDictionary(dictionary?: IDictionary<SettingDictionaryEntry>) {
         if(dictionary !== undefined) {
             const dictionaryEntries = Object.entries(dictionary).map(([key, entry])=>{
                 return { original: key, substitute: entry.substitute } as IDictionaryEntry

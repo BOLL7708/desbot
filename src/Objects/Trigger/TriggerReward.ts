@@ -1,4 +1,4 @@
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetReward} from '../Preset/PresetReward.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
@@ -11,9 +11,9 @@ import {ActionHandler} from '../../Pages/Widget/Actions.js'
 import {DataUtils} from '../DataUtils.js'
 
 export class TriggerReward extends Trigger {
-    permissions: number|IData<PresetPermissions> = 0
-    rewardEntries: number[]|IData<Data> = [] // TODO: This is Data just to give it a parent, need to update this so it's not generic.
-    rewardID: number|IData<string> = 0
+    permissions: number|DataEntries<PresetPermissions> = 0
+    rewardEntries: number[]|DataEntries<Data> = [] // TODO: This is Data just to give it a parent, need to update this so it's not generic.
+    rewardID: number|DataEntries<SettingTwitchReward> = 0
 
     enlist() {
         DataMap.addRootInstance(new TriggerReward(),
@@ -25,7 +25,7 @@ export class TriggerReward extends Trigger {
             },
             {
                 permissions: PresetPermissions.ref.id.build(),
-                rewardID: SettingTwitchReward.ref.id.key.label.build(),
+                rewardID: SettingTwitchReward.ref.id.label.build(),
                 rewardEntries: Data.genericRef('PresetReward').build() // I believe this was done to give these items a parent
             }
         )
@@ -34,9 +34,9 @@ export class TriggerReward extends Trigger {
     register(eventKey: string) {
         const modules = ModulesSingleton.getInstance()
         const handler = new ActionHandler(eventKey)
-        const id = DataUtils.ensureValue(this.rewardID)
-        if(id) {
-            const reward: ITwitchReward = { id, handler }
+        const rewardPreset = DataUtils.ensureItem(this.rewardID)
+        if(rewardPreset) {
+            const reward: ITwitchReward = { id: rewardPreset.dataSingle.key, handler }
             modules.twitchEventSub.registerReward(reward)
         } else {
             Utils.logWithBold(`No Reward ID for <${eventKey}>, it might be missing a reward config.`, 'red')

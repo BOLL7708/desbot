@@ -8,11 +8,11 @@ import Utils from '../../Classes/Utils.js'
 import DiscordUtils from '../../Classes/DiscordUtils.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
-import {IData} from '../Data.js'
 import {DataUtils} from '../DataUtils.js'
+import {DataEntries} from '../Data.js'
 
 export class ActionDiscord extends Action {
-    webhook: number|IData<PresetDiscordWebhook> = 0
+    webhook: number|DataEntries<PresetDiscordWebhook> = 0
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
 
@@ -41,7 +41,7 @@ export class ActionDiscord extends Action {
                 for(const entry of entries ) {
                     DiscordUtils.enqueueMessage(
                         // TODO: Change to take the full preset so we can post to forums and existing posts?
-                        DataUtils.ensureValue(clone.webhook)?.url ?? '',
+                        DataUtils.ensureData(clone.webhook)?.url ?? '',
                         user.name,
                         userData?.profile_image_url,
                         await TextHelper.replaceTagsInText(entry, user)

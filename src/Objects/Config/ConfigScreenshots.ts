@@ -1,5 +1,5 @@
 import DataMap from '../DataMap.js'
-import Data, {IData} from '../Data.js'
+import Data, {DataEntries} from '../Data.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
@@ -27,16 +27,16 @@ export class ConfigScreenshotsCallback extends Data {
     discordRewardInstantTitle: string = 'Instant shot! 📸'
     discordDefaultGameTitle: string = 'N/A'
     discordEmbedImageFormat: string = OptionScreenshotFileType.PNG
-    discordWebhooksOBS: number[]|IData<PresetDiscordWebhook> = []
-    discordWebhooksSSSVR: number[]|IData<PresetDiscordWebhook> = []
+    discordWebhooksOBS: number[]|DataEntries<PresetDiscordWebhook> = []
+    discordWebhooksSSSVR: number[]|DataEntries<PresetDiscordWebhook> = []
     signTitle: string = 'Screenshot'
     signTitle_forMs: number = 5000
     signManualSubtitle: string = 'Manual shot!'
     pipeEnabledForManual: boolean = true
-    pipeEnabledForEvents: number[]|IData<string> = []
-    pipePreset: number|IData<PresetPipeCustom> = 0
+    pipeEnabledForEvents: number[]|DataEntries<EventDefault> = []
+    pipePreset: number|DataEntries<PresetPipeCustom> = 0
     pipePreset_forMs: number = 5000
-    captureSoundEffect: number|IData<ActionAudio> = 0
+    captureSoundEffect: number|DataEntries<ActionAudio> = 0
     // TODO: Add the ability to post discord threads in various ways, see Trello.
 
     enlist() {
@@ -61,7 +61,7 @@ export class ConfigScreenshotsCallback extends Data {
                 discordEmbedImageFormat: OptionScreenshotFileType.ref,
                 discordWebhooksOBS: PresetDiscordWebhook.ref.id.build(),
                 discordWebhooksSSSVR: PresetDiscordWebhook.ref.id.build(),
-                pipeEnabledForEvents: EventDefault.ref.id.key.label.build(),
+                pipeEnabledForEvents: EventDefault.ref.id.label.build(),
                 pipePreset: PresetPipeCustom.ref.id.build(),
                 captureSoundEffect: ActionAudio.ref.id.build()
             }
