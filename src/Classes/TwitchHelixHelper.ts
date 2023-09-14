@@ -196,12 +196,12 @@ export default class TwitchHelixHelper {
         let failedRewardCount = 0
         for(const [key, eventItem] of Object.entries(allEvents ?? {})) {
             if(!eventItem.options.rewardOptions.ignoreUpdateCommand) {
-                const triggers = DataUtils.ensureValues(eventItem.triggers) ?? []
+                const triggers = DataUtils.ensureDataArray(eventItem.triggers) ?? []
                 for (const trigger of triggers) {
-                    if (trigger.__getClass() == TriggerReward.ref.build()) {
+                    if (trigger.__getClass() == TriggerReward.name) {
                         const triggerReward = (trigger as TriggerReward)
-                        const rewardID = DataUtils.ensureValue(triggerReward.rewardID)
-                        const rewardPresets = DataUtils.ensureValues(triggerReward.rewardEntries) ?? []
+                        const rewardID = DataUtils.ensureKey(triggerReward.rewardID)
+                        const rewardPresets = DataUtils.ensureDataArray(triggerReward.rewardEntries) ?? []
                         if (rewardID && rewardPresets.length) {
                             const preset = rewardPresets[0] as PresetReward
                             const response = await TwitchHelixHelper.updateReward(rewardID, preset)
@@ -241,7 +241,7 @@ export default class TwitchHelixHelper {
     static async toggleRewards(rewards: ActionSystemRewardState[]): Promise<ActionSystemRewardState[]> {
         const result: ActionSystemRewardState[] = []
         for(const reward of rewards) {
-            const id = DataUtils.ensureValue(reward.reward)
+            const id = DataUtils.ensureKey(reward.reward)
             if(id) {
                 // Set flags depending on matching options
                 const updated = await this.updateReward(
@@ -493,7 +493,7 @@ export default class TwitchHelixHelper {
 
     static async loadNamesForUsersWhoLackThem() {
         // region Chat
-        const userSettings = await DataBaseHelper.loadAll(new SettingUser()) ?? {}
+        const userSettings = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingUser()) ?? {})
         for(const [key, setting] of Object.entries(userSettings)) {
             if(setting.userName.length && setting.displayName.length) continue
             await TwitchHelixHelper.getUserById(key) // This will automatically update the object in the database

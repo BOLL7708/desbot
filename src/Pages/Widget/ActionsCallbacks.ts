@@ -199,7 +199,7 @@ export default class ActionsCallbacks {
                     } else Utils.log(`Could not find user: ${possibleUserTag}`, Color.Red)
                 } else {
                     // Grab quote and write it in chat.
-                    const quotes = await DataBaseHelper.loadAll(new SettingStreamQuote()) ?? {}
+                    const quotes = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingStreamQuote()) ?? {})
                     const quote = Utils.randomFromArray(Object.values(quotes))
                     if(quote) {
                         const date = new Date(quote.datetime)
@@ -408,7 +408,7 @@ export default class ActionsCallbacks {
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const allEvents = await DataBaseHelper.loadAll(new EventDefault())
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
                 const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.UpdateRewards.valueOf().toString())
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
@@ -453,12 +453,12 @@ export default class ActionsCallbacks {
             call: async (user) => {
                 // TODO: Still broken, appears we're not getting new redemptions to register.
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption())
+                const redemptions = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {})
                 const userName = TextHelper.getFirstUserTagInText(user.input)
                 if(!userName) return
                 const userTag = `@${userName}`
                 const userData = await TwitchHelixHelper.getUserByLogin(userName)
-                const userRedemptions = Object.fromEntries(Object.entries(redemptions ?? {}).filter(
+                const userRedemptions = Object.fromEntries(Object.entries(redemptions).filter(
                     row => (row[1].userId.toString() == userData?.id ?? '') && (row[1].status.toLowerCase() == 'unfulfilled')
                 ))
                 const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.RefundRedemption.valueOf().toString())
@@ -488,7 +488,7 @@ export default class ActionsCallbacks {
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
-                const redemptions = await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {}
+                const redemptions = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingTwitchRedemption()) ?? {})
                 const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.ClearRedemptions.valueOf().toString())
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
@@ -614,11 +614,11 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined)
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined) ?? {})
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
-                for(const [key, eventConfig] of Object.entries(allEvents ?? {})) {
+                for(const [key, eventConfig] of Object.entries(allEvents)) {
                     if(
                         eventConfig.options.behavior == OptionEventBehavior.Incrementing
                         && eventConfig.options.behaviorOptions.incrementationResetOnCommand
@@ -641,9 +641,9 @@ export default class ActionsCallbacks {
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
-                            const rewardEntries = DataUtils.ensureValues(trigger.rewardEntries) ?? []
-                            const preset = rewardEntries[0] as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
-                            const rewardID = DataUtils.ensureValue(trigger.rewardID)
+                            const rewardEntries = DataUtils.ensureDataArray(trigger.rewardEntries) as PresetReward[] // TODO: This cast won't be needed if we support parents for things that are not generic...
+                            const preset = rewardEntries[0]
+                            const rewardID = DataUtils.ensureKey(trigger.rewardID)
                             if(preset && rewardID) {
                                 const clone = Utils.clone(preset)
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, user)
@@ -674,11 +674,11 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined)
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined) ?? {})
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
-                for(const [key, eventConfig] of Object.entries(allEvents ?? {})) {
+                for(const [key, eventConfig] of Object.entries(allEvents)) {
                     if(
                         eventConfig.options.behavior == OptionEventBehavior.Accumulating
                         && eventConfig.options.behaviorOptions.accumulationResetOnCommand
@@ -701,9 +701,9 @@ export default class ActionsCallbacks {
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
-                            const rewardEntries = DataUtils.ensureValues(trigger.rewardEntries) ?? []
-                            const preset = rewardEntries[0] as PresetReward // TODO: This cast won't be needed if we support parents for things that are not generic...
-                            const rewardID = DataUtils.ensureValue(trigger.rewardID)
+                            const rewardEntries = DataUtils.ensureDataArray(trigger.rewardEntries) as PresetReward[] // TODO: This cast won't be needed if we support parents for things that are not generic...
+                            const preset = rewardEntries[0] as PresetReward
+                            const rewardID = DataUtils.ensureKey(trigger.rewardID)
                             if(preset && rewardID) {
                                 await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
                                 const clone = Utils.clone(preset)
@@ -838,7 +838,7 @@ export default class ActionsCallbacks {
                 let messageText = ''
 
                 const commandsConfig = await DataBaseHelper.loadMain(new ConfigCommands())
-                const url = DataUtils.ensureValue(commandsConfig.postCommandHelpToDiscord)?.url // TODO use full preset?
+                const url = DataUtils.ensureData(commandsConfig.postCommandHelpToDiscord)?.url // TODO use full preset?
                 if(!url) return console.warn('No Discord webhook URL specified for posting command help.')
 
                 const commandTriggers = await EventHelper.getAllTriggersOfType(new TriggerCommand())
@@ -958,7 +958,7 @@ export default class ActionsCallbacks {
                 for(const clip of sortedClips) {
                     let user = await TwitchHelixHelper.getUserById(parseInt(clip.creator_id))
                     let game = await TwitchHelixHelper.getGameById(parseInt(clip.game_id))
-                    const discordPreset = DataUtils.ensureValue(config.postTwitchClipsToDiscord)
+                    const discordPreset = DataUtils.ensureData(config.postTwitchClipsToDiscord)
                     DiscordUtils.enqueuePayload(discordPreset?.url ?? '', { // TODO: Support full preset here.
                         username: user?.display_name ?? '[Deleted User]',
                         avatar_url: user?.profile_image_url ?? '',

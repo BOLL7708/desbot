@@ -12,6 +12,7 @@ import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
 import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {EventDefault} from '../../Objects/Event/EventDefault.js'
 import {ConfigPhilipsHue} from '../../Objects/Config/ConfigPhilipsHue.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
 
 export default class ToolsHandler {
     constructor() {
@@ -82,7 +83,7 @@ export default class ToolsHandler {
             li(`🔃 Load missing data for existing Twitch users`,
                 'Loads associated data for a Twitch user that is missing it, like their display name and generates a short name for TTS.',
                 async (e)=>{
-                const allUsers = await DataBaseHelper.loadAll(new SettingUser())
+                const allUsers = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingUser()) ?? {})
                 let usersUpdated = 0
                 if(allUsers) {
                     for(const [userId, user] of Object.entries(allUsers)) {
@@ -156,30 +157,32 @@ export default class ToolsHandler {
             li('🔼 Update rewards on Twitch',
                 'Will apply the first preset for a reward on the rewards on Twitch, will skip updating if set to be skipped.',
                 async (e)=> {
-                const allEvents = await DataBaseHelper.loadAll(
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(
                     new EventDefault(),
                     undefined,
                     false
-                )
+                ) ?? {})
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
                 return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
             }),
             li('➕ Create missing rewards on Twitch',
                 'Will create new rewards on Twitch for events missing a reward ID while containing a reward preset.',
                 async (e)=> {
-                const allEvents = await DataBaseHelper.loadAll(
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(
                     new EventDefault(),
                     undefined,
                     false
-                )
+                ) ?? {})
                 let createdCount = 0
                 let errorCount = 0
                 let failedCount = 0
                 for(const [eventKey, event] of Object.entries(allEvents ?? {})) {
                     const rewardTriggers = await event.getTriggersWithKeys(new TriggerReward())
                     for(const [triggerKey, trigger] of Object.entries(rewardTriggers)) {
-                        if(trigger.rewardID === 0 && trigger.rewardEntries.length > 0) {
-                            const rewardPreset = trigger.rewardEntries[0] as PresetReward // TODO: Might be able to get rid of this cast with more parent support
+                        const rewardID = DataUtils.ensureKey(trigger.rewardID)
+                        const rewards = DataUtils.ensureDataArray(trigger.rewardEntries)
+                        if(rewardID.length > 0 && rewards.length > 0) {
+                            const rewardPreset = rewards[0] as PresetReward // TODO: Might be able to get rid of this cast with more parent support
                             if(rewardPreset) {
                                 const response = await TwitchHelixHelper.createReward(rewardPreset)
                                 const id = response?.data?.pop()?.id
@@ -237,7 +240,7 @@ export default class ToolsHandler {
             li('🔃 Load missing data for existing Steam games',
                 'Load meta data for Steam games that are missing things like title.',
                 async (e)=>{
-                const allGames = await DataBaseHelper.loadAll(new SettingSteamGame())
+                const allGames = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingSteamGame()) ?? {})
                 let gamesUpdated = 0
                 if(allGames) {
                     for(const [appId, game] of Object.entries(allGames)) {

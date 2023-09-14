@@ -7,6 +7,7 @@ import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import OptionEventType from '../../Options/OptionEventType.js'
 import {DataUtils} from '../DataUtils.js'
 import {IDataBaseItem} from '../../Classes/DataBaseHelper.js'
+import {IDictionary} from '../../Interfaces/igeneral.js'
 
 export class EventDefault extends Data {
     type: number = OptionEventType.Uncategorized
@@ -34,17 +35,21 @@ export class EventDefault extends Data {
     /**
      * @param instance
      */
-    getTriggers<T>(instance: T&Trigger): T[] {
+    getTriggers<T>(instance: T&Trigger): (T&Trigger)[] {
         const potentialTriggers = DataUtils.ensureDataArray(this.triggers)
-        return potentialTriggers.filter(trigger => trigger.__getClass() == instance.__getClass()) as T[]
+        return potentialTriggers.filter(trigger => trigger.__getClass() == instance.__getClass()) as (T&Trigger)[]
     }
 
-    async getTriggersWithKeys<T>(instance: T&Trigger): Promise<IDataBaseItem<T>[]> {
+    async getTriggersWithKeys<T>(instance: T&Trigger): Promise<IDictionary<T&Trigger>> {
         const potentialTriggers = DataUtils.ensureItemArray(this.triggers)?.dataArray ?? []
-        const result = potentialTriggers.filter(
+        const triggers = potentialTriggers.filter(
             (item) => {return item.class == instance.__getClass()}
         )
-        return result as IDataBaseItem<T>[]
+        const result: IDictionary<T&Trigger> = {}
+        for(const trigger of triggers) {
+            result[trigger.key] = trigger.filledData as T&Trigger
+        }
+        return result
     }
 }
 

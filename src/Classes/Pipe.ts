@@ -17,6 +17,7 @@ import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {IActionUser} from '../Objects/Action.js'
 import {DataUtils} from '../Objects/DataUtils.js'
+import {DataEntries} from '../Objects/Data.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -91,7 +92,7 @@ export default class Pipe {
             ? await ImageHelper.getDataUrl(profileUrl, true)
             : null
 
-        const preset = Utils.clone(DataUtils.ensureValue(this._chatConfig.pipePreset))
+        const preset = Utils.clone(DataUtils.ensureData(this._chatConfig.pipePreset))
         if(!preset) return Utils.log("Pipe: No preset found for chat messages", Color.Red)
         if(
             this._config.useCustomChatNotification
@@ -181,7 +182,7 @@ export default class Pipe {
 
             // Show it
             const action = new ActionPipe()
-            action.customPreset = {0: preset}
+            action.customPreset = DataUtils.buildFakeDataEntries(preset)
             action.imageDataEntries = [imageEditor.getData()]
             action.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
@@ -219,8 +220,8 @@ export default class Pipe {
     }
     async showAction(action: ActionPipe, index?: number) {
 	    if(!this._socket?.isConnected()) console.warn('Pipe.showPreset: Websockets instance not initiated.')
-        const basicPreset = DataUtils.ensureValue(action.basicPreset)
-        const customPreset = DataUtils.ensureValue(action.customPreset)
+        const basicPreset = DataUtils.ensureData(action.basicPreset)
+        const customPreset = DataUtils.ensureData(action.customPreset)
         if(!basicPreset && !customPreset) return console.warn('Pipe.showPreset: Action did not contain any preset.')
 
         // Basic preset, expand on this later?

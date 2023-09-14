@@ -6,10 +6,12 @@ import Color from './ColorConstants.js'
 import {SettingChannelTrophyStat} from '../Objects/Setting/SettingChannel.js'
 import TextHelper from './TextHelper.js'
 import {ConfigController, ConfigControllerChannelTrophyNumber} from '../Objects/Config/ConfigController.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {
-        const stats = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), undefined, true) ?? {}
+        const statsEntries = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), undefined, true) ?? {}
+        const stats = DataUtils.getKeyDataDictionary(statsEntries)
         let numberOfStreams = 0
         let lastIndex = Number.MAX_SAFE_INTEGER
 
@@ -21,7 +23,8 @@ export default class ChannelTrophyUtils {
     }
 
     static async createStatisticsEmbedsForDiscord(_twitchHelix:TwitchHelixHelper, stopAfterIndex: number = Number.MAX_SAFE_INTEGER) {
-        const stats = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), undefined, true) ?? {}
+        const statsEntries = await DataBaseHelper.loadAll(new SettingChannelTrophyStat(), undefined, true) ?? {}
+        const stats = DataUtils.getKeyDataDictionary(statsEntries)
 
         /* GENERATE DATA */
 

@@ -1,7 +1,9 @@
 import DataMap from './DataMap.js'
-import {DataEntries, DataRefValues} from './Data.js'
+import Data, {DataEntries, DataRefValues} from './Data.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import Trigger from './Trigger.js'
+import {IDataBaseItem} from '../Classes/DataBaseHelper.js'
+import {SettingDictionaryEntry} from './Setting/SettingDictionary.js'
 
 export class DataUtils {
     // region Referencing
@@ -77,6 +79,19 @@ export class DataUtils {
             )
         }
         return collection
+    }
+
+    /**
+     * Returns a dictionary of all the data referenced by their database key.
+     * Filters out empty data entries.
+     * @param items
+     */
+    static getKeyDataDictionary<T>(items: IDictionary<IDataBaseItem<T>>): IDictionary<T> {
+        return Object.fromEntries(
+            Object.values(items).map(
+                item => [item.key, item.filledData]
+            ).filter(pair => !!pair[1])
+        )
     }
     // endregion
 
@@ -156,4 +171,12 @@ export class DataUtils {
         else return entries as DataEntries<T>
     }
     // endregion
+
+    // region Data
+
+    static buildFakeDataEntries<T>(instance: T&Data): DataEntries<T&Data> {
+        const entries = new DataEntries<T&Data>()
+        entries.dataSingle = {id: 0, key: '', class: instance.__getClass(), pid: null, data: instance, filledData: instance }
+        return entries
+    }
 }

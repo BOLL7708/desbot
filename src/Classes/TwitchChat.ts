@@ -5,6 +5,7 @@ import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Inte
 import DataBaseHelper from './DataBaseHelper.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
@@ -45,7 +46,7 @@ export default class TwitchChat {
 
     private async onOpen(evt: any) {
         const userData = await TwitchHelixHelper.getUserByLogin(this._userName)
-        const tokens = await DataBaseHelper.loadAll(new SettingTwitchTokens())
+        const tokens = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingTwitchTokens()) ?? {})
         const tokenData = tokens
             ? Object.values(tokens)?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
             : undefined

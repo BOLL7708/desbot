@@ -26,14 +26,14 @@ export default class Functions {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
         const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
-        const audio = states.pingForChat ? DataUtils.ensureValue(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
+        const audio = states.pingForChat ? DataUtils.ensureData(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
         if(audio) modules.tts.setEmptyMessageSound(AudioUtils.configAudio(audio))
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {
         // Skip if we should ignore this app ID.
         const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
-        const ignoredAppIds = DataUtils.ensureValues(steamConfig.ignoredAppIds) ?? []
+        const ignoredAppIds = DataUtils.ensureKeyArray(steamConfig.ignoredAppIds) ?? []
         if(ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
         const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
         const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
@@ -251,7 +251,7 @@ export default class Functions {
             const gameData = await SteamStoreHelper.getGameMeta(appId)
             let gameName = gameData?.name ?? ''
             const override = twitchConfig.gameTitleToCategoryOverride.find(
-                (override)=>{ return DataUtils.ensureValue(override.game)?.title == gameName }
+                (override)=>{ return DataUtils.ensureData(override.game)?.title == gameName }
             )
             if(override) {
                 gameName = override.category
@@ -335,7 +335,7 @@ export default class Functions {
                         const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
                         
                         // Discord
-                        const webhook = DataUtils.ensureValue(steamConfig.achievementToDiscord)
+                        const webhook = DataUtils.ensureData(steamConfig.achievementToDiscord)
                         if(webhook) {
                             DiscordUtils.enqueuePayload(
                                 webhook.url,

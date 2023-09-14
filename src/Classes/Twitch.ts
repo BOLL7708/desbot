@@ -54,7 +54,7 @@ export default class Twitch{
             this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
             // Remote command channel
-            const remoteChannel = DataUtils.ensureValue(this._configCommands.remoteCommandChannel)?.userName ?? ''
+            const remoteChannel = DataUtils.ensureData(this._configCommands.remoteCommandChannel)?.userName ?? ''
             if(remoteChannel.length > 0) this._twitchChatRemote.init(chatbotTokens?.userLogin, remoteChannel)
         }        
         this._twitchChatIn.registerChatMessageCallback((message) => {
@@ -84,7 +84,7 @@ export default class Twitch{
 
             // Log the command
             const who: string[] = []
-            const permissions = DataUtils.ensureValue(command.trigger.permissions)
+            const permissions = DataUtils.ensureData(command.trigger.permissions)
             if(permissions?.everyone) who.push('everyone')
             else {
                 if(permissions?.subscribers) who.push('subs')
@@ -167,14 +167,14 @@ export default class Twitch{
             messageCmd.properties?.mod == '1'
             || (await TwitchHelixHelper.isUserModerator(userId)) // Fallback
         ) && !(
-            DataUtils.ensureValues(this._configCommands.ignoreModerators) ?? []).map(user => user.userName.toLowerCase()
+            DataUtils.ensureDataArray(this._configCommands.ignoreModerators) ?? []).map(user => user.userName.toLowerCase()
         ).includes(userName)
         const isVIP = messageCmd.properties?.badges?.match(/\b(vip\/\d+)\b/) != null
             || (await TwitchHelixHelper.isUserVIP(userId)) // Fallback
         const isSubscriber = messageCmd.properties?.badges?.match(/\b(subscriber\/\d+)\b/) != null
 
         // Chat proxy
-        const proxyChatBot = DataUtils.ensureValue(this._configChat.proxyChatBotUser)?.userName ?? ''
+        const proxyChatBot = DataUtils.ensureData(this._configChat.proxyChatBotUser)?.userName ?? ''
         if(proxyChatBot.length > 0 && proxyChatBot.toLowerCase() == userName) {
             const matches = text.match(Utils.toRegExp(this._configChat.proxyChatMessageRegex))
             if(matches && matches.length == 4) {
@@ -238,9 +238,9 @@ export default class Twitch{
             // Role check
             const permissions = (
                 command?.trigger.permissions
-                    ? DataUtils.ensureValue(command.trigger.permissions)
+                    ? DataUtils.ensureData(command.trigger.permissions)
                     : undefined
-                ) ?? DataUtils.ensureValue(this._configCommands.defaultCommandPermissions)
+                ) ?? DataUtils.ensureData(this._configCommands.defaultCommandPermissions)
             const allowedRole = permissions && (
                 (permissions.streamer && isBroadcaster)
                 || (permissions.moderators && isModerator)
@@ -257,7 +257,7 @@ export default class Twitch{
                 if(!isWhisper || this._configCommands.allowWhisperCommands) {
                     this.handleCommand(command, user, this._globalCooldowns, this._userCooldowns, isBroadcaster)
                 }
-                const webhook = DataUtils.ensureValue(this._configCommands.logWhisperCommandsToDiscord)
+                const webhook = DataUtils.ensureData(this._configCommands.logWhisperCommandsToDiscord)
                 if(isWhisper && webhook) {
                     const userData = await TwitchHelixHelper.getUserById(user.id)
                     DiscordUtils.enqueueMessage(
@@ -315,7 +315,7 @@ export default class Twitch{
             let textStr = Utils.splitOnFirst(' ', text).pop()?.trim() ?? ''
 
             // User check
-            const allowedUsers = DataUtils.ensureValues(this._configCommands.remoteCommandAllowedUsers) ?? []
+            const allowedUsers = DataUtils.ensureDataArray(this._configCommands.remoteCommandAllowedUsers) ?? []
             const allowedUser = allowedUsers.find((user) => user.userName == userName)
 
             // Execute command

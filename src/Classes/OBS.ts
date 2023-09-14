@@ -87,7 +87,7 @@ export default class OBS {
 
     show(action: ActionOBS, ignoreDuration: boolean = false) {
         if(action.sceneEntries) {
-            for(const scene of ArrayUtils.getAsType(DataUtils.ensureValues(action.sceneEntries) ?? [], action.sceneEntries_use)) {
+            for(const scene of ArrayUtils.getAsType(DataUtils.ensureDataArray(action.sceneEntries) ?? [], action.sceneEntries_use)) {
                 // TODO: Implement
                 console.log(`Should switch to specific OBS scene: ${scene?.sceneName}`)
             }
@@ -95,8 +95,8 @@ export default class OBS {
         if(action.sourceEntries) {
             // TODO: Implement the grouped sources here, where we toggle one on and toggle the rest off.
             for(const group of ArrayUtils.getAsType(action.sourceEntries, action.sourceEntries_use)) {
-                const scene = DataUtils.ensureValue(group.scenePreset)
-                const source = DataUtils.ensureValue(group.sourcePreset)
+                const scene = DataUtils.ensureData(group.scenePreset)
+                const source = DataUtils.ensureData(group.sourcePreset)
                 if(scene && source) {
                     this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
                         "scene-name": scene.sceneName,
@@ -109,8 +109,8 @@ export default class OBS {
         if(action.filterEntries) {
             // TODO: Implement the grouped filters here, where we toggle one on and toggle the rest off.
             for(const group of ArrayUtils.getAsType(action.filterEntries, action.filterEntries_use)) {
-                const source = DataUtils.ensureValue(group.sourcePreset)
-                const filter = DataUtils.ensureValue(group.filterPreset)
+                const source = DataUtils.ensureData(group.sourcePreset)
+                const filter = DataUtils.ensureData(group.filterPreset)
                 if(source && filter) {
                     this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
                         "sourceName": source.sourceName,
@@ -132,8 +132,8 @@ export default class OBS {
         }
         if(action.sourceEntries) {
             for(const group of ArrayUtils.getAsType(action.sourceEntries, action.sourceEntries_use)) {
-                const scene = DataUtils.ensureValue(group.scenePreset)
-                const source = DataUtils.ensureValue(group.sourcePreset)
+                const scene = DataUtils.ensureData(group.scenePreset)
+                const source = DataUtils.ensureData(group.sourcePreset)
                 if(scene && source) {
                     this._socket?.send(this.buildRequest("SetSceneItemProperties", Utils.getNonce('OBSShowSource'), {
                         "scene-name": scene.sceneName,
@@ -145,8 +145,8 @@ export default class OBS {
         }
         if(action.filterEntries) {
             for(const group of ArrayUtils.getAsType(action.filterEntries, action.filterEntries_use)) {
-                const source = DataUtils.ensureValue(group.sourcePreset)
-                const filter = DataUtils.ensureValue(group.filterPreset)
+                const source = DataUtils.ensureData(group.sourcePreset)
+                const filter = DataUtils.ensureData(group.filterPreset)
                 if(source && filter) {
                     this._socket?.send(this.buildRequest("SetSourceFilterVisibility", Utils.getNonce('OBSShowFilter'), {
                         "sourceName": source.sourceName,

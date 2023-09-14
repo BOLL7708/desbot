@@ -23,6 +23,7 @@ import {ConfigSteam} from '../../Objects/Config/ConfigSteam.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import EnlistData from '../../Objects/EnlistData.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
 
 export default class MainController {
     public static async init() {
@@ -45,7 +46,7 @@ export default class MainController {
         await DataBaseHelper.loadAll(new SettingStreamQuote())
 
         const modules = ModulesSingleton.getInstance()
-        modules.tts.setDictionary(dictionarySettings)
+        modules.tts.setDictionary(DataUtils.getKeyDataDictionary(dictionarySettings ?? {}))
 
         await TwitchHelixHelper.loadNamesForUsersWhoLackThem()
 
@@ -57,7 +58,7 @@ export default class MainController {
 
         modules.pipe.setOverlayTitle("desbot")
 
-        Functions.setEmptySoundForTTS()
+        Functions.setEmptySoundForTTS().then()
 
         // Steam Web API intervals
         MainController.startSteamAchievementsInterval().then()

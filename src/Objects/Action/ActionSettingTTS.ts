@@ -11,6 +11,7 @@ import Utils from '../../Classes/Utils.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import Color from '../../Classes/ColorConstants.js'
 import {SettingDictionaryEntry} from '../Setting/SettingDictionary.js'
+import {DataUtils} from '../DataUtils.js'
 
 export class ActionSettingTTS extends Action {
     functionType = OptionTTSFunctionType.Enable
@@ -211,7 +212,9 @@ export class ActionSettingTTS extends Action {
                             await DataBaseHelper.save(entry, word)
                         }
                         const fullDictionaryItems = await DataBaseHelper.loadAll(new SettingDictionaryEntry()) ?? {}
-                        const fullDictionary = Object.fromEntries(
+                        const fullDictionary = DataUtils.getKeyDataDictionary(fullDictionaryItems)
+
+                        Object.fromEntries(
                             Object.values(fullDictionaryItems).map(
                                 item => [item.key, item.filledData]
                             ).filter(pair => !!pair[1])

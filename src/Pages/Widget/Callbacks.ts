@@ -56,7 +56,7 @@ export default class Callbacks {
 
         // region Chat
         const announcementsConfig = await DataBaseHelper.loadMain(new ConfigAnnouncements())
-        const announcerNames = (DataUtils.ensureValues(announcementsConfig.announcerUsers) ?? [])
+        const announcerNames = (DataUtils.ensureDataArray(announcementsConfig.announcerUsers) ?? [])
                 .map((user)=>{return user.userName.toLowerCase() ?? ''})
                 .filter(v=>v) // Remove empty strings
         modules.twitch.registerAnnouncers({
@@ -65,11 +65,8 @@ export default class Callbacks {
             callback: async (userData, messageData, firstWord) => {
                 // TTS
                 const announcerTrigger = announcementsConfig.announcerTriggers.find((announcer)=> announcer.trigger == firstWord)
-                const audioConfig = announcerTrigger ? DataUtils.ensureEntry(announcerTrigger.trigger_audio)?.data : undefined
-                if(audioConfig) {
-                    // TODO: Convert to use class instead of interface
-                    modules.tts.enqueueSoundEffect(audioConfig)
-                }
+                const audioConfig = announcerTrigger ? DataUtils.ensureData(announcerTrigger.trigger_audio) : undefined
+                modules.tts.enqueueSoundEffect(audioConfig)
                 await modules.tts.enqueueSpeakSentence(messageData.text, userData.id)
 
                 // Pipe to VR (basic)
@@ -103,7 +100,7 @@ export default class Callbacks {
             this._imageRelay.sendJSON(TwitchFactory.getEmoteImages(messageData.emotes, 2))
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
             const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
-            const soundEffect = DataUtils.ensureValue(twitchChatConfig.soundEffectOnEmptyMessage)
+            const soundEffect = DataUtils.ensureData(twitchChatConfig.soundEffectOnEmptyMessage)
             if(states.ttsForAll) {
                 console.log('SPEECH', type)
                 // TTS is on for everyone
@@ -162,7 +159,7 @@ export default class Callbacks {
             }
             
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
-            const webhook = DataUtils.ensureEntry(twitchChatConfig.logToDiscord)?.data
+            const webhook = DataUtils.ensureData(twitchChatConfig.logToDiscord)
             if(states.logChatToDiscord && webhook) {
                 DiscordUtils.enqueueMessage(
                     webhook.url ?? '',
@@ -188,7 +185,7 @@ export default class Callbacks {
             const amount = null // redemption.reward.redemptions_redeemed_current_stream
             const amountStr = amount != null ? ` #${amount}` : ''
             const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
-            const webhook = DataUtils.ensureEntry(twitchChatConfig.logToDiscord)?.data
+            const webhook = DataUtils.ensureData(twitchChatConfig.logToDiscord)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
             let description = `${discordConfig.prefixReward}**${event.reward.title}${amountStr}** (${event.reward.cost})`
             if(event.user_input.length > 0) description += `: ${Utils.escapeForDiscord(Utils.fixLinks(event.user_input))}`
@@ -293,13 +290,13 @@ export default class Callbacks {
             const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
 
             // Pipe manual screenshots into VR if configured.
-            const pipeEnabledForEvents = DataUtils.ensureValues(screenshotsConfig.callback.pipeEnabledForEvents) ?? []
+            const pipeEnabledForEvents = DataUtils.ensureKeyArray(screenshotsConfig.callback.pipeEnabledForEvents) ?? []
             if(
                 pipeEnabledForEvents.includes(requestData?.eventKey ?? '') ||
                 (!requestData && screenshotsConfig.callback.pipeEnabledForManual)
             ) {
-                const preset = DataUtils.ensureEntry(screenshotsConfig.callback.pipePreset)?.data
-                if(preset !== undefined) {
+                const preset = DataUtils.ensureData(screenshotsConfig.callback.pipePreset)
+                if(preset) {
                     const configClone: PresetPipeCustom = Utils.clone(preset)
                     configClone.imageData = responseData.image
                     if(configClone.customProperties) {
@@ -320,7 +317,7 @@ export default class Callbacks {
                 }
             }
 
-            const webhooks = DataUtils.ensureValues(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
+            const webhooks = DataUtils.ensureDataArray(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
             const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
@@ -396,7 +393,7 @@ export default class Callbacks {
                 modules.sign.enqueueSign(action)
 
                 // Discord
-                const webhooks = DataUtils.ensureValues(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
+                const webhooks = DataUtils.ensureDataArray(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
                 for(const webhook of webhooks) {
                     const gameData = await SteamStoreHelper.getGameMeta(states.lastSteamAppId ?? '')
                     const gameTitle = gameData ? gameData.name : screenshotsConfig.callback.discordDefaultGameTitle
