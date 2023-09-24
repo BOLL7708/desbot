@@ -275,23 +275,31 @@ export default class EditorHandler {
         ): Promise<boolean> =>{
             await this.confirmSaveIfReplacingOrLeaving()
             let instance: Data|undefined
+
+            // Figure out what key we are using.
             const resultingKey = newKey.length > 0
                 ? newKey
                 : this._state.forceMainKey
                     ? DataBaseHelper.OBJECT_MAIN_KEY
                     : dropdown.value
+
+            // Convert JSON data to an actual class instance, so we can save it back to the DB with the class retained.
             if(resultingKey.length > 0) {
-                const item = (items as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
-                instance = await DataMap.getInstance(group, item?.data ?? {}) ?? item?.data ?? {} // The last ?? is for test settings that has no class.
+                const jsonItem = (jsonItems as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
+                instance = await DataMap.getInstance(group, jsonItem?.data ?? {}) ?? jsonItem?.data ?? {} // The last ?? is for test settings that has no class.
             } else {
                 instance = await DataMap.getInstance(group, {})
             }
+
+            // Update buttons
             editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
             editorDeleteButton.innerHTML = this._state.forceMainKey
                 ? this._labelDeleteResetButton // Config
                 : this._state.minimal
                     ? this._labelDeleteAndCloseButton // Child editor
                     : this._labelDeleteButton // All other items
+
+            // If we have an actual Data instance, load it into the editor.
             if(instance && instance?.constructor.name !== 'Object') {
                 // Update URL to enable refreshes and bookmarks.
                 Utils.setUrlParam({
@@ -299,30 +307,32 @@ export default class EditorHandler {
                     k: resultingKey
                 })
 
+                // Load item just to make sure we have the latest data as we got the JSON from the original items.
                 this._state.groupKey = resultingKey
-                let item = await DataBaseHelper.loadItem(instance, resultingKey)
+                let item = await DataBaseHelper.loadItem(instance, resultingKey, undefined, true)
 
-                if(this._state.forceMainKey && !item) { // Pre-initialize Config
+                // If we didn't get any item but it's a config, we will pre-initialize it.
+                if(this._state.forceMainKey && !item) {
                     const didSave = await DataBaseHelper.save(instance, resultingKey)
                     if(didSave) {
-                        item = await DataBaseHelper.loadItem(instance, resultingKey)
+                        item = await DataBaseHelper.loadItem(instance, resultingKey, undefined, true)
                         await this.updateSideMenu()
                     } else {
                         alert('Unable to initialize config.')
                         return false
                     }
                 }
-
-                editorContainer.replaceChildren(
-                    await this._editor?.build(
-                        resultingKey,
-                        instance, 
-                        item?.id,
-                        this._state.potentialParentId,
-                        !!parentId ? parentId : item?.pid ?? undefined,
-                        this._state.forceMainKey
-                    ) ?? ''
-                )
+                if(item) {
+                    editorContainer.replaceChildren(
+                        await this._editor?.build(
+                            item,
+                            this._state.potentialParentId,
+                            this._state.forceMainKey
+                        ) ?? ''
+                    )
+                } else {
+                    console.warn(`Could not load item for ${group} : ${resultingKey}`)
+                }
                 editorDeleteButton.classList.remove('hidden')
                 editorDefaultsButton.classList.remove('hidden')
                 editorCancelButton.classList.remove('hidden')
@@ -333,7 +343,7 @@ export default class EditorHandler {
             return true
         }
 
-        const items = await DataBaseHelper.loadJson(group, undefined, parentId)
+        const jsonItems = await DataBaseHelper.loadJson(group, undefined, parentId)
         if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'
@@ -343,14 +353,14 @@ export default class EditorHandler {
             dropdownLabel.innerText = 'Entries: '
             const keyMap = DataMap.getMeta(group)?.keyMap
             if(keyMap) dropdown.title = 'Key labels are mapped, the actual key is in the editor.'
-            if(this._contentDiv && items) {
-                for(const item of items) {
-                    const mappedKey = keyMap?.[item.key]
+            if(this._contentDiv && jsonItems) {
+                for(const jsonItem of jsonItems) {
+                    const mappedKey = keyMap?.[jsonItem.key]
                     const option = document.createElement('option') as HTMLOptionElement
-                    option.innerText = mappedKey ?? item.key
-                    if(mappedKey) option.title = `Key label mapped from: ${item.key}`
-                    option.value = item.key
-                    if(selectKey == item.key) option.selected = true
+                    option.innerText = mappedKey ?? jsonItem.key
+                    if(mappedKey) option.title = `Key label mapped from: ${jsonItem.key}`
+                    option.value = jsonItem.key
+                    if(selectKey == jsonItem.key) option.selected = true
                     dropdown.appendChild(option)
                 }
             }

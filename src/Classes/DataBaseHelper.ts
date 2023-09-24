@@ -305,7 +305,9 @@ export default class DataBaseHelper {
             // TODO: Redo caching and stuff.
             const item = jsonResult[0]
             const emptyInstance = await DataMap.getInstance(item.class)
-            if(emptyInstance) item.filledData = await emptyInstance.__new(item.data ?? undefined)
+            if(emptyInstance) {
+                item.filledData = await emptyInstance.__new(item.data ?? undefined)
+            }
             return item
         }
         return undefined
@@ -580,7 +582,7 @@ export interface IDataBaseItem<T> {
     key: string
     pid: number|null
     data: (T&Data)|null
-    filledData: (T&Data)|null
+    filledData: (T&Data)|null // Bonus property not from the DB, it's the data property but with references filled in.
 }
 export interface IDataBaseItemRaw extends IDataBaseItem<any> {
     data: string

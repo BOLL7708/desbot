@@ -98,6 +98,7 @@ export class ConfigExample extends Data {
                 arrayOfBooleans_use: OptionEntryUsage.ref,
                 arrayOfNumbers: 'number',
                 arrayOfStrings: 'string',
+                arrayOfStringsWithEmptyEntry: 'string',
                 arrayOfSecretStrings: 'string|secret',
                 arrayOfFileStrings: DataUtils.getStringFileImageRef(),
                 arrayOfSubInstances: ConfigExampleSub.ref.build(),
@@ -123,7 +124,7 @@ export class ConfigExample extends Data {
 }
 export class ConfigExampleSub extends Data {
     singleString: string = ''
-    singleIdReference: INumberDictionary|DataEntries<PresetPipeBasic> = {}
+    singleIdReference: number|DataEntries<PresetPipeBasic> = 0
     singleEnum: number = OptionEntryUsage.All
 
     enlist() {

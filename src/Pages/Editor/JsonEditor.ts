@@ -1,6 +1,6 @@
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
-import Data, {DataRefValues, EmptyData, IData,} from '../../Objects/Data.js'
-import DataBaseHelper, {IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
+import Data, {EmptyData} from '../../Objects/Data.js'
+import DataBaseHelper, {IDataBaseItem, IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
 import DataMap from '../../Objects/DataMap.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
 import {DataMeta} from '../../Objects/DataMeta.js'
@@ -33,6 +33,7 @@ interface IJsonEditorData {
 }
 
 export default class JsonEditor {
+    private _originalItem: IDataBaseItem<any> = {id: 0, class: '', key: '', pid: null, data: null, filledData: null}
     private _key: string = ''
     private _originalKey: string = ''
     private _instance: object&Data = new EmptyData()
@@ -63,23 +64,24 @@ export default class JsonEditor {
 
     /**
      * Build the editor, this traverses the JSON structure and populates the editor with elements.
-     * @param key
-     * @param instance
-     * @param rowId
+     * @param item
      * @param potentialParentId
-     * @param currentParentId
      * @param hideKey
      * @param isRebuild
      */
     async build(
-        key: string,
-        instance: object&Data,
-        rowId?: number,
+        item: IDataBaseItem<any>,
         potentialParentId?: number,
-        currentParentId?: number,
         hideKey?: boolean,
         isRebuild?: boolean
     ): Promise<HTMLElement> {
+        this._originalItem = item
+        const key = item.key
+        const filledClassInstance = item.filledData
+        const instance = item.data
+        const rowId = item.id
+        const currentParentId = item.pid ?? undefined
+
         if(!isRebuild) {
             this._key = key
             this._originalKey = key
@@ -92,7 +94,7 @@ export default class JsonEditor {
                 this._instance = Utils.clone(instance)
                 this._originalInstance = Utils.clone(instance)
             }
-            this._originalInstanceType = instance.constructor.name
+            this._originalInstanceType = filledClassInstance.constructor.name
             this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
         }
 
@@ -203,18 +205,17 @@ export default class JsonEditor {
     }
     public async rebuild(): Promise<HTMLElement> {
         return await this.build(
-            this._key,
-            this._instance,
-            this._rowId,
+            this._originalItem,
             this._potentialParentId,
-            this._parentId,
             this._hideKey,
             true
         )
     }
 
     private async stepData(options: IStepDataOptions):Promise<void> {
-        const type = typeof options.data
+        let type = typeof options.data
+
+        // Build field(s)
         switch(type) {
             case 'string':
                 await this.buildField(EJsonEditorFieldType.String, options)
@@ -817,7 +818,7 @@ export default class JsonEditor {
         const pathKey = options.path[options.path.length-1] ?? 'root'
         const newRoot = this.buildLI('')
         const newUL = this.buildUL()
-        const instance = (options.data as object)
+        let instance = options.data as number|object
         const isRoot = options.path.length == 1
         const isList = options.origin == EOrigin.ListArray || options.origin == EOrigin.ListDictionary
 
@@ -892,8 +893,8 @@ export default class JsonEditor {
         // if(thisTypeValues.class && DataObjectMap.hasInstance(thisTypeValues.class)) { // For lists class instances
         //     newInstanceMeta = isList ? options.instanceMeta : DataObjectMap.getMeta(thisTypeValues.class) ?? options.instanceMeta
 
-        if(thisType && DataMap.hasInstance(thisType)) { // For lists class instances
-            newInstanceMeta = DataMap.getMeta(thisType) ?? options.instanceMeta
+        if(thisType && DataMap.hasInstance(thisTypeValues.class)) { // For lists class instances
+            newInstanceMeta = DataMap.getMeta(thisTypeValues.class) ?? options.instanceMeta
         } else if (instanceType && DataMap.hasInstance(instanceType)) { // For single class instances
             newInstanceMeta = DataMap.getMeta(instanceType) ?? options.instanceMeta
         }

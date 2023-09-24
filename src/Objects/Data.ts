@@ -45,7 +45,8 @@ export default abstract class Data {
     async __apply(instanceOrJsonResult: object = {}) {
         // Ensure valid input
         const prototype = Object.getPrototypeOf(this)
-        const sourceObject = !!instanceOrJsonResult
+        const sourceObject =
+            !!instanceOrJsonResult
             && typeof instanceOrJsonResult == 'object'
             && !Array.isArray(instanceOrJsonResult)
                 ? instanceOrJsonResult
@@ -80,9 +81,8 @@ export default abstract class Data {
                         newProp.type = EDataType.Array
                         for (const id of propertyValue) {
                             const dbItem = await DataBaseHelper.loadById(id.toString())
-                            console.log('Array Load', dbItem)
                             if(dbItem?.data && dbItem?.filledData) newProp.dataArray.push(dbItem)
-                            else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
+                            else if(id !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
                         (this as any)[propertyName] = newProp
                     } else if (typeof propertyValue == 'object') {
@@ -92,7 +92,7 @@ export default abstract class Data {
                             const id = Utils.ensureNumber(idValue)
                             const dbItem = await DataBaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataDictionary[k] = dbItem
-                            else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}`)
+                            else if(id !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
                         }
                         (this as any)[propertyName] = newProp
                     } else {
@@ -101,7 +101,7 @@ export default abstract class Data {
                         const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class)
                         newProp.type = EDataType.Single
                         if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
-                        else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}`);
+                        else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}, it might not exist anymore.`);
                         (this as any)[propertyName] = newProp
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {
