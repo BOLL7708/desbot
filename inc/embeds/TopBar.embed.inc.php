@@ -54,7 +54,6 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
         $favoritesBarStyle = !$showFavorites ? 'style="display: none;"' : '';
         ?>
         <li><a href="index.php" id="topBarSignOutLink" title="Sign out of this page.">🔥 Sign out</a></li>
-        <li><a href="#" id="topBarPageModeLink" title="Switch between bright and dark mode.">🌕/🌑</a></li>
     </ul>
 </div>
 <?php

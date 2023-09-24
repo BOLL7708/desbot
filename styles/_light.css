@@ -1,0 +1,59 @@
+@media (prefers-color-scheme: light) {
+    :root {
+        /* General */
+        --main-background-color: #ffffff;
+        --topbar-background-color: #f0f0f0;
+        --sidebar-background-color: #e0e0e0;
+        --favoritesbar-background-color: #d0d0d0;
+
+        --topbar-link-hover: #00000020;
+        --topbar-link-active: #ffffff;
+        --body-text-color: #000000;
+        --border-color: #808080;
+        --topbar-badge-text: #ffffff;
+        --sidebar-link-color: #404040;
+        --sidebar-link-hover: #c0c0c0;
+        --input-border-color: #00000040;
+        --select-background-color: #ffffff80;
+        --checkbox-accent-color: #404040;
+        --code-background-color: #ffffff80;
+        --section-background-color: #00000005;
+
+        --button-text-color: #000000;
+        --button-main-background-color: #eeeeee;
+        --button-main-background-hover: #cccccc;
+        --button-main-border-hover: #00000040;
+        --button-main-text-color: #00000080;
+        --button-main-text-hover: #000000;
+        --button-inline-text-color: #000000a8;
+
+        --button-new-background-color: #fafad2;
+        --button-new-background-hover: #ffd700;
+        --button-delete-background-color: #ffc0cb;
+        --button-delete-background-hover: #ff69b4;
+        --button-save-background-color: #90ee90;
+        --button-save-background-hover: #32cd32;
+
+        --editable-border-color: #d3d3d3;
+        --editable-border-hover: #808080;
+        --editable-background-focus: #fafad2;
+        --disabled-border-color: #d3d3d3;
+        --disabled-text-color: #00000080;
+        --disabled-background-color: #eeeeee;
+
+        /* Editor */
+        --editor-row-odd-color: #00000010;
+        --editor-row-even-color: #00000005;
+        --editor-boolean-input-border: #d3d3d3;
+        --editor-boolean-input-border-hover: #808080;
+        --editor-drag-icon-background-hover: #cccccc;
+        --editor-drag-icon-background-active: #dddddd;
+        --editor-drag-icon-text-color: #000000A8;
+        --editor-drag-icon-border-hover: #00000040;
+        --editor-modified-background-color: #ffc0cb;
+        --editor-focus-shadow: #00000040;
+        --editor-logo-shadow: #00000040;
+        --cover-background-color: #80808080;
+        --cover-modal-background-color: #ffffff;
+    }
+}

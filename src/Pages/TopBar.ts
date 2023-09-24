@@ -14,22 +14,6 @@ export default class TopBar {
             a.ontouchstart = signOut
         }
     }
-    static attachPageModeClick(elementId: string) {
-        const a = document.querySelector<HTMLLinkElement>(elementId)
-        if(a) {
-            const dataFile = 'page_mode.json'
-            const styleTag = document.querySelector<HTMLLinkElement>('#link-page-mode-stylesheet')
-            async function togglePageMode() {
-                if(styleTag) {
-                    const currentMode = Utils.toBool(await DataFileUtils.readData(dataFile))
-                    await DataFileUtils.writeData(dataFile, currentMode ? 0 : 1)
-                    styleTag.href = `./styles/_${currentMode ? 'bright' : 'dark'}.css`
-                }
-            }
-            a.onclick = togglePageMode
-            a.ontouchstart = togglePageMode
-        }
-    }
     static async attachFavorites(elementId: string) {
         const div = document.querySelector<HTMLDivElement>(elementId)
         if(div) {
