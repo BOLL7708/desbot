@@ -141,7 +141,7 @@ export class JsonEditorUtils {
                                 break
                             }
                             if(DataMap.hasInstance(typeValues.class)) {
-                                const newInstance = await DataMap.getInstance(typeValues.class, undefined)
+                                const newInstance = await DataMap.getInstance(typeValues.class, undefined, false)
                                 if(newInstance) instance.push(Utils.clone(newInstance)) // For some reason this would do nothing unless cloned.
                             } else if(OptionsMap.hasPrototype(typeValues.class)) {
                                 const enumPrototype = await OptionsMap.getPrototype(typeValues.class)
@@ -164,7 +164,7 @@ export class JsonEditorUtils {
                                     break
                                 }
                                 if(DataMap.hasInstance(typeValues.class)) {
-                                    const newInstance = await DataMap.getInstance(typeValues.class, undefined)
+                                    const newInstance = await DataMap.getInstance(typeValues.class, undefined, false)
                                     if(newInstance) (instance as any)[newKey] = Utils.clone(newInstance)
                                 } else if(OptionsMap.hasPrototype(typeValues.class)) {
                                     const enumPrototype = OptionsMap.getPrototype(typeValues.class)

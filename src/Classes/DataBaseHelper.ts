@@ -6,6 +6,7 @@ import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/i
 import DataMap from '../Objects/DataMap.js'
 import {SettingIncrementingCounter} from '../Objects/Setting/SettingCounters.js'
 import {DataMeta} from '../Objects/DataMeta.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 
 /*
 TODO
@@ -138,7 +139,10 @@ export default class DataBaseHelper {
 
         // Add filled version
         const meta = DataMap.getMeta(item.class)
-        if(meta) item.filledData = await meta.instance.__new(item.data ?? undefined)
+        if(meta) {
+            item.filledData = await meta.instance.__new(item.data ?? undefined, true)
+            item.data = await meta.instance.__new(item.data ?? undefined, false)
+        }
 
         return item.data ? item.data as T : undefined
     }
@@ -169,10 +173,10 @@ export default class DataBaseHelper {
 
             // Convert plain objects to class instances and cache them
             for(const item of jsonResult) {
-                // const plainObject = await this.handleDataBaseItem(item) as T&object
-                const filledObject = await emptyInstance.__new(item.data ?? undefined)
+                const filledObject = await emptyInstance.__new(item.data ?? undefined, true)
                 if(filledObject) {
                     item.filledData = filledObject
+                    item.data = await emptyInstance.__new(item.data ?? undefined, false)
                     cacheDictionary[item.key] = item
                 }
             }
@@ -269,9 +273,18 @@ export default class DataBaseHelper {
         // DB
         const jsonResult = await this.loadJson(className, key, parentId) as IDataBaseItem<T>[]|undefined
         if(jsonResult && jsonResult.length == 1) {
-            // Convert plain object to class instance
+            // Convert plain object to class filled and unfilled instances
             const item = jsonResult[0]
-            item.filledData = await emptyInstance.__new(item.data ?? undefined)
+            if(['ConfigTest', 'ConfigExample'].includes(className))  {
+                const originalStr = JSON.stringify(item.data)
+                item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
+                item.data = await emptyInstance.__new(item.data ?? undefined, false)
+                const bakedStr = JSON.stringify(item.data)
+            } else {
+                item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
+                item.data = await emptyInstance.__new(item.data ?? undefined, false)
+            }
+
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
@@ -304,9 +317,10 @@ export default class DataBaseHelper {
         if(jsonResult && jsonResult.length > 0) {
             // TODO: Redo caching and stuff.
             const item = jsonResult[0]
-            const emptyInstance = await DataMap.getInstance(item.class)
+            const emptyInstance = await DataMap.getInstance(item.class, undefined, false)
             if(emptyInstance) {
-                item.filledData = await emptyInstance.__new(item.data ?? undefined)
+                item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
+                item.data = await emptyInstance.__new(item.data ?? undefined, false)
             }
             return item
         }

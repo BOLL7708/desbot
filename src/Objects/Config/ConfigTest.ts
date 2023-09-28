@@ -4,6 +4,7 @@ import {PresetText} from '../Preset/PresetText.js'
 import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 
 export class ConfigTest extends Data {
+    anInstance = new ConfigTestSub()
     singleReference: number|DataEntries<PresetText> = 0
     multiReference: number[]|DataEntries<PresetText> = []
     namedReference: INumberDictionary|DataEntries<PresetText> = {}
@@ -19,7 +20,6 @@ export class ConfigTest extends Data {
     singleInstance = new PresetText()
     multiInstance: PresetText[] = []
     namedInstance: IDictionary<PresetText> = {}
-
 
     enlist() {
         DataMap.addRootInstance(
@@ -38,6 +38,18 @@ export class ConfigTest extends Data {
                 multiInstance: PresetText.ref.build(),
                 namedInstance: PresetText.ref.build()
             }
+        )
+    }
+}
+
+export class ConfigTestSub extends Data {
+    value: number = 0
+
+    enlist() {
+        DataMap.addSubInstance(
+            new ConfigTestSub(),
+            {value: 'A number.'},
+            {}
         )
     }
 }

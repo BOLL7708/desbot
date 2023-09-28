@@ -101,7 +101,7 @@ export default class EditorHandler {
             }
             const newKey = await prompt(`Provide a new key for this ${this._state.groupClass}:`, defaultKey)
             if(newKey && newKey.length > 0) {
-                const instance = await DataMap.getInstance(this._state.groupClass)
+                const instance = await DataMap.getInstance(this._state.groupClass, undefined, false)
                 if(instance) {
                     const didSave = await DataBaseHelper.save(instance, newKey, undefined, this._state.parentId)
                     if(didSave) {
@@ -286,9 +286,9 @@ export default class EditorHandler {
             // Convert JSON data to an actual class instance, so we can save it back to the DB with the class retained.
             if(resultingKey.length > 0) {
                 const jsonItem = (jsonItems as IDataBaseItem<any>[]).find(item => item.key == resultingKey)
-                instance = await DataMap.getInstance(group, jsonItem?.data ?? {}) ?? jsonItem?.data ?? {} // The last ?? is for test settings that has no class.
+                instance = await DataMap.getInstance(group, jsonItem?.data ?? {}, false) ?? jsonItem?.data ?? {} // The last ?? is for test settings that has no class.
             } else {
-                instance = await DataMap.getInstance(group, {})
+                instance = await DataMap.getInstance(group, {}, false)
             }
 
             // Update buttons

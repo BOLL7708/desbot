@@ -1127,7 +1127,7 @@ export default class JsonEditor {
             this._key = this._originalKey
             this._parentId = this._originalParentId
         }
-        const freshInstance = await DataMap.getInstance(this._originalInstanceType, data)
+        const freshInstance = await DataMap.getInstance(this._originalInstanceType, data, false)
         if(freshInstance) {
             this._instance = freshInstance
             await this.rebuild()

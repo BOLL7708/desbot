@@ -123,7 +123,7 @@ export default class ToolsHandler {
 
                         // Create preset
                         const newPreset = new PresetReward()
-                        await newPreset.__apply(reward)
+                        await newPreset.__apply(reward, false)
                         const newPresetKey = await DataBaseHelper.save(newPreset, `Preset ${TextHelper.ensureHeaderSafe(reward.title)}`)
                         if(!newPresetKey) {
                             await DataBaseHelper.delete(newReward, newRewardKey)
