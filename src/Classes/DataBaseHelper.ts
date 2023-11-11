@@ -95,7 +95,7 @@ export default class DataBaseHelper {
                 if(newItemResponse.ok) {
                     const newItemJson = await newItemResponse.json()
                     if(Array.isArray(newItemJson) && newItemJson.length > 0)
-                    this.handleDataBaseItem(newItemJson[0])
+                    this.handleDataBaseItem(newItemJson[0]).then()
                 }
             }
         }
