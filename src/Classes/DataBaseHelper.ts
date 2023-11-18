@@ -207,9 +207,10 @@ export default class DataBaseHelper {
         emptyInstance: T&Data,
         key: string,
         parentId?: number,
-        filled?: boolean
+        filled?: boolean,
+        ignoreCache?: boolean
     ): Promise<T|undefined> {
-        const item = await this.loadItem(emptyInstance, key, parentId)
+        const item = await this.loadItem(emptyInstance, key, parentId, ignoreCache)
         if(item) {
             return filled ? item.filledData as T : item.data as T
         }
@@ -222,7 +223,8 @@ export default class DataBaseHelper {
         parentId?: number,
         ignoreCache?: boolean
     ): Promise<T> {
-        return await this.load(emptyInstance, key, parentId, ignoreCache) ?? emptyInstance
+        // Filled can always be true as this is not used in the editor
+        return await this.load(emptyInstance, key, parentId, true, ignoreCache) ?? emptyInstance
     }
 
     /**

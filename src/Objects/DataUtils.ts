@@ -176,7 +176,8 @@ export class DataUtils {
 
     static buildFakeDataEntries<T>(instance: T&Data): DataEntries<T&Data> {
         const entries = new DataEntries<T&Data>()
-        entries.dataSingle = {id: 0, key: '', class: instance.__getClass(), pid: null, data: instance, filledData: instance }
+        // TODO: Apparently using instance.__class() broke here, so not everything coming in retains the Data class.
+        entries.dataSingle = {id: 0, key: '', class: instance.constructor.name, pid: null, data: instance, filledData: instance }
         return entries
     }
 }

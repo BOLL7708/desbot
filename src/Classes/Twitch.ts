@@ -94,6 +94,8 @@ export default class Twitch{
             }
             const message = `Registering command(s): <${command.trigger.entries.join(', ')}> for ${who.join(' + ')}`
             Utils.logWithBold(message, this.LOG_COLOR_COMMAND)
+        } else {
+            console.warn('Skipped registering a command as no entries!')
         }
     }
 
