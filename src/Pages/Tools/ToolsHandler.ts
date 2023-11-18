@@ -158,9 +158,7 @@ export default class ToolsHandler {
                 'Will apply the first preset for a reward on the rewards on Twitch, will skip updating if set to be skipped.',
                 async (e)=> {
                 const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(
-                    new EventDefault(),
-                    undefined,
-                    false
+                    new EventDefault()
                 ) ?? {})
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
                 return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
@@ -169,9 +167,7 @@ export default class ToolsHandler {
                 'Will create new rewards on Twitch for events missing a reward ID while containing a reward preset.',
                 async (e)=> {
                 const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(
-                    new EventDefault(),
-                    undefined,
-                    false
+                    new EventDefault()
                 ) ?? {})
                 let createdCount = 0
                 let errorCount = 0

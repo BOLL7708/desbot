@@ -9,7 +9,7 @@ import {IDictionary} from '../Interfaces/igeneral.js'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&Trigger): Promise<(T&Trigger)[]> {
-        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined) ?? {})
+        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
         const triggers: (T&Trigger)[] = []
         for(const ev of Object.values(allEvents)) {
             const ts = ev.getTriggers(triggerInstance)
@@ -19,7 +19,7 @@ export default class EventHelper {
     }
 
     static async getAllEventsWithTriggersOfType(triggerInstance: Trigger, matchRewardId?: string): Promise<IDictionary<EventDefault>> {
-        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined) ?? {})
+        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
         const matchedEvents = Object.entries(allEvents)
             .filter(([key, e])=>{
             const rewards = e?.getTriggers(triggerInstance) ?? []

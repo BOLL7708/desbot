@@ -99,7 +99,6 @@ export default abstract class Data {
                     } else {
                         // It is single instance
                         const dbItem = await DataBaseHelper.loadById(propertyValue)
-                        const emptyInstance = await DataMap.getInstance(dbItem?.class ?? typeValues.class, undefined, fill)
                         newProp.type = EDataType.Single
                         if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
                         else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from ${propertyValue}, it might not exist anymore.`);

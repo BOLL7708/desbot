@@ -311,8 +311,8 @@ export default class EditorHandler {
                 this._state.groupKey = resultingKey
                 let item = await DataBaseHelper.loadItem(instance, resultingKey, undefined, true)
 
-                // If we didn't get any item but it's a config, we will pre-initialize it.
-                if(this._state.forceMainKey && !item) {
+                // If we didn't get any item but we have a key, we will pre-initialize it.
+                if(resultingKey && !item) {
                     const didSave = await DataBaseHelper.save(instance, resultingKey)
                     if(didSave) {
                         item = await DataBaseHelper.loadItem(instance, resultingKey, undefined, true)
@@ -378,10 +378,8 @@ export default class EditorHandler {
                 newKey = await prompt(`Provide a key for the new ${group}:`) ?? ''
             }
             if(newKey && newKey.length > 0) {
-                // Load editor first in case item already exists.
-                // This means when we save, we will retain any existing data if the key already existed.
+                // Update editor with empty data, this means it will create it if it does not exist, else change to it.
                 await updateEditor(undefined, newKey)
-                await this.saveData(group, newKey)
             }
         }
 
@@ -510,6 +508,8 @@ export default class EditorHandler {
             } else {
                 alert(`Failed to save ${groupClass}:${groupKey}|${newGroupKey}`)
             }
+        } else {
+            console.warn('No editor to save data from.')
         }
         return null
     }

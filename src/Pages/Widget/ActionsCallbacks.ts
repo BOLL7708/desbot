@@ -614,7 +614,7 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined) ?? {})
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
@@ -674,7 +674,7 @@ export default class ActionsCallbacks {
                 const speechArr = textPreset?.data?.speech ?? []
                 modules.tts.enqueueSpeakSentence(speechArr[0]).then()
                 // Reset rewards with multiple steps
-                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault(), undefined, undefined) ?? {})
+                const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
                 let totalCount = 0
                 let totalResetCount = 0
                 let totalSkippedCount = 0
