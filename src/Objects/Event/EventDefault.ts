@@ -6,7 +6,6 @@ import Action from '../Action.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import OptionEventType from '../../Options/OptionEventType.js'
 import {DataUtils} from '../DataUtils.js'
-import {IDataBaseItem} from '../../Classes/DataBaseHelper.js'
 import {IDictionary} from '../../Interfaces/igeneral.js'
 
 export class EventDefault extends Data {

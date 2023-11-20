@@ -8,18 +8,18 @@ import {SettingIncrementingCounter} from '../Objects/Setting/SettingCounters.js'
 import {DataMeta} from '../Objects/DataMeta.js'
 import {DataUtils} from '../Objects/DataUtils.js'
 
-/*
-TODO
- 1. [OK] Vi borde ta emot det nya formatet från databas-funktionerna i PHP, MEN, sen lagra det på samma sätt här.
- 2. [OK] Däremot så skapar vi två nya tabeller, Class+Id -> ID, ID -> Class+Id, så vi kan slå upp saker åt båda hållen.
- 3. [] Gör så att ladda ut en enhet inte returnerar en class man läser data ur, utan instansen direkt.
- 4. [] Testa så att allt fungerar... har ändrat på när saker fylls med fillReferences o_O
- */
-
 export default class DataBaseHelper {
     static readonly OBJECT_MAIN_KEY: string = 'Main'
     private static readonly LOG_GOOD_COLOR: string = Color.BlueViolet
     private static readonly LOG_BAD_COLOR: string = Color.DarkRed
+
+    /*
+    TODO
+     In the future transition to having the data store being a big list referenced by row ID.
+     Then save separate indices:
+        1. ID to class and key
+        2. Class to IDs
+    */
 
     // Main storage
     private static _dataStore: Map<string, IDictionary<IDataBaseItem<any>>> = new Map() // Used for storing keyed entries in memory before saving to disk
@@ -202,6 +202,7 @@ export default class DataBaseHelper {
      * @param key
      * @param parentId
      * @param filled
+     * @param ignoreCache
      */
     static async load<T>(
         emptyInstance: T&Data,
@@ -265,7 +266,6 @@ export default class DataBaseHelper {
                 item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
                 item.data = await emptyInstance.__new(item.data ?? undefined, false)
             }
-
 
             // Ensure dictionary exists
             if (!this._dataStore.has(className)) {
@@ -358,7 +358,7 @@ export default class DataBaseHelper {
         const jsonResult = await this.loadJson(groupClass, groupKey, 0, true)
         if(jsonResult && jsonResult.length > 0) {
             const item = jsonResult[0]
-            this.handleDataBaseItem(item) // Store cache
+            this.handleDataBaseItem(item).then() // Store cache
             return item
         }
         return undefined
@@ -405,7 +405,7 @@ export default class DataBaseHelper {
                 const jsonResult = await response.json()
                 if(jsonResult && jsonResult.length > 0) {
                     for(const item of jsonResult) {
-                        this.handleDataBaseItem(item)
+                        this.handleDataBaseItem(item).then()
                         if(item) {
                             output[item.id] = item.class
                         }

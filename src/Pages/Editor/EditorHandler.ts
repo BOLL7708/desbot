@@ -141,16 +141,22 @@ export default class EditorHandler {
     }
 
     private _sideMenuDiv: HTMLDivElement|undefined
-    async updateSideMenu() {
+    private _eventType = -1
+    async updateSideMenu(skipNewButton: boolean = false) {
         if(!this._sideMenuDiv) {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
         if(!this._sideMenuDiv) return // Side menu does not exist in minimal mode.
 
+        // Clear
+        this._sideMenuDiv.replaceChildren()
+
+        // Add title
         const title = document.createElement('h3') as HTMLHeadingElement
         title.innerHTML = Utils.camelToTitle(this._state.likeFilter, EUtilsTitleReturnOption.OnlyFirstWord) + ' Entries'
-        this._sideMenuDiv.replaceChildren(title)
+        this._sideMenuDiv.appendChild(title)
 
+        // Load data, fill in missing classes if we have a filter.
         let classesAndCounts = await DataBaseHelper.loadClassesWithCounts(this._state.likeFilter)
         for(const className of DataMap.getNames(this._state.likeFilter)) {
             if(!classesAndCounts.hasOwnProperty(className)) {
@@ -165,49 +171,82 @@ export default class EditorHandler {
             const className = Object.keys(classesAndCounts)[0]
             const meta = DataMap.getMeta(className)
             if(meta) {
+                // If we are listing events, do the following.
                 if(className == EventDefault.ref.build()) {
-                    const testSelector = document.createElement('select')
+                    // Add optional category selector
+                    if(this._eventType < 0) this._eventType = OptionEventType.Uncategorized
+
+                    const typeContainer = document.createElement('p')
+                    const typeSelectorId = className + '-type-selector'
+
+                    const typeLabel = document.createElement('label')
+                    typeLabel.innerText = 'Category: '
+                    typeLabel.htmlFor = typeSelectorId
+                    typeContainer.appendChild(typeLabel)
+
+                    const typeSelector = document.createElement('select')
+                    typeSelector.id = typeSelectorId
                     const options = Object.entries(OptionEventType).map(([key, value])=>{
                         const option = document.createElement('option')
                         option.value = value
                         option.innerText = Utils.camelToTitle(key)
+                        if(value == this._eventType) option.selected = true
                         return option
                     })
-                    testSelector.replaceChildren(...options)
-                    // this._sideMenuDiv.appendChild(testSelector)
-                    // TODO: This works, but we should remake the sidebar as a UL and have this selector redraw the whole thing with the picked value.
-                    //  Perhaps also always have an `- empty/all -` entry.
+                    typeSelector.replaceChildren(...options)
+                    typeSelector.onchange = (event)=>{
+                        this._eventType = Number(typeSelector.value)
+                        this.updateSideMenu(true).then()
+                    }
+
+                    typeContainer.appendChild(typeSelector)
+                    this._sideMenuDiv.appendChild(typeContainer)
                 }
                 itemClass = className
                 const items = await DataBaseHelper.loadAll(meta.instance)
                 if(items) {
                     isItems = true
-                    classesAndCounts = Object.fromEntries(Object.entries(items).map(([key, value])=>{
-                        return [key, 1]
-                    }))
+                    if(this._eventType >= 0) {
+                        // Filter on event type to only show the right events in the side menu.
+                        classesAndCounts = Object.fromEntries(
+                            Object.entries(items).filter(([key, item])=>{
+                                    const eventItem = item.data as EventDefault
+                                    return eventItem.type == this._eventType
+                            }).map(([key, value])=>{
+                                return [key, 1]
+                            })
+                        )
+                    } else {
+                        // All of them
+                        classesAndCounts = Object.fromEntries(Object.entries(items).map(([key, value])=>{
+                            return [key, 1]
+                        }))
+                    }
 
                     // Add new-button to contents.
-                    const newButton = EditorHandlerUtils.getNewButton()
-                    newButton.onclick = async(event)=>{
-                        const newKey = await prompt(`Provide a key for the new ${itemClass}:`) ?? ''
-                        if(newKey && newKey.length > 0) {
-                            const exists = await DataBaseHelper.load(meta.instance, newKey)
-                            if(!exists) {
-                                // Only save a new item if it does not already exist, to prevent overwriting data.
-                                await DataBaseHelper.save(meta.instance, newKey)
+                    if(!skipNewButton) {
+                        const newButton = EditorHandlerUtils.getNewButton()
+                        newButton.onclick = async(event)=>{
+                            const newKey = await prompt(`Provide a key for the new ${itemClass}:`) ?? ''
+                            if(newKey && newKey.length > 0) {
+                                const exists = await DataBaseHelper.load(meta.instance, newKey)
+                                if(!exists) {
+                                    // Only save a new item if it does not already exist, to prevent overwriting data.
+                                    await DataBaseHelper.save(meta.instance, newKey)
+                                }
+                                this.buildEditorControls(
+                                    itemClass,
+                                    newKey
+                                ).then()
                             }
-                            this.buildEditorControls(
-                                itemClass,
-                                newKey
-                            ).then()
                         }
+                        this._contentDiv?.appendChild(newButton)
                     }
-                    this._contentDiv?.appendChild(newButton)
                 }
             }
         }
 
-        for(const [group,count] of Object.entries(classesAndCounts).sort()) {
+        for(const [group, count] of Object.entries(classesAndCounts).sort()) {
             const link = document.createElement('span') as HTMLSpanElement
             const a = document.createElement('a') as HTMLAnchorElement
             a.href = '#'
