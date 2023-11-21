@@ -170,6 +170,7 @@ export default class EditorHandler {
             // If a data category only has one type of items, we will list that in the side menu directly.
             const className = Object.keys(classesAndCounts)[0]
             const meta = DataMap.getMeta(className)
+            const typeSelector = document.createElement('select')
             if(meta) {
                 // If we are listing events, do the following.
                 if(className == EventDefault.ref.build()) {
@@ -184,7 +185,6 @@ export default class EditorHandler {
                     typeLabel.htmlFor = typeSelectorId
                     typeContainer.appendChild(typeLabel)
 
-                    const typeSelector = document.createElement('select')
                     typeSelector.id = typeSelectorId
                     const options = Object.entries(OptionEventType).map(([key, value])=>{
                         const option = document.createElement('option')
@@ -241,6 +241,8 @@ export default class EditorHandler {
                             }
                         }
                         this._contentDiv?.appendChild(newButton)
+                    } else {
+                        typeSelector.focus()
                     }
                 }
             }
