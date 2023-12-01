@@ -26,9 +26,8 @@ class DB_SQLite {
         $stmt = $this->sqlite->prepare($query);
         if(!empty($params)) {
             foreach($params as $key => $value) {
-                $stmt->bindValue(":$key", $value);
+                $stmt->bindValue($key, $value);
             }
-
         }
         $result = $stmt->execute();
 
@@ -136,8 +135,8 @@ class DB_SQLite {
         string $groupKey,
         string $newGroupKey
     ): bool {
-        $newKeyAlreadyExists = !!$this->query("SELECT group_key FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $newGroupKey]);
-        return !$newKeyAlreadyExists && !!$this->query("UPDATE json_store SET group_key = ? WHERE group_class = ? AND group_key = ?;", [$newGroupKey, $groupClass, $groupKey]);
+        $newKeyAlreadyExists = !!$this->query("SELECT group_key FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;", [':group_class'=>$groupClass, ':group_key'=>$newGroupKey]);
+        return !$newKeyAlreadyExists && !!$this->query("UPDATE json_store SET group_key = :new_group_key WHERE group_class = :group_class AND group_key = :old_group_key;", [':new_group_key'=>$newGroupKey, ':group_class'=>$groupClass, ':old_group_key'=>$groupKey]);
     }
 
     /**
@@ -155,11 +154,10 @@ class DB_SQLite {
         string      $dataJson
     ): string|bool {
         if(empty($groupKey)) $groupKey = $this->getUUID();
-        $result = $this->query("
-            INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (?, ?, ?, ?)
-            ON DUPLICATE KEY
-            UPDATE parent_id = ?, data_json = ?;
-        ", [$groupClass, $groupKey, $parentId, $dataJson, $parentId, $dataJson]);
+        $result = $this->query(
+            "INSERT OR REPLACE INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json);",
+            [':group_class'=>$groupClass, ':group_key'=>$groupKey, ':parent_id'=>$parentId, ':data_json'=>$dataJson]
+        );
         return $result ? $groupKey : false;
     }
 
@@ -195,15 +193,15 @@ class DB_SQLite {
         if(!$noData) $fields[] = 'data_json';
         $fieldsStr = implode(',', $fields);
 
-        $query = "SELECT $fieldsStr FROM json_store WHERE group_class = ?";
-        $params = [$groupClass];
+        $query = "SELECT $fieldsStr FROM json_store WHERE group_class = :group_class";
+        $params = [':group_class'=>$groupClass];
         if($groupKey) {
-            $query .= ' AND group_key = ?';
-            $params[] = $groupKey;
+            $query .= ' AND group_key = :group_key';
+            $params[':group_key'] = $groupKey;
         }
         if($parentId !== null) {
-            $query .= ' AND parent_id = ?';
-            $params[] = $parentId;
+            $query .= ' AND parent_id = :parent_id';
+            $params[':parent_id'] = $parentId;
         }
         $query .= ';';
 
@@ -228,17 +226,21 @@ class DB_SQLite {
     }
     public function getEntriesByIds(array $rowIds, int|null $parentId, bool $noData = false): array|null {
         $count = count($rowIds);
-        $items = array_fill(0, $count, '?');
+        $items = [];
+        $params = [];
+        for($i=0; $i<$count; $i++) {
+            $items[] = ":row_id_$i";
+            $params['":row_id_$i"'] = $rowIds[$i];
+        }
         $paramsStr = implode(',', $items);
 
         $fields = ['row_id', 'group_class', 'group_key', 'parent_id'];
         if(!$noData) $fields[] = 'data_json';
         $fieldsStr = implode(',', $fields);
         $query = "SELECT $fieldsStr FROM json_store WHERE row_id IN ($paramsStr)";
-        $params = $rowIds;
         if($parentId !== null) {
-            $query .= " AND parent_id = ?";
-            $params[] = $parentId;
+            $query .= " AND parent_id = :parent_id";
+            $params[':parent_id'] = $parentId;
         }
         $query .= ';';
 
@@ -259,12 +261,12 @@ class DB_SQLite {
         $where = '';
         $params = [];
         if($like && strlen($like) > 0) {
-            $params[] = str_replace('*', '%', $like);
-            $where .= 'WHERE group_class LIKE ?';
+            $params[':group_class'] = str_replace('*', '%', $like);
+            $where .= 'WHERE group_class LIKE :group_class';
         }
         if($parentId !== null) {
-            $params[] = $parentId;
-            $where .= ' AND parent_id = ?';
+            $params[':parent_id'] = $parentId;
+            $where .= ' AND parent_id = :parent_id';
         }
         $query = "SELECT group_class, COUNT(*) as count FROM json_store $where GROUP BY group_class;";
         $result = $this->query($query, $params);
@@ -287,7 +289,8 @@ class DB_SQLite {
     {
         $result = 0;
         if(is_string($groupClass) && is_string($groupKey)) {
-            $result = $this->query("SELECT row_id as id FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $groupKey]);
+            $result = $this->query("SELECT row_id as id FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;",
+                [':group_class'=>$groupClass, ':group_key'=>$groupKey]);
         }
         $output = new stdClass();
         $output->id = $result[0]['id'] ?? 0;
@@ -311,16 +314,16 @@ class DB_SQLite {
         $where = '';
         $params = [];
         if($like && strlen($like) > 0) {
-            $where .= 'WHERE group_class LIKE ?';
-            $params[] = str_replace('*', '%', $like);
+            $where .= 'WHERE group_class LIKE :group_class';
+            $params[':group_class'] = str_replace('*', '%', $like);
         }
         if($parentId !== null) {
-            $where .= ' AND (parent_id = ? OR parent_id IS NULL)';
-            $params[] = $parentId;
+            $where .= ' AND (parent_id = :parent_id OR parent_id IS NULL)';
+            $params[':parent_id'] = $parentId;
         }
         if($label && strlen($label) > 0) {
-            array_unshift($params, "$.$label");
-            $result = $this->query("SELECT row_id as id, group_key as `key`, JSON_VALUE(data_json, ?) as label, parent_id as pid FROM json_store $where;", $params);
+            $params[':json_extract'] = "$.$label";
+            $result = $this->query("SELECT row_id as id, group_key as `key`, json_extract(data_json, :json_extract) as label, parent_id as pid FROM json_store $where;", $params);
         } else {
             $result = $this->query("SELECT row_id as id, group_key as `key`, '' as label, parent_id as pid FROM json_store $where;", $params);
         }
@@ -334,18 +337,20 @@ class DB_SQLite {
     }
 
     public function getEntryId(string $groupClass, string $groupKey) {
-        $result = $this->query("SELECT row_id as id FROM json_store WHERE group_class = ? AND group_key = ? LIMIT 1;", [$groupClass, $groupKey]);
+        $result = $this->query("SELECT row_id as id FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;", [':group_class'=>$groupClass, ':group_key'=>$groupKey]);
         return $result[0]['id'] ?? 0;
     }
 
     public function search(string $query): array {
         $query = str_replace(['*', '?'], ['%', '_'], $query);
-        $output = $this->query('SELECT row_id as id, group_class as `class`, group_key as `key`, parent_id as pid, data_json as data FROM json_store WHERE LOWER(group_key) LIKE LOWER(?) OR LOWER(data_json) LIKE LOWER(?);', [$query, $query]);
+        $output = $this->query('SELECT row_id as id, group_class as `class`, group_key as `key`, parent_id as pid, data_json as data FROM json_store WHERE LOWER(group_key) LIKE LOWER(:like_group_key) OR LOWER(data_json) LIKE LOWER(:like_data_json);',
+            [':like_group_key'=>$query, ':like_data_json'=>$query]);
         return is_array($output) ? $output : [];
     }
 
     public function getNextKey(string $groupClass, string $groupKey): array {
-        $result = $this->query('SELECT group_key as `key` FROM json_store WHERE group_class = ? AND group_key LIKE ? OR group_key LIKE ?;', [$groupClass, $groupKey, "$groupKey %"]);
+        $result = $this->query('SELECT group_key as `key` FROM json_store WHERE group_class = :group_class AND group_key LIKE :group_key OR group_key LIKE :like_group_key;',
+            [':group_class'=>$groupClass, ':group_key'=>$groupKey, ':like_group_key'=>"$groupKey %"]);
         $output = $groupKey;
         if(is_array($result)) {
             $maxSerial = 0;

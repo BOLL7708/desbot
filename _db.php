@@ -1,7 +1,7 @@
 <?php
 // Init
 include_once '_init.php';
-$dbType = getHeaderValue('X-DB-Type') ?? 'mysql';
+$dbType = getHeaderValue('X-DB-Type') ?? 'sqlite';
 switch($dbType) {
     case 'sqlite':
         $db = DB_SQLite::get();

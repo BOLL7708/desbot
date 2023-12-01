@@ -61,11 +61,11 @@ export default class SetupFormHandler {
         if(localAuth.length == 0 || !await AuthUtils.checkIfAuthed()) return this._sections.show('Login')
 
         // No database data stored on disk, we need to register that.
-        const dbData = await DataFileUtils.readData<DBData>('db.php')
-        if(!dbData) return this._sections.show('DBSetup')
+        // const dbData = await DataFileUtils.readData<DBData>('db.php')
+        // if(!dbData) return this._sections.show('DBSetup')
 
         // Database migration
-        await this.migrateDB()
+        // await this.migrateDB() // TODO: Look into doing this automatically when running the future Node solution.
 
         // Twitch client info
         const twitchClient = await DataBaseHelper.load(new SettingTwitchClient(), 'Main', undefined, true)
