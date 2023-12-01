@@ -4,6 +4,11 @@ include_once('_init.php');
 $db = DB_MySQL::get();
 
 try {
+    if(!is_dir('_db')) mkdir('_db');
+    if(file_exists('_db/main.sqlite')) {
+        header('Location: ./index.php');
+        die();
+    }
     $sql = new SQLite3('_db/main.sqlite');
 } catch (Exception $exception) {
     echo "<p>The extension might not be available, make sure to uncomment: <code>extension=sqlite3</code> in <code>php.ini</code> and restart Apache.</p>";
@@ -66,6 +71,8 @@ if($sqliteCount) {
     } else {
         echo "<h1 style='color: red;'>DID NOT MANAGE TO INSERT ALL ROWS! $sqliteCount/$mysqlCount</h1>\n";
     }
+    echo '<p><a href="index.php">Go back to the editor!</p>';
 } else {
     echo "<h1 style='color: red;'>DID NOT MANAGE TO LOAD ANY ROWS!?</h1>\n";
 }
+echo "<script>window.scrollTo(0, document.body.scrollHeight);</script>";
