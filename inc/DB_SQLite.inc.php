@@ -30,6 +30,7 @@ class DB_SQLite {
             }
         }
         $result = $stmt->execute();
+        if($result === false) return false;
 
         // Result output
         $output = [];
@@ -155,10 +156,10 @@ class DB_SQLite {
     ): string|bool {
         if(empty($groupKey)) $groupKey = $this->getUUID();
         $result = $this->query(
-            "INSERT OR REPLACE INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json);",
+            "INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json) ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;",
             [':group_class'=>$groupClass, ':group_key'=>$groupKey, ':parent_id'=>$parentId, ':data_json'=>$dataJson]
         );
-        return $result ? $groupKey : false;
+        return $result !== false ? $groupKey : false;
     }
 
     /**
@@ -230,7 +231,7 @@ class DB_SQLite {
         $params = [];
         for($i=0; $i<$count; $i++) {
             $items[] = ":row_id_$i";
-            $params['":row_id_$i"'] = $rowIds[$i];
+            $params[":row_id_$i"] = $rowIds[$i];
         }
         $paramsStr = implode(',', $items);
 
