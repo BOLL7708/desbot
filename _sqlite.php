@@ -11,6 +11,7 @@ try {
     }
     $sql = new SQLite3('_db/main.sqlite');
 } catch (Exception $exception) {
+    error_log("Unable to open SQLite database: ".$exception->getMessage());
     echo "<p>The extension might not be available, make sure to uncomment: <code>extension=sqlite3</code> in <code>php.ini</code> and restart Apache.</p>";
     die("<p>".$exception->getMessage()."</p>");
 }
