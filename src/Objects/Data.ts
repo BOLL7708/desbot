@@ -81,6 +81,10 @@ export default abstract class Data {
                         // It is an array of subclasses, instantiate.
                         newProp.type = EDataType.Array
                         for (const id of propertyValue) {
+                            if(typeof id !== 'number' && typeof id !== 'string') {
+                                console.warn(`Data: ID was not a number nor string, skipping:`, id)
+                                continue
+                            }
                             const dbItem = await DataBaseHelper.loadById(id.toString())
                             if(dbItem?.data && dbItem?.filledData) newProp.dataArray.push(dbItem)
                             else if(id !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}:${id}, it might not exist anymore.`)
