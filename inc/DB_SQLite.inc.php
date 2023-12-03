@@ -154,7 +154,7 @@ class DB_SQLite {
         int|null    $parentId,
         string      $dataJson
     ): string|bool {
-        if(empty($groupKey)) $groupKey = $this->getUUID();
+        if(empty($groupKey)) $groupKey = $this->getUUID($groupClass);
         $result = $this->query(
             "INSERT INTO json_store (group_class, group_key, parent_id, data_json) VALUES (:group_class, :group_key, :parent_id, :data_json) ON CONFLICT DO UPDATE SET parent_id=:parent_id, data_json=:data_json;",
             [':group_class'=>$groupClass, ':group_key'=>$groupKey, ':parent_id'=>$parentId, ':data_json'=>$dataJson]
@@ -376,9 +376,28 @@ class DB_SQLite {
     // endregion
 
     // region Helper Functions
-    private function getUUID(): string|null {
-        $result = $this->query('SELECT UUID() uuid;');
-        return is_array($result) ? array_pop($result)['uuid'] : null;
+    private function getUUID(string $groupClass): string|null {
+        $notUniqueYet = true;
+        $groupKey = null;
+        while($notUniqueYet) {
+            $hexResult = $this->query('SELECT lower(hex(randomblob(18))) as hex;'); // UUID() does not exist in Sqlite so this is a substitute.
+            $groupKey = $hexResult[0]['hex'] ?? null;
+            if($groupKey === null) {
+                error_log("UUID: Unable to get new hex for group_class: $groupClass");
+                return null;
+            }
+            $countResult = $this->query(
+                'SELECT COUNT(*) as count FROM json_store WHERE group_class = :group_class AND group_key = :group_key LIMIT 1;',
+                [':group_class'=>$groupClass, ':group_key'=>$groupKey]
+            );
+            $count = $countResult[0]['count'] ?? null;
+            if($count === null) {
+                error_log("UUID: Unable to get count for group_class: $groupClass, group_key: $groupKey");
+                return null;
+            }
+            $notUniqueYet = $count > 0;
+        }
+        return $groupKey;
     }
 
     private function getParamTypes(array $values): string {
