@@ -19,6 +19,7 @@ import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 import AudioUtils from './AudioUtils.js'
 import {OptionTTSType} from '../Options/OptionTTS.js'
 import {IDictionary} from '../Interfaces/igeneral.js'
+import ArrayUtils from './ArrayUtils.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -241,7 +242,7 @@ export default class GoogleTTS {
         const voiceConfig: {[key: string]: string} = {}
         voiceConfig['languageCode'] = voice.languageCode ?? 'en-US' // Needs to exist, then either voice NAME or GENDER
         if(voice.voiceName.length > 0) voiceConfig['name'] = voice.voiceName
-        else voiceConfig['ssmlGender'] = (voice.gender.length > 0 ? voice.gender : ['male', 'female'].getRandom() ?? 'male').toUpperCase()
+        else voiceConfig['ssmlGender'] = (voice.gender.length > 0 ? voice.gender : ArrayUtils.getRandom(['male', 'female']) ?? 'male').toUpperCase()
         // TODO: Even if gender is provided as specified it seems to not work.
         //  Not sure if we should stop supporting gender entirely and only do specific voices?
         const response = await fetch(url, {
@@ -302,14 +303,14 @@ export default class GoogleTTS {
         inputArr.forEach(setting => {
             setting = setting.toLowerCase()
 
-            // Match gender
-            if((setting == 'female' || setting == 'male')) {
-                voice.voiceName = '' // Gender is not respected if we have a name
-                voice.gender = setting
-                changed = true
-                Utils.log(`GoogleTTS: Matched gender: ${setting}`, Color.BlueViolet)
-                return
-            }
+            // Match gender // TODO: Gender does not work with Google anymore, will have to do our own support.
+            // if((setting == 'female' || setting == 'male')) {
+            //     voice.voiceName = '' // Gender is not respected if we have a name
+            //     voice.gender = setting
+            //     changed = true
+            //     Utils.log(`GoogleTTS: Matched gender: ${setting}`, Color.BlueViolet)
+            //     return
+            // }
                        
             // Match country code
             if((setting.includes('-') && setting.split('-').length == 2) || setting.length <= 3) {
@@ -362,7 +363,7 @@ export default class GoogleTTS {
             // Randomize among ALL voices
             if(setting == 'random' || setting == 'rand' || setting == '?') {
                 Utils.log(`GoogleTTS: Matched random: ${setting}`, Color.BlueViolet)
-                const randomVoice = this._voices.getRandom()
+                const randomVoice = ArrayUtils.getRandom(this._voices)
                 voice = this.buildVoice(randomVoice)
                 changed = true
                 return

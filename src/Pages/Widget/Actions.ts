@@ -522,7 +522,7 @@ export class Actions {
                 let ttsStrings: string[] = []
                 if(speechConfig?.entries) {
                     ttsStrings = await TextHelper.replaceTagsInTextArray(
-                        Utils.ensureArray(speechConfig.entries).getAsType(index),
+                        ArrayUtils.getAsType(Utils.ensureArray(speechConfig.entries), OptionEntryUsage.First, index), // TODO: This used a dynamic type before
                         user
                     )
                     onTtsQueue = true
@@ -530,7 +530,7 @@ export class Actions {
                 if(config) { // If we have an audio config, play it. Attach 
                     const configClone = Utils.clone(config)
                     configClone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
-                        Utils.ensureArray(config.srcEntries).getAsType(index), // Need to read entries from config here as cloning drops __type
+                        ArrayUtils.getAsType(Utils.ensureArray(config.srcEntries), OptionEntryUsage.First, index), // Need to read entries from config here as cloning drops __type // TODO: This used a dynamic type before
                         user
                     )
                     // TODO: Soon redundant anyway

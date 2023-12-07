@@ -4,7 +4,7 @@ export default class ArrayUtils {
     /**
      *
      * @param array
-     * @param type Values from EnumEntryUsage
+     * @param type Values from OptionEntryUsage
      * @param index
      */
     static getAsType<T>(array: T[], type: number, index?: number): T[] {
