@@ -24,6 +24,11 @@ class DB_SQLite {
      */
     public function query(string $query, array $params = []):array|bool {
         $stmt = $this->sqlite->prepare($query);
+        if(!$stmt) {
+            error_log("Failed to prepare query: $query");
+            return false;
+        }
+
         if(!empty($params)) {
             foreach($params as $key => $value) {
                 $stmt->bindValue($key, $value);
@@ -172,9 +177,10 @@ class DB_SQLite {
         string $groupClass,
         string $groupKey
     ): bool {
-        return $this->query(
-            "DELETE FROM json_store WHERE group_class = ? AND group_key = ?;",
-            [$groupClass, $groupKey]);
+        $result = $this->query(
+            "DELETE FROM json_store WHERE group_class = :group_class AND group_key = :group_key;",
+            [':group_class'=>$groupClass, ':group_key'=>$groupKey]);
+        return $result !== false;
     }
 
     /**

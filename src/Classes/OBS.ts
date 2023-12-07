@@ -31,6 +31,7 @@ export default class OBS {
     private async onMessage(evt: MessageEvent) {
         const data = JSON.parse(evt.data)
 		const op = data['op'] as number
+        const messageId = data['message-id'] ?? '' // TODO: I have no idea why this has changed.
         const d = data['d']
         // const updateType = data['update-type'];
         const error = data['error']
@@ -71,16 +72,16 @@ export default class OBS {
                         // console.log(evt.data)
                         break
                 }
-                
-                if(this._screenshotRequests.has(op)) {
-                    const screenshotRequestData = this._screenshotRequests.get(op)
+                */
+
+                if(this._screenshotRequests.has(messageId)) {
+                    const screenshotRequestData = this._screenshotRequests.get(messageId)
                     const img = data.img
                     if(screenshotRequestData != undefined && img != undefined) {
-                        this._sourceScreenshotCallback(img, screenshotRequestData, op)
+                        this._sourceScreenshotCallback(img, screenshotRequestData, messageId)
                     }
-                    this._screenshotRequests.delete(op)
+                    this._screenshotRequests.delete(messageId)
                 }
-                */
                 break
 		}
     }

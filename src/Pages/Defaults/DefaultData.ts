@@ -1039,7 +1039,7 @@ export default class DefaultData {
                     const actionChat = new ActionChat()
                     actionChat.entries = ['Dictionary: "%lastDictionaryWord" is said as "%lastDictionarySubstitute"']
 
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionChat])
                 }
             },{
                 key: EKeys.DictionaryClearWord,
