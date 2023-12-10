@@ -888,15 +888,15 @@ export default class DefaultData {
 
                     const actionTTS = new ActionSettingTTS()
                     actionTTS.functionType = OptionTTSFunctionType.SetUserVoice
+                    const actionChat = new ActionChat()
+                    actionChat.entries = ['TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice']
                     const actionSpeech = new ActionSpeech()
                     actionSpeech.entries = ['%targetOrUserTag now sounds like this.']
                     actionSpeech.voiceOfUser_orUsername = '%targetOrUserLogin'
-                    const actionChat = new ActionChat()
-                    actionChat.entries = ['TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice']
 
                     return await DefaultData.registerEvent(instance, key,
                         [triggerReward, triggerCommand],
-                        [actionTTS, actionSpeech, actionChat]
+                        [actionTTS, actionChat, actionSpeech]
                     )
                 }
             },{

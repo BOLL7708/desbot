@@ -96,6 +96,11 @@ export class DataUtils {
     // endregion
 
     // region Validation
+
+    /*
+     * These functions where made to substitute the old access of these datatypes
+     */
+
     static ensureData<T>(entries: number|DataEntries<T>, filled: boolean = true): T|undefined {
         if(typeof entries === 'number') return undefined
         return filled

@@ -273,7 +273,7 @@ export default class TextHelper {
             ? userData?.bitsTotal?.toString() ?? '0'
             : cheers?.totalBits ?? '0'
 
-        const result = <ITextTags> {
+        const result = <ITextTags> { // TODO: Convert this to a class for easy instantiation instead of this.
             // region User
             userId: userIdStr,
             userLogin: userData?.login ?? '',

@@ -62,16 +62,20 @@ export class ActionSpeech extends Action {
 
                 const entries = ArrayUtils.getAsType(this.entries, this.entries_use, index)
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
+
                 const userName = await TextHelper.replaceTagsInText(this.voiceOfUser_orUsername, user)
-                const voiceUserId = parseInt(
-                    DataUtils.ensureKey(this.voiceOfUser)
-                    ?? (await TwitchHelixHelper.getUserByLogin(userName))?.id
-                    ?? ''
-                )
+                const voiceOfUserTwitchId = parseInt(DataUtils.ensureKey(this.voiceOfUser))
+                const voiceOfNameTwitchId = parseInt((await TwitchHelixHelper.getUserByLogin(userName))?.id ?? '')
+                const voiceUserId = !isNaN(voiceOfUserTwitchId)
+                    ? voiceOfUserTwitchId
+                    : !isNaN(voiceOfNameTwitchId)
+                        ? voiceOfNameTwitchId
+                        : chatbotTokens?.userId ?? 0
+                console.log('Voice of user', [this.voiceOfUser, DataUtils.ensureKey(this.voiceOfUser), this.voiceOfUser_orUsername, userName, voiceUserId])
                 for(const ttsStr of entries) {
                     await modules.tts.enqueueSpeakSentence(
                         await TextHelper.replaceTagsInText(ttsStr, user),
-                        isNaN(voiceUserId) ? chatbotTokens?.userId : voiceUserId,
+                        voiceUserId,
                         this.type,
                         '', // TODO: Figure out if we can uses nonces again, I'm sure it's needed for something.
                         undefined,
