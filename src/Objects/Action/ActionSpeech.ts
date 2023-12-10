@@ -52,15 +52,15 @@ export class ActionSpeech extends Action {
                 console.log('tts debug, entry preset', this.entryPreset)
                 const modules = ModulesSingleton.getInstance()
 
-                // TODO: This is not quite working yeah. Seems to be a fault in the data loading and cloning above.
-                //  Will hopefully be fixed in the rewrite of all of that... soon!
-                // const entryPreset = DataUtils.ensureDataSingle(clone.entryPreset)?.data
-                // const entries = entryPreset && entryPreset.collection.length > 0
-                //     ? ArrayUtils.getAsType(entryPreset.collection, clone.entryPreset_use, index)
-                //     : ArrayUtils.getAsType(clone.entries, clone.entries_use, index)
-                // console.log('tts debug, entries', entryPreset?.collection, clone.entries, entries)
-
-                const entries = ArrayUtils.getAsType(this.entries, this.entries_use, index)
+                let entries: string[] = []
+                if(this.entryPreset) {
+                    const entryPreset = DataUtils.ensureData(this.entryPreset)
+                    entries = entryPreset && entryPreset.collection.length > 0
+                        ? ArrayUtils.getAsType(entryPreset.collection, this.entryPreset_use, index)
+                        : ArrayUtils.getAsType(this.entries, this.entries_use, index) // Should be redundant, only used if someone forgot to remove an empty preset
+                } else {
+                    entries = ArrayUtils.getAsType(this.entries, this.entries_use, index)
+                }
                 const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
 
                 const userName = await TextHelper.replaceTagsInText(this.voiceOfUser_orUsername, user)
