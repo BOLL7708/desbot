@@ -5,9 +5,9 @@
 * Check out the [dev wiki][dev] if you want to contribute to the project.
 * Please post [issues][issues] if you bump into any kind of problem.
 -->
-## OBS: Important for Existing Users
-1. If you are upgrading a legacy widget with file based settings (v5 or lower), meaning no database is used yet, you need to upgrade to the [last version that has legacy imports](https://github.com/BOLL7708/desbot/releases/tag/v6.657) if you want your data converted.
-2. If you are on a version below [v6.657](https://github.com/BOLL7708/desbot/releases/tag/v6.657), you need to first upgrade to [v6.607](https://github.com/BOLL7708/desbot/releases/tag/v6.607) and run the setup in the editor to apply the database migrations. When you do the next upgrade, before using the editor, change: `./_data/version.json` to contain: `{"current":3}`.
+## OBS: Important for existing users
+1. If you are upgrading a legacy widget with the file based settings/config (v5 or lower), meaning no MySQL database is used yet, you need to upgrade to the last version that has legacy data imports, [v6.657](https://github.com/BOLL7708/desbot/releases/tag/v6.657), if you want to retain your existing data by importing it into the database.
+2. If you are on a version already using the MySQL database but below [v6.657](https://github.com/BOLL7708/desbot/releases/tag/v6.657), you need to first upgrade to [v6.607](https://github.com/BOLL7708/desbot/releases/tag/v6.607) and run the setup in the editor to apply the database migrations. When you do the next upgrade, before using the editor, change: `./_data/version.json` to contain: `{"current":3}` as the migration numbering has changed.
 
 ## What is it?
 This is a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
@@ -39,6 +39,7 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 4. Clone the repo to a folder in `htdocs` of `xampp`.
 5. Open the URL to the widget in your browser and go from there.
 
+<!--
 ## Who are using it?
 
 * [BOLL][twitch] - The original author of this project!
@@ -57,3 +58,4 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 [wobotwitch]: https://www.twitch.tv/woboloko
 [pixeltwitch]: https://www.twitch.tv/badpixel134
 [jeppetwitch]: https://www.twitch.tv/jeppevinkel
+-->
