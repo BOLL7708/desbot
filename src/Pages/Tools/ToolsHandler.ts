@@ -274,7 +274,7 @@ export default class ToolsHandler {
                 'Load all Philips Hue bulbs and plugs from your bridge unit.',
                 async (e)=>{
                 const result = await PhilipsHueHelper.loadLights()
-                return `Reloaded ${result} Philips Hue light(s)`
+                return `Reloaded Philips Hue light(s): `+JSON.stringify(result)
             })
         ]
         buttonsList.replaceChildren(...items)

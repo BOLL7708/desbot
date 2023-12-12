@@ -6,28 +6,33 @@ import {IPhilipsHueLight} from '../Interfaces/iphilipshue.js'
 import {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from '../Objects/Preset/PresetPhilipsHue.js'
 import {ActionPhilipsHuePlug} from '../Objects/Action/ActionPhilipsHuePlug.js'
 import {ActionPhilipsHueBulb} from '../Objects/Action/ActionPhilipsHueBulb.js'
+import {INumberDictionary} from '../interfaces/igeneral.js'
 
 export default class PhilipsHueHelper {
     private static async getBaseUrl() {
         const config = await DataBaseHelper.loadMain(new ConfigPhilipsHue())
         return `${config.serverPath}/api/${config.username}`
     }
-    static async loadLights(): Promise<number> {
+    static async loadLights(): Promise<INumberDictionary> {
         const baseUrl = await this.getBaseUrl()
         const url = `${baseUrl}/lights`
         const response = await fetch(url)
         let lightsLoaded = 0
+        let lightsAdded = 0
+        let plugsAdded = 0
         if(response.ok) {
             const lights = await response.json() as { [key:string]: IPhilipsHueLight }
             lightsLoaded = Object.keys(lights).length
             for(const [key, light] of Object.entries(lights)) {
                 let preset: PresetPhilipsHueBulb|PresetPhilipsHuePlug|undefined = undefined
                 if(
-                    light.config.archetype.includes('bulb')
-                    || light.config.archetype.includes('hueplay')
+                    light.productname.toLowerCase().includes('lamp')
+                    || light.productname.includes('play')
                 ) {
+                    lightsAdded++;
                     preset = new PresetPhilipsHueBulb()
-                } else if(light.config.archetype.includes('plug')) {
+                } else if(light.productname.includes('plug')) {
+                    plugsAdded++;
                     preset = new PresetPhilipsHuePlug()
                 }
                 if(preset != undefined) {
@@ -38,7 +43,7 @@ export default class PhilipsHueHelper {
         } else {
             console.warn('PhilipsHue: Unable to load lights.')
         }
-        return lightsLoaded
+        return { deviceLoaded: lightsLoaded, lightsFound: lightsAdded, plugsFound: plugsAdded }
     }
     static runBulbs(ids: string[], brightness: number, hue: number, saturation: number) {
         for(const id of ids) {
