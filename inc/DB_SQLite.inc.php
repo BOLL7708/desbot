@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 class DB_SQLite {
     // region Singleton
     private static DB_SQLite|null $instance = null;
@@ -21,25 +22,41 @@ class DB_SQLite {
      * @param string $query
      * @param array $params
      * @return array|bool Array if there are rows, bool otherwise.
+     * @throws Exception
      */
     public function query(string $query, array $params = []):array|bool {
-        $stmt = $this->sqlite->prepare($query);
-        if(!$stmt) {
-            error_log("Failed to prepare query: $query");
-            return false;
-        }
-
-        if(!empty($params)) {
-            foreach($params as $key => $value) {
-                $stmt->bindValue($key, $value);
+        $result = false;
+        $maxTries = 10;
+        for($i=1; $i<=$maxTries; $i++) {
+            try {
+                $stmt = $this->sqlite->prepare($query);
+                if($stmt === false) {
+                    usleep(500000); // 0.5s
+                    continue;
+                }
+                if(!empty($params)) {
+                    foreach($params as $key => $value) {
+                        $stmt->bindValue($key, $value);
+                    }
+                }
+                $result = $stmt->execute();
+                if($i > 1) error_log("DB_SQLite: Query succeeded on try #$i");
+                break; // Will break the loop if no exception was thrown.
+            } catch (Exception $e) {
+                $msg = $e->getMessage();
+                if (str_contains($msg, 'database is locked')) {
+                    usleep(500000); // 0.5s
+                } else {
+                    // If it's a different exception, rethrow it.
+                    throw $e;
+                }
             }
         }
-        $result = $stmt->execute();
         if($result === false) return false;
 
         // Result output
         $output = [];
-        while ($row = $result->fetchArray()) $output[] = $row;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) $output[] = $row;
         return $output;
     }
     // endregion
