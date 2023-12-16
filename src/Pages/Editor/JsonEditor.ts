@@ -834,7 +834,7 @@ export default class JsonEditor {
                 const tag = await prompt('Set a bookmark title for this object')
                 if(tag && tag.length > 0) {
                     const favorite = new ConfigEditorFavorite()
-                    favorite.class = this._instance.constructor.name
+                    favorite.class = this._originalItem.class
                     favorite.class_withKey = this._key
                     this._config.favorites[tag] = favorite
                     await DataBaseHelper.saveMain(this._config)
@@ -970,8 +970,10 @@ export default class JsonEditor {
             }
         } else {
             for(let i = 1; i<path.length; i++) {
+                const isOnLastLevel = i == path.length -1
+
                 // Will remove the value from the JSON structure
-                if(value === null && i == path.length-1) {
+                if(value === null && isOnLastLevel) {
                     const p = path[i]
                     if(Array.isArray(current) && typeof p == 'number') {
                         (current as []).splice(p, 1)
@@ -983,7 +985,7 @@ export default class JsonEditor {
 
                 // If we're on the last depth, act on it
                 const currentOriginalValue = currentOriginal && currentOriginal.hasOwnProperty(path[i]) ? currentOriginal[path[i]] : undefined
-                if(i == path.length-1) {
+                if(isOnLastLevel) {
                     // Not same as the stored one, or just checked if modified
                     if(current[path[i]] != value || onlyCheckModified) {
                         if(!onlyCheckModified) current[path[i]] = value // Actual update in the JSON structure

@@ -45,7 +45,7 @@ class DB_SQLite {
             } catch (Exception $e) {
                 $msg = $e->getMessage();
                 if (str_contains($msg, 'database is locked')) {
-                    usleep(500000); // 0.5s
+                    usleep(100000); // 0.1s
                 } else {
                     // If it's a different exception, rethrow it.
                     throw $e;
