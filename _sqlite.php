@@ -1,7 +1,7 @@
 <?php
 include_once('_init.php');
 
-$db = DB_MySQL::get();
+$db = DB_MySQL::get(true); // TODO: This should be completely removed after the next version as there will be no more MySQL after that.
 
 try {
     if(!is_dir('_db')) mkdir('_db');
@@ -44,7 +44,7 @@ END;
 echo "<pre>";
 
 // Load existing data from MySQL
-$allRows = $db->query("SELECT * FROM json_store ORDER BY parent_id, row_id;");
+$allRows = $db?->query("SELECT * FROM json_store ORDER BY parent_id, row_id;") ?? [];
 
 // Insert into SQLite
 foreach($allRows as $row) {

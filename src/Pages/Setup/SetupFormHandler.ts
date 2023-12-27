@@ -2,7 +2,6 @@ import Utils from '../../Classes/Utils.js'
 import SetupSectionHandler from './SetupSectionHandler.js'
 import DataFileUtils, {
     AuthData,
-    DBData,
     GitVersion,
     LOCAL_STORAGE_AUTH_KEY,
     MigrationData,
@@ -15,7 +14,6 @@ import {SettingTwitchClient, SettingTwitchTokens} from '../../Objects/Setting/Se
 type TForm =
     'Register'
     | 'Login'
-    | 'DBSetup'
     | 'TwitchClient'
     | 'TwitchLoginChannel'
     | 'TwitchLoginChatbot'
@@ -25,7 +23,6 @@ export default class SetupFormHandler {
     private _formElements: Record<TForm, HTMLFormElement|undefined> = {
         'Register': this.getFormElement('Register'),
         'Login': this.getFormElement('Login'),
-        'DBSetup': this.getFormElement('DBSetup'),
         'TwitchClient': this.getFormElement('TwitchClient'),
         'TwitchLoginChannel': this.getFormElement('TwitchLoginChannel'),
         'TwitchLoginChatbot': this.getFormElement('TwitchLoginChatbot')
@@ -33,7 +30,6 @@ export default class SetupFormHandler {
     private _formSubmits: Record<TForm, any> = {
         'Register': this.submitRegister.bind(this),
         'Login': this.submitLogin.bind(this),
-        'DBSetup': this.submitDBSetup.bind(this),
         'TwitchClient': this.submitTwitchClient.bind(this),
         'TwitchLoginChannel': this.submitTwitchLogin.bind(this),
         'TwitchLoginChatbot': this.submitTwitchLogin.bind(this)
@@ -80,10 +76,11 @@ export default class SetupFormHandler {
             }
             const redirectUri = form?.querySelector<HTMLInputElement>('[name="redirectUri"]')
             if (redirectUri) {
-                const href = window.location.href.split('?').shift()
+                const rx = /\/$|\/[a-zA-Z]+?\.php\??\S*$/s // Will remove a trailing slash or a php file with optional query string.
+                const href = window.location.href.replace(rx, '')
                 redirectUri.value = Utils.ensureValue<SettingTwitchClient>(
                     twitchClient ?? []
-                )?.redirectUri ?? href + 'twitch_auth.php'
+                )?.redirectUri ?? href + '/twitch_auth.php'
             }
 
             // Show form
@@ -143,16 +140,6 @@ export default class SetupFormHandler {
         if(password.length == 0) alert('Password field is empty.')
         else this.storeAuth(password)
         this.setup().then()
-    }
-    async submitDBSetup(event: SubmitEvent) {
-        event.preventDefault()
-        const inputData = this.getFormInputData(event.target, new DBData())
-        const ok = await DataFileUtils.writeData('db.php', inputData)
-        if(ok) {
-            const dbOk = await DataBaseHelper.testConnection()
-            if(dbOk) this.setup().then()
-            else alert('Could not connect to the database')
-        } else alert('Could not store database entry on disk.')
     }
     async submitTwitchClient(event: SubmitEvent) {
         event.preventDefault()

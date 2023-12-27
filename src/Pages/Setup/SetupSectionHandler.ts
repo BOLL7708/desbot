@@ -5,7 +5,6 @@ type TSection =
     | 'Waiting'
     | 'Register'
     | 'Login'
-    | 'DBSetup'
     | 'Editor'
     | 'TwitchClient'
     | 'TwitchLoginChannel'
@@ -18,7 +17,6 @@ export default class SetupSectionHandler {
         'Waiting': this.getSectionElement('Waiting'),
         'Register': this.getSectionElement('Register'),
         'Login': this.getSectionElement('Login'),
-        'DBSetup': this.getSectionElement('DBSetup'),
         'Editor': this.getSectionElement('Editor'),
         'TwitchClient': this.getSectionElement('TwitchClient'),
         'TwitchLoginChannel': this.getSectionElement('TwitchLoginChannel'),
@@ -28,7 +26,6 @@ export default class SetupSectionHandler {
     private _stepLabels: Partial<Record<TSection, string>> = {
         'Register': 'Register a password',
         'Login': 'Login if needed',
-        'DBSetup': 'Setup database',
         'TwitchClient': 'Setup Twitch Client',
         'TwitchLoginChannel': 'Login Twitch channel',
         'TwitchLoginChatbot': 'Login Twitch chatbot'

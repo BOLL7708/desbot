@@ -2,15 +2,15 @@
 class DB_MySQL {
     // region Singleton
     private static DB_MySQL|null $instance = null;
-    static function get():DB_MySQL {
-        if(self::$instance == null) self::$instance = new DB_MySQL();
+    static function get(bool $silent = false):?DB_MySQL {
+        if(self::$instance == null) self::$instance = new DB_MySQL($silent);
         return self::$instance;
     }
     // endregion
 
     // region General Database Functions
     private mysqli $mysqli;
-    public function __construct()
+    public function __construct(bool $silent = false)
     {
         $dbData = Files::read('db.php');
         $database = preg_replace("/[^a-z0-9_-]+/i", '', $dbData->database ?? '');
@@ -34,19 +34,25 @@ class DB_MySQL {
                     intval($dbData->port ?? '')
                 );
                 $connectionError = $this->mysqli->connect_error;
-                if($connectionError) Utils::exitWithError($connectionError, 3002);
+                if($connectionError) {
+                    if ($silent) return;
+                    else Utils::exitWithError($connectionError, 3002);
+                }
 
                 // Create the database as defined by the user
                 $query = /** @lang MariaDB */
                     "CREATE DATABASE IF NOT EXISTS `$database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci";
                 $createResult = $this->mysqli->query($query);
                 if($createResult) $this->mysqli->select_db($database);
-                else Utils::exitWithError($this->mysqli->error ?? 'Unable to create database', 3003);
+                elseif($silent) return; else Utils::exitWithError($this->mysqli->error ?? 'Unable to create database', 3003);
             }
-            else Utils::exitWithError($exception->getMessage().', code: '.$exception->getCode(), 3004);
+            elseif($silent) return; else Utils::exitWithError($exception->getMessage().', code: '.$exception->getCode(), 3004);
         }
         $connectionError = $this->mysqli->connect_error ?? null;
-        if($connectionError) Utils::exitWithError($connectionError, 3001);
+        if($connectionError) {
+            if($silent) return;
+            else Utils::exitWithError($connectionError, 3001);
+        }
     }
 
     /**
