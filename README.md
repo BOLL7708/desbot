@@ -1,16 +1,16 @@
 # desbot
-<!--
-## Links
-* Check out the [user wiki][wiki] to see how to set this up.
-* Check out the [dev wiki][dev] if you want to contribute to the project.
-* Please post [issues][issues] if you bump into any kind of problem.
--->
 ## OBS: Important for existing users
-1. If you are upgrading a legacy widget with the file based settings/config (v5 or lower), meaning no MySQL database is used yet, you need to upgrade to the last version that has legacy data imports, [v6.657](https://github.com/BOLL7708/desbot/releases/tag/v6.657), if you want to retain your existing data by importing it into the database.
-2. If you are on a version already using the MySQL database but below [v6.657](https://github.com/BOLL7708/desbot/releases/tag/v6.657), you need to first upgrade to [v6.607](https://github.com/BOLL7708/desbot/releases/tag/v6.607) and run the setup in the editor to apply the database migrations. When you do the next upgrade, before using the editor, change: `./_data/version.json` to contain: `{"current":3}` as the migration numbering has changed.
+### How to upgrade if you want to retain previously stored data
+Simplified steps: 
+* v5 -> [v6.607][v6db] -> [v6.657][v6migrate] -> [v7.0.0][v7] -> [v7.1.0][v7lite] 
+
+Detailed procedures for specific upgrade steps:
+* If you are upgrading a legacy widget with the file based settings/config (v5 or lower), meaning no MySQL database is used yet, you need to upgrade to the last version that has the legacy data imports: [v6.657][v6migrate]
+* If you are on a version already using the MySQL database but below [v6.607][v6db] you need to upgrade to that first. When you then do the next upgrade, before using the editor, change: `./_data/version.json` to contain: `{"current":3}` as the migration numbering has changed. 
+* If you are on MySQL and want to upgrade to anything above v7, you should first upgrade to [v7.0.0][v7] and run the editor for the last MySQL migrations, then upgrade to [v7.1.0][v7lite] for the SQLite database conversion.
 
 ## What is it?
-This is a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
+This is currently a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
 
 It runs as a browser source inside OBS Studio, so it's already running when you are about to stream.
 
@@ -22,7 +22,7 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 1. Create, manage and listen for Twitch rewards, toggle them on/off depending on a range of conditions, update their settings.
 2. Listen to commands from Twitch chat, write to Twitch chat and send whispers.
 3. Post messages and embeds in Discord channels via webhooks.
-4. Speak text using Google's Wavenet TTS, read out chat, reward messages, status messages, announcements, support for users to change their own voice. Comes with a lot of support functions like name cleanup, text cleanup, custom nicks, word to audio replacement, a dictionary for word replacement.
+4. Speak text using Google's TTS, read out chat, reward messages, status messages, announcements, support for users to change their own voice. Comes with a lot of support functions like name cleanup, text cleanup, custom nicks, word to audio replacement, a dictionary for word replacement.
 5. Connect to a range of accessory tools: to change SteamVR settings, capture SteamVR screenshots, detect running SteamVR games, send overlays into SteamVR, and more.
 6. Connect to OBS Studio, to show/hide sources and filters, trigger screenshot capture.
 7. Write text labels to disk, as well as a range of settings for various functions.
@@ -37,25 +37,9 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 2. Make sure GIT is installed and on the path.
 3. Have some means of compiling TypeScript.
 4. Clone the repo to a folder in `htdocs` of `xampp`.
-5. Open the URL to the widget in your browser and go from there.
+5. Open the URL to the bot in your browser and go from there.
 
-<!--
-## Who are using it?
-
-* [BOLL][twitch] - The original author of this project!
-* [c0ld vengeance][c0ldtwitch]
-* [Dr Oculus VR][doctwitch]
-* [WoBo][wobotwitch]
-* [badpixel134][pixeltwitch]
-* [JeppeVinkel][jeppetwitch]
-
-[dev]: https://github.com/BOLL7708/desbot/wiki
-[issues]: https://github.com/BOLL7708/desbot/issues
-
-[twitch]: https://twitch.tv/boll7708
-[c0ldtwitch]: https://www.twitch.tv/c0ldvengeance
-[doctwitch]: https://www.twitch.tv/droculusvr
-[wobotwitch]: https://www.twitch.tv/woboloko
-[pixeltwitch]: https://www.twitch.tv/badpixel134
-[jeppetwitch]: https://www.twitch.tv/jeppevinkel
--->
+[v6db]: https://github.com/BOLL7708/desbot/releases/tag/v6.607
+[v6migrate]: https://github.com/BOLL7708/desbot/releases/tag/v6.657
+[v7]: https://github.com/BOLL7708/desbot/releases/tag/v7.0.0
+[v7lite]: https://github.com/BOLL7708/desbot/releases/tag/v7.1.0
