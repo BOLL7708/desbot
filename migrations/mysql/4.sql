@@ -1,1 +1,0 @@
-RENAME TABLE `settings` TO `json_store`;
