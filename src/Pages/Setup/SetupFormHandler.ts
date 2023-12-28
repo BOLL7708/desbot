@@ -190,48 +190,6 @@ export default class SetupFormHandler {
         console.log(`Storing auth: ${password}`)
         localStorage.setItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder(), password)
     }
-
-    /**
-     * Used to upgrade the database to the latest version.
-     * Will pop result and error alerts.
-     * @private
-     */
-    private async migrateDB() {
-        // Get highest possible version
-        const versionResponse = await fetch(
-            '_migrate.php',
-            { headers: { Authorization: Utils.getAuth() } }
-        )
-        const migrationVersion = await versionResponse.json() as MigrationVersion
-        const highestPossibleVersion = migrationVersion.version
-
-        // Get previous widget version stored on disk
-        let versionData = (await DataFileUtils.readData<GitVersion>('version.json') ?? {current: 0}) as GitVersion
-        let databaseVersion = versionData?.current ?? 0
-
-        // Migrate database if accepted.
-        if(databaseVersion !== highestPossibleVersion && databaseVersion < highestPossibleVersion) {
-            await this._sections.show('Waiting', 'Database Migration...', 'Decide if you want to upgrade to the latest version.')
-            const doMigration = confirm(`Do you want to migrate the database from version ${databaseVersion} to version ${highestPossibleVersion}?`)
-            if(doMigration) {
-                await this._sections.show('Loading', 'Database Migration...', 'Running database migration(s).')
-                const migrateResponse = await fetch(
-                    `_migrate.php?from=${databaseVersion}&to=${highestPossibleVersion}`,
-                    { headers: { Authorization: Utils.getAuth() } }
-                )
-                const migrateResult = await migrateResponse.json() as MigrationData
-                alert(`Database migrations done: ${migrateResult.count}, reached version: ${migrateResult.id}.`)
-                versionData = {current: migrateResult.id}
-                const ok = await DataFileUtils.writeData('version.json', versionData).then()
-                if(!ok) alert('Could not store new database version on disk.')
-            }
-        }
-        // Update page with values.
-        const dbVersionTag = document.querySelector('#dbversion strong')
-        if(dbVersionTag) dbVersionTag.innerHTML = versionData.current.toString()
-        const migrationVersionTag = document.querySelector('#dbMigration strong')
-        if(migrationVersionTag) migrationVersionTag.innerHTML = highestPossibleVersion.toString()
-    }
     // endregion
 }
 
