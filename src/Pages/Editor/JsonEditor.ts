@@ -91,11 +91,13 @@ export default class JsonEditor {
             this._parentId = currentParentId ?? 0
             this._originalParentId = currentParentId ?? 0
             if(instance) {
-                this._instance = Utils.clone(instance)
-                this._originalInstance = Utils.clone(instance)
+                this._instance = await instance.__new(Utils.clone(instance), false)
+                this._originalInstance = await instance.__new(Utils.clone(instance), false)
             }
             this._originalInstanceType = filledClassInstance.constructor.name
             this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
+        } else {
+            this._instance = await this._instance.__new(Utils.clone(this._instance), false)
         }
 
         const urlParams = Utils.getUrlParams()
@@ -189,7 +191,7 @@ export default class JsonEditor {
 
         const options: IStepDataOptions = {
             root: tempParent,
-            data: instance,
+            data: this._instance,
             instanceMeta: instanceMeta,
             path: ['Key'],
             key: key,
@@ -212,6 +214,11 @@ export default class JsonEditor {
         )
     }
 
+    /**
+     * Generates all the editor components and attaches them to options.root.
+     * @param options
+     * @private
+     */
     private async stepData(options: IStepDataOptions):Promise<void> {
         let type = typeof options.data
 
@@ -273,6 +280,13 @@ export default class JsonEditor {
     }
 
     private _okShowCensored: boolean = false
+
+    /**
+     * Builds a field with all the components it should have and appends it to options.root.
+     * @param type
+     * @param options
+     * @private
+     */
     private async buildField(
         type: EJsonEditorFieldType,
         options: IStepDataOptions
@@ -287,6 +301,8 @@ export default class JsonEditor {
         const thisTypeValues = DataUtils.parseRef(thisType)
         const parentType = options.instanceMeta?.types ? options.instanceMeta.types[previousKey] ?? '' : ''
         const parentTypeValues = DataUtils.parseRef(parentType)
+
+        console.log('FLD '+'-'.repeat(options.path.length)+`(${key})`, thisType ?? parentType)
 
         // Root element
         let newRoot = document.createElement('li') as HTMLElement
@@ -324,7 +340,6 @@ export default class JsonEditor {
         label.classList.add('input-label')
         this._labels.push(label)
         this.handleValue(options.data, options.path, label ,true) // Will colorize label
-
 
         // Preview box
         const previewBox = document.createElement('span') as HTMLElement
@@ -827,6 +842,8 @@ export default class JsonEditor {
         const thisTypeValues = DataUtils.parseRef(thisType)
         const instanceType = instance.constructor.name
 
+        console.log('FLD '+'='.repeat(options.path.length)+`(${pathKey})`, [typeof options.data, Object.keys(options.instanceMeta?.types ?? {}), thisType, thisTypeValues.class, thisTypeValues.isIdReference, instanceType])
+
         if(options.originListCount > 1) JsonEditorUtils.appendDragButton(this, newRoot, options.origin, options.path)
 
         if(isRoot) { // Root object generates a key field
@@ -886,18 +903,14 @@ export default class JsonEditor {
         JsonEditorUtils.appendDocumentationIcon(newRoot, pathKey, this._config.showHelpIcons, options.instanceMeta)
 
         // Get new instance meta if we are going deeper.
-        let newInstanceMeta = options.instanceMeta
-
-        // TODO: thisType is often WRONG, why does this work when that is the case. Need to understand this.
-        //  The below does not actually work... so what the cheese.
-        // if(thisTypeValues.class && DataObjectMap.hasInstance(thisTypeValues.class)) { // For lists class instances
-        //     newInstanceMeta = isList ? options.instanceMeta : DataObjectMap.getMeta(thisTypeValues.class) ?? options.instanceMeta
-
-        if(thisType && DataMap.hasInstance(thisTypeValues.class)) { // For lists class instances
-            newInstanceMeta = DataMap.getMeta(thisTypeValues.class) ?? options.instanceMeta
-        } else if (instanceType && DataMap.hasInstance(instanceType)) { // For single class instances
+        let newInstanceMeta = options.instanceMeta // Default status quo
+        if ( // For class instances in lists to get the right meta
+            !(thisType && DataMap.hasInstance(thisTypeValues.class)) // There is no base type as this is a list or similar empty entry.
+            && (instanceType && DataMap.hasInstance(instanceType)) // The incoming data has a class that has meta
+        ) {
             newInstanceMeta = DataMap.getMeta(instanceType) ?? options.instanceMeta
         }
+
         const newOptions: IStepDataOptions = {
             root: newUL,
             data: 0,
@@ -915,7 +928,7 @@ export default class JsonEditor {
                 optionsClone.root = newOptions.root
                 optionsClone.extraChildren = newOptions.extraChildren
                 optionsClone.data = instance[i]
-                optionsClone.path = this.clone(options.path)
+                optionsClone.path = Utils.clone(options.path)
                 optionsClone.path.push(i)
                 optionsClone.originListCount = instance.length
                 await this.stepData(optionsClone)
@@ -926,7 +939,7 @@ export default class JsonEditor {
                 const optionsClone = Utils.clone(newOptions)
                 optionsClone.root = newOptions.root
                 optionsClone.extraChildren = newOptions.extraChildren
-                optionsClone.path = this.clone(options.path)
+                optionsClone.path = Utils.clone(options.path)
                 optionsClone.path.push(key.toString())
                 optionsClone.data = (instance as any)[key.toString()]
                 optionsClone.originListCount = Object.keys(instance).length
@@ -936,10 +949,6 @@ export default class JsonEditor {
         newRoot.appendChild(newUL)
         options.root.appendChild(newRoot)
         return
-    }
-
-    private clone<T>(value: T): T {
-        return JSON.parse(JSON.stringify(value)) as T
     }
 
     /**
@@ -956,7 +965,6 @@ export default class JsonEditor {
         label: HTMLElement|undefined = undefined,
         onlyCheckModified: boolean = false
     ) {
-        // console.log("Handle value: ", value, path, new Error().stack?.toString())
         let current: any = this._instance
         let currentOriginal: any = this._originalInstance
         if(path.length == 1) {
@@ -987,7 +995,7 @@ export default class JsonEditor {
                 const currentOriginalValue = currentOriginal && currentOriginal.hasOwnProperty(path[i]) ? currentOriginal[path[i]] : undefined
                 if(isOnLastLevel) {
                     // Not same as the stored one, or just checked if modified
-                    if(current[path[i]] != value || onlyCheckModified) {
+                    if(current !== undefined && (current[path[i]] != value || onlyCheckModified)) {
                         if(!onlyCheckModified) current[path[i]] = value // Actual update in the JSON structure
                         let newPropertyIndex = false
                         if(
@@ -1107,6 +1115,7 @@ export default class JsonEditor {
             this._modifiedStatusListener(dirty)
             this._dirty = dirty
             const topLI = this._root?.querySelector('li')
+            // TODO: This acts up and just flashes modified when adding or removing a new list item (compared to changing a value)
             if(dirty) {
                 if(topLI) topLI.classList.add(this.MODIFIED_CLASS)
             } else {
