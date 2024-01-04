@@ -9,7 +9,7 @@ class DB_MySQL {
     // endregion
 
     // region General Database Functions
-    private mysqli $mysqli;
+    private mysqli|null $mysqli = null;
     public function __construct(bool $silent = false)
     {
         $dbData = Files::read('db.php');
@@ -61,6 +61,7 @@ class DB_MySQL {
      * @return array|bool Array if there are rows, bool otherwise.
      */
     public function query(string $query, array $params = []):array|bool {
+        if(!$this->mysqli) return false;
         $stmt = $this->mysqli->prepare($query);
         if(!empty($params)) {
             $types = self::getParamTypes($params);

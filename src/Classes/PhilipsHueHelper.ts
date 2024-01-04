@@ -4,9 +4,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import {ConfigPhilipsHue} from '../Objects/Config/ConfigPhilipsHue.js'
 import {IPhilipsHueLight} from '../Interfaces/iphilipshue.js'
 import {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from '../Objects/Preset/PresetPhilipsHue.js'
-import {ActionPhilipsHuePlug} from '../Objects/Action/ActionPhilipsHuePlug.js'
-import {ActionPhilipsHueBulb} from '../Objects/Action/ActionPhilipsHueBulb.js'
-import {INumberDictionary} from '../interfaces/igeneral.js'
+import {INumberDictionary} from '../Interfaces/igeneral.js'
 
 export default class PhilipsHueHelper {
     private static async getBaseUrl() {
