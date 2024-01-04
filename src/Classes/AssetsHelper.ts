@@ -49,6 +49,22 @@ export default class AssetsHelper {
         }
         return this._filePaths
     }
+
+    static async replaceWildcardPaths(paths: string[]): Promise<string[]> {
+        let i = 0
+        for(let path of paths) {
+            //  Then load files from that and replaces the entry with the found files.
+            if(path.endsWith('/')) path += '*'
+            if(path.includes('*') ) {
+                const start = path.split('*')[0]
+                const end = path.split('*').pop() ?? ''
+                const files = await AssetsHelper.get(start, [end])
+                if(files.length > 0) paths.splice(i, 1, ...files)
+            }
+            i++
+        }
+        return paths
+    }
 }
 
 export interface IAssetFilesCache {

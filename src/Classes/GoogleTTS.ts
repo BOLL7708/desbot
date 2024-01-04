@@ -286,8 +286,7 @@ export default class GoogleTTS {
 
     enqueueSoundEffect(actionAudio: ActionAudio|undefined) {
         if(actionAudio) {
-            const audio = AudioUtils.configAudio(actionAudio)
-            this._preloadQueue[++this._count] = audio
+            this._preloadQueue[++this._count] = AudioUtils.configAudio(actionAudio)
         }
     }
 
