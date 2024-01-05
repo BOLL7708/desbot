@@ -31,6 +31,9 @@ export default class SuperScreenShotterVR {
     private onError(evt: Event) {
         // console.table(evt)
     }
+    isConnected() {
+        return this._socket?.isConnected() ?? false
+    }
     setScreenshotCallback(callback: ISSSVRCallback) {
         this._messageCallback = callback
     }

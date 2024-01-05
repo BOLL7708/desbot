@@ -12,7 +12,7 @@ import {DataUtils} from '../DataUtils.js'
 import {DataEntries} from '../Data.js'
 
 export class ActionScreenshot extends Action {
-    screenshotType = OptionScreenshotType.SuperScreenShotterVR
+    screenshotType = OptionScreenshotType.VRElseOBS
     sourcePreset: number|DataEntries<PresetOBSSource> = 0
     delay: number = 0
 
@@ -44,17 +44,33 @@ export class ActionScreenshot extends Action {
                 const screenshotsConfig = await DataBaseHelper.loadMain(new ConfigScreenshots())
                 const soundConfig = DataUtils.ensureData(screenshotsConfig.callback.captureSoundEffect)
                 const sourcePreset = DataUtils.ensureData(clone.sourcePreset)
+                let delay: number|null = null
+                function obsScreenshotDelay() {
+                    if(sourcePreset) {
+                        const messageId = modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName, clone.delay)
+                        states.nonceCallbacks.set(messageId, ()=>{
+                            if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
+                        })
+                    } else console.warn("No source preset set for OBS source screenshot.")
+                }
+                function obsScreenshot() {
+                    if(sourcePreset) {
+                        if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
+                        modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName)
+                    } else console.warn("No source preset set for OBS source screenshot.")
+                }
                 if(userInput) {
                     // This is executed after the TTS with the same nonce has finished.
+                    delay = clone.delay
                     states.nonceCallbacks.set(nonce ?? '', ()=>{
                         switch(clone.screenshotType) {
+                            case OptionScreenshotType.VRElseOBS:
+                                if(modules.sssvr.isConnected()) {
+                                    modules.sssvr.sendScreenshotRequest(key, user, clone.delay)
+                                } else obsScreenshotDelay()
+                                break
                             case OptionScreenshotType.OBSSource:
-                                if(sourcePreset) {
-                                    const messageId = modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName, clone.delay)
-                                    states.nonceCallbacks.set(messageId, ()=>{
-                                        if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
-                                    })
-                                } else console.warn("No source preset set for OBS source screenshot.")
+                                obsScreenshotDelay()
                                 break
                             case OptionScreenshotType.SuperScreenShotterVR:
                                 modules.sssvr.sendScreenshotRequest(key, user, clone.delay)
@@ -63,11 +79,13 @@ export class ActionScreenshot extends Action {
                     })
                 } else {
                     switch(clone.screenshotType) {
+                        case OptionScreenshotType.VRElseOBS:
+                            if(modules.sssvr.isConnected()) {
+                                modules.sssvr.sendScreenshotRequest(key, user)
+                            } else obsScreenshot()
+                            break
                         case OptionScreenshotType.OBSSource:
-                            if(sourcePreset) {
-                                if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
-                                modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName)
-                            } else console.warn("No source preset set for OBS source screenshot.")
+                            obsScreenshot()
                             break
                         case OptionScreenshotType.SuperScreenShotterVR:
                             modules.sssvr.sendScreenshotRequest(key, user)
