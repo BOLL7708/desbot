@@ -28,7 +28,7 @@ export default class DefaultsHandler {
         const LABEL_PREREQUISITE = 'Prerequisite'
         const LABEL_SYSTEM = 'System'
         const LABEL_BONUS = 'Bonus'
-        const LABEL_BOLL = 'BOLL' // TODO: Temporary
+        // const LABEL_BOLL = 'BOLL' // TODO: Temporary, add something that matches a specific twitch user to filter on this for testing.
 
         // Checks
         const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultData.PREREQUISITE_ENTRIES)
@@ -39,7 +39,7 @@ export default class DefaultsHandler {
         if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButton(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
         if(systemExists) {
             children.push(await DefaultsHandler.buildImportButton(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
-            children.push(await DefaultsHandler.buildImportButton(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+            // children.push(await DefaultsHandler.buildImportButton(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
         }
 
         // Reference Buttons
@@ -47,7 +47,7 @@ export default class DefaultsHandler {
         if(prerequisiteExists) children.push(await DefaultsHandler.buildSection(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
         if(systemExists) {
             children.push(await DefaultsHandler.buildSection(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
-            children.push(await DefaultsHandler.buildSection(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+            // children.push(await DefaultsHandler.buildSection(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
         }
 
         container.replaceChildren(...children)
