@@ -167,8 +167,8 @@ export default class EditorHandler {
         let isItems = false
         let itemClass = ''
         if(Object.keys(classesAndCounts).length == 1) {
-            // If a data category only has one type of items, we will list that in the side menu directly.
             const className = Object.keys(classesAndCounts)[0]
+            // If a data category only has one type of items, we will list that in the side menu directly, right now just Events.
             const meta = DataMap.getMeta(className)
             const typeSelector = document.createElement('select')
             if(meta) {
@@ -261,7 +261,11 @@ export default class EditorHandler {
                 }
             } else { // Multiple groups (most common behavior)
                 const name = Utils.camelToTitle(group, EUtilsTitleReturnOption.SkipFirstWord)
-                a.innerHTML = `${name}: <strong>${count}</strong>`
+
+                // To hide counts on the Config page which starts at 0 until people view it, as it got confusing.
+                if(group.startsWith('Config') && count <= 1) a.innerHTML = name
+                else a.innerHTML = `${name}: <strong>${count}</strong>`
+
                 a.onclick = (event: Event) => {
                     if(event.cancelable) event.preventDefault()
                     this.buildEditorControls(group).then()
