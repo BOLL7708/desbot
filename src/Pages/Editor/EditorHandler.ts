@@ -99,7 +99,7 @@ export default class EditorHandler {
                 const nextKey = await DataBaseHelper.getNextKey(this._state.groupClass, this._state.parentId, config.autoGenerateKeys_andShorten)
                 if(nextKey) defaultKey = nextKey.key ?? ''
             }
-            const newKey = await prompt(`Provide a new key for this ${this._state.groupClass}:`, defaultKey)
+            const newKey = await prompt(`Provide an explanatory name (key) for this ${this._state.groupClass}:`, defaultKey)
             if(newKey && newKey.length > 0) {
                 const instance = await DataMap.getInstance(this._state.groupClass, undefined, false)
                 if(instance) {

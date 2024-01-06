@@ -19,7 +19,7 @@ export class TriggerReward extends Trigger {
         DataMap.addRootInstance(new TriggerReward(),
             'This is a Twitch Channel Point Reward, triggered by a redemption on your channel page.',
             {
-                permissions: 'Permission for who can redeem this reward.',
+                permissions: 'Permission for who can redeem this reward, leave this empty to not restrict it.',
                 rewardEntries: 'One or multiple reward presets. The first will be used on updates/resets, more are only needed when using a non-default event behavior.',
                 rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.'
             },

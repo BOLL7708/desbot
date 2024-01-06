@@ -1,13 +1,20 @@
 # desbot
 ## OBS: Important for existing users
-### How to upgrade if you want to retain previously stored data
+### How to upgrade if you want to retain existing data
 Simplified steps: 
-* v5 -> [v6.607][v6db] -> [v6.657][v6migrate] -> [v7.0.0][v7] -> [v7.3.0][v7lite] 
+* v5 -> [v6.607][v6db] -> [v6.657][v6migrate] -> [v7.0.0][v7] -> [7.x][v7lite] 
 
 Detailed procedures for specific upgrade steps:
-* If you are upgrading a legacy widget with the file based settings/config (v5 or lower), meaning no MySQL database is used yet, you need to upgrade to the last version that has the legacy data imports: [v6.657][v6migrate]
-* If you are on a version already using the MySQL database but below [v6.607][v6db] you need to upgrade to that first. When you then do the next upgrade, before using the editor, change: `./_data/version.json` to contain: `{"current":3}` as the migration numbering has changed. 
-* If you are on MySQL and want to upgrade to anything above v7, you should first upgrade to [v7.0.0][v7] and run the editor for the last MySQL migrations, then upgrade to [v7.3.0][v7lite] for the SQLite database conversion.
+* If you are upgrading a legacy widget with the file based settings/config (v5 or lower), meaning no MySQL database is used yet, you need to upgrade to the last version that has the legacy data imports: [v6.657][v6migrate], before using the editor, change: `./_data/version.json` to contain: `{"current":3}` as the migration numbering has changed.
+* If you are on a version already using the MySQL database but below [v6.607][v6db] you need to upgrade to that first, load the editor and run database migrations. 
+* If you are on MySQL and want to upgrade to anything above v7, you should first upgrade to [v7.0.0][v7] and run the editor for the last MySQL migrations, then upgrade to [v7.x][v7lite] for the SQLite database conversion.
+
+If at any point your existing configs and data files are giving you TypeScript errors, add this to `tsconfig.json` in the root of the project to exclude them from the compilation:
+```json
+{
+    "exclude": ["./src/_config/*", "./src/_data/*"],
+}
+```
 
 ## What is it?
 This is currently a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
@@ -34,10 +41,11 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 
 ## How to set it up?
 1. Install [XAMPP][xampp] with PHP 8.1 or higher, make sure to launch it manually and not run it as a service, as we need user privileges.
-2. Make sure [git][git] is installed and on the path, verify that you can run `git version` successfully.
-3. Have some means of compiling TypeScript, possible with [Node.JS][nodejs] and `tsc`. (`npm install tsc` then run `tsc`)
-4. Clone this repository to a folder in `htdocs` of `xampp`, it should automatically create a folder named after the repo.
-5. Open the URL to the bot in your browser and go from there, should look something like: `http://localhost/desbot/`
+2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3.dll` to enable the SQLite plugin. Restart Apache.
+3. Make sure [git][git] is installed and on the path, verify that you can run `git version` successfully.
+4. Have some means of compiling TypeScript, possible with [Node.JS][nodejs] and `tsc`. (`npm install tsc` then run `tsc`)
+5. Clone this repository to a folder in `htdocs` of `xampp`, it should automatically create a folder named after the repo.
+6. Open the URL to the bot in your browser and go from there, should look something like: `http://localhost/desbot/`
 
 ## How to configure it?
 1. The first time you run the main page, it will convert existing data if available, else it will just create a new database.
@@ -49,7 +57,7 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 [v6db]: https://github.com/BOLL7708/desbot/releases/tag/v6.607
 [v6migrate]: https://github.com/BOLL7708/desbot/releases/tag/v6.657
 [v7]: https://github.com/BOLL7708/desbot/releases/tag/v7.0.0
-[v7lite]: https://github.com/BOLL7708/desbot/releases/tag/v7.3.0
+[v7lite]: https://github.com/BOLL7708/desbot/releases
 
 [xampp]: https://www.apachefriends.org/download.html
 [git]: https://git-scm.com/downloads

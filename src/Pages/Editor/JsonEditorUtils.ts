@@ -152,7 +152,7 @@ export class JsonEditorUtils {
                     editor.handleValue(instance, path, parent)
                     await editor.rebuild()
                 } else {
-                    const newKey = prompt(`Provide a key for the new ${typeValues.class}:`)
+                    const newKey = prompt(`Provide an explanatory name (key) for the new ${typeValues.class}:`)
                     if(newKey && newKey.length > 0) {
                         switch(typeValues.original) {
                             case 'number': (instance as any)[newKey] = 0; break

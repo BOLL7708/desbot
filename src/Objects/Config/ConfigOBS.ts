@@ -13,7 +13,7 @@ export default class ConfigOBS extends Data {
             {
                 port: 'The port set for the OBS WebSockets plugin.',
                 password: 'The password used for the OBS WebSockets plugin.',
-                saveScreenshotsToFilePath: 'Absolute path to folder to save the screenshot in.'
+                saveScreenshotsToFilePath: 'Absolute path to folder to save the screenshots in.'
             },
             {
                 password: 'string|secret'

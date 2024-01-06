@@ -816,7 +816,7 @@ export default class JsonEditor {
 
     private async promptForKey(path: IJsonEditorPath) {
         const oldKey = Utils.clone(path).pop() ?? ''
-        const newKey = prompt(`Provide a new key for "${path.join('.')}:"`, oldKey.toString())
+        const newKey = prompt(`Provide an explanatory name (key) for "${path.join('.')}:"`, oldKey.toString())
         if(newKey && newKey.length > 0) {
             await this.handleKey(Utils.unescapeHTML(newKey), path)
         }

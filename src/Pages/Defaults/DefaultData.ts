@@ -1364,7 +1364,7 @@ export default class DefaultData {
                     trigger.category = OptionCommandCategory.Twitch
                     trigger.helpText = 'Will cancel the currently active raid.'
                     const action = new ActionSystem()
-                    action.trigger.systemActionEntries = [OptionSystemActionType.GameReset]
+                    action.trigger.systemActionEntries = [OptionSystemActionType.Unraid]
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
                 }
             },

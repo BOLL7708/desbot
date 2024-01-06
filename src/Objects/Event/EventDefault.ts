@@ -18,7 +18,7 @@ export class EventDefault extends Data {
         DataMap.addRootInstance(new EventDefault(),
             'The event that contains triggers and actions.',
             {
-                type: 'The type of this event.',
+                type: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
                 options: 'Set various options for event behavior.',
                 triggers: 'Supply in which ways we should trigger this event.',
                 actions: 'Provide which actions to execute when this event is triggered.'
