@@ -77,7 +77,7 @@ export class ActionSpeech extends Action {
                         await TextHelper.replaceTagsInText(ttsStr, user),
                         voiceUserId,
                         this.type,
-                        '', // TODO: Figure out if we can uses nonces again, I'm sure it's needed for something.
+                        nonce, // Used for screenshots but could be used for other things too.
                         undefined,
                         undefined,
                         this.skipDictionary

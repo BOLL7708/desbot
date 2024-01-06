@@ -97,7 +97,7 @@ export default class Utils {
     }
 
     static getNonce(tag:string) {
-        return `${tag}-${Date.now()}`
+        return `${tag}-${Date.now()}-${Math.round(Math.random()*1000)}`
     }
 
     static logWithBold(message:string, color:string) {
