@@ -487,8 +487,13 @@ export default class JsonEditor {
                 if(thisTypeValues.code) input.innerText = options.data.toString()
                 else input.innerHTML = Utils.escapeHTML(`${options.data}`)
                 input.onkeydown = (event)=>{
-                    if (event.key === 'Enter' && !thisTypeValues.code) {
+                    const isEnter = event.key === 'Enter'
+                    if (isEnter && !thisTypeValues.code) {
                         event.preventDefault()
+                        if(isEnter && [EOrigin.ListArray,EOrigin.ListDictionary].includes(options.origin)) {
+                            // If we are in an array or dictionary, we try to add a new item.
+                            input.parentElement?.parentElement?.parentElement?.querySelector<HTMLButtonElement>('button.new-button')?.click()
+                        }
                     }
                 }
                 handle = (event) => {
