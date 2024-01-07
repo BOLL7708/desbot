@@ -54,6 +54,10 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 4. Get an API key from [Google][googletts] and set it in `Config > Speech > Google Api Key`, to get TTS going as that is a very useful feature.
 5. Use the `Tools`  section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
 
+## Additional tools
+* [Open Broadcaster Software][obs] - Streaming software, used to run the bot as a browser source.
+* [DB Browser for SQLite][sqlite] - SQLite database browser, useful for inspecting the database.
+
 [v6db]: https://github.com/BOLL7708/desbot/releases/tag/v6.607
 [v6migrate]: https://github.com/BOLL7708/desbot/releases/tag/v6.657
 [v7]: https://github.com/BOLL7708/desbot/releases/tag/v7.0.0
@@ -61,5 +65,8 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 
 [xampp]: https://www.apachefriends.org/download.html
 [git]: https://git-scm.com/downloads
-[nodejs]: https://nodejs.org/en/download/
+[nodejs]: https://nodejs.org/en/download
 [googletts]: https://cloud.google.com/text-to-speech/docs/before-you-begin
+
+[obs]: https://obsproject.com/download
+[sqlite]: https://sqlitebrowser.org/dl
