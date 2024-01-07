@@ -1,9 +1,7 @@
 import DataMap from './DataMap.js'
 import Data, {DataEntries, DataRefValues} from './Data.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
-import Trigger from './Trigger.js'
 import {IDataBaseItem} from '../Classes/DataBaseHelper.js'
-import {SettingDictionaryEntry} from './Setting/SettingDictionary.js'
 
 export class DataUtils {
     // region Referencing
@@ -14,7 +12,7 @@ export class DataUtils {
         return 'string|file=apng,avif,gif,jpg,jpeg,png,svg,webp'
     }
     static getStringFileAudioRef() {
-        return 'string|file=mp3,wav,ogg'
+        return 'string|file=mp3,wav,ogg,aac,m4a,flac,opus,webm,midi,mid'
     }
     static getStringFileVideoRef() {
         return 'string|file=mp4,webm'
