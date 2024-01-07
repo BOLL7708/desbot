@@ -94,7 +94,6 @@ export default class OBS {
             }
         }
         if(action.sourceEntries) {
-            // TODO: Implement the grouped sources here, where we toggle one on and toggle the rest off.
             for(const group of ArrayUtils.getAsType(action.sourceEntries, action.sourceEntries_use)) {
                 const scene = DataUtils.ensureData(group.scenePreset)
                 const source = DataUtils.ensureData(group.sourcePreset)
@@ -108,7 +107,6 @@ export default class OBS {
             }
         }
         if(action.filterEntries) {
-            // TODO: Implement the grouped filters here, where we toggle one on and toggle the rest off.
             for(const group of ArrayUtils.getAsType(action.filterEntries, action.filterEntries_use)) {
                 const source = DataUtils.ensureData(group.sourcePreset)
                 const filter = DataUtils.ensureData(group.filterPreset)
@@ -121,7 +119,7 @@ export default class OBS {
                 }
             }
         }
-        if(action?.durationMs != undefined && !ignoreDuration) {
+        if(action.durationMs > 0 && !ignoreDuration) {
             setTimeout(() => {
                 this.hide(action)
             }, action.durationMs)
