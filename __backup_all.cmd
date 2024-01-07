@@ -1,4 +1,4 @@
 @echo off
-call _backup_setup.cmd
-call _backup_assets.cmd
+call __backup_setup.cmd
+call __backup_assets.cmd
 pause
