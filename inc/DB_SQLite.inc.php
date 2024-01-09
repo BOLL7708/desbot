@@ -26,7 +26,7 @@ class DB_SQLite {
      */
     public function query(string $query, array $params = []):array|bool {
         $result = false;
-        $maxTries = 10;
+        $maxTries = 50;
         for($i=1; $i<=$maxTries; $i++) {
             try {
                 $stmt = $this->sqlite->prepare($query);
