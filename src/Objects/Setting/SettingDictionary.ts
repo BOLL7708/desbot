@@ -7,6 +7,6 @@ export class SettingDictionaryEntry extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addRootInstance(new SettingDictionaryEntry())
+        DataMap.addRootInstance({ instance: new SettingDictionaryEntry() })
     }
 }

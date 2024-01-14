@@ -16,10 +16,10 @@ export default class OptionCommandCategory extends Option {
     static readonly Misc = 8000
     static readonly Custom = 9000
 }
-OptionsMap.addPrototype(
-    OptionCommandCategory,
-    'Categories of commands.',
-    {
+OptionsMap.addPrototype({
+    prototype: OptionCommandCategory,
+    description: 'Categories of commands.',
+    documentation: {
         Uncategorized: 'Uncategorized commands',
         Admin: 'Admin commands',
         System: 'System commands',
@@ -34,4 +34,4 @@ OptionsMap.addPrototype(
         Misc: 'Misc commands',
         Custom: 'Custom commands'
     }
-)
+})

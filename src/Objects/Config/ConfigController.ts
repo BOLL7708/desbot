@@ -9,17 +9,16 @@ export class ConfigController extends Data {
     // channelTrophySettings = new ConfigControllerChannelTrophySettings() // TODO
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigController(),
-            'These are the settings for MainController, the main class that connects all the different modules together.',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigController(),
+            description: 'These are the settings for MainController, the main class that connects all the different modules together.',
+            documentation: {
                 secretChatSymbols: 'Messages that start with any of these symbols will not be spoken or piped into VR.',
                 stateDefaults: 'Default settings for controller functions and features.',
                 useWebsockets: 'Turn WebSockets integration on or off, if you do not use something turning it off will prevent log spam.',
                 // channelTrophySettings: 'This is the settings for the Channel Trophy, a reward that a viewer can claim until someone else grabs it.\n\nThe reward will get the name of the previous redeemer, both in the title and in the prompt.'
-            },
-            {}
-        )
+            }
+        })
     }
 }
 export class ConfigControllerStateDefaults extends Data {
@@ -32,9 +31,9 @@ export class ConfigControllerStateDefaults extends Data {
     runRemoteCommands: boolean = true
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigControllerStateDefaults(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigControllerStateDefaults(),
+            documentation: {
                 pipeAllChat: 'Turn this on to get chat messages as notifications in SteamVR.',
                 ttsForAll: 'Turn this on to get messages from chat read out loud.',
                 pingForChat: 'Turn this on to play an audio notification for chat messages if TTS is also off or the message otherwise silent.',
@@ -43,7 +42,7 @@ export class ConfigControllerStateDefaults extends Data {
                 updateTwitchGameCategory: 'This will attempt to match the game title from Steam with one on Twitch and set the Twitch game category on game change.',
                 runRemoteCommands: 'This will allow for remote command execution through the remote command channel if provided.'
             }
-        )
+        })
     }
 }
 export class ConfigControllerWebsocketsUsed extends Data {
@@ -57,9 +56,9 @@ export class ConfigControllerWebsocketsUsed extends Data {
     // sdrelay: boolean = true // TODO
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigControllerWebsocketsUsed(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigControllerWebsocketsUsed(),
+            documentation: {
                 twitchChat: 'Twitch Chat connection, for chat messages.',
                 twitchEventSub: 'Twitch EventSub connection, for a plethora of channel events.',
                 obs: 'OBS Studio connection, to toggle sources and filters.',
@@ -68,9 +67,8 @@ export class ConfigControllerWebsocketsUsed extends Data {
                 relay: 'WSRelay connection, used for remote control.',
                 sssvr: 'SuperScreenShotterVR connection, to take and receive SteamVR screenshots.'
                 // sdrelay: 'Relay for Stream Deck etc.'
-            },
-            {}
-        )
+            }
+        })
     }
 }
 export class ConfigControllerChannelTrophySettings extends Data {
@@ -85,9 +83,9 @@ export class ConfigControllerChannelTrophySettings extends Data {
     uniqueNumbers: { [number: number]: DataEntries<ConfigControllerChannelTrophyNumber> } = {}
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigControllerChannelTrophySettings(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigControllerChannelTrophySettings(),
+            documentation: {
                 label: 'The label that is written to disk.\n\nThe tag %number is the trophy number, and %name is the name of the redeemer.',
                 rewardTitle: 'The reward title that is used for the reward after it has been redeemed.\n\nThe tag %name is the name of the redeemer.',
                 rewardPrompt: 'The reward prompt that is used for the reward after it has been redeemed.\n\nThe tag %name is the name of the redeemer, %prompt is the existing reward prompt in the reward config, %number is the new reward price.',
@@ -98,11 +96,11 @@ export class ConfigControllerChannelTrophySettings extends Data {
                 discordStatistics: 'Post trophy statistics to a specific Discord webhook.',
                 uniqueNumbers: 'Channel Trophy numbers that override the pattern matched ones.'
             },
-            {
+            types: {
                 discordStatistics: PresetDiscordWebhook.ref.id.build(),
                 uniqueNumbers: ConfigControllerChannelTrophyNumber.ref.build()
             }
-        )
+        })
     }
 }
 export class ConfigControllerChannelTrophyNumber extends Data {
@@ -110,12 +108,12 @@ export class ConfigControllerChannelTrophyNumber extends Data {
     label: string = '😀 A Happy Trophy!'
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigControllerChannelTrophyNumber(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigControllerChannelTrophyNumber(),
+            documentation: {
                 speech: 'The tag %start is based on ttsName and %number is the number of the trophy.',
                 label: 'The tag %entry is "[name] (number)"'
             }
-        )
+        })
     }
 }

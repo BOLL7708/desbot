@@ -54,10 +54,10 @@ export class ConfigExample extends Data {
     partnerMultiple_butNot = ''
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigExample(),
-            'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigExample(),
+            description: 'This is an example config to display all types of values an object can contain and how to use them. It is not used in the widget.',
+            documentation: {
                 singleBoolean: 'A single boolean flag',
                 singleNumber: 'A single number value',
                 singleNumberRange: 'A single number value with a range',
@@ -86,7 +86,7 @@ export class ConfigExample extends Data {
                 dictionaryOfIdToGenericReferences: 'Contains a dictionary of generic entries.',
                 dictionaryOfEnums: ''
             },
-            {
+            types: {
                 singleNumberRange: DataUtils.getNumberRangeRef(-100, 100, 5),
                 singleSecretString: 'string|secret',
                 singleFileString: DataUtils.getStringFileImageRef(),
@@ -119,7 +119,7 @@ export class ConfigExample extends Data {
                 partnerToDictionary: 'string',
                 partnerToEnum: OptionEntryUsage.ref
             }
-        )
+        })
     }
 }
 export class ConfigExampleSub extends Data {
@@ -128,16 +128,16 @@ export class ConfigExampleSub extends Data {
     singleEnum: number = OptionEntryUsage.All
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigExampleSub(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigExampleSub(),
+            documentation: {
                 singleString: 'A string value',
                 singleIdReference: 'A reference to an object'
             },
-            {
+            types: {
                 singleIdReference: PresetPipeBasic.ref.id.build(),
                 singleEnum: OptionEntryUsage.ref
             }
-        )
+        })
     }
 }

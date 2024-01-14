@@ -24,16 +24,16 @@ export class ActionSpeech extends Action {
     type = OptionTTSType.Announcement
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionSpeech(),
-            'Trigger the TTS to read a message.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionSpeech(),
+            description: 'Trigger the TTS to read a message.',
+            documentation: {
                 entries: 'The strings of text to read out loud.',
                 entryPreset: 'A preset of text strings to read out loud, this overrides manually added entries.',
                 skipDictionary: 'Set to true to not use the word replacement dictionary.',
                 voiceOfUser: 'Use the voice of a specific user or username. Leave empty to use the trigger value.'
             },
-            {
+            types: {
                 entries: 'string',
                 entries_use: OptionEntryUsage.ref,
                 entryPreset: PresetText.ref.id.build(),
@@ -41,7 +41,7 @@ export class ActionSpeech extends Action {
                 voiceOfUser: SettingUser.ref.id.label.build(),
                 type: OptionTTSType.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

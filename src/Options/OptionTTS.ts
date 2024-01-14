@@ -7,16 +7,16 @@ export class OptionTTSType extends Option {
     static readonly Announcement = 300 // [text]
     static readonly Cheer = 400// [name] cheered: [text]
 }
-OptionsMap.addPrototype(
-    OptionTTSType,
-    'The various forms of TTS speech.',
-    {
+OptionsMap.addPrototype({
+    prototype: OptionTTSType,
+    description: 'The various forms of TTS speech.',
+    documentation: {
         Said: 'Will be read as -> [name] said: [text]',
         Action: 'Will be read as -> [name] [text]',
         Announcement: 'Will be read as -> [text]',
         Cheer: 'Will be read as -> [name] cheered: [text]'
     }
-)
+})
 
 export class OptionTTSFunctionType extends Option {
     static readonly Enable = 100
@@ -34,10 +34,10 @@ export class OptionTTSFunctionType extends Option {
     static readonly SetDictionaryEntry = 300
     static readonly GetDictionaryEntry = 301
 }
-OptionsMap.addPrototype(
-    OptionTTSFunctionType,
-    'The different functions an action can trigger for the TTS system.',
-    {
+OptionsMap.addPrototype({
+    prototype: OptionTTSFunctionType,
+    description: 'The different functions an action can trigger for the TTS system.',
+    documentation: {
         Enable: 'Will enable the TTS as a whole.',
         Disable: 'Will disable the TTS as a whole.',
         StopCurrent: 'Will stop the current playback.',
@@ -53,4 +53,4 @@ OptionsMap.addPrototype(
         SetDictionaryEntry: 'Set or update a dictionary entry.',
         GetDictionaryEntry: 'Get a dictionary entry.'
     }
-)
+})

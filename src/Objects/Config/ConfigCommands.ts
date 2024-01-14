@@ -16,10 +16,10 @@ export default class ConfigCommands extends Data {
     postCommandHelpToDiscord: number|DataEntries<PresetDiscordWebhook> = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigCommands(),
-            'Settings for Twitch.',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigCommands(),
+            description: 'Settings for Twitch.',
+            documentation: {
                 commandPrefix: 'Prefix for triggering chat commands.',
                 defaultCommandPermissions: 'Default permissions for commands that do not have any set.',
                 ignoreModerators: 'List of moderators that should not be able to execute commands, useful for bots.',
@@ -30,7 +30,7 @@ export default class ConfigCommands extends Data {
                 remoteCommandAllowedUsers: 'Only allow remote command for these specific users.',
                 postCommandHelpToDiscord: 'Will post a list of available commands to a Discord channel if that command is run.'
             },
-            {
+            types: {
                 defaultCommandPermissions: PresetPermissions.ref.id.build(),
                 ignoreModerators: SettingUser.ref.id.label.build(),
                 logWhisperCommandsToDiscord: PresetDiscordWebhook.ref.id.build(),
@@ -38,6 +38,6 @@ export default class ConfigCommands extends Data {
                 remoteCommandAllowedUsers: SettingUser.ref.id.label.build(),
                 postCommandHelpToDiscord: PresetDiscordWebhook.ref.id.build()
             }
-        )
+        })
     }
 }

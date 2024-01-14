@@ -24,14 +24,14 @@ export class ActionSystem extends Action {
     toggle = new ActionSystemToggle()
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionSystem(),
-            'Trigger or change state of things, propagating input.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionSystem(),
+            description: 'Trigger or change state of things, propagating input.',
+            documentation: {
                 trigger: 'Things to trigger.',
                 toggle: 'Things to toggle.',
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {
@@ -120,15 +120,15 @@ export class ActionSystemTrigger extends Data {
     eventEntries_use = OptionEntryUsage.All
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionSystemTrigger(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionSystemTrigger(),
+            documentation: {
                 interval: 'Set the trigger entries to be triggered at an interval in seconds to space things out in time.',
                 systemActionEntries: 'Trigger system features that are not separate actions.',
                 commandEntries: 'Command(s) to trigger.',
                 eventEntries: 'Event(s) to trigger.'
             },
-            {
+            types: {
                 systemActionEntries: OptionSystemActionType.ref,
                 systemActionEntries_use: OptionEntryUsage.ref,
                 commandEntries: 'string',
@@ -136,7 +136,7 @@ export class ActionSystemTrigger extends Data {
                 eventEntries: EventDefault.ref.id.build(),
                 eventEntries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 }
 export class ActionSystemToggle extends Data {
@@ -144,17 +144,17 @@ export class ActionSystemToggle extends Data {
     rewardStatesForEvents: ActionSystemRewardStateForEvent[] = []
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionSystemToggle(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionSystemToggle(),
+            documentation: {
                 rewardStates: 'Set the states for a number of rewards.',
                 rewardStatesForEvents: 'Set the states for a number of rewards in events.'
             },
-            {
+            types: {
                 rewardStates: ActionSystemRewardState.ref.build(),
                 rewardStatesForEvents: ActionSystemRewardStateForEvent.ref.build()
             }
-        )
+        })
     }
 }
 export class ActionSystemRewardState extends Data {
@@ -163,17 +163,17 @@ export class ActionSystemRewardState extends Data {
     reward_usable = OptionTwitchRewardUsable.Enabled
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionSystemRewardState(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionSystemRewardState(),
+            documentation: {
                 reward: 'The reward to update, if it should be visible and/or redeemable.'
             },
-            {
+            types: {
                 reward: SettingTwitchReward.ref.id.label.build(),
                 reward_visible: OptionTwitchRewardVisible.ref,
                 reward_usable: OptionTwitchRewardUsable.ref
             }
-        )
+        })
     }
 }
 export class ActionSystemRewardStateForEvent extends Data {
@@ -182,16 +182,16 @@ export class ActionSystemRewardStateForEvent extends Data {
     event_usable = OptionTwitchRewardUsable.Enabled
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionSystemRewardStateForEvent(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionSystemRewardStateForEvent(),
+            documentation: {
                 event: 'The event to look for a reward to update in, if it should be visible and/or redeemable.'
             },
-            {
+            types: {
                 event: EventDefault.ref.id.build(),
                 event_visible: OptionTwitchRewardVisible.ref,
                 event_usable: OptionTwitchRewardUsable.ref
             }
-        )
+        })
     }
 }

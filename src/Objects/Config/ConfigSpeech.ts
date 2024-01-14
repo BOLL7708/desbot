@@ -14,10 +14,10 @@ export class ConfigSpeech extends Data {
     dictionaryConfig = new ConfigSpeechDictionary()
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigSpeech(),
-            'These are settings for the Google Text-to-Speech API.\nGo here for more details: https://cloud.google.com/text-to-speech/docs/before-you-begin',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigSpeech(),
+            description: 'These are settings for the Google Text-to-Speech API.\nGo here for more details: https://cloud.google.com/text-to-speech/docs/before-you-begin',
+            documentation: {
                 googleApiKey: 'API key for the Google Cloud Platform: Text To Speech API.',
                 speakerTimeoutMs: 'This is the amount of time between two utterances that can pass before a person\'s name will be said again.',
                 randomizeVoice: 'Turn this on to give new users a random voice.',
@@ -28,10 +28,10 @@ export class ConfigSpeech extends Data {
                 cleanTextConfig: 'Configuration for cleaning the text before it is spoken.',
                 dictionaryConfig: 'Configuration for the dictionary that replaces words.'
             },
-            {
+            types: {
                 googleApiKey: 'string|secret'
             }
-        )
+        })
     }
 }
 export class ConfigSpeechDictionary extends Data {
@@ -40,29 +40,28 @@ export class ConfigSpeechDictionary extends Data {
     wordToAudioConfig: { [key:string]: ConfigSpeechWordToAudio } = {}
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigSpeechDictionary(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigSpeechDictionary(),
+            documentation: {
                 skipForAnnouncements: 'Will skip applying the dictionary to strings spoken as announcements, i.e. bot texts and reward strings.',
                 replaceWordsWithAudio: 'This will convert the text to SSML, and replace words set in wordToAudioConfig.\nDue to how the TTS system works, these audio files needs to be hosted on a secure public host.',
                 wordToAudioConfig: 'Word replacement configuration. Replace specific words with audio files. The audio files cannot be local, they need to be hosted on a webserver with https.\n\nThe key part is the word to be replaced, join multiple words with | to match multiples, e.g. "ha|haha|hahaha"'
             },
-            {
+            types: {
                 wordToAudioConfig: ConfigSpeechWordToAudio.ref.build()
             }
-        )
+        })
     }
 }
 export class ConfigSpeechWordToAudio extends Data {
     src: string[] = []
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigSpeechWordToAudio(),
-            {},
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigSpeechWordToAudio(),
+            types: {
                 src: 'string'
-            },
-        )
+            }
+        })
     }
 }

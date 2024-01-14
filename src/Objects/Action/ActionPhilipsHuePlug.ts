@@ -16,20 +16,20 @@ export class ActionPhilipsHuePlug extends Action {
     duration: number = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionPhilipsHuePlug(),
-            'Trigger Philips Hue plug changes.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionPhilipsHuePlug(),
+            description: 'Trigger Philips Hue plug changes.',
+            documentation: {
                 entries: 'The plug IDs to affect.',
                 originalState: 'If the plug original state is on or off.',
                 triggerState: 'If the plug triggered state is on or off.',
                 duration: 'Duration of plug action in seconds, 0 means it is permanent.'
             },
-            {
+            types: {
                 entries: PresetPhilipsHuePlug.ref.id.label.build(),
                 entries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

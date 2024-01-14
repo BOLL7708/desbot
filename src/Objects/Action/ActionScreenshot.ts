@@ -17,19 +17,19 @@ export class ActionScreenshot extends Action {
     delay: number = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionScreenshot(),
-            'Trigger OBS or VR screenshots.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionScreenshot(),
+            description: 'Trigger OBS or VR screenshots.',
+            documentation: {
                 screenshotType: 'The type of screenshot, OBS screenshots need the source preset to be set.',
                 sourcePreset: 'OBS only, set this if you are capturing an OBS screenshot.',
                 delay: 'A delay in seconds before triggering the screenshot.'
             },
-            {
+            types: {
                 screenshotType: OptionScreenshotType.ref,
                 sourcePreset: PresetOBSSource.ref.id.build()
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

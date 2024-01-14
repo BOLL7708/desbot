@@ -16,11 +16,11 @@ export class OptionsMap {
         return undefined
     }
 
-    static addPrototype<T>(
+    static addPrototype<T>({prototype, description, documentation}: {
         prototype: T&Option&Function,
         description?: string|undefined,
         documentation?: Partial<Record<TNoFunctions<T>, string>>
-    ) {
+    }) {
         const className = prototype.name
         const meta = new EnumMeta(
             prototype,

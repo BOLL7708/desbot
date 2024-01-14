@@ -11,17 +11,17 @@ export class ActionMoveVRSpace extends Action {
     duration: number = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionMoveVRSpace(),
-            'Used to move the SteamVR play space.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionMoveVRSpace(),
+            description: 'Used to move the SteamVR play space.',
+            documentation: {
                 x: 'Sideways position offset',
                 y: 'Height position offset',
                 z: 'Forwards/backwards position offset',
                 moveChaperone: 'Move the Chaperone bounds in the opposite direction to keep them in the right place, defaults to true.',
                 duration: 'The amount of time in seconds to wait before moving back, 0 skips this step.'
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

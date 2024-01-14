@@ -9,18 +9,18 @@ export class TriggerRemoteCommand extends Trigger {
     userCooldown: number = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new TriggerRemoteCommand(),
-            'The most basic command, used for remote execution.',
-            {
+        DataMap.addRootInstance({
+            instance: new TriggerRemoteCommand(),
+            description: 'The most basic command, used for remote execution.',
+            documentation: {
                 entries: 'The command or commands that can be used with this trigger.',
                 globalCooldown: 'The number of seconds before this can be used again, by anyone.',
                 userCooldown: 'The number of seconds before this can be used again, by the same user.'
             },
-            {
+            types: {
                 entries: 'string'
             }
-        )
+        })
     }
 
     async register(eventKey: string) {

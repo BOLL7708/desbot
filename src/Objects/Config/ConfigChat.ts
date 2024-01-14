@@ -15,10 +15,10 @@ export default class ConfigChat extends Data {
     proxyChatMessageRegex: string = '/\\[(\\w*):\\s(.+)\\]\\s(.+)/'
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigChat(),
-            'Settings for how to handle Twitch Chat for various systems.',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigChat(),
+            description: 'Settings for how to handle Twitch Chat for various systems.',
+            documentation: {
                 pipePreset: 'The Pipe preset for chat messages. Duration to display the headset overlay for in milliseconds.',
                 soundEffectOnEmptyMessage: 'Sound that will play if a chat message does not have any content that should be read out.',
                 speechTemplate: 'String used for TTS, `%userNick` is the name of the user, `%userInput` is the message.',
@@ -26,12 +26,12 @@ export default class ConfigChat extends Data {
                 proxyChatBotUser: 'When using a chat proxy service, like Restream, you can use this to read the messges coming in from that bot as if it were the original user.',
                 proxyChatMessageRegex: 'A regular expression to extract the username and message from the proxy chat message.\nThere should be three capture groups, in order: botname, username, message'
             },
-            {
+            types: {
                 pipePreset: PresetPipeCustom.ref.id.build(),
                 soundEffectOnEmptyMessage: ActionAudio.ref.id.build(),
                 logToDiscord: PresetDiscordWebhook.ref.id.build(),
                 proxyChatBotUser: SettingUser.ref.id.label.build(),
             }
-        )
+        })
     }
 }

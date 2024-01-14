@@ -10,15 +10,14 @@ export class ActionRemoteCommand extends Action {
     entries_use = OptionEntryUsage.All
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionRemoteCommand(),
-            'Send remote command(s) to the remote command channel.',
-            {},
-            {
+        DataMap.addRootInstance({
+            instance: new ActionRemoteCommand(),
+            description: 'Send remote command(s) to the remote command channel.',
+            types: {
                 entries: 'string',
                 entries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

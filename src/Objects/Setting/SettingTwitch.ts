@@ -8,15 +8,13 @@ export class SettingTwitchClient extends Data {
     redirectUri: string = ''
 
     enlist() {
-        DataMap.addRootInstance(
-            new SettingTwitchClient(),
-            '',
-            {},
-            {
+        DataMap.addRootInstance({
+            instance: new SettingTwitchClient(),
+            types: {
                 clientId: 'string|secret',
                 clientSecret: 'string|secret'
             }
-        )
+        })
     }
 }
 export class SettingTwitchTokens extends Data {
@@ -27,14 +25,13 @@ export class SettingTwitchTokens extends Data {
     scopes: string = ''
 
     enlist() {
-        DataMap.addRootInstance(
-            new SettingTwitchTokens(),
-            '',
-            {},
-            {
+        DataMap.addRootInstance({
+            instance: new SettingTwitchTokens(),
+            types: {
                 refreshToken: 'string|secret',
                 accessToken: 'string|secret'
-            })
+            }
+        })
     }
 }
 export class SettingTwitchReward extends Data {
@@ -42,20 +39,19 @@ export class SettingTwitchReward extends Data {
     // TODO: This can get extended in the future when we stop relying on keys, might add a title, note, etc.
 
     enlist() {
-        DataMap.addRootInstance(
-            new SettingTwitchReward(),
-            'Twitch Reward',
-            {
+        DataMap.addRootInstance({
+            instance: new SettingTwitchReward(),
+            description: 'Twitch Reward',
+            documentation: {
                 key: 'Easy to read identifier in the system.'
             },
-            {},
-            'key'
-        )
+            label: 'key'
+        })
     }
 }
 export class SettingTwitchClip extends Data {
     enlist() {
-        DataMap.addRootInstance(new SettingTwitchClip())
+        DataMap.addRootInstance({ instance: new SettingTwitchClip() })
     }
 }
 export class SettingTwitchRedemption extends Data {
@@ -66,6 +62,6 @@ export class SettingTwitchRedemption extends Data {
     cost: number = 0
 
     enlist() {
-        DataMap.addRootInstance(new SettingTwitchRedemption())
+        DataMap.addRootInstance({ instance: new SettingTwitchRedemption() })
     }
 }

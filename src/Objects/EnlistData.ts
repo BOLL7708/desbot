@@ -17,39 +17,17 @@ import {ActionSettingTTS} from './Action/ActionSettingTTS.js'
 import {ActionSettingVR} from './Action/ActionSettingVR.js'
 import {ActionSign} from './Action/ActionSign.js'
 import {ActionSpeech} from './Action/ActionSpeech.js'
-import {
-    ActionSystem,
-    ActionSystemRewardState,
-    ActionSystemRewardStateForEvent,
-    ActionSystemToggle,
-    ActionSystemTrigger
-} from './Action/ActionSystem.js'
-import {ActionWhisper} from './Action/ActionWhisper.js'
+import {ActionSystem, ActionSystemRewardState, ActionSystemRewardStateForEvent, ActionSystemToggle, ActionSystemTrigger} from './Action/ActionSystem.js'
 import {ConfigCleanText} from './Config/ConfigCleanText.js'
-import {
-    ConfigController,
-    ConfigControllerChannelTrophyNumber,
-    ConfigControllerChannelTrophySettings,
-    ConfigControllerStateDefaults,
-    ConfigControllerWebsocketsUsed
-} from './Config/ConfigController.js'
+import {ConfigController, ConfigControllerChannelTrophyNumber, ConfigControllerChannelTrophySettings, ConfigControllerStateDefaults, ConfigControllerWebsocketsUsed} from './Config/ConfigController.js'
 import {ConfigDiscord} from './Config/ConfigDiscord.js'
 import {ConfigEditor, ConfigEditorFavorite} from './Config/ConfigEditor.js'
 import {ConfigExample, ConfigExampleSub} from './Config/ConfigExample.js'
-import {
-    ConfigImageEditorFontSettings,
-    ConfigImageEditorOutline,
-    ConfigImageEditorRect
-} from './Config/ConfigImageEditor.js'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './Config/ConfigImageEditor.js'
 import ConfigOBS from './Config/ConfigOBS.js'
 import {ConfigOpenVR2WS} from './Config/ConfigOpenVR2WS.js'
 import {ConfigPhilipsHue} from './Config/ConfigPhilipsHue.js'
-import {
-    ConfigPipe,
-    ConfigPipeCustomMessage,
-    ConfigPipeCustomMessageAvatar,
-    ConfigPipeCustomMessageName
-} from './Config/ConfigPipe.js'
+import {ConfigPipe, ConfigPipeCustomMessage, ConfigPipeCustomMessageAvatar, ConfigPipeCustomMessageName} from './Config/ConfigPipe.js'
 import {ConfigRelay} from './Config/ConfigRelay.js'
 import ConfigScreenshots, {ConfigScreenshotsCallback} from './Config/ConfigScreenshots.js'
 import {ConfigSign} from './Config/ConfigSign.js'
@@ -57,26 +35,12 @@ import {ConfigSpeech, ConfigSpeechDictionary, ConfigSpeechWordToAudio} from './C
 import {ConfigSteam} from './Config/ConfigSteam.js'
 import ConfigTwitch, {ConfigTwitchCategoryOverride} from './Config/ConfigTwitch.js'
 import ConfigChat from './Config/ConfigChat.js'
-import {
-    EventActionContainer,
-    EventBehaviorOptions,
-    EventDefault,
-    EventOptions,
-    EventRewardOptions
-} from './Event/EventDefault.js'
+import {EventActionContainer, EventBehaviorOptions, EventDefault, EventOptions, EventRewardOptions} from './Event/EventDefault.js'
 import {PresetDiscordWebhook} from './Preset/PresetDiscordWebhook.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
 import {PresetPermissions} from './Preset/PresetPermissions.js'
 import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState, PresetPhilipsHuePlug} from './Preset/PresetPhilipsHue.js'
-import {
-    PresetPipeBasic,
-    PresetPipeCustom,
-    PresetPipeCustomAnimation,
-    PresetPipeCustomFollow,
-    PresetPipeCustomProperties,
-    PresetPipeCustomTextArea,
-    PresetPipeCustomTransition
-} from './Preset/PresetPipe.js'
+import {PresetPipeBasic, PresetPipeCustom, PresetPipeCustomAnimation, PresetPipeCustomFollow, PresetPipeCustomProperties, PresetPipeCustomTextArea, PresetPipeCustomTransition} from './Preset/PresetPipe.js'
 import {PresetReward} from './Preset/PresetReward.js'
 import {PresetSystemActionText} from './Preset/PresetSystemActionText.js'
 import {PresetText} from './Preset/PresetText.js'
@@ -90,29 +54,10 @@ import {SettingChannelTrophyStat} from './Setting/SettingChannel.js'
 import {SettingCounterBase} from './Setting/SettingCounters.js'
 import {SettingDictionaryEntry} from './Setting/SettingDictionary.js'
 import {SettingSteamAchievements, SettingSteamGame} from './Setting/SettingSteam.js'
-import {
-    SettingTwitchClient,
-    SettingTwitchClip,
-    SettingTwitchRedemption,
-    SettingTwitchReward,
-    SettingTwitchTokens
-} from './Setting/SettingTwitch.js'
-import {
-    SettingUser,
-    SettingUserCheer,
-    SettingUserMute,
-    SettingUserName,
-    SettingUserRaid,
-    SettingUserSub,
-    SettingUserVoice
-} from './Setting/SettingUser.js'
+import {SettingTwitchClient, SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens} from './Setting/SettingTwitch.js'
+import {SettingUser, SettingUserCheer, SettingUserMute, SettingUserName, SettingUserRaid, SettingUserSub, SettingUserVoice} from './Setting/SettingUser.js'
 import {SettingStreamQuote} from './Setting/SettingStream.js'
-import ConfigAnnouncements, {
-    ConfigAnnounceCheer,
-    ConfigAnnounceRaid,
-    ConfigAnnouncerTriggers,
-    ConfigAnnounceSub
-} from './Config/ConfigAnnouncements.js'
+import ConfigAnnouncements, {ConfigAnnounceCheer, ConfigAnnounceRaid, ConfigAnnouncerTriggers, ConfigAnnounceSub} from './Config/ConfigAnnouncements.js'
 import ConfigCommands from './Config/ConfigCommands.js'
 import {ConfigTest} from './Config/ConfigTest.js'
 
@@ -150,7 +95,6 @@ export default class EnlistData {
             new ActionSystemToggle(),
             new ActionSystemRewardState(),
             new ActionSystemRewardStateForEvent(),
-            new ActionWhisper(),
 
             new ConfigAnnounceCheer(),
             new ConfigAnnounceRaid(),

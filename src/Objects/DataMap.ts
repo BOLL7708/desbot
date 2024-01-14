@@ -31,21 +31,21 @@ export default class DataMap {
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>(
+    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap}: {
         instance: T&Data,
-        description: string|undefined = undefined,
+        description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
         label?: TNoFunctions<T>,
         keyMap?: IStringDictionary
-    ) {
+    }) {
         this.addInstance(true, instance, description, documentation, types, label, keyMap)
     }
-    public static addSubInstance<T>(
+    public static addSubInstance<T>({instance, documentation, types}: {
         instance: T&Data,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>
-    ) {
+    }) {
         this.addInstance(false, instance, undefined, documentation, types)
     }
 
@@ -55,11 +55,11 @@ export default class DataMap {
      * @param props
      * @param fill If IDs should be replaced by what they reference.
      */
-    public static async getInstance(
-        className: string|undefined,
-        props: object|undefined = undefined,
+    public static async getInstance({className, props, fill}: {
+        className?: string,
+        props?: object,
         fill: boolean
-    ): Promise<Data|undefined> {
+    }): Promise<Data|undefined> {
         const invalidClassNames: TTypes[] = ['string', 'number', 'boolean']
         if(!className || invalidClassNames.indexOf(className) != -1) return undefined
         if(className && this.hasInstance(className)) {

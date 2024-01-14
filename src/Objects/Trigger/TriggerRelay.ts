@@ -10,13 +10,13 @@ export class TriggerRelay extends Trigger {
     key: string = ''
 
     enlist() {
-        DataMap.addRootInstance(
-            new TriggerRelay(),
-            'A relay message from WSRelay',
-            {
+        DataMap.addRootInstance({
+            instance: new TriggerRelay(),
+            description: 'A relay message from WSRelay',
+            documentation: {
                 key: 'Listen to incoming relay messages supplying this key.'
             }
-        )
+        })
     }
 
     register(eventKey: string) {

@@ -16,9 +16,9 @@ export class ConfigCleanText extends Data {
     removeUnicodeEmojis: boolean = true
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigCleanText(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigCleanText(),
+            documentation: {
                 removeBitEmotes: 'Removes [word][number] in Twitch cher messages.',
                 keepCase: 'Retains case during the transformations.',
                 replaceUserTags: 'Will replace @username tags with cleaned/stored usernames.',
@@ -31,8 +31,7 @@ export class ConfigCleanText extends Data {
                 replaceLinksWith: 'Will replace the link with this text.',
                 replaceAmpersandWith: 'Will replace the & symbol with the supplied value.',
                 removeUnicodeEmojis: 'Removes unicode emojis characters.'
-            },
-            {}
-        )
+            }
+        })
     }
 }

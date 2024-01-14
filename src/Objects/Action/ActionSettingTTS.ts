@@ -18,17 +18,17 @@ export class ActionSettingTTS extends Action {
     inputOverride: string = ''
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionSettingTTS(),
-            'Performs functions in the TTS system.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionSettingTTS(),
+            description: 'Performs functions in the TTS system.',
+            documentation: {
                 functionType: 'What type of function to call for the TTS system.',
                 inputOverride: 'This uses trigger input unless this is set.'
             },
-            {
+            types: {
                 functionType: OptionTTSFunctionType.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

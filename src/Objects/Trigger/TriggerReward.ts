@@ -12,23 +12,24 @@ import {DataUtils} from '../DataUtils.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|DataEntries<PresetPermissions> = 0
-    rewardEntries: number[]|DataEntries<Data> = [] // TODO: This is Data just to give it a parent, need to update this so it's not generic.
+    rewardEntries: number[]|DataEntries<Data> = [] // TODO: This is <Data> just to give it a parent, need to update this so it's not generic.
     rewardID: number|DataEntries<SettingTwitchReward> = 0
 
     enlist() {
-        DataMap.addRootInstance(new TriggerReward(),
-            'This is a Twitch Channel Point Reward, triggered by a redemption on your channel page.',
-            {
+        DataMap.addRootInstance({
+            instance: new TriggerReward(),
+            description: 'This is a Twitch Channel Point Reward, triggered by a redemption on your channel page.',
+            documentation: {
                 permissions: 'Permission for who can redeem this reward, leave this empty to not restrict it.',
                 rewardEntries: 'One or multiple reward presets. The first will be used on updates/resets, more are only needed when using a non-default event behavior.',
                 rewardID: 'This is a reference to the reward on Twitch, leave empty to have it create a new reward when running the widget.'
             },
-            {
+            types: {
                 permissions: PresetPermissions.ref.id.build(),
                 rewardID: SettingTwitchReward.ref.id.label.build(),
                 rewardEntries: Data.genericRef('PresetReward').build() // I believe this was done to give these items a parent
             }
-        )
+        })
     }
 
     register(eventKey: string) {

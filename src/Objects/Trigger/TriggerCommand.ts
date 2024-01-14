@@ -18,9 +18,10 @@ export class TriggerCommand extends Trigger {
     helpText: string = ''
 
     enlist() {
-        DataMap.addRootInstance(new TriggerCommand(),
-            'A chat command.',
-            {
+        DataMap.addRootInstance({
+            instance: new TriggerCommand(),
+            description: 'A chat command.',
+            documentation: {
                 entries: 'The commands that can be used with this trigger.',
                 permissions: 'Permission for who can execute this command.',
                 requireUserTag: 'Require this command to include a user tag to get triggered.',
@@ -32,13 +33,13 @@ export class TriggerCommand extends Trigger {
                 helpInput: 'Input values for the command, used to build the help text.',
                 helpText: 'Description that is used for help documentation.'
             },
-            {
+            types: {
                 entries: 'string',
                 permissions: PresetPermissions.ref.id.build(),
                 category: OptionCommandCategory.ref,
                 helpInput: 'string'
             }
-        )
+        })
     }
 
     async register(eventKey: string) {

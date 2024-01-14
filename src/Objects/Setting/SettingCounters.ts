@@ -6,8 +6,8 @@ export class SettingCounterBase extends Data {
 
     enlist() {
         // This is weird, does it work doing it like this?
-        DataMap.addRootInstance(new SettingAccumulatingCounter())
-        DataMap.addRootInstance(new SettingIncrementingCounter())
+        DataMap.addRootInstance({ instance: new SettingAccumulatingCounter() })
+        DataMap.addRootInstance({ instance: new SettingIncrementingCounter() })
     }
 }
 export class SettingAccumulatingCounter extends SettingCounterBase {}

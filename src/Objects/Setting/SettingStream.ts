@@ -9,6 +9,6 @@ export class SettingStreamQuote extends Data {
     game: string = ''
 
     enlist() {
-        DataMap.addRootInstance(new SettingStreamQuote())
+        DataMap.addRootInstance({ instance: new SettingStreamQuote() })
     }
 }

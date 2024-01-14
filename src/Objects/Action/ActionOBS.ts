@@ -17,17 +17,17 @@ export class ActionOBS extends Action {
     state: boolean = true
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionOBS(),
-            'Used to toggle OBS sources or filters.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionOBS(),
+            description: 'Used to toggle OBS sources or filters.',
+            documentation: {
                 sceneEntries: 'The scenes to affect.',
                 sourceEntries: 'The sources to affect.',
                 filterEntries: 'The filters to affect.',
                 durationMs: 'The elements will switch state again after this amount of milliseconds if more than 0.',
                 state: 'Define a specific state, true is on/visible.'
             },
-            {
+            types: {
                 sceneEntries: PresetOBSScene.ref.id.build(),
                 sceneEntries_use: OptionEntryUsage.ref,
                 sourceEntries: ActionOBSSource.ref.build(),
@@ -35,7 +35,7 @@ export class ActionOBS extends Action {
                 filterEntries: ActionOBSFilter.ref.build(),
                 filterEntries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {
@@ -58,15 +58,16 @@ export class ActionOBSSource extends Data {
     sourcePreset: number|DataEntries<PresetOBSSource> = 0
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionOBSSource(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionOBSSource(),
+            documentation: {
                 scenePreset: 'The scene the source is in.'
-            },{
+            },
+            types: {
                 scenePreset: PresetOBSScene.ref.id.build(),
                 sourcePreset: PresetOBSSource.ref.id.build()
             }
-        )
+        })
     }
 }
 export class ActionOBSFilter extends Data {
@@ -74,15 +75,16 @@ export class ActionOBSFilter extends Data {
     filterPreset: number|DataEntries<PresetOBSFilter> = 0
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionOBSFilter(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionOBSFilter(),
+            documentation: {
                 sourcePreset: 'The source the filter attached to.'
-            },{
+            },
+            types: {
                 sourcePreset: PresetOBSSource.ref.id.build(),
                 filterPreset: PresetOBSFilter.ref.id.build()
             }
-        )
+        })
     }
 }
 

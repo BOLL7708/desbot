@@ -9,13 +9,13 @@ export class TriggerCheer extends Trigger {
     amount: number = 1
 
     enlist() {
-        DataMap.addRootInstance(
-            new TriggerCheer(),
-            'A channel cheer',
-            {
+        DataMap.addRootInstance({
+            instance: new TriggerCheer(),
+            description: 'A channel cheer',
+            documentation: {
                 amount: 'If a viewer cheers this specific bit amount it will trigger this event.'
             }
-        )
+        })
     }
 
     register(eventKey: string) {

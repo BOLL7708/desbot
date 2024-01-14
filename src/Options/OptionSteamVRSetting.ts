@@ -15,10 +15,10 @@ export class OptionSteamVRSettingType extends Option {
     static readonly HMDDisplayGainBlue = 'steamvr|hmdDisplayColorGainB|1.0'
 }
 
-OptionsMap.addPrototype(
-    OptionSteamVRSettingType,
-    'The setting type, reference steamvr.vrsettings or default.vrsettings to see what can be set.',
-    {
+OptionsMap.addPrototype({
+    prototype: OptionSteamVRSettingType,
+    description: 'The setting type, reference steamvr.vrsettings or default.vrsettings to see what can be set.',
+    documentation: {
         None: 'No setting preset chosen.',
         WorldScale: 'The world scale of the currently running game.',
         MirrorViewEye: 'The eye to use for the VR View, this currently does not actually work, sorry!',
@@ -30,4 +30,4 @@ OptionsMap.addPrototype(
         HMDDisplayGainGreen: 'The green gain of the image in the headset.',
         HMDDisplayGainBlue: 'The blue gain of the image in the headset.'
     }
-)
+})

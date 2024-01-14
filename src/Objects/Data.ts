@@ -114,14 +114,14 @@ export default abstract class Data {
                         // It is an array of subclasses, instantiate.
                         const newProp: any[] = []
                         for(const v of propertyValue) {
-                            newProp.push(await DataMap.getInstance(typeValues.class, v, fill))
+                            newProp.push(await DataMap.getInstance({ className: typeValues.class, props: v, fill }))
                         }
                         (this as any)[propertyName] = newProp
                     } else if (typeof propertyValue == 'object') {
                         // It is a dictionary of subclasses, instantiate.
                         const newProp: { [key: string]: any } = {}
                         for(const [k, v] of Object.entries(propertyValue)) {
-                            newProp[k] = await DataMap.getInstance(typeValues.class, v as object|undefined, fill)
+                            newProp[k] = await DataMap.getInstance({ className: typeValues.class, props: v as object|undefined, fill })
                         }
                         (this as any)[propertyName] = newProp
                     }
@@ -130,7 +130,7 @@ export default abstract class Data {
                     const singleInstanceType = (this as any)[propertyName]?.constructor.name ?? (prototype as any)[propertyName]?.constructor.name
                     if(DataMap.hasInstance(singleInstanceType) && !typeValues.isIdReference) {
                         // It is a single instance class
-                        (this as any)[propertyName] = await DataMap.getInstance(singleInstanceType, propertyValue, fill)
+                        (this as any)[propertyName] = await DataMap.getInstance({ className: singleInstanceType, props: propertyValue, fill })
                     } else {
                         // It is a basic value, just set it.
                         const expectedType = typeof (this as any)[propertyName]

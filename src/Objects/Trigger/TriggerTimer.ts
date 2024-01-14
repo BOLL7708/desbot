@@ -9,15 +9,15 @@ export class TriggerTimer extends Trigger {
     initialDelay: number = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new TriggerTimer(),
-            'Optional: Have something happen automatically on a timer.',
-            {
+        DataMap.addRootInstance({
+            instance: new TriggerTimer(),
+            description: 'Optional: Have something happen automatically on a timer.',
+            documentation: {
                 interval: 'The time in seconds between each trigger.',
                 repetitions: 'The amount of times to trigger the event.',
                 initialDelay: 'Delay in seconds before first run.'
             }
-        )
+        })
     }
 
     async register(eventKey: string) {

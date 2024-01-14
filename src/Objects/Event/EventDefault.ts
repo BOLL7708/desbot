@@ -15,20 +15,21 @@ export class EventDefault extends Data {
     actions: EventActionContainer[] = []
 
     enlist() {
-        DataMap.addRootInstance(new EventDefault(),
-            'The event that contains triggers and actions.',
-            {
+        DataMap.addRootInstance({
+            instance: new EventDefault(),
+            description: 'The event that contains triggers and actions.',
+            documentation: {
                 type: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
                 options: 'Set various options for event behavior.',
                 triggers: 'Supply in which ways we should trigger this event.',
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
-            {
+            types: {
                 type: OptionEventType.ref,
                 triggers: Data.genericRef('Trigger').build(),
                 actions: EventActionContainer.ref.build()
             }
-        )
+        })
     }
 
     /**
@@ -60,18 +61,19 @@ export class EventOptions extends Data {
     rewardOptions: EventRewardOptions = new EventRewardOptions()
 
     enlist() {
-        DataMap.addSubInstance(new EventOptions(),
-            {
+        DataMap.addSubInstance({
+            instance: new EventOptions(),
+            documentation: {
                 relayCanTrigger: 'If this event can be triggered by messages from WSRelay.',
                 specificIndex: 'Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.',
                 behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.\nThis will change how the actions below are used, specific indices will be used for various things.',
                 behaviorOptions: 'Options related to the behavior of this event.',
                 rewardOptions: 'Options related to the reward triggers of this event.'
             },
-            {
+            types: {
                 behavior: OptionEventBehavior.ref
             }
-        )
+        })
     }
 }
 export class EventActionContainer extends Data {
@@ -80,16 +82,17 @@ export class EventActionContainer extends Data {
     entries: number[]|DataEntries<Action> = []
 
     enlist() {
-        DataMap.addSubInstance(new EventActionContainer(),
-            {
+        DataMap.addSubInstance({
+            instance: new EventActionContainer(),
+            documentation: {
                 run: 'Choose when to run this set.',
                 entries: 'The actions that will run.'
             },
-            {
+            types: {
                 run: OptionEventRun.ref,
                 entries: Action.genericRef('Action').build()
             }
-        )
+        })
     }
 }
 export class EventBehaviorOptions extends Data {
@@ -104,8 +107,9 @@ export class EventBehaviorOptions extends Data {
     multiTierDisableAfterMaxLevel: boolean = false
 
     enlist() {
-        DataMap.addSubInstance(new EventBehaviorOptions(),
-            {
+        DataMap.addSubInstance({
+            instance: new EventBehaviorOptions(),
+            documentation: {
                 accumulationGoal: 'The goal to reach if behavior is set to accumulating.',
                 accumulationResetOnCommand: 'Will reset an accumulating reward when the reset command is run, resetting the index to 0.',
                 incrementationLoop: 'Will loop an incrementing reward when the max index is reached, resetting the index to 0.',
@@ -115,7 +119,8 @@ export class EventBehaviorOptions extends Data {
                 multiTierResetOnTrigger: 'Perform reset actions before default actions when triggering this multi-tier event.\n\nWill use the action set at max level + 1.',
                 multiTierResetOnTimeout: 'Perform reset actions when resetting this multi-tier event.\n\nWill use action set at max level + 2.',
                 multiTierDisableAfterMaxLevel: 'Will only allow the last level to be redeemed once before resetting again.',
-            })
+            }
+        })
     }
 }
 
@@ -125,11 +130,13 @@ export class EventRewardOptions extends Data {
     ignoreAutomaticDiscordPosting: boolean = false
 
     enlist() {
-        DataMap.addSubInstance(new EventRewardOptions(),
-            {
+        DataMap.addSubInstance({
+            instance: new EventRewardOptions(),
+            documentation: {
                 ignoreUpdateCommand: 'A list of rewards that will only be created, not updated using `!update`.\n\nUsually references from: `Keys.*`, and it\'s recommended to put the channel trophy reward in here if you use it.',
                 ignoreClearRedemptionsCommand: 'Will avoid refunding the redemption when the clear redemptions command is used.',
                 ignoreAutomaticDiscordPosting: 'Ignore the Discord webhook for this reward even if it exists. (might be used for something else)',
-            })
+            }
+        })
     }
 }

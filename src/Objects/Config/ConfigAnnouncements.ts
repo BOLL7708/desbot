@@ -38,24 +38,24 @@ export default class ConfigAnnouncements extends Data {
     ]
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigAnnouncements(),
-            'Settings for possible announcements.',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigAnnouncements(),
+            description: 'Settings for possible announcements.',
+            documentation: {
                 announcerUsers: 'Any user that should be treated as an announcer in chat.\n\nThis means most messages are muted from text to speech, unless specified in announcer triggers, and some prefixes can trigger sound effects.',
                 announcerTriggers: 'Things triggered by matching the start of an announcements message by any designated announcer.',
                 announceSubs: 'Subscription types to announce in chat.',
                 announceCheers: 'Cheer levels to announce in chat.',
                 announceRaids: 'Raid sizes to announce in chat.'
             },
-            {
+            types: {
                 announcerUsers: SettingUser.ref.id.label.build(),
                 announcerTriggers: ConfigAnnouncerTriggers.ref.build(),
                 announceSubs: ConfigAnnounceSub.ref.build(),
                 announceCheers: ConfigAnnounceCheer.ref.build(),
                 announceRaids: ConfigAnnounceRaid.ref.build(),
             }
-        )
+        })
     }
 }
 
@@ -65,15 +65,15 @@ export class ConfigAnnouncerTriggers extends Data {
     trigger_speech = true
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigAnnouncerTriggers(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigAnnouncerTriggers(),
+            documentation: {
                 trigger: 'A prefix that triggers a sound effect and optionally speaks the message.'
             },
-            {
+            types: {
                 trigger_audio: ActionAudio.ref.id.build()
             }
-        )
+        })
     }
 }
 export class ConfigAnnounceSub extends Data {
@@ -90,15 +90,16 @@ export class ConfigAnnounceSub extends Data {
     }
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigAnnounceSub(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigAnnounceSub(),
+            documentation: {
                 tier: 'The tier of subscription made.',
                 message: 'The message to be posted to chat.'
-            }, {
+            },
+            types: {
                 tier: OptionTwitchSubTier.ref
             }
-        )
+        })
     }
 }
 export class ConfigAnnounceCheer extends Data {
@@ -111,13 +112,13 @@ export class ConfigAnnounceCheer extends Data {
     }
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigAnnounceCheer(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigAnnounceCheer(),
+            documentation: {
                 bits: 'Will be used for bit amounts from this value up to the next level.',
                 message: 'The message to be posted to chat.'
             }
-        )
+        })
     }
 }
 export class ConfigAnnounceRaid extends Data {
@@ -130,12 +131,12 @@ export class ConfigAnnounceRaid extends Data {
     }
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigAnnounceRaid(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigAnnounceRaid(),
+            documentation: {
                 viewers: 'Will be used for this amount of viewers up to the next level.',
                 message: 'The message to be posted to chat.'
             }
-        )
+        })
     }
 }

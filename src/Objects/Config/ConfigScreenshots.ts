@@ -11,14 +11,14 @@ export default class ConfigScreenshots extends Data {
     callback = new ConfigScreenshotsCallback()
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigScreenshots(),
-            'Trigger and transmit screenshots of OBS Studio sources or SuperScreenShotterVR: https://github.com/BOLL7708/SuperScreenShotterVR',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigScreenshots(),
+            description: 'Trigger and transmit screenshots of OBS Studio sources or SuperScreenShotterVR: https://github.com/BOLL7708/SuperScreenShotterVR',
+            types: {
                 SSSVRPort: 'Port set in SuperScreenShotterVR.',
                 callback: 'Values used when posting things coming in from SSSVR & OBS to Discord etc.'
             }
-        )
+        })
     }
 }
 export class ConfigScreenshotsCallback extends Data {
@@ -40,9 +40,9 @@ export class ConfigScreenshotsCallback extends Data {
     // TODO: Add the ability to post discord threads in various ways, see Trello.
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigScreenshotsCallback(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigScreenshotsCallback(),
+            documentation: {
                 discordManualTitle: 'Title for the Discord post for manually taken screenshots.',
                 discordRewardTitle: 'Title for the Discord post for redeemed screenshots with a description.\n\n`%text` will be replaced with the description.',
                 discordRewardInstantTitle: 'Title for the Discord post for redeemed screenshots without a description.',
@@ -57,7 +57,7 @@ export class ConfigScreenshotsCallback extends Data {
                 pipePreset: 'The Pipe preset for screenshots. Duration to display the headset overlay for in milliseconds.',
                 captureSoundEffect: 'As there is not built in audio effect for OBS screenshots an option for that is provided here.\nWhy this is not relegated to the audio reward is due to the delay and burst options for screenshots which are not compatible with that feature.'
             },
-            {
+            types: {
                 discordEmbedImageFormat: OptionScreenshotFileType.ref,
                 discordWebhooksOBS: PresetDiscordWebhook.ref.id.build(),
                 discordWebhooksSSSVR: PresetDiscordWebhook.ref.id.build(),
@@ -65,6 +65,6 @@ export class ConfigScreenshotsCallback extends Data {
                 pipePreset: PresetPipeCustom.ref.id.build(),
                 captureSoundEffect: ActionAudio.ref.id.build()
             }
-        )
+        })
     }
 }

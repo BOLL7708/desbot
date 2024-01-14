@@ -13,19 +13,19 @@ export class ActionSign extends Action {
     durationMs: number = 5000
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionSign(),
-            'Show a pop-in message in the browser source for the widget.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionSign(),
+            description: 'Show a pop-in message in the browser source for the widget.',
+            documentation: {
                 title: 'The title above the image, takes tags.',
                 imageSrc: 'The image to display in the Sign pop-in, as web URL, local URL or data URL.\n\nIf left empty the avatar image will be used instead, if available.',
                 subtitle: 'The subtitle beneath the image, takes tags.',
                 durationMs: 'The duration for the Sign to be visible for, in milliseconds.'
             },
-            {
+            types: {
                 imageSrc: DataUtils.getStringFileImageRef()
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

@@ -9,15 +9,16 @@ export class PresetPermissions extends Data {
     everyone: boolean = false
 
     enlist() {
-        DataMap.addRootInstance(new PresetPermissions(),
-            'Permission regarding who can trigger this command in the chat.',
-            {
+        DataMap.addRootInstance({
+            instance: new PresetPermissions(),
+            description: 'Permission regarding who can trigger this command in the chat.',
+            documentation: {
                 streamer: 'The channel owner/streamer.',
                 moderators: 'Moderators for the channel.',
                 subscribers: 'People subscribed to the channel.',
                 VIPs: 'People set to VIP in the channel.',
                 everyone: 'Absolutely anyone at all.'
             }
-        )
+        })
     }
 }

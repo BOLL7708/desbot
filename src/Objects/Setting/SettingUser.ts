@@ -12,17 +12,19 @@ export class SettingUser extends Data {
     raid = new SettingUserRaid()
 
     enlist() {
-        DataMap.addRootInstance(
-            new SettingUser(),
-            'Main settings object for a Twitch user.',
-            {
+        DataMap.addRootInstance({
+            instance: new SettingUser(),
+            description: 'Main settings object for a Twitch user.',
+            documentation: {
                 voice: 'Text to speech voice settings.',
                 name: 'Nick-name for text to speech.',
                 mute: 'Text-to-speech mute status.',
                 cheer: 'Last cheer data.',
                 sub: 'Last sub data.',
                 raid: 'Last raid data.'
-            }, {}, 'displayName')
+            },
+            label: 'displayName'
+        })
     }
 }
 
@@ -33,7 +35,7 @@ export class SettingUserVoice extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addSubInstance(new SettingUserVoice())
+        DataMap.addSubInstance({ instance: new SettingUserVoice() })
     }
 }
 export class SettingUserName extends Data {
@@ -42,7 +44,7 @@ export class SettingUserName extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addSubInstance(new SettingUserName())
+        DataMap.addSubInstance({ instance: new SettingUserName() })
     }
 }
 export class SettingUserMute extends Data {
@@ -52,7 +54,7 @@ export class SettingUserMute extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addSubInstance(new SettingUserMute())
+        DataMap.addSubInstance({ instance: new SettingUserMute() })
     }
 }
 export class SettingUserSub extends Data {
@@ -61,7 +63,7 @@ export class SettingUserSub extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addSubInstance(new SettingUserSub())
+        DataMap.addSubInstance({ instance: new SettingUserSub() })
     }
 }
 export class SettingUserCheer extends Data {
@@ -70,7 +72,7 @@ export class SettingUserCheer extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addSubInstance(new SettingUserCheer())
+        DataMap.addSubInstance({ instance: new SettingUserCheer() })
     }
 }
 export class SettingUserRaid extends Data {
@@ -79,6 +81,6 @@ export class SettingUserRaid extends Data {
     datetime: string = ''
 
     enlist() {
-        DataMap.addSubInstance(new SettingUserRaid())
+        DataMap.addSubInstance({ instance: new SettingUserRaid() })
     }
 }

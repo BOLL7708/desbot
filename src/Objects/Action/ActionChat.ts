@@ -10,17 +10,17 @@ export class ActionChat extends Action {
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     enlist() {
-        DataMap.addRootInstance(
-            new ActionChat(),
-            'Send message(s) to Twitch chat.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionChat(),
+            description: 'Send message(s) to Twitch chat.',
+            documentation: {
                 entries: 'These entries will be sent to chat.'
             },
-            {
+            types: {
                 entries: 'string',
                 entries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

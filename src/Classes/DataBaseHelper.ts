@@ -298,7 +298,7 @@ export default class DataBaseHelper {
         if(jsonResult && jsonResult.length > 0) {
             // TODO: Redo caching and stuff.
             const item = jsonResult[0]
-            const emptyInstance = await DataMap.getInstance(item.class, undefined, false)
+            const emptyInstance = await DataMap.getInstance({ className: item.class, fill: false })
             if(emptyInstance) {
                 item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
                 item.data = await emptyInstance.__new(item.data ?? undefined, false)

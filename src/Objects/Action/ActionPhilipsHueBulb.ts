@@ -16,20 +16,20 @@ export class ActionPhilipsHueBulb extends Action {
     colorEntries_delay = 0
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionPhilipsHueBulb(),
-            'Trigger Philips Hue bulb changes.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionPhilipsHueBulb(),
+            description: 'Trigger Philips Hue bulb changes.',
+            documentation: {
                 colorEntries: 'The color(s) to set the bulb(s) to, if more than one color is used and a positive delay in seconds has been provided, they will automatically be applied in sequence.',
                 entries: 'The bulbs to affect.',
             },
-            {
+            types: {
                 entries: PresetPhilipsHueBulb.ref.id.label.build(),
                 entries_use: OptionEntryUsage.ref,
                 colorEntries: PresetPhilipsHueBulbState.ref.id.build(),
                 colorEntries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

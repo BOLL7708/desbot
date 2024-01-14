@@ -46,7 +46,7 @@ export class OptionSystemActionType extends Option {
     static readonly ResetIncrementingEvents = 9600
     static readonly ResetAccumulatingEvents = 9700
 }
-OptionsMap.addPrototype(
-    OptionSystemActionType,
-    'References to system features that are not individual actions.',
-)
+OptionsMap.addPrototype({
+    prototype: OptionSystemActionType,
+    description: 'References to system features that are not individual actions.',
+})

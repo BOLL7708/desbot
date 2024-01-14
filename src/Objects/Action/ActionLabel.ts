@@ -13,19 +13,19 @@ export class ActionLabel extends Action {
     append: boolean = false
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionLabel(),
-            'Writes text to a file in the data folder, can be used as a label in your broadcaster suite.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionLabel(),
+            description: 'Writes text to a file in the data folder, can be used as a label in your broadcaster suite.',
+            documentation: {
                 fileName: 'The filename to use, this includes the extension.',
                 textEntries: 'Value(s) to write to the file.',
                 append: 'Append the file instead of replacing the contents.'
             },
-            {
+            types: {
                 textEntries: 'string',
                 textEntries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

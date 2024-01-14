@@ -22,10 +22,10 @@ export class ConfigTest extends Data {
     namedInstance: IDictionary<PresetText> = {}
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigTest(),
-            'A test config used when testing specific features.',
-            {},{
+        DataMap.addRootInstance({
+            instance: new ConfigTest(),
+            description: 'A test config used when testing specific features.',
+            types: {
                 singleReference: PresetText.ref.id.build(),
                 multiReference: PresetText.ref.id.build(),
                 namedReference: PresetText.ref.id.build(),
@@ -38,7 +38,7 @@ export class ConfigTest extends Data {
                 multiInstance: PresetText.ref.build(),
                 namedInstance: PresetText.ref.build()
             }
-        )
+        })
     }
 }
 
@@ -46,10 +46,9 @@ export class ConfigTestSub extends Data {
     value: number = 0
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigTestSub(),
-            {value: 'A number.'},
-            {}
-        )
+        DataMap.addSubInstance({
+            instance: new ConfigTestSub(),
+            documentation: {value: 'A number.'}
+        })
     }
 }

@@ -6,6 +6,6 @@ export class SettingChannelTrophyStat extends Data {
     index: number = 0
 
     enlist() {
-        DataMap.addRootInstance(new SettingChannelTrophyStat())
+        DataMap.addRootInstance({ instance: new SettingChannelTrophyStat() })
     }
 }

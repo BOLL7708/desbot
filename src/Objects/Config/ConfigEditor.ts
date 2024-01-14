@@ -15,10 +15,10 @@ export class ConfigEditor extends Data {
     favorites: { [key:string]: ConfigEditorFavorite } = {}
 
     enlist() {
-        DataMap.addRootInstance(
-            new ConfigEditor(),
-            'Configuration values for this very editor that you are using right now.',
-            {
+        DataMap.addRootInstance({
+            instance: new ConfigEditor(),
+            description: 'Configuration values for this very editor that you are using right now.',
+            documentation: {
                 autoGenerateKeys: 'Will automatically generate keys for new entries based on type and parent type.',
                 showHelpIcons: 'Will display the help icon next to entries if documentation exists.',
                 hideIDs: 'Will hide the table row IDs in the editor, turn this on to reduce clutter.',
@@ -29,11 +29,11 @@ export class ConfigEditor extends Data {
                 audioPreviewVolume: 'The volume to use when previewing audio in percent.',
                 favorites: 'IDs to favorites in the favorites bar, only a soft reference not depending on the existence of the referenced item.'
             },
-            {
+            types: {
                 audioPreviewVolume: DataUtils.getNumberRangeRef(1, 100),
                 favorites: ConfigEditorFavorite.ref.build()
             }
-        )
+        })
     }
 }
 export class ConfigEditorFavorite extends Data {
@@ -41,11 +41,11 @@ export class ConfigEditorFavorite extends Data {
     class_withKey: string = ''
 
     enlist() {
-        DataMap.addSubInstance(
-            new ConfigEditorFavorite(),
-            {
+        DataMap.addSubInstance({
+            instance: new ConfigEditorFavorite(),
+            documentation: {
                 class: 'Class and key of the favorite.'
             }
-        )
+        })
     }
 }

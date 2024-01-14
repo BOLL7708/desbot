@@ -9,10 +9,10 @@ export class OptionEntryUsage extends Option {
     static readonly AllRandom = 500
     static readonly OneSpecific = 600
 }
-OptionsMap.addPrototype(
-    OptionEntryUsage,
-    'Universal behavior type for entry lists.',
-    {
+OptionsMap.addPrototype({
+    prototype: OptionEntryUsage,
+    description: 'Universal behavior type for entry lists.',
+    documentation: {
         First: 'Will only use the first value.',
         Last: 'Will only use the last value.',
         All: 'Will use all values.',
@@ -20,4 +20,4 @@ OptionsMap.addPrototype(
         AllRandom: 'Will shuffle and use all values.',
         OneSpecific: 'Will use the index mandated by the reward trigger or some other mechanic.'
     }
-)
+})

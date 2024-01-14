@@ -8,13 +8,13 @@ export default class OptionEventType extends Option {
     static readonly BonusImport = 1100
     static readonly GameSpecific = 2000
 }
-OptionsMap.addPrototype(
-    OptionEventType,
-    'Type of event, used for listing and filtering.',
-    {
+OptionsMap.addPrototype({
+    prototype: OptionEventType,
+    description: 'Type of event, used for listing and filtering.',
+    documentation: {
         Uncategorized: 'Uncategorized events.',
         DefaultImport: 'Events imported as defaults.',
         BonusImport: 'Events imported as bonus defaults.',
         GameSpecific: 'Events specific to a game.'
     }
-)
+})

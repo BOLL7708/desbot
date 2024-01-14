@@ -18,10 +18,10 @@ export class PresetReward extends Data {
     should_redemptions_skip_request_queue: boolean = false
 
     enlist() {
-        DataMap.addRootInstance(
-            new PresetReward(),
-            'This is the exact payload that will go to Twitch to configure the reward.',
-            {
+        DataMap.addRootInstance({
+            instance: new PresetReward(),
+            description: 'This is the exact payload that will go to Twitch to configure the reward.',
+            documentation: {
                 title: 'The title that will be on the button of the reward.',
                 cost: 'The cost in channel points.',
                 prompt: 'The reward description that is displayed when it is clicked.',
@@ -35,6 +35,6 @@ export class PresetReward extends Data {
                 global_cooldown_seconds: 'A global cooldown for every user, in seconds.',
                 is_paused: 'The reward is visible but not possible to redeem.'
             }
-        )
+        })
     }
 }

@@ -17,16 +17,15 @@ export class ActionDiscord extends Action {
     entries_use = OptionEntryUsage.First
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionDiscord(),
-            'Send a message to a Discord channel.',
-            {},
-            {
+        DataMap.addRootInstance({
+            instance: new ActionDiscord(),
+            description: 'Send a message to a Discord channel.',
+            types: {
                 webhook: PresetDiscordWebhook.ref.id.build(),
                 entries: 'string',
                 entries_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {

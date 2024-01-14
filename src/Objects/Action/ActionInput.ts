@@ -16,22 +16,22 @@ export class ActionInput extends Action {
     postfixEnterStroke: boolean = false
 
     enlist() {
-        DataMap.addRootInstance(
-            new ActionInput(),
-            'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
-            {
+        DataMap.addRootInstance({
+            instance: new ActionInput(),
+            description: 'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
+            documentation: {
                 window: 'The title of the window to send the key press to.',
                 type: 'Type of execution',
                 duration: 'Seconds before running an optional reset to default, if defined in the command.',
                 commands: 'A list of commands to execute.',
                 postfixEnterStroke: 'Press enter at the end of every command, useful for console commands.'
             },
-            {
+            types: {
                 type: OptionCommandType.ref,
                 commands: ActionInputCommand.ref.build(),
                 commands_use: OptionEntryUsage.ref
             }
-        )
+        })
     }
 
     build(key: string): IActionCallback {
@@ -53,15 +53,14 @@ export class ActionInputCommand extends Data {
     defaultValue: string = ''
 
     enlist() {
-        DataMap.addSubInstance(
-            new ActionInputCommand(),
-            {
+        DataMap.addSubInstance({
+            instance: new ActionInputCommand(),
+            documentation: {
                 command: 'Text command with or without value.\nIf keys it will be typed in the window.\nIf mouse provide a string with any combination of these characters:\nu: mouse wheel up\nd: mouse wheel down\nl: left mouse button\nr: right mouse button\np: primary mouse button\ns: secondary mouse button',
                 value: 'Value to append if you want a reset after a duration, if so also set the default value.',
                 defaultValue: 'Will reset to this if value and this and a duration is provided.'
-            },
-            {}
-        )
+            }
+        })
     }
 }
 
