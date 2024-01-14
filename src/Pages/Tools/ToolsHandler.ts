@@ -163,9 +163,11 @@ export default class ToolsHandler {
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
                 return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
             }),
-            li('➕ Create missing rewards on Twitch',
+            li('➕ (DISABLED) Create missing rewards on Twitch',
                 'Will create new rewards on Twitch for events missing a reward ID while containing a reward preset.',
                 async (e)=> {
+                return 'Disabled because it is acting up on Multi Tier events for some reason...'
+                /*
                 const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(
                     new EventDefault()
                 ) ?? {})
@@ -200,19 +202,20 @@ export default class ToolsHandler {
                     }
                 }
                 return `Created ${createdCount} reward(s) on Twitch, failed to create ${errorCount} reward(s), failed to save ${failedCount} reward(s)`
+                */
             }),
             title('Rewards'),
-            li('⏮ Reset incrementing rewards', '', async (e)=>{
+            li('⏮ (TODO) Reset incrementing rewards', '', async (e)=>{
                 // TODO
 
                 return 'Reset X incrementing rewards'
             }),
-            li('⏮ Reset accumulating rewards', '', async (e)=>{
+            li('⏮ (TODO) Reset accumulating rewards', '', async (e)=>{
                 // TODO
 
                 return 'Reset X accumulating rewards'
             }),
-            li('⏮ Reset multi-tier rewards', '', async (e)=>{
+            li('⏮ (TODO) Reset multi-tier rewards', '', async (e)=>{
                 // TODO
 
                 return 'Reset X multi-tier rewards'

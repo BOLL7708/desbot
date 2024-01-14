@@ -4,8 +4,8 @@ import DataMap from '../DataMap.js'
 export class PresetPermissions extends Data {
     streamer: boolean = true
     moderators: boolean = false
-    VIPs: boolean = false
     subscribers: boolean = false
+    VIPs: boolean = false
     everyone: boolean = false
 
     enlist() {
@@ -14,8 +14,8 @@ export class PresetPermissions extends Data {
             {
                 streamer: 'The channel owner/streamer.',
                 moderators: 'Moderators for the channel.',
-                VIPs: 'People set to VIP in the channel.',
                 subscribers: 'People subscribed to the channel.',
+                VIPs: 'People set to VIP in the channel.',
                 everyone: 'Absolutely anyone at all.'
             }
         )

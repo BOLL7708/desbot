@@ -36,7 +36,7 @@ enum EKeys {
 
     RewardSpeak = 'Speak',
     RewardSetVoice = 'Set Voice',
-    RewardChannelTrophy = 'Channel Trophy',
+    // RewardChannelTrophy = 'Channel Trophy',
 
     PhilipsHueColorWhite = 'White',
     PhilipsHueColorRed = 'Red',
@@ -52,8 +52,8 @@ enum EKeys {
     PhilipsHueColorPurple = 'Purple',
     PhilipsHueColorPink = 'Pink',
 
-    DiscordChannelTrophy = 'Channel Trophy',
-    DiscordChannelTrophyStats = 'Channel Trophy Statistics',
+    // DiscordChannelTrophy = 'Channel Trophy',
+    // DiscordChannelTrophyStats = 'Channel Trophy Statistics',
     DiscordClips = 'Clips',
     DiscordHelp = 'Help',
     DiscordTodo = 'ToDo',
@@ -101,8 +101,8 @@ enum EKeys {
     SystemUnraid = 'Command Unraid',
     SystemQuote = 'Command Quote',
     SystemScale = 'Command Scale',
-    SystemChannelTrophy = 'Reward Channel Trophy',
-    SystemChannelTrophyStats = 'Command Channel Trophy Stats',
+    // SystemChannelTrophy = 'Reward Channel Trophy',
+    // SystemChannelTrophyStats = 'Command Channel Trophy Stats',
     SystemHelpToDiscord = 'Command Help to Discord',
     SystemHelpToChat = 'Command Help to Chat',
     SystemClips = 'Command Clips',
@@ -236,22 +236,23 @@ export default class DefaultData {
                     instance.should_redemptions_skip_request_queue = true
                     return await DataBaseHelper.save(instance, key)
                 }
-            },
-            {
-                key: EKeys.RewardChannelTrophy,
-                instance: new PresetReward(),
-                importer: async (instance: PresetReward, key)=>{
-                    instance.title = '🏆 Held by nobody!'
-                    instance.cost = 1
-                    instance.prompt = 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!'
-                    instance.background_color = '#000000'
-                    instance.is_max_per_stream_enabled = true
-                    instance.max_per_stream = 10000
-                    instance.is_global_cooldown_enabled = true
-                    instance.global_cooldown_seconds = 1
-                    return await DataBaseHelper.save(instance, key)
-                }
             }
+            // ,
+            // {
+            //     key: EKeys.RewardChannelTrophy,
+            //     instance: new PresetReward(),
+            //     importer: async (instance: PresetReward, key)=>{
+            //         instance.title = '🏆 Held by nobody!'
+            //         instance.cost = 1
+            //         instance.prompt = 'Become the Channel Trophy holder! You hold 🏆 until someone else pays the ever increasing (+1) price!'
+            //         instance.background_color = '#000000'
+            //         instance.is_max_per_stream_enabled = true
+            //         instance.max_per_stream = 10000
+            //         instance.is_global_cooldown_enabled = true
+            //         instance.global_cooldown_seconds = 1
+            //         return await DataBaseHelper.save(instance, key)
+            //     }
+            // }
         ],
         discordPresets: [
             /* TODO
@@ -337,20 +338,20 @@ export default class DefaultData {
                     return await DataBaseHelper.save(instance, key)
                 }
             },
-            {
-                key: OptionSystemActionType.ChannelTrophyStats.valueOf(),
-                instance: new PresetSystemActionText(),
-                importer: async (instance: PresetSystemActionText, key: string) => {
-                    instance.speech = [
-                        'Initiating posting all Channel Trophy statistics',
-                        'Completed posting all Channel Trophy statistics',
-                        'Initiating posting of Channel Trophy statistics',
-                        'Completed posting of Channel Trophy statistics',
-                        'Failed to post Channel Trophy statistics'
-                    ]
-                    return await DataBaseHelper.save(instance, key)
-                }
-            },
+            // {
+            //     key: OptionSystemActionType.ChannelTrophyStats.valueOf(),
+            //     instance: new PresetSystemActionText(),
+            //     importer: async (instance: PresetSystemActionText, key: string) => {
+            //         instance.speech = [
+            //             'Initiating posting all Channel Trophy statistics',
+            //             'Completed posting all Channel Trophy statistics',
+            //             'Initiating posting of Channel Trophy statistics',
+            //             'Completed posting of Channel Trophy statistics',
+            //             'Failed to post Channel Trophy statistics'
+            //         ]
+            //         return await DataBaseHelper.save(instance, key)
+            //     }
+            // },
             {
                 key: OptionSystemActionType.Clips.valueOf(),
                 instance: new PresetSystemActionText(),
