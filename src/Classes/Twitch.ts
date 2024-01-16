@@ -1,11 +1,4 @@
-import {
-    ITwitchAnnouncement,
-    ITwitchChatCallback,
-    ITwitchChatCheerCallback,
-    ITwitchChatMessageCallback,
-    ITwitchMessageData,
-    ITwitchWhisperMessageCallback
-} from '../Interfaces/itwitch.js'
+import {ITwitchAnnouncement, ITwitchChatCallback, ITwitchChatCheerCallback, ITwitchChatMessageCallback, ITwitchMessageData, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
 import {ActionHandler, Actions} from '../Pages/Widget/Actions.js'
 import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
 import Color from './ColorConstants.js'
@@ -26,6 +19,7 @@ import {TriggerRemoteCommand} from '../Objects/Trigger/TriggerRemoteCommand.js'
 import ConfigChat from '../Objects/Config/ConfigChat.js'
 import ConfigCommands from '../Objects/Config/ConfigCommands.js'
 import {DataUtils} from '../Objects/DataUtils.js'
+import SessionVars from './SessionVars.js'
 
 export default class Twitch{
     // Constants
@@ -158,6 +152,10 @@ export default class Twitch{
     private async onChatMessage(messageCmd: ITwitchMessageCmd, isWhisper: boolean = false) {
         const msg = messageCmd.message
         if(!msg) return
+        if(!isWhisper) {
+            SessionVars.lastTwitchChatterUserId = messageCmd.properties['user-id']
+            SessionVars.lastTwitchChatMessage = messageCmd.message.text
+        }
         let userName: string = msg.username?.toLowerCase() ?? ''
         if(userName.length == 0) return
         let userId: number = parseInt(messageCmd.properties['user-id'] ?? '')
