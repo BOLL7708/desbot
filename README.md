@@ -1,23 +1,7 @@
-# desbot
-## OBS: Important for existing users
-### How to upgrade if you want to retain existing data
-Simplified steps: 
-* v5 -> [v6.607][v6db] -> [v6.657][v6migrate] -> [v7.0.0][v7] -> [7.x][v7lite] 
-
-Detailed procedures for specific upgrade steps:
-* If you are upgrading a legacy widget with the file based settings/config (v5 or lower), meaning no MySQL database is used yet, you need to upgrade to the last version that has the legacy data imports: [v6.657][v6migrate], before using the editor, change: `./_data/version.json` to contain: `{"current":3}` as the migration numbering has changed.
-* If you are on a version already using the MySQL database but below [v6.607][v6db] you need to upgrade to that first, load the editor and run database migrations. 
-* If you are on MySQL and want to upgrade to anything above v7, you should first upgrade to [v7.0.0][v7] and run the editor for the last MySQL migrations, then upgrade to [v7.x][v7lite] for the SQLite database conversion.
-
-If at any point your existing configs and data files are giving you TypeScript errors, add this to `tsconfig.json` in the root of the project to exclude them from the compilation:
-```json
-{
-    "exclude": ["./src/_config/*", "./src/_data/*"],
-}
-```
+# desbot [alpha]
 
 ## What is it?
-This is currently a browser-based widget that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
+In its current form this is a browser-based solution that was made to help with streaming SteamVR games on Twitch, as an affiliate, using OBS Studio and a range of accessories. It can be used for non-VR games and for non-affiliates as well though, with some limitations. 
 
 It runs as a browser source inside OBS Studio, so it's already running when you are about to stream.
 

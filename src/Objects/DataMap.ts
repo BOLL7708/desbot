@@ -1,8 +1,6 @@
-import {IStringDictionary} from '../Interfaces/igeneral.js'
+import {IDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import Data from './Data.js'
 import {DataMeta} from './DataMeta.js'
-import Utils from '../Classes/Utils.js'
-import Color from '../Classes/ColorConstants.js'
 
 // Types
 export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
@@ -17,7 +15,8 @@ export default class DataMap {
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
         label?: TNoFunctions<T>,
-        keyMap?: IStringDictionary
+        keyMap?: IStringDictionary,
+        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>
     ) {
         const className = instance.constructor.name
         const meta = new DataObjectMeta(
@@ -27,19 +26,21 @@ export default class DataMap {
             documentation as IStringDictionary|undefined,
             types as IStringDictionary|undefined,
             label as string|undefined,
-            keyMap as IStringDictionary|undefined
+            keyMap as IStringDictionary|undefined,
+            tools as IDictionary<IRootTool>
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap}: {
+    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap, tools}: {
         instance: T&Data,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
         label?: TNoFunctions<T>,
-        keyMap?: IStringDictionary
+        keyMap?: IStringDictionary,
+        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>
     }) {
-        this.addInstance(true, instance, description, documentation, types, label, keyMap)
+        this.addInstance(true, instance, description, documentation, types, label, keyMap, tools)
     }
     public static addSubInstance<T>({instance, documentation, types}: {
         instance: T&Data,
@@ -114,8 +115,23 @@ export class DataObjectMeta extends DataMeta {
         public documentation?: IStringDictionary,
         public types?: IStringDictionary,
         public label?: string,
-        public keyMap?: IStringDictionary
+        public keyMap?: IStringDictionary,
+        public tools?: IDictionary<IRootTool>
     ) {
         super()
     }
 }
+
+interface IRootTool {
+    label: string
+    documentation: string
+    /** If the instance that is provided in the callback should be filled with data instead of reference IDs. */
+    filledInstance: boolean
+    callback: <T>(instance: T&Data)=>Promise<RootToolResult>
+}
+export class RootToolResult {
+    success: boolean = false
+    message: string = ''
+    data: TRootToolResponseData = undefined
+}
+export type TRootToolResponseData = undefined|string|number|boolean

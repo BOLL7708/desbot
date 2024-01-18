@@ -24,7 +24,6 @@ import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options
 import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
 import {OptionTTSType} from '../../Options/OptionTTS.js'
 import {DataUtils} from '../../Objects/DataUtils.js'
-import Data, {DataEntries} from '../../Objects/Data.js'
 
 export class ActionHandler {
     constructor(

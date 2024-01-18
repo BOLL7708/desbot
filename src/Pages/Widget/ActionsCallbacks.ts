@@ -547,7 +547,7 @@ export default class ActionsCallbacks {
 
                 // Update reward
                 const rewardId = await LegacyUtils.getRewardId('ChannelTrophy')
-                const rewardData = await TwitchHelixHelper.getReward(rewardId ?? '')
+                const rewardData = await TwitchHelixHelper.getReward(rewardId ?? '', true)
                 if(rewardData?.data?.length == 1) { // We only loaded one reward, so this should be 1
                     const cost = rewardData.data[0].cost
 

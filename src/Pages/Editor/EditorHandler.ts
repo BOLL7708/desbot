@@ -289,6 +289,7 @@ export default class EditorHandler {
         await this.confirmSaveIfReplacingOrLeaving()
         this._state.groupClass = group
         this._state.groupKey = selectKey
+        const meta = DataMap.getMeta(group)
 
         Utils.setUrlParam({c: group})
 
@@ -302,7 +303,7 @@ export default class EditorHandler {
 
         // Description
         const description = document.createElement('p') as HTMLParagraphElement
-        const descriptionText = DataMap.getMeta(group)?.description ?? 'No description.'
+        const descriptionText = meta?.description ?? 'No description.'
         description.innerHTML = this.linkifyDescription(descriptionText)
 
         // Dropdown & editor
@@ -314,6 +315,30 @@ export default class EditorHandler {
 
         const dropdown = document.createElement('select') as HTMLSelectElement
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
+
+        // Tools
+        const tools = document.createElement('div') as HTMLDivElement
+        for(const [key, tool] of Object.entries(meta?.tools ?? {})) {
+            const toolButton = document.createElement('button') as HTMLButtonElement
+            toolButton.classList.add('main-button')
+            toolButton.innerHTML = tool.label
+            toolButton.title = tool.documentation
+            toolButton.onclick = async (event)=>{
+                if(this._editor && meta) {
+                    const data = this._editor?.getData()
+                    const newInstance = await meta.instance.__new(data?.instance ?? {}, tool.filledInstance)
+                    if(newInstance) {
+                        const response = await tool.callback(newInstance)
+                        if(response.message) alert(response.message)
+                        if(response.success) {
+                            this._editor.setValue([JsonEditor.PATH_ROOT_KEY, key], response.data)
+                        }
+                    }
+                }
+            }
+            tools.appendChild(toolButton)
+        }
+
         const updateEditor = async(
             event: Event|undefined, // Here so we can assign it to listeners
             newKey: string = ''
@@ -520,6 +545,7 @@ export default class EditorHandler {
         }
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
+        this._contentDiv.appendChild(tools)
         if(!this._state.minimal) {
             if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
             this._contentDiv.appendChild(dropdown)

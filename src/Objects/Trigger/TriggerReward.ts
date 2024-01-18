@@ -1,5 +1,5 @@
 import Data, {DataEntries} from '../Data.js'
-import DataMap from '../DataMap.js'
+import DataMap, {RootToolResult} from '../DataMap.js'
 import {PresetReward} from '../Preset/PresetReward.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
@@ -9,6 +9,8 @@ import {ITwitchReward} from '../../Interfaces/itwitch.js'
 import Utils from '../../Classes/Utils.js'
 import {ActionHandler} from '../../Pages/Widget/Actions.js'
 import {DataUtils} from '../DataUtils.js'
+import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|DataEntries<PresetPermissions> = 0
@@ -28,6 +30,46 @@ export class TriggerReward extends Trigger {
                 permissions: PresetPermissions.ref.id.build(),
                 rewardID: SettingTwitchReward.ref.id.label.build(),
                 rewardEntries: Data.genericRef('PresetReward').build() // I believe this was done to give these items a parent
+            },
+            tools: {
+                rewardID: {
+                    label: 'Create reward on Twitch',
+                    documentation: 'For this to succeed you need at least one preset added to Reward Entries.',
+                    filledInstance: true,
+                    callback: async <TriggerReward>(instance: TriggerReward&Data): Promise<RootToolResult> => {
+
+                        // @ts-ignore For some inexplicable reason TSC does not recognize that the instance has the properties on it even if the IDE and browser console says it is the right class.
+                        const entries = DataUtils.ensureDataArray<PresetReward>(instance.rewardEntries) ?? []
+                        // @ts-ignore
+                        const id = DataUtils.ensureData<SettingTwitchReward>(instance.rewardID)
+
+                        const result = new RootToolResult()
+                        if(id) {
+                            result.message = 'There is already a reward selected, will skip creating a new one.'
+                            return result
+                        }
+
+                        if(entries.length > 0) {
+                            const entry = entries[0]
+                            const response = await TwitchHelixHelper.createReward(entry)
+                            if(response.data && response.data.length > 0) {
+                                const rewardData = response.data[0]
+                                const settingReward = new SettingTwitchReward()
+                                settingReward.key = rewardData.title
+                                const saved = await DataBaseHelper.save(settingReward, rewardData.id)
+                                if(saved !== undefined) {
+                                    const item = await DataBaseHelper.loadItem(new SettingTwitchReward(), saved)
+                                    if(item !== undefined) {
+                                        result.message = 'Created the reward on Twitch and saved it to the database.'
+                                        result.success = true
+                                        result.data = item.id
+                                    } else result.message = 'Failed to load the reward from the database.'
+                                } else result.message = 'Failed to save the reward to the database.'
+                            } else result.message = 'Failed to create the reward on Twitch.'
+                        } else result.message = 'No reward entries found, this is needed to create the reward.'
+                        return result
+                    }
+                }
             }
         })
     }

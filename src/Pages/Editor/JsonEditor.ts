@@ -1,7 +1,7 @@
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import Data, {EmptyData} from '../../Objects/Data.js'
 import DataBaseHelper, {IDataBaseItem, IDataBaseListItems} from '../../Classes/DataBaseHelper.js'
-import DataMap from '../../Objects/DataMap.js'
+import DataMap, {TRootToolResponseData} from '../../Objects/DataMap.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
 import {DataMeta} from '../../Objects/DataMeta.js'
 import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/ConfigEditor.js'
@@ -29,7 +29,7 @@ export interface IStepDataOptions {
 
 interface IJsonEditorData {
     parentId: number,
-    instance: any
+    instance: any&Data
 }
 
 export default class JsonEditor {
@@ -50,6 +50,8 @@ export default class JsonEditor {
     private _config: ConfigEditor = new ConfigEditor()
 
     private readonly MODIFIED_CLASS = 'modified'
+
+    public static readonly PATH_ROOT_KEY = 'Key'
 
     private _modifiedStatusListener: IJsonEditorModifiedStatusListener = (modified)=>{}
     setModifiedStatusListener(listener: IJsonEditorModifiedStatusListener) {
@@ -193,7 +195,7 @@ export default class JsonEditor {
             root: tempParent,
             data: this._instance,
             instanceMeta: instanceMeta,
-            path: ['Key'],
+            path: [JsonEditor.PATH_ROOT_KEY],
             key: key,
             origin: EOrigin.Unknown,
             originListCount: 1,
@@ -1178,6 +1180,18 @@ export default class JsonEditor {
 
     public getPartnerSlotID(partnerClass: string, key: string | number) {
         return `editorPartnerSlot-${partnerClass}-${key}`
+    }
+
+    /**
+     * Used to update values that comes in from tool callbacks in the handler.
+     * @param path
+     * @param response
+     */
+    setValue(path: IJsonEditorPath, response: TRootToolResponseData) {
+        if(response !== undefined) {
+            this.handleValue(response, path)
+            this.rebuild().then()
+        }
     }
 }
 enum EJsonEditorFieldType {

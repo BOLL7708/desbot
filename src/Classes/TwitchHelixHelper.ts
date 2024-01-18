@@ -1,19 +1,4 @@
-import {
-    ITwitchHelixCategoriesResponseData,
-    ITwitchHelixChannelRequest,
-    ITwitchHelixChannelResponse,
-    ITwitchHelixChannelResponseData,
-    ITwitchHelixChatColorResponse,
-    ITwitchHelixClipResponse,
-    ITwitchHelixGamesResponse,
-    ITwitchHelixGamesResponseData,
-    ITwitchHelixRewardConfig,
-    ITwitchHelixRewardResponse,
-    ITwitchHelixRewardUpdate,
-    ITwitchHelixRoleResponse,
-    ITwitchHelixUsersResponse,
-    ITwitchHelixUsersResponseData
-} from '../Interfaces/itwitch_helix.js'
+import {ITwitchHelixCategoriesResponseData, ITwitchHelixChannelRequest, ITwitchHelixChannelResponse, ITwitchHelixChannelResponseData, ITwitchHelixChatColorResponse, ITwitchHelixClipResponse, ITwitchHelixGamesResponse, ITwitchHelixGamesResponseData, ITwitchHelixRewardResponse, ITwitchHelixRewardUpdate, ITwitchHelixRoleResponse, ITwitchHelixUsersResponse, ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
 import Color from './ColorConstants.js'
 import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
@@ -25,7 +10,6 @@ import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Options/Op
 import {PresetReward} from '../Objects/Preset/PresetReward.js'
 import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
 import {EventDefault} from '../Objects/Event/EventDefault.js'
-import {TriggerRelay} from '../Objects/Trigger/TriggerRelay.js'
 import EventHelper from './EventHelper.js'
 import {DataUtils} from '../Objects/DataUtils.js'
 
@@ -140,7 +124,7 @@ export default class TwitchHelixHelper {
      * 2. Load all current IDs from a settings file.
      * 3. If any reward is missing an ID, create it on Twitch.
      */
-    static async createReward(createData: ITwitchHelixRewardConfig):Promise<ITwitchHelixRewardResponse> {
+    static async createReward(createData: PresetReward):Promise<ITwitchHelixRewardResponse> {
         const url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}`
         const headers = await this.getAuthHeaders()
         headers.append('Content-Type', 'application/json')
@@ -157,12 +141,13 @@ export default class TwitchHelixHelper {
             })
     }
 
-    static async getRewards():Promise<ITwitchHelixRewardResponse> {
-        return this.getReward("")
+    static async getRewards(onlyManageable: boolean):Promise<ITwitchHelixRewardResponse> {
+        return this.getReward("", onlyManageable)
     }
 
-    static async getReward(rewardId: string):Promise<ITwitchHelixRewardResponse> {
-        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}&only_manageable_rewards=true`
+    static async getReward(rewardId: string, onlyManageable: boolean):Promise<ITwitchHelixRewardResponse> {
+        let url = `${this._baseUrl}/channel_points/custom_rewards?broadcaster_id=${await this.getBroadcasterUserId()}`
+        if(onlyManageable) url += `&only_manageable_rewards=true`
         if(rewardId.length > 0) url += `&id=${rewardId}`
         return await fetch(url, {headers: await this.getAuthHeaders()}).then(res => res.json())
     }
