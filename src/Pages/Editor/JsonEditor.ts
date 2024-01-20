@@ -392,7 +392,7 @@ export default class JsonEditor {
                     previewBox.replaceChildren(playLink)
                     previewBox.style.display = ''
                 } else {
-                    console.log('Unsupported file: ', value, contentType)
+                    console.log('Preview: Unsupported file: ', value, contentType)
                 }
             } else if(Utils.isColor(value)) {
                 previewBox.style.backgroundColor = value

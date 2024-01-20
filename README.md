@@ -7,6 +7,8 @@ It runs as a browser source inside OBS Studio, so it's already running when you 
 
 The project has gone from a very bespoke solution, to a highly flexible one, so it can be used by a variety of users. It is now mostly powered by config files, that define what will happen and when.
 
+---
+
 ## What can it do?
 It's honestly so capable now it's almost ridiculous to write it all down, this is an attempt at a high level summary.
 
@@ -23,6 +25,8 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 11. Load and post Steam game info, achievements to Twitch chat, Discord.
 12. Update the Twitch category from the currently running Steam game.
 
+---
+
 ## How to set it up?
 1. Install [XAMPP][xampp] with PHP 8.1 or higher, make sure to launch it manually and not run it as a service, as we need user privileges.
 2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3.dll` to enable the SQLite plugin. Restart Apache.
@@ -31,12 +35,16 @@ It's honestly so capable now it's almost ridiculous to write it all down, this i
 5. Clone this repository to a folder in `htdocs` of `xampp`, it should automatically create a folder named after the repo.
 6. Open the URL to the bot in your browser and go from there, should look something like: `http://localhost/desbot/`
 
+---
+
 ## How to configure it?
 1. The first time you run the main page, it will convert existing data if available, else it will just create a new database.
 2. Go through the initial setup, which includes signing in with Twitch.
 3. In the editor, import default presets and events in the `Defaults` section, this will help you get a very solid base setup.
 4. Get an API key from [Google][googletts] and set it in `Config > Speech > Google Api Key`, to get TTS going as that is a very useful feature.
 5. Use the `Tools`  section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
+
+---
 
 ## Additional tools
 * [Open Broadcaster Software][obs] - Streaming software, used to run the bot as a browser source.

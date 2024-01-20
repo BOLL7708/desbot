@@ -106,7 +106,7 @@ export default class ToolsHandler {
             li('🔽 Import rewards from Twitch',
                 'Import any rewards that are not in the system yet from Twitch, this will create global triggers with preset and setting filled in.',
                 async (e)=>{
-                const rewards = await TwitchHelixHelper.getRewards()
+                const rewards = await TwitchHelixHelper.getRewards(true)
                 const existingRewards = await DataBaseHelper.loadAll(new SettingTwitchReward())
                 const existingRewardIDs = Object.keys(existingRewards ?? {})
                 let newRewardCount = 0
