@@ -933,13 +933,10 @@ export default class DefaultData {
 
                     const actionTTS = new ActionSettingTTS()
                     actionTTS.functionType = OptionTTSFunctionType.GetUserVoice
-                    const actionSpeech = new ActionSpeech()
-                    actionSpeech.entries = ['%targetOrUserTag now sounds like this.']
-                    actionSpeech.voiceOfUser_orUsername = '%targetOrUserLogin'
                     const actionChat = new ActionChat()
                     actionChat.entries = ['TTS: %targetOrUserTag got their voice set to: %targetOrUserVoice']
 
-                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionSpeech, actionChat])
+                    return await DefaultData.registerEvent(instance, key, [trigger], [actionTTS, actionChat])
                 }
             },{
                 key: EKeys.TtsVoices,
@@ -1010,7 +1007,7 @@ export default class DefaultData {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries = ['word', 'setword']
                     trigger.category = OptionCommandCategory.Dictionary
                     trigger.helpInput = ['original', 'replacement']
@@ -1047,7 +1044,7 @@ export default class DefaultData {
                 instance: new EventDefault(),
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
-                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
                     trigger.entries = ['clearword']
                     trigger.requireExactWordCount = 1
                     trigger.category = OptionCommandCategory.Dictionary
