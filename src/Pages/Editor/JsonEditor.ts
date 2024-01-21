@@ -562,9 +562,9 @@ export default class JsonEditor {
                     // Clamp to optional range
                     let num = parseFloat(input.innerHTML)
                     if(range) {
-                        if(num < thisTypeValues.range[0]) input.innerHTML = `${thisTypeValues.range[0]}`
-                        if(num > thisTypeValues.range[1]) input.innerHTML = `${thisTypeValues.range[1]}`
-                        num = parseFloat(input.innerHTML)
+                        // if(num < thisTypeValues.range[0]) input.innerHTML = `${thisTypeValues.range[0]}`
+                        // if(num > thisTypeValues.range[1]) input.innerHTML = `${thisTypeValues.range[1]}`
+                        // num = parseFloat(input.innerHTML)
                         if(range && event.type != 'skip') range.value = input.innerHTML
                     }
                     // Handle
@@ -607,7 +607,7 @@ export default class JsonEditor {
             range.value = `${options.data}`
             
             input.classList.add('number-range')
-            const maxLength = Math.max(range.min.length, range.max.length)
+            const maxLength = Math.max(range.min.length, range.max.length, range.step.length)
             input.style.width = `${maxLength}ch`
 
             range.oninput = (event)=>{

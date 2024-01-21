@@ -48,7 +48,7 @@ export class DataUtils {
                     refValues.file = v.split(',')
                     break
                 case 'range':
-                    refValues.range = v.split(',').map(v => parseInt(v))
+                    refValues.range = v.split(',').map(v => parseFloat(v))
                     break
                 case 'code':
                     refValues.code = true

@@ -1,6 +1,9 @@
 import Data from '../Data.js'
-import DataMap from '../DataMap.js'
+import DataMap, {RootToolResult} from '../DataMap.js'
 import {DataUtils} from '../DataUtils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import ImageHelper from '../../Classes/ImageHelper.js'
+import OptionPipeCustomAnchorType from '../../Options/OptionPipeCustomAnchorType.js'
 
 export class PresetPipeBasic extends Data {
     imageData: string = ''
@@ -26,17 +29,38 @@ export class PresetPipeCustom extends Data {
             documentation: {
                 imageData: 'Optional: In this solution we set the image from the preset so this is not needed in the payload.',
                 imagePath: 'Optional: Absolute path to an image, not used in this solution except for when doing tests.',
-                customProperties: 'Properties for the custom notification.'
+                customProperties: 'Properties for the custom overlay.'
             },
             types: {
                 imagePath: DataUtils.getStringFileImageRef()
-            }
+            },
+            tasks: [
+                /*
+                {
+                    label: 'Test with OpenVROverlayPipe',
+                    documentation: 'Will send the preset to the pipe using the image set in imagePath.',
+                    filledInstance: true,
+                    callback: async <PresetPipeCustom>(instance: PresetPipeCustom&Data)=> {
+                        // TODO: This doesn't work, wait with using it until we have this in Node and the modules are always connected.
+                        const modules = ModulesSingleton.getInstance()
+                        if(!modules.pipe.isConnected()) await modules.pipe.init()
+                        // @ts-ignore For some reason TSC doesn't think instance contains the properties even if the type is defined?!?!
+                        const data = await ImageHelper.getDataUrl(instance.imagePath)
+                        // @ts-ignore
+                        instance.imageData = data
+                        // @ts-ignore
+                        await modules.pipe.sendCustom(instance)
+                        return new RootToolResult()
+                    }
+                }
+                */
+            ]
         })
     }
 }
 
 /**
- * Properties for the general state of the notification
+ * Properties for the general state of the overlay
  */
 export class PresetPipeCustomProperties extends Data {
     enabled: boolean = true
@@ -66,19 +90,19 @@ export class PresetPipeCustomProperties extends Data {
         DataMap.addSubInstance({
             instance: new PresetPipeCustomProperties(),
             documentation: {
-                enabled: 'Set to true to show a custom notification instead of a basic one.',
+                enabled: 'Set to true to show a custom overlay instead of a basic one.',
                 nonce: 'Value that will be returned in callback if provided.',
-                anchorType: 'What to anchor the notification to:\n0: World\n1: Headset\n2: Left Hand\n3: Right Hand',
-                attachToAnchor: 'Fix the notification to the anchor',
-                ignoreAnchorYaw: 'Ignore anchor device yaw angle for the notification',
-                ignoreAnchorPitch: 'Ignore anchor device pitch angle for the notification',
-                ignoreAnchorRoll: 'Ignore anchor device roll angle for the notification',
-                overlayChannel: 'The channel for this notification.\nEach channel has a separate queue and can be shown simultaneously.',
+                anchorType: 'What to anchor the overlay to, any position set will be in relation to this anchor.',
+                attachToAnchor: 'Fix the overlay to the anchor',
+                ignoreAnchorYaw: 'Ignore anchor device yaw angle for the overlay',
+                ignoreAnchorPitch: 'Ignore anchor device pitch angle for the overlay',
+                ignoreAnchorRoll: 'Ignore anchor device roll angle for the overlay',
+                overlayChannel: 'The channel for this overlay.\nEach channel has a separate queue and can be shown simultaneously.',
                 animationHz: 'Animation Hz, is set to -1 to run at headset Hz',
                 durationMs: 'Duration in milliseconds, is set by preset so should be left out.',
-                opacityPer: 'Opacity of the notification, 1 = 100%',
-                widthM: 'Physical width of the notification in meters',
-                zDistanceM: 'Physical distance to the notification in meters',
+                opacityPer: 'Opacity of the overlay, 1 = 100%',
+                widthM: 'Physical width of the overlay in meters',
+                zDistanceM: 'Physical distance to the overlay in meters',
                 yDistanceM: 'Offsets vertically in meters',
                 xDistanceM: 'Offsets horizontally in meters',
                 yawDeg: 'Angle left or right in degrees',
@@ -92,7 +116,10 @@ export class PresetPipeCustomProperties extends Data {
             types: {
                 animations: PresetPipeCustomAnimation.ref.build(),
                 textAreas: PresetPipeCustomTextArea.ref.build(),
-                transitions: PresetPipeCustomTransition.ref.build() // This is needed or else types won't be converted after an import as they are unknown.
+                transitions: PresetPipeCustomTransition.ref.build(), // This is needed or else types won't be converted after an import as they are unknown.
+
+                anchorType: OptionPipeCustomAnchorType.ref,
+                opacityPer: DataUtils.getNumberRangeRef(0, 1, 0.01)
             }
         })
     }

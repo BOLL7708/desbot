@@ -1,6 +1,5 @@
 import {Option} from './Option.js'
 import {OptionsMap} from './OptionsMap.js'
-import OptionCommandCategory from './OptionCommandCategory.js'
 
 export default class OptionEventType extends Option {
     static readonly Uncategorized = 0

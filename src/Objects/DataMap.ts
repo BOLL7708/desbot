@@ -16,7 +16,8 @@ export default class DataMap {
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
         label?: TNoFunctions<T>,
         keyMap?: IStringDictionary,
-        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>
+        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
+        tasks?: IRootTool[]
     ) {
         const className = instance.constructor.name
         const meta = new DataObjectMeta(
@@ -27,20 +28,22 @@ export default class DataMap {
             types as IStringDictionary|undefined,
             label as string|undefined,
             keyMap as IStringDictionary|undefined,
-            tools as IDictionary<IRootTool>
+            tools as IDictionary<IRootTool>,
+            tasks
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap, tools}: {
+    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap, tools, tasks}: {
         instance: T&Data,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
         label?: TNoFunctions<T>,
         keyMap?: IStringDictionary,
-        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>
+        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
+        tasks?: IRootTool[]
     }) {
-        this.addInstance(true, instance, description, documentation, types, label, keyMap, tools)
+        this.addInstance(true, instance, description, documentation, types, label, keyMap, tools, tasks)
     }
     public static addSubInstance<T>({instance, documentation, types}: {
         instance: T&Data,
@@ -116,13 +119,14 @@ export class DataObjectMeta extends DataMeta {
         public types?: IStringDictionary,
         public label?: string,
         public keyMap?: IStringDictionary,
-        public tools?: IDictionary<IRootTool>
+        public tools?: IDictionary<IRootTool>,
+        public tasks?: IRootTool[]
     ) {
         super()
     }
 }
 
-interface IRootTool {
+export interface IRootTool {
     label: string
     documentation: string
     /** If the instance that is provided in the callback should be filled with data instead of reference IDs. */

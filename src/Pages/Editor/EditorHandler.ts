@@ -2,7 +2,7 @@ import DataBaseHelper, {IDataBaseItem} from '../../Classes/DataBaseHelper.js'
 import Utils, {EUtilsTitleReturnOption} from '../../Classes/Utils.js'
 import JsonEditor from './JsonEditor.js'
 import Data from '../../Objects/Data.js'
-import DataMap from '../../Objects/DataMap.js'
+import DataMap, {IRootTool} from '../../Objects/DataMap.js'
 import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import EnlistData from '../../Objects/EnlistData.js'
@@ -317,26 +317,34 @@ export default class EditorHandler {
         const dropdownLabel = document.createElement('label') as HTMLLabelElement
 
         // Tools
-        const tools = document.createElement('div') as HTMLDivElement
+        const buttonBar = document.createElement('div') as HTMLDivElement
+        for(const task of meta?.tasks ?? []) {
+            const taskButton = buildToolOrTaskButton(this._editor, task)
+            buttonBar.appendChild(taskButton)
+        }
         for(const [key, tool] of Object.entries(meta?.tools ?? {})) {
-            const toolButton = document.createElement('button') as HTMLButtonElement
-            toolButton.classList.add('main-button')
-            toolButton.innerHTML = tool.label
-            toolButton.title = tool.documentation
-            toolButton.onclick = async (event)=>{
-                if(this._editor && meta) {
-                    const data = this._editor?.getData()
-                    const newInstance = await meta.instance.__new(data?.instance ?? {}, tool.filledInstance)
+            const toolButton = buildToolOrTaskButton(this._editor, tool, key)
+            buttonBar.appendChild(toolButton)
+        }
+        function buildToolOrTaskButton(editor: JsonEditor, call: IRootTool, key?: string) {
+            const button = document.createElement('button') as HTMLButtonElement
+            button.classList.add('main-button')
+            button.innerHTML = call.label
+            button.title = call.documentation
+            button.onclick = async()=>{
+                if(editor && meta) {
+                    const data = editor.getData()
+                    const newInstance = await meta.instance.__new(data?.instance ?? {}, call.filledInstance)
                     if(newInstance) {
-                        const response = await tool.callback(newInstance)
+                        const response = await call.callback(newInstance)
                         if(response.message) alert(response.message)
-                        if(response.success) {
-                            this._editor.setValue([JsonEditor.PATH_ROOT_KEY, key], response.data)
+                        if(response.success && key) {
+                            editor.setValue([JsonEditor.PATH_ROOT_KEY, key], response.data)
                         }
                     }
                 }
             }
-            tools.appendChild(toolButton)
+            return button
         }
 
         const updateEditor = async(
@@ -546,7 +554,7 @@ export default class EditorHandler {
         }
         this._contentDiv.replaceChildren(title)
         this._contentDiv.appendChild(description)
-        this._contentDiv.appendChild(tools)
+        this._contentDiv.appendChild(buttonBar)
         if(!this._state.minimal) {
             if(dropdownLabel) this._contentDiv.appendChild(dropdownLabel)
             this._contentDiv.appendChild(dropdown)

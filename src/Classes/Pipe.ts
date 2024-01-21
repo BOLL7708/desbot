@@ -17,7 +17,7 @@ import {ActionPipe} from '../Objects/Action/ActionPipe.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import {IActionUser} from '../Objects/Action.js'
 import {DataUtils} from '../Objects/DataUtils.js'
-import {DataEntries} from '../Objects/Data.js'
+import Data, {DataEntries} from '../Objects/Data.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -39,6 +39,10 @@ export default class Pipe {
     }
     private onError(evt: Event) {
         // console.table(evt)
+    }
+
+    isConnected(): boolean {
+        return this._socket?.isConnected() ?? false
     }
 
     setOverlayTitle(title: string) {
@@ -211,7 +215,7 @@ export default class Pipe {
         }
     }
 
-    async sendCustom(message: PresetPipeCustom) {
+    async sendCustom(message: PresetPipeCustom&Data) {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
         const nonce = Utils.getNonce('custom-pipe')
         message.customProperties.nonce = nonce

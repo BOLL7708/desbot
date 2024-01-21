@@ -65,7 +65,7 @@ export class TriggerReward extends Trigger {
                                         result.data = item.id
                                     } else result.message = 'Failed to load the reward from the database.'
                                 } else result.message = 'Failed to save the reward to the database.'
-                            } else result.message = 'Failed to create the reward on Twitch.'
+                            } else result.message = `Failed to create the reward on Twitch, [${response.error}]: ${response.message}`
                         } else result.message = 'No reward entries found, this is needed to create the reward.'
                         return result
                     }
