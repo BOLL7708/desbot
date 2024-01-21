@@ -14,7 +14,7 @@ export default class ConfigScreenshots extends Data {
         DataMap.addRootInstance({
             instance: new ConfigScreenshots(),
             description: 'Trigger and transmit screenshots of OBS Studio sources or SuperScreenShotterVR: https://github.com/BOLL7708/SuperScreenShotterVR',
-            types: {
+            documentation: {
                 SSSVRPort: 'Port set in SuperScreenShotterVR.',
                 callback: 'Values used when posting things coming in from SSSVR & OBS to Discord etc.'
             }
