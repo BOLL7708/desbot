@@ -382,7 +382,7 @@ export default class GoogleTTS {
                 console.log("Voices loaded!")
                 let voices: IGoogleVoice[] = json?.voices
                 if(voices != null) {
-                    voices = voices.filter(voice => voice.name.includes('Wavenet') || voice.name.includes('Neural') || voice.name.includes('News') || voice.name.includes('Studio'))
+                    voices = voices.filter(voice => voice.name.includes('Wavenet') || voice.name.includes('Neural') || voice.name.includes('News') || voice.name.includes('Studio') || voice.name.includes('Polyglot'))
                     this._voices = voices
                     this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0))
                     voices.forEach(voice => {
