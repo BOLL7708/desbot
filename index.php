@@ -4,6 +4,9 @@ if(!file_exists('_db/main.sqlite')) {
     header('Location: ./_sqlite.php');
     die();
 }
+if(!is_dir('_assets')) {
+    mkdir('_assets');
+}
 PageUtils::printTop();
 ?>
         <div id="content" style="display:none;">
