@@ -1,6 +1,5 @@
-import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
-import {OptionEntryUsage} from '../Options/OptionEntryType.js'
 import Color from './ColorConstants.js'
+import Constants from './Constants.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {
@@ -348,7 +347,7 @@ export default class Utils {
     }
 
     static getAuth(): string {
-        return localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? ''
+        return localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder()) ?? ''
     }
     static getAuthInit(additionalHeaders: HeadersInit = {}): RequestInit {
         return {
@@ -356,7 +355,7 @@ export default class Utils {
         }
     }
     static clearAuth(): void {
-        localStorage.removeItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder())
+        localStorage.removeItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder())
     }
 
     static getCurrentFolder(): string {

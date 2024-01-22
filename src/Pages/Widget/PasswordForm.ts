@@ -1,6 +1,6 @@
 import Color from '../../Classes/ColorConstants.js'
 import Utils from '../../Classes/Utils.js'
-import {LOCAL_STORAGE_AUTH_KEY} from '../../Classes/DataFileUtils.js'
+import Constants from '../../Classes/Constants.js'
 
 export default class PasswordForm {
     static spawn() {
@@ -37,7 +37,7 @@ export default class PasswordForm {
             if(input.name == 'password') {
                 const password = input.value
                 if(password.length) {
-                    localStorage.setItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder(), password)
+                    localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder(), password)
                     Utils.reload()
                 }
             }

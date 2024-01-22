@@ -57,7 +57,6 @@ export default class DataFileUtils {
 
 
 // region Data Constants & Classes
-export const LOCAL_STORAGE_AUTH_KEY = 'BOLL7708_sw_auth_'
 export class AuthData {
     hash: string = ''
 }

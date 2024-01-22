@@ -60,6 +60,7 @@ import {SettingStreamQuote} from './Setting/SettingStream.js'
 import ConfigAnnouncements, {ConfigAnnounceCheer, ConfigAnnounceRaid, ConfigAnnouncerTriggers, ConfigAnnounceSub} from './Config/ConfigAnnouncements.js'
 import ConfigCommands from './Config/ConfigCommands.js'
 import {ConfigTest} from './Config/ConfigTest.js'
+import {PresetEventCategory} from './Preset/PresetEventCategory.js'
 
 /**
  * This class exists to enlist the things stored in the database in a map.
@@ -160,6 +161,7 @@ export default class EnlistData {
             new PresetReward(),
             new PresetSystemActionText(),
             new PresetText(),
+            new PresetEventCategory(),
 
             new SettingChannelTrophyStat(),
             new SettingCounterBase(),

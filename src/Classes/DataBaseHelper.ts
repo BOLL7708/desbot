@@ -1,12 +1,9 @@
-import {LOCAL_STORAGE_AUTH_KEY} from './DataFileUtils.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
 import Data from '../Objects/Data.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import DataMap from '../Objects/DataMap.js'
-import {SettingIncrementingCounter} from '../Objects/Setting/SettingCounters.js'
-import {DataMeta} from '../Objects/DataMeta.js'
-import {DataUtils} from '../Objects/DataUtils.js'
+import Constants from './Constants.js'
 
 export default class DataBaseHelper {
     static readonly OBJECT_MAIN_KEY: string = 'Main'
@@ -513,7 +510,7 @@ export default class DataBaseHelper {
         options: IDataBaseHelperHeaders
     ): Promise<HeadersInit> {
         const headers = new Headers()
-        headers.set('Authorization', localStorage.getItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder()) ?? '')
+        headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder()) ?? '')
         if(options.groupClass !== undefined) headers.set('X-Group-Class', options.groupClass)
         if(options.groupKey !== undefined) headers.set('X-Group-Key', options.groupKey)
         if(options.newGroupKey !== undefined) headers.set('X-New-Group-Key', options.newGroupKey)

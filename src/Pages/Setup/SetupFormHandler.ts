@@ -1,15 +1,10 @@
 import Utils from '../../Classes/Utils.js'
 import SetupSectionHandler from './SetupSectionHandler.js'
-import DataFileUtils, {
-    AuthData,
-    GitVersion,
-    LOCAL_STORAGE_AUTH_KEY,
-    MigrationData,
-    MigrationVersion
-} from '../../Classes/DataFileUtils.js'
+import DataFileUtils, {AuthData} from '../../Classes/DataFileUtils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import {SettingTwitchClient, SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
+import Constants from '../../Classes/Constants.js'
 
 type TForm =
     'Register'
@@ -188,7 +183,7 @@ export default class SetupFormHandler {
 
     private storeAuth(password: string) {
         console.log(`Storing auth: ${password}`)
-        localStorage.setItem(LOCAL_STORAGE_AUTH_KEY+Utils.getCurrentFolder(), password)
+        localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder(), password)
     }
     // endregion
 }

@@ -4,12 +4,12 @@ import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import Trigger from '../Trigger.js'
 import Action from '../Action.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
-import OptionEventType from '../../Options/OptionEventType.js'
 import {DataUtils} from '../DataUtils.js'
 import {IDictionary} from '../../Interfaces/igeneral.js'
+import {PresetEventCategory} from '../Preset/PresetEventCategory.js'
 
 export class EventDefault extends Data {
-    type: number = OptionEventType.Uncategorized
+    category: number|DataEntries<PresetEventCategory> = 0
     options: EventOptions = new EventOptions()
     triggers: number[]|DataEntries<Trigger> = []
     actions: EventActionContainer[] = []
@@ -19,13 +19,13 @@ export class EventDefault extends Data {
             instance: new EventDefault(),
             description: 'The event that contains triggers and actions.',
             documentation: {
-                type: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
+                category: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
                 options: 'Set various options for event behavior.',
                 triggers: 'Supply in which ways we should trigger this event.',
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
             types: {
-                type: OptionEventType.ref,
+                category: PresetEventCategory.ref.id.build(),
                 triggers: Data.genericRef('Trigger').build(),
                 actions: EventActionContainer.ref.build()
             }

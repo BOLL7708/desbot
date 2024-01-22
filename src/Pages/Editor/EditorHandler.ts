@@ -7,8 +7,10 @@ import {ConfigEditor} from '../../Objects/Config/ConfigEditor.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import EnlistData from '../../Objects/EnlistData.js'
 import {EventDefault} from '../../Objects/Event/EventDefault.js'
-import OptionEventType from '../../Options/OptionEventType.js'
 import EditorHandlerUtils from './EditorHandlerUtils.js'
+import {PresetEventCategory} from '../../Objects/Preset/PresetEventCategory.js'
+import {DataUtils} from '../../Objects/DataUtils.js'
+import Constants from '../../Classes/Constants.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()
@@ -141,12 +143,16 @@ export default class EditorHandler {
     }
 
     private _sideMenuDiv: HTMLDivElement|undefined
-    private _eventType = -1
+    private _eventCategory = Number.MIN_VALUE
     async updateSideMenu(skipNewButton: boolean = false) {
         if(!this._sideMenuDiv) {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
         if(!this._sideMenuDiv) return // Side menu does not exist in minimal mode.
+
+        if(this._eventCategory == Number.MIN_VALUE) {
+            this._eventCategory = parseInt(localStorage.getItem(Constants.LOCAL_STORAGE_KEY_EVENTCATEGORY+Utils.getCurrentFolder()) ?? '0')
+        }
 
         // Clear
         this._sideMenuDiv.replaceChildren()
@@ -168,50 +174,72 @@ export default class EditorHandler {
         let itemClass = ''
         if(Object.keys(classesAndCounts).length == 1) {
             const className = Object.keys(classesAndCounts)[0]
+            const eventCategories = await DataBaseHelper.loadAll(new PresetEventCategory()) ?? {}
             // If a data category only has one type of items, we will list that in the side menu directly, right now just Events.
             const meta = DataMap.getMeta(className)
-            const typeSelector = document.createElement('select')
+            const categorySelector = document.createElement('select')
             if(meta) {
                 // If we are listing events, do the following.
                 if(className == EventDefault.ref.build()) {
                     // Add optional category selector
-                    if(this._eventType < 0) this._eventType = OptionEventType.Uncategorized
-
                     const typeContainer = document.createElement('p')
                     const typeSelectorId = className + '-type-selector'
-
                     const typeLabel = document.createElement('label')
                     typeLabel.innerText = 'Category: '
                     typeLabel.htmlFor = typeSelectorId
                     typeContainer.appendChild(typeLabel)
 
-                    typeSelector.id = typeSelectorId
-                    const options = Object.entries(OptionEventType).map(([key, value])=>{
+                    categorySelector.id = typeSelectorId
+                    const options = Object.entries(eventCategories).map(([key, preset])=>{
                         const option = document.createElement('option')
-                        option.value = value
+                        option.value = preset.id.toString()
                         option.innerText = Utils.camelToTitle(key)
-                        if(value == this._eventType) option.selected = true
+                        option.title = preset.data?.description ?? ''
+                        if(preset.id == this._eventCategory) option.selected = true
                         return option
                     })
-                    typeSelector.replaceChildren(...options)
-                    typeSelector.onchange = (event)=>{
-                        this._eventType = Number(typeSelector.value)
+                    // Add extra options
+                    const optionAll = document.createElement('option')
+                    optionAll.value = '0'
+                    optionAll.innerText = 'All'
+                    if(optionAll.value == this._eventCategory.toString()) optionAll.selected = true
+                    const optionUncategorized = document.createElement('option')
+                    optionUncategorized.value = '-1'
+                    optionUncategorized.innerText = 'Uncategorized'
+                    if(optionUncategorized.value == this._eventCategory.toString()) optionUncategorized.selected = true
+                    options.push(optionAll, optionUncategorized)
+
+                    categorySelector.replaceChildren(...options)
+                    categorySelector.onchange = (event)=>{
+                        this._eventCategory = Number(categorySelector.value)
+                        localStorage.setItem(Constants.LOCAL_STORAGE_KEY_EVENTCATEGORY+Utils.getCurrentFolder(), this._eventCategory.toString())
                         this.updateSideMenu(true).then()
                     }
-
-                    typeContainer.appendChild(typeSelector)
+                    typeContainer.appendChild(categorySelector)
                     this._sideMenuDiv.appendChild(typeContainer)
                 }
                 itemClass = className
                 const items = await DataBaseHelper.loadAll(meta.instance)
                 if(items) {
                     isItems = true
-                    if(this._eventType >= 0) {
+                    if(this._eventCategory > 0) {
                         // Filter on event type to only show the right events in the side menu.
                         classesAndCounts = Object.fromEntries(
                             Object.entries(items).filter(([key, item])=>{
                                     const eventItem = item.data as EventDefault
-                                    return eventItem.type == this._eventType
+                                    return eventItem.category == this._eventCategory
+                            }).map(([key, value])=>{
+                                return [key, 1]
+                            })
+                        )
+                    } else if(this._eventCategory == -1) {
+                        const eventCategoryIds = Object.values(await DataBaseHelper.loadAll(new PresetEventCategory()) ?? {}).map((item)=>{
+                            return item.id // TODO: In the future, switch to a load all IDs.
+                        })
+                        classesAndCounts = Object.fromEntries(
+                            Object.entries(items).filter(([key, item])=>{
+                                const eventItem = item.data as EventDefault
+                                return !eventCategoryIds.includes(DataUtils.ensureID(eventItem.category) ?? Number.MAX_VALUE)
                             }).map(([key, value])=>{
                                 return [key, 1]
                             })
@@ -242,7 +270,7 @@ export default class EditorHandler {
                         }
                         this._contentDiv?.appendChild(newButton)
                     } else {
-                        typeSelector.focus()
+                        categorySelector.focus()
                     }
                 }
             }
