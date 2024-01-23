@@ -4,7 +4,7 @@ import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import {ITwitchEventSubSubscriptionPayload} from '../Interfaces/itwitch_eventsub.js'
-import {SettingUser} from '../Objects/Setting/SettingUser.js'
+import {SettingUser, SettingUserName} from '../Objects/Setting/SettingUser.js'
 import {ActionSystemRewardState} from '../Objects/Action/ActionSystem.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Options/OptionTwitch.js'
 import {PresetReward} from '../Objects/Preset/PresetReward.js'
@@ -12,6 +12,7 @@ import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
 import {EventDefault} from '../Objects/Event/EventDefault.js'
 import EventHelper from './EventHelper.js'
 import {DataUtils} from '../Objects/DataUtils.js'
+import TextHelper from './TextHelper.js'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -89,10 +90,16 @@ export default class TwitchHelixHelper {
         if(result) {
             const id = parseInt(result.id)
             if(!isNaN(id)) {
-                const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), id.toString())
-                user.userName = result.login
-                user.displayName = result.display_name
-                await DataBaseHelper.save(user, id.toString())
+                let user = await DataBaseHelper.load(new SettingUser(), id.toString())
+                if(!user) {
+                    user = new SettingUser()
+                    user.userName = result.login
+                    user.displayName = result.display_name
+                    user.name = new SettingUserName()
+                    user.name.shortName = TextHelper.cleanName(result.login)
+                    user.name.datetime = Utils.getISOTimestamp()
+                    await DataBaseHelper.save(user, id.toString())
+                }
                 this._userCache.set(id, result)
                 this._userNameToId.set(result.login, id)
             }

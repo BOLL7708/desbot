@@ -69,16 +69,7 @@ export default class ToolsHandler {
                 const username = await prompt('Enter Twitch username') ?? ''
                 const data = await TwitchHelixHelper.getUserByLogin(username)
                 if(!data) return `Did not find a Twitch user for username: ${username}`
-                const exists = await DataBaseHelper.load(user, data.id)
-                if(exists) return `Twitch user already exists for username: ${data.login}`
-                user.userName = data.login
-                user.displayName = data.display_name
-                user.name = new SettingUserName()
-                user.name.shortName = TextHelper.cleanName(data.login)
-                user.name.datetime = Utils.getISOTimestamp()
-                const result = await DataBaseHelper.save(user, data.id)
-                const verb = result ? 'Added' : 'Failed to save'
-                return `${verb} Twitch user: ${user.displayName}`
+                else return `Twitch user was created if it was missing for username: ${data.login}`
             }),
             li(`🔃 Load missing data for existing Twitch users`,
                 'Loads associated data for a Twitch user that is missing it, like their display name and generates a short name for TTS.',
@@ -103,57 +94,14 @@ export default class ToolsHandler {
                 }
                 return `Loaded missing data for ${usersUpdated} Twitch user(s)`
             }),
-            li('🔽 Import rewards from Twitch',
-                'Import any rewards that are not in the system yet from Twitch, this will create global triggers with preset and setting filled in.',
-                async (e)=>{
-                const rewards = await TwitchHelixHelper.getRewards(true)
-                const existingRewards = await DataBaseHelper.loadAll(new SettingTwitchReward())
-                const existingRewardIDs = Object.keys(existingRewards ?? {})
-                let newRewardCount = 0
-                let couldNotSaveRewardCount = 0
-                let couldNotSavePresetCount = 0
-                let couldNotSaveTriggerCount = 0
-                for(const reward of rewards?.data ?? []) {
-                    if(!existingRewardIDs.includes(reward.id)) {
-                        // Create setting
-                        const newReward = new SettingTwitchReward()
-                        newReward.key = reward.title
-                        const newRewardKey = await DataBaseHelper.save(newReward, reward.id)
-                        if(!newRewardKey) continue
-
-                        // Create preset
-                        const newPreset = new PresetReward()
-                        await newPreset.__apply(reward, false)
-                        const newPresetKey = await DataBaseHelper.save(newPreset, `Preset ${TextHelper.ensureHeaderSafe(reward.title)}`)
-                        if(!newPresetKey) {
-                            await DataBaseHelper.delete(newReward, newRewardKey)
-                            continue
-                        }
-
-                        // Create orphan trigger
-                        const newTrigger = new TriggerReward()
-                        const newRewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref.build(), newRewardKey)
-                        const newPresetID = await DataBaseHelper.loadID(PresetReward.ref.build(), newPresetKey)
-                        newTrigger.rewardID = newRewardID
-                        newTrigger.rewardEntries = [newPresetID]
-                        const newTriggerKey = await DataBaseHelper.save(newTrigger, `Trigger ${TextHelper.ensureHeaderSafe(reward.title)}`)
-                        if(newTriggerKey) {
-                            newRewardCount++
-
-                            // Set parent for preset
-                            const newTriggerID = await DataBaseHelper.loadID(TriggerReward.ref.build(), newTriggerKey)
-                            if(newTriggerID) {
-                                await DataBaseHelper.save(newPreset, newPresetKey, undefined, newTriggerID)
-                            }
-                        } else {
-                            await DataBaseHelper.delete(newReward, newRewardKey)
-                            await DataBaseHelper.delete(newPreset, newPresetKey)
-                            couldNotSaveTriggerCount++
-                        }
-                    }
-                }
-                return `Imported ${newRewardCount} rewards from Twitch, failed to save ${couldNotSaveRewardCount} reward(s), ${couldNotSavePresetCount} preset(s), and ${couldNotSaveTriggerCount} trigger(s)`
-            }),
+            li('🔽 Import manageable rewards from Twitch',
+                'Import only manageable (by the bot) rewards that are not in the system yet from Twitch, this will create global triggers with the preset and setting filled in.',
+                buildImportTwitchRewardsCallback(true)
+            ),
+            li('🔽 Import any rewards from Twitch',
+                'Import manageable (by the bot) and unmanageable rewards that are not in the system yet from Twitch, this will create global triggers with the preset and setting filled in.',
+                buildImportTwitchRewardsCallback(false)
+            ),
             li('🔼 Update rewards on Twitch',
                 'Will apply the first preset for a reward on the rewards on Twitch, will skip updating if set to be skipped.',
                 async (e)=> {
@@ -163,11 +111,11 @@ export default class ToolsHandler {
                 const result = await TwitchHelixHelper.updateRewards(allEvents)
                 return `Updated ${result.updated} reward(s) on Twitch, skipped ${result.skipped}, failed to update ${result.failed}`
             }),
+            /*
             li('➕ (DISABLED) Create missing rewards on Twitch',
                 'Will create new rewards on Twitch for events missing a reward ID while containing a reward preset.',
                 async (e)=> {
                 return 'Disabled because it is acting up on Multi Tier events for some reason...'
-                /*
                 const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(
                     new EventDefault()
                 ) ?? {})
@@ -202,7 +150,6 @@ export default class ToolsHandler {
                     }
                 }
                 return `Created ${createdCount} reward(s) on Twitch, failed to create ${errorCount} reward(s), failed to save ${failedCount} reward(s)`
-                */
             }),
             title('Rewards'),
             li('⏮ (TODO) Reset incrementing rewards', '', async (e)=>{
@@ -220,6 +167,7 @@ export default class ToolsHandler {
 
                 return 'Reset X multi-tier rewards'
             }),
+            */
             title('Steam'),
             li('➕ Add Steam game',
                 'Add a Steam game before it has been detected, this so you can reference it before that.',
@@ -281,5 +229,57 @@ export default class ToolsHandler {
             })
         ]
         buttonsList.replaceChildren(...items)
+
+        function buildImportTwitchRewardsCallback(onlyMaintainable: boolean): (e: Event)=>Promise<string> {
+            return async (e)=>{
+                const rewards = await TwitchHelixHelper.getRewards(onlyMaintainable)
+                const existingRewards = await DataBaseHelper.loadAll(new SettingTwitchReward())
+                const existingRewardIDs = Object.keys(existingRewards ?? {})
+                let newRewardCount = 0
+                let couldNotSaveRewardCount = 0
+                let couldNotSavePresetCount = 0
+                let couldNotSaveTriggerCount = 0
+                for(const reward of rewards?.data ?? []) {
+                    if(!existingRewardIDs.includes(reward.id)) {
+                        // Create setting
+                        const newReward = new SettingTwitchReward()
+                        newReward.key = reward.title
+                        const newRewardKey = await DataBaseHelper.save(newReward, reward.id)
+                        if(!newRewardKey) continue
+
+                        // Create preset
+                        const newPreset = new PresetReward()
+                        await newPreset.__apply(reward, false)
+                        const newPresetKey = await DataBaseHelper.save(newPreset, `Preset ${TextHelper.ensureHeaderSafe(reward.title)}`)
+                        if(!newPresetKey) {
+                            await DataBaseHelper.delete(newReward, newRewardKey)
+                            continue
+                        }
+
+                        // Create orphan trigger
+                        const newTrigger = new TriggerReward()
+                        const newRewardID = await DataBaseHelper.loadID(SettingTwitchReward.ref.build(), newRewardKey)
+                        const newPresetID = await DataBaseHelper.loadID(PresetReward.ref.build(), newPresetKey)
+                        newTrigger.rewardID = newRewardID
+                        newTrigger.rewardEntries = [newPresetID]
+                        const newTriggerKey = await DataBaseHelper.save(newTrigger, `Trigger ${TextHelper.ensureHeaderSafe(reward.title)}`)
+                        if(newTriggerKey) {
+                            newRewardCount++
+
+                            // Set parent for preset
+                            const newTriggerID = await DataBaseHelper.loadID(TriggerReward.ref.build(), newTriggerKey)
+                            if(newTriggerID) {
+                                await DataBaseHelper.save(newPreset, newPresetKey, undefined, newTriggerID)
+                            }
+                        } else {
+                            await DataBaseHelper.delete(newReward, newRewardKey)
+                            await DataBaseHelper.delete(newPreset, newPresetKey)
+                            couldNotSaveTriggerCount++
+                        }
+                    }
+                }
+                return `Imported ${newRewardCount} rewards from Twitch, failed to save ${couldNotSaveRewardCount} reward(s), ${couldNotSavePresetCount} preset(s), and ${couldNotSaveTriggerCount} trigger(s)`
+            }
+        }
     }
 }
