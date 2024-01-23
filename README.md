@@ -27,7 +27,7 @@ It is so capable now that this is a high level summary. Desbot can...
 
 ### Installation
 1. Install [XAMPP][xampp] with PHP 8.1 or higher, make sure to launch it manually and not run it as a service, as we need user privileges.
-2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3.dll` to enable the SQLite plugin. Restart Apache.
+2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` to enable the SQLite plugin. Restart Apache.
 3. Make sure [git][git] is installed and on the path, verify that you can run `git version` successfully.
 4. Clone this repository to a folder in `htdocs` of `xampp`, it should automatically create a folder named after the repo.
 5. Have some means of compiling TypeScript, this is possible with [Node.JS][nodejs] and `tsc`. (`npm install tsc` then run `tsc` in the root)
