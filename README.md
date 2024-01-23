@@ -27,11 +27,11 @@ It is so capable now that this is a high level summary. Desbot can...
 
 ### Installation
 1. Install [XAMPP][xampp] with PHP 8.1 or higher, make sure to launch it manually and not run it as a service, as we need user privileges.
-2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` to enable the SQLite plugin. Restart Apache.
-3. Make sure [git][git] is installed and on the path, verify that you can run `git version` successfully.
-4. Clone this repository to a folder in `htdocs` of `xampp`, it should automatically create a folder named after the repo.
-5. Have some means of compiling TypeScript, this is possible with [Node.JS][nodejs] and `tsc`. (`npm install tsc` then run `tsc` in the root)
-6. Open the URL to the bot in your browser and go through the setup, see the next section, the URL should look something like this: `http://localhost/desbot/`
+2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` by removing the leading `;` to enable the SQLite3 plugin. Restart Apache.
+3. If you want to use the backup script and have easy updates by pulling new release install [git][git] and make sure it's on the `PATH`, you can verify that you have that by running `git version` successfully in the terminal.
+4. Download or clone this repository to a folder in `htdocs` of `xampp`, when cloning it should automatically create a folder named after the repo.
+5. Have some means of compiling TypeScript, this is possible with some editors but otherwise use [Node.JS][nodejs] and use `tsc` to compile. Install it with `npm install tsc` and then run `tsc` in the root of the project folder.
+6. Open the URL to the bot in your browser and go through the setup, see the next section for configuration, the URL should look something like this if you used the defaults: `http://localhost/desbot/`
 
 ### Configuration
 1. The first time you run the main page, it will convert existing data if available, else it will just create a new database. Click the link at the bottom to go to the editor.
