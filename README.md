@@ -1,12 +1,15 @@
 # desbot [alpha]
+The bot is currently in alpha, that means not all features are here, but it is possible to run. Expect large changes to still occur.
 
-## What is it and what does it do?
+## What does it do?
 
 ### The Project
-Desbot is a streaming bot for Twitch, it runs as a browser-source in your streaming software, and can connect to various APIs and services, play back media and show on screen graphics.  
+Desbot is a streaming bot for Twitch, it runs as a browser-source in your streaming software, it can connect to various APIs and services, play back media and show on screen graphics.  
 
 ### Capabilities
-It is so capable now that this is a high level summary. Desbot can...
+The bot is meant to be a nexus for your stream interactions, it can connect to a range of services and APIs, and it can be extended with custom scripts. Expand the section below for a high level overview of what it can do.
+<details>
+
 1. Create, manage and listen for Twitch rewards, toggle them on/off depending on a range of conditions, update their settings.
 2. Listen to commands from Twitch chat, write to Twitch chat and act on whispers.
 3. Post messages and embeds in Discord channels via webhooks.
@@ -20,51 +23,129 @@ It is so capable now that this is a high level summary. Desbot can...
 10. Can trigger custom URIs for applications, or load a URL in the background to trigger standard webhooks.
 11. Load and post Steam game info & achievements to Twitch chat & Discord.
 12. Update the Twitch category from the currently running Steam game automatically.
+</details>
 
 ---
 
 ## How to use it?
+This section will explain how to get started with the bot, how to install it, how to configure it, and how to use it. Expand the sections below as you go.
 
 ### Installation
-1. Install [XAMPP][xampp] with PHP 8.1 or higher, make sure to launch it manually and not run it as a service, as we need user privileges.
-2. Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` by removing the leading `;` to enable the SQLite3 plugin. Restart Apache.
-3. If you want to use the backup script and have easy updates by pulling new release install [git][git] and make sure it's on the `PATH`, you can verify that you have that by running `git version` successfully in the terminal.
-4. Download or clone this repository to a folder in `htdocs` of `xampp`, when cloning it should automatically create a folder named after the repo.
-5. Have some means of compiling TypeScript, this is possible with some editors but otherwise use [Node.JS][nodejs] and use `tsc` to compile. Install it with `npm install tsc` and then run `tsc` in the root of the project folder.
-6. Open the URL to the bot in your browser and go through the setup, see the next section for configuration, the URL should look something like this if you used the defaults: `http://localhost/desbot/`
+<details>
+
+#### Mandatory things
+1. You need to have at least one user account on [Twitch][twitch] as that is needed to get through the setup.
+2. A webserver with PHP 8.1 or higher, an easy ready-made solution is [XAMPP][xampp].
+   * Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` by removing the leading `;` to enable the SQLite3 plugin. Then restart Apache.
+3. To compile TypeScript you need [Node.JS][nodejs].
+   * With Node installed, nstall the TypeScript compiler with `npm install -g tsc` in the terminal.
+
+#### Good to Have things
+1. A secondary [Twitch][twitch] account to use as a bot in chat, so it doesn't look like you are writing all automated messages yourself.
+2. A [Git][git] client so you can clone the repository and easily pull down new changes, it is also used to name backup archives when using the included backup script.
+   * Make sure you can access it in your terminal, run `git version` in the terminal and see if it succeeds, if not it needs to be added to the `PATH` environmental variable. 
+3. An API key from [Google][googletts] so you get access to TTS functionality, which is a commonly used feature in the bot.
+
+#### Get the bot
+1. Clone this repository to a folder in the document root of your webserver, go to it in the terminal and run `git clone https://github.com/BOLL7708/desbot.git`. If you are using `XAMPP` the root is `xampp/htdocs`.
+2. Run `tsc` in the terminal to compile the project, it should return empty if there are no issues.
+3. Open the URL to the bot in your browser and go through the setup, see the next section for configuration, the URL should look something like this if you used the defaults: `http://localhost/desbot/`
+
+</details>
 
 ### Configuration
-1. The first time you run the main page, it will convert existing data if available, else it will just create a new database. Click the link at the bottom to go to the editor.
-2. Go through the initial setup, which includes signing in with Twitch for both your channel and a bot account, which can be your own account or a specially made account.
-3. In the editor, import default presets and events in the `Defaults` section, this will help you get a very solid base setup.
-4. Get an API key from [Google][googletts] and set it in `Config > Speech > Google Api Key`, to get TTS going as that is a very useful feature.
-5. Use the `Tools` section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
+<details>
+
+1. The first time you run the main page it will create a new database. Click the link at the bottom to continue to the editor.
+2. You are now in the initial setup, which includes signing in with Twitch for both your channel and an second account to act as a bot in chat, which can be your main account or a secondary account specifically made for this.
+3. After the setup you have access to the main interface, here it is recommended to go to the `🍰 Defaults` section to import default presets and events, this will help you get a very solid base setup and includes things are not well documented so hard to get any other way.
+4. Go to  `🎨 Config > Speech > Google Api Key`, and insert your API key if you have one, this to get TTS throughout.
+5. Use the `🧰 Tools` section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
+   * If you have existing rewards on Twitch, it is a good idea to use the import tools in here. Keep in mind that if you want the bot to be able to update and toggle your reward, they need to be created by the bot. You can still import existing rewards, delete them, and then have this bot create them from the imported presets.  
+</details>
 
 ---
 
-## Additional tools & links
+## Tools & links
 ### Applications
+Links to various tools and resources.
+<details>
+
+#### Things that should or might already be installed
 * [XAMPP][xampp] - Used to run the bot locally, as the backend is currently relying on PHP.
 * [Git][git] - Used to clone the repository and to check which commit the project is on to name backups.
 * [Node.JS][nodejs] - Used to compile TypeScript to JavaScript.
 * [Open Broadcaster Software][obs] - Streaming software, used to run the bot as a browser source.
+
+#### Things that are optional accessories that can be used with the bot 
 * [AutoIT v3][autoit] - Used to send key presses to arbitrary applications.
 * [DB Browser for SQLite][sqlite] - SQLite database browser, useful for inspecting the database.
 * [OpenVR2WS][openvr2ws] - Used to connect to SteamVR to leech data from it and remotely change settings.
 * [OpenVROverlayPipe][pipe] - Used to launch overlay graphics and notifications in SteamVR.
 * [SuperScreenShotterVR][sssvr] - Used to capture screenshots from SteamVR and pipe them to overlays and/or Discord.
+</details>
 
 ### Official Links
+<details>
+
 * [Website][website] - The official website for the bot, contains a lot of information as well as this very ReadMe.
 * [Discord][discord] - The official Discord server for the bot, where you can get support and chat with other users.
 * [Reddit][reddit] - The official subreddit for the bot.
 * [Bluesky][bluesky] - The official Blueskye page for the bot.
 * [Twitter][twitter] - The official Twitter account for the bot.
+</details>
 
-[v6db]: https://github.com/BOLL7708/desbot/releases/tag/v6.607
-[v6migrate]: https://github.com/BOLL7708/desbot/releases/tag/v6.657
-[v7]: https://github.com/BOLL7708/desbot/releases/tag/v7.0.0
-[v7lite]: https://github.com/BOLL7708/desbot/releases
+---
+
+## Development
+Information about how the application is build and functions, as well as future plans.
+
+### Data Structure
+This describes the various data structure that is used to manage and configure the bot.
+<details>
+
+There are a range of data sources used by the events, triggers and actions. These are descibed below.
+```mermaid
+flowchart LR
+    Desbot[DESBOT\nThe bot uses these things to function.]
+    Desbot --> Config[CONFIG\nCollections of configuration\nvalues used for various integrations.]
+    Desbot --> Preset[PRESET\nManually added data that is meant\nto be reused in multiple places.]
+    Desbot --> Setting[SETTING\nAutomatically added data that the bot\nmanages, usually no need to access these.]
+    Desbot --> Event[EVENT\nContains triggers\nthat trigger actions.]
+    Event --> Action[ACTION\nThese are the things that\nthe bot can cause to happen.]
+    Event --> Trigger[TRIGGER\nThese are the things that\ncauses the bot to perform things.]
+```
+Events are the main way to configure the bot to act on specific triggers to perform a range of actions. The root element is as mentioned the event, then you assign the triggers and actions to it, and the constitutes the entire thing.
+</details>
+
+### Roadmap
+The items below are both major conversions and new features. These are things that are going to happen at some point, most things are already sketched out and planned.
+<details>
+
+1. The DB conversion took 16 months, but it's done, it's on here as there is some polish to do before continuing to the next thing.
+2. Convert the backend of the project to Node.JS, this has a number of benefits.
+   * NPM libraries for Twitch, Discord, etc. This will offload the API integration maintenance which will help a lot.
+   * Node instead of Apache for HTTP serving, this will remove one installation to run the bot.
+   * Node instead of PHP for page rendering and DB access, this will make for a more stable connection to SQLite.
+   * Node to host a Websocket relay server, instead of relying on a separate application.
+   * Node can run some browser APIs that can be offloaded from the browser component.
+   * Node can be run on Windows, Mac, Linux and can thus likely run 24/7 on a Raspberry Pi.
+3. Presenter - Break out the presentation part into a separate component. This will come automatically with the Node.JS conversion, but could be looked at beforehand. Basically all media playback and on screen overlays will be a separately hosted webpage that gets data over Websockets from the backend.
+4. Dashboard - Create a Stream Deck equivalent as a webpage, where reward and system features can be toggled or triggered. This is where the old game reward profile feature will come back as we can persist reward states for the running Steam game.
+
+### Planned Final Bot Structure
+This has been the plan for a while, the whole conversation from config files to database with an editor has taken a while, so we're still a bit from splitting up the project and convert it to Node.JS
+```mermaid
+flowchart LR
+    Desbot[DESBOT]
+    Desbot --> Nexus[NEXUS\nThe backend running in Node.JS\nmanaging data I/O and API\nconnections. Will host web\ncomponents and a websocket relay.]
+    Nexus --> Presenter[PRESENTER\nWeb component that displays\ngraphics, video and plays back audio.\nUsed as browser source in OBS.]
+    Nexus --> Editor[EDITOR\nWeb component that provides\nsetup and configuration.]
+    Nexus --> Dashboard[DASHBOARD\nWeb component that provides\na Stream Deck equivalent\nfor managing the system.]
+```
+</details>
+
+[twitch]: https://twitch.tv
 
 [xampp]: https://www.apachefriends.org/download.html
 [git]: https://git-scm.com/downloads
@@ -82,6 +163,5 @@ It is so capable now that this is a high level summary. Desbot can...
 [discord]: https://desbot.app/discord
 [reddit]: https://desbot.app/reddit
 [twitter]: https://desbot.app/twitter
-[twitch]: https://desbot.app/twitch
 [bluesky]: https://desbot.app/bluesky
 [trello]: https://desbot.app/trello
