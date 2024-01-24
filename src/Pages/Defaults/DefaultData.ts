@@ -1166,7 +1166,7 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsStreamer)
                     trigger.entries = ['pingoff']
                     trigger.category = OptionCommandCategory.Chat
-                    helpText: 'Turns OFF the sound effect for messages if TTS is off or the message would be silent.'
+                    trigger.helpText = 'Turns OFF the sound effect for messages if TTS is off or the message would be silent.'
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries = [OptionSystemActionType.PingOff]
                     return await DefaultData.registerEvent(instance, key, [trigger], [action])
@@ -1457,8 +1457,8 @@ export default class DefaultData {
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsVIPs)
                     trigger.entries = ['help']
                     trigger.category = OptionCommandCategory.System
-                    trigger.helpInput = ['command'],
-                    trigger.helpText = 'Posts help information about specific commands. Come on now, this is the help! Why even ask about help about the help! Sheesh!',
+                    trigger.helpInput = ['command']
+                    trigger.helpText = 'Posts help information about specific commands. Come on now, this is the help! Why even ask about help about the help! Sheesh!'
                     trigger.userCooldown = 30
                     const action = new ActionSystem()
                     action.trigger.systemActionEntries = [OptionSystemActionType.HelpToChat]
@@ -1682,7 +1682,7 @@ export default class DefaultData {
                     trigger.entries = ['so', 'shoutout']
                     trigger.category = OptionCommandCategory.Twitch
                     trigger.helpInput = ['usertag']
-                    trigger.helpText = 'Posts a shout-out message for a user, useful for an incoming raider.',
+                    trigger.helpText = 'Posts a shout-out message for a user, useful for an incoming raider.'
                     trigger.globalCooldown = 30
                     trigger.requireUserTag = true
                     const action = new ActionChat()
