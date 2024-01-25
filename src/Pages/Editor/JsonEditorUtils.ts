@@ -184,6 +184,7 @@ export class JsonEditorUtils {
     static getBookmarkButton(callback: (event: Event)=>{}): HTMLButtonElement {
         const bookmarkButton = document.createElement('button') as HTMLButtonElement
         bookmarkButton.innerHTML = '⭐'
+        bookmarkButton.title = 'Add a bookmark to the bookmarks bar to easily access this page again later.'
         bookmarkButton.classList.add('inline-button')
         bookmarkButton.onclick = callback
         bookmarkButton.ontouchstart = callback

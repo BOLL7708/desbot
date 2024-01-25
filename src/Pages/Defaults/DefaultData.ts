@@ -30,8 +30,8 @@ export enum EKeys {
     // region Presets
     PermissionsStreamer = '1 Streamer',
     PermissionsModerators = '2 Moderators',
-    PermissionsSubscribers = '3 Subscribers',
-    PermissionsVIPs = '4 VIPs',
+    PermissionsVIPs = '3 VIPs',
+    PermissionsSubscribers = '4 Subscribers',
     PermissionsEveryone = '5 Everyone',
 
     RewardSpeak = 'Speak',
@@ -160,8 +160,8 @@ export default class DefaultData {
                 importer: async (instance: PresetPermissions, key)=>{
                     instance.streamer = true
                     instance.moderators = false
-                    instance.subscribers = false
                     instance.VIPs = false
+                    instance.subscribers = false
                     instance.everyone = false
                     return await DataBaseHelper.save(instance, key)
                 }
@@ -172,20 +172,8 @@ export default class DefaultData {
                 importer: async (instance: PresetPermissions, key)=>{
                     instance.streamer = true
                     instance.moderators = true
+                    instance.VIPs = false
                     instance.subscribers = false
-                    instance.VIPs = false
-                    instance.everyone = false
-                    return await DataBaseHelper.save(instance, key)
-                }
-            },
-            {
-                key: EKeys.PermissionsSubscribers,
-                instance: new PresetPermissions(),
-                importer: async (instance: PresetPermissions, key)=>{
-                    instance.streamer = true
-                    instance.moderators = true
-                    instance.subscribers = true
-                    instance.VIPs = false
                     instance.everyone = false
                     return await DataBaseHelper.save(instance, key)
                 }
@@ -196,8 +184,20 @@ export default class DefaultData {
                 importer: async (instance: PresetPermissions, key)=>{
                     instance.streamer = true
                     instance.moderators = true
-                    instance.subscribers = true
                     instance.VIPs = true
+                    instance.subscribers = false
+                    instance.everyone = false
+                    return await DataBaseHelper.save(instance, key)
+                }
+            },
+            {
+                key: EKeys.PermissionsSubscribers,
+                instance: new PresetPermissions(),
+                importer: async (instance: PresetPermissions, key)=>{
+                    instance.streamer = true
+                    instance.moderators = true
+                    instance.VIPs = true
+                    instance.subscribers = true
                     instance.everyone = false
                     return await DataBaseHelper.save(instance, key)
                 }
@@ -208,8 +208,8 @@ export default class DefaultData {
                 importer: async (instance: PresetPermissions, key)=>{
                     instance.streamer = true
                     instance.moderators = true
-                    instance.subscribers = true
                     instance.VIPs = true
+                    instance.subscribers = true
                     instance.everyone = true
                     return await DataBaseHelper.save(instance, key)
                 }
