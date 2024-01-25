@@ -19,7 +19,7 @@ The bot is meant to be a nexus for your stream interactions, it can connect to a
 6. Connect to OBS Studio using the 4.x Websocket plugin, to show/hide sources and filters, trigger screenshot capture.
 7. Write text labels to disk, as well as a range of settings for various functions.
 8. Send key presses to arbitrary applications using PHP to execute an AutoIT v3 component.
-9. Can pipe screenhots from both SteamVR and OBS to overlays and/or Discord.
+9. Can pipe screenshots from both SteamVR and OBS to overlays and/or Discord.
 10. Can trigger custom URIs for applications, or load a URL in the background to trigger standard webhooks.
 11. Load and post Steam game info & achievements to Twitch chat & Discord.
 12. Update the Twitch category from the currently running Steam game automatically.
@@ -38,13 +38,13 @@ This section will explain how to get started with the bot, how to install it, ho
 2. A webserver with PHP 8.1 or higher, an easy ready-made solution is [XAMPP][xampp].
    * Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` by removing the leading `;` to enable the SQLite3 plugin. Then restart Apache.
 3. To compile TypeScript you need [Node.JS][nodejs].
-   * With Node installed, nstall the TypeScript compiler with `npm install -g tsc` in the terminal.
+   * With Node installed, install the TypeScript compiler with `npm install -g tsc` in the terminal.
 
 #### Good to Have things
 1. A secondary [Twitch][twitch] account to use as a bot in chat, so it doesn't look like you are writing all automated messages yourself.
 2. A [Git][git] client so you can clone the repository and easily pull down new changes, it is also used to name backup archives when using the included backup script.
    * Make sure you can access it in your terminal, run `git version` in the terminal and see if it succeeds, if not it needs to be added to the `PATH` environmental variable. 
-3. An API key from [Google][googletts] so you get access to TTS functionality, which is a commonly used feature in the bot.
+3. An API key from [Google][googletts], so you get access to TTS functionality, which is a commonly used feature in the bot.
 
 #### Get the bot
 1. Clone this repository to a folder in the document root of your webserver, go to it in the terminal and run `git clone https://github.com/BOLL7708/desbot.git`. If you are using `XAMPP` the root is `xampp/htdocs`.
@@ -91,7 +91,7 @@ Links to various tools and resources.
 * [Website][website] - The official website for the bot, contains a lot of information as well as this very ReadMe.
 * [Discord][discord] - The official Discord server for the bot, where you can get support and chat with other users.
 * [Reddit][reddit] - The official subreddit for the bot.
-* [Bluesky][bluesky] - The official Blueskye page for the bot.
+* [Bluesky][bluesky] - The official Bluesky page for the bot.
 * [Twitter][twitter] - The official Twitter account for the bot.
 </details>
 
@@ -112,8 +112,8 @@ flowchart LR
     Desbot --> Preset[PRESET\nManually added data that is meant\nto be reused in multiple places.]
     Desbot --> Setting[SETTING\nAutomatically added data that the bot\nmanages, usually no need to access these.]
     Desbot --> Event[EVENT\nContains triggers\nthat trigger actions.]
-    Event --> Action[ACTION\nThese are the things that\nthe bot can cause to happen.]
     Event --> Trigger[TRIGGER\nThese are the things that\ncauses the bot to perform things.]
+    Event --> Action[ACTION\nThese are the things that\nthe bot can cause to happen.]
 ```
 Events are the main way to configure the bot to act on specific triggers to perform a range of actions. The root element is as mentioned the event, then you assign the triggers and actions to it, and the constitutes the entire thing.
 </details>
@@ -134,7 +134,7 @@ The items below are both major conversions and new features. These are things th
 4. Dashboard - Create a Stream Deck equivalent as a webpage, where reward and system features can be toggled or triggered. This is where the old game reward profile feature will come back as we can persist reward states for the running Steam game.
 
 ### Planned Final Bot Structure
-This has been the plan for a while, the whole conversation from config files to database with an editor has taken a while, so we're still a bit from splitting up the project and convert it to Node.JS
+This has been the plan for a while, the whole conversion from config files to database with an editor has taken a while, so we're still a bit from splitting up the project and convert it to Node.JS.
 ```mermaid
 flowchart LR
     Desbot[DESBOT]
