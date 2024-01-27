@@ -35,11 +35,11 @@ export default class DefaultsHandler {
         const systemExists = prerequisiteExists && await DefaultsHandler.checkIfItemsExists(DefaultData.SYSTEM_ENTRIES)
 
         // Import Buttons
-        children.push(await DefaultsHandler.buildImportButton(DefaultData.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
-        if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButton(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
+        children.push(await DefaultsHandler.buildImportButtons(DefaultData.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
+        if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButtons(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
         if(systemExists) {
-            children.push(await DefaultsHandler.buildImportButton(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
-            // children.push(await DefaultsHandler.buildImportButton(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+            children.push(await DefaultsHandler.buildImportButtons(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
+            // children.push(await DefaultsHandler.buildImportButtons(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
         }
 
         // Reference Buttons
@@ -53,20 +53,30 @@ export default class DefaultsHandler {
         container.replaceChildren(...children)
     }
 
-    private static buildImportButton(items: IDefaultObjectList, label: string): HTMLElement {
+    private static buildImportButtons(items: IDefaultObjectList, label: string): HTMLElement {
         const p = document.createElement('p') as HTMLParagraphElement
-        const button = document.createElement('button') as HTMLButtonElement
-        button.onclick = importMandatory
-        button.ontouchstart = importMandatory
-        button.innerHTML = `✨ Import missing ${label} entries`
-        button.classList.add('main-button', 'new-button')
-        button.title = `Import all ${label} items that do not already exist.`
         const status = document.createElement('span') as HTMLSpanElement
-        async function importMandatory() {
-            await DefaultsHandler.importItems(items, status)
-            await DefaultsHandler.updatePage()
+        function buildButton(label: string, override: boolean) {
+            const button = document.createElement('button') as HTMLButtonElement
+            button.onclick = importMandatory
+            button.ontouchstart = importMandatory
+            button.innerHTML = (override ? `💫 Update or import all` : `✨ Import missing`) + ` ${label} entries`
+            button.classList.add('main-button', override ? 'new-button' : 'save-button')
+            button.title = override
+                ? `This will import or overwrite all ${label} entries, \nregardless if they exist in the database or not, \ndo this to get the latest data but retain IDs.`
+                : `This will import all missing ${label} entries, \nthose that do not already exist in the database, \nthis will skip any already existing entries.`
+            async function importMandatory() {
+                let doImport = true
+                if(override) doImport = confirm(`Are you sure you want to import or overwrite all ${label} entries?`)
+                if(doImport) {
+                    const resultMessage = await DefaultsHandler.importItems(items, status, override)
+                    alert(resultMessage)
+                    await DefaultsHandler.updatePage()
+                }
+            }
+            return button
         }
-        p.replaceChildren(button, status)
+        p.replaceChildren(buildButton(label, false), buildButton(label, true), status)
         return p
     }
 
@@ -102,28 +112,33 @@ export default class DefaultsHandler {
         return true
     }
 
-    private static async importItems(entries: IDefaultObjectList, status: HTMLElement) {
+    private static async importItems(entries: IDefaultObjectList, status: HTMLElement, override: boolean = false): Promise<string> {
         let total = 0
         let ok = 0
+        const failedKeys: string[] = []
+        const entryCount = Object.values(entries).reduce((acc, list) => acc + list.length, 0)
+        status.innerHTML = override ? 'Importing or updating' : 'Importing'
         for(const [listName, list] of Object.entries(entries)) {
             for(const item of list) {
-                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key.toString())
-                if(!existingItem) {
+                const doImport = override || !(await DataBaseHelper.loadItem(item.instance, item.key.toString()))
+                if(doImport) {
                     total++
-                    const message = `(${ok}/${total}) ${listName}:${item.instance.constructor.name}:${item.key}`
-                    status.innerHTML = `${message} Importing...`
                     const imported = await item.importer(item.instance, item.key.toString())
                     await DefaultsHandler.updateButton(item, !!imported)
                     if(imported) {
                         ok++
-                        status.innerHTML = `${message} Imported!`
                     } else {
-                        status.innerHTML = `${message} Failed import!`
+                        failedKeys.push(item.key.toString())
                     }
+                    status.innerHTML += ' .'
                 }
             }
         }
-        status.innerHTML = ''
+        const skipped = entryCount - total
+        return (override ? 'Imported or updated' : 'Imported')
+            + ` ${ok} out of ${total} items.`
+            + (skipped > 0 ? `\nSkipped ${skipped} items.` : '')
+            + (failedKeys.length > 0 ? `\nFailed entries: ${failedKeys.join(', ')}` : '')
     }
 
     private static async updateButton(item: IDefaultObject, exists: boolean, buttonElement?: HTMLButtonElement) {
