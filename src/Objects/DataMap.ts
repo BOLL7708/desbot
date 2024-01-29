@@ -33,7 +33,7 @@ export default class DataMap {
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap, tools, tasks}: {
+    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap, tools, tasks, visibleForOption}: {
         instance: T&Data,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
@@ -41,7 +41,14 @@ export default class DataMap {
         label?: TNoFunctions<T>,
         keyMap?: IStringDictionary,
         tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
-        tasks?: IRootTool[]
+        tasks?: IRootTool[],
+        visibleForOption?: Partial<Record<
+            TNoFunctions<T>,
+            Partial<Record<
+                TNoFunctions<T>,
+                number
+            >>
+        >>
     }) {
         this.addInstance(true, instance, description, documentation, types, label, keyMap, tools, tasks)
     }
@@ -120,7 +127,8 @@ export class DataObjectMeta extends DataMeta {
         public label?: string,
         public keyMap?: IStringDictionary,
         public tools?: IDictionary<IRootTool>,
-        public tasks?: IRootTool[]
+        public tasks?: IRootTool[],
+        public visibleForOption?: IStringDictionary|undefined
     ) {
         super()
     }

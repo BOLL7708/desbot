@@ -621,7 +621,7 @@ export default class ActionsCallbacks {
                 for(const [key, eventConfig] of Object.entries(allEvents)) {
                     if(
                         eventConfig.options.behavior == OptionEventBehavior.Incrementing
-                        && eventConfig.options.behaviorOptions.incrementationResetOnCommand
+                        && eventConfig.incrementingOptions.resetOnCommand
                     ) {
                         const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), key)
                         if(!eventID) {
@@ -681,7 +681,7 @@ export default class ActionsCallbacks {
                 for(const [key, eventConfig] of Object.entries(allEvents)) {
                     if(
                         eventConfig.options.behavior == OptionEventBehavior.Accumulating
-                        && eventConfig.options.behaviorOptions.accumulationResetOnCommand
+                        && eventConfig.accumulatingOptions.resetOnCommand
                     ) {
                         const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), key)
                         if(!eventID) {

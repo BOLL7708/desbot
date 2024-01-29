@@ -35,7 +35,7 @@ import {ConfigSpeech, ConfigSpeechDictionary, ConfigSpeechWordToAudio} from './C
 import {ConfigSteam} from './Config/ConfigSteam.js'
 import ConfigTwitch, {ConfigTwitchCategoryOverride} from './Config/ConfigTwitch.js'
 import ConfigChat from './Config/ConfigChat.js'
-import {EventActionContainer, EventBehaviorOptions, EventDefault, EventOptions, EventRewardOptions} from './Event/EventDefault.js'
+import {EventAccumulatingOptions, EventActionContainer, EventDefault, EventOptions, EventRewardOptions, EventIncrementingOptions, EventMultiTierOptions} from './Event/EventDefault.js'
 import {PresetDiscordWebhook} from './Preset/PresetDiscordWebhook.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from './Preset/PresetOBS.js'
 import {PresetPermissions} from './Preset/PresetPermissions.js'
@@ -139,9 +139,11 @@ export default class EnlistData {
 
             new EventDefault(),
             new EventOptions(),
-            new EventActionContainer(),
-            new EventBehaviorOptions(),
             new EventRewardOptions(),
+            new EventIncrementingOptions(),
+            new EventAccumulatingOptions(),
+            new EventMultiTierOptions(),
+            new EventActionContainer(),
 
             new PresetDiscordWebhook(),
             new PresetOBSScene(),

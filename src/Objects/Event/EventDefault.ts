@@ -10,7 +10,11 @@ import {PresetEventCategory} from '../Preset/PresetEventCategory.js'
 
 export class EventDefault extends Data {
     category: number|DataEntries<PresetEventCategory> = 0
-    options: EventOptions = new EventOptions()
+    behavior: OptionEventBehavior = OptionEventBehavior.All
+    options = new EventOptions()
+    incrementingOptions = new EventIncrementingOptions()
+    accumulatingOptions = new EventAccumulatingOptions()
+    multiTierOptions = new EventMultiTierOptions()
     triggers: number[]|DataEntries<Trigger> = []
     actions: EventActionContainer[] = []
 
@@ -21,13 +25,24 @@ export class EventDefault extends Data {
             documentation: {
                 category: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
                 options: 'Set various options for event behavior.',
+                incrementingOptions: 'Options related to the incrementing behavior.',
+                accumulatingOptions: 'Options related to the accumulating behavior.',
+                multiTierOptions: 'Options related to the multi-tier behavior.',
                 triggers: 'Supply in which ways we should trigger this event.',
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
             types: {
                 category: PresetEventCategory.ref.id.build(),
+                behavior: OptionEventBehavior.ref,
                 triggers: Data.genericRef('Trigger').build(),
                 actions: EventActionContainer.ref.build()
+            },
+            visibleForOption: {
+                behavior: {
+                    incrementingOptions: OptionEventBehavior.Incrementing,
+                    accumulatingOptions: OptionEventBehavior.Accumulating,
+                    multiTierOptions: OptionEventBehavior.MultiTier
+                }
             }
         })
     }
@@ -56,8 +71,6 @@ export class EventDefault extends Data {
 export class EventOptions extends Data {
     relayCanTrigger: boolean = true
     specificIndex: number = 0
-    behavior = OptionEventBehavior.All
-    behaviorOptions: EventBehaviorOptions = new EventBehaviorOptions()
     rewardOptions: EventRewardOptions = new EventRewardOptions()
 
     enlist() {
@@ -66,12 +79,7 @@ export class EventOptions extends Data {
             documentation: {
                 relayCanTrigger: 'If this event can be triggered by messages from WSRelay.',
                 specificIndex: 'Provide an index to use when not using a specific event behavior. This can be overridden at runtime, and it will be respected.',
-                behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.\nThis will change how the actions below are used, specific indices will be used for various things.',
-                behaviorOptions: 'Options related to the behavior of this event.',
                 rewardOptions: 'Options related to the reward triggers of this event.'
-            },
-            types: {
-                behavior: OptionEventBehavior.ref
             }
         })
     }
@@ -95,34 +103,6 @@ export class EventActionContainer extends Data {
         })
     }
 }
-export class EventBehaviorOptions extends Data {
-    accumulationGoal: number = 0
-    accumulationResetOnCommand: boolean = true // TODO: Add capability to refund accumulations later.
-    incrementationLoop: boolean = false
-    incrementationResetOnCommand: boolean = true
-    multiTierTimeout: number = 0
-    multiTierMaxLevel: number = 0
-    multiTierResetOnTrigger: boolean = false
-    multiTierResetOnTimeout: boolean = false
-    multiTierDisableAfterMaxLevel: boolean = false
-
-    enlist() {
-        DataMap.addSubInstance({
-            instance: new EventBehaviorOptions(),
-            documentation: {
-                accumulationGoal: 'The goal to reach if behavior is set to accumulating.',
-                accumulationResetOnCommand: 'Will reset an accumulating reward when the reset command is run, resetting the index to 0.',
-                incrementationLoop: 'Will loop an incrementing reward when the max index is reached, resetting the index to 0.',
-                incrementationResetOnCommand: 'Will reset an incrementing reward when the reset command is run, resetting the index to 0.',
-                multiTierTimeout: 'The duration in seconds before we reset the multi-tier level unless it is triggered again.',
-                multiTierMaxLevel: 'The maximum level we can reach with the multi-tier behavior.',
-                multiTierResetOnTrigger: 'Perform reset actions before default actions when triggering this multi-tier event.\n\nWill use the action set at max level + 1.',
-                multiTierResetOnTimeout: 'Perform reset actions when resetting this multi-tier event.\n\nWill use action set at max level + 2.',
-                multiTierDisableAfterMaxLevel: 'Will only allow the last level to be redeemed once before resetting again.',
-            }
-        })
-    }
-}
 
 export class EventRewardOptions extends Data {
     ignoreUpdateCommand: boolean = false
@@ -136,6 +116,57 @@ export class EventRewardOptions extends Data {
                 ignoreUpdateCommand: 'A list of rewards that will only be created, not updated using `!update`.\n\nUsually references from: `Keys.*`, and it\'s recommended to put the channel trophy reward in here if you use it.',
                 ignoreClearRedemptionsCommand: 'Will avoid refunding the redemption when the clear redemptions command is used.',
                 ignoreAutomaticDiscordPosting: 'Ignore the Discord webhook for this reward even if it exists. (might be used for something else)',
+            }
+        })
+    }
+}
+
+export class EventIncrementingOptions extends Data {
+    loop: boolean = false
+    resetOnCommand: boolean = true
+
+    enlist() {
+        DataMap.addSubInstance({
+            instance: new EventIncrementingOptions(),
+            documentation: {
+                loop: 'Will loop an incrementing reward when the max index is reached, resetting the index to 0.',
+                resetOnCommand: 'Will reset an incrementing reward when the reset command is run, resetting the index to 0.',
+            }
+        })
+    }
+}
+
+export class EventAccumulatingOptions extends Data {
+    goal: number = 0
+    resetOnCommand: boolean = true // TODO: Add capability to refund accumulations later.
+
+    enlist() {
+        DataMap.addSubInstance({
+            instance: new EventAccumulatingOptions(),
+            documentation: {
+                goal: 'The goal to reach if behavior is set to accumulating.',
+                resetOnCommand: 'Will reset an accumulating reward when the reset command is run, resetting the index to 0.',
+            }
+        })
+    }
+}
+
+export class EventMultiTierOptions extends Data {
+    timeout: number = 0
+    maxLevel: number = 0
+    resetOnTrigger: boolean = false
+    resetOnTimeout: boolean = false
+    disableAfterMaxLevel: boolean = false
+
+    enlist() {
+        DataMap.addSubInstance({
+            instance: new EventMultiTierOptions(),
+            documentation: {
+                timeout: 'The duration in seconds before we reset the multi-tier level unless it is triggered again.',
+                maxLevel: 'The maximum level we can reach with the multi-tier behavior.',
+                resetOnTrigger: 'Perform reset actions before default actions when triggering this multi-tier event.\n\nWill use the action set at max level + 1.',
+                resetOnTimeout: 'Perform reset actions when resetting this multi-tier event.\n\nWill use action set at max level + 2.',
+                disableAfterMaxLevel: 'Will only allow the last level to be redeemed once before resetting again.',
             }
         })
     }

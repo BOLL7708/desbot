@@ -262,9 +262,9 @@ export default class TextHelper {
         const eventConfig = await DataBaseHelper.loadOrEmpty(new EventDefault(), userData?.eventKey ?? '')
         const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), userData?.eventKey ?? '')
         const eventLevel = states.multiTierEventCounters.get(eventID.toString())?.count ?? 0
-        const eventLevelMax = eventConfig.options.behaviorOptions.multiTierMaxLevel
+        const eventLevelMax = eventConfig.multiTierOptions.maxLevel
         const eventCount = (await DataBaseHelper.load(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
-        const eventGoal = eventConfig.options.behaviorOptions.accumulationGoal
+        const eventGoal = eventConfig.accumulatingOptions.goal
 
         const userBits = (userData?.bits ?? 0) > 0
             ? userData?.bits?.toString() ?? '0'

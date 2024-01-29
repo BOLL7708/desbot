@@ -84,6 +84,7 @@ export class ActionHandler {
              */
             case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
+                const options = event.incrementingOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
 
@@ -98,7 +99,7 @@ export class ActionHandler {
                     }
                     const rewardEntries = (DataUtils.ensureDataArray(trigger.rewardEntries) ?? []) as PresetReward[] // TODO: Maybe we can remove this typecast?
                     if(rewardEntries.length) {
-                        const rewardPresetIndex = event.options.behaviorOptions.incrementationLoop
+                        const rewardPresetIndex = options.loop
                             ? counter.count % rewardEntries.length // Loop
                             : Math.min(counter.count, rewardEntries.length-1) // Clamp to max
                         const rewardPreset = rewardEntries[rewardPresetIndex]
@@ -113,7 +114,7 @@ export class ActionHandler {
                 }
 
                 // Register index and build callback for this step of the sequence
-                index = event.options.behaviorOptions.incrementationLoop
+                index = options.loop
                     ? (counter.count - 1) % eventActionContainers.length // Loop
                     : Math.min(counter.count - 1, eventActionContainers.length-1) // Clamp to max
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
@@ -131,9 +132,10 @@ export class ActionHandler {
              */
             case OptionEventBehavior.Accumulating: {
                 // Load accumulating counter
+                const options = event.accumulatingOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
-                const goalCount = options.behaviorOptions.accumulationGoal
+                const goalCount = options.goal
 
                 // Switch to the next accumulating reward if it has more configs available
                 const triggers = event.getTriggers(new TriggerReward())
@@ -198,10 +200,11 @@ export class ActionHandler {
              */
             case OptionEventBehavior.MultiTier: {
                 // Increase multi-tier counter
+                const options = event.multiTierOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = states.multiTierEventCounters.get(eventId.toString()) ?? {count: 0, timeoutHandle: 0}
                 counter.count++
-                const maxLevel = options.behaviorOptions.multiTierMaxLevel
+                const maxLevel = event.multiTierOptions.maxLevel
                 if (counter.count > maxLevel) {
                     counter.count = maxLevel
                 }
@@ -210,7 +213,7 @@ export class ActionHandler {
                 clearTimeout(counter.timeoutHandle)
                 counter.timeoutHandle = setTimeout(async() => {
                     // Run reset actions if enabled.
-                    if(options.behaviorOptions.multiTierResetOnTimeout) {
+                    if(event.multiTierOptions.resetOnTimeout) {
                         // Will use this specific index to run the hard reset actions.
                         index = 1
                         Actions.buildActionsMainCallback(
@@ -246,7 +249,7 @@ export class ActionHandler {
                         state.reward_usable = OptionTwitchRewardUsable.Enabled
                         TwitchHelixHelper.toggleRewards([state]).then()
                     }
-                }, (options.behaviorOptions.multiTierTimeout ?? 30)*1000)
+                }, (options.timeout ?? 30)*1000)
 
                 // Store new counter value
                 states.multiTierEventCounters.set(eventId.toString(), counter)
@@ -268,7 +271,7 @@ export class ActionHandler {
                             TwitchHelixHelper.updateReward(rewardId, clone).then()
                         }
                     }
-                } else if(options.behaviorOptions.multiTierDisableAfterMaxLevel) {
+                } else if(options.disableAfterMaxLevel) {
                     const triggers = event.getTriggers(new TriggerReward())
                     for(const trigger of triggers) {
                         const rewardId = DataUtils.ensureData(trigger.rewardID)
@@ -285,7 +288,7 @@ export class ActionHandler {
                 // Register index and build callback for this step of the sequence
                 index = counter.count+1 // First two indices are soft and hard reset, so we start at index 2
                 const actions: EventActionContainer[] = []
-                if(options.behaviorOptions.multiTierResetOnTrigger) {
+                if(options.resetOnTrigger) {
                     // Will use this specific index to run the soft reset actions.
                     actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, 0))
                 }
