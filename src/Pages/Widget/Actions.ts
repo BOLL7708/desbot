@@ -59,7 +59,7 @@ export class ActionHandler {
         // TODO: This should execute collections of actions in order.
         //  The main callback should take ALL OF THE THINGS?!?!?!?!
 
-        const options = event.options
+        const eventOptions = event.options
         // entries is an array of containers that then contains the actions.
         const eventActionContainers = event.actions
         if(eventActionContainers.length == 0) return
@@ -73,9 +73,9 @@ export class ActionHandler {
             This means we often rebuild the full main callback.
             As well as calculate and provide the index for action entries.
          */
-        switch(options.behavior) {
+        switch(event.behavior) {
             case OptionEventBehavior.Random: {
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, options.specificIndex))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, eventOptions.specificIndex))
                 break
             }
             /**
@@ -297,13 +297,13 @@ export class ActionHandler {
                 break
             }
             default: {// Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, options.specificIndex))
+                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, eventOptions.specificIndex))
                 break
             }
         }
-        if(actionsMainCallback) actionsMainCallback(user, index ?? options.specificIndex) // Index is included here to supply it to entries-handling
+        if(actionsMainCallback) actionsMainCallback(user, index ?? eventOptions.specificIndex) // Index is included here to supply it to entries-handling
         else {
-            console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${options?.behavior}`)
+            console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${event.behavior}`)
         }
     }
 }
