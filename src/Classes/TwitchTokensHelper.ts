@@ -3,11 +3,11 @@ import Color from './ColorConstants.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchClient, SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 
-export default class TwitchTokens {
+export default class TwitchTokensHelper {
     /**
      * Load existing tokens for channel and chatbot (if different) and refresh them.
      */
-    async refreshToken() {
+    static async refreshToken() {
         let channelTokenData = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
         if(channelTokenData) await this.refresh(channelTokenData, 'Channel')
         else Utils.log(`TwitchTokens: No tokens for Channel user, load editor to login.`, Color.Purple)
@@ -16,7 +16,7 @@ export default class TwitchTokens {
         else Utils.log(`TwitchTokens: No tokens for Chatbot user, load editor to login.`, Color.Purple)
     }
 
-    private async refresh(data: SettingTwitchTokens, key: string) {
+    private static async refresh(data: SettingTwitchTokens, key: string) {
         const clientData = await DataBaseHelper.load(new SettingTwitchClient(), 'Main')
         const response = await fetch('https://id.twitch.tv/oauth2/token', {
             method: 'post',

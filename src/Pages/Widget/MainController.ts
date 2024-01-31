@@ -10,12 +10,7 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import AuthUtils from '../../Classes/AuthUtils.js'
 import PasswordForm from './PasswordForm.js'
 import {SettingUser} from '../../Objects/Setting/SettingUser.js'
-import {
-    SettingTwitchClip,
-    SettingTwitchRedemption,
-    SettingTwitchReward,
-    SettingTwitchTokens
-} from '../../Objects/Setting/SettingTwitch.js'
+import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
 import {SettingDictionaryEntry} from '../../Objects/Setting/SettingDictionary.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
 import {SettingStreamQuote} from '../../Objects/Setting/SettingStream.js'
@@ -24,6 +19,7 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import {ConfigController} from '../../Objects/Config/ConfigController.js'
 import EnlistData from '../../Objects/EnlistData.js'
 import {DataUtils} from '../../Objects/DataUtils.js'
+import TwitchTokensHelper from '../../Classes/TwitchTokensHelper.js'
 
 export default class MainController {
     public static async init() {
@@ -52,7 +48,7 @@ export default class MainController {
 
         // region Init
         await StatesSingleton.initInstance() // Init states
-        await modules.twitchTokens.refreshToken()
+        await this.startTwitchTokenRefreshInterval() // Init Twitch tokens
         const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
         if(controllerConfig.useWebsockets.twitchEventSub) modules.twitchEventSub.init().then()
 
@@ -62,7 +58,8 @@ export default class MainController {
 
         // Steam Web API intervals
         MainController.startSteamAchievementsInterval().then()
-        
+
+        // TODO: Should not the player summary be active at all time in case the user has websockets on but not playing VR?
         if(!controllerConfig.useWebsockets.openvr2ws) {
             MainController.startSteamPlayerSummaryInterval().then()
             const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
@@ -88,6 +85,17 @@ export default class MainController {
 
 
     // region Intervals
+
+    public static async startTwitchTokenRefreshInterval() {
+        const states = StatesSingleton.getInstance()
+        await TwitchTokensHelper.refreshToken()
+        if(states.twitchTokenRefreshIntervalHandle == -1) {
+            Utils.log('Starting Twitch token refresh interval', Color.Green)
+            states.twitchTokenRefreshIntervalHandle = setInterval(async() => {
+                await TwitchTokensHelper.refreshToken()
+            }, 1000 * 60 * 45) // 45 minutes for a chunky margin
+        }
+    }
 
     public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()

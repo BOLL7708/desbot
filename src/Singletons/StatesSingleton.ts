@@ -37,6 +37,7 @@ export default class StatesSingleton {
     public scaleIntervalHandle: number = -1
     public steamPlayerSummaryIntervalHandle: number = -1
     public steamAchievementsIntervalHandle: number = -1
+    public twitchTokenRefreshIntervalHandle: number = -1
     public lastSteamAppId: string|undefined 
     public lastSteamAppIsVR: boolean = false
     public runRemoteCommands: boolean = false

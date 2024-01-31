@@ -1,4 +1,3 @@
-import TwitchTokens from '../Classes/TwitchTokens.js'
 import OBS from '../Classes/OBS.js'
 import Twitch from '../Classes/Twitch.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
@@ -23,7 +22,6 @@ export default class ModulesSingleton {
     }
 
     public twitch = new Twitch()
-    public twitchTokens = new TwitchTokens()
     public twitchEventSub = new TwitchEventSub()
     public tts = new GoogleTTS()
     public pipe = new Pipe()
