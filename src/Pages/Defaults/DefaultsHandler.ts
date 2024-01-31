@@ -63,7 +63,7 @@ export default class DefaultsHandler {
             button.innerHTML = (override ? `💫 Update or import all` : `✨ Import missing`) + ` ${label} entries`
             button.classList.add('main-button', override ? 'new-button' : 'save-button')
             button.title = override
-                ? `This will import or overwrite all ${label} entries, \nregardless if they exist in the database or not, \ndo this to get the latest data but retain IDs.`
+                ? `This will import or update all ${label} entries, \nregardless if they exist in the database or not, \ndo this to get the latest data but retain IDs.`
                 : `This will import all missing ${label} entries, \nthose that do not already exist in the database, \nthis will skip any already existing entries.`
             async function importMandatory() {
                 let doImport = true
@@ -120,10 +120,11 @@ export default class DefaultsHandler {
         status.innerHTML = override ? 'Importing or updating' : 'Importing'
         for(const [listName, list] of Object.entries(entries)) {
             for(const item of list) {
-                const doImport = override || !(await DataBaseHelper.loadItem(item.instance, item.key.toString()))
+                const existingItem = await DataBaseHelper.loadItem(item.instance, item.key.toString())
+                const doImport = override || !existingItem
                 if(doImport) {
                     total++
-                    const imported = await item.importer(item.instance, item.key.toString())
+                    const imported = await item.importer(existingItem?.data ?? item.instance, item.key.toString())
                     await DefaultsHandler.updateButton(item, !!imported)
                     if(imported) {
                         ok++
