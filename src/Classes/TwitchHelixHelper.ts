@@ -234,15 +234,16 @@ export default class TwitchHelixHelper {
         const result: ActionSystemRewardState[] = []
         for(const reward of rewards) {
             const id = DataUtils.ensureKey(reward.reward)
+            const states: ITwitchHelixRewardUpdate = {}
             if(id) {
                 // Set flags depending on matching options
-                const updated = await this.updateReward(
-                    id,
-                    {
-                        is_enabled: reward.reward_visible === OptionTwitchRewardVisible.Visible,
-                        is_paused: reward.reward_usable === OptionTwitchRewardUsable.Disabled
-                    }
-                )
+                if(reward.reward_visible !== OptionTwitchRewardVisible.NoChange) {
+                    states.is_enabled = reward.reward_visible === OptionTwitchRewardVisible.Visible
+                }
+                if(reward.reward_usable !== OptionTwitchRewardUsable.NoChange) {
+                    states.is_paused = reward.reward_usable === OptionTwitchRewardUsable.Disabled
+                }
+                const updated = await this.updateReward(id, states)
                 if(updated !== null) result.push(reward)
             }
         }

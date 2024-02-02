@@ -2,10 +2,12 @@ import {Option} from './Option.js'
 import {OptionsMap} from './OptionsMap.js'
 
 export class OptionTwitchRewardVisible extends Option {
+    static readonly NoChange = 0
     static readonly Visible = 100
     static readonly Hidden = 200
 }
 export class OptionTwitchRewardUsable extends Option {
+    static readonly NoChange = 0
     static readonly Enabled = 100
     static readonly Disabled = 200
 

@@ -24,6 +24,7 @@ export class EventDefault extends Data {
             description: 'The event that contains triggers and actions.',
             documentation: {
                 category: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
+                behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.\nThis will change how the actions below are used, specific indices will be used for various things.',
                 options: 'Set various options for event behavior.',
                 incrementingOptions: 'Options related to the incrementing behavior.',
                 accumulatingOptions: 'Options related to the accumulating behavior.',

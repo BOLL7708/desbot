@@ -159,8 +159,8 @@ export class ActionSystemToggle extends Data {
 }
 export class ActionSystemRewardState extends Data {
     reward: number|DataEntries<SettingTwitchReward> = 0
-    reward_visible = OptionTwitchRewardVisible.Visible
-    reward_usable = OptionTwitchRewardUsable.Enabled
+    reward_visible = OptionTwitchRewardVisible.NoChange
+    reward_usable = OptionTwitchRewardUsable.NoChange
 
     enlist() {
         DataMap.addSubInstance({
