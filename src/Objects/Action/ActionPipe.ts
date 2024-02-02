@@ -8,6 +8,7 @@ import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import {DataUtils} from '../DataUtils.js'
 import {DataEntries} from '../Data.js'
+import AssetsHelper from '../../Classes/AssetsHelper.js'
 
 export class ActionPipe extends Action {
     imagePathEntries: string[] = []
@@ -56,6 +57,7 @@ export class ActionPipe extends Action {
                 if(!customPreset && !basicPreset) return console.warn('ActionPipe: No preset set, cannot display.')
 
                 // Need to reference the original config arrays here as the __type is dropped in the clone process.
+                clone.imagePathEntries = await AssetsHelper.replaceWildcardPaths(clone.imagePathEntries)
                 clone.imagePathEntries = ArrayUtils.getAsType(clone.imagePathEntries, clone.imagePathEntries_use, index)
                 clone.imageDataEntries = ArrayUtils.getAsType(clone.imageDataEntries, clone.imageDataEntries_use, index)
 
