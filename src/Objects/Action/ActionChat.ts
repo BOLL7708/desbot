@@ -17,6 +17,7 @@ export class ActionChat extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionChat(),
+            tag: '📄',
             description: 'Send message(s) to Twitch chat.',
             documentation: {
                 entries: 'These entries will be sent to chat.',
@@ -32,7 +33,6 @@ export class ActionChat extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '📄',
             description: 'Callback that triggers a Twitch chat message action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionChat>(this)

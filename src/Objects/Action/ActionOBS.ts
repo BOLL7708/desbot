@@ -19,6 +19,7 @@ export class ActionOBS extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionOBS(),
+            tag: '🎬',
             description: 'Used to toggle OBS sources or filters.',
             documentation: {
                 sceneEntries: 'The scenes to affect.',
@@ -40,7 +41,6 @@ export class ActionOBS extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '🎬',
             description: 'Callback that triggers an OBS action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone(this) as ActionOBS

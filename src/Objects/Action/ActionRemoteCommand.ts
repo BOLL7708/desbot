@@ -12,6 +12,7 @@ export class ActionRemoteCommand extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionRemoteCommand(),
+            tag: '🤝',
             description: 'Send remote command(s) to the remote command channel.',
             types: {
                 entries: 'string',
@@ -22,7 +23,6 @@ export class ActionRemoteCommand extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '🤝',
             description: 'Callback that triggers a Remote Command action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionRemoteCommand>(this)

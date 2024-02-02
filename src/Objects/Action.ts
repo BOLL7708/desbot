@@ -8,7 +8,6 @@ export default abstract class Action extends Data {
 }
 
 export interface IActionCallback {
-    tag: string
     description: string
     awaitCall?: boolean
     call: (user: IActionUser, nonce: string, index?: number) => void // Index is used for entries-fields, provided by handler.

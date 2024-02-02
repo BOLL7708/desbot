@@ -39,7 +39,6 @@ export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {
         // region Chat
         [OptionSystemActionType.Chat]: {
-            tag: 'Chat',
             description: 'Sends a message to the chat overlay in VR.',
             call: (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -47,7 +46,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.ChatOn]: {
-            tag: 'Chat On',
             description: 'Enables the chat overlay in VR.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -59,7 +57,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.ChatOff]: {
-            tag: 'Chat Off',
             description: 'Disables the chat overlay in VR.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -71,7 +68,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.PingOn]: {
-            tag: 'Ping On',
             description: 'Enables a sound effect for chat messages if TTS is off or messages are empty.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -84,7 +80,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.PingOff]: {
-            tag: 'Ping Off',
             description: 'Disables the sound effect for chat messages.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -100,7 +95,6 @@ export default class ActionsCallbacks {
 
         // region Channel
         [OptionSystemActionType.Mod]: {
-            tag: 'Add mod',
             description: 'Make a user channel moderator',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -114,7 +108,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.UnMod]: {
-            tag: 'Remove mod',
             description: 'Remove user from channel moderators',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -128,7 +121,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.Vip]: {
-            tag: 'Add VIP',
             description: 'Make a user channel VIP',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -142,7 +134,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.UnVip]: {
-            tag: 'Remove VIP',
             description: 'Remove user from channel VIPs',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -158,7 +149,6 @@ export default class ActionsCallbacks {
         // endregion
 
         [OptionSystemActionType.Quote]: {
-            tag: 'Quote',
             description: 'Stores a new quote or posts a random quote to chat.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -225,7 +215,6 @@ export default class ActionsCallbacks {
 
         // region Logging
         [OptionSystemActionType.LogOn]: {
-            tag: 'Log On',
             description: 'Enables logging of chat to Discord.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -237,7 +226,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.LogOff]: {
-            tag: 'Log Off',
             description: 'Disables logging of chat to Discord.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -252,7 +240,6 @@ export default class ActionsCallbacks {
 
         // region Scale
         [OptionSystemActionType.Scale]: {
-            tag: 'Scale',
             description: 'Changes the world scale of the currently running VR game.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -347,7 +334,6 @@ export default class ActionsCallbacks {
         // region SteamVR
         // TODO: WIP - Should only work with what the headset supports
         [OptionSystemActionType.Brightness]: {
-            tag: 'Brightness',
             description: 'Changes the display brightness of the headset.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -365,7 +351,6 @@ export default class ActionsCallbacks {
 
         // TODO: WIP - Should only work with what the headset supports
         [OptionSystemActionType.RefreshRate]: {
-            tag: 'RefreshRate',
             description: 'Changes the display refresh rate of the headset.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -385,7 +370,6 @@ export default class ActionsCallbacks {
 
         // Currently not actually effective due to how the VR View does not listen to config changes
         [OptionSystemActionType.VrViewEye]: {
-            tag: 'VRViewEye',
             description: 'Changes the eye used for the VR View. Or would if it updated live.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -404,7 +388,6 @@ export default class ActionsCallbacks {
 
         // region Rewards
         [OptionSystemActionType.UpdateRewards]: {
-            tag: 'UpdateRewards',
             description: 'Update the properties of the channel rewards managed by the widget.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -422,7 +405,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.GameRewardsOn]: {
-            tag: 'GameRewardsOn',
             description: 'Enable the channel rewards that are game specific.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -435,7 +417,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.GameRewardsOff]: {
-            tag: 'GameRewardsOff',
             description: 'Disable the channel rewards that are game specific.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -448,7 +429,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.RefundRedemption]: {
-            tag: 'RefundRedemption',
             description: 'Refund the last registered redemption for a user.',
             call: async (user) => {
                 // TODO: Still broken, appears we're not getting new redemptions to register.
@@ -484,7 +464,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.ClearRedemptions]: {
-            tag: 'ClearRedemptions',
             description: 'Clear redemptions from the queue for the channel, except ignored ones.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -525,7 +504,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.ChannelTrophy]: {
-            tag: 'ChannelTrophy',
             description: 'A user grabbed the Channel Trophy.',
             call: async (user: IActionUser) => {
                 const modules = ModulesSingleton.getInstance()
@@ -606,7 +584,6 @@ export default class ActionsCallbacks {
 
         // region Redemptions
         [OptionSystemActionType.ResetIncrementingEvents]: {
-            tag: 'ResetIncrementalReward',
             description: 'Reset the incremental reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -666,7 +643,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.ResetAccumulatingEvents]: {
-            tag: 'ResetAccumulatingReward',
             description: 'Reset the accumulating reward counter for those rewards, unless ignored.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -732,7 +708,6 @@ export default class ActionsCallbacks {
 
         // region System
         [OptionSystemActionType.ReloadWidget]: {
-            tag: 'ReloadWidget',
             description: 'Reloads the page for widget.',
             call: (user) => {
                 Utils.reload()
@@ -740,7 +715,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.ChannelTrophyStats]: {
-            tag: 'ChannelTrophyStats',
             description: 'Posts the last Channel Trophy stats to DiscordUtils.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -786,7 +760,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.GameReset]: {
-            tag: 'GameReset',
             description: 'Resets the currently detected game and trigger the app ID callback.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -801,7 +774,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.RemoteOn]: {
-            tag: 'RemoteOn',
             description: 'Enables remote commands.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -818,7 +790,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.RemoteOff]: {
-            tag: 'RemoteOff',
             description: 'Disables remote commands.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -832,7 +803,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.HelpToDiscord]: {
-            tag: 'PostHelp',
             description: 'Post help for all commands with documentation to the specified Discord channel.',
             call: async (user) => {
                 let messageText = ''
@@ -880,7 +850,6 @@ export default class ActionsCallbacks {
             }
         },
         [OptionSystemActionType.HelpToChat]: {
-            tag: 'GetHelp',
             description: 'Post help for a single command to chat.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -912,7 +881,6 @@ export default class ActionsCallbacks {
 
         // region Twitch
         [OptionSystemActionType.Clips]: {
-            tag: 'Clips',
             description: 'Posts new channel clips to Discord.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -985,7 +953,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.Raid]: {
-            tag: 'Raid',
             description: 'Initiates a raid for the supplied target.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()
@@ -1012,7 +979,6 @@ export default class ActionsCallbacks {
         },
 
         [OptionSystemActionType.Unraid]: {
-            tag: 'Unraid',
             description: 'Cancels the currently active raid.',
             call: async (user) => {
                 const modules = ModulesSingleton.getInstance()

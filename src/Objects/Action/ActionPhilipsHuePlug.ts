@@ -18,6 +18,7 @@ export class ActionPhilipsHuePlug extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionPhilipsHuePlug(),
+            tag: '🔌',
             description: 'Trigger Philips Hue plug changes.',
             documentation: {
                 entries: 'The plug IDs to affect.',
@@ -34,7 +35,6 @@ export class ActionPhilipsHuePlug extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '🔌',
             description: 'Callback that triggers a Philips Hue plug action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPhilipsHuePlug>(this)

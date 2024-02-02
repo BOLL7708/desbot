@@ -12,6 +12,7 @@ export class TriggerTimer extends Trigger {
     enlist() {
         DataMap.addRootInstance({
             instance: new TriggerTimer(),
+            tag: '⏰',
             description: 'Optional: Have something happen automatically on a timer.',
             documentation: {
                 interval: 'The time in seconds between each trigger.',

@@ -15,6 +15,7 @@ export class ActionSettingVR extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSettingVR(),
+            tag: '🔧',
             description: 'Used to change SteamVR settings.',
             documentation: {
                 settingPreset: 'The format is [category]|[setting]|[default], where an empty category will use the app ID for game specific settings.',
@@ -32,7 +33,6 @@ export class ActionSettingVR extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '🔧',
             description: 'Callback that triggers an OpenVR2WSSetting action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSettingVR>(this)

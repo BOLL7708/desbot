@@ -24,6 +24,7 @@ export class ActionPipe extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionPipe(),
+            tag: '📺',
             description: 'Trigger one or multiple pipe overlays.',
             documentation: {
                 imagePathEntries: 'An absolute path to an image or an array of image for random selection.\n\nIf this is skipped, `imageData` needs to be set instead.',
@@ -47,7 +48,6 @@ export class ActionPipe extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '📺',
             description: 'Callback that triggers an OpenVRNotificationPipe action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPipe>(this)

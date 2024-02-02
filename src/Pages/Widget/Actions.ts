@@ -453,14 +453,10 @@ export class Actions {
                 // Build callbacks
                 const callback: IActionCallback = (action as Action).build(key)
                 actionCallbacks.push(callback)
-
-                // Logging
-                if(actionCallbacks.length == 1) {
-                    Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks[0].tag} "${actionCallbacks[0].description}"`, Color.Green)
-                } else {
-                    Utils.logWithBold(`Built Action Callback for <${key}>: ${actionCallbacks.map(ac => ac.tag).join(', ')}`, Color.Green)
-                }
-
+            }
+            // Logging
+            if(actionCallbacks.length) {
+                Utils.logWithBold(`Built Action Callback(s) for <${key}> "`, Color.Green)
             }
             // Push item with callback that triggers all the actions generated.
             actionsExecutors.push({
@@ -510,14 +506,13 @@ export class Actions {
      * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
      * @returns 
      */
-    private static buildSoundAndSpeechCallback(
+    private static buildSoundAndSpeechCallback( // TODO: Remove? Can't remember why we needed this.
         config: IAudioAction|undefined,
         speechConfig:ActionSpeech|undefined,
         nonceTTS: string,
         onTtsQueue:boolean = false
     ): IActionCallback|undefined {
         if(config || speechConfig) return {
-            tag: '🔊',
             description: 'Callback that triggers a sound and/or speech action',
             call: async (user: IActionUser, nonce, index?: number) => {
                 const modules = ModulesSingleton.getInstance()

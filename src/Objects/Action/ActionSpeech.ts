@@ -26,6 +26,7 @@ export class ActionSpeech extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSpeech(),
+            tag: '🗣',
             description: 'Trigger the TTS to read a message.',
             documentation: {
                 entries: 'The strings of text to read out loud.',
@@ -46,7 +47,6 @@ export class ActionSpeech extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '🗣',
             description: 'Callback that triggers something spoken with TTS.',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 console.log('tts debug, entry preset', this.entryPreset)

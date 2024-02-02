@@ -19,6 +19,7 @@ export class ActionScreenshot extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionScreenshot(),
+            tag: '📸',
             description: 'Trigger OBS or VR screenshots.',
             documentation: {
                 screenshotType: 'The type of screenshot, OBS screenshots need the source preset to be set.',
@@ -34,7 +35,6 @@ export class ActionScreenshot extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '📸',
             description: 'Callback that triggers a Screenshot action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionScreenshot>(this)

@@ -9,6 +9,7 @@ export class ActionCustom extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionCustom(),
+            tag: '❓',
             description: 'Provide a custom action callback, this can execute any arbitrary code you provide.\n\nOBS: If you put anything that breaks in here it will wreck the whole thing when executed.',
             documentation: {
                 code: 'Should be valid JavaScript code.'
@@ -21,7 +22,6 @@ export class ActionCustom extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '❓',
             description: 'Callback that triggers arbitrary code',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 try {

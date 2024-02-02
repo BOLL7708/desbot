@@ -19,6 +19,7 @@ export class ActionDiscord extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionDiscord(),
+            tag: '💬',
             description: 'Send a message to a Discord channel.',
             types: {
                 webhook: PresetDiscordWebhook.ref.id.build(),
@@ -30,7 +31,6 @@ export class ActionDiscord extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '💬',
             description: 'Callback that triggers a DiscordUtils message action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionDiscord>(this)

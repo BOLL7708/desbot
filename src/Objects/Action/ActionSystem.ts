@@ -26,6 +26,7 @@ export class ActionSystem extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSystem(),
+            tag: '🖐',
             description: 'Trigger or change state of things, propagating input.',
             documentation: {
                 trigger: 'Things to trigger.',
@@ -36,7 +37,6 @@ export class ActionSystem extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '🖐',
             description: 'Callback that triggers or toggles events',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSystem>(this)
@@ -49,7 +49,7 @@ export class ActionSystem extends Action {
                 for(const systemAction of systemActions) {
                     const callback = ActionsCallbacks.stack[systemAction]
                     if(callback) {
-                        Utils.log(`Executing system action: ${callback.tag} in ${delay} seconds...`, Color.Grey)
+                        Utils.log(`Executing system action in ${delay} seconds...`, Color.Grey)
                         setTimeout(()=>{
                             callback.call(user, nonce, index)
                         }, delay*1000)

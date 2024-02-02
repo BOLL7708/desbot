@@ -166,13 +166,6 @@ export default abstract class Data {
      */
     async __new<T>(props: (T&object)|undefined, fill: boolean): Promise<T&Data> {
         const obj = Object.create(this) as T&Data // Easy way of making a new instance, it will have the previous class as prototype though, but it still returns the same constructor name which is what we need.
-        if(this.__getClass() == 'PresetText') {
-            // TODO: THIS HAPPENS 18 TIMES WHEN THE EVENT IS TRIGGERED? WHAT THE SHIT?
-            // TODO: THIS SHOULD BE A MAJOR PERFORMANCE ISSUE!
-            // TODO: IT ALSO RESULTS IN AN EMPTY LIST IN PRACTICAL USE IN THE SPEECH ACTION!
-            // TODO: WHAT IS GOING ON SHOULD WE REDO THIS WHOLE THING?!?!?!?!?!
-            console.log('Making new PresetText with props', props)
-        }
         await obj.__apply(props ?? {}, fill) // Will run with empty just to lift properties from the prototype up to the class instance.
         return obj
     }

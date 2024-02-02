@@ -20,6 +20,7 @@ export class ActionSettingTTS extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSettingTTS(),
+            tag: '🗣',
             description: 'Performs functions in the TTS system.',
             documentation: {
                 functionType: 'What type of function to call for the TTS system.',
@@ -33,7 +34,6 @@ export class ActionSettingTTS extends Action {
 
     build(key: string): IActionCallback {
         return {
-            tag: '🗣',
             awaitCall: true,
             description: 'Callback that executes a TTS function',
             call: async (user: IActionUser, nonce: string, index?: number) => {

@@ -13,6 +13,7 @@ export class ActionMoveVRSpace extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionMoveVRSpace(),
+            tag: '⚖',
             description: 'Used to move the SteamVR play space.',
             documentation: {
                 x: 'Sideways position offset',
@@ -26,7 +27,6 @@ export class ActionMoveVRSpace extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '⚖',
             description: 'Callback that triggers an OpenVR2WSMoveSpace action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionMoveVRSpace>(this)

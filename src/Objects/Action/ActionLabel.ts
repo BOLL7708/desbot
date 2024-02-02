@@ -15,6 +15,7 @@ export class ActionLabel extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionLabel(),
+            tag: '🏷',
             description: 'Writes text to a file that will be created in the <code>_data</code> folder, can be used as a label in your broadcaster suite.',
             documentation: {
                 fileName: 'The filename to use, this includes the extension.',
@@ -30,7 +31,6 @@ export class ActionLabel extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '🏷',
             description: 'Callback that triggers a Label action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionLabel>(this)

@@ -3,7 +3,12 @@ import Data from './Data.js'
 import {DataMeta} from './DataMeta.js'
 
 // Types
-export type TNoFunctions<T> = { [K in keyof T]: T[K] extends Function ? never : K }[keyof T]
+export type TNoFunctions<T> = {
+    [K in keyof T]: T[K] extends Function
+        ? never
+        : K
+}[keyof T]
+
 export type TTypes = 'number'|'boolean'|'string'|'string|secret'|'string|code'|string
 
 export default class DataMap {
@@ -11,6 +16,7 @@ export default class DataMap {
     private static addInstance<T>(
         isRoot: boolean = false,
         instance: T&Data,
+        tag?: string,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
@@ -23,6 +29,7 @@ export default class DataMap {
         const meta = new DataObjectMeta(
             instance,
             isRoot,
+            tag,
             description,
             documentation as IStringDictionary|undefined,
             types as IStringDictionary|undefined,
@@ -33,8 +40,9 @@ export default class DataMap {
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>({instance, description, documentation, types, label, keyMap, tools, tasks, visibleForOption}: {
+    public static addRootInstance<T>({instance, tag, description, documentation, types, label, keyMap, tools, tasks, visibleForOption}: {
         instance: T&Data,
+        tag?: string,
         description?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
@@ -50,14 +58,14 @@ export default class DataMap {
             >>
         >>
     }) {
-        this.addInstance(true, instance, description, documentation, types, label, keyMap, tools, tasks)
+        this.addInstance(true, instance, tag, description, documentation, types, label, keyMap, tools, tasks)
     }
     public static addSubInstance<T>({instance, documentation, types}: {
         instance: T&Data,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>
     }) {
-        this.addInstance(false, instance, undefined, documentation, types)
+        this.addInstance(false, instance,undefined, undefined, documentation, types)
     }
 
     /**
@@ -121,6 +129,7 @@ export class DataObjectMeta extends DataMeta {
     constructor(
         public instance: Data,
         public isRoot: boolean,
+        public tag?: string,
         public description?: string,
         public documentation?: IStringDictionary,
         public types?: IStringDictionary,

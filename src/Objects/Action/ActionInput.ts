@@ -18,6 +18,7 @@ export class ActionInput extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionInput(),
+            tag: '🎓',
             description: 'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
             documentation: {
                 window: 'The title of the window to send the key press to.',
@@ -36,7 +37,6 @@ export class ActionInput extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '🎓',
             description: 'Callback that triggers an input action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionInput>(this)

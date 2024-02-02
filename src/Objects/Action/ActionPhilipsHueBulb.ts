@@ -18,6 +18,7 @@ export class ActionPhilipsHueBulb extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionPhilipsHueBulb(),
+            tag: '🎨',
             description: 'Trigger Philips Hue bulb changes.',
             documentation: {
                 colorEntries: 'The color(s) to set the bulb(s) to, if more than one color is used and a positive delay in seconds has been provided, they will automatically be applied in sequence.',
@@ -34,7 +35,6 @@ export class ActionPhilipsHueBulb extends Action {
 
     build(key: string): IActionCallback {
         return  {
-            tag: '🎨',
             description: 'Callback that triggers a Philips Hue bulb action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionPhilipsHueBulb>(this)
