@@ -15,7 +15,7 @@ export class ActionSign extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSign(),
-            tag: '🚦',
+            tag: '📄',
             description: 'Show a pop-in message in the browser source for the widget.',
             documentation: {
                 title: 'The title above the image, takes tags.',

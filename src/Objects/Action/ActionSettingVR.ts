@@ -15,10 +15,10 @@ export class ActionSettingVR extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSettingVR(),
-            tag: '🔧',
+            tag: '⚙️',
             description: 'Used to change SteamVR settings.',
             documentation: {
-                settingPreset: 'The format is [category]|[setting]|[default], where an empty category will use the app ID for game specific settings.',
+                settingPreset: 'The format is: category|setting|default, where an empty category will use the app ID for game specific settings.',
                 settingPreset_orCustom: '',
                 settingPreset_inCategory: '',
                 setToValue: 'The value to set the setting to, takes various formats, will use possible default if missing.',

@@ -12,7 +12,7 @@ export class TriggerRelay extends Trigger {
     enlist() {
         DataMap.addRootInstance({
             instance: new TriggerRelay(),
-            tag: '🦋',
+            tag: '📞',
             description: 'A relay message from WSRelay',
             documentation: {
                 key: 'Listen to incoming relay messages supplying this key.'

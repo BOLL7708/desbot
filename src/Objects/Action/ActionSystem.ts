@@ -26,7 +26,7 @@ export class ActionSystem extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSystem(),
-            tag: '🖐',
+            tag: '🤖',
             description: 'Trigger or change state of things, propagating input.',
             documentation: {
                 trigger: 'Things to trigger.',

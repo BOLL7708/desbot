@@ -11,7 +11,7 @@ export class TriggerRemoteCommand extends Trigger {
     enlist() {
         DataMap.addRootInstance({
             instance: new TriggerRemoteCommand(),
-            tag: '🦹',
+            tag: '📡',
             description: 'The most basic command, used for remote execution.',
             documentation: {
                 entries: 'The command or commands that can be used with this trigger.',

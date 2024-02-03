@@ -24,7 +24,7 @@ export class ActionPipe extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionPipe(),
-            tag: '📺',
+            tag: '🖼️',
             description: 'Trigger one or multiple pipe overlays.',
             documentation: {
                 imagePathEntries: 'An absolute path to an image or an array of image for random selection.\n\nIf this is skipped, `imageData` needs to be set instead.',

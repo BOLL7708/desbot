@@ -17,7 +17,7 @@ export class ActionChat extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionChat(),
-            tag: '📄',
+            tag: '💬',
             description: 'Send message(s) to Twitch chat.',
             documentation: {
                 entries: 'These entries will be sent to chat.',

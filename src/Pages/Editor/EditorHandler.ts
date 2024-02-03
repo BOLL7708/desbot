@@ -145,6 +145,8 @@ export default class EditorHandler {
     private _sideMenuDiv: HTMLDivElement|undefined
     private _eventCategory = Number.MIN_VALUE
     async updateSideMenu(skipNewButton: boolean = false) {
+        const config = await DataBaseHelper.loadMain(new ConfigEditor())
+
         if(!this._sideMenuDiv) {
             this._sideMenuDiv = document.querySelector('#side-bar') as HTMLDivElement
         }
@@ -172,6 +174,7 @@ export default class EditorHandler {
         }
         let isItems = false
         let itemClass = ''
+        let isListingEvents = false
         if(Object.keys(classesAndCounts).length == 1) {
             const className = Object.keys(classesAndCounts)[0]
             const eventCategories = await DataBaseHelper.loadAll(new PresetEventCategory()) ?? {}
@@ -180,7 +183,8 @@ export default class EditorHandler {
             const categorySelector = document.createElement('select')
             if(meta) {
                 // If we are listing events, do the following.
-                if(className == EventDefault.ref.build()) {
+                isListingEvents = className == EventDefault.ref.build()
+                if(isListingEvents) {
                     // Add optional category selector
                     const typeContainer = document.createElement('p')
                     const typeSelectorId = className + '-type-selector'
@@ -222,30 +226,37 @@ export default class EditorHandler {
                 const items = await DataBaseHelper.loadAll(meta.instance)
                 if(items) {
                     isItems = true
-                    if(this._eventCategory > 0) {
-                        // Filter on event type to only show the right events in the side menu.
-                        classesAndCounts = Object.fromEntries(
-                            Object.entries(items).filter(([key, item])=>{
+                    let unfiltered = true
+                    if(isListingEvents) {
+                        if(this._eventCategory > 0) {
+                            // Show events that match the chosen category
+                            classesAndCounts = Object.fromEntries(
+                                Object.entries(items).filter(([key, item])=>{
+                                        const eventItem = item.data as EventDefault
+                                        return eventItem.category == this._eventCategory
+                                }).map(([key, value])=>{
+                                    return [key, 1]
+                                })
+                            )
+                            unfiltered = false
+                        } else if(this._eventCategory == -1) {
+                            // Show uncategorized events
+                            const eventCategoryIds = Object.values(eventCategories).map((item)=>{
+                                return item.id
+                            })
+                            classesAndCounts = Object.fromEntries(
+                                Object.entries(items).filter(([key, item])=>{
                                     const eventItem = item.data as EventDefault
-                                    return eventItem.category == this._eventCategory
-                            }).map(([key, value])=>{
-                                return [key, 1]
-                            })
-                        )
-                    } else if(this._eventCategory == -1) {
-                        const eventCategoryIds = Object.values(await DataBaseHelper.loadAll(new PresetEventCategory()) ?? {}).map((item)=>{
-                            return item.id // TODO: In the future, switch to a load all IDs.
-                        })
-                        classesAndCounts = Object.fromEntries(
-                            Object.entries(items).filter(([key, item])=>{
-                                const eventItem = item.data as EventDefault
-                                return !eventCategoryIds.includes(DataUtils.ensureID(eventItem.category) ?? Number.MAX_VALUE)
-                            }).map(([key, value])=>{
-                                return [key, 1]
-                            })
-                        )
-                    } else {
-                        // All of them
+                                    return !eventCategoryIds.includes(DataUtils.ensureID(eventItem.category) ?? Number.MAX_VALUE)
+                                }).map(([key, value])=>{
+                                    return [key, 1]
+                                })
+                            )
+                            unfiltered = false
+                        }
+                    }
+                    if(unfiltered) {
+                        // Show all items
                         classesAndCounts = Object.fromEntries(Object.entries(items).map(([key, value])=>{
                             return [key, 1]
                         }))
@@ -281,8 +292,34 @@ export default class EditorHandler {
             const a = document.createElement('a') as HTMLAnchorElement
             a.href = '#'
             if(isItems) { // Actually specific items as there is only one group
-                const name = Utils.camelToTitle(group)
-                a.innerHTML = `${name}`
+                let name = Utils.camelToTitle(group)
+
+                // TODO: Should probably break out the Event menu into a separate function as it is so different from the other menus...
+                if(isListingEvents && config.displayEmojisForEvents) {
+                    // Emoji tags added to name
+                    const item = await DataBaseHelper.load(new EventDefault(), group)
+                    const triggerIDs = DataUtils.ensureIDArray(item?.triggers ?? [])
+                    const triggerClasses = [...new Set(
+                        Object.values(await DataBaseHelper.loadIDClasses(triggerIDs))
+                    )]
+                    const actionIDs: number[] = []
+                    for(const actionContainer of (item?.actions ?? [])) {
+                        actionIDs.push(...DataUtils.ensureIDArray(actionContainer.entries) ?? [])
+                    }
+                    const actionClasses = [...new Set(
+                        Object.values(await DataBaseHelper.loadIDClasses(actionIDs))
+                    )]
+                    name = `${DataMap.getTags(triggerClasses)} ${name} ${DataMap.getTags(actionClasses)}`.trim()
+                    const titleTriggers = triggerClasses.map((item)=>{
+                        return item.replace(/^Trigger/, '')
+                    }).join(', ')
+                    const titleActions = actionClasses.map((item)=>{
+                        return item.replace(/^Action/, '')
+                    }).join(', ')
+                    a.title = `Triggers: ${titleTriggers}\nActions: ${titleActions}`
+                }
+
+                a.innerHTML = name
                 a.onclick = (event: Event) => {
                     if(event.cancelable) event.preventDefault()
                     this.buildEditorControls(itemClass, group).then()

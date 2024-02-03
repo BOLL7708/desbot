@@ -20,7 +20,7 @@ export class ActionSettingTTS extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSettingTTS(),
-            tag: '🗣',
+            tag: '🔊',
             description: 'Performs functions in the TTS system.',
             documentation: {
                 functionType: 'What type of function to call for the TTS system.',

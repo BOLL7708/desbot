@@ -18,7 +18,7 @@ export class ActionPhilipsHueBulb extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionPhilipsHueBulb(),
-            tag: '🎨',
+            tag: '💡',
             description: 'Trigger Philips Hue bulb changes.',
             documentation: {
                 colorEntries: 'The color(s) to set the bulb(s) to, if more than one color is used and a positive delay in seconds has been provided, they will automatically be applied in sequence.',

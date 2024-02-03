@@ -20,7 +20,7 @@ export class TriggerCommand extends Trigger {
     enlist() {
         DataMap.addRootInstance({
             instance: new TriggerCommand(),
-            tag: '🐶',
+            tag: '📣',
             description: 'A chat command.',
             documentation: {
                 entries: 'The commands that can be used with this trigger.',

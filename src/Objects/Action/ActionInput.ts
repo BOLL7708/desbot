@@ -18,7 +18,7 @@ export class ActionInput extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionInput(),
-            tag: '🎓',
+            tag: '⌨️',
             description: 'Execute a virtual input sequence in a specific desktop window using AutoIt v3, see links for setup.',
             documentation: {
                 window: 'The title of the window to send the key press to.',

@@ -12,6 +12,7 @@ export class ConfigEditor extends Data {
     askToRevealSecretInput: boolean = true
     showFavoritesBar: boolean = true
     audioPreviewVolume: number = 100
+    displayEmojisForEvents: boolean = true
     favorites: { [key:string]: ConfigEditorFavorite } = {}
 
     enlist() {
@@ -27,6 +28,7 @@ export class ConfigEditor extends Data {
                 includeOrphansInGenericLists: 'In generic lists we by default parent new child items to the current main item, if this is active the dropdown in the editor will also include items in the system without a parent.',
                 showFavoritesBar: 'Show the bar with favorites.',
                 audioPreviewVolume: 'The volume to use when previewing audio in percent.',
+                displayEmojisForEvents: 'Display emojis for which triggers and actions an event contains in the side menu.',
                 favorites: 'IDs to favorites in the favorites bar, only a soft reference not depending on the existence of the referenced item.'
             },
             types: {

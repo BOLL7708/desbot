@@ -14,7 +14,7 @@ export class ActionURI extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionURI(),
-            tag: '🌐',
+            tag: '🔗',
             description: 'Loads http/https URLs or custom schema URIs silently in the background.',
             documentation: {
                 entries: 'Full URIs including protocol.\n\nhttp:// and https:// will load as web URLs, while custom schemas [custom]:// will be executed as local system calls.',

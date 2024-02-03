@@ -378,16 +378,16 @@ export default class DataBaseHelper {
      * Used to get which classes a reference list of IDs has in the editor.
      * @param idArr
      */
-    static async loadIDClasses(idArr: string[]): Promise<IStringDictionary> {
+    static async loadIDClasses(idArr: string[]|number[]): Promise<IStringDictionary> {
         const output: IStringDictionary = {}
         const toLoad: string[] = []
-        for(const idStr of idArr) {
-            const id = parseInt(idStr)
+        for(const idVal of idArr) {
+            const id = typeof idVal === 'string' ? parseInt(idVal) : idVal
             if(this._idToMetaMap.has(id)) {
                 const item = this._idToMetaMap.get(id)
                 output[id] = item?.class ?? ''
             } else {
-                toLoad.push(idStr)
+                toLoad.push(id.toString())
             }
         }
         if(toLoad.length > 0) {

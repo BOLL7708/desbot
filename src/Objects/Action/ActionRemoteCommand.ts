@@ -12,7 +12,7 @@ export class ActionRemoteCommand extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionRemoteCommand(),
-            tag: '🤝',
+            tag: '📡',
             description: 'Send remote command(s) to the remote command channel.',
             types: {
                 entries: 'string',

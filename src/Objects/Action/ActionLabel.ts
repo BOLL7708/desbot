@@ -15,7 +15,7 @@ export class ActionLabel extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionLabel(),
-            tag: '🏷',
+            tag: '🏷️',
             description: 'Writes text to a file that will be created in the <code>_data</code> folder, can be used as a label in your broadcaster suite.',
             documentation: {
                 fileName: 'The filename to use, this includes the extension.',

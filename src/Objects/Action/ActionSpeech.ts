@@ -26,7 +26,7 @@ export class ActionSpeech extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionSpeech(),
-            tag: '🗣',
+            tag: '👄',
             description: 'Trigger the TTS to read a message.',
             documentation: {
                 entries: 'The strings of text to read out loud.',

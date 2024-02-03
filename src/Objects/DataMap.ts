@@ -123,6 +123,17 @@ export default class DataMap {
     public static getMeta(className: string): DataObjectMeta|undefined {
         return this.hasInstance(className) ? this._map.get(className) : undefined
     }
+
+    public static getTags(classNames: string[], separator: string = ''): string {
+        let resultArr: string[] = []
+        for(const name of classNames) {
+            const meta = this.getMeta(name)
+            if(meta && meta.tag?.length) {
+                resultArr.push(meta.tag)
+            }
+        }
+        return resultArr.join(separator)
+    }
 }
 
 export class DataObjectMeta extends DataMeta {

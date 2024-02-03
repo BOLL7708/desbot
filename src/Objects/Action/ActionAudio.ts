@@ -20,7 +20,7 @@ export class ActionAudio extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionAudio(),
-            tag: '🔊',
+            tag: '🎶',
             description: 'Trigger audio clips.',
             documentation: {
                 srcEntries: 'The web URL, local URL or data URL of one or more audio files.\n\nA path ending in a slash or including an asterisk will do a wildcard match of multiple files.',

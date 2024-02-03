@@ -13,7 +13,7 @@ export class ActionMoveVRSpace extends Action {
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionMoveVRSpace(),
-            tag: '⚖',
+            tag: '🌐',
             description: 'Used to move the SteamVR play space.',
             documentation: {
                 x: 'Sideways position offset',

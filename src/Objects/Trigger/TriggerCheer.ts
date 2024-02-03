@@ -11,7 +11,7 @@ export class TriggerCheer extends Trigger {
     enlist() {
         DataMap.addRootInstance({
             instance: new TriggerCheer(),
-            tag: '👏',
+            tag: '💰',
             description: 'A channel cheer',
             documentation: {
                 amount: 'If a viewer cheers this specific bit amount it will trigger this event.'
