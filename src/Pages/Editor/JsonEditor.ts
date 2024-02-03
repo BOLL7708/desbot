@@ -636,7 +636,7 @@ export default class JsonEditor {
                     option.value = enumValue
                     option.innerHTML = Utils.camelToTitle(enumKey)
                     if(enumMeta.documentation?.hasOwnProperty(enumKey)) option.title = enumMeta.documentation[enumKey]
-                    if(enumValue == Utils.ensureNumber(options.data)) {
+                    if(enumValue.toString() == options.data.toString()) {
                         option.selected = true
                     }
                     enumSelect.appendChild(option)
