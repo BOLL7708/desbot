@@ -6,8 +6,8 @@
         --sidebar-background-color: #e0e0e0;
         --favoritesbar-background-color: #d0d0d0;
 
-        --topbar-link-hover: #00000020;
-        --topbar-link-active: #ffffff;
+        --link-color: #404040;
+        --link-hover-color: #000000;
         --body-text-color: #000000;
         --border-color: #808080;
         --topbar-badge-text: #ffffff;

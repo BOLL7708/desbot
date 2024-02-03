@@ -5,6 +5,17 @@ html, body {
     padding: 0;
     height: 100%;
 }
+a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+a:hover {
+    color: var(--link-hover-color);
+}
+.version {
+    text-align: center;
+    font-size: 75%;
+}
 
 /* Container */
 #container {
@@ -47,13 +58,13 @@ html, body {
     border-radius: 6px;
 }
 .hbar li a:hover {
-    background-color: var(--topbar-link-hover);
+    background-color: var(--link-hover-background);
 }
 .hbar .wip {
     opacity: 50%;
 }
 .menu-bar-current, .menu-bar-current:hover {
-    background-color: var(--topbar-link-active) !important;
+    background-color: var(--link-active) !important;
 }
 .badge {
     background-color: red;
