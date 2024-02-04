@@ -42,7 +42,7 @@ This section will explain how to get started with the bot, how to install it, ho
 
 #### Good to Have things
 1. A secondary [Twitch][twitch] account to use as a bot in chat, so it doesn't look like you are writing all automated messages yourself.
-2. A [Git][git] client so you can clone the repository and easily pull down new changes, it is also used to name backup archives when using the included backup script.
+2. [Git][git] installed, possibly with a GUI client, so you can clone the repository and easily pull down new changes, it is also used to name backup archives when using the included backup script.
    * Make sure you can access it in your terminal, run `git version` in the terminal and see if it succeeds, if not it needs to be added to the `PATH` environmental variable. 
 3. An API key from [Google][googletts], so you get access to TTS functionality, which is a commonly used feature in the bot.
 
@@ -62,6 +62,17 @@ This section will explain how to get started with the bot, how to install it, ho
 4. Go to  `🎨 Config > Speech > Google Api Key`, and insert your API key if you have one, this to get TTS throughout.
 5. Use the `🧰 Tools` section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
    * If you have existing rewards on Twitch, it is a good idea to use the import tools in here. Keep in mind that if you want the bot to be able to update and toggle your reward, they need to be created by the bot. You can still import existing rewards, delete them, and then have this bot create them from the imported presets.  
+</details>
+
+### Updating
+<details>
+
+To update the project you should pull down the latest changes and then recompile the project, follow these steps:
+1. Go to the project root in the terminal, this will be in `xampp/htdocs/desbot` if you used the defaults.
+2. Use Git to pull the latest changes from the `master` branch, if you haven't checked out a different branch you can run this in the terminal to get the update: `git pull`
+3. Still in the same terminal, run `tsc` to recompile the project, it should return empty if there are no issues.
+
+That should be it. Go to the path of the bot in your browser and check the version number in the top left corner under the logo, it should be the latest version as seen on GitHub or the website.
 </details>
 
 ---

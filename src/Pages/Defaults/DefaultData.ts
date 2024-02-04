@@ -69,67 +69,68 @@ export enum EKeys {
     // endregion
 
     // region Events
-    TtsOn = 'Command TTS On',
-    TtsOff = 'Command TTS Off',
-    TtsSilence = 'Command TTS Silence',
-    TtsDie = 'Command TTS Die',
-    TtsNick = 'Command TTS Nick',
-    TtsClearNick = 'Command TTS Clear Nick',
-    TtsMute = 'Command TTS Mute',
-    TtsUnmute = 'Command TTS Unmute',
-    TtsGender = 'Command TTS Gender',
-    TtsSpeak = 'Reward TTS Speak',
-    TtsSay = 'Command TTS Say',
-    TtsSetVoice = 'Reward & Command TTS Set Voice',
-    TtsGetNick = 'Command TTS Get Nick',
-    TtsGetVoice = 'Command TTS Get Voice',
-    TtsVoices = 'Command TTS Voices',
-    DictionarySetWord = 'Command Dictionary Set Word',
-    DictionaryGetWord = 'Command Dictionary Get Word',
-    DictionaryClearWord = 'Command Dictionary Clear Word',
+    TtsOn = 'Default TTS On',
+    TtsOff = 'Default TTS Off',
+    TtsSilence = 'Default TTS Silence',
+    TtsDie = 'Default TTS Die',
+    TtsNick = 'Default TTS Nick',
+    TtsClearNick = 'Default TTS Clear Nick',
+    TtsMute = 'Default TTS Mute',
+    TtsUnmute = 'Default TTS Unmute',
+    TtsGender = 'Default TTS Gender',
+    TtsSpeak = 'Default TTS Speak',
+    TtsSay = 'Default TTS Say',
+    TtsSetVoice = 'Default TTS Set Voice',
+    TtsGetNick = 'Default TTS Get Nick',
+    TtsGetVoice = 'Default TTS Get Voice',
+    TtsVoices = 'Default TTS Voices',
+    DictionarySetWord = 'Default Dictionary Set Word',
+    DictionaryGetWord = 'Default Dictionary Get Word',
+    DictionaryClearWord = 'Default Dictionary Clear Word',
 
-    SystemChat = 'Command Chat',
-    SystemChatOn = 'Command Chat On',
-    SystemChatOff = 'Command Chat Off',
-    SystemPingOn = 'Command Ping On',
-    SystemPingOff = 'Command Ping Off',
-    SystemLogOn = 'Command Log On',
-    SystemLogOff = 'Command Log Off',
-    SystemGameReset = 'Command Game Reset',
-    SystemRemoteOn = 'Command Remote On',
-    SystemRemoteOff = 'Command Remote Off',
-    SystemMod = 'Command Mod',
-    SystemUnMod = 'Command UnMod',
-    SystemVip = 'Command VIP',
-    SystemUnVip = 'Command UnVIP',
-    SystemRaid = 'Command Raid',
-    SystemUnraid = 'Command Unraid',
-    SystemQuote = 'Command Quote',
-    SystemScale = 'Command Scale',
-    // SystemChannelTrophy = 'Reward Channel Trophy',
-    // SystemChannelTrophyStats = 'Command Channel Trophy Stats',
-    SystemHelpToDiscord = 'Command Help to Discord',
-    SystemHelpToChat = 'Command Help to Chat',
-    SystemClips = 'Command Clips',
-    SystemReloadWidget = 'Command Reload Widget',
-    SystemUpdateRewards = 'Command Update Rewards',
-    SystemGameRewardsOn = 'Command Game Rewards On',
-    SystemGameRewardsOff = 'Command Game Rewards Off',
-    SystemRefundRedemption = 'Command Refund Redemption',
-    SystemClearRedemptions = 'Command Clear Redemptions',
-    SystemResetIncrementingEvents = 'Command Reset Incrementing Events',
-    SystemResetAccumulatingEvents = 'Command Reset Accumulating Events',
+    SystemChat = 'Default Chat',
+    SystemChatOn = 'Default Chat On',
+    SystemChatOff = 'Default Chat Off',
+    SystemPingOn = 'Default Ping On',
+    SystemPingOff = 'Default Ping Off',
+    SystemLogOn = 'Default Log On',
+    SystemLogOff = 'Default Log Off',
+    SystemGameReset = 'Default Game Reset',
+    SystemRemoteOn = 'Default Remote On',
+    SystemRemoteOff = 'Default Remote Off',
+    SystemMod = 'Default Mod',
+    SystemUnMod = 'Default UnMod',
+    SystemVip = 'Default VIP',
+    SystemUnVip = 'Default UnVIP',
+    SystemRaid = 'Default Raid',
+    SystemUnraid = 'Default Unraid',
+    SystemQuote = 'Default Quote',
+    SystemScale = 'Default Scale',
+    // SystemChannelTrophy = 'Default Channel Trophy',
+    // SystemChannelTrophyStats = 'Default Channel Trophy Stats',
+    SystemHelpToDiscord = 'Default Help to Discord',
+    SystemHelpToChat = 'Default Help to Chat',
+    SystemClips = 'Default Clips',
+    SystemReloadWidget = 'Default Reload Widget',
+    SystemUpdateRewards = 'Default Update Rewards',
+    SystemGameRewardsOn = 'Default Game Rewards On',
+    SystemGameRewardsOff = 'Default Game Rewards Off',
+    SystemRefundRedemption = 'Default Refund Redemption',
+    SystemClearRedemptions = 'Default Clear Redemptions',
+    SystemResetIncrementingEvents = 'Default Reset Incrementing Events',
+    SystemResetAccumulatingEvents = 'Default Reset Accumulating Events',
 
-    CustomGame = 'Command Game',
-    CustomAudioURL = 'Command Audio URL',
-    CustomSay = 'Command Say',
-    CustomLurk = 'Command Lurk',
-    CustomLabel = 'Command Label',
-    CustomTodo = 'Command ToDo',
-    CustomShoutOut = 'Command ShoutOut',
-    CustomEndStream = 'Command End Stream',
+    CustomGame = 'Bonus Game',
+    CustomAudioURL = 'Bonus Audio URL',
+    CustomSay = 'Bonus Say',
+    CustomLurk = 'Bonus Lurk',
+    CustomLabel = 'Bonus Label',
+    CustomTodo = 'Bonus ToDo',
+    CustomShoutOut = 'Bonus ShoutOut',
+    CustomEndStream = 'Bonus End Stream',
 
-    LinkBot = 'Command Link Bot Website',
+    LinkBot = 'Bonus Link Bot Website',
+    LinkBotIssues = 'Bonus Link Bot Issues',
 
     // BOLL TODO: Temporary?
     BollPresetMainScene = 'Main',
@@ -1724,12 +1725,30 @@ export default class DefaultData {
                 importer: async (instance: EventDefault, key)=>{
                     const trigger = new TriggerCommand()
                     trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
-                    trigger.entries = ['bot']
+                    trigger.entries = ['bot', 'desbot']
                     trigger.category = OptionCommandCategory.Links
                     trigger.helpText = 'Posts a link to the bot website.'
                     trigger.globalCooldown = 60 * 5
                     const action = new ActionChat()
-                    action.entries = ['I can be yours here 👉 https://desbot.app']
+                    action.entries = ['Read about the bot here: https://desbot.app']
+                    return await DefaultData.registerEvent(
+                        instance, key, [trigger], [action],
+                        await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
+                    )
+                }
+            },
+            {
+                key: EKeys.LinkBotIssues,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key)=>{
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries = ['issue', 'issues', 'bug', 'bugs']
+                    trigger.category = OptionCommandCategory.Links
+                    trigger.helpText = 'Posts a link to the issues page for the bot.'
+                    trigger.globalCooldown = 60 * 5
+                    const action = new ActionChat()
+                    action.entries = ['Post feedback and bugs for the bot here: https://desbot.app/issues']
                     return await DefaultData.registerEvent(
                         instance, key, [trigger], [action],
                         await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
@@ -1985,10 +2004,10 @@ export default class DefaultData {
         key: string,
         triggers: Data[],
         actions: Data[],
-        type: number = 0
+        category: number = 0
     ): Promise<string|undefined> {
-        if(type == 0) type = await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryDefaultImports)
-        instance.category = type
+        if(category == 0) category = await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryDefaultImports)
+        instance.category = category
         const parentId = await DefaultData.saveAndGetID(instance, key)
         if(parentId > 0) {
             for(const trigger of triggers) {
