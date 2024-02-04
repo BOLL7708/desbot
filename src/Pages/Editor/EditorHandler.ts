@@ -295,20 +295,33 @@ export default class EditorHandler {
                 let name = Utils.camelToTitle(group)
 
                 // TODO: Should probably break out the Event menu into a separate function as it is so different from the other menus...
+                // Emoji tags added to name
                 if(isListingEvents && config.displayEmojisForEvents) {
-                    // Emoji tags added to name
+                    // Sort classes by order, TODO: This can probably be avoided by changing the DataBaseHelper.loadIDClasses() to not sort the entries, check that later.
+                    function restoreOrderOfClasses(entries: [string, string][], order: number[]): string[] {
+                        entries.sort((a, b)=>{
+                            return order.indexOf(parseInt(a[0])) - order.indexOf(parseInt(b[0]))
+                        })
+                        return entries.map((entry)=>{
+                            return entry[1]
+                        })
+                    }
                     const item = await DataBaseHelper.load(new EventDefault(), group)
+
+                    // Triggers
                     const triggerIDs = DataUtils.ensureIDArray(item?.triggers ?? [])
-                    const triggerClasses = [...new Set(
-                        Object.values(await DataBaseHelper.loadIDClasses(triggerIDs))
-                    )]
+                    const triggerValues = await DataBaseHelper.loadIDClasses(triggerIDs)
+                    const triggerClasses = [...new Set(restoreOrderOfClasses(Object.entries(triggerValues), triggerIDs))]
+
+                    // Actions
                     const actionIDs: number[] = []
                     for(const actionContainer of (item?.actions ?? [])) {
                         actionIDs.push(...DataUtils.ensureIDArray(actionContainer.entries) ?? [])
                     }
-                    const actionClasses = [...new Set(
-                        Object.values(await DataBaseHelper.loadIDClasses(actionIDs))
-                    )]
+                    const actionValues = await DataBaseHelper.loadIDClasses(actionIDs)
+                    const actionClasses = [...new Set(restoreOrderOfClasses(Object.entries(actionValues), actionIDs))]
+
+                    // Add to name
                     name = `${DataMap.getTags(triggerClasses)} ${name} ${DataMap.getTags(actionClasses)}`.trim()
                     const titleTriggers = triggerClasses.map((item)=>{
                         return item.replace(/^Trigger/, '')
