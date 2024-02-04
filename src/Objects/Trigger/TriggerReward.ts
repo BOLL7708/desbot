@@ -14,8 +14,8 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|DataEntries<PresetPermissions> = 0
-    rewardEntries: number[]|DataEntries<Data> = [] // TODO: This is <Data> just to give it a parent, need to update this so it's not generic.
     rewardID: number|DataEntries<SettingTwitchReward> = 0
+    rewardEntries: number[]|DataEntries<Data> = [] // TODO: This is <Data> just to give it a parent, need to update this so it's not generic.
 
     enlist() {
         DataMap.addRootInstance({
