@@ -43,7 +43,7 @@ export class SettingTwitchReward extends Data {
             instance: new SettingTwitchReward(),
             description: 'Twitch Reward',
             documentation: {
-                key: 'Easy to read identifier in the system.'
+                key: 'Easy to read identifier in the system, edit this as you please.'
             },
             label: 'key'
         })

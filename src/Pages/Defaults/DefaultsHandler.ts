@@ -1,7 +1,8 @@
-import DefaultData, {IDefaultObject, IDefaultObjectList} from './DefaultData.js'
+import DefaultData, {EKeys, IDefaultObject, IDefaultObjectList} from './DefaultData.js'
 import Utils from '../../Classes/Utils.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import DataMap, {DataObjectMeta} from '../../Objects/DataMap.js'
+import {PresetEventCategory} from '../../Objects/Preset/PresetEventCategory.js'
 
 export default class DefaultsHandler {
     constructor() {
@@ -34,12 +35,12 @@ export default class DefaultsHandler {
         const prerequisiteExists = await DefaultsHandler.checkIfItemsExists(DefaultData.PREREQUISITE_ENTRIES)
         const systemExists = prerequisiteExists && await DefaultsHandler.checkIfItemsExists(DefaultData.SYSTEM_ENTRIES)
 
-        // Import Buttons
-        children.push(await DefaultsHandler.buildImportButtons(DefaultData.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
-        if(prerequisiteExists) children.push(await DefaultsHandler.buildImportButtons(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM))
+        // Import, Update & Delete Buttons
+        children.push(await DefaultsHandler.buildButtons(DefaultData.PREREQUISITE_ENTRIES, LABEL_PREREQUISITE))
+        if(prerequisiteExists) children.push(await DefaultsHandler.buildButtons(DefaultData.SYSTEM_ENTRIES, LABEL_SYSTEM, EKeys.EventCategoryDefaultImports))
         if(systemExists) {
-            children.push(await DefaultsHandler.buildImportButtons(DefaultData.BONUS_ENTRIES, LABEL_BONUS))
-            // children.push(await DefaultsHandler.buildImportButtons(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
+            children.push(await DefaultsHandler.buildButtons(DefaultData.BONUS_ENTRIES, LABEL_BONUS, EKeys.EventCategoryBonusImports))
+            // children.push(await DefaultsHandler.buildButtons(DefaultData.BOLL_ENTRIES, LABEL_BOLL)) // TODO: Temporary
         }
 
         // Reference Buttons
@@ -53,7 +54,7 @@ export default class DefaultsHandler {
         container.replaceChildren(...children)
     }
 
-    private static buildImportButtons(items: IDefaultObjectList, label: string): HTMLElement {
+    private static async buildButtons(items: IDefaultObjectList, label: string, deleteCategoryWithKey?: string): Promise<HTMLElement> {
         const p = document.createElement('p') as HTMLParagraphElement
         const status = document.createElement('span') as HTMLSpanElement
         function buildButton(label: string, override: boolean) {
@@ -70,14 +71,56 @@ export default class DefaultsHandler {
                 if(override) doImport = confirm(`Are you sure you want to import or overwrite all ${label} entries?`)
                 if(doImport) {
                     const resultMessage = await DefaultsHandler.importItems(items, status, override)
-                    alert(resultMessage)
+                    setTimeout(()=>{
+                        alert(resultMessage)
+                    }, 500)
                     await DefaultsHandler.updatePage()
                 }
             }
             return button
         }
-        p.replaceChildren(buildButton(label, false), buildButton(label, true), status)
+
+        // Delete Buttons
+        function buildDeleteButton(categoryName: string, categoryId: number) {
+            const button = document.createElement('button') as HTMLButtonElement
+            button.onclick = async () => {
+                const doDelete = confirm(`Are you sure you want to delete all events in the ${categoryName} category?`)
+                if(doDelete) {
+                    const result = await DataBaseHelper.deleteCategory(categoryId)
+                    status.innerHTML = 'Deleting entries...'
+                    const resultMessage = result ? `Deleted all events in the ${categoryName} category.` : `Failed to delete all events in the ${categoryName} category.`
+                    setTimeout(()=>{
+                        alert(resultMessage)
+                    }, 500)
+                    await DefaultsHandler.updatePage()
+                }
+            }
+            button.innerHTML = `🗑️ Delete all ${label} entries`
+            button.title = `This will completely delete all events in the ${categoryName} category, \nuse this if you want to reimport these events with a clean slate.`
+            button.classList.add('main-button', 'delete-button')
+            return button
+        }
+        const children = [buildButton(label, false), buildButton(label, true)]
+        if(deleteCategoryWithKey) {
+            const deleteCategoryId = await DataBaseHelper.loadID(PresetEventCategory.ref.build(), deleteCategoryWithKey)
+            if(deleteCategoryId) children.push(buildDeleteButton(deleteCategoryWithKey, deleteCategoryId))
+        }
+        p.replaceChildren(...children, status)
         return p
+    }
+
+    private static buildDeleteButton(category: PresetEventCategory) {
+        const button = document.createElement('button') as HTMLButtonElement
+        button.onclick = async () => {
+            const doDelete = confirm(`Are you sure you want to delete the ${category} category?`)
+            if(doDelete) {
+                // await DataBaseHelper.deleteItem(category)
+                await DefaultsHandler.updatePage()
+            }
+        }
+        button.innerHTML = `🗑️ Delete all entries in the ${category} category, use this if you want to restart your defaults.`
+        button.classList.add('delete-button')
+        return button
     }
 
     private static async buildSection(parentList: IDefaultObjectList, label: string): Promise<HTMLElement> {

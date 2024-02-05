@@ -1,17 +1,7 @@
 <?php
 // Init
 include_once '_init.php';
-$dbType = getHeaderValue('X-DB-Type') ?? 'sqlite';
-switch($dbType) {
-    case 'sqlite':
-        $db = DB_SQLite::get();
-        break;
-    case 'mysql':
-        $db = DB_MySQL::get();
-        break;
-    default:
-        Utils::exitWithError('X-DB-Type must be either sqlite or mysql', 2003);
-}
+$db = DB_SQLite::get();
 
 // Auth
 Utils::checkAuth();
@@ -34,9 +24,6 @@ function getHeaderValue(string $field, bool $asInt = false): int|string|null {
 
 // Parameters
 $groupClass = getHeaderValue('X-Group-Class');
-if($method !== 'get' && !$groupClass) {
-    Utils::exitWithError('X-Group-Class is required in header when not using GET', 2004);
-}
 $groupKey = getHeaderValue('X-Group-Key');
 $rowIds = array_filter(explode(',', getHeaderValue('X-Row-Ids') ?? ''));
 $dataJson = file_get_contents('php://input'); // Raw JSON as a string.
@@ -48,6 +35,7 @@ $parentId = getHeaderValue('X-Parent-Id', true);
 $searchQuery = getHeaderValue('X-Search-Query');
 $nextGroupKey = !!getHeaderValue('X-Next-Group-Key');
 $onlyId = !!getHeaderValue('X-Only-Id');
+$deleteCategory = getHeaderValue('X-Delete-Category');
 
 if($parentId == 0) $parentId = null;
 
@@ -55,30 +43,38 @@ if($parentId == 0) $parentId = null;
 $output = null;
 switch($method) {
     case 'post':
-        // Update key
-        $updatedKey = false;
-        if($groupKey !== null && $newGroupKey !== null) { // Try to edit key
-            $updatedKey = $db->updateKey($groupClass, $groupKey, $newGroupKey);
-            $groupKey = $newGroupKey;
-        }
-        if($groupKey === null && $newGroupKey !== null) { // New key
-            $groupKey = $newGroupKey;
-        }
+        if($groupClass) {
+            // Update key
+            $updatedKey = false;
+            if($groupKey !== null && $newGroupKey !== null) { // Try to edit key
+                $updatedKey = $db->updateKey($groupClass, $groupKey, $newGroupKey);
+                $groupKey = $newGroupKey;
+            }
+            if($groupKey === null && $newGroupKey !== null) { // New key
+                $groupKey = $newGroupKey;
+            }
 
-        // Insert or update
-        $result = $db->saveEntry(
-            $groupClass,
-            $groupKey,
-            $parentId,
-            $dataJson
-        );
-        $output = $result !== false ? ['result'=>true, 'groupKey'=>$result] : false;
+            // Insert or update
+            $result = $db->saveEntry(
+                $groupClass,
+                $groupKey,
+                $parentId,
+                $dataJson
+            );
+            $output = $result !== false ? ['result'=>true, 'groupKey'=>$result] : false;
+        }
         break;
     case 'delete':
-        $output = $db->deleteSetting(
-            $groupClass,
-            $groupKey
-        );
+        if($deleteCategory) {
+            $output = $db->deleteCategory($deleteCategory);
+        }
+        else if($groupClass) {
+            // Delete (single or all keys in group
+            $output = $db->deleteSetting(
+                $groupClass,
+                $groupKey
+            );
+        }
         break;
     default: // GET, etc
         if($nextGroupKey) {

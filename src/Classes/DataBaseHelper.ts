@@ -107,6 +107,15 @@ export default class DataBaseHelper {
         return response.ok
     }
 
+    static async deleteCategoryJson(categoryId: number): Promise<boolean> {
+        let url = this.getUrl()
+        const response = await fetch(url, {
+            headers: await this.getHeader({categoryId, addJsonHeader: true}),
+            method: 'DELETE'
+        })
+        return response.ok
+    }
+
     static async search(searchQuery: string, surroundWithWildcards: boolean = true): Promise<IDataBaseItemRaw[]> {
         if(surroundWithWildcards) searchQuery = `*${searchQuery}*`
         let url = this.getUrl()
@@ -489,6 +498,29 @@ export default class DataBaseHelper {
         )
         return ok
     }
+
+    /**
+     * Delete whole category (of events)
+     * @param categoryId the ID for the category to delete.
+     */
+    static async deleteCategory<T>(categoryId: number): Promise<boolean> {
+        // DB
+        const ok = await this.deleteCategoryJson(categoryId)
+
+        // Clear cache
+        if(ok) {
+            this._dataStore.clear()
+            this._idToMetaMap.clear()
+            this._groupKeyTupleToMetaMap.clear()
+        }
+
+        // Result
+        Utils.log(
+            ok ? `Deleted all entries in category ${categoryId} from DB` : `Failed to delete entries in category ${categoryId} from DB`,
+            ok ? this.LOG_GOOD_COLOR : this.LOG_BAD_COLOR
+        )
+        return ok
+    }
     // endregion
 
     // region Helpers
@@ -523,6 +555,7 @@ export default class DataBaseHelper {
         if(options.searchQuery !== undefined) headers.set('X-Search-Query', options.searchQuery)
         if(options.nextGroupKey !== undefined) headers.set('X-Next-Group-Key', options.nextGroupKey ? '1' : '0')
         if(options.onlyId !== undefined) headers.set('X-Only-Id', options.onlyId ? '1' : '0')
+        if(options.categoryId !== undefined) headers.set('X-Delete-Category', options.categoryId.toString())
         return headers
     }
 
@@ -565,6 +598,7 @@ interface IDataBaseHelperHeaders {
     searchQuery?: string
     nextGroupKey?: boolean
     onlyId?: boolean
+    categoryId?: number
 }
 
 export interface IDataBaseItem<T> {
