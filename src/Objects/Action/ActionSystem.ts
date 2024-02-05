@@ -18,6 +18,8 @@ import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ConfigCommands from '../Config/ConfigCommands.js'
 import {DataUtils} from '../DataUtils.js'
 import {PresetReward} from '../Preset/PresetReward.js'
+import {PresetPipeBasic} from '../Preset/PresetPipe.js'
+import {INumberDictionary} from '../../Interfaces/igeneral.js'
 
 export class ActionSystem extends Action {
     trigger = new ActionSystemTrigger()
@@ -71,7 +73,7 @@ export class ActionSystem extends Action {
                     delay += interval
                 }
 
-                // Trigger Events by Keys
+                // Trigger Events
                 const keys = ArrayUtils.getAsType(DataUtils.ensureKeyArray(clone.trigger.eventEntries) ?? [], clone.trigger.eventEntries_use, index)
                 for(const key of keys) {
                     Utils.log(`Executing event: ${key} in ${delay} seconds...`, Color.Grey)
@@ -81,6 +83,21 @@ export class ActionSystem extends Action {
                     }, delay*1000)
                     delay += interval
                 }
+
+                // Trigger Events on User Input
+                const matchEntries = DataUtils.ensureItemDictionary<EventDefault>(this.trigger.matchedEventEntries)?.dataDictionary ?? {}
+                const matchTheseInputs = Object.keys(matchEntries)
+                const matchCaseSensitive = this.trigger.matchedEventEntries_caseSensitive
+                const matchInput = matchCaseSensitive ? user.input : user.input.toLowerCase()
+                const matchDefaultEventKey = matchEntries['*']?.key
+                const matchedInput = matchTheseInputs.find((match)=> {
+                    if(matchInput == (matchCaseSensitive ? match : match.toLowerCase())) {
+                        return !!matchEntries[match]?.key
+                    }
+                })
+                const matchedEventKey = matchedInput ? matchEntries[matchedInput]?.key : undefined
+                if(matchedEventKey?.length) new ActionHandler(matchedEventKey).call(user).then()
+                else if(matchDefaultEventKey.length) new ActionHandler(matchDefaultEventKey).call(user).then()
 
                 // Toggle Rewards
                 const rewardStates = clone.toggle.rewardStates
@@ -118,6 +135,8 @@ export class ActionSystemTrigger extends Data {
     commandEntries_use = OptionEntryUsage.All
     eventEntries: number[]|DataEntries<EventDefault> = []
     eventEntries_use = OptionEntryUsage.All
+    matchedEventEntries: INumberDictionary|DataEntries<EventDefault> = {}
+    matchedEventEntries_caseSensitive = false
 
     enlist() {
         DataMap.addSubInstance({
@@ -126,7 +145,8 @@ export class ActionSystemTrigger extends Data {
                 interval: 'Set the trigger entries to be triggered at an interval in seconds to space things out in time.',
                 systemActionEntries: 'Trigger system features that are not separate actions.',
                 commandEntries: 'Command(s) to trigger.',
-                eventEntries: 'Event(s) to trigger.'
+                eventEntries: 'Event(s) to trigger.',
+                matchedEventEntries: 'Event(s) to trigger that matches the user input. Add one with the key * to use as default if no match.'
             },
             types: {
                 systemActionEntries: OptionSystemActionType.ref,
@@ -134,7 +154,9 @@ export class ActionSystemTrigger extends Data {
                 commandEntries: 'string',
                 commandEntries_use: OptionEntryUsage.ref,
                 eventEntries: EventDefault.ref.id.build(),
-                eventEntries_use: OptionEntryUsage.ref
+                eventEntries_use: OptionEntryUsage.ref,
+                matchedEventEntries: EventDefault.ref.id.build(),
+                matchedEventEntries_caseSensitive: 'boolean'
             }
         })
     }

@@ -1,5 +1,5 @@
 import Data, {DataEntries} from '../Data.js'
-import {IBooleanDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
+import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataMap from '../DataMap.js'
 import {PresetPipeBasic} from '../Preset/PresetPipe.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
@@ -32,11 +32,11 @@ export class ConfigExample extends Data {
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
-    dictionaryOfSubInstances: {[key:string]: ConfigExampleSub} = {}
-    dictionaryOfIdReferences: {[key:string]: number|DataEntries<PresetPipeBasic>} = {}
-    dictionaryOfIdReferencesUsingLabels: {[key:string]: number|DataEntries<PresetPipeBasic>} = {}
-    dictionaryOfIdToGenericReferences: {[key:string]: number|DataEntries<Data>} = {}
-    dictionaryOfEnums: { [key:string]: OptionEntryUsage } = {}
+    dictionaryOfSubInstances: IDictionary<ConfigExampleSub> = {}
+    dictionaryOfIdReferences: INumberDictionary|DataEntries<PresetPipeBasic> = {}
+    dictionaryOfIdReferencesUsingLabels: INumberDictionary|DataEntries<PresetPipeBasic> = {}
+    dictionaryOfIdToGenericReferences: INumberDictionary|DataEntries<Data> = {}
+    dictionaryOfEnums: IDictionary<OptionEntryUsage> = {}
     partnerToSingle = ''
     partnerToSingle_active = false
     partnerToSingleAdvanced = ''

@@ -1,6 +1,7 @@
 import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
+import {IDictionary} from '../../Interfaces/igeneral.js'
 
 export class ConfigSpeech extends Data {
     googleApiKey: string = ''
@@ -37,7 +38,7 @@ export class ConfigSpeech extends Data {
 export class ConfigSpeechDictionary extends Data {
     skipForAnnouncements: boolean = true
     replaceWordsWithAudio: boolean = true
-    wordToAudioConfig: { [key:string]: ConfigSpeechWordToAudio } = {}
+    wordToAudioConfig: IDictionary<ConfigSpeechWordToAudio> = {}
 
     enlist() {
         DataMap.addSubInstance({
