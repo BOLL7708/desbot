@@ -88,10 +88,10 @@ export class ActionSystem extends Action {
                 const matchEntries = DataUtils.ensureItemDictionary<EventDefault>(this.trigger.matchedEventEntries)?.dataDictionary ?? {}
                 const matchTheseInputs = Object.keys(matchEntries)
                 const matchCaseSensitive = this.trigger.matchedEventEntries_caseSensitive
-                const matchInput = matchCaseSensitive ? user.input : user.input.toLowerCase()
+                const matchInput = matchCaseSensitive ? user.input.trim() : user.input.toLowerCase().trim()
                 const matchDefaultEventKey = matchEntries['*']?.key
                 const matchedInput = matchTheseInputs.find((match)=> {
-                    if(matchInput == (matchCaseSensitive ? match : match.toLowerCase())) {
+                    if(matchInput == (matchCaseSensitive ? match.trim() : match.toLowerCase().trim())) {
                         return !!matchEntries[match]?.key
                     }
                 })
