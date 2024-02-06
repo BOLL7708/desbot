@@ -31,7 +31,7 @@ export class ActionMoveVRSpace extends Action {
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionMoveVRSpace>(this)
                 const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.moveSpace(clone).then()
+                modules.openvr2ws.moveSpace(clone)
             }
         }
     }

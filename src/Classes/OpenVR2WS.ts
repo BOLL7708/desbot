@@ -155,7 +155,7 @@ export default class OpenVR2WS {
         this._statusCallback(false)
     }
 
-    public async setSetting(action: ActionSettingVR) {
+    public setSetting(action: ActionSettingVR) {
         let [category = '', setting = '', defaultValue = ''] = action.settingPreset.split('|')
         if(action.settingPreset_orCustom.length > 0) setting = action.settingPreset_orCustom
         if(action.settingPreset_inCategory.length > 0) category = action.settingPreset_inCategory
@@ -185,7 +185,7 @@ export default class OpenVR2WS {
         }
     }
 
-    public async moveSpace(action: ActionMoveVRSpace) {
+    public moveSpace(action: ActionMoveVRSpace) {
         const message: IOpenVRWSCommandMessage = {
             key: 'MoveSpace',
             value: this._password,

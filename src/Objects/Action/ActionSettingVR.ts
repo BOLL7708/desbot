@@ -37,7 +37,7 @@ export class ActionSettingVR extends Action {
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionSettingVR>(this)
                 const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.setSetting(clone).then()
+                modules.openvr2ws.setSetting(clone)
             }
         }
     }
