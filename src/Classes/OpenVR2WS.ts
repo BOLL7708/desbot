@@ -28,12 +28,14 @@ export default class OpenVR2WS {
     private _resetSettingMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
     private _resetSettingTimers: Map<string, number> = new Map()
     private _currentAppId?: string // Updated every time an ID is received
+    private _password: string = ''
     public isConnected: boolean = false
     
     constructor() {}
 
     async init() { // Init function as we want to set the callbacks before the first messages arrive.
         this._config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
+        this._password = await Utils.sha256(this._config.password)
         this._socket = new WebSockets(
             `ws://localhost:${this._config.port}`,
             10,
@@ -154,7 +156,6 @@ export default class OpenVR2WS {
     }
 
     public async setSetting(action: ActionSettingVR) {
-        const password = await Utils.sha256(this._config.password)
         let [category = '', setting = '', defaultValue = ''] = action.settingPreset.split('|')
         if(action.settingPreset_orCustom.length > 0) setting = action.settingPreset_orCustom
         if(action.settingPreset_inCategory.length > 0) category = action.settingPreset_inCategory
@@ -164,7 +165,7 @@ export default class OpenVR2WS {
         const value = action.setToValue.length == 0 ? defaultValue : action.setToValue
         const message: IOpenVRWSCommandMessage = {
             key: 'RemoteSetting',
-            value: password,
+            value: this._password,
             value2: category,
             value3: setting,
             value4: value
@@ -185,10 +186,9 @@ export default class OpenVR2WS {
     }
 
     public async moveSpace(action: ActionMoveVRSpace) {
-        const password = await Utils.sha256(this._config.password)
         const message: IOpenVRWSCommandMessage = {
             key: 'MoveSpace',
-            value: password,
+            value: this._password,
             value2: (action.x ?? 0).toString(),
             value3: (action.y ?? 0).toString(),
             value4: (action.z ?? 0).toString(),
