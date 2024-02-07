@@ -287,7 +287,7 @@ export default class ActionsCallbacks {
                                 const action = new ActionSettingVR()
                                 action.settingPreset = OptionSteamVRSettingType.WorldScale
                                 action.setToValue = (currentScale/100.0).toString()
-                                modules.openvr2ws.setSetting(action).then()
+                                modules.openvr2ws.setSetting(action)
                                 DataFileUtils.writeText(fileName, `🌍 ${Math.round(currentScale*100)/100}%`)
                                 currentScale *= multiple
                                 if(currentStep == steps) {
@@ -325,7 +325,7 @@ export default class ActionsCallbacks {
                     const action = new ActionSettingVR()
                     action.settingPreset = OptionSteamVRSettingType.WorldScale
                     action.setToValue = (value/100.0).toString()
-                    modules.openvr2ws.setSetting(action).then()
+                    modules.openvr2ws.setSetting(action)
                 }
             }
         },
@@ -345,7 +345,7 @@ export default class ActionsCallbacks {
                 const action = new ActionSettingVR()
                 action.settingPreset = OptionSteamVRSettingType.HMDAnalogGain
                 action.setToValue = (value/100.0).toString()
-                modules.openvr2ws.setSetting(action).then()
+                modules.openvr2ws.setSetting(action)
             }
         },
 
@@ -364,7 +364,7 @@ export default class ActionsCallbacks {
                 const action = new ActionSettingVR()
                 action.settingPreset = OptionSteamVRSettingType.HMDRefreshRate
                 action.setToValue = value.toString()
-                modules.openvr2ws.setSetting(action).then()
+                modules.openvr2ws.setSetting(action)
             }
         },
 
@@ -381,7 +381,7 @@ export default class ActionsCallbacks {
                 const action = new ActionSettingVR()
                 action.settingPreset = OptionSteamVRSettingType.MirrorViewEye
                 action.setToValue = value.toString()
-                modules.openvr2ws.setSetting(action).then()
+                modules.openvr2ws.setSetting(action)
             }
         },
         // endregion
