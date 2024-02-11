@@ -23,7 +23,8 @@ export default class DataMap {
         label?: TNoFunctions<T>,
         keyMap?: IStringDictionary,
         tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
-        tasks?: IRootTool[]
+        tasks?: IRootTool[],
+        visibleForOption?: IDataMapVisibleForOption<T>
     ) {
         const className = instance.constructor.name
         const meta = new DataObjectMeta(
@@ -35,8 +36,9 @@ export default class DataMap {
             types as IStringDictionary|undefined,
             label as string|undefined,
             keyMap as IStringDictionary|undefined,
-            tools as IDictionary<IRootTool>,
-            tasks
+            tools as IDictionary<IRootTool>|undefined,
+            tasks,
+            visibleForOption as IDictionary<IDictionary<number|string>>|undefined
         )
         this._map.set(className, meta)
     }
@@ -50,15 +52,9 @@ export default class DataMap {
         keyMap?: IStringDictionary,
         tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
         tasks?: IRootTool[],
-        visibleForOption?: Partial<Record<
-            TNoFunctions<T>,
-            Partial<Record<
-                TNoFunctions<T>,
-                number
-            >>
-        >>
+        visibleForOption?: IDataMapVisibleForOption<T>
     }) {
-        this.addInstance(true, instance, tag, description, documentation, types, label, keyMap, tools, tasks)
+        this.addInstance(true, instance, tag, description, documentation, types, label, keyMap, tools, tasks, visibleForOption)
     }
     public static addSubInstance<T>({instance, documentation, types}: {
         instance: T&Data,
@@ -148,7 +144,7 @@ export class DataObjectMeta extends DataMeta {
         public keyMap?: IStringDictionary,
         public tools?: IDictionary<IRootTool>,
         public tasks?: IRootTool[],
-        public visibleForOption?: IStringDictionary|undefined
+        public visibleForOption?: IDictionary<IDictionary<number|string>>
     ) {
         super()
     }
@@ -167,3 +163,11 @@ export class RootToolResult {
     data: TRootToolResponseData = undefined
 }
 export type TRootToolResponseData = undefined|string|number|boolean
+
+export type IDataMapVisibleForOption<T> = Partial<Record<
+    TNoFunctions<T>,
+    Partial<Record<
+        TNoFunctions<T>,
+        number|string
+    >>
+>>
