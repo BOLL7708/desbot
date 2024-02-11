@@ -28,7 +28,7 @@ export class ConfigExample extends Data {
     arrayOfIdReferences: number[]|DataEntries<PresetPipeBasic> = []
     arrayOfIdReferencesUsingLabels: number[]|DataEntries<PresetPipeBasic> = []
     arrayOfIdToGenericReferences: number[]|DataEntries<Data> = []
-    arrayOfEnum: OptionEntryUsage[] = []
+    arrayOfOptions: OptionEntryUsage[] = []
     dictionaryOfBooleans: IBooleanDictionary = {}
     dictionaryOfNumbers: INumberDictionary = {}
     dictionaryOfStrings: IStringDictionary = {}
@@ -45,8 +45,8 @@ export class ConfigExample extends Data {
     partnerToArray_withTitle = ''
     partnerToDictionary: IStringDictionary = {}
     partnerToDictionary_repeatsCount = 0
-    partnerToEnum = OptionEntryUsage.First
-    partnerToEnum_label = ''
+    partnerToOption = OptionEntryUsage.First
+    partnerToOption_label = ''
     partnerMultiple = false
     partnerMultiple_and = false
     partnerMultiple_or = 0
@@ -76,7 +76,7 @@ export class ConfigExample extends Data {
                 arrayOfIdReferences: '',
                 arrayOfIdReferencesUsingLabels: '',
                 arrayOfIdToGenericReferences: 'Contains an array of generic entries.',
-                arrayOfEnum: '',
+                arrayOfOptions: '',
                 dictionaryOfBooleans: '',
                 dictionaryOfNumbers: '',
                 dictionaryOfStrings: '',
@@ -105,7 +105,7 @@ export class ConfigExample extends Data {
                 arrayOfIdReferences: PresetPipeBasic.ref.id.build(),
                 arrayOfIdReferencesUsingLabels: PresetPipeBasic.ref.id.label.build(),
                 arrayOfIdToGenericReferences: Data.genericRef('Setting').build(),
-                arrayOfEnum: OptionEntryUsage.ref,
+                arrayOfOptions: OptionEntryUsage.ref,
                 dictionaryOfBooleans: 'boolean',
                 dictionaryOfNumbers: 'number',
                 dictionaryOfStrings: 'string',
@@ -117,7 +117,7 @@ export class ConfigExample extends Data {
                 partnerToSingleAdvanced_enum: OptionEntryUsage.ref,
                 partnerToArray: 'string',
                 partnerToDictionary: 'string',
-                partnerToEnum: OptionEntryUsage.ref
+                partnerToOption: OptionEntryUsage.ref
             }
         })
     }

@@ -304,6 +304,17 @@ export default class JsonEditor {
         const parentType = options.instanceMeta?.types ? options.instanceMeta.types[previousKey] ?? '' : ''
         const parentTypeValues = DataUtils.parseRef(parentType)
 
+        // This will fix empty arrays of Options which otherwise has NO TYPE
+        if(type == EJsonEditorFieldType.Null) {
+            const refType = thisTypeValues.type.length ? thisTypeValues.type : parentTypeValues.type
+            switch(refType) {
+                case 'string': type = EJsonEditorFieldType.String; break
+                case 'number': type = EJsonEditorFieldType.Number; break
+                case 'boolean': type = EJsonEditorFieldType.Boolean; break
+                default: type = EJsonEditorFieldType.String; break
+            }
+        }
+
         console.log('FLD '+'-'.repeat(options.path.length)+`(${key})`, thisType ?? parentType)
 
         // Root element
@@ -571,9 +582,6 @@ export default class JsonEditor {
                     this.handleValue(isNaN(num) ? 0 : num, options.path, label)
                 }
                 break
-            case EJsonEditorFieldType.Null:
-                input.innerHTML = 'NULL'
-                break
             default:
                 skip = true
         }
@@ -618,7 +626,7 @@ export default class JsonEditor {
         }
 
         /*
-         * An Enum class will have a select showing all the valid options.
+         * An Option class will have a select showing all the valid options.
          */
         if(thisTypeValues.option || parentTypeValues.option) {
             input.contentEditable = 'false'
@@ -627,15 +635,15 @@ export default class JsonEditor {
             const enumClass = thisTypeValues.option
                 ? thisTypeValues.class // Single enum
                 : parentTypeValues.class  // List of enums
-            const enumPrototype = OptionsMap.getPrototype(enumClass)
-            const enumMeta = OptionsMap.getMeta(enumClass)
-            if(enumMeta && enumPrototype) {
+            const optionPrototype = OptionsMap.getPrototype(enumClass)
+            const optionMeta = OptionsMap.getMeta(enumClass)
+            if(optionMeta && optionPrototype) {
                 const enumSelect = document.createElement('select') as HTMLSelectElement
-                for(const [enumKey,enumValue] of Object.entries(enumPrototype)) {
+                for(const [enumKey,enumValue] of Object.entries(optionPrototype)) {
                     const option = document.createElement('option') as HTMLOptionElement
                     option.value = enumValue
                     option.innerHTML = Utils.camelToTitle(enumKey)
-                    if(enumMeta.documentation?.hasOwnProperty(enumKey)) option.title = enumMeta.documentation[enumKey]
+                    if(optionMeta.documentation?.hasOwnProperty(enumKey)) option.title = optionMeta.documentation[enumKey]
                     if(enumValue?.toString() == options?.data?.toString()) {
                         option.selected = true
                     }

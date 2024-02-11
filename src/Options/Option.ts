@@ -6,7 +6,7 @@ export class Option {
      * If this ID is referenced when instancing a class, it will be a dropdown listing the properties as alternatives.
      */
     static get ref() {
-        return this.name+'|option'
+        return this.name+'|option|type='+this.getType()
     }
     static keyMap(): IStringDictionary {
         const entries = Object.entries(this)
@@ -16,5 +16,8 @@ export class Option {
     }
     static nameFromKey(key: string|number): string {
         return this.keyMap()[key.toString()] ?? key.toString()
+    }
+    static getType(): string {
+        return typeof Object.values(this).pop()
     }
 }

@@ -53,6 +53,9 @@ export class DataUtils {
                 case 'code':
                     refValues.code = true
                     break
+                case 'type':
+                    refValues.type = v
+                    break
             }
         }
         return refValues

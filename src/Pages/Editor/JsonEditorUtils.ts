@@ -131,7 +131,7 @@ export class JsonEditorUtils {
             newButton.classList.add('inline-button', 'new-button')
             newButton.onclick = async (event)=>{
                 if(Array.isArray(instance)) {
-                    switch(typeValues.class) {
+                    switch(typeValues.type.length ? typeValues.type : typeValues.class) {
                         case 'number': instance.push(0); break
                         case 'boolean': instance.push(false); break
                         case 'string': instance.push(''); break
@@ -154,7 +154,7 @@ export class JsonEditorUtils {
                 } else {
                     const newKey = prompt(`Provide an explanatory name (key) for the new ${typeValues.class}:`)
                     if(newKey && newKey.length > 0) {
-                        switch(typeValues.original) {
+                        switch(typeValues.type.length ? typeValues.type : typeValues.original) {
                             case 'number': (instance as any)[newKey] = 0; break
                             case 'boolean': (instance as any)[newKey] = false; break
                             case 'string': (instance as any)[newKey] = ''; break

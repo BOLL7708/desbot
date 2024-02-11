@@ -230,6 +230,7 @@ export class DataRefValues {
     file: string[] = []
     range: number[] = []
     code = false
+    type = ''
 }
 
 export enum EDataType {
