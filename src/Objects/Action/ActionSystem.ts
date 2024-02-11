@@ -97,7 +97,7 @@ export class ActionSystem extends Action {
                 })
                 const matchedEventKey = matchedInput ? matchEntries[matchedInput]?.key : undefined
                 if(matchedEventKey?.length) new ActionHandler(matchedEventKey).call(user).then()
-                else if(matchDefaultEventKey.length) new ActionHandler(matchDefaultEventKey).call(user).then()
+                else if(matchDefaultEventKey?.length) new ActionHandler(matchDefaultEventKey).call(user).then()
 
                 // Toggle Rewards
                 const rewardStates = clone.toggle.rewardStates

@@ -8,7 +8,7 @@ export default class ConfigCommands extends Data {
     commandPrefix: string = '!'
     defaultCommandPermissions: number|DataEntries<PresetPermissions> = 0
     ignoreModerators: number[]|DataEntries<SettingUser> = []
-    allowWhisperCommands: boolean = true
+    allowWhisperCommands: boolean = false
     logWhisperCommandsToDiscord: number|DataEntries<PresetDiscordWebhook> = 0
     remoteCommandChannel: number|DataEntries<SettingUser> = 0
     remoteCommandPrefix: string = '!'
