@@ -6,7 +6,7 @@ import Utils from '../Classes/Utils.js'
 import Color from '../Classes/ColorConstants.js'
 
 export class OptionsMap {
-    private static _map = new Map<string, EnumMeta>()
+    private static _map = new Map<string, OptionMeta>()
 
     static getPrototype(className: string|undefined): Option|undefined {
         if(className && this.hasPrototype(className)) {
@@ -22,7 +22,7 @@ export class OptionsMap {
         documentation?: Partial<Record<TNoFunctions<T>, string>>
     }) {
         const className = prototype.name
-        const meta = new EnumMeta(
+        const meta = new OptionMeta(
             prototype,
             description,
             documentation as IStringDictionary|undefined
@@ -38,12 +38,12 @@ export class OptionsMap {
         return has
     }
 
-    public static getMeta(className: string): EnumMeta|undefined {
+    public static getMeta(className: string): OptionMeta|undefined {
         return this.hasPrototype(className) ? this._map.get(className) : undefined
     }
 }
 
-export class EnumMeta extends DataMeta {
+export class OptionMeta extends DataMeta {
     constructor(
         public prototype: Option,
         public description?: string,

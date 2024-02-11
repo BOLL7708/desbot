@@ -140,7 +140,7 @@ export class ActionHandler {
                 let hasAdvancedCounter = false
                 for(const trigger of triggers) {
                     if(!hasAdvancedCounter) {
-                        counter.count += Math.max(user.rewardCost, 1) // Defaults to 1 for commands.
+                        counter.count += (user.rewardCost > 0 ? user.rewardCost : options.nonRewardIncrease)
                         await DataBaseHelper.save(counter, eventId.toString())
                         hasAdvancedCounter = true
                     }

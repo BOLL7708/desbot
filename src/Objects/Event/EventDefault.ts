@@ -32,6 +32,17 @@ export class EventDefault extends Data {
                 triggers: 'Supply in which ways we should trigger this event.',
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
+            instructions: {
+                behavior: 'The behavior will decide which sets of actions are used when the event is triggered, as well as affecting which reward presets are applied. ' +
+                    'Here are explanations for the ones that are less obvious: ' +
+                    '<ol><li>Incrementing: Will use a different actions and reward presets every time it is triggered.</li>' +
+                    '<li>Accumulating: Will accumulate points until reaching the goal, either from channel points for a reward, or the points set for other triggers.</li>' +
+                    '<li>Multi Tier: Will level up, using different actions and reward presets, until timer runs out where it resets.</li></ol>' +
+                    'These will use the set action differently, which is covered in the individual instructions which are WIP.',
+                incrementingOptions: 'Incrementing means the action set and reward preset used will be incremented every time the event is triggered. It will continue for as long as there are more entries, then repeat the last one. See additional options below.',
+                accumulatingOptions: 'Accumulating will use the first set of actions and reward preset when reset, then the second to last ones for progress, and the last one for when the goal is met. See additional options below.',
+                multiTierOptions: 'This is complicated, will expand on it later.' // TODO: Add instructions for multi-tier.
+            },
             types: {
                 category: PresetEventCategory.ref.id.build(),
                 behavior: OptionEventBehavior.ref,
@@ -141,6 +152,7 @@ export class EventIncrementingOptions extends Data {
 
 export class EventAccumulatingOptions extends Data {
     goal: number = 0
+    nonRewardIncrease: number = 1
     resetOnCommand: boolean = true // TODO: Add capability to refund accumulations later.
 
     enlist() {
@@ -148,6 +160,7 @@ export class EventAccumulatingOptions extends Data {
             instance: new EventAccumulatingOptions(),
             documentation: {
                 goal: 'The goal to reach if behavior is set to accumulating.',
+                nonRewardIncrease: 'The amount to increase the accumulation by when not using a reward trigger.',
                 resetOnCommand: 'Will reset an accumulating reward when the reset command is run, resetting the index to 0.',
             }
         })

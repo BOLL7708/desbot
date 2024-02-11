@@ -1,8 +1,11 @@
 import {IStringDictionary} from '../Interfaces/igeneral.js'
 
 export class DataMeta {
-    description?: string
-    documentation?: IStringDictionary
-    types?: IStringDictionary
-    isRoot: boolean = false
+    constructor(
+        public description?: string,
+        public documentation?: IStringDictionary,
+        public instructions?: IStringDictionary,
+        public types?: IStringDictionary,
+        public isRoot: boolean = false
+    ) {}
 }

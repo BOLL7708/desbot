@@ -315,10 +315,13 @@ export default class JsonEditor {
             }
         }
 
-        console.log('FLD '+'-'.repeat(options.path.length)+`(${key})`, thisType ?? parentType)
-
         // Root element
         let newRoot = document.createElement('li') as HTMLElement
+
+        // Instructions
+        if(this._config.showInstructions) {
+            JsonEditorUtils.appendInstructions(newRoot, options.instanceMeta, key.toString())
+        }
 
         const [partnerKey, labelStr] = Utils.splitOnFirst('_', key.toString())
         let isPartnerField = false
@@ -857,7 +860,10 @@ export default class JsonEditor {
         const thisTypeValues = DataUtils.parseRef(thisType)
         const instanceType = instance.constructor.name
 
-        console.log('FLD '+'='.repeat(options.path.length)+`(${pathKey})`, [typeof options.data, Object.keys(options.instanceMeta?.types ?? {}), thisType, thisTypeValues.class, thisTypeValues.isIdReference, instanceType])
+        // Instructions
+        if(this._config.showInstructions) {
+            JsonEditorUtils.appendInstructions(newRoot, options.instanceMeta, pathKey.toString())
+        }
 
         if(options.originListCount > 1) JsonEditorUtils.appendDragButton(this, newRoot, options.origin, options.path)
 

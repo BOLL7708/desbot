@@ -4,6 +4,7 @@ import JsonEditor, {EOrigin, IJsonEditorPath} from './JsonEditor.js'
 import DataMap from '../../Objects/DataMap.js'
 import Utils from '../../Classes/Utils.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
+import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 
 export class JsonEditorUtils {
     // region Append elements
@@ -189,6 +190,16 @@ export class JsonEditorUtils {
         bookmarkButton.onclick = callback
         bookmarkButton.ontouchstart = callback
         return bookmarkButton
+    }
+
+    static appendInstructions(parent: HTMLElement, meta: DataMeta|undefined, key: string) {
+        if(meta?.instructions && meta.instructions.hasOwnProperty(key)) {
+            const instruction = meta.instructions[key]
+            const paragraph = document.createElement('p') as HTMLParagraphElement
+            paragraph.classList.add('instructions')
+            paragraph.innerHTML = instruction
+            parent.appendChild(paragraph)
+        }
     }
     // endregion
 }

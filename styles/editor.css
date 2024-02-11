@@ -11,17 +11,17 @@ code {
 #content {
     background-color: var(--main-background-color);
 }
-#content li {
+#content ul > li {
     border-radius: 6px;
     padding-left: 6px;
 }
-#content li:nth-child(odd) {
+#content ul > li:nth-child(odd) {
     background: var(--editor-row-odd-color);
 }
-#content li:nth-child(even) {
+#content ul > li:nth-child(even) {
     background: var(--editor-row-even-color);
 }
-#content li:hover {
+#content ul > li:hover {
     box-shadow: 0 0 8px var(--editor-focus-shadow);
 }
 
@@ -58,6 +58,22 @@ code {
 }
 .documentation-icon:hover {
     opacity: 1;
+}
+.instructions:before {
+    color: var(--body-text-color);
+    content: "📚 ";
+    display: inline;
+    margin-left: -1em;
+}
+.instructions {
+    color: var(--instruction-text-color);
+    padding: 0.5em;
+    margin: 0 0 0 6px;
+    border-radius: 6px;
+    border-color: var(--border-color);
+    border-width: 2px;
+    border-style: hidden hidden dashed hidden;
+    line-height: 125%;
 }
 .drag-icon {
     display: inline-block;
