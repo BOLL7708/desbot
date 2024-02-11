@@ -124,6 +124,7 @@ export class EventRewardOptions extends Data {
 
 export class EventIncrementingOptions extends Data {
     loop: boolean = false
+    maxValue: number = 0
     resetOnCommand: boolean = true
 
     enlist() {
@@ -131,6 +132,7 @@ export class EventIncrementingOptions extends Data {
             instance: new EventIncrementingOptions(),
             documentation: {
                 loop: 'Will loop an incrementing reward when the max index is reached, resetting the index to 0.',
+                maxValue: 'Will never increment past this value, if set to 0 or lower it will keep incrementing forever.',
                 resetOnCommand: 'Will reset an incrementing reward when the reset command is run, resetting the index to 0.',
             }
         })

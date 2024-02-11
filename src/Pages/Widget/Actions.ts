@@ -80,7 +80,7 @@ export class ActionHandler {
             }
             /**
              * Action set indices:
-             * 0 - * : will run from first level for as long as it has sets, repeats last unless reward disables.
+             * 0 - * : Will run from first level for as long as it has sets or reward presets, will repeat last action set forever unless an empty action set is at the end.
              */
             case OptionEventBehavior.Incrementing: {
                 // Load incremental counter
@@ -89,22 +89,20 @@ export class ActionHandler {
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
 
                 // Switch to the next incremental reward if it has more configs available
+                counter.count++
+                await DataBaseHelper.save(counter, eventId.toString())
                 const triggers = event.getTriggers(new TriggerReward())
-                let hasAdvancedCounter = false
                 for(const trigger of triggers) {
-                    if(!hasAdvancedCounter) {
-                        counter.count++
-                        await DataBaseHelper.save(counter, eventId.toString())
-                        hasAdvancedCounter = true
-                    }
-                    const rewardEntries = (DataUtils.ensureDataArray(trigger.rewardEntries) ?? []) as PresetReward[] // TODO: Maybe we can remove this typecast?
+                    const rewardEntries = (DataUtils.ensureDataArray(trigger.rewardEntries) ?? []) as PresetReward[] // TODO: Maybe we can remove this typecast by changing how generics are registered?
                     if(rewardEntries.length) {
-                        const rewardPresetIndex = options.loop
-                            ? counter.count % rewardEntries.length // Loop
-                            : Math.min(counter.count, rewardEntries.length-1) // Clamp to max
+                        let rewardPresetIndex = counter.count
+                        if(options.loop) rewardPresetIndex = rewardPresetIndex % ( // Loop
+                            options.maxValue > 0 ? options.maxValue : rewardEntries.length
+                        )
+                        rewardPresetIndex = Math.min(rewardPresetIndex, options.maxValue > 0 ? options.maxValue-1 : rewardEntries.length-1) // Clamp to max
                         const rewardPreset = rewardEntries[rewardPresetIndex]
                         if (rewardPreset) {
-                            const clone = await Utils.clone(rewardPreset)
+                            const clone = Utils.clone(rewardPreset)
                             clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                             clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                             const result = await TwitchHelixHelper.updateReward(DataUtils.ensureKey(trigger.rewardID), clone)
@@ -115,7 +113,7 @@ export class ActionHandler {
 
                 // Register index and build callback for this step of the sequence
                 index = options.loop
-                    ? (counter.count - 1) % eventActionContainers.length // Loop
+                    ? (counter.count - 1) % (options.maxValue > 0 ? options.maxValue : eventActionContainers.length) // Loop
                     : Math.min(counter.count - 1, eventActionContainers.length-1) // Clamp to max
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
