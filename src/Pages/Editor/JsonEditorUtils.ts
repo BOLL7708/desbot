@@ -5,6 +5,7 @@ import DataMap from '../../Objects/DataMap.js'
 import Utils from '../../Classes/Utils.js'
 import {OptionsMap} from '../../Options/OptionsMap.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import EditorBus from './EditorBus.js'
 
 export class JsonEditorUtils {
     // region Append elements
@@ -199,6 +200,17 @@ export class JsonEditorUtils {
             paragraph.classList.add('instructions')
             paragraph.innerHTML = instruction
             parent.appendChild(paragraph)
+        }
+    }
+
+    static registerVisibleForOptions(meta: DataMeta|undefined, targetProperty: string, element: HTMLElement) {
+        const visibleForOption = meta?.visibleForOption
+        if(visibleForOption) {
+            for(const [property, targets] of Object.entries(visibleForOption)) {
+                if(targets && Object.keys(targets).includes(targetProperty)) {
+                    EditorBus.registerVisibleForOption(property, targets[targetProperty], element)
+                }
+            }
         }
     }
     // endregion

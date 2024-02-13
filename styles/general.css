@@ -58,13 +58,13 @@ a:hover {
     border-radius: 6px;
 }
 .hbar li a:hover {
-    background-color: var(--link-hover-background);
+    background-color: var(--topbar-link-hover);
 }
 .hbar .wip {
     opacity: 50%;
 }
 .menu-bar-current, .menu-bar-current:hover {
-    background-color: var(--link-active) !important;
+    background-color: var(--topbar-link-active) !important;
 }
 .badge {
     background-color: red;

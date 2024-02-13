@@ -73,6 +73,7 @@ code {
     border-color: var(--border-color);
     border-width: 2px;
     border-style: hidden hidden dashed hidden;
+    font-size: 90%;
     line-height: 125%;
 }
 .drag-icon {

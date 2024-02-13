@@ -12,6 +12,8 @@
         --instruction-text-color: #00000090;
         --border-color: #808080;
         --topbar-badge-text: #ffffff;
+        --topbar-link-hover: #00000020;
+        --topbar-link-active: #ffffff;
         --sidebar-link-color: #404040;
         --sidebar-link-hover: #c0c0c0;
         --input-border-color: #00000040;

@@ -8,6 +8,8 @@ import {ConfigEditor, ConfigEditorFavorite} from '../../Objects/Config/ConfigEdi
 import AssetsHelper from '../../Classes/AssetsHelper.js'
 import {DataUtils} from '../../Objects/DataUtils.js'
 import {JsonEditorUtils} from './JsonEditorUtils.js'
+import EditorBus from './EditorBus.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export enum EOrigin {
     Unknown,
@@ -77,6 +79,7 @@ export default class JsonEditor {
         hideKey?: boolean,
         isRebuild?: boolean
     ): Promise<HTMLElement> {
+        EditorBus.clearVisibleForOptionEntries()
         this._originalItem = item
         const key = item.key
         const filledClassInstance = item.filledData
@@ -202,6 +205,11 @@ export default class JsonEditor {
             extraChildren: extraChildren
         }
         await this.stepData(options)
+        if(instanceMeta?.visibleForOption) {
+            for(const property of Object.keys(instanceMeta.visibleForOption)) {
+                EditorBus.setVisibleForOption(property, (this._instance as any)[property])
+            }
+        }
 
         if(!this._root) this._root = this.buildUL()
         this._root.replaceChildren(...tempParent.children)
@@ -631,6 +639,7 @@ export default class JsonEditor {
         /*
          * An Option class will have a select showing all the valid options.
          */
+        JsonEditorUtils.registerVisibleForOptions(options.instanceMeta, key.toString(), newRoot)
         if(thisTypeValues.option || parentTypeValues.option) {
             input.contentEditable = 'false'
             input.classList.add('disabled')
@@ -642,7 +651,7 @@ export default class JsonEditor {
             const optionMeta = OptionsMap.getMeta(enumClass)
             if(optionMeta && optionPrototype) {
                 const enumSelect = document.createElement('select') as HTMLSelectElement
-                for(const [enumKey,enumValue] of Object.entries(optionPrototype)) {
+                for(const [enumKey, enumValue] of Object.entries(optionPrototype)) {
                     const option = document.createElement('option') as HTMLOptionElement
                     option.value = enumValue
                     option.innerHTML = Utils.camelToTitle(enumKey)
@@ -653,6 +662,10 @@ export default class JsonEditor {
                     enumSelect.appendChild(option)
                 }
                 enumSelect.oninput = (event) => {
+                    const visibleForOption = options.instanceMeta?.visibleForOption
+                    if(visibleForOption && visibleForOption[key.toString()]) {
+                        EditorBus.setVisibleForOption(key.toString(), enumSelect.value)
+                    }
                     input.innerHTML = enumSelect.value
                     handle(event)
                 }
@@ -865,6 +878,10 @@ export default class JsonEditor {
             JsonEditorUtils.appendInstructions(newRoot, options.instanceMeta, pathKey.toString())
         }
 
+        // Visible for option
+        JsonEditorUtils.registerVisibleForOptions(options.instanceMeta, pathKey.toString(), newRoot)
+
+        // Drag button
         if(options.originListCount > 1) JsonEditorUtils.appendDragButton(this, newRoot, options.origin, options.path)
 
         if(isRoot) { // Root object generates a key field
