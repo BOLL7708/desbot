@@ -73,7 +73,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pingForChat = true
-                Functions.setEmptySoundForTTS()
+                await Functions.setEmptySoundForTTS()
                 const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.PingOn.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
@@ -85,7 +85,7 @@ export default class ActionsCallbacks {
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 states.pingForChat = false
-                Functions.setEmptySoundForTTS()
+                await Functions.setEmptySoundForTTS()
                 const textPreset = await DataBaseHelper.loadItem(new PresetSystemActionText(), OptionSystemActionType.PingOff.valueOf().toString())
                 const speech = textPreset?.filledData?.speech[0] ?? ''
                 modules.tts.enqueueSpeakSentence(speech).then()
@@ -615,6 +615,9 @@ export default class ActionsCallbacks {
                             continue
                         }
 
+                        // Moved the reset out here as it should reset regardless if we have any reward triggers
+                        await DataBaseHelper.save(new SettingIncrementingCounter(), eventID.toString())
+
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
@@ -626,7 +629,6 @@ export default class ActionsCallbacks {
                                 clone.title = await TextHelper.replaceTagsInText(clone.title, user)
                                 clone.prompt = await TextHelper.replaceTagsInText(clone.prompt, user)
                                 Utils.log(`Resetting incrementing reward: ${key}`, Color.Green)
-                                await DataBaseHelper.save(new SettingIncrementingCounter(), eventID.toString())
                                 await TwitchHelixHelper.updateReward(rewardID, clone)
                                 totalResetCount++
                             } else {
@@ -674,6 +676,9 @@ export default class ActionsCallbacks {
                             continue
                         }
 
+                        // Moved the reset out here as it should reset regardless if we have any reward triggers
+                        await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
+
                         const triggers = eventConfig.getTriggers(new TriggerReward())
                         for(const trigger of triggers) {
                             totalCount++
@@ -681,7 +686,6 @@ export default class ActionsCallbacks {
                             const preset = rewardEntries[0] as PresetReward
                             const rewardID = DataUtils.ensureKey(trigger.rewardID)
                             if(preset && rewardID) {
-                                await DataBaseHelper.save(new SettingAccumulatingCounter(), eventID.toString())
                                 const clone = Utils.clone(preset)
                                 const userClone = Utils.clone(user)
                                 userClone.eventKey = key

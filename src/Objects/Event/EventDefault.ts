@@ -10,8 +10,8 @@ import {PresetEventCategory} from '../Preset/PresetEventCategory.js'
 
 export class EventDefault extends Data {
     category: number|DataEntries<PresetEventCategory> = 0
+    options = new EventOptions() // TODO: Put internal properties in the base root instead, as well as the reward options object.
     behavior: OptionEventBehavior = OptionEventBehavior.All
-    options = new EventOptions()
     incrementingOptions = new EventIncrementingOptions()
     accumulatingOptions = new EventAccumulatingOptions()
     multiTierOptions = new EventMultiTierOptions()
@@ -24,8 +24,8 @@ export class EventDefault extends Data {
             description: 'The event that contains triggers and actions.',
             documentation: {
                 category: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
-                behavior: 'Set this to add special behavior to this event, usually affected by reward redemptions.\nThis will change how the actions below are used, specific indices will be used for various things.',
                 options: 'Set various options for event behavior.',
+                behavior: 'Set this to add a special behavior to this event, affecting how consecutive triggers are performed.\nThis will change how action set are run and which reward presets are applied.',
                 incrementingOptions: 'Options related to the incrementing behavior.',
                 accumulatingOptions: 'Options related to the accumulating behavior.',
                 multiTierOptions: 'Options related to the multi-tier behavior.',
@@ -33,13 +33,11 @@ export class EventDefault extends Data {
                 actions: 'Provide which actions to execute when this event is triggered.'
             },
             instructions: {
-                behavior: 'The behavior will decide which sets of actions are used when the event is triggered, as well as affecting which reward presets are applied. ' +
-                    'Here are explanations for the ones that are less obvious: ' +
-                    '<ol><li>Incrementing: Will use a different actions and reward presets every time it is triggered.</li>' +
-                    '<li>Accumulating: Will accumulate points until reaching the goal, either from channel points for a reward, or the points set for other triggers.</li>' +
-                    '<li>Multi Tier: Will level up, using different actions and reward presets, until timer runs out where it resets.</li></ol>' +
-                    'These will use the set action differently, which is covered in the individual instructions which are WIP.',
-                incrementingOptions: 'Incrementing means the action set and reward preset used will be incremented every time the event is triggered. It will continue for as long as there are more entries, then repeat the last one. See additional options below.',
+                incrementingOptions: 'Incrementing means the action set and reward preset used will be incremented every time the event is triggered.' +
+                    '<ol>' +
+                    '<li>It will continue to count up for as long as there are more entries in either actions or reward presets, then repeat the last one in perpetuity unless set to loop.</li>' +
+                    '<li>To prevent infinite repeats, add an empty item at the end of the actions, or for rewards a preset that is disabled where it should stop updating which will hide the reward.</li>' +
+                    '</ol>',
                 accumulatingOptions: 'Accumulating will use the first set of actions and reward preset when reset, then the second to last ones for progress, and the last one for when the goal is met. See additional options below.',
                 multiTierOptions: 'This is complicated, will expand on it later.' // TODO: Add instructions for multi-tier.
             },

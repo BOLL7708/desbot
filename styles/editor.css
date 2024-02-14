@@ -68,7 +68,7 @@ code {
 .instructions {
     color: var(--instruction-text-color);
     padding: 0.5em;
-    margin: 0 0 0 6px;
+    margin: 0 6px;
     border-radius: 6px;
     border-color: var(--border-color);
     border-width: 2px;

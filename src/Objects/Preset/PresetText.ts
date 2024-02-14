@@ -2,6 +2,7 @@ import Data from '../Data.js'
 import DataMap from '../DataMap.js'
 
 export class PresetText extends Data {
+    // files: string[] = [] // TODO: To do this, we should have a way to list all files in the data folder so they can be picked in the editor. It needs to be uncached so it always loads the existing files.
     collection: string[] = []
 
     enlist() {
@@ -12,6 +13,7 @@ export class PresetText extends Data {
                 collection: 'Can be one or multiple strings.'
             },
             types: {
+                // files: DataUtils.getStringDataTextRef(),
                 collection: 'string'
             }
         })
