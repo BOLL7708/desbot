@@ -86,15 +86,23 @@ export class ActionSystem extends Action {
 
                 // Trigger Events on User Input
                 const matchEntries = DataUtils.ensureItemDictionary<EventDefault>(this.trigger.matchedEventEntries)?.dataDictionary ?? {}
-                const matchTheseInputs = Object.keys(matchEntries)
+                const matchTheseKeys = Object.keys(matchEntries)
                 const matchCaseSensitive = this.trigger.matchedEventEntries_caseSensitive
-                const matchInput = matchCaseSensitive ? user.input.trim() : user.input.toLowerCase().trim()
+                const matchRegex = this.trigger.matchedEventEntries_isRegex
+                const matchThisInput = (matchCaseSensitive ? user.input : user.input.toLowerCase()).trim()
                 const matchDefaultEventKey = matchEntries['*']?.key
-                const matchedInput = matchTheseInputs.find((match)=> {
-                    if(matchInput == (matchCaseSensitive ? match.trim() : match.toLowerCase().trim())) {
-                        return !!matchEntries[match]?.key
+
+                const matchedInput = matchTheseKeys.find((match)=> {
+                    const matchKey = (matchCaseSensitive ? match : match.toLowerCase()).trim()
+                    if(matchRegex) {
+                        const re = new RegExp(`^${matchKey}$`)
+                        if(matchThisInput.match(re) !== null) return true
+                    } else {
+                        if(matchThisInput == matchKey) return true
                     }
+                    const re = new RegExp(`^${matchKey}$`)
                 })
+
                 const matchedEventKey = matchedInput ? matchEntries[matchedInput]?.key : undefined
                 if(matchedEventKey?.length) new ActionHandler(matchedEventKey).call(user).then()
                 else if(matchDefaultEventKey?.length) new ActionHandler(matchDefaultEventKey).call(user).then()
@@ -137,6 +145,7 @@ export class ActionSystemTrigger extends Data {
     eventEntries_use = OptionEntryUsage.All
     matchedEventEntries: INumberDictionary|DataEntries<EventDefault> = {}
     matchedEventEntries_caseSensitive = false
+    matchedEventEntries_isRegex = false
 
     enlist() {
         DataMap.addSubInstance({
@@ -146,7 +155,10 @@ export class ActionSystemTrigger extends Data {
                 systemActionEntries: 'Trigger system features that are not separate actions.',
                 commandEntries: 'Command(s) to trigger.',
                 eventEntries: 'Event(s) to trigger.',
-                matchedEventEntries: 'Event(s) to trigger that matches the user input. Add one with the key * to use as default if no match.'
+                matchedEventEntries: 'Event(s) to trigger that matches the user input. Add one with the key * to use as default if no match. Regex is supported if you enable it.'
+            },
+            instructions: {
+                matchedEventEntries: 'If you use regex here, no need to surround it in slashes, only add what to match, a straight forward method is to use <code>.*</code> as a wildcard.'
             },
             types: {
                 systemActionEntries: OptionSystemActionType.ref,
@@ -155,8 +167,7 @@ export class ActionSystemTrigger extends Data {
                 commandEntries_use: OptionEntryUsage.ref,
                 eventEntries: EventDefault.ref.id.build(),
                 eventEntries_use: OptionEntryUsage.ref,
-                matchedEventEntries: EventDefault.ref.id.build(),
-                matchedEventEntries_caseSensitive: 'boolean'
+                matchedEventEntries: EventDefault.ref.id.build()
             }
         })
     }
