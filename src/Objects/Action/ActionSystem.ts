@@ -95,8 +95,13 @@ export class ActionSystem extends Action {
                 const matchedInput = matchTheseKeys.find((match)=> {
                     const matchKey = (matchCaseSensitive ? match : match.toLowerCase()).trim()
                     if(matchRegex) {
-                        const re = new RegExp(`^${matchKey}$`)
-                        if(matchThisInput.match(re) !== null) return true
+                        try {
+                            const re = new RegExp(`^${matchKey}$`)
+                            if(matchThisInput.match(re) !== null) return true
+                        } catch (e) {
+                            console.error(`ActionSystem, match on user input, invalid regex: ${matchKey}`, e)
+                            if(matchThisInput == matchKey) return true // Fallback
+                        }
                     } else {
                         if(matchThisInput == matchKey) return true
                     }

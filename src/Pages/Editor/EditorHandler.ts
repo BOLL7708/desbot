@@ -23,6 +23,7 @@ export default class EditorHandler {
     private readonly _labelSaveButton: string = '💾 Save (ctrl+s)'
     private readonly _labelSaveAndCloseButton: string = '💾 Save & close (ctrl+s)'
     private _unsavedChanges: boolean = false
+    private _canSave: boolean = true
 
     public constructor() {
         this.init().then()
@@ -101,7 +102,7 @@ export default class EditorHandler {
                 const nextKey = await DataBaseHelper.getNextKey(this._state.groupClass, this._state.parentId, config.autoGenerateKeys_andShorten)
                 if(nextKey) defaultKey = nextKey.key ?? ''
             }
-            const newKey = await prompt(`Provide an explanatory name (key) for this ${this._state.groupClass}:`, defaultKey)
+            const newKey = prompt(`Provide an explanatory name (key) for this ${this._state.groupClass}:`, defaultKey)
             if(newKey && newKey.length > 0) {
                 const instance = await DataMap.getInstance({ className: this._state.groupClass, fill: false })
                 if(instance) {
@@ -591,10 +592,13 @@ export default class EditorHandler {
 
         // Save button
         const editorSaveButton = document.createElement('button') as HTMLButtonElement
+        editorSaveButton.disabled = true // Is enabled by a timeout after being attached, to prevent rapid saving
         editorSaveButton.classList.add('main-button', 'save-button', 'hidden')
         editorSaveButton.innerHTML = this._state.minimal ? this._labelSaveAndCloseButton : this._labelSaveButton
         editorSaveButton.onclick = async (event)=>{
-            const newKey = await this.saveData(group, this._state.groupKey)
+            editorSaveButton.disabled = true // Disabling the button, so it cannot be clicked immediately twice, which can screw up saving
+            const newKey = await this.saveData(group, this._state.groupKey) // This actually updates the interface so this button is replaced.
+            if(newKey == null) editorSaveButton.disabled = false // Saving failed so we'll just enable this anyway
             const json = await DataBaseHelper.loadJson(this._state.groupClass, newKey ?? this._state.groupKey, this._state.parentId)
             if(this._state.minimal) {
                 const id = json.pop()?.id ?? ''
@@ -649,6 +653,9 @@ export default class EditorHandler {
             this._contentDiv.appendChild(editorExportButton)
             this._contentDiv.appendChild(editorImportButton)
         }
+        setTimeout(()=>{
+            editorSaveButton.disabled = false
+        }, 250)
     }
 
     private async saveData(groupClass: string, groupKey: string): Promise<string|null> {
