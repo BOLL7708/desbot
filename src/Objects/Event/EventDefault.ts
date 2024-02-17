@@ -25,7 +25,7 @@ export class EventDefault extends Data {
             documentation: {
                 category: 'The type of this event, this is mostly used to separate out imported default events, so you can leave it as uncategorized.',
                 options: 'Set various options for event behavior.',
-                behavior: 'Set this to add a special behavior to this event, affecting how consecutive triggers are performed.\nThis will change how action set are run and which reward presets are applied.',
+                behavior: 'Set this to add a special behavior to this event, affecting how consecutive triggering is treated.\nThis will change how action set are run and which reward presets are applied.',
                 incrementingOptions: 'Options related to the incrementing behavior.',
                 accumulatingOptions: 'Options related to the accumulating behavior.',
                 multiTierOptions: 'Options related to the multi-tier behavior.',
@@ -38,7 +38,13 @@ export class EventDefault extends Data {
                     '<li>It will continue to count up for as long as there are more entries in either actions or reward presets, then repeat the last one in perpetuity unless set to loop.</li>' +
                     '<li>To prevent infinite repeats, add an empty item at the end of the actions, or for rewards a preset that is disabled where it should stop updating which will hide the reward.</li>' +
                     '</ol>',
-                accumulatingOptions: 'Accumulating will use the first set of actions and reward preset when reset, then the second to last ones for progress, and the last one for when the goal is met. See additional options below.',
+                accumulatingOptions: 'Accumulating means it is affected by a counter that is retained and that will keep counting up, usually added to by channel points but can also be used by non-reward triggers with a value set here. This is an analog for the community challenge on Twitch. Different sets of actions and reward presets will be used for different things, see below.' +
+                    '<ol>' +
+                    '<li>The first entry will be used as the initial state, this is what happens the first time it is triggered, or represents the first preset a reward would get.</li>' +
+                    '<li>The second to last entry, or first if only one is available, will be used as the progress step, that is what will happen for all triggers except first and last.</li>' +
+                    '<li>The last entry will be used when the goal has been met, as the last thing that can be triggered, then this event will be inert until reset.</li>' +
+                    '</ol>' +
+                    'Associated text tags are: <code>%eventKey</code>, <code>%eventCost</code>, <code>%eventCount</code>, <code>%eventCountPercent</code>, <code>%eventGoal</code> and <code>%eventGoalShort</code>.',
                 multiTierOptions: 'This is complicated, will expand on it later.' // TODO: Add instructions for multi-tier.
             },
             types: {

@@ -87,10 +87,14 @@ export class ActionHandler {
                 const options = event.incrementingOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
+                if(counter.reachedMax && !options.loop) return console.warn(`Incrementing Event: Max reached for ${eventId}, not triggering.`)
+
+                // Increase incremental counter
+                counter.count++
+                if(counter.count >= (options.maxValue > 0 ? options.maxValue : Infinity)) counter.reachedMax = true
+                await DataBaseHelper.save(counter, eventId.toString())
 
                 // Switch to the next incremental reward if it has more configs available
-                counter.count++
-                await DataBaseHelper.save(counter, eventId.toString())
                 const triggers = event.getTriggers(new TriggerReward())
                 for(const trigger of triggers) {
                     const rewardEntries = (DataUtils.ensureDataArray(trigger.rewardEntries) ?? []) as PresetReward[] // TODO: Maybe we can remove this typecast by changing how generics are registered?
@@ -133,39 +137,26 @@ export class ActionHandler {
                 const options = event.accumulatingOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
                 const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
+                if(counter.reachedGoal) return console.warn(`Accumulating Event: Goal already reached for ${eventId}, not triggering.`)
                 const goalCount = options.goal
+                const isFirstCount = counter.count == 0
+
+                // Increase accumulating counter
+                counter.count += (user.rewardCost > 0 ? user.rewardCost : options.nonRewardIncrease)
+                const goalIsMet = counter.count >= goalCount
+                if(counter.count >= goalCount) counter.reachedGoal = true
+                await DataBaseHelper.save(counter, eventId.toString())
 
                 // Switch to the next accumulating reward if it has more configs available
                 const triggers = event.getTriggers(new TriggerReward())
-                let hasAdvancedCounter = false
                 for(const trigger of triggers) {
-                    if(!hasAdvancedCounter) {
-                        counter.count += (user.rewardCost > 0 ? user.rewardCost : options.nonRewardIncrease)
-                        await DataBaseHelper.save(counter, eventId.toString())
-                        hasAdvancedCounter = true
-                    }
-                    /*
-                    For both actions sets and rewards we should use the first one for resets,
-                    the second to last one for progress, and the last one for the final result.
-                    This should work with only one action set, and only one reward.
-                    These should work independently of each other.
-                     */
-                    const goalIsMet = counter.count >= goalCount
-                    if(eventActionContainers.length) {
-                        index = 0
-                        if (goalIsMet) { // Final
-                            index = eventActionContainers.length - 1 // Last
-                        } else { // Progress
-                            index = Math.max(0, eventActionContainers.length - 2) // Second to last
-                        }
-                    }
                     const rewardEntries = (DataUtils.ensureDataArray(trigger.rewardEntries) ?? []) as PresetReward[] // TODO: Maybe we can remove this typecast?
                     if(rewardEntries.length) {
                         let rewardIndex = 0
                         if (goalIsMet) { // Final
-                            rewardIndex = rewardEntries.length -1 // Last
+                            rewardIndex = Math.max(0, rewardEntries.length -1) // Last, fallback to first
                         } else { // Progress
-                            rewardIndex = Math.max(0, rewardEntries.length - 2) // Second to last
+                            rewardIndex = Math.max(0, rewardEntries.length - 2) // Second to last, fallback to first
                         }
 
                         const rewardPreset = rewardEntries[rewardIndex]
@@ -187,6 +178,16 @@ export class ActionHandler {
                 }
 
                 // Register index and build callback for this step of the sequence
+                if(eventActionContainers.length) {
+                    index = 0 // First
+                    if (goalIsMet) {
+                        // Final
+                        index = Math.max(eventActionContainers.length - 1) // Last, fallback to first
+                    } else if(!isFirstCount) {
+                        // Progress
+                        index = Math.max(0, eventActionContainers.length - 2) // Second to last, fallback to first
+                    }
+                }
                 actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
