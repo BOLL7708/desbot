@@ -13,6 +13,7 @@ import {PresetReward} from '../../Objects/Preset/PresetReward.js'
 import {EventDefault} from '../../Objects/Event/EventDefault.js'
 import {ConfigPhilipsHue} from '../../Objects/Config/ConfigPhilipsHue.js'
 import {DataUtils} from '../../Objects/DataUtils.js'
+import {PresetDiscordWebhook} from '../../Objects/Preset/PresetDiscordWebhook.js'
 
 export default class ToolsHandler {
     constructor() {
@@ -26,10 +27,15 @@ export default class ToolsHandler {
         const resultDiv = document.querySelector('#toolsResult') as HTMLDivElement
         if(!buttonsList || !resultDiv) return
 
-        function title(label: string) {
+        function title(label: string): HTMLHeadingElement {
             const h = document.createElement('h3') as HTMLHeadingElement
             h.innerHTML = label
             return h
+        }
+        function description(text: string): HTMLParagraphElement {
+            const p = document.createElement('p') as HTMLParagraphElement
+            p.innerHTML = text
+            return p
         }
         function li(label: string, tooltip: string, callback: (e: Event)=>Promise<string>) {
             const li = document.createElement('li')
@@ -62,6 +68,7 @@ export default class ToolsHandler {
 
         const items: HTMLElement[] = [
             title('Twitch'),
+            description('Various tools to retrieve and transmit Twitch data like users and rewards.'),
             li('➕ Add Twitch user',
                 'Adds a new Twitch user to the system, this is helpful if you want to change their settings before they have appeared in chat.',
                 async (e)=>{
@@ -169,6 +176,7 @@ export default class ToolsHandler {
             }),
             */
             title('Steam'),
+            description('Various tools for retrieving Steam game data.'),
             li('➕ Add Steam game',
                 'Add a Steam game before it has been detected, this so you can reference it before that.',
                 async (e)=>{
@@ -202,6 +210,7 @@ export default class ToolsHandler {
                 return `Loaded missing data for ${gamesUpdated} Steam game(s)`
             }),
             title('Philips Hue'),
+            description('Various tools for connecting to a Philips Hue bridge and loading bulbs and sockets.'),
             li('🔵 Connect to Philips Hue bridge',
             '',
             async (e)=>{
@@ -226,7 +235,27 @@ export default class ToolsHandler {
                 async (e)=>{
                 const result = await PhilipsHueHelper.loadLights()
                 return `Reloaded Philips Hue light(s): `+JSON.stringify(result)
-            })
+            }),
+            title('Development'),
+            description('Various tools for development and debugging. Only use these if you know what they are meant for, and check the tooltip instructions in detail so you do not sabotage your setup by accident.'),
+            li('🔴 OVERWRITE ALL DISCORD WEBHOOK URLS',
+                'Use this to overwrite all your current webhook URLs, this is meant to be used so you in a debug version of the bot can output all webhook calls to the same debug webhook avoiding spamming your live channels. There is no undo, so only do this in a test version of the bot or after you have backed up your database so you can restore it.',
+                async (e)=>{
+                const newURL = prompt('Enter new Discord webhook URL') ?? ''
+                if(!newURL.length) return 'Cancelled'
+                let total = 0, ok = 0
+                const webhooks = await DataBaseHelper.loadAll(new PresetDiscordWebhook())
+                for(const item of Object.values(webhooks ?? {})) {
+                    const webhook = item.filledData
+                    if(webhook) {
+                        webhook.url = newURL
+                        const key = await DataBaseHelper.save(webhook, item.key)
+                        total++
+                        if(key) ok++
+                    }
+                }
+                return `Updated webhooks: ${ok}/${total}`
+            }),
         ]
         buttonsList.replaceChildren(...items)
 
