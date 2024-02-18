@@ -17,7 +17,7 @@ import {ActionSettingTTS} from './Action/ActionSettingTTS.js'
 import {ActionSettingVR} from './Action/ActionSettingVR.js'
 import {ActionSign} from './Action/ActionSign.js'
 import {ActionSpeech} from './Action/ActionSpeech.js'
-import {ActionSystem, ActionSystemRewardState, ActionSystemRewardStateForEvent, ActionSystemToggle, ActionSystemTrigger} from './Action/ActionSystem.js'
+import {ActionSystem, ActionSystemRewardState, ActionSystemRewardStateForEvent, ActionSystemToggle, ActionSystemTrigger, ActionSystemUserEvent} from './Action/ActionSystem.js'
 import {ConfigCleanText} from './Config/ConfigCleanText.js'
 import {ConfigController, ConfigControllerChannelTrophyNumber, ConfigControllerChannelTrophySettings, ConfigControllerStateDefaults, ConfigControllerWebsocketsUsed} from './Config/ConfigController.js'
 import {ConfigDiscord} from './Config/ConfigDiscord.js'
@@ -96,6 +96,7 @@ export default class EnlistData {
             new ActionSystemToggle(),
             new ActionSystemRewardState(),
             new ActionSystemRewardStateForEvent(),
+            new ActionSystemUserEvent(),
 
             new ConfigAnnounceCheer(),
             new ConfigAnnounceRaid(),

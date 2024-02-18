@@ -20,6 +20,7 @@ import {DataUtils} from '../DataUtils.js'
 import {PresetReward} from '../Preset/PresetReward.js'
 import {PresetPipeBasic} from '../Preset/PresetPipe.js'
 import {INumberDictionary} from '../../Interfaces/igeneral.js'
+import {SettingUser} from '../Setting/SettingUser.js'
 
 export class ActionSystem extends Action {
     trigger = new ActionSystemTrigger()
@@ -105,12 +106,32 @@ export class ActionSystem extends Action {
                     } else {
                         if(matchThisInput == matchKey) return true
                     }
-                    const re = new RegExp(`^${matchKey}$`)
                 })
-
                 const matchedEventKey = matchedInput ? matchEntries[matchedInput]?.key : undefined
                 if(matchedEventKey?.length) new ActionHandler(matchedEventKey).call(user).then()
                 else if(matchDefaultEventKey?.length) new ActionHandler(matchDefaultEventKey).call(user).then()
+
+                // Trigger Events on User
+                let userEvent = clone.trigger.userEventEntries.find(
+                    (userEvent)=> {
+                        const data = DataUtils.ensureItem(userEvent.user)
+                        const key = parseInt(data?.dataSingle.key ?? '0')
+                        return key == user.id
+                    }
+                )
+                if(!userEvent) {
+                    userEvent = clone.trigger.userEventEntries.find((userEvent) => {
+                        const data = DataUtils.ensureItem(userEvent.user)
+                        const key = data?.dataSingle.id ?? -1
+                        return key == 0
+                    })
+                }
+                if(userEvent) {
+                    const userEventEntry = DataUtils.ensureItem<EventDefault>(userEvent.event)
+                    if(userEventEntry) {
+                        new ActionHandler(userEventEntry.dataSingle.key).call(user).then()
+                    }
+                }
 
                 // Toggle Rewards
                 const rewardStates = clone.toggle.rewardStates
@@ -151,6 +172,7 @@ export class ActionSystemTrigger extends Data {
     matchedEventEntries: INumberDictionary|DataEntries<EventDefault> = {}
     matchedEventEntries_caseSensitive = false
     matchedEventEntries_isRegex = false
+    userEventEntries: ActionSystemUserEvent[] = []
 
     enlist() {
         DataMap.addSubInstance({
@@ -160,7 +182,8 @@ export class ActionSystemTrigger extends Data {
                 systemActionEntries: 'Trigger system features that are not separate actions.',
                 commandEntries: 'Command(s) to trigger.',
                 eventEntries: 'Event(s) to trigger.',
-                matchedEventEntries: 'Event(s) to trigger that matches the user input. Add one with the key * to use as default if no match. Regex is supported if you enable it.'
+                matchedEventEntries: 'Events to trigger that matches user inputs. Add one with the key * to use as default if no match. Regex is supported if you enable it.',
+                userEventEntries: 'Events to trigger for specific users. Add one with no selected user to have it act as the default if there is no match.'
             },
             instructions: {
                 matchedEventEntries: 'If you use regex here, no need to surround it in slashes, only add what to match, a straight forward method is to use <code>.*</code> as a wildcard.'
@@ -172,7 +195,8 @@ export class ActionSystemTrigger extends Data {
                 commandEntries_use: OptionEntryUsage.ref,
                 eventEntries: EventDefault.ref.id.build(),
                 eventEntries_use: OptionEntryUsage.ref,
-                matchedEventEntries: EventDefault.ref.id.build()
+                matchedEventEntries: EventDefault.ref.id.build(),
+                userEventEntries: ActionSystemUserEvent.ref.build()
             }
         })
     }
@@ -229,6 +253,23 @@ export class ActionSystemRewardStateForEvent extends Data {
                 event: EventDefault.ref.id.build(),
                 event_visible: OptionTwitchRewardVisible.ref,
                 event_usable: OptionTwitchRewardUsable.ref
+            }
+        })
+    }
+}
+export class ActionSystemUserEvent extends Data {
+    user: number|DataEntries<SettingUser> = 0
+    event: number|DataEntries<EventDefault> = 0
+
+    enlist() {
+        DataMap.addSubInstance({
+            instance: new ActionSystemUserEvent(),
+            documentation: {
+                event: 'Trigger this event for a specific user.'
+            },
+            types: {
+                user: SettingUser.ref.id.label.build(),
+                event: EventDefault.ref.id.build()
             }
         })
     }
