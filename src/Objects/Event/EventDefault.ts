@@ -45,7 +45,15 @@ export class EventDefault extends Data {
                     '<li>The last entry will be used when the goal has been met, as the last thing that can be triggered, then this event will be inert until reset.</li>' +
                     '</ol>' +
                     'Associated text tags are: <code>%eventKey</code>, <code>%eventCost</code>, <code>%eventCount</code>, <code>%eventCountPercent</code>, <code>%eventGoal</code> and <code>%eventGoalShort</code>.',
-                multiTierOptions: 'This is complicated, will expand on it later.' // TODO: Add instructions for multi-tier.
+                multiTierOptions: 'This behavior will level up temporarily with a timeout that will reset it. It uses reward presets and action sets differently.' +
+                    '<br/>Reward presets: <ol>' +
+                    '<li>First one is used as a base, and is what is reset to after a timeout.</li>' +
+                    '<li>The rest are used in turn as the level increases.</li>' +
+                    '</ol>' +
+                    'Action sets: <ol>' +
+                    '<li>The first set is used for the soft reset, reset on trigger, it runs before all other levels, leave it empty if you do not need it.</li>' +
+                    '<li>The second set is used for the hard reset, this is when the timeout happens and the level is reset, this can also be left empty if not needed.</li>' +
+                    '<li>The rest are used in turn as the level increases.</li>'
             },
             types: {
                 category: PresetEventCategory.ref.id.build(),
@@ -172,21 +180,23 @@ export class EventAccumulatingOptions extends Data {
 }
 
 export class EventMultiTierOptions extends Data {
-    timeout: number = 0
+    timeout: number = 30
     maxLevel: number = 0
-    resetOnTrigger: boolean = false
-    resetOnTimeout: boolean = false
-    disableAfterMaxLevel: boolean = false
+    resetOnTrigger: boolean = true
+    resetOnTimeout: boolean = true
+    disableAfterMaxLevel: boolean = true
+    disableAfterMaxLevel_andHideReward: boolean = false
+    disableAfterMaxLevel_andPauseReward: boolean = false
 
     enlist() {
         DataMap.addSubInstance({
             instance: new EventMultiTierOptions(),
             documentation: {
-                timeout: 'The duration in seconds before we reset the multi-tier level unless it is triggered again.',
-                maxLevel: 'The maximum level we can reach with the multi-tier behavior.',
-                resetOnTrigger: 'Perform reset actions before default actions when triggering this multi-tier event.\n\nWill use the action set at max level + 1.',
-                resetOnTimeout: 'Perform reset actions when resetting this multi-tier event.\n\nWill use action set at max level + 2.',
-                disableAfterMaxLevel: 'Will only allow the last level to be redeemed once before resetting again.',
+                timeout: 'The duration in seconds before we reset the event, unless it is triggered again, will clamp to a minimum of 1.',
+                maxLevel: 'The maximum level that this event can reach, set to 0 or lower to disable the limit.',
+                resetOnTrigger: 'Run the soft reset actions, first set, before default actions when triggering this multi-tier event..',
+                resetOnTimeout: 'Run the hard reset actions, second set, when the timeout expires.',
+                disableAfterMaxLevel: 'Will only allow the final level to run once, then the event is disabled, only works when a max level is set.'
             }
         })
     }

@@ -100,7 +100,7 @@ export default class DefaultsHandler {
             button.classList.add('main-button', 'delete-button')
             return button
         }
-        const children = [buildButton(label, false), buildButton(label, true)]
+        const children = [buildButton(label, false)] // , buildButton(label, true)] // TODO: Update buttons duplicate actions... bad.
         if(deleteCategoryWithKey) {
             const deleteCategoryId = await DataBaseHelper.loadID(PresetEventCategory.ref.build(), deleteCategoryWithKey)
             if(deleteCategoryId) children.push(buildDeleteButton(deleteCategoryWithKey, deleteCategoryId))

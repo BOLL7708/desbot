@@ -201,10 +201,14 @@ export class ActionHandler {
                 // Increase multi-tier counter
                 const options = event.multiTierOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
-                const counter = states.multiTierEventCounters.get(eventId.toString()) ?? {count: 0, timeoutHandle: 0}
+                const counter = states.multiTierEventCounters.get(eventId.toString()) ?? {count: 0, timeoutHandle: 0, reachedMax: false}
                 counter.count++
                 const maxLevel = event.multiTierOptions.maxLevel
-                if (counter.count > maxLevel) {
+                if(options.disableAfterMaxLevel && counter.reachedMax) {
+                    return console.warn(`Multi-Tier Event: Max reached for ${eventId}, not triggering.`)
+                }
+                if (maxLevel > 0 && counter.count >= maxLevel) {
+                    counter.reachedMax = true
                     counter.count = maxLevel
                 }
 
@@ -224,6 +228,7 @@ export class ActionHandler {
                     // Reset counter
                     counter.count = 0
                     counter.timeoutHandle = 0
+                    counter.reachedMax = false
                     states.multiTierEventCounters.set(eventId.toString(), counter)
 
                     // Reset reward
@@ -243,19 +248,19 @@ export class ActionHandler {
                         }
 
                         const state = new ActionSystemRewardState()
-                        state.reward = DataUtils.buildFakeDataEntries(rewardIdSetting)
+                        state.reward = DataUtils.buildFakeDataEntries(rewardIdSetting, 0, rewardIdKey)
                         state.reward_visible = OptionTwitchRewardVisible.Visible
                         state.reward_usable = OptionTwitchRewardUsable.Enabled
                         TwitchHelixHelper.toggleRewards([state]).then()
                     }
-                }, (options.timeout ?? 30)*1000)
+                }, Math.max(1, options.timeout) * 1000)
 
                 // Store new counter value
                 states.multiTierEventCounters.set(eventId.toString(), counter)
 
                 // Switch to the next multi-tier reward if it has more configs available, or disable if maxed and that option is set.
-                const wasLastLevel = counter.count >= maxLevel
-                if(!wasLastLevel) {
+                if(!counter.reachedMax) {
+                    // Update all rewards to the next level
                     const triggers = event.getTriggers(new TriggerReward())
                     for(const trigger of triggers) {
                         const rewardId = DataUtils.ensureKey(trigger.rewardID)
@@ -271,16 +276,18 @@ export class ActionHandler {
                         }
                     }
                 } else if(options.disableAfterMaxLevel) {
+                    // Disable all rewards if needed
                     const triggers = event.getTriggers(new TriggerReward())
                     for(const trigger of triggers) {
-                        const rewardId = DataUtils.ensureData(trigger.rewardID)
-                        if(!rewardId) continue
+                        const rewardIdSetting = DataUtils.ensureData(trigger.rewardID)
+                        const rewardIdKey = DataUtils.ensureKey(trigger.rewardID)
+                        if(!rewardIdSetting) continue
 
                         const state = new ActionSystemRewardState()
-                        state.reward = DataUtils.buildFakeDataEntries(rewardId)
-                        state.reward_visible = OptionTwitchRewardVisible.Visible
-                        state.reward_usable = OptionTwitchRewardUsable.Disabled
-                        TwitchHelixHelper.toggleRewards([state]).then()
+                        state.reward = DataUtils.buildFakeDataEntries(rewardIdSetting, 0, rewardIdKey)
+                        state.reward_visible = options.disableAfterMaxLevel_andHideReward ? OptionTwitchRewardVisible.Hidden : OptionTwitchRewardVisible.Visible
+                        state.reward_usable = options.disableAfterMaxLevel_andPauseReward ? OptionTwitchRewardUsable.Disabled : OptionTwitchRewardUsable.Enabled
+                        const result = await TwitchHelixHelper.toggleRewards([state])
                     }
                 }
 

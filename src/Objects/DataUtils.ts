@@ -180,10 +180,10 @@ export class DataUtils {
 
     // region Data
 
-    static buildFakeDataEntries<T>(instance: T&Data): DataEntries<T&Data> {
+    static buildFakeDataEntries<T>(instance: T&Data, id: number = 0, key: string = ''): DataEntries<T&Data> {
         const entries = new DataEntries<T&Data>()
         // TODO: Apparently using instance.__class() broke here, so not everything coming in retains the Data class.
-        entries.dataSingle = {id: 0, key: '', class: instance.constructor.name, pid: null, data: instance, filledData: instance }
+        entries.dataSingle = {id, key, class: instance.constructor.name, pid: null, data: instance, filledData: instance }
         return entries
     }
 }

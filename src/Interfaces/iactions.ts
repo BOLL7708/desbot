@@ -84,6 +84,7 @@ export interface ITextTagsCached {
 export interface IMultiTierEventCounter {
     count: number
     timeoutHandle: number
+    reachedMax: boolean
 }
 
 export interface IRewardStatesConfig {
