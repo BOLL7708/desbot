@@ -264,10 +264,8 @@ export default class DataBaseHelper {
             // Convert plain object to class filled and unfilled instances
             const item = jsonResult[0]
             if(['ConfigTest', 'ConfigExample'].includes(className))  {
-                const originalStr = JSON.stringify(item.data)
                 item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
                 item.data = await emptyInstance.__new(item.data ?? undefined, false)
-                const bakedStr = JSON.stringify(item.data)
             } else {
                 item.filledData = await emptyInstance.__new(item.data ?? undefined, true)
                 item.data = await emptyInstance.__new(item.data ?? undefined, false)

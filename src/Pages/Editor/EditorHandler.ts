@@ -500,7 +500,7 @@ export default class EditorHandler {
             return true
         }
 
-        const jsonItems = await DataBaseHelper.loadJson(group, undefined, parentId)
+        const jsonItems = await DataBaseHelper.loadJson(group)
         if(this._state.forceMainKey) {
             dropdown.style.display = 'none'
             dropdownLabel.style.display = 'none'

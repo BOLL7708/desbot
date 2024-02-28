@@ -4,9 +4,16 @@ import {ITwitchEventSubEventRedemption} from '../Interfaces/itwitch_eventsub.js'
 import {ITwitchCommand} from '../Classes/Twitch.js'
 
 export default abstract class Action extends Data {
+    /**
+     * This builds a callback that takes in user data to execute the action.
+     * @param key
+     */
     abstract build(key: string): IActionCallback
 }
 
+/**
+ * The callback that will execute this action.
+ */
 export interface IActionCallback {
     description: string
     awaitCall?: boolean
