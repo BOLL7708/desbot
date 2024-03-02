@@ -128,6 +128,8 @@ export enum EKeys {
     CustomTodo = 'Bonus ToDo',
     CustomShoutOut = 'Bonus ShoutOut',
     CustomEndStream = 'Bonus End Stream',
+    CustomQuestionsAdd = 'Bonus Question Add',
+    CustomQuestionsClear = 'Bonus Question Clear',
 
     LinkBot = 'Bonus Link Bot Website',
     LinkBotIssues = 'Bonus Link Bot Issues',
@@ -1713,6 +1715,49 @@ export default class DefaultData {
                     )
                     return await DefaultData.registerEvent(
                         instance, key, [trigger], [action],
+                        await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
+                    )
+                }
+            },
+            {
+                key: EKeys.CustomQuestionsAdd,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key) => {
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsEveryone)
+                    trigger.entries = ['q', 'question']
+                    trigger.category = OptionCommandCategory.Utility
+                    trigger.helpInput = ['question']
+                    trigger.helpText = 'Adds a question to questions.txt'
+                    const actionLabel = new ActionLabel()
+                    actionLabel.fileName = 'questions.txt'
+                    actionLabel.textEntries = ['%nowDateTime %userName : %userInput']
+                    actionLabel.append = true
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries = ['Question added.']
+                    return await DefaultData.registerEvent(
+                        instance, key, [trigger], [actionLabel, actionSpeech],
+                        await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
+                    )
+                }
+            },
+            {
+                key: EKeys.CustomQuestionsClear,
+                instance: new EventDefault(),
+                importer: async (instance: EventDefault, key) => {
+                    const trigger = new TriggerCommand()
+                    trigger.permissions = await DefaultData.loadID(new PresetPermissions(), EKeys.PermissionsModerators)
+                    trigger.entries = ['qc', 'questionsclear']
+                    trigger.category = OptionCommandCategory.Utility
+                    trigger.helpText = 'Clears everything from questions.txt'
+                    const actionLabel = new ActionLabel()
+                    actionLabel.fileName = 'questions.txt'
+                    actionLabel.textEntries = ['']
+                    actionLabel.append = false
+                    const actionSpeech = new ActionSpeech()
+                    actionSpeech.entries = ['Questions cleared.']
+                    return await DefaultData.registerEvent(
+                        instance, key, [trigger], [actionLabel, actionSpeech],
                         await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
                     )
                 }
