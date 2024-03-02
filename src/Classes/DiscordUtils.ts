@@ -1,5 +1,8 @@
 import Utils from './Utils.js'
 import {IDiscordResponseHeaders, IDiscordWebookPayload} from '../Interfaces/idiscord.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import {ConfigDiscord} from '../Objects/Config/ConfigDiscord.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 
 enum EResponseState {
     OK,
@@ -72,6 +75,12 @@ export default class DiscordUtils {
      * @param item
      */
     private static async send(url: string, item: DiscordQueueItem): Promise<EResponseState> {
+        // Override for testing/debugging
+        const config = await DataBaseHelper.loadMain(new ConfigDiscord())
+        if(config.webhookOverride_enabled && config.webhookOverride) {
+            url = DataUtils.ensureData(config.webhookOverride)?.url ?? url
+        }
+
         const options = {
             method: 'post',
             body: item.data
