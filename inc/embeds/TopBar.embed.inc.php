@@ -1,4 +1,8 @@
 <?php
+
+use inc\DB_SQLite;
+use inc\Utils;
+
 function printMenuItem(string $thisScript, $newGroup, string $file, string $label, string $title, bool $blank=false, bool $isWIP=false): void {
     $thisGroup = Utils::getQueryParams($file)['g'] ?? '';
     $newScript = explode('.', $file)[0];
@@ -13,7 +17,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
 }
 ?>
 <div id="menu-bar" class="hbar">
-    <a href="https://desbot.app" target="_blank" title="Open the desbot official website." class="version"><img id="corner-logo" src="media/desbot_logo.svg" alt="desbot logo" /><br/><?=include('_version.php')?></a>
+    <a href="https://desbot.app" target="_blank" title="Open the desbot official website." class="version"><img id="corner-logo" src="media/desbot_logo.svg" alt="desbot logo" /><br/><?= include('_version.php') ?></a>
     <ul>
         <?php
         $scriptFile = Utils::getScriptFileName();
