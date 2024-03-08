@@ -10,7 +10,7 @@ function listFolderFiles($dir, $res)
         if ($fileInfo->isDir()) {
             $res = listFolderFiles($fileInfo->getPathname(), $res);
         } else {
-            $res[] = $fileInfo->getPathname();
+            if($fileInfo->isFile()) $res[] = $fileInfo->getPathname();
         }
     }
     return $res;
