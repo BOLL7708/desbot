@@ -94,6 +94,19 @@ export class DataUtils {
             ).filter(pair => !!pair[1])
         )
     }
+
+    /**
+     * Returns a dictionary of all the data referenced by their database row id.
+     * Filters out empty data entries.
+     * @param items
+     */
+    static getIdDataDictionary<T>(items: IDictionary<IDataBaseItem<T>>): IDictionary<T> {
+        return Object.fromEntries(
+            Object.values(items).map(
+                item => [item.id.toString(), item.filledData]
+            ).filter(pair => !!pair[1])
+        )
+    }
     // endregion
 
     // region Validation
