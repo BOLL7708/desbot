@@ -2,6 +2,9 @@
 .vscode
 .idea
 
+# editing
+TODO.MD
+
 # build
 **/dist
 
