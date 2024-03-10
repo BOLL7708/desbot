@@ -1,12 +1,12 @@
-import DataMap from '../DataMap.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState} from '../Preset/PresetPhilipsHue.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {DataEntries} from '../Data.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import DataMap from '../DataMap.js'
+import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState} from '../Preset/PresetPhilipsHue.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
 import {DataUtils} from '../DataUtils.js'
-import {DataEntries} from '../Data.js'
 
 export class ActionPhilipsHueBulb extends Action {
     entries: number[]|DataEntries<PresetPhilipsHueBulb> = []

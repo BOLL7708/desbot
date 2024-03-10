@@ -1,5 +1,4 @@
 import DataFileUtils from './DataFileUtils.js'
-import TwitchHelixHelper from './TwitchHelixHelper.js'
 
 export default class LogWriter {
     // TODO: Extend console with new functions that take color and style as arguments.

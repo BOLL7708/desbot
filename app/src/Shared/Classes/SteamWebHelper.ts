@@ -1,17 +1,10 @@
-import Utils from './Utils.js'
-import {
-    ISteamWebApiGameSchema,
-    ISteamWebApiPlayerAchievementData,
-    ISteamWebApiPlayerAchievements,
-    ISteamWebApiPlayerSummaries,
-    ISteamWebApiPlayerSummaryData,
-    IStreamWebApiGlobalAchievementData,
-    IStreamWebApiGlobalAchievementStats
-} from '../Interfaces/isteam_webapi.js'
-import Color from './ColorConstants.js'
-import {ConfigSteam} from '../Objects/Config/ConfigSteam.js'
+import {ISteamWebApiGameSchema, ISteamWebApiPlayerAchievementData, ISteamWebApiPlayerAchievements, ISteamWebApiPlayerSummaries, ISteamWebApiPlayerSummaryData, IStreamWebApiGlobalAchievementData, IStreamWebApiGlobalAchievementStats} from '../Interfaces/isteam_webapi.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import Utils from './Utils.js'
+import {ConfigSteam} from '../Objects/Config/ConfigSteam.js'
+import Color from './ColorConstants.js'
 import {SettingSteamGame} from '../Objects/Setting/SettingSteam.js'
+
 
 /**
  * These are calls to the Steam Web API to fetch various kinds of data.

@@ -1,7 +1,7 @@
 import Data, {DataEntries} from '../Data.js'
-import DataMap from '../DataMap.js'
-import {PresetText} from '../Preset/PresetText.js'
 import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
+import {PresetText} from '../Preset/PresetText.js'
+import DataMap from '../DataMap.js'
 
 export class ConfigTest extends Data {
     anInstance = new ConfigTestSub()

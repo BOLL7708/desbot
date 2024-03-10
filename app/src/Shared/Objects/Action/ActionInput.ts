@@ -1,11 +1,11 @@
-import Data from '../Data.js'
-import DataMap from '../DataMap.js'
-import {OptionCommandType} from '../../Options/OptionCommandType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {OptionCommandType} from '../../Options/OptionCommandType.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import ExecUtils from '../../Classes/ExecUtils.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
+import ExecUtils from '../../Classes/ExecUtils.js'
+import Data from '../Data.js'
 
 export class ActionInput extends Action {
     window: string = ''

@@ -1,5 +1,5 @@
-import DataMap from '../DataMap.js'
 import Data, {DataEntries} from '../Data.js'
+import DataMap from '../DataMap.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 

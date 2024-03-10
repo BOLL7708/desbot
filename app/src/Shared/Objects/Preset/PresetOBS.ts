@@ -1,5 +1,5 @@
-import DataMap from '../DataMap.js'
 import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
 export class PresetOBSScene extends Data {
     sceneName: string = ''

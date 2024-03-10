@@ -1,10 +1,10 @@
-import DataMap from '../DataMap.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import DataMap from '../DataMap.js'
+import {DataUtils} from '../DataUtils.js'
+import Utils from '../../Classes/Utils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import Utils from '../../Classes/Utils.js'
 import TextHelper from '../../Classes/TextHelper.js'
-import {DataUtils} from '../DataUtils.js'
 
 export class ActionSign extends Action {
     title: string = ''

@@ -1,5 +1,5 @@
-import Color from './ColorConstants.js'
 import Constants from './Constants.js'
+import Color from './ColorConstants.js'
 
 export default class Utils {
     static splitOnFirst(needle:string, str:string):string[] {

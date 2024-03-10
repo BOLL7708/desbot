@@ -1,8 +1,8 @@
-import {ActionAudio} from '../Action/ActionAudio.js'
-import DataMap from '../DataMap.js'
 import Data, {DataEntries} from '../Data.js'
-import {SettingUser} from '../Setting/SettingUser.js'
 import {OptionTwitchSubTier} from '../../Options/OptionTwitch.js'
+import DataMap from '../DataMap.js'
+import {SettingUser} from '../Setting/SettingUser.js'
+import {ActionAudio} from '../Action/ActionAudio.js'
 
 export default class ConfigAnnouncements extends Data {
     announcerUsers: number[]|DataEntries<SettingUser> = []

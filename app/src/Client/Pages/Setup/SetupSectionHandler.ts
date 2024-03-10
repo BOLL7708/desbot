@@ -1,4 +1,4 @@
-import Utils from '../../Classes/Utils.js'
+import Utils from '../../../Shared/Classes/Utils.js'
 
 type TSection =
     'Loading'

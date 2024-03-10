@@ -1,6 +1,6 @@
+import DataBaseHelper from '../Classes/DataBaseHelper.js'
 import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
 
 /**
  * Contains states and settings for this session

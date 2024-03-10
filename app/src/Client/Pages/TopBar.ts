@@ -1,7 +1,6 @@
-import Utils from '../Classes/Utils.js'
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import DataFileUtils from '../Classes/DataFileUtils.js'
-import {ConfigEditor} from '../Objects/Config/ConfigEditor.js'
+import Utils from '../../Shared/Classes/Utils.js'
+import DataBaseHelper from '../../Shared/Classes/DataBaseHelper.js'
+import {ConfigEditor} from '../../Shared/Objects/Config/ConfigEditor.js'
 
 export default class TopBar {
     static attachSignOutClick(elementId: string) {

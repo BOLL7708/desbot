@@ -1,7 +1,7 @@
-import DataMap from '../DataMap.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 
 export class ActionMoveVRSpace extends Action {
     x: number = 0

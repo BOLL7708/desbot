@@ -1,7 +1,7 @@
-import WebSockets from './WebSockets.js'
-import Utils from './Utils.js'
 import Color from './ColorConstants.js'
+import WebSockets from './WebSockets.js'
 import DataBaseHelper from './DataBaseHelper.js'
+import Utils from './Utils.js'
 import {ConfigRelay} from '../Objects/Config/ConfigRelay.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 

@@ -1,15 +1,15 @@
+import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {OptionScreenshotType} from '../../Options/OptionScreenshotType.js'
+import {DataEntries} from '../Data.js'
 import DataMap from '../DataMap.js'
 import {PresetOBSSource} from '../Preset/PresetOBS.js'
-import {OptionScreenshotType} from '../../Options/OptionScreenshotType.js'
-import Action, {IActionCallback, IActionUser} from '../Action.js'
+import Utils from '../../Classes/Utils.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import ConfigScreenshots from '../Config/ConfigScreenshots.js'
-import Utils from '../../Classes/Utils.js'
-import AudioUtils from '../../Classes/AudioUtils.js'
 import {DataUtils} from '../DataUtils.js'
-import {DataEntries} from '../Data.js'
+import AudioUtils from '../../Classes/AudioUtils.js'
+import ConfigScreenshots from '../Config/ConfigScreenshots.js'
 
 export class ActionScreenshot extends Action {
     screenshotType = OptionScreenshotType.VRElseOBS

@@ -1,8 +1,8 @@
-import Utils from './Utils.js'
 import Color from './ColorConstants.js'
-import Data from '../Objects/Data.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
+import Utils from './Utils.js'
 import DataMap from '../Objects/DataMap.js'
+import Data from '../Objects/Data.js'
 import Constants from './Constants.js'
 
 export default class DataBaseHelper {

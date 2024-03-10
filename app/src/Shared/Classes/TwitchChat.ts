@@ -1,11 +1,11 @@
 import WebSockets from './WebSockets.js'
+import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
+import TwitchHelixHelper from './TwitchHelixHelper.js'
+import {DataUtils} from '../Objects/DataUtils.js'
 import Utils from './Utils.js'
 import TwitchFactory from './TwitchFactory.js'
-import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
-import {DataUtils} from '../Objects/DataUtils.js'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'

@@ -1,6 +1,6 @@
 import {IAudioPlayedCallback} from '../Interfaces/iaudioplayer.js'
-import Utils from './Utils.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
+import Utils from './Utils.js'
 
 export default class AudioPlayer {
     static get STATUS_OK() { return 0 }

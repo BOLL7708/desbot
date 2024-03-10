@@ -1,4 +1,4 @@
-import AuthUtils from '../../Classes/AuthUtils.js'
+import AuthUtils from '../../../Shared/Classes/AuthUtils.js'
 import ToolsHandler from './ToolsHandler.js'
 import PageUtils from '../PageUtils.js'
 

@@ -1,6 +1,6 @@
-import StatesSingleton from '../../Singletons/StatesSingleton.js'
-import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import LegacyUtils from '../../Classes/LegacyUtils.js'
+import StatesSingleton from '../../../Shared/Singletons/StatesSingleton.js'
+import TwitchHelixHelper from '../../../Shared/Classes/TwitchHelixHelper.js'
+import LegacyUtils from '../../../Shared/Classes/LegacyUtils.js'
 
 export default class Rewards {
     public static async init() {

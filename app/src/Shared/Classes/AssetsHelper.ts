@@ -1,5 +1,3 @@
-import Utils from './Utils.js'
-
 /**
  * Gets filled with all the filepaths from the `_assets` folder, to be referenced in configs.
  */

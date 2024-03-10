@@ -1,10 +1,10 @@
+import Action, {IActionCallback, IActionUser} from '../Action.js'
 import Data, {DataEntries} from '../Data.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import Action, {IActionCallback, IActionUser} from '../Action.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 
 export class ActionOBS extends Action {
     sceneEntries: number[]|DataEntries<PresetOBSScene> = []

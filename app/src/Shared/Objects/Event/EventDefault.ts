@@ -1,17 +1,17 @@
-import DataMap from '../DataMap.js'
 import Data, {DataEntries} from '../Data.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
+import DataMap from '../DataMap.js'
+import {PresetEventCategory} from '../Preset/PresetEventCategory.js'
 import Trigger from '../Trigger.js'
-import Action from '../Action.js'
-import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import {DataUtils} from '../DataUtils.js'
 import {IDictionary} from '../../Interfaces/igeneral.js'
-import {PresetEventCategory} from '../Preset/PresetEventCategory.js'
+import {OptionEventRun} from '../../Options/OptionEventRun.js'
+import Action from '../Action.js'
 
 export class EventDefault extends Data {
     category: number|DataEntries<PresetEventCategory> = 0
     options = new EventOptions() // TODO: Put internal properties in the base root instead, as well as the reward options object.
-    behavior: OptionEventBehavior = OptionEventBehavior.All
+    behavior: number = OptionEventBehavior.All
     incrementingOptions = new EventIncrementingOptions()
     accumulatingOptions = new EventAccumulatingOptions()
     multiTierOptions = new EventMultiTierOptions()
@@ -109,7 +109,7 @@ export class EventOptions extends Data {
     }
 }
 export class EventActionContainer extends Data {
-    run = OptionEventRun.immediately
+    run: number = OptionEventRun.immediately
     run_ms: number = 0
     entries: number[]|DataEntries<Action> = []
 

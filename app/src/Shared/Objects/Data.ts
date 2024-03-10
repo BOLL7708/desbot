@@ -1,8 +1,7 @@
-import Utils from '../Classes/Utils.js'
+import {DataUtils} from './DataUtils.js'
 import DataMap from './DataMap.js'
 import DataBaseHelper, {IDataBaseItem} from '../Classes/DataBaseHelper.js'
-import {DataUtils} from './DataUtils.js'
-import {PresetText} from './Preset/PresetText.js'
+import Utils from '../Classes/Utils.js'
 
 export type TDataCategory =
     string

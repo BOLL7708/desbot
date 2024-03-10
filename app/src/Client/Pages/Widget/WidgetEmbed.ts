@@ -1,5 +1,6 @@
+import AssetsHelper from '../../../Shared/Classes/AssetsHelper.js'
 import MainController from './MainController.js'
-import AssetsHelper from '../../Classes/AssetsHelper.js'
+
 
 (async ()=>{
     await AssetsHelper.getAll()

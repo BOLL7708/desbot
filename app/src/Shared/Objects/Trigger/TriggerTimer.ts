@@ -1,7 +1,7 @@
-import DataMap from '../DataMap.js'
 import Trigger from '../Trigger.js'
-import {EEventSource} from '../../Pages/Widget/Enums.js'
-import {ActionHandler, Actions} from '../../Pages/Widget/Actions.js'
+import DataMap from '../DataMap.js'
+import {ActionHandler, Actions} from '../../../Client/Pages/Widget/Actions.js'
+import {EEventSource} from '../../../Client/Pages/Widget/Enums.js'
 
 export class TriggerTimer extends Trigger {
     interval: number = 10

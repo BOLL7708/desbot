@@ -1,16 +1,15 @@
+import Trigger from '../Trigger.js'
 import Data, {DataEntries} from '../Data.js'
 import DataMap, {RootToolResult} from '../DataMap.js'
-import {PresetReward} from '../Preset/PresetReward.js'
-import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
-import Trigger from '../Trigger.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import {ITwitchReward} from '../../Interfaces/itwitch.js'
-import Utils from '../../Classes/Utils.js'
-import {ActionHandler} from '../../Pages/Widget/Actions.js'
+import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import {DataUtils} from '../DataUtils.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import {ActionHandler} from '../../../Client/Pages/Widget/Actions.js'
+import {ITwitchReward} from '../../Interfaces/itwitch.js'
+import Utils from '../../Classes/Utils.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|DataEntries<PresetPermissions> = 0

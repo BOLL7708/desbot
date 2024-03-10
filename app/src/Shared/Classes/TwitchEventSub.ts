@@ -1,6 +1,7 @@
-import WebSockets from './WebSockets.js'
-import Utils from './Utils.js'
 import Color from './ColorConstants.js'
+import WebSockets from './WebSockets.js'
+import {ITwitchCheer, ITwitchReward} from '../Interfaces/itwitch.js'
+import Utils from './Utils.js'
 import {
     ITwitchEventSubEventCheer,
     ITwitchEventSubEventGiftSubscription,
@@ -19,10 +20,9 @@ import {
     TTwitchEventSubSubscriptionType
 } from '../Interfaces/itwitch_eventsub.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
-import {ITwitchCheer, ITwitchReward} from '../Interfaces/itwitch.js'
 import {SettingTwitchRedemption} from '../Objects/Setting/SettingTwitch.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {Actions} from '../Pages/Widget/Actions.js'
+import {Actions} from '../../Client/Pages/Widget/Actions.js'
 
 export default class TwitchEventSub {
     private LOG_COLOR = Color.DarkViolet

@@ -1,5 +1,5 @@
-import DataMap from '../DataMap.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 

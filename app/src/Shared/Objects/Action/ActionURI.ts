@@ -1,10 +1,10 @@
-import DataMap from '../DataMap.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
-import ExecUtils from '../../Classes/ExecUtils.js'
 import TextHelper from '../../Classes/TextHelper.js'
+import ExecUtils from '../../Classes/ExecUtils.js'
 
 export class ActionURI extends Action {
     entries: string[] = ['']

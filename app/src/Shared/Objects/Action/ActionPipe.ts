@@ -1,14 +1,14 @@
-import DataMap from '../DataMap.js'
-import {PresetPipeBasic, PresetPipeCustom} from '../Preset/PresetPipe.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import Utils from '../../Classes/Utils.js'
-import TextHelper from '../../Classes/TextHelper.js'
-import ArrayUtils from '../../Classes/ArrayUtils.js'
-import {DataUtils} from '../DataUtils.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {DataEntries} from '../Data.js'
+import DataMap from '../DataMap.js'
+import {DataUtils} from '../DataUtils.js'
+import {PresetPipeBasic, PresetPipeCustom} from '../Preset/PresetPipe.js'
+import Utils from '../../Classes/Utils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export class ActionPipe extends Action {
     imagePathEntries: string[] = []

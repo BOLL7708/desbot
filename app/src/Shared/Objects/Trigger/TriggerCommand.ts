@@ -1,9 +1,9 @@
+import Trigger from '../Trigger.js'
+import {DataEntries} from '../Data.js'
+import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 import DataMap from '../DataMap.js'
 import {PresetPermissions} from '../Preset/PresetPermissions.js'
-import Trigger from '../Trigger.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
-import {DataEntries} from '../Data.js'
 
 export class TriggerCommand extends Trigger {
     entries: string[] = ['']

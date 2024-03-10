@@ -2,7 +2,6 @@ import {ISteamStoreGameData, ISteamStoreGameResponse} from '../Interfaces/isteam
 import Utils from './Utils.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingSteamGame} from '../Objects/Setting/SettingSteam.js'
-import Data from '../Objects/Data.js'
 
 export default class SteamStoreHelper {
     static _gameCache: Map<number, ISteamStoreGameData> = new Map()

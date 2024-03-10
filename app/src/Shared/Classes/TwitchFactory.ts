@@ -1,9 +1,4 @@
-import {
-    ITwitchChatMessage,
-    ITwitchChatMessageProperties,
-    ITwitchEmote, ITwitchEmotePosition,
-    ITwitchMessageCmd
-} from '../Interfaces/itwitch_chat.js'
+import {ITwitchChatMessage, ITwitchChatMessageProperties, ITwitchEmote, ITwitchEmotePosition, ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
 import Utils from './Utils.js'
 import {ITwitchEventSubEmote} from '../Interfaces/itwitch_eventsub.js'
 import Twitch from './Twitch.js'

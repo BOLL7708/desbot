@@ -1,6 +1,6 @@
 import Data from '../Data.js'
-import DataMap from '../DataMap.js'
 import {ConfigCleanText} from './ConfigCleanText.js'
+import DataMap from '../DataMap.js'
 import {IDictionary} from '../../Interfaces/igeneral.js'
 
 export class ConfigSpeech extends Data {

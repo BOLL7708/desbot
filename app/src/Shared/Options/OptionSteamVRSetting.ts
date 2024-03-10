@@ -1,6 +1,5 @@
-import {Option} from './Option.js'
 import {OptionsMap} from './OptionsMap.js'
-import {OptionScreenshotType} from './OptionScreenshotType.js'
+import {Option} from './Option.js'
 
 export class OptionSteamVRSettingType extends Option {
     static readonly None = ''

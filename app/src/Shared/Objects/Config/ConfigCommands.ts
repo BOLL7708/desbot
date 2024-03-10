@@ -1,8 +1,8 @@
-import DataMap from '../DataMap.js'
 import Data, {DataEntries} from '../Data.js'
+import DataMap from '../DataMap.js'
+import {PresetPermissions} from '../Preset/PresetPermissions.js'
 import {SettingUser} from '../Setting/SettingUser.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
-import {PresetPermissions} from '../Preset/PresetPermissions.js'
 
 export default class ConfigCommands extends Data {
     commandPrefix: string = '!'

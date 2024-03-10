@@ -1,15 +1,15 @@
-import DataMap from '../DataMap.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {DataEntries} from '../Data.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import DataMap from '../DataMap.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import Utils from '../../Classes/Utils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import Utils from '../../Classes/Utils.js'
-import DiscordUtils from '../../Classes/DiscordUtils.js'
-import TextHelper from '../../Classes/TextHelper.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
+import DiscordUtils from '../../Classes/DiscordUtils.js'
 import {DataUtils} from '../DataUtils.js'
-import {DataEntries} from '../Data.js'
+import TextHelper from '../../Classes/TextHelper.js'
 
 export class ActionDiscord extends Action {
     webhook: number|DataEntries<PresetDiscordWebhook> = 0

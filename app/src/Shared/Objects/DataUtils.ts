@@ -1,5 +1,5 @@
-import DataMap from './DataMap.js'
 import Data, {DataEntries, DataRefValues} from './Data.js'
+import DataMap from './DataMap.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
 import {IDataBaseItem} from '../Classes/DataBaseHelper.js'
 

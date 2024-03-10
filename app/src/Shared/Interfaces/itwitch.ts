@@ -1,7 +1,7 @@
-import {ITwitchEmote, ITwitchMessageCmd} from './itwitch_chat.js'
-import {ActionHandler} from '../Pages/Widget/Actions.js'
-import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
+import {ActionHandler} from '../../Client/Pages/Widget/Actions.js'
 import {IActionUser} from '../Objects/Action.js'
+import {ITwitchEmote, ITwitchMessageCmd} from './itwitch_chat.js'
+import {ITwitchEventSubEventRedemption} from './itwitch_eventsub.js'
 
 /**
  * Settings for various Twitch functions, like chat and rewards.

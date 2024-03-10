@@ -1,23 +1,11 @@
-import {
-    IOpenVR2WSAppIdCallback,
-    IOpenVR2WSFindOverlayCallback,
-    IOpenVR2WSFindOverlayData,
-    IOpenVR2WSGenericResponseData,
-    IOpenVR2WSInputCallback,
-    IOpenVR2WSInputData,
-    IOpenVR2WSInputPoseCallback,
-    IOpenVR2WSInputPoseResponseData,
-    IOpenVR2WSMessage,
-    IOpenVR2WSStatusCallback,
-    IOpenVRWSCommandMessage
-} from '../Interfaces/iopenvr2ws.js'
-import Color from './ColorConstants.js'
-import WebSockets from './WebSockets.js'
-import Utils from './Utils.js'
-import DataBaseHelper from './DataBaseHelper.js'
+import {IOpenVR2WSAppIdCallback, IOpenVR2WSFindOverlayCallback, IOpenVR2WSFindOverlayData, IOpenVR2WSGenericResponseData, IOpenVR2WSInputCallback, IOpenVR2WSInputData, IOpenVR2WSInputPoseCallback, IOpenVR2WSInputPoseResponseData, IOpenVR2WSMessage, IOpenVR2WSStatusCallback, IOpenVRWSCommandMessage} from '../Interfaces/iopenvr2ws.js'
 import {ConfigOpenVR2WS} from '../Objects/Config/ConfigOpenVR2WS.js'
-import {ActionMoveVRSpace} from '../Objects/Action/ActionMoveVRSpace.js'
+import WebSockets from './WebSockets.js'
+import DataBaseHelper from './DataBaseHelper.js'
+import Utils from './Utils.js'
 import {ActionSettingVR} from '../Objects/Action/ActionSettingVR.js'
+import {ActionMoveVRSpace} from '../Objects/Action/ActionMoveVRSpace.js'
+import Color from './ColorConstants.js'
 
 export default class OpenVR2WS {
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }

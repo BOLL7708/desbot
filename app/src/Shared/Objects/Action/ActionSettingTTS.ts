@@ -1,17 +1,17 @@
-import DataMap from '../DataMap.js'
-import {OptionTTSFunctionType} from '../../Options/OptionTTS.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
+import {OptionTTSFunctionType} from '../../Options/OptionTTS.js'
+import DataMap from '../DataMap.js'
+import Utils from '../../Classes/Utils.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {SettingUser, SettingUserMute, SettingUserName} from '../Setting/SettingUser.js'
-import {EEventSource} from '../../Pages/Widget/Enums.js'
-import Utils from '../../Classes/Utils.js'
+import {EEventSource} from '../../../Client/Pages/Widget/Enums.js'
 import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import Color from '../../Classes/ColorConstants.js'
 import {SettingDictionaryEntry} from '../Setting/SettingDictionary.js'
 import {DataUtils} from '../DataUtils.js'
+import Color from '../../Classes/ColorConstants.js'
 
 export class ActionSettingTTS extends Action {
     functionType = OptionTTSFunctionType.Enable

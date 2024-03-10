@@ -1,12 +1,12 @@
-import DataMap from '../DataMap.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import Utils from '../../Classes/Utils.js'
-import TextHelper from '../../Classes/TextHelper.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import ArrayUtils from '../../Classes/ArrayUtils.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import DataMap from '../DataMap.js'
 import {DataUtils} from '../DataUtils.js'
+import Utils from '../../Classes/Utils.js'
 import AssetsHelper from '../../Classes/AssetsHelper.js'
+import TextHelper from '../../Classes/TextHelper.js'
+import ArrayUtils from '../../Classes/ArrayUtils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 
 export class ActionAudio extends Action {
     srcEntries: string[] = ['']

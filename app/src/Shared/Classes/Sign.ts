@@ -1,9 +1,8 @@
+import {ActionSign} from '../Objects/Action/ActionSign.js'
+import {ConfigSign} from '../Objects/Config/ConfigSign.js'
+import DataBaseHelper from './DataBaseHelper.js'
 import Utils from './Utils.js'
 import Color from './ColorConstants.js'
-import {ISignAction} from '../Interfaces/iactions.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigSign} from '../Objects/Config/ConfigSign.js'
-import {ActionSign} from '../Objects/Action/ActionSign.js'
 
 export default class Sign {
     private _div: HTMLDivElement

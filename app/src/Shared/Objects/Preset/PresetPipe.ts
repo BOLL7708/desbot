@@ -1,8 +1,6 @@
 import Data from '../Data.js'
-import DataMap, {RootToolResult} from '../DataMap.js'
+import DataMap from '../DataMap.js'
 import {DataUtils} from '../DataUtils.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import ImageHelper from '../../Classes/ImageHelper.js'
 import OptionPipeCustomAnchorType from '../../Options/OptionPipeCustomAnchorType.js'
 
 export class PresetPipeBasic extends Data {

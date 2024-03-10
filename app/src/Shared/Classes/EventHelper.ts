@@ -1,11 +1,9 @@
 import Trigger from '../Objects/Trigger.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import {EventDefault} from '../Objects/Event/EventDefault.js'
-import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
-import Utils from './Utils.js'
-import {TriggerRelay} from '../Objects/Trigger/TriggerRelay.js'
 import {DataUtils} from '../Objects/DataUtils.js'
+import {TriggerReward} from '../Objects/Trigger/TriggerReward.js'
+import DataBaseHelper from './DataBaseHelper.js'
 import {IDictionary} from '../Interfaces/igeneral.js'
+import {EventDefault} from '../Objects/Event/EventDefault.js'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&Trigger): Promise<(T&Trigger)[]> {

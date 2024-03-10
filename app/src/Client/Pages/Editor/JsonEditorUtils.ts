@@ -1,11 +1,10 @@
-import {DataRefValues} from '../../Objects/Data.js'
-import {DataMeta} from '../../Objects/DataMeta.js'
 import JsonEditor, {EOrigin, IJsonEditorPath} from './JsonEditor.js'
-import DataMap from '../../Objects/DataMap.js'
-import Utils from '../../Classes/Utils.js'
-import {OptionsMap} from '../../Options/OptionsMap.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import {DataMeta} from '../../../Shared/Objects/DataMeta.js'
+import DataMap from '../../../Shared/Objects/DataMap.js'
+import Utils from '../../../Shared/Classes/Utils.js'
+import {OptionsMap} from '../../../Shared/Options/OptionsMap.js'
 import EditorBus from './EditorBus.js'
+import {DataRefValues} from '../../../Shared/Objects/Data.js'
 
 export class JsonEditorUtils {
     // region Append elements

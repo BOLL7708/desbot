@@ -1,4 +1,4 @@
-import {IDictionary} from '../../Interfaces/igeneral.js'
+import {IDictionary} from '../../../Shared/Interfaces/igeneral.js'
 
 export default class EditorBus {
     static optionsForVisibility: IDictionary<IDictionary<HTMLElement>> = {}

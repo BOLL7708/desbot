@@ -1,9 +1,9 @@
 import Data, {DataEntries} from '../Data.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import DataMap from '../DataMap.js'
-import {PresetPipeBasic} from '../Preset/PresetPipe.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {DataUtils} from '../DataUtils.js'
+import {PresetPipeBasic} from '../Preset/PresetPipe.js'
 
 export class ConfigExample extends Data {
     singleBoolean = false

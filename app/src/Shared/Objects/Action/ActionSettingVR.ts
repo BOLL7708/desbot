@@ -1,8 +1,8 @@
-import DataMap from '../DataMap.js'
-import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 
 export class ActionSettingVR extends Action {
     settingPreset = OptionSteamVRSettingType.WorldScale

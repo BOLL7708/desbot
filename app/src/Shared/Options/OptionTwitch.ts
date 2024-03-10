@@ -1,5 +1,5 @@
-import {Option} from './Option.js'
 import {OptionsMap} from './OptionsMap.js'
+import {Option} from './Option.js'
 
 export class OptionTwitchRewardVisible extends Option {
     static readonly NoChange = 0

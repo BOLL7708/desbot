@@ -1,7 +1,7 @@
+import Trigger from '../Trigger.js'
 import DataMap from '../DataMap.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import Utils from '../../Classes/Utils.js'
-import Trigger from '../Trigger.js'
 
 export class TriggerRemoteCommand extends Trigger {
     entries: string[] = ['']

@@ -1,5 +1,5 @@
-import DataMap from '../DataMap.js'
 import Data from '../Data.js'
+import DataMap from '../DataMap.js'
 
 export default class ConfigOBS extends Data {
     port: number = 4455

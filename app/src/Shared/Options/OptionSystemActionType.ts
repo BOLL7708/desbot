@@ -1,5 +1,5 @@
-import {Option} from './Option.js'
 import {OptionsMap} from './OptionsMap.js'
+import {Option} from './Option.js'
 
 /**
  * These are basically things happening in the widget that are not customizable actions, but hard-coded ones.

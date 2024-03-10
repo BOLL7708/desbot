@@ -1,21 +1,22 @@
-import EnlistData from '../../Objects/EnlistData.js'
-import PhilipsHueHelper from '../../Classes/PhilipsHueHelper.js'
-import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import {SettingTwitchReward} from '../../Objects/Setting/SettingTwitch.js'
-import Utils from '../../Classes/Utils.js'
-import {SettingSteamGame} from '../../Objects/Setting/SettingSteam.js'
-import SteamStoreHelper from '../../Classes/SteamStoreHelper.js'
-import {SettingUser, SettingUserName} from '../../Objects/Setting/SettingUser.js'
-import TextHelper from '../../Classes/TextHelper.js'
-import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
-import {PresetReward} from '../../Objects/Preset/PresetReward.js'
-import {EventDefault} from '../../Objects/Event/EventDefault.js'
-import {ConfigPhilipsHue} from '../../Objects/Config/ConfigPhilipsHue.js'
-import {DataUtils} from '../../Objects/DataUtils.js'
-import {PresetDiscordWebhook} from '../../Objects/Preset/PresetDiscordWebhook.js'
+import EnlistData from '../../../Shared/Objects/EnlistData.js'
+import {SettingUser, SettingUserName} from '../../../Shared/Objects/Setting/SettingUser.js'
+import TwitchHelixHelper from '../../../Shared/Classes/TwitchHelixHelper.js'
+import {DataUtils} from '../../../Shared/Objects/DataUtils.js'
+import Utils from '../../../Shared/Classes/Utils.js'
+import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
+import {EventDefault} from '../../../Shared/Objects/Event/EventDefault.js'
+import {SettingSteamGame} from '../../../Shared/Objects/Setting/SettingSteam.js'
+import SteamStoreHelper from '../../../Shared/Classes/SteamStoreHelper.js'
+import PhilipsHueHelper from '../../../Shared/Classes/PhilipsHueHelper.js'
+import {SettingTwitchReward} from '../../../Shared/Objects/Setting/SettingTwitch.js'
+import {PresetReward} from '../../../Shared/Objects/Preset/PresetReward.js'
+import {TriggerReward} from '../../../Shared/Objects/Trigger/TriggerReward.js'
+import {ConfigPhilipsHue} from '../../../Shared/Objects/Config/ConfigPhilipsHue.js'
+import {PresetDiscordWebhook} from '../../../Shared/Objects/Preset/PresetDiscordWebhook.js'
+import TextHelper from '../../../Shared/Classes/TextHelper.js'
 
 export default class ToolsHandler {
+    private TextHelper: any
     constructor() {
         this.init().then()
     }
@@ -92,7 +93,7 @@ export default class ToolsHandler {
                         if(!user.displayName) user.displayName = data.display_name
                         if(!user.name) {
                             user.name = new SettingUserName()
-                            user.name.shortName = TextHelper.cleanName(data.login)
+                            user.name.shortName = this.TextHelper.cleanName(data.login)
                             user.name.datetime = Utils.getISOTimestamp()
                         }
                         const result = await DataBaseHelper.save(user, data.id)

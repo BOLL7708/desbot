@@ -1,4 +1,4 @@
-import {ActionHandler} from '../Pages/Widget/Actions.js'
+import {ActionHandler} from '../../Client/Pages/Widget/Actions.js'
 
 /**
  * Change SteamVR setting.

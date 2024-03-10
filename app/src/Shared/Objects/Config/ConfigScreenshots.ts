@@ -1,10 +1,10 @@
-import DataMap from '../DataMap.js'
 import Data, {DataEntries} from '../Data.js'
+import DataMap from '../DataMap.js'
+import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import {EventDefault} from '../Event/EventDefault.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import {ActionAudio} from '../Action/ActionAudio.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
-import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
-import {EventDefault} from '../Event/EventDefault.js'
 
 export default class ConfigScreenshots extends Data {
     SSSVRPort: number = 8807

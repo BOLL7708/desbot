@@ -1,29 +1,29 @@
-import {IAudioAction} from '../../Interfaces/iactions.js'
+import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../../Shared/Objects/Action.js'
+import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
+import StatesSingleton from '../../../Shared/Singletons/StatesSingleton.js'
+import {OptionEventBehavior} from '../../../Shared/Options/OptionEventBehavior.js'
+import ArrayUtils from '../../../Shared/Classes/ArrayUtils.js'
+import {TriggerReward} from '../../../Shared/Objects/Trigger/TriggerReward.js'
+import {DataUtils} from '../../../Shared/Objects/DataUtils.js'
+import Utils from '../../../Shared/Classes/Utils.js'
+import TextHelper from '../../../Shared/Classes/TextHelper.js'
+import TwitchHelixHelper from '../../../Shared/Classes/TwitchHelixHelper.js'
+import {ActionSystemRewardState} from '../../../Shared/Objects/Action/ActionSystem.js'
+import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../../Shared/Options/OptionTwitch.js'
+import {EventActionContainer, EventDefault} from '../../../Shared/Objects/Event/EventDefault.js'
+import Trigger from '../../../Shared/Objects/Trigger.js'
+import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../../Shared/Interfaces/itwitch_eventsub.js'
 import {EEventSource} from './Enums.js'
-import Color from '../../Classes/ColorConstants.js'
-import StatesSingleton from '../../Singletons/StatesSingleton.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
-import Utils from '../../Classes/Utils.js'
-import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
-import DataBaseHelper from '../../Classes/DataBaseHelper.js'
-import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../Objects/Setting/SettingCounters.js'
-import {SettingTwitchTokens} from '../../Objects/Setting/SettingTwitch.js'
-import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../Interfaces/itwitch_eventsub.js'
-import TextHelper from '../../Classes/TextHelper.js'
-import {EventActionContainer, EventDefault} from '../../Objects/Event/EventDefault.js'
-import ArrayUtils from '../../Classes/ArrayUtils.js'
-import Action, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from '../../Objects/Action.js'
-import Trigger from '../../Objects/Trigger.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
-import {OptionEventRun} from '../../Options/OptionEventRun.js'
-import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
-import {TriggerReward} from '../../Objects/Trigger/TriggerReward.js'
-import {PresetReward} from '../../Objects/Preset/PresetReward.js'
-import {ActionSystemRewardState} from '../../Objects/Action/ActionSystem.js'
-import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
-import {ActionSpeech} from '../../Objects/Action/ActionSpeech.js'
-import {OptionTTSType} from '../../Options/OptionTTS.js'
-import {DataUtils} from '../../Objects/DataUtils.js'
+import {OptionEventRun} from '../../../Shared/Options/OptionEventRun.js'
+import {IAudioAction} from '../../../Shared/Interfaces/iactions.js'
+import {ActionSpeech} from '../../../Shared/Objects/Action/ActionSpeech.js'
+import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
+import {OptionTTSType} from '../../../Shared/Options/OptionTTS.js'
+import {OptionEntryUsage} from '../../../Shared/Options/OptionEntryType.js'
+import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../../Shared/Objects/Setting/SettingCounters.js'
+import {PresetReward} from '../../../Shared/Objects/Preset/PresetReward.js'
+import Color from '../../../Shared/Classes/ColorConstants.js'
+import {SettingTwitchTokens} from '../../../Shared/Objects/Setting/SettingTwitch.js'
 
 export class ActionHandler {
     constructor(
@@ -316,7 +316,7 @@ export class ActionHandler {
 export class Actions {
     public static async init() {
         Utils.log('=== Registering Triggers for Events ===', Color.DarkGreen)
-        const events = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
+        const events = DataUtils.getKeyDataDictionary<EventDefault>(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
         if(events) {
             for(const [key, event] of Object.entries(events)) {
                 const triggers = DataUtils.ensureDataArray(event.triggers) ?? []

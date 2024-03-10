@@ -1,6 +1,6 @@
-import DataBaseHelper from './DataBaseHelper.js'
-import {SettingTwitchReward} from '../Objects/Setting/SettingTwitch.js'
 import {DataUtils} from '../Objects/DataUtils.js'
+import {SettingTwitchReward} from '../Objects/Setting/SettingTwitch.js'
+import DataBaseHelper from './DataBaseHelper.js'
 
 export default class LegacyUtils {
     static async getRewardId(key: string): Promise<string|undefined> {

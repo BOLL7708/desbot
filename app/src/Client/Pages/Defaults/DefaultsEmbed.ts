@@ -1,6 +1,7 @@
-import AuthUtils from '../../Classes/AuthUtils.js'
+import EnlistData from '../../../Shared/Objects/EnlistData.js'
+import AuthUtils from '../../../Shared/Classes/AuthUtils.js'
 import DefaultsHandler from './DefaultsHandler.js'
-import EnlistData from "../../Objects/EnlistData.js";
+
 
 (async ()=>{
     EnlistData.run()

@@ -1,12 +1,12 @@
+import DataBaseHelper from './DataBaseHelper.js'
+import {DataUtils} from '../Objects/DataUtils.js'
+import {SettingChannelTrophyStat} from '../Objects/Setting/SettingChannel.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import Utils from './Utils.js'
 import {IDiscordEmbed, IDiscordEmbedField} from '../Interfaces/idiscord.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import Color from './ColorConstants.js'
-import {SettingChannelTrophyStat} from '../Objects/Setting/SettingChannel.js'
 import TextHelper from './TextHelper.js'
 import {ConfigController, ConfigControllerChannelTrophyNumber} from '../Objects/Config/ConfigController.js'
-import {DataUtils} from '../Objects/DataUtils.js'
+import Color from './ColorConstants.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {

@@ -1,8 +1,8 @@
-import DataMap from '../DataMap.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 
 export class ActionRemoteCommand extends Action {

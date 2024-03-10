@@ -1,7 +1,7 @@
 import Data from './Data.js'
-import {EEventSource} from '../Pages/Widget/Enums.js'
-import {ITwitchEventSubEventRedemption} from '../Interfaces/itwitch_eventsub.js'
+import {EEventSource} from '../../Client/Pages/Widget/Enums.js'
 import {ITwitchCommand} from '../Classes/Twitch.js'
+import {ITwitchEventSubEventRedemption} from '../Interfaces/itwitch_eventsub.js'
 
 export default abstract class Action extends Data {
     /**

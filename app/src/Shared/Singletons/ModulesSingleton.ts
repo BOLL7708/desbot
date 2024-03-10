@@ -1,14 +1,15 @@
-import OBS from '../Classes/OBS.js'
-import Twitch from '../Classes/Twitch.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
-import AudioPlayer from '../Classes/AudioPlayer.js'
-import SuperScreenShotterVR from '../Classes/SuperScreenShotterVR.js'
-import Sign from '../Classes/Sign.js'
-import Pipe from '../Classes/Pipe.js'
-import GoogleTTS from '../Classes/GoogleTTS.js'
-import StreamDeckRelay from '../Classes/StreamDeckRelay.js'
-import Relay from '../Classes/Relay.js'
+import Twitch from '../Classes/Twitch.js'
 import TwitchEventSub from '../Classes/TwitchEventSub.js'
+import GoogleTTS from '../Classes/GoogleTTS.js'
+import Pipe from '../Classes/Pipe.js'
+import OBS from '../Classes/OBS.js'
+import SuperScreenShotterVR from '../Classes/SuperScreenShotterVR.js'
+import AudioPlayer from '../Classes/AudioPlayer.js'
+import Sign from '../Classes/Sign.js'
+import Relay from '../Classes/Relay.js'
+import StreamDeckRelay from '../Classes/StreamDeckRelay.js'
+
 
 /**
  * Contains instances of various modules

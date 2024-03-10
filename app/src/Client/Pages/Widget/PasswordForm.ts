@@ -1,6 +1,6 @@
-import Color from '../../Classes/ColorConstants.js'
-import Utils from '../../Classes/Utils.js'
-import Constants from '../../Classes/Constants.js'
+import Color from '../../../Shared/Classes/ColorConstants.js'
+import Constants from '../../../Shared/Classes/Constants.js'
+import Utils from '../../../Shared/Classes/Utils.js'
 
 export default class PasswordForm {
     static spawn() {

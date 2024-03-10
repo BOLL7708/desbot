@@ -1,8 +1,12 @@
-import {IDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
-import Data from './Data.js'
-import {DataMeta} from './DataMeta.js'
+
+
+
 
 // Types
+import Data from './Data.js'
+import {IDictionary, IStringDictionary} from '../Interfaces/igeneral.js'
+import {DataMeta} from './DataMeta.js'
+
 export type TNoFunctions<T> = {
     [K in keyof T]: T[K] extends Function
         ? never

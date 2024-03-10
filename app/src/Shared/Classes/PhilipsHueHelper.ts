@@ -1,10 +1,10 @@
-import Utils from './Utils.js'
-import Color from './ColorConstants.js'
 import DataBaseHelper from './DataBaseHelper.js'
-import {ConfigPhilipsHue} from '../Objects/Config/ConfigPhilipsHue.js'
+import {INumberDictionary} from '../Interfaces/igeneral.js'
 import {IPhilipsHueLight} from '../Interfaces/iphilipshue.js'
 import {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from '../Objects/Preset/PresetPhilipsHue.js'
-import {INumberDictionary} from '../Interfaces/igeneral.js'
+import Utils from './Utils.js'
+import {ConfigPhilipsHue} from '../Objects/Config/ConfigPhilipsHue.js'
+import Color from './ColorConstants.js'
 
 export default class PhilipsHueHelper {
     private static async getBaseUrl() {

@@ -1,12 +1,12 @@
-import DataMap from '../DataMap.js'
-import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import Action, {IActionCallback, IActionUser} from '../Action.js'
-import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
+import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
+import DataMap from '../DataMap.js'
 import Utils from '../../Classes/Utils.js'
-import TextHelper from '../../Classes/TextHelper.js'
+import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import ArrayUtils from '../../Classes/ArrayUtils.js'
 import SessionVars from '../../Classes/SessionVars.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
+import TextHelper from '../../Classes/TextHelper.js'
 import {SettingTwitchTokens} from '../Setting/SettingTwitch.js'
 
 export class ActionChat extends Action {
