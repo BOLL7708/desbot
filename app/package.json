@@ -11,5 +11,24 @@
     "type": "git",
     "url": "https://github.com/boll7708/desbot.git"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "obs-websocket-js": "^5.0.5",
+    "open": "^10.1.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "whatwg-url": "^14.0.0",
+    "ws": "^8.16.0"
+  },
+  "optionalDependencies": {
+    "bufferutil": "^4.0.8",
+    "utf-8-validate": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "@types/sqlite3": "^3.1.11",
+    "@types/whatwg-url": "^11.0.4",
+    "@types/ws": "^8.5.10"
+  }
 }
