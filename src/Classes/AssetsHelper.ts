@@ -59,7 +59,7 @@ export default class AssetsHelper {
                 const start = path.split('*')[0]
                 const end = path.split('*').pop() ?? ''
                 const files = await AssetsHelper.get(start, [end])
-                if(files.length > 0) paths.splice(i, 1, ...files)
+                paths.splice(i, 1, ...files)
             }
             i++
         }
