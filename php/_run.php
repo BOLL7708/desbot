@@ -1,7 +1,4 @@
 <?php
-
-use inc\Utils;
-
 include_once '_init.php';
 Utils::checkAuth();
 

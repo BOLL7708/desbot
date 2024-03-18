@@ -35,7 +35,7 @@ export default class GoogleTTS {
     private _emptyMessageSound: IAudioAction|undefined
     private _count = 0
     private _preloadQueue: {[key:number]: IAudioAction|null} = {} // Can be a string because we keep track on if it is in progress that way.
-    private _preloadQueueLoopHandle: number = 0
+    private _preloadQueueLoopHandle: number|any = 0 // TODO: Transitional node fix
     private _preloadInfo: {[key:number]: string} = {}
     private _dequeueCount = 0
     private _dequeueMaxTries = 10

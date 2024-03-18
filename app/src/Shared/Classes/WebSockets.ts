@@ -25,7 +25,7 @@ export default class WebSockets {
 
     private _socket?: WebSocket
     private _reconnectIntervalSeconds: number = 10
-    private _reconnectIntervalHandle: number = -1
+    private _reconnectIntervalHandle: number|any = -1 // TODO: Transitional node fix
     private _connected: boolean = false
     private _serverUrl: string = ''
     private _messageQueue: string[] = []

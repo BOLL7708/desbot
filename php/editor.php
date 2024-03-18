@@ -1,8 +1,4 @@
 <?php
-
-use inc\PageUtils;
-use inc\Utils;
-
 $group = $_REQUEST['g'] ?? '';
 $minimal = !!($_REQUEST['m'] ?? '');
 

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2019",
+    "lib": [
+      "DOM",
+      "ES2019"
+    ],
+    "outDir": "../dist/client"
+  },
+  "include": [
+    "./Client/**/*",
+    "./Shared/**/*"
+  ]
+}

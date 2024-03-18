@@ -148,7 +148,7 @@ export default class TwitchEventSub {
         }
     }
 
-    private _timeoutHandle: number = 0
+    private _timeoutHandle: number|any = 0 // TODO: Transitional node fix
 
     /**
      * If we don't get notifications or keepalive messages the connection has

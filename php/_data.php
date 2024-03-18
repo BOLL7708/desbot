@@ -1,8 +1,4 @@
 <?php
-
-use inc\Files;
-use inc\Utils;
-
 include_once('_init.php');
 
 // Incoming path to which file we want to write or read

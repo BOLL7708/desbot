@@ -1,8 +1,4 @@
 <?php
-
-use inc\PageUtils;
-use inc\Utils;
-
 include_once '_init.php';
 PageUtils::printTop();
 ?>

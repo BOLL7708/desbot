@@ -1,7 +1,4 @@
 <?php
-
-namespace inc;
-
 class Files
 {
     static private string $rootDir = './_data';

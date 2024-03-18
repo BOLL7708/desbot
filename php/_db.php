@@ -1,8 +1,5 @@
 <?php
 // Init
-use inc\DB_SQLite;
-use inc\Utils;
-
 include_once '_init.php';
 $db = DB_SQLite::get();
 

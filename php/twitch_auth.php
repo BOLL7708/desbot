@@ -2,10 +2,6 @@
 <html lang="en">
 <body>
 <?php
-
-use inc\DB_SQLite;
-use inc\Utils;
-
 include_once('_init.php');
 
 // Error TODO: Do something with these later?

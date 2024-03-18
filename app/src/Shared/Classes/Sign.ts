@@ -10,7 +10,7 @@ export default class Sign {
     private _title: HTMLParagraphElement
     private _subtitle: HTMLParagraphElement
     private _queue: ActionSign[] = []
-    private _queueLoopHandle: number = 0
+    private _queueLoopHandle: number|any = 0 // TODO: Transitional node fix
     private _isVisible: boolean = false
     private _config: ConfigSign = new ConfigSign()
 

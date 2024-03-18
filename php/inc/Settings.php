@@ -1,6 +1,4 @@
 <?php
-
-namespace inc;
 class Settings
 {
     static function writeSettings(string $filePath, $inputRows, $append = false)

@@ -11,6 +11,6 @@ include_once('_init.php');
     </head>
     <body>
         <div id="container"></div>
-        <script type="module" src="./dist/Pages/Widget/WidgetEmbed.js"></script>
+        <script type="module" src="../dist/Client/Pages/Widget/WidgetEmbed.js"></script><!-- TODO: Will change later -->
     </body>
 </html>

@@ -26,7 +26,7 @@ export class TriggerTimer extends Trigger {
     async register(eventKey: string) {
         const actionHandler = new ActionHandler(eventKey)
         const user = await Actions.buildEmptyUserData(EEventSource.Timer, eventKey)
-        let handle: number = -1
+        let handle: number|any = -1 // TODO: Transitional node fix
         let count = 0
         const times = this.repetitions ?? 0
         let interval = this.interval

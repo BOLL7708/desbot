@@ -83,7 +83,7 @@ export interface ITextTagsCached {
 
 export interface IMultiTierEventCounter {
     count: number
-    timeoutHandle: number
+    timeoutHandle: number|any // TODO: Transitional node fix
     reachedMax: boolean
 }
 

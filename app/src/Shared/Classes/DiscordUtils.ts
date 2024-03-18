@@ -92,7 +92,8 @@ export default class DiscordUtils {
             return EResponseState.Skip
         }
         const headers: IDiscordResponseHeaders = {}
-        for(const [key, header] of response.headers.entries()) {
+
+        for(const [key, header] of Object.entries(response.headers)) {
             headers[key] = header
         }
         if(headers['x-ratelimit-global']) {

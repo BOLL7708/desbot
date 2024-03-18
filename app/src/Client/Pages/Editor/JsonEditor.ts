@@ -211,7 +211,7 @@ export default class JsonEditor {
         }
 
         if(!this._root) this._root = this.buildUL()
-        this._root.replaceChildren(...tempParent.children)
+        this._root.replaceChildren(...Object.values(tempParent.children))
         return this._root
     }
     public async rebuild(): Promise<HTMLElement> {

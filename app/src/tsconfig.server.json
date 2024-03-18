@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "lib": [
+      "ESNext"
+    ],
+    "outDir": "../dist/server"
+  },
+  "include": [
+    "./app.ts",
+    "./Server/**/*",
+    "./Shared/**/*"
+  ]
+}

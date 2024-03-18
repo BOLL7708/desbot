@@ -12,7 +12,7 @@ export default class OpenVR2WS {
 
     private _config = new ConfigOpenVR2WS()
     private _socket: WebSockets|undefined = undefined
-    private _resetLoopHandle: number = 0
+    private _resetLoopHandle: number|any = 0 // TODO: Transitional node fix
     private _resetSettingMessages: Map<string, IOpenVRWSCommandMessage> = new Map()
     private _resetSettingTimers: Map<string, number> = new Map()
     private _currentAppId?: string // Updated every time an ID is received

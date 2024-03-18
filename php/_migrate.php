@@ -1,7 +1,4 @@
 <?php
-
-use inc\Utils;
-
 ini_set('display_errors', 0);
 include_once '_init.php';
 

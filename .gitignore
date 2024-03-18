@@ -9,7 +9,7 @@ TODO.MD
 **/dist
 
 # user files
-user/_*
+_user/**/*
 
 # generated files
 desktop.ini

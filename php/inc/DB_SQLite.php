@@ -1,10 +1,11 @@
 <?php
-
-namespace inc;
 error_reporting(0);
-
 class DB_SQLite
 {
+    // Const
+    const DIR = '../_user/db';
+    const FILE = DB_SQLite::DIR.'/main.sqlite';
+
     // region Singleton
     private static DB_SQLite|null $instance = null;
 
@@ -20,9 +21,9 @@ class DB_SQLite
 
     public function __construct()
     {
-        if (!is_dir('_db')) mkdir('_db');
+        if (!is_dir($this::DIR)) mkdir($this::DIR, recursive: true);
         // Default connection
-        $this->sqlite = new SQLite3('_db/main.sqlite');
+        $this->sqlite = new SQLite3($this::FILE);
     }
 
     /**

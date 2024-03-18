@@ -1,6 +1,4 @@
 <?php
-
-namespace inc;
 class Config
 {
     static stdClass|null $_cache = null;

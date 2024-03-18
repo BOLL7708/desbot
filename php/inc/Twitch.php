@@ -1,6 +1,4 @@
 <?php
-
-namespace inc;
 use DB_MySQL;
 
 class Twitch

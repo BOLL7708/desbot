@@ -34,10 +34,10 @@ export default class StatesSingleton {
     public logChatToDiscord: boolean = false
     public updateTwitchGameCategory: boolean = false
     public nonceCallbacks: Map<string, Function> = new Map()
-    public scaleIntervalHandle: number = -1
-    public steamPlayerSummaryIntervalHandle: number = -1
-    public steamAchievementsIntervalHandle: number = -1
-    public twitchTokenRefreshIntervalHandle: number = -1
+    public scaleIntervalHandle: number|any = -1 // TODO: Transitional node fix
+    public steamPlayerSummaryIntervalHandle: number|any = -1 // TODO: Transitional node fix
+    public steamAchievementsIntervalHandle: number|any = -1 // TODO: Transitional node fix
+    public twitchTokenRefreshIntervalHandle: number|any = -1 // TODO: Transitional node fix
     public lastSteamAppId: string|undefined 
     public lastSteamAppIsVR: boolean = false
     public runRemoteCommands: boolean = false
