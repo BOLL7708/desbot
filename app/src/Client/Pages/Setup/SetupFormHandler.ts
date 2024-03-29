@@ -83,7 +83,7 @@ export default class SetupFormHandler {
         }
 
         // Twitch scopes
-        const scopesResponse = await fetch('_twitch_scopes.json')
+        const scopesResponse = await fetch('../app/htdocs/twitch_scopes.json')
         let scopes = await scopesResponse.json()
         if(Array.isArray(scopes)) scopes = scopes.join(' ')
         // Twitch credentials channel

@@ -104,7 +104,7 @@ export default abstract class Data {
                         const dbItem = await DataBaseHelper.loadById(propertyValue)
                         newProp.type = EDataType.Single
                         if(dbItem?.data && dbItem?.filledData) newProp.dataSingle = dbItem
-                        else console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from (${propertyValue}), it might not exist anymore.`);
+                        else if(propertyValue !== 0) console.warn(`Data.__apply: Unable to load instance for ${typeValues.class}|${dbItem?.class} from (${propertyValue}), it might not exist anymore.`);
                         (this as any)[propertyName] = newProp
                     }
                 } else if(hasSubInstance && !typeValues.isIdReference) {

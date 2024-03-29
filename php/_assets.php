@@ -15,7 +15,7 @@ function listFolderFiles($dir, $res)
     }
     return $res;
 }
-$files = listFolderFiles('_assets', []);
+$files = listFolderFiles('../_user/assets', []);
 
 header('Content-Type: application/javascript');
 echo json_encode($files);

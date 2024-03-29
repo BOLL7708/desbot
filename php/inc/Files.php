@@ -1,7 +1,7 @@
 <?php
 class Files
 {
-    static private string $rootDir = './_data';
+    static private string $rootDir = '../_user/data';
 
     // region Main Read/Write
 

@@ -5,8 +5,8 @@
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
-    "build:client": "tsc --project src/tsconfig.client.json",
-    "build:server": "tsc --project src/tsconfig.server.json",
+    "build:client": "tsc --project src/Client/tsconfig.json",
+    "build:server": "tsc --project src/Server/tsconfig.json",
     "build": "npm run build:client && npm run build:server",
     "start": "npm run build && node ./dist/app.js"
   },
