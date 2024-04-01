@@ -20,6 +20,8 @@ If you want to contribute right now, the biggest need right now is frontend deve
 
 You don't need a special version of desbot to develop for it, the project is delivered as the source code, and can be modified at will. It is recommended to clone the project again though, so you have one bot to use when live, and one for development, unless you like to live dangerously.
 
+To build the project with a JetBrains editor, add these file names patterns to `Settings > Editor > File Types > TypeScript config`: `tsconfig.server.json`, `tsconfig.client.json`.
+
 ## Roadmap
 
 See `README.md` for the current roadmap.

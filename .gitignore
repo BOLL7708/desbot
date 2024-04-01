@@ -1,17 +1,22 @@
+# editors
 .vscode
 .idea
-/dist/*
 
-/_*/*
+# editing
+TODO.MD
 
-/src/_configs/*
-/src/_data/*
+# build
+**/dist
 
+# user files
+_user/**/*
+
+# generated files
 desktop.ini
 *.zip
 *.7z
 *.exe
 
-test.php
-src/Test.ts
+# node
 package-lock.json
+**/node_modules

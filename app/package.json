@@ -1,0 +1,27 @@
+{
+  "name": "desbot",
+  "version": "8.0.0",
+  "description": "",
+  "main": "dist/app.js",
+  "type": "module",
+  "scripts": {
+    "build:client": "tsc --project src/Client/tsconfig.json",
+    "build:server": "tsc --project src/Server/tsconfig.json",
+    "build": "npm run build:client && npm run build:server",
+    "start": "npm run build && node ./dist/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/boll7708/desbot.git"
+  },
+  "private": true,
+  "dependencies": {
+    "ws": "^8.16.0"
+  },
+  "optionalDependencies": {
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.25",
+    "@types/ws": "^8.5.10"
+  }
+}
