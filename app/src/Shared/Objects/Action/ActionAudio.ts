@@ -43,7 +43,7 @@ export class ActionAudio extends Action {
             awaitCall: true,
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 const clone = Utils.clone<ActionAudio>(this)
-                clone.srcEntries = await AssetsHelper.replaceWildcardPaths(clone.srcEntries)
+                clone.srcEntries = await AssetsHelper.preparePathsForUse(clone.srcEntries)
                 clone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
                     ArrayUtils.getAsType(Utils.ensureArray(clone.srcEntries), clone.srcEntries_use, index), // Need to read entries from config here as cloning drops __type
                     user

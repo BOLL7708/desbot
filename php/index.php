@@ -4,8 +4,8 @@ if(!file_exists(DB_SQLite::FILE)) {
     header('Location: ./_sqlite.php');
     die();
 }
-if(!is_dir('_assets')) {
-    mkdir('_assets');
+if(!is_dir('../_user/assets')) {
+    mkdir('../_user/assets', recursive: true);
 }
 PageUtils::printTop();
 ?>
