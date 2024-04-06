@@ -1,0 +1,1 @@
+setlocal && cd .. && git pull && cd app && npm update && (if exist dist rmdir dist /q /s) && tsc && endlocal
