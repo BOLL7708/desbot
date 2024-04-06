@@ -12,21 +12,23 @@ $code = $_REQUEST['code'] ?? '';
 $scope = $_REQUEST['scope'] ?? '';
 $state = $_REQUEST['state'] ?? '';
 $gotAuthResponse = !empty($code) && !empty($scope) && !empty($state);
-$scopes = json_decode(file_get_contents("_twitch_scopes.json")) ?? [];
+$scopes = json_decode(file_get_contents("../app/htdocs/twitch_scopes.json")) ?? [];
 
 function getAuthUrl():string {
     global $scopes, $state;
     $db = DB_SQLite::get();
     $twitchClient = $db->getEntries('SettingTwitchClient', 'Main');
     $config = $twitchClient[0]->data;
-    $url = 'https://id.twitch.tv/oauth2/authorize';
-    $url .= "?client_id=$config->clientId";
-    $url .= "&redirect_uri=$config->redirectUri";
-    $url .= "&force_verify=true";
-    $url .= "&response_type=code";
-    $url .= '&scope='.implode(" ", $scopes);
-    $url .= "&state=$state";
-    return $url;
+    $parts = [
+        'https://id.twitch.tv/oauth2/authorize',
+        "?client_id=$config->clientId",
+        "&redirect_uri=$config->redirectUri",
+        '&force_verify=true',
+        '&response_type=code',
+        '&scope='.implode(" ", $scopes),
+        "&state=$state"
+    ];
+    return implode('', $parts);
 }
 
 if(!$gotAuthResponse) { ?>
