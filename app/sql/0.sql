@@ -1,3 +1,6 @@
+/* Turn on foreign key support. */
+PRAGMA foreign_keys = ON;
+
 /* Create main table with foreign key. */
 CREATE TABLE IF NOT EXISTS json_store
 (

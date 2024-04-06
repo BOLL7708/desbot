@@ -23,7 +23,15 @@ class DB_SQLite
     {
         if (!is_dir($this::DIR)) mkdir($this::DIR, recursive: true);
         // Default connection
+        $dbExisted = file_exists($this::FILE);
         $this->sqlite = new SQLite3($this::FILE);
+        if(!$dbExisted) {
+            $createTableQuery = file_get_contents('../app/sql/0.sql');
+            $success = $this->sqlite->exec($createTableQuery);
+            if(!$success) {
+                error_log("DB_SQLite: Unable to create table: ".$this->sqlite->lastErrorMsg());
+            }
+        }
     }
 
     /**
