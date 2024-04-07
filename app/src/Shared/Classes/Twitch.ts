@@ -1,7 +1,7 @@
 import ConfigTwitch from '../Objects/Config/ConfigTwitch.js'
 import ConfigChat from '../Objects/Config/ConfigChat.js'
 import ConfigCommands from '../Objects/Config/ConfigCommands.js'
-import TwitchChat from './TwitchChat.js'
+import TwitchChat, {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from './TwitchChat.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {DataUtils} from '../Objects/DataUtils.js'
 import {TriggerCommand} from '../Objects/Trigger/TriggerCommand.js'
@@ -9,8 +9,6 @@ import TextHelper from './TextHelper.js'
 import {ActionHandler, Actions} from '../../Client/Pages/Widget/Actions.js'
 import Utils from './Utils.js'
 import {TriggerRemoteCommand} from '../Objects/Trigger/TriggerRemoteCommand.js'
-import {ITwitchAnnouncement, ITwitchChatCallback, ITwitchChatCheerCallback, ITwitchChatMessageCallback, ITwitchMessageData, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
-import {ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
 import SessionVars from './SessionVars.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {IActionUser} from '../Objects/Action.js'
@@ -18,7 +16,7 @@ import {EEventSource} from '../../Client/Pages/Widget/Enums.js'
 import DiscordUtils from './DiscordUtils.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
-import TwitchFactory from './TwitchFactory.js'
+import TwitchFactory, {ITwitchEmote, ITwitchMessageCmd} from './TwitchFactory.js'
 import Color from './ColorConstants.js'
 
 export default class Twitch{
@@ -382,4 +380,30 @@ export interface ITwitchCommand {
     trigger: TriggerCommand
     triggerRemote: TriggerRemoteCommand
     handler: ActionHandler
+}
+
+export interface ITwitchAnnouncement {
+    userNames: string[]
+    triggers: string[]
+    callback: ITwitchAnnouncementCallback
+}
+
+// Callbacks
+export interface ITwitchChatCallback {
+    (user: IActionUser, messageData: ITwitchMessageData): void
+}
+
+export interface ITwitchAnnouncementCallback {
+    (user: IActionUser, messageData: ITwitchMessageData, firstWord: string): void
+}
+export interface ITwitchChatCheerCallback {
+    (user: IActionUser, messageData: ITwitchMessageData): void
+}
+
+// Callback data
+export interface ITwitchMessageData {
+    text: string
+    bits: number
+    isAction: boolean
+    emotes: ITwitchEmote[]
 }

@@ -8,8 +8,8 @@ import TwitchHelixHelper from '../../Classes/TwitchHelixHelper.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import {ActionHandler} from '../../../Client/Pages/Widget/Actions.js'
-import {ITwitchReward} from '../../Interfaces/itwitch.js'
 import Utils from '../../Classes/Utils.js'
+import {ITwitchReward} from '../../Classes/TwitchEventSub.js'
 
 export class TriggerReward extends Trigger {
     permissions: number|DataEntries<PresetPermissions> = 0

@@ -1,5 +1,4 @@
-import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
-import TwitchHelixHelper from './TwitchHelixHelper.js'
+import TwitchHelixHelper, {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from './Utils.js'
 import {SettingUser, SettingUserName, SettingUserVoice} from '../Objects/Setting/SettingUser.js'
@@ -8,11 +7,10 @@ import {IActionUser} from '../Objects/Action.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import SteamStoreHelper from './SteamStoreHelper.js'
-import {ITextTags} from '../Interfaces/iactions.js'
-import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import {ConfigSpeech} from '../Objects/Config/ConfigSpeech.js'
 import {EventDefault} from '../Objects/Event/EventDefault.js'
 import {SettingAccumulatingCounter} from '../Objects/Setting/SettingCounters.js'
+import {ITwitchEmotePosition} from './TwitchFactory.js'
 
 export default class TextHelper {
     static async loadCleanName(userIdOrName: string|number):Promise<string> {
@@ -441,4 +439,87 @@ export default class TextHelper {
         }
         return outputArr.join(' ')
     }
+}
+
+export interface ITextTags extends ITextTagsCached{
+    userId: string
+    userLogin: string
+    userName: string
+    userTag: string
+    userNick: string
+    userMessage: string
+    userInput: string
+    userInputHead: string
+    userInputRest: string
+    userInputTail: string
+    userInputNoTags: string
+    userInputNumber: string
+    userInputTag: string
+    userInputWord1: string
+    userInputWord2: string
+    userInputWord3: string
+    userInputWord4: string
+    userInputWord5: string
+    userBits: string
+    userBitsTotal: string
+    userSubsTotal: string
+    userSubsStreak: string
+    userColor: string
+    userVoice: string
+
+    targetId: string
+    targetLogin: string
+    targetName: string
+    targetTag: string
+    targetNick: string
+    targetGame: string
+    targetTitle: string
+    targetLink: string
+    targetColor: string
+    targetVoice: string
+
+    targetOrUserId: string
+    targetOrUserLogin: string
+    targetOrUserName: string
+    targetOrUserTag: string
+    targetOrUserNick: string
+    targetOrUserColor: string
+    targetOrUserVoice: string
+
+    gameId: string
+    gamePrice: string
+    gameLink: string
+    gameName: string
+    gameInfo: string
+    gameDeveloper: string
+    gamePublisher: string
+    gameBanner: string
+    gameRelease: string
+
+    nowDate: string
+    nowTime: string
+    nowTimeMs: string
+    nowDateTime: string
+    nowDateTimeMs: string
+    nowISO: string
+
+    eventKey: string
+    eventCost: string
+    eventCount: string
+    eventCountPercent: string
+    eventGoal: string
+    eventGoalShort: string
+
+    eventLevel: string
+    eventLevelNext: string
+    eventLevelMax: string
+    eventLevelProgress: string
+    eventLevelNextProgress: string
+}
+
+export interface ITextTagsCached {
+    lastDictionaryWord: string
+    lastDictionarySubstitute: string
+    lastTTSSetNickLogin: string
+    lastTTSSetNickSubstitute: string
 }

@@ -1,6 +1,5 @@
 import DataBaseHelper from './DataBaseHelper.js'
 import {INumberDictionary} from '../Interfaces/igeneral.js'
-import {IPhilipsHueLight} from '../Interfaces/iphilipshue.js'
 import {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from '../Objects/Preset/PresetPhilipsHue.js'
 import Utils from './Utils.js'
 import {ConfigPhilipsHue} from '../Objects/Config/ConfigPhilipsHue.js'
@@ -147,3 +146,64 @@ export default class PhilipsHueHelper {
     }
 }
 export interface IPhilipsHueBridgeRegisterResult { username: string, error: string }
+
+// Response
+export interface IPhilipsHueLight {
+    state: IPhilipsHueLightState
+    swupdate: IPhilipsHueLightSWUpdate
+    type: string
+    name: string
+    modelid: string
+    manufacturername: string
+    productname: string
+    capabilities: IPhilipsHueLightCapabilities
+    config: IPhilipsHueLightConfig
+    uniqueid: string
+    swversion: string
+    swconfigid: string
+    productid: string
+}
+export interface IPhilipsHueLightState {
+    on: boolean
+    alert: string
+    mode: string
+    reachable: boolean
+    bri?: number
+    hue?: number
+    sat?: number
+    effect?: string
+    xy?: number[]
+    ct?: number
+}
+export interface IPhilipsHueLightSWUpdate {
+    state: string
+    lastinstall: string
+}
+export interface IPhilipsHueLightCapabilities {
+    certified: boolean,
+    control: IPhilipsHueLightCapabilitiesControl
+    streaming: IPhilipsHueLightCapabilitiesStreaming
+}
+export interface IPhilipsHueLightCapabilitiesControl {
+    mindimlevel?: number
+    maxlumen?: number
+    colorgamuttype?: string
+    colorgamut?: number[][]
+    ct?: {
+        min: number,
+        max: number
+    }
+}
+export interface IPhilipsHueLightCapabilitiesStreaming {
+    renderer: boolean
+    proxy: boolean
+}
+export interface IPhilipsHueLightConfig {
+    archetype: string
+    function: string
+    direction: string
+    startup: {
+        mode: string
+        configured: boolean
+    }
+}

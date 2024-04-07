@@ -2,8 +2,8 @@ import Trigger from '../Trigger.js'
 import DataMap from '../DataMap.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import {ActionHandler} from '../../../Client/Pages/Widget/Actions.js'
-import {ITwitchCheer} from '../../Interfaces/itwitch.js'
 import Utils from '../../Classes/Utils.js'
+import {ITwitchCheer} from '../../Classes/TwitchEventSub.js'
 
 export class TriggerCheer extends Trigger {
     amount: number = 1

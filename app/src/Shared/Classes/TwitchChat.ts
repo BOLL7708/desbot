@@ -1,9 +1,8 @@
 import WebSockets from './WebSockets.js'
-import {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from '../Interfaces/itwitch.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import {DataUtils} from '../Objects/DataUtils.js'
 import Utils from './Utils.js'
-import TwitchFactory from './TwitchFactory.js'
+import TwitchFactory, {ITwitchMessageCmd} from './TwitchFactory.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 
@@ -97,4 +96,11 @@ export default class TwitchChat {
     sendMessageToUser(username: string, message: string) {
         this._socket?.send(`PRIVMSG #${this._channel} :/w ${username} ${message}`)
     }
+}
+
+export interface ITwitchChatMessageCallback {
+    (message: ITwitchMessageCmd): void
+}
+export interface ITwitchWhisperMessageCallback {
+    (message: ITwitchMessageCmd): void
 }

@@ -13,6 +13,7 @@ export class TriggerCommand extends Trigger {
     requireMinimumWordCount: number = 0
     globalCooldown: number = 0
     userCooldown: number = 0
+    exemptModsFromCooldowns: boolean = false
     category: number = OptionCommandCategory.Uncategorized
     helpInput: string[] = []
     helpText: string = ''
@@ -30,6 +31,7 @@ export class TriggerCommand extends Trigger {
                 requireMinimumWordCount: 'Require this command to include at least this number of words to get triggered.',
                 globalCooldown: 'The number of seconds before this can be used again, by anyone.',
                 userCooldown: 'The number of seconds before this can be used again, by the same user.',
+                exemptModsFromCooldowns: 'The streamer and moderators will not be affected by any cooldown.',
                 category: 'A category for grouping this command with others.',
                 helpInput: 'Input values for the command, used to build the help text.',
                 helpText: 'Description that is used for help documentation.'

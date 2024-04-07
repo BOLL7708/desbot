@@ -1,7 +1,7 @@
 import {ConfigSpeech} from '../Objects/Config/ConfigSpeech.js'
-import {IGoogleAudio} from '../Interfaces/igoogle.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from './Utils.js'
+import {IGoogleAudio} from './GoogleTTS.js'
 
 export default class Dictionary {
     private static SSMLEscapeSymbols: { [x:string]: string } = {

@@ -1,6 +1,6 @@
 import Data from '../Data.js'
 import DataMap from '../DataMap.js'
-import {TTwitchEventSubEventStatus} from '../../Interfaces/itwitch_eventsub.js'
+import {TTwitchEventSubEventStatus} from '../../Classes/TwitchEventSub.js'
 
 export class SettingTwitchClient extends Data {
     clientId: string = ''

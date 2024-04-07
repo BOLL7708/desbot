@@ -1,6 +1,6 @@
 import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import {IMultiTierEventCounter, ITextTagsCached} from '../Interfaces/iactions.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
+import {ITextTagsCached} from '../Classes/TextHelper.js'
 
 /**
  * Contains states and settings for this session
@@ -49,4 +49,10 @@ export default class StatesSingleton {
     }
     public multiTierEventCounters: Map<string, IMultiTierEventCounter> = new Map()
     public pipeLastImageFileNamePerAnchor: Map<number, string> = new Map()
+}
+
+export interface IMultiTierEventCounter {
+    count: number
+    timeoutHandle: number|any // TODO: Transitional node fix
+    reachedMax: boolean
 }

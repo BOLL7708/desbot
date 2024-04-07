@@ -1,4 +1,3 @@
-import {IAudioPlayedCallback} from '../Interfaces/iaudioplayer.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
 import Utils from './Utils.js'
 
@@ -123,4 +122,8 @@ export class AudioPlayerInstance {
     deinit() {
         clearInterval(this._queueLoopHandle)
     }
+}
+
+export interface IAudioPlayedCallback {
+    (nonce: string, status: number): void
 }

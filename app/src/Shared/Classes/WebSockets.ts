@@ -1,5 +1,4 @@
 import Color from './ColorConstants.js'
-import {IWebsocketsCloseCallback, IWebsocketsErrorCallback, IWebsocketsMessageCallback, IWebsocketsOpenCallback} from '../Interfaces/iwebsockets.js'
 import Utils from './Utils.js'
 
 export default class WebSockets {
@@ -130,4 +129,18 @@ export default class WebSockets {
             this.send(message)
         })
     }
+}
+
+// Callbacks
+export interface IWebsocketsOpenCallback {
+    (evt: Event): void
+}
+export interface IWebsocketsCloseCallback {
+    (evt: CloseEvent): void
+}
+export interface IWebsocketsMessageCallback {
+    (evt: MessageEvent): void
+}
+export interface IWebsocketsErrorCallback {
+    (evt: Event): void
 }

@@ -8,7 +8,6 @@ import ArrayUtils from './ArrayUtils.js'
 import {DataUtils} from '../Objects/DataUtils.js'
 import {IActionUser} from '../Objects/Action.js'
 import {OptionScreenshotFileType} from '../Options/OptionScreenshotFileType.js'
-import {ISceneChangeCallback, ISourceScreenshotCallback} from '../Interfaces/iobs.js'
 
 export default class OBS {
     private _socket?: WebSockets
@@ -238,4 +237,12 @@ interface IObsOp1 {
 }
 interface IObsOp2 {
     negotiatedRpcVersion: number
+}
+
+// Callbacks
+export interface ISceneChangeCallback {
+    (sceneName: string): void
+}
+export interface ISourceScreenshotCallback {
+    (img: string, data: IScreenshotRequestData, nonce: string): void
 }

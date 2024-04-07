@@ -1,8 +1,7 @@
-import {ITwitchChatMessage, ITwitchChatMessageProperties, ITwitchEmote, ITwitchEmotePosition, ITwitchMessageCmd} from '../Interfaces/itwitch_chat.js'
 import Utils from './Utils.js'
-import {ITwitchEventSubEmote} from '../Interfaces/itwitch_eventsub.js'
 import Twitch from './Twitch.js'
 import {INumberDictionary} from '../Interfaces/igeneral.js'
+import {ITwitchEventSubEmote} from './TwitchEventSub.js'
 
 export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {
@@ -137,4 +136,62 @@ export default class TwitchFactory {
         }
         return messageCmd
     }
+}
+
+export interface ITwitchMessageCmd {
+    properties: ITwitchChatMessageProperties
+    message: ITwitchChatMessage
+}
+export interface ITwitchChatMessage {
+    data: string
+    username?: string
+    channel?: string
+    type?: string
+    text?: string
+    isAction: boolean
+}
+export interface ITwitchChatMessageProperties {
+    // Standard
+    data: string
+    '@badge-info'?: string
+    badges?: string
+    'client-nonce'?: string
+    color?: string
+    'custom-reward-id'?: string
+    'display-name'?: string
+    emotes?: ITwitchEmote[]
+    'first-msg'?: string
+    flags?: string
+    id?: string
+    mod?: string
+    'room-id'?: string
+    subscriber?: string
+    'tmi-sent-ts'?: string
+    turbo?: string
+    'user-id'?: string
+    'user-type'?: string
+    bits?: string
+
+    // Whisper
+    '@badges'?: string
+    'message-id'?: string
+    'thread-id'?: string
+
+    // Thread
+    'reply-parent-display-name'?: string
+    'reply-parent-msg-body'?: string
+    'reply-parent-msg-id'?: string
+    'reply-parent-user-id'?: string
+    'reply-parent-user-login'?: string
+
+    [x: string]: any
+}
+
+export interface ITwitchEmote {
+    id: string,
+    positions: ITwitchEmotePosition[]
+}
+export interface ITwitchEmotePosition {
+    start: number
+    end: number
 }

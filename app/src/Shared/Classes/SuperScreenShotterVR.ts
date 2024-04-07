@@ -1,6 +1,5 @@
 import WebSockets from './WebSockets.js'
 import {IScreenshotRequestData} from '../Interfaces/iscreenshots.js'
-import {ISSSVRCallback, ISSSVRRequest, ISSSVRResponse} from '../Interfaces/isssvr.js'
 import ConfigScreenshots from '../Objects/Config/ConfigScreenshots.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {IActionUser} from '../Objects/Action.js'
@@ -52,4 +51,22 @@ export default class SuperScreenShotterVR {
         }
         this._socket?.send(JSON.stringify(message))
     }
+}
+
+// SuperScreenShotterVR
+export interface ISSSVRRequest {
+    nonce: string
+    tag: string
+    delay: number
+}
+export interface ISSSVRResponse {
+    nonce: string
+    image: string
+    width: number
+    height: number
+}
+
+// Callbacks
+export interface ISSSVRCallback {
+    (screenshotRequest: IScreenshotRequestData|undefined, screenshotResponse: ISSSVRResponse): void
 }

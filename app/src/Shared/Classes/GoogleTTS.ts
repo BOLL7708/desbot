@@ -1,15 +1,12 @@
 import {ConfigSpeech} from '../Objects/Config/ConfigSpeech.js'
 import ConfigChat from '../Objects/Config/ConfigChat.js'
-import AudioPlayer, {AudioPlayerInstance} from './AudioPlayer.js'
-import {IGoogleVoice} from '../Interfaces/igoogle.js'
-import {IAudioPlayedCallback} from '../Interfaces/iaudioplayer.js'
+import AudioPlayer, {AudioPlayerInstance, IAudioPlayedCallback} from './AudioPlayer.js'
 import {IAudioAction} from '../Interfaces/iactions.js'
 import Dictionary, {IDictionaryEntry} from './Dictionary.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from './Utils.js'
 import {IDictionary} from '../Interfaces/igeneral.js'
 import {OptionTTSType} from '../Options/OptionTTS.js'
-import {ITwitchEmotePosition} from '../Interfaces/itwitch_chat.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import TextHelper from './TextHelper.js'
 import ArrayUtils from './ArrayUtils.js'
@@ -20,6 +17,7 @@ import {SettingDictionaryEntry} from '../Objects/Setting/SettingDictionary.js'
 import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import Color from './ColorConstants.js'
+import {ITwitchEmotePosition} from './TwitchFactory.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()
@@ -382,9 +380,14 @@ export default class GoogleTTS {
                 console.log("Voices loaded!")
                 let voices: IGoogleVoice[] = json?.voices
                 if(voices != null) {
+                    // TODO: Move this to a user provided filter, NEWS and STUDIO are EXPENSIVE so SHOULD NOT be DEFAULT
                     voices = voices.filter(voice => voice.name.includes('Wavenet') || voice.name.includes('Neural') || voice.name.includes('News') || voice.name.includes('Studio') || voice.name.includes('Polyglot'))
                     this._voices = voices
-                    this._randomVoices = voices.filter(voice => voice.languageCodes.find(code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0))
+                    this._randomVoices = voices.filter(
+                        voice => voice.languageCodes.find(
+                            code => code.indexOf(this._config.randomizeVoiceLanguageFilter) == 0
+                        )
+                    )
                     voices.forEach(voice => {
                         voice.languageCodes.forEach(code => {
                             code = code.toLowerCase()
@@ -416,4 +419,56 @@ export default class GoogleTTS {
         setting.gender = voice?.ssmlGender ?? 'FEMALE'
         return setting
     }
+}
+
+// Data
+export interface IGoogleVoice {
+    languageCodes: string[]
+    name: string
+    ssmlGender: string
+    naturalSampleRateHertz: number
+}
+
+/**
+ * A full config for a SSML audio tag.
+ * See what all the settings do in detail here: https://cloud.google.com/text-to-speech/docs/ssml?authuser=0#attributes_1
+ */
+export interface IGoogleAudio {
+    /**
+     * The full URL to the audio file.
+     * This needs to be .wav (deprecated but works?) .mp3 or .ogg.
+     * The file needs to be served off a secure host, SSL, https://.
+     *
+     * An array will be randomized from, but all the same words in a sentece will get the same audio.
+     */
+    src: string|string[]
+    /**
+     * Remove time from the start of the audio file, in milliseconds.
+     */
+    clipBeginMs?: number
+    /**
+     * Where to stop playback in milliseconds, the value is time from the beginning of the audio file.
+     */
+    clipEndMs?: number
+    /**
+     * Playback speed of the audio file.
+     * Percentage of normal speed, denoted by `%` after the number.
+     * The range is 50% - 200%.
+     */
+    speedPer?: number
+    /**
+     * Repeat the audio file this many times.
+     * Ranges between 1 and 10, 0 is invalid and is seen as not set.
+     */
+    repeatCount?: number
+    /**
+     * Limit the possible playback duration.
+     * Number of second or milliseconds, denoted by `s` or `ms` after the number.
+     */
+    repeatDurMs?: number
+    /**
+     * Adjust the volume in decibels, default is +0db.
+     * Ranges between -40db to +40db, not sure if it's actually working though.
+     */
+    soundLevelDb?: number
 }

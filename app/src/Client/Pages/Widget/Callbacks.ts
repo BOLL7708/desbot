@@ -4,12 +4,10 @@ import StatesSingleton from '../../../Shared/Singletons/StatesSingleton.js'
 import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
 import {DataUtils} from '../../../Shared/Objects/DataUtils.js'
 import TwitchHelixHelper from '../../../Shared/Classes/TwitchHelixHelper.js'
-import TwitchFactory from '../../../Shared/Classes/TwitchFactory.js'
+import TwitchFactory, {ITwitchMessageCmd} from '../../../Shared/Classes/TwitchFactory.js'
 import {OptionTTSType} from '../../../Shared/Options/OptionTTS.js'
 import Utils from '../../../Shared/Classes/Utils.js'
-import {ITwitchMessageCmd} from '../../../Shared/Interfaces/itwitch_chat.js'
 import DiscordUtils from '../../../Shared/Classes/DiscordUtils.js'
-import {ITwitchEventSubEventRedemption} from '../../../Shared/Interfaces/itwitch_eventsub.js'
 import {IActionUser} from '../../../Shared/Objects/Action.js'
 import TextHelper from '../../../Shared/Classes/TextHelper.js'
 import {Actions} from './Actions.js'
@@ -31,7 +29,8 @@ import ConfigScreenshots from '../../../Shared/Objects/Config/ConfigScreenshots.
 import {SettingTwitchTokens} from '../../../Shared/Objects/Setting/SettingTwitch.js'
 import Color from '../../../Shared/Classes/ColorConstants.js'
 import {EEventSource} from './Enums.js'
-import {IOpenVR2WSRelay} from '../../../Shared/Interfaces/iopenvr2ws.js'
+import {IOpenVR2WSRelay} from '../../../Shared/Classes/OpenVR2WS.js'
+import {ITwitchEventSubEventRedemption} from '../../../Shared/Classes/TwitchEventSub.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()

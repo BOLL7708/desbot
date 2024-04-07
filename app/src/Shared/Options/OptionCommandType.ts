@@ -1,6 +1,6 @@
-import {TRunType} from '../Interfaces/iactions.js'
 import {OptionsMap} from './OptionsMap.js'
 import {Option} from './Option.js'
+import {TRunType} from '../Classes/ExecUtils.js'
 
 export class OptionCommandType extends Option {
     static readonly Keys: TRunType = 'keys'

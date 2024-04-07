@@ -3,9 +3,7 @@ import ConfigChat from '../Objects/Config/ConfigChat.js'
 import WebSockets from './WebSockets.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {PresetPipeBasic, PresetPipeCustom} from '../Objects/Preset/PresetPipe.js'
-import {ITwitchMessageData} from '../Interfaces/itwitch.js'
 import {IActionUser} from '../Objects/Action.js'
-import {ITwitchHelixUsersResponseData} from '../Interfaces/itwitch_helix.js'
 import Utils from './Utils.js'
 import TextHelper from './TextHelper.js'
 import TwitchFactory from './TwitchFactory.js'
@@ -18,6 +16,8 @@ import {DataUtils} from '../Objects/DataUtils.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import {ConfigController} from '../Objects/Config/ConfigController.js'
 import Data from '../Objects/Data.js'
+import {ITwitchMessageData} from './Twitch.js'
+import {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()

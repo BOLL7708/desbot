@@ -1,10 +1,10 @@
-import {IOpenVR2WSRelay} from '../../Interfaces/iopenvr2ws.js'
 import Trigger from '../Trigger.js'
 import DataMap from '../DataMap.js'
 import TextHelper from '../../Classes/TextHelper.js'
 import {ActionHandler} from '../../../Client/Pages/Widget/Actions.js'
 import Callbacks from '../../../Client/Pages/Widget/Callbacks.js'
 import Utils from '../../Classes/Utils.js'
+import {IOpenVR2WSRelay} from '../../Classes/OpenVR2WS.js'
 
 export class TriggerRelay extends Trigger {
     key: string = ''

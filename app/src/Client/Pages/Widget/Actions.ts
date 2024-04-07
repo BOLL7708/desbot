@@ -12,7 +12,6 @@ import {ActionSystemRewardState} from '../../../Shared/Objects/Action/ActionSyst
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../../Shared/Options/OptionTwitch.js'
 import {EventActionContainer, EventDefault} from '../../../Shared/Objects/Event/EventDefault.js'
 import Trigger from '../../../Shared/Objects/Trigger.js'
-import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../../Shared/Interfaces/itwitch_eventsub.js'
 import {EEventSource} from './Enums.js'
 import {OptionEventRun} from '../../../Shared/Options/OptionEventRun.js'
 import {IAudioAction} from '../../../Shared/Interfaces/iactions.js'
@@ -24,6 +23,7 @@ import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../../S
 import {PresetReward} from '../../../Shared/Objects/Preset/PresetReward.js'
 import Color from '../../../Shared/Classes/ColorConstants.js'
 import {SettingTwitchTokens} from '../../../Shared/Objects/Setting/SettingTwitch.js'
+import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from '../../../Shared/Classes/TwitchEventSub.js'
 
 export class ActionHandler {
     constructor(

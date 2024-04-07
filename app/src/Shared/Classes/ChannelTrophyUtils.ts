@@ -3,10 +3,10 @@ import {DataUtils} from '../Objects/DataUtils.js'
 import {SettingChannelTrophyStat} from '../Objects/Setting/SettingChannel.js'
 import TwitchHelixHelper from './TwitchHelixHelper.js'
 import Utils from './Utils.js'
-import {IDiscordEmbed, IDiscordEmbedField} from '../Interfaces/idiscord.js'
 import TextHelper from './TextHelper.js'
 import {ConfigController, ConfigControllerChannelTrophyNumber} from '../Objects/Config/ConfigController.js'
 import Color from './ColorConstants.js'
+import {IDiscordEmbed, IDiscordEmbedField} from './DiscordUtils.js'
 
 export default class ChannelTrophyUtils {
     static async getNumberOfStreams():Promise<number> {

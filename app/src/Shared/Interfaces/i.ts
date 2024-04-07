@@ -1,1 +1,0 @@
-export default interface IKeyBoolRecord extends Partial<Record<string, boolean>> {}
