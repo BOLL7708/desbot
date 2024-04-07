@@ -1,5 +1,5 @@
-import {IAudioAction} from '../Interfaces/iactions.js'
 import Utils from './Utils.js'
+import {ActionAudio} from '../Objects/Action/ActionAudio.js'
 
 export default class AudioPlayer {
     static get STATUS_OK() { return 0 }
@@ -11,7 +11,7 @@ export default class AudioPlayer {
     }
     private _pool: Map<number, AudioPlayerInstance> = new Map()
 
-    enqueueAudio(audio: IAudioAction|undefined) {
+    enqueueAudio(audio: ActionAudio|undefined) {
         if(audio) {
             const channel = audio.channel ?? 0
             if(!this._pool.has(channel)) {
@@ -36,7 +36,7 @@ export default class AudioPlayer {
 export class AudioPlayerInstance {
     private readonly _queueLoopHandle: number|any = 0 // TODO: Transitional node fix
     private _audio?: HTMLAudioElement
-    private _queue: IAudioAction[] = []
+    private _queue: ActionAudio[] = []
     private _isPlaying: boolean = false
     private _currentNonce?: string // Actually used but does not reference back through .call()
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`AudioPlayer: Played callback not set, ${nonce}->${status}`) } // Actually used but does not reference back through .call()
@@ -99,12 +99,12 @@ export class AudioPlayerInstance {
         }
     }
 
-    enqueueAudio(audio: IAudioAction|undefined) {
+    enqueueAudio(audio: ActionAudio|undefined) {
         if(audio) {
             console.log(`AudioPlayer: Enqueued audio with nonce: ${audio.nonce}`)
             const clone = Utils.clone(audio)
             for(const src of Utils.ensureArray(audio.srcEntries)) {
-                clone.srcEntries = src
+                clone.srcEntries = [src]
                 if(audio.repeat != undefined) {
                     for(let i=0; i<audio.repeat; i++) this._queue.push(clone)
                 } else {

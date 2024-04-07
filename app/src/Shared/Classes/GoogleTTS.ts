@@ -1,7 +1,6 @@
 import {ConfigSpeech} from '../Objects/Config/ConfigSpeech.js'
 import ConfigChat from '../Objects/Config/ConfigChat.js'
 import AudioPlayer, {AudioPlayerInstance, IAudioPlayedCallback} from './AudioPlayer.js'
-import {IAudioAction} from '../Interfaces/iactions.js'
 import Dictionary, {IDictionaryEntry} from './Dictionary.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from './Utils.js'
@@ -11,7 +10,6 @@ import TwitchHelixHelper from './TwitchHelixHelper.js'
 import TextHelper from './TextHelper.js'
 import ArrayUtils from './ArrayUtils.js'
 import {ActionAudio} from '../Objects/Action/ActionAudio.js'
-import AudioUtils from './AudioUtils.js'
 import {SettingUser, SettingUserVoice} from '../Objects/Setting/SettingUser.js'
 import {SettingDictionaryEntry} from '../Objects/Setting/SettingDictionary.js'
 import {SettingTwitchTokens} from '../Objects/Setting/SettingTwitch.js'
@@ -30,9 +28,9 @@ export default class GoogleTTS {
     private _lastEnqueued: number = 0
     private _lastSpeaker: number = 0
     private _callback: IAudioPlayedCallback = (nonce, status)=>{ console.log(`GoogleTTS: Played callback not set, ${nonce}->${status}`) }
-    private _emptyMessageSound: IAudioAction|undefined
+    private _emptyMessageSound: ActionAudio|undefined
     private _count = 0
-    private _preloadQueue: {[key:number]: IAudioAction|null} = {} // Can be a string because we keep track on if it is in progress that way.
+    private _preloadQueue: {[key:number]: ActionAudio|null} = {} // Can be a string because we keep track on if it is in progress that way.
     private _preloadQueueLoopHandle: number|any = 0 // TODO: Transitional node fix
     private _preloadInfo: {[key:number]: string} = {}
     private _dequeueCount = 0
@@ -89,7 +87,7 @@ export default class GoogleTTS {
         this._audio.setPlayedCallback(callback)
     }
 
-    setEmptyMessageSound(audio:IAudioAction|undefined) {
+    setEmptyMessageSound(audio:ActionAudio|undefined) {
         this._emptyMessageSound = audio
     }
 
@@ -264,10 +262,10 @@ export default class GoogleTTS {
         if(response.ok) {
             const json = await response.json()
             if (typeof json?.audioContent === 'string' && json.audioContent.length > 0) {
-                this._preloadQueue[serial] = {
-                    nonce: nonce,
-                    srcEntries: `data:audio/ogg;base64,${json.audioContent}`,
-                }
+                const newAudio = new ActionAudio()
+                newAudio.nonce = nonce
+                newAudio.srcEntries = [`data:audio/ogg;base64,${json.audioContent}`]
+                this._preloadQueue[serial] = newAudio
                 this._lastEnqueued = Date.now()
                 console.log(`GoogleTTS: User ${userId} speech OK: [${json.audioContent.length}], enqueued!`, input)
             } else {
@@ -284,7 +282,7 @@ export default class GoogleTTS {
 
     enqueueSoundEffect(actionAudio: ActionAudio|undefined) {
         if(actionAudio) {
-            this._preloadQueue[++this._count] = AudioUtils.configAudio(actionAudio)
+            this._preloadQueue[++this._count] = actionAudio
         }
     }
 

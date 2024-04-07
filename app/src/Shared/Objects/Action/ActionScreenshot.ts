@@ -8,7 +8,6 @@ import StatesSingleton from '../../Singletons/StatesSingleton.js'
 import ModulesSingleton from '../../Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../Classes/DataBaseHelper.js'
 import {DataUtils} from '../DataUtils.js'
-import AudioUtils from '../../Classes/AudioUtils.js'
 import ConfigScreenshots from '../Config/ConfigScreenshots.js'
 
 export class ActionScreenshot extends Action {
@@ -51,14 +50,14 @@ export class ActionScreenshot extends Action {
                         const messageId = modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName, clone.delay)
                         states.nonceCallbacks.set(messageId, ()=>{
                             // We play the audio when the screenshot is done here as it depends on when the TTS is done in turn.
-                            if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
+                            if(soundConfig) modules.audioPlayer.enqueueAudio(soundConfig)
                         })
                     } else console.warn("No source preset set for OBS source screenshot.")
                 }
                 function obsScreenshot() {
                     if(sourcePreset) {
                         // We play the audio first here because it is otherwise with bad timing
-                        if(soundConfig) modules.audioPlayer.enqueueAudio(AudioUtils.configAudio(soundConfig))
+                        if(soundConfig) modules.audioPlayer.enqueueAudio(soundConfig)
                         modules.obs.takeSourceScreenshot(key, user, sourcePreset.sourceName, clone.delay)
                     } else console.warn("No source preset set for OBS source screenshot.")
                 }
@@ -99,4 +98,26 @@ export class ActionScreenshot extends Action {
             }
         }
     }
+}
+
+/**
+ * Reference data about a screenshot that is cached from triggering it until it is completed.
+ */
+export interface IScreenshotRequestData {
+    /**
+     * Key for the event that triggered the screenshot.
+     */
+    eventKey: string
+    /**
+     * Twitch user ID for the redeemer.
+     */
+    userId: number
+    /**
+     * Twitch username for the redeemer.
+     */
+    userName: string
+    /**
+     * Input from the Twitch reward redemption.
+     */
+    userInput: string
 }

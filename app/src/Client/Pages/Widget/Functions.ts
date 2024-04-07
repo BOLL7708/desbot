@@ -2,7 +2,6 @@ import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import StatesSingleton from '../../../Shared/Singletons/StatesSingleton.js'
 import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
 import {DataUtils} from '../../../Shared/Objects/DataUtils.js'
-import AudioUtils from '../../../Shared/Classes/AudioUtils.js'
 import Utils from '../../../Shared/Classes/Utils.js'
 import SteamWebHelper from '../../../Shared/Classes/SteamWebHelper.js'
 import SteamStoreHelper from '../../../Shared/Classes/SteamStoreHelper.js'
@@ -24,7 +23,7 @@ export default class Functions {
         const states = StatesSingleton.getInstance()
         const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
         const audio = states.pingForChat ? DataUtils.ensureData(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
-        if(audio) modules.tts.setEmptyMessageSound(AudioUtils.configAudio(audio))
+        if(audio) modules.tts.setEmptyMessageSound(audio)
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {

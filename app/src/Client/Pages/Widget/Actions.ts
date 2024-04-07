@@ -14,10 +14,6 @@ import {EventActionContainer, EventDefault} from '../../../Shared/Objects/Event/
 import Trigger from '../../../Shared/Objects/Trigger.js'
 import {EEventSource} from './Enums.js'
 import {OptionEventRun} from '../../../Shared/Options/OptionEventRun.js'
-import {IAudioAction} from '../../../Shared/Interfaces/iactions.js'
-import {ActionSpeech} from '../../../Shared/Objects/Action/ActionSpeech.js'
-import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
-import {OptionTTSType} from '../../../Shared/Options/OptionTTS.js'
 import {OptionEntryUsage} from '../../../Shared/Options/OptionEntryType.js'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../../Shared/Objects/Setting/SettingCounters.js'
 import {PresetReward} from '../../../Shared/Objects/Preset/PresetReward.js'
@@ -498,65 +494,6 @@ export class Actions {
                 setTimeout(()=>{
                     actionsExecutor.execute(user, index)
                 }, delay ? timeout : 0)
-            }
-        }
-    }
-    // endregion
-
-    // region Action Builders
-    /**
-     * Will play back a sound and/or speak.
-     * @param config The config for the sound effect to be played.
-     * @param speechConfig What to be spoken, if TTS is enabled.
-     * @param nonceTTS The nonce to use for TTS.
-     * @param onTtsQueue If true the sound effect will be enqueued on the TTS queue, to not play back at the same time.
-     * @returns 
-     */
-    private static buildSoundAndSpeechCallback( // TODO: Remove? Can't remember why we needed this.
-        config: IAudioAction|undefined,
-        speechConfig:ActionSpeech|undefined,
-        nonceTTS: string,
-        onTtsQueue:boolean = false
-    ): IActionCallback|undefined {
-        if(config || speechConfig) return {
-            description: 'Callback that triggers a sound and/or speech action',
-            call: async (user: IActionUser, nonce, index?: number) => {
-                const modules = ModulesSingleton.getInstance()
-                let ttsStrings: string[] = []
-                if(speechConfig?.entries) {
-                    ttsStrings = await TextHelper.replaceTagsInTextArray(
-                        ArrayUtils.getAsType(Utils.ensureArray(speechConfig.entries), OptionEntryUsage.First, index), // TODO: This used a dynamic type before
-                        user
-                    )
-                    onTtsQueue = true
-                }
-                if(config) { // If we have an audio config, play it. Attach 
-                    const configClone = Utils.clone(config)
-                    configClone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
-                        ArrayUtils.getAsType(Utils.ensureArray(config.srcEntries), OptionEntryUsage.First, index), // Need to read entries from config here as cloning drops __type // TODO: This used a dynamic type before
-                        user
-                    )
-                    // TODO: Soon redundant anyway
-                    // if(onTtsQueue) modules.tts.enqueueSoundEffect(configClone)
-                    // else modules.audioPlayer.enqueueAudio(configClone)
-                }
-                if(speechConfig && ttsStrings.length > 0) {
-                    for(const ttsStr of ttsStrings) {
-                        const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
-                        const voiceOfUserTagged = await TextHelper.replaceTagsInText(DataUtils.ensureKey(speechConfig.voiceOfUser) ?? '', user) // TODO: This is probably borked in conversion... ?
-                        const voiceUser = voiceOfUserTagged.length > 0 ? await TwitchHelixHelper.getUserByLogin(voiceOfUserTagged) : undefined
-                        const voiceUserId = parseInt(voiceUser?.id ?? '')
-                        await modules.tts.enqueueSpeakSentence(
-                            ttsStr,
-                            isNaN(voiceUserId) ? chatbotTokens?.userId : voiceUserId,
-                            speechConfig.type ?? OptionTTSType.Announcement,
-                            nonceTTS,
-                            undefined,
-                            undefined,
-                            speechConfig?.skipDictionary
-                        )
-                    }
-                }
             }
         }
     }
