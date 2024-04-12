@@ -365,6 +365,7 @@ export default class Utils {
             pathArray.pop()
             path = pathArray.join('/')
         }
+        if(path.endsWith('/')) path = path.slice(0, -1)
         return path
     }
 
