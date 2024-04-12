@@ -6,6 +6,6 @@ import DefaultsHandler from './DefaultsHandler.js'
 (async ()=>{
     EnlistData.run()
     const authed = await AuthUtils.checkIfAuthed()
-    if(!authed) window.location.href = '../../../../../php/index.php'
+    if(!authed) window.location.href = 'index.php'
     const handler = new DefaultsHandler()
 })().then()
