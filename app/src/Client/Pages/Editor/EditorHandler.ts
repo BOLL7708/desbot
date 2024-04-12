@@ -154,7 +154,7 @@ export default class EditorHandler {
         if(!this._sideMenuDiv) return // Side menu does not exist in minimal mode.
 
         if(this._eventCategory == Number.MIN_VALUE) {
-            this._eventCategory = parseInt(localStorage.getItem(Constants.LOCAL_STORAGE_KEY_EVENTCATEGORY+Utils.getCurrentFolder()) ?? '0')
+            this._eventCategory = parseInt(localStorage.getItem(Constants.LOCAL_STORAGE_KEY_EVENTCATEGORY+Utils.getCurrentPath()) ?? '0')
         }
 
         // Clear
@@ -217,7 +217,7 @@ export default class EditorHandler {
                     categorySelector.replaceChildren(...options)
                     categorySelector.onchange = (event)=>{
                         this._eventCategory = Number(categorySelector.value)
-                        localStorage.setItem(Constants.LOCAL_STORAGE_KEY_EVENTCATEGORY+Utils.getCurrentFolder(), this._eventCategory.toString())
+                        localStorage.setItem(Constants.LOCAL_STORAGE_KEY_EVENTCATEGORY+Utils.getCurrentPath(), this._eventCategory.toString())
                         this.updateSideMenu(true).then()
                     }
                     typeContainer.appendChild(categorySelector)

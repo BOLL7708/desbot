@@ -183,7 +183,7 @@ export default class SetupFormHandler {
 
     private storeAuth(password: string) {
         console.log(`Storing auth: ${password}`)
-        localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder(), password)
+        localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath(), password)
     }
     // endregion
 }

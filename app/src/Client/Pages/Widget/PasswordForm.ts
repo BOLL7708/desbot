@@ -37,7 +37,7 @@ export default class PasswordForm {
             if(input.name == 'password') {
                 const password = input.value
                 if(password.length) {
-                    localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder(), password)
+                    localStorage.setItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath(), password)
                     Utils.reload()
                 }
             }

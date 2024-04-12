@@ -540,7 +540,7 @@ export default class DataBaseHelper {
         options: IDataBaseHelperHeaders
     ): Promise<HeadersInit> {
         const headers = new Headers()
-        headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder()) ?? '')
+        headers.set('Authorization', localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? '')
         if(options.groupClass !== undefined) headers.set('X-Group-Class', options.groupClass)
         if(options.groupKey !== undefined) headers.set('X-Group-Key', options.groupKey)
         if(options.newGroupKey !== undefined) headers.set('X-New-Group-Key', options.newGroupKey)

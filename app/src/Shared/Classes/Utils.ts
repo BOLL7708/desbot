@@ -347,7 +347,7 @@ export default class Utils {
     }
 
     static getAuth(): string {
-        return localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder()) ?? ''
+        return localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? ''
     }
     static getAuthInit(additionalHeaders: HeadersInit = {}): RequestInit {
         return {
@@ -355,16 +355,17 @@ export default class Utils {
         }
     }
     static clearAuth(): void {
-        localStorage.removeItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentFolder())
+        localStorage.removeItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath())
     }
 
-    static getCurrentFolder(): string {
-        const pathArray = window.location.pathname.split('/');
-        let pathItem = ''
-        while(pathArray.length && (pathItem.includes('.') || pathItem.length == 0)) {
-            pathItem = pathArray.pop() ?? ''
+    static getCurrentPath(): string {
+        let path = window.location.pathname
+        const pathArray = path.split('/');
+        while(pathArray.length && (path.includes('.') || path.length == 0)) {
+            pathArray.pop()
+            path = pathArray.join('/')
         }
-        return pathItem
+        return path
     }
 
     /**

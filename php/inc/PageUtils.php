@@ -10,7 +10,6 @@ class PageUtils
     public static function printTop(bool $topBar = true, bool $sideBar = true): void
     {
         $scriptFile = Utils::getScriptFileName();
-        $pageMode = boolval(Files::read('page_mode.json'));
         ?>
         <!DOCTYPE html>
         <html lang="en">
