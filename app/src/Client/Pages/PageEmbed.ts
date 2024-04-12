@@ -1,8 +1,11 @@
+import Utils from '../../Shared/Classes/Utils.js'
+import Constants from '../../Shared/Classes/Constants.js'
+
 document.body.onload = ()=>{
     const pageContainer = document.querySelector('#page-container') as HTMLDivElement
     const sideBarDiv = document.querySelector('#side-bar') as HTMLDivElement
     const margin: number = 12
-    const localStorageKey = 'sideBarWidth'
+    const localStorageKey = Constants.LOCAL_STORAGE_KEY+Utils.getCurrentPath()+'_sideBarWidth'
     let currentWidth: number = parseInt(localStorage.getItem(localStorageKey) ?? '0') // TODO: Change this to use the database so it can be shared between the Node building pages and the editor where we change it.
     function canDrag(x: number) {
         const [grow, shrink, basis] = sideBarDiv.style.flex.split(' ')

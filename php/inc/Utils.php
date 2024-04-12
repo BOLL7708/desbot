@@ -63,7 +63,7 @@ class Utils
         return file_get_contents($url, false, $context);
     }
 
-    #[NoReturn] static function exitWithError(string $message, int $code = -1, int $httpCode = 400): void
+    static function exitWithError(string $message, int $code = -1, int $httpCode = 400): void
     {
         error_log("Terminated script: $message, $code");
         header("Streaming-Widget-Error-Code: $code");
@@ -71,7 +71,7 @@ class Utils
         self::outputJson(['error' => $message, 'code' => $code], $httpCode);
     }
 
-    #[NoReturn] static function outputJson(array|stdClass $body, int $code = 200): void
+    static function outputJson(array|stdClass $body, int $code = 200): void
     {
         header('Content-Type: application/json; charset=utf-8');
         http_response_code($code);
