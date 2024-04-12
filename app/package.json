@@ -15,13 +15,7 @@
     "url": "https://github.com/boll7708/desbot.git"
   },
   "private": true,
-  "dependencies": {
-    "ws": "^8.16.0"
-  },
-  "optionalDependencies": {
-  },
-  "devDependencies": {
-    "@types/node": "^20.11.25",
-    "@types/ws": "^8.5.10"
-  }
+  "dependencies": {},
+  "optionalDependencies": {},
+  "devDependencies": {}
 }

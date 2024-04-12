@@ -1,1 +1,1 @@
-setlocal && cd .. && git pull && cd app && npm update && (if exist dist rmdir dist /q /s) && tsc && endlocal
+cd .. && git pull && cd app && (if exist node_modules rmdir node_modules /q /s) && npm install && (if exist dist rmdir dist /q /s) && tsc && cd ../scripts && pause

@@ -1,5 +1,4 @@
 import Utils from './Utils.js'
-import {start} from 'node:repl'
 
 /**
  * Gets filled with all the file-paths from the `_user/assets` folder, to be referenced in the editor and for serving.

@@ -1,1 +1,1 @@
-setlocal && npm install -g typescript && cd ../app && npm install && tsc && endlocal
+npm install -g typescript && cd ../app && npm install && tsc && cd ../scripts && pause
