@@ -95,10 +95,12 @@ export default class DataMap {
         const invalidClasses = ['string', 'number', 'array', 'boolean', 'object', '']
         if(
             invalidClasses.indexOf(className?.toLowerCase() ?? '') != -1
+            || className?.startsWith('Abstract')
             || className?.startsWith('Option')
             || className?.startsWith('Data')
-        ) return false
-
+        ) {
+            return false
+        }
         const has = className ? this._map.has(className) : false
         if(!has) console.warn(`DataMap: "${className}" does not exist! Might not be enlisted.`)
         return has
