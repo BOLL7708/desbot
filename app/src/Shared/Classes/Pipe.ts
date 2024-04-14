@@ -1,23 +1,23 @@
-import {ConfigPipe} from '../Objects/Config/ConfigPipe.js'
-import ConfigChat from '../Objects/Config/ConfigChat.js'
+import {ConfigPipe} from '../Objects/Data/Config/ConfigPipe.js'
+import ConfigChat from '../Objects/Data/Config/ConfigChat.js'
 import WebSockets from './WebSockets.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import {PresetPipeBasic, PresetPipeCustom} from '../Objects/Preset/PresetPipe.js'
-import {IActionUser} from '../Objects/Action.js'
-import Utils from './Utils.js'
-import TextHelper from './TextHelper.js'
-import TwitchFactory from './TwitchFactory.js'
-import ImageHelper from './ImageHelper.js'
-import ImageEditor from './ImageEditor.js'
-import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ConfigImageEditor.js'
-import Color from './ColorConstants.js'
-import {ActionPipe} from '../Objects/Action/ActionPipe.js'
-import {DataUtils} from '../Objects/DataUtils.js'
-import StatesSingleton from '../Singletons/StatesSingleton.js'
-import {ConfigController} from '../Objects/Config/ConfigController.js'
-import Data from '../Objects/Data.js'
+import DataBaseHelper from '../Helpers/DataBaseHelper.js'
+import {PresetPipeBasic, PresetPipeCustom} from '../Objects/Data/Preset/PresetPipe.js'
 import {ITwitchMessageData} from './Twitch.js'
-import {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.js'
+import {IActionUser} from '../Objects/Data/Action/AbstractAction.js'
+import {ITwitchHelixUsersResponseData} from '../Helpers/TwitchHelixHelper.js'
+import Utils from '../Utils/Utils.js'
+import TextHelper from '../Helpers/TextHelper.js'
+import TwitchFactory from './TwitchFactory.js'
+import ImageHelper from '../Helpers/ImageHelper.js'
+import ImageEditor from './ImageEditor.js'
+import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Data/Config/ConfigImageEditor.js'
+import Color from '../Constants/ColorConstants.js'
+import {ActionPipe} from '../Objects/Data/Action/ActionPipe.js'
+import {DataUtils} from '../Objects/Data/DataUtils.js'
+import StatesSingleton from '../Singletons/StatesSingleton.js'
+import {ConfigController} from '../Objects/Data/Config/ConfigController.js'
+import AbstractData from '../Objects/Data/AbstractData.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -215,7 +215,7 @@ export default class Pipe {
         }
     }
 
-    async sendCustom(message: PresetPipeCustom&Data) {
+    async sendCustom(message: PresetPipeCustom&AbstractData) {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
         const nonce = Utils.getNonce('custom-pipe')
         message.customProperties.nonce = nonce

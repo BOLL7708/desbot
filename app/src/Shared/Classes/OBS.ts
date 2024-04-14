@@ -1,13 +1,13 @@
 import WebSockets from './WebSockets.js'
-import ConfigOBS from '../Objects/Config/ConfigOBS.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import Utils from './Utils.js'
-import {ActionOBS} from '../Objects/Action/ActionOBS.js'
-import ArrayUtils from './ArrayUtils.js'
-import {DataUtils} from '../Objects/DataUtils.js'
-import {IActionUser} from '../Objects/Action.js'
-import {OptionScreenshotFileType} from '../Options/OptionScreenshotFileType.js'
-import {IScreenshotRequestData} from '../Objects/Action/ActionScreenshot.js'
+import ConfigOBS from '../Objects/Data/Config/ConfigOBS.js'
+import {IScreenshotRequestData} from '../Objects/Data/Action/ActionScreenshot.js'
+import DataBaseHelper from '../Helpers/DataBaseHelper.js'
+import Utils from '../Utils/Utils.js'
+import {ActionOBS} from '../Objects/Data/Action/ActionOBS.js'
+import ArrayUtils from '../Utils/ArrayUtils.js'
+import {DataUtils} from '../Objects/Data/DataUtils.js'
+import {IActionUser} from '../Objects/Data/Action/AbstractAction.js'
+import {OptionScreenshotFileType} from '../Objects/Options/OptionScreenshotFileType.js'
 
 export default class OBS {
     private _socket?: WebSockets

@@ -1,11 +1,11 @@
-import {ConfigOpenVR2WS} from '../Objects/Config/ConfigOpenVR2WS.js'
+import {ConfigOpenVR2WS} from '../Objects/Data/Config/ConfigOpenVR2WS.js'
 import WebSockets from './WebSockets.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import Utils from './Utils.js'
-import {ActionSettingVR} from '../Objects/Action/ActionSettingVR.js'
-import {ActionMoveVRSpace} from '../Objects/Action/ActionMoveVRSpace.js'
-import Color from './ColorConstants.js'
-import {ActionHandler} from '../../Client/Pages/Widget/Actions.js'
+import DataBaseHelper from '../Helpers/DataBaseHelper.js'
+import Utils from '../Utils/Utils.js'
+import {ActionSettingVR} from '../Objects/Data/Action/ActionSettingVR.js'
+import {ActionMoveVRSpace} from '../Objects/Data/Action/ActionMoveVRSpace.js'
+import {ActionHandler} from '../Bot/Actions.js'
+import Color from '../Constants/ColorConstants.js'
 
 export default class OpenVR2WS {
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }

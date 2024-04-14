@@ -1,10 +1,10 @@
 import SetupSectionHandler from './SetupSectionHandler.js'
-import DataFileUtils, {AuthData} from '../../../Shared/Classes/DataFileUtils.js'
-import Utils from '../../../Shared/Classes/Utils.js'
-import AuthUtils from '../../../Shared/Classes/AuthUtils.js'
-import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
-import {SettingTwitchClient, SettingTwitchTokens} from '../../../Shared/Objects/Setting/SettingTwitch.js'
-import Constants from '../../../Shared/Classes/Constants.js'
+import DataFileUtils, {AuthData} from '../../../Shared/Utils/DataFileUtils.js'
+import Utils from '../../../Shared/Utils/Utils.js'
+import AuthUtils from '../../../Shared/Utils/AuthUtils.js'
+import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
+import {SettingTwitchClient, SettingTwitchTokens} from '../../../Shared/Objects/Data/Setting/SettingTwitch.js'
+import Constants from '../../../Shared/Constants/Constants.js'
 
 type TForm =
     'Register'

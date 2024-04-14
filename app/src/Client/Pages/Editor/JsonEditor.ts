@@ -1,14 +1,14 @@
-import {DataMeta} from '../../../Shared/Objects/DataMeta.js'
-import Data, {EmptyData} from '../../../Shared/Objects/Data.js'
-import DataBaseHelper, {IDataBaseItem, IDataBaseListItems} from '../../../Shared/Classes/DataBaseHelper.js'
-import {ConfigEditor, ConfigEditorFavorite} from '../../../Shared/Objects/Config/ConfigEditor.js'
+import {DataMeta} from '../../../Shared/Objects/Data/DataMeta.js'
+import AbstractData, {EmptyData} from '../../../Shared/Objects/Data/AbstractData.js'
+import DataBaseHelper, {IDataBaseItem, IDataBaseListItems} from '../../../Shared/Helpers/DataBaseHelper.js'
+import {ConfigEditor, ConfigEditorFavorite} from '../../../Shared/Objects/Data/Config/ConfigEditor.js'
 import EditorBus from './EditorBus.js'
-import Utils, {EUtilsTitleReturnOption} from '../../../Shared/Classes/Utils.js'
-import DataMap, {TRootToolResponseData} from '../../../Shared/Objects/DataMap.js'
-import {DataUtils} from '../../../Shared/Objects/DataUtils.js'
+import Utils, {EUtilsTitleReturnOption} from '../../../Shared/Utils/Utils.js'
+import DataMap, {TRootToolResponseData} from '../../../Shared/Objects/Data/DataMap.js'
+import {DataUtils} from '../../../Shared/Objects/Data/DataUtils.js'
 import {JsonEditorUtils} from './JsonEditorUtils.js'
-import {OptionsMap} from '../../../Shared/Options/OptionsMap.js'
-import AssetsHelper from '../../../Shared/Classes/AssetsHelper.js'
+import {OptionsMap} from '../../../Shared/Objects/Options/OptionsMap.js'
+import AssetsHelper from '../../../Shared/Helpers/AssetsHelper.js'
 
 export enum EOrigin {
     Unknown,
@@ -30,15 +30,15 @@ export interface IStepDataOptions {
 
 interface IJsonEditorData {
     parentId: number,
-    instance: any&Data
+    instance: any&AbstractData
 }
 
 export default class JsonEditor {
     private _originalItem: IDataBaseItem<any> = {id: 0, class: '', key: '', pid: null, data: null, filledData: null}
     private _key: string = ''
     private _originalKey: string = ''
-    private _instance: object&Data = new EmptyData()
-    private _originalInstance: object&Data = new EmptyData()
+    private _instance: object&AbstractData = new EmptyData()
+    private _originalInstance: object&AbstractData = new EmptyData()
     private _originalInstanceType: string|undefined
     private _root: HTMLUListElement|undefined = undefined
     private _labels: HTMLSpanElement[] = []

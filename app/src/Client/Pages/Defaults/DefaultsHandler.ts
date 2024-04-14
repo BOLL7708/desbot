@@ -1,8 +1,8 @@
 import DefaultData, {EKeys, IDefaultObject, IDefaultObjectList} from './DefaultData.js'
-import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
-import {PresetEventCategory} from '../../../Shared/Objects/Preset/PresetEventCategory.js'
-import Utils from '../../../Shared/Classes/Utils.js'
-import DataMap from '../../../Shared/Objects/DataMap.js'
+import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
+import {PresetEventCategory} from '../../../Shared/Objects/Data/Preset/PresetEventCategory.js'
+import Utils from '../../../Shared/Utils/Utils.js'
+import DataMap from '../../../Shared/Objects/Data/DataMap.js'
 
 export default class DefaultsHandler {
     constructor() {

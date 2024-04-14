@@ -1,10 +1,10 @@
-import Color from './ColorConstants.js'
+import Color from '../Constants/ColorConstants.js'
 import WebSockets from './WebSockets.js'
-import Utils from './Utils.js'
-import TwitchHelixHelper from './TwitchHelixHelper.js'
-import {SettingTwitchRedemption} from '../Objects/Setting/SettingTwitch.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import {ActionHandler, Actions} from '../../Client/Pages/Widget/Actions.js'
+import Utils from '../Utils/Utils.js'
+import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.js'
+import {SettingTwitchRedemption} from '../Objects/Data/Setting/SettingTwitch.js'
+import DataBaseHelper from '../Helpers/DataBaseHelper.js'
+import {ActionHandler, Actions} from '../Bot/Actions.js'
 
 export default class TwitchEventSub {
     private LOG_COLOR = Color.DarkViolet

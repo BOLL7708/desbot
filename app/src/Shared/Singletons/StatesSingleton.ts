@@ -1,6 +1,6 @@
-import DataBaseHelper from '../Classes/DataBaseHelper.js'
-import {ConfigController} from '../Objects/Config/ConfigController.js'
-import {ITextTagsCached} from '../Classes/TextHelper.js'
+import DataBaseHelper from '../Helpers/DataBaseHelper.js'
+import {ITextTagsCached} from '../Helpers/TextHelper.js'
+import {ConfigController} from '../Objects/Data/Config/ConfigController.js'
 
 /**
  * Contains states and settings for this session

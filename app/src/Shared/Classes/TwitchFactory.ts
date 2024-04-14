@@ -1,7 +1,7 @@
-import Utils from './Utils.js'
-import Twitch from './Twitch.js'
-import {INumberDictionary} from '../Interfaces/igeneral.js'
+import Utils from '../Utils/Utils.js'
 import {ITwitchEventSubEmote} from './TwitchEventSub.js'
+import {INumberDictionary} from '../Interfaces/igeneral.js'
+import Twitch from './Twitch.js'
 
 export default class TwitchFactory {
     private static buildMessage(data:string): ITwitchChatMessage {

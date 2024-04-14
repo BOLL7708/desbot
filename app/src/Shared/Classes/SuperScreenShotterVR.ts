@@ -1,8 +1,8 @@
 import WebSockets from './WebSockets.js'
-import ConfigScreenshots from '../Objects/Config/ConfigScreenshots.js'
-import DataBaseHelper from './DataBaseHelper.js'
-import {IActionUser} from '../Objects/Action.js'
-import {IScreenshotRequestData} from '../Objects/Action/ActionScreenshot.js'
+import {IScreenshotRequestData} from '../Objects/Data/Action/ActionScreenshot.js'
+import ConfigScreenshots from '../Objects/Data/Config/ConfigScreenshots.js'
+import DataBaseHelper from '../Helpers/DataBaseHelper.js'
+import {IActionUser} from '../Objects/Data/Action/AbstractAction.js'
 
 export default class SuperScreenShotterVR {
     private _socket?: WebSockets

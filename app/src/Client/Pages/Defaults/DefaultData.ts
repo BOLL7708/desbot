@@ -1,30 +1,30 @@
-import {PresetPermissions} from '../../../Shared/Objects/Preset/PresetPermissions.js'
-import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
-import {PresetReward} from '../../../Shared/Objects/Preset/PresetReward.js'
-import {PresetDiscordWebhook} from '../../../Shared/Objects/Preset/PresetDiscordWebhook.js'
-import {OptionSystemActionType} from '../../../Shared/Options/OptionSystemActionType.js'
-import {PresetSystemActionText} from '../../../Shared/Objects/Preset/PresetSystemActionText.js'
-import {PresetPhilipsHueBulbState} from '../../../Shared/Objects/Preset/PresetPhilipsHue.js'
-import {PresetEventCategory} from '../../../Shared/Objects/Preset/PresetEventCategory.js'
-import {EventActionContainer, EventDefault} from '../../../Shared/Objects/Event/EventDefault.js'
-import {TriggerCommand} from '../../../Shared/Objects/Trigger/TriggerCommand.js'
-import OptionCommandCategory from '../../../Shared/Options/OptionCommandCategory.js'
-import {ActionSettingTTS} from '../../../Shared/Objects/Action/ActionSettingTTS.js'
-import {OptionTTSFunctionType} from '../../../Shared/Options/OptionTTS.js'
-import {ActionSpeech} from '../../../Shared/Objects/Action/ActionSpeech.js'
-import {TriggerReward} from '../../../Shared/Objects/Trigger/TriggerReward.js'
-import {ActionChat} from '../../../Shared/Objects/Action/ActionChat.js'
-import {ActionSystem, ActionSystemRewardStateForEvent} from '../../../Shared/Objects/Action/ActionSystem.js'
-import {OptionTwitchRewardVisible} from '../../../Shared/Options/OptionTwitch.js'
-import {ActionSign} from '../../../Shared/Objects/Action/ActionSign.js'
-import {ActionAudio} from '../../../Shared/Objects/Action/ActionAudio.js'
-import {ActionLabel} from '../../../Shared/Objects/Action/ActionLabel.js'
-import {ActionDiscord} from '../../../Shared/Objects/Action/ActionDiscord.js'
-import {PresetOBSScene, PresetOBSSource} from '../../../Shared/Objects/Preset/PresetOBS.js'
-import {ActionOBS, ActionOBSSource} from '../../../Shared/Objects/Action/ActionOBS.js'
-import {ActionURI} from '../../../Shared/Objects/Action/ActionURI.js'
-import Data from '../../../Shared/Objects/Data.js'
-import Utils, {EUtilsTitleReturnOption} from '../../../Shared/Classes/Utils.js'
+import {PresetPermissions} from '../../../Shared/Objects/Data/Preset/PresetPermissions.js'
+import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
+import {PresetReward} from '../../../Shared/Objects/Data/Preset/PresetReward.js'
+import {PresetDiscordWebhook} from '../../../Shared/Objects/Data/Preset/PresetDiscordWebhook.js'
+import {OptionSystemActionType} from '../../../Shared/Objects/Options/OptionSystemActionType.js'
+import {PresetSystemActionText} from '../../../Shared/Objects/Data/Preset/PresetSystemActionText.js'
+import {PresetPhilipsHueBulbState} from '../../../Shared/Objects/Data/Preset/PresetPhilipsHue.js'
+import {PresetEventCategory} from '../../../Shared/Objects/Data/Preset/PresetEventCategory.js'
+import {EventActionContainer, EventDefault} from '../../../Shared/Objects/Data/Event/EventDefault.js'
+import {TriggerCommand} from '../../../Shared/Objects/Data/Trigger/TriggerCommand.js'
+import OptionCommandCategory from '../../../Shared/Objects/Options/OptionCommandCategory.js'
+import {ActionSettingTTS} from '../../../Shared/Objects/Data/Action/ActionSettingTTS.js'
+import {OptionTTSFunctionType} from '../../../Shared/Objects/Options/OptionTTS.js'
+import {ActionSpeech} from '../../../Shared/Objects/Data/Action/ActionSpeech.js'
+import {TriggerReward} from '../../../Shared/Objects/Data/Trigger/TriggerReward.js'
+import {ActionChat} from '../../../Shared/Objects/Data/Action/ActionChat.js'
+import {ActionSystem, ActionSystemRewardStateForEvent} from '../../../Shared/Objects/Data/Action/ActionSystem.js'
+import {OptionTwitchRewardVisible} from '../../../Shared/Objects/Options/OptionTwitch.js'
+import {ActionSign} from '../../../Shared/Objects/Data/Action/ActionSign.js'
+import {ActionAudio} from '../../../Shared/Objects/Data/Action/ActionAudio.js'
+import {ActionLabel} from '../../../Shared/Objects/Data/Action/ActionLabel.js'
+import {ActionDiscord} from '../../../Shared/Objects/Data/Action/ActionDiscord.js'
+import {PresetOBSScene, PresetOBSSource} from '../../../Shared/Objects/Data/Preset/PresetOBS.js'
+import {ActionOBS, ActionOBSSource} from '../../../Shared/Objects/Data/Action/ActionOBS.js'
+import {ActionURI} from '../../../Shared/Objects/Data/Action/ActionURI.js'
+import AbstractData from '../../../Shared/Objects/Data/AbstractData.js'
+import Utils, {EUtilsTitleReturnOption} from '../../../Shared/Utils/Utils.js'
 
 export enum EKeys {
     // region Presets
@@ -2030,25 +2030,25 @@ export default class DefaultData {
         ],
     }
 
-    static async loadID<T>(instance: T&Data, key: string): Promise<number> {
+    static async loadID<T>(instance: T&AbstractData, key: string): Promise<number> {
         return await DataBaseHelper.loadID(instance.constructor.name, key)
     }
-    static async saveSubAndGetID<T>(instance: T&Data, key: string, parentId: number = 0): Promise<number> {
+    static async saveSubAndGetID<T>(instance: T&AbstractData, key: string, parentId: number = 0): Promise<number> {
         const subKey = this.buildKey(instance, key)
         return await this.saveAndGetID(instance, subKey, parentId)
     }
-    static async saveAndGetID<T>(instance: T&Data, key: string, parentId: number = 0): Promise<number> {
+    static async saveAndGetID<T>(instance: T&AbstractData, key: string, parentId: number = 0): Promise<number> {
         await DataBaseHelper.save(instance, key, undefined, parentId)
         return await DataBaseHelper.loadID(instance.constructor.name, key)
     }
-    static buildKey<T>(instance: T&Data, key: string): string {
+    static buildKey<T>(instance: T&AbstractData, key: string): string {
         return `${key} ${Utils.camelToTitle(instance.constructor.name, EUtilsTitleReturnOption.SkipFirstWord)}`
     }
     static async registerEvent(
         instance: EventDefault,
         key: string,
-        triggers: Data[],
-        actions: Data[],
+        triggers: AbstractData[],
+        actions: AbstractData[],
         category: number = 0
     ): Promise<string|undefined> {
         if(category == 0) category = await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryDefaultImports)
@@ -2083,9 +2083,9 @@ export interface IDefaultObjectList {
 
 export interface IDefaultObject {
     key: EKeys|string|number
-    instance: Data
+    instance: AbstractData
     importer: IDefaultObjectImporter<any>
     parentKey?: string
     parentClass?: string
 }
-export type IDefaultObjectImporter<T extends Data> = (item: T, key: string) => Promise<string|undefined>
+export type IDefaultObjectImporter<T extends AbstractData> = (item: T, key: string) => Promise<string|undefined>

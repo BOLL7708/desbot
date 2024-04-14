@@ -1,5 +1,5 @@
-import Utils from '../../../Shared/Classes/Utils.js'
-import DataBaseHelper from '../../../Shared/Classes/DataBaseHelper.js'
+import Utils from '../../../Shared/Utils/Utils.js'
+import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
 
 export default class SearchHandler {
     constructor() {

@@ -1,5 +1,5 @@
-import Utils from '../../Shared/Classes/Utils.js'
-import Constants from '../../Shared/Classes/Constants.js'
+import Constants from '../../Shared/Constants/Constants.js'
+import Utils from '../../Shared/Utils/Utils.js'
 
 document.body.onload = ()=>{
     const pageContainer = document.querySelector('#page-container') as HTMLDivElement

@@ -1,5 +1,5 @@
-import Color from './ColorConstants.js'
-import Utils from './Utils.js'
+import Color from '../Constants/ColorConstants.js'
+import Utils from '../Utils/Utils.js'
 
 export default class WebSockets {
     private LOG_COLOR: string = Color.Gray

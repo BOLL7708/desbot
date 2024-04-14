@@ -1,5 +1,5 @@
-import Utils from './Utils.js'
-import {ActionAudio} from '../Objects/Action/ActionAudio.js'
+import {ActionAudio} from '../Objects/Data/Action/ActionAudio.js'
+import Utils from '../Utils/Utils.js'
 
 export default class AudioPlayer {
     static get STATUS_OK() { return 0 }

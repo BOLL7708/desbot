@@ -1,7 +1,7 @@
-import ImageHelper from './ImageHelper.js'
-import Utils from './Utils.js'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Config/ConfigImageEditor.js'
-import Color from './ColorConstants.js'
+import ImageHelper from '../Helpers/ImageHelper.js'
+import Utils from '../Utils/Utils.js'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Data/Config/ConfigImageEditor.js'
+import Color from '../Constants/ColorConstants.js'
 import Twitch, {ITwitchMessageData} from './Twitch.js'
 
 export default class ImageEditor {
