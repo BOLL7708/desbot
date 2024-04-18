@@ -31,6 +31,7 @@ import ConfigScreenshots from '../Objects/Data/Config/ConfigScreenshots.js'
 import {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.js'
 import Color from '../Constants/ColorConstants.js'
 import {EEventSource} from './Enums.js'
+import AssetsHelper from '../Helpers/AssetsHelper.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
@@ -122,14 +123,16 @@ export default class Callbacks {
             } else if(states.pingForChat && twitchChatConfig.soundEffectOnEmptyMessage) {
                 // Chat sound
                 if(soundEffect && !Utils.matchFirstChar(messageData.text, controllerConfig.secretChatSymbols)) {
-                    modules.tts.enqueueSoundEffect(soundEffect)
+                    const clone = Utils.clone(soundEffect)
+                    clone.srcEntries = await AssetsHelper.preparePathsForUse(clone.srcEntries)
+                    modules.tts.enqueueSoundEffect(clone)
                 }
             }
 
             // Pipe to VR (basic)
             if(states.pipeAllChat) {
                 const user = await TwitchHelixHelper.getUserById(userData.id)
-                await modules.pipe.sendBasicObj(messageData, userData, user)
+                modules.pipe.sendBasicObj(messageData, userData, user)
             }
         })
 
