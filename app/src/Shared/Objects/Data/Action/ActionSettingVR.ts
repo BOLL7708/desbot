@@ -1,10 +1,8 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
 import DataMap from '../DataMap.js'
-import Utils from '../../../Utils/Utils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 
-export class ActionSettingVR extends AbstractAction {
+export default class ActionSettingVR extends AbstractAction {
     settingPreset = OptionSteamVRSettingType.WorldScale
     settingPreset_orCustom = ''
     settingPreset_inCategory = ''
@@ -29,16 +27,5 @@ export class ActionSettingVR extends AbstractAction {
                 settingPreset: OptionSteamVRSettingType.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return  {
-            description: 'Callback that triggers an OpenVR2WSSetting action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionSettingVR>(this)
-                const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.setSetting(clone)
-            }
-        }
     }
 }

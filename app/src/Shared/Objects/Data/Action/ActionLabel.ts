@@ -1,12 +1,8 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
-import Utils from '../../../Utils/Utils.js'
-import ArrayUtils from '../../../Utils/ArrayUtils.js'
-import DataFileUtils from '../../../Utils/DataFileUtils.js'
-import TextHelper from '../../../Helpers/TextHelper.js'
 
-export class ActionLabel extends AbstractAction {
+export default class ActionLabel extends AbstractAction {
     fileName: string = ''
     textEntries: string[] = ['']
     textEntries_use = OptionEntryUsage.First
@@ -27,22 +23,6 @@ export class ActionLabel extends AbstractAction {
                 textEntries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return  {
-            description: 'Callback that triggers a Label action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionLabel>(this)
-                for(const text of ArrayUtils.getAsType(clone.textEntries, clone.textEntries_use)) {
-                    if(clone.append) {
-                        await DataFileUtils.appendText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
-                    } else {
-                        await DataFileUtils.writeText(clone.fileName, await TextHelper.replaceTagsInText(text, user))
-                    }
-                }
-            }
-        }
     }
 }
 

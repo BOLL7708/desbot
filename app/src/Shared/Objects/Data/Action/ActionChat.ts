@@ -1,15 +1,8 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
-import Utils from '../../../Utils/Utils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
-import ArrayUtils from '../../../Utils/ArrayUtils.js'
-import SessionVars from '../../../Classes/SessionVars.js'
-import DataBaseHelper from '../../../Helpers/DataBaseHelper.js'
-import TextHelper from '../../../Helpers/TextHelper.js'
-import {SettingTwitchTokens} from '../Setting/SettingTwitch.js'
 
-export class ActionChat extends AbstractAction {
+export default class ActionChat extends AbstractAction {
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     onlySendNonRepeats = false
@@ -29,26 +22,5 @@ export class ActionChat extends AbstractAction {
                 entries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return {
-            description: 'Callback that triggers a Twitch chat message action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionChat>(this)
-                const modules = ModulesSingleton.getInstance()
-                const entries = ArrayUtils.getAsType(Utils.ensureArray(clone.entries), clone.entries_use, index)
-                for(const entry of entries) {
-                    if(clone.onlySendNonRepeats && entry == SessionVars.lastTwitchChatMessage) continue
-                    if(clone.onlySendAfterUserMessage) {
-                        const userId = (await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot'))?.userId ?? 0
-                        if(userId.toString() == SessionVars.lastTwitchChatterUserId) continue
-                    }
-                    modules.twitch._twitchChatOut.sendMessageToChannel(
-                        await TextHelper.replaceTagsInText(entry, user)
-                    )
-                }
-            }
-        }
     }
 }

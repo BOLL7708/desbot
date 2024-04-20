@@ -11,7 +11,6 @@ import SteamStoreHelper from '../Helpers/SteamStoreHelper.js'
 import {SettingStreamQuote} from '../Objects/Data/Setting/SettingStream.js'
 import {DataUtils} from '../Objects/Data/DataUtils.js'
 import {OptionTTSType} from '../Objects/Options/OptionTTS.js'
-import {ActionSettingVR} from '../Objects/Data/Action/ActionSettingVR.js'
 import {OptionSteamVRSettingType} from '../Objects/Options/OptionSteamVRSetting.js'
 import DataFileUtils from '../Utils/DataFileUtils.js'
 import {SettingChannelTrophyStat} from '../Objects/Data/Setting/SettingChannel.js'
@@ -33,6 +32,7 @@ import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../Objects
 import ConfigCommands from '../Objects/Data/Config/ConfigCommands.js'
 import OptionCommandCategory from '../Objects/Options/OptionCommandCategory.js'
 import ConfigTwitch from '../Objects/Data/Config/ConfigTwitch.js'
+import ActionSettingVR from '../Objects/Data/Action/ActionSettingVR.js'
 
 export default class ActionsCallbacks {
     public static stack: IActionsCallbackStack = {

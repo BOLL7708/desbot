@@ -1,6 +1,6 @@
 import Utils from './Utils.js'
-import {ActionInput} from '../Objects/Data/Action/ActionInput.js'
 import {OptionCommandType} from '../Objects/Options/OptionCommandType.js'
+import ActionInput from '../Objects/Data/Action/ActionInput.js'
 
 export default class ExecUtils {
     static runCommand(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {

@@ -1,7 +1,7 @@
 import {ConfigSpeech} from '../Objects/Data/Config/ConfigSpeech.js'
 import ConfigChat from '../Objects/Data/Config/ConfigChat.js'
 import AudioPlayer, {AudioPlayerInstance, IAudioPlayedCallback} from './AudioPlayer.js'
-import {ActionAudio} from '../Objects/Data/Action/ActionAudio.js'
+import ActionAudio from '../Objects/Data/Action/ActionAudio.js'
 import Dictionary, {IDictionaryEntry} from './Dictionary.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'

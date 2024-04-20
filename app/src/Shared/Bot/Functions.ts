@@ -6,7 +6,6 @@ import Utils from '../Utils/Utils.js'
 import SteamWebHelper from '../Helpers/SteamWebHelper.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
 import SteamStoreHelper from '../Helpers/SteamStoreHelper.js'
-import {ActionSign} from '../Objects/Data/Action/ActionSign.js'
 import TwitchHelixHelper, {ITwitchHelixChannelRequest} from '../Helpers/TwitchHelixHelper.js'
 import TextHelper from '../Helpers/TextHelper.js'
 import DiscordUtils from '../Utils/DiscordUtils.js'
@@ -16,6 +15,7 @@ import ConfigTwitch from '../Objects/Data/Config/ConfigTwitch.js'
 import {ConfigController} from '../Objects/Data/Config/ConfigController.js'
 import Color from '../Constants/ColorConstants.js'
 import {SettingSteamAchievements} from '../Objects/Data/Setting/SettingSteam.js'
+import ActionSign from '../Objects/Data/Action/ActionSign.js'
 
 export default class Functions {
     public static async setEmptySoundForTTS() {

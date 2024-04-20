@@ -17,7 +17,6 @@ import ConfigAnnouncements, {ConfigAnnounceRaid} from '../Objects/Data/Config/Co
 import {PresetPipeCustom} from '../Objects/Data/Preset/PresetPipe.js'
 import {OptionScreenshotFileType} from '../Objects/Options/OptionScreenshotFileType.js'
 import ImageEditor from '../Classes/ImageEditor.js'
-import {ActionSign} from '../Objects/Data/Action/ActionSign.js'
 import SteamStoreHelper from '../Helpers/SteamStoreHelper.js'
 import AudioPlayer from '../Classes/AudioPlayer.js'
 import MainController from './MainController.js'
@@ -32,6 +31,7 @@ import {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.js'
 import Color from '../Constants/ColorConstants.js'
 import {EEventSource} from './Enums.js'
 import AssetsHelper from '../Helpers/AssetsHelper.js'
+import ActionSign from '../Objects/Data/Action/ActionSign.js'
 
 export default class Callbacks {
     private static _relays: Map<string, IOpenVR2WSRelay> = new Map()

@@ -4,8 +4,7 @@ import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.j
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {EventDefault} from '../Event/EventDefault.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
-import {ActionAudio} from '../Action/ActionAudio.js'
-
+import ActionAudio from '../Action/ActionAudio.js'
 
 export default class ConfigScreenshots extends AbstractData {
     SSSVRPort: number = 8807

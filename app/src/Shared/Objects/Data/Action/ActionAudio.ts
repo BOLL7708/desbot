@@ -1,14 +1,9 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
 import {DataUtils} from '../DataUtils.js'
-import Utils from '../../../Utils/Utils.js'
-import AssetsHelper from '../../../Helpers/AssetsHelper.js'
-import TextHelper from '../../../Helpers/TextHelper.js'
-import ArrayUtils from '../../../Utils/ArrayUtils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 
-export class ActionAudio extends AbstractAction {
+export default class ActionAudio extends AbstractAction {
     srcEntries: string[] = ['']
     srcEntries_use = OptionEntryUsage.First
     volume: number = 1.0
@@ -35,24 +30,6 @@ export class ActionAudio extends AbstractAction {
                 srcEntries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return {
-            description: 'Callback that triggers a sound and/or speech action',
-            awaitCall: true,
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionAudio>(this)
-                clone.srcEntries = await AssetsHelper.preparePathsForUse(clone.srcEntries)
-                clone.srcEntries = await TextHelper.replaceTagsInTextArray( // To support audio URLs in input
-                    ArrayUtils.getAsType(Utils.ensureArray(clone.srcEntries), clone.srcEntries_use, index), // Need to read entries from config here as cloning drops __type
-                    user
-                )
-                const modules = ModulesSingleton.getInstance()
-                if(clone.onTTSQueue) modules.tts.enqueueSoundEffect(clone)
-                else modules.audioPlayer.enqueueAudio(clone)
-            }
-        }
     }
 }
 

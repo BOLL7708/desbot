@@ -1,7 +1,7 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
-import {ActionAudio} from '../Action/ActionAudio.js'
+import ActionAudio from '../Action/ActionAudio.js'
 import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
 import {SettingUser} from '../Setting/SettingUser.js'
 

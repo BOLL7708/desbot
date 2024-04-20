@@ -1,13 +1,10 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import {OptionCommandType} from '../../Options/OptionCommandType.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
-import Utils from '../../../Utils/Utils.js'
-import ArrayUtils from '../../../Utils/ArrayUtils.js'
-import ExecUtils from '../../../Utils/ExecUtils.js'
 import AbstractData from '../AbstractData.js'
 
-export class ActionInput extends AbstractAction {
+export default class ActionInput extends AbstractAction {
     window: string = ''
     type = OptionCommandType.Keys
     duration: number = 0
@@ -33,17 +30,6 @@ export class ActionInput extends AbstractAction {
                 commands_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return  {
-            description: 'Callback that triggers an input action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionInput>(this)
-                clone.commands = ArrayUtils.getAsType(clone.commands, clone.commands_use, index)
-                ExecUtils.runCommandsFromAction(clone)
-            }
-        }
     }
 }
 

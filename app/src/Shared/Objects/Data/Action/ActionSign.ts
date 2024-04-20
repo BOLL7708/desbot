@@ -1,12 +1,8 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 import {DataUtils} from '../DataUtils.js'
-import Utils from '../../../Utils/Utils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
-import TwitchHelixHelper from '../../../Helpers/TwitchHelixHelper.js'
-import TextHelper from '../../../Helpers/TextHelper.js'
 
-export class ActionSign extends AbstractAction {
+export default class ActionSign extends AbstractAction {
     title: string = ''
     imageSrc: string = ''
     subtitle: string = ''
@@ -27,23 +23,5 @@ export class ActionSign extends AbstractAction {
                 imageSrc: DataUtils.getStringFileImageRef()
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return  {
-            description: 'Callback that triggers a Sign action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionSign>(this)
-                const modules = ModulesSingleton.getInstance()
-                TwitchHelixHelper.getUserById(user.id).then(async userData => {
-                    const modules = ModulesSingleton.getInstance()
-                    clone.title = await TextHelper.replaceTagsInText(clone.title, user)
-                    if(clone.imageSrc.length == 0) clone.imageSrc = userData?.profile_image_url ?? ''
-                    clone.imageSrc = await TextHelper.replaceTagsInText(clone.imageSrc, user)
-                    clone.subtitle = await TextHelper.replaceTagsInText(clone.subtitle, user)
-                    modules.sign.enqueueSign(clone)
-                })
-            }
-        }
     }
 }

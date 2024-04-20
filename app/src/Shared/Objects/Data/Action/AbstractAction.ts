@@ -8,7 +8,15 @@ export default abstract class AbstractAction extends AbstractData {
      * This builds a callback that takes in user data to execute the action.
      * @param key
      */
-    abstract build(key: string): IActionCallback
+    build(key: string): IActionCallback {
+        console.warn(`Build not implemented for Action: ${key}`)
+        return {
+            description: 'Abstract action callback',
+            call: (user: IActionUser, nonce: string, index?: number) => {
+                console.warn('Call not implemented for Action!')
+            }
+        }
+    }
 }
 
 /**

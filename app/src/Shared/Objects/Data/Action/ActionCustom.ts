@@ -1,9 +1,7 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import DataMap from '../DataMap.js'
-import Utils from '../../../Utils/Utils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 
-export class ActionCustom extends AbstractAction {
+export default class ActionCustom extends AbstractAction {
     code: string = ''
 
     enlist() {
@@ -18,21 +16,5 @@ export class ActionCustom extends AbstractAction {
                 code: 'string|code'
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return {
-            description: 'Callback that triggers arbitrary code',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                try {
-                    const clone = Utils.clone<ActionCustom>(this)
-                    const modules = ModulesSingleton.getInstance()
-                    eval(clone.code)
-                } catch (error) {
-                    Utils.logWithBold(`Error in custom action <${key}>`, 'red')
-                    console.warn(error)
-                }
-            }
-        }
     }
 }

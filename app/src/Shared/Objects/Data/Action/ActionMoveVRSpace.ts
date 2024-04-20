@@ -1,9 +1,7 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import DataMap from '../DataMap.js'
-import Utils from '../../../Utils/Utils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 
-export class ActionMoveVRSpace extends AbstractAction {
+export default class ActionMoveVRSpace extends AbstractAction {
     x: number = 0
     y: number = 0
     z: number = 0
@@ -23,16 +21,5 @@ export class ActionMoveVRSpace extends AbstractAction {
                 duration: 'The amount of time in seconds to wait before moving back, 0 skips this step.'
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return  {
-            description: 'Callback that triggers an OpenVR2WSMoveSpace action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionMoveVRSpace>(this)
-                const modules = ModulesSingleton.getInstance()
-                modules.openvr2ws.moveSpace(clone)
-            }
-        }
     }
 }

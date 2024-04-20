@@ -1,12 +1,10 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
 import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
-import Utils from '../../../Utils/Utils.js'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 
-export class ActionOBS extends AbstractAction {
+export default class ActionOBS extends AbstractAction {
     sceneEntries: number[]|DataEntries<PresetOBSScene> = []
     sceneEntries_use = OptionEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
@@ -37,20 +35,6 @@ export class ActionOBS extends AbstractAction {
                 filterEntries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return {
-            description: 'Callback that triggers an OBS action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone(this) as ActionOBS
-                const modules = ModulesSingleton.getInstance()
-                // clone.key = key TODO: Is this needed for the group toggling?
-                const state = clone.state
-                console.log("OBS Reward triggered")
-                modules.obs.toggle(clone, state)
-            }
-        }
     }
 }
 export class ActionOBSSource extends AbstractData {

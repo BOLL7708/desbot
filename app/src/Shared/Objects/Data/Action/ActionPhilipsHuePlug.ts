@@ -1,14 +1,10 @@
-import AbstractAction, {IActionCallback, IActionUser} from './AbstractAction.js'
+import AbstractAction from './AbstractAction.js'
 import {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
 import {PresetPhilipsHuePlug} from '../Preset/PresetPhilipsHue.js'
-import Utils from '../../../Utils/Utils.js'
-import ArrayUtils from '../../../Utils/ArrayUtils.js'
-import PhilipsHueHelper from '../../../Helpers/PhilipsHueHelper.js'
-import {DataUtils} from '../DataUtils.js'
 
-export class ActionPhilipsHuePlug extends AbstractAction {
+export default class ActionPhilipsHuePlug extends AbstractAction {
     entries: number[]|DataEntries<PresetPhilipsHuePlug> = []
     entries_use = OptionEntryUsage.All
     originalState: boolean = false
@@ -31,16 +27,5 @@ export class ActionPhilipsHuePlug extends AbstractAction {
                 entries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    build(key: string): IActionCallback {
-        return  {
-            description: 'Callback that triggers a Philips Hue plug action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionPhilipsHuePlug>(this)
-                const ids = ArrayUtils.getAsType(DataUtils.ensureKeyArray(clone.entries) ?? [], clone.entries_use, index)
-                PhilipsHueHelper.runPlugs(ids, clone.triggerState, clone.originalState, clone.duration)
-            }
-        }
     }
 }
