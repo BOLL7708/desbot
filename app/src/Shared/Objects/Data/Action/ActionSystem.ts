@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
@@ -23,6 +23,12 @@ export default class ActionSystem extends AbstractAction {
                 toggle: 'Things to toggle.',
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionSystemRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionSystem>(key, this)
     }
 }
 export class ActionSystemTrigger extends AbstractData {

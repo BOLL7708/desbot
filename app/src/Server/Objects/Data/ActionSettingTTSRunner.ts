@@ -12,14 +12,15 @@ import Color from '../../../Shared/Constants/ColorConstants.js'
 import SettingDictionaryEntry from '../../../Shared/Objects/Data/Setting/SettingDictionary.js'
 import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import SettingUser, {SettingUserMute, SettingUserName} from '../../../Shared/Objects/Data/Setting/SettingUser.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionSettingTTSRunner extends ActionSettingTTS {
-    build(key: string): IActionCallback {
+export default class ActionSettingTTSRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return {
             awaitCall: true,
             description: 'Callback that executes a TTS function',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionSettingTTS>(this)
+                const clone = Utils.clone(instance as ActionSettingTTS)
                 const modules = ModulesSingleton.getInstance()
                 const states = StatesSingleton.getInstance()
                 const input = await TextHelper.replaceTagsInText(clone.inputOverride ?? user.input, user)

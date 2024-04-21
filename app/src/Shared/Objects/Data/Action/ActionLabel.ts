@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
 
@@ -23,6 +23,12 @@ export default class ActionLabel extends AbstractAction {
                 textEntries_use: OptionEntryUsage.ref
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionLabelRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionLabel>(key, this)
     }
 }
 

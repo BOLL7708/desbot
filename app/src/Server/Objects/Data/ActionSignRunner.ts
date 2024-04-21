@@ -4,13 +4,14 @@ import Utils from '../../../Shared/Utils/Utils.js'
 import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import TwitchHelixHelper from '../../../Shared/Helpers/TwitchHelixHelper.js'
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionSignRunner extends ActionSign {
-    build(key: string): IActionCallback {
+export default class ActionSignRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return  {
             description: 'Callback that triggers a Sign action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionSign>(this)
+                const clone = Utils.clone(instance as ActionSign)
                 const modules = ModulesSingleton.getInstance()
                 TwitchHelixHelper.getUserById(user.id).then(async userData => {
                     const modules = ModulesSingleton.getInstance()

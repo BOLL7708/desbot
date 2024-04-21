@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 
 export default class ActionCustom extends AbstractAction {
@@ -16,5 +16,11 @@ export default class ActionCustom extends AbstractAction {
                 code: 'string|code'
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionCustomRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionCustom>(key, this)
     }
 }

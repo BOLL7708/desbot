@@ -61,25 +61,6 @@ import PresetDiscordWebhook from './Preset/PresetDiscordWebhook.js'
 import PresetOBSScene, {PresetOBSFilter, PresetOBSSource} from './Preset/PresetOBS.js'
 import PresetPermissions from './Preset/PresetPermissions.js'
 import PresetPhilipsHueBulbState, {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from './Preset/PresetPhilipsHue.js'
-import ActionInputRunner from '../../../Server/Objects/Data/ActionInputRunner.js'
-import ActionLabelRunner from '../../../Server/Objects/Data/ActionLabelRunner.js'
-import ActionURIRunner from '../../../Server/Objects/Data/ActionURIRunner.js'
-import ActionMoveVRSpaceRunner from '../../../Server/Objects/Data/ActionMoveVRSpaceRunner.js'
-import ActionOBSRunner from '../../../Server/Objects/Data/ActionOBSRunner.js'
-import ActionPhilipsHueBulbRunner from '../../../Server/Objects/Data/ActionPhilipsHueBulbRunner.js'
-import ActionPipeRunner from '../../../Server/Objects/Data/ActionPipeRunner.js'
-import ActionRemoteCommandRunner from '../../../Server/Objects/Data/ActionRemoteCommandRunner.js'
-import ActionScreenshotRunner from '../../../Server/Objects/Data/ActionScreenshotRunner.js'
-import ActionSettingTTSRunner from '../../../Server/Objects/Data/ActionSettingTTSRunner.js'
-import ActionSettingVRRunner from '../../../Server/Objects/Data/ActionSettingVRRunner.js'
-import ActionSignRunner from '../../../Server/Objects/Data/ActionSignRunner.js'
-import ActionSpeechRunner from '../../../Server/Objects/Data/ActionSpeechRunner.js'
-import ActionSystemRunner from '../../../Server/Objects/Data/ActionSystemRunner.js'
-import ActionAudioRunner from '../../../Server/Objects/Data/ActionAudioRunner.js'
-import ActionChatRunner from '../../../Server/Objects/Data/ActionChatRunner.js'
-import ActionCustomRunner from '../../../Server/Objects/Data/ActionCustomRunner.js'
-import ActionDiscordRunner from '../../../Server/Objects/Data/ActionDiscordRunner.js'
-import ActionPhilipsHuePlugRunner from '../../../Server/Objects/Data/ActionPhilipsHuePlugRunner.js'
 
 /**
  * TODO: Try to do this dynamically in EJS when we are in Node, scan the Objects source folder and auto-generate this file.
@@ -90,7 +71,6 @@ import ActionPhilipsHuePlugRunner from '../../../Server/Objects/Data/ActionPhili
 export default class EnlistData {
     static run() {
         const objects: AbstractData[] = [
-            // region Actions
             new ActionAudio(),
             new ActionChat(),
             new ActionCustom(),
@@ -118,29 +98,6 @@ export default class EnlistData {
             new ActionSystemRewardState(),
             new ActionSystemRewardStateForEvent(),
             new ActionSystemUserEvent(),
-
-            // region Runners
-            new ActionAudioRunner(),
-            new ActionChatRunner(),
-            new ActionCustomRunner(),
-            new ActionDiscordRunner(),
-            new ActionInputRunner(),
-            new ActionLabelRunner(),
-            new ActionURIRunner(),
-            new ActionMoveVRSpaceRunner(),
-            new ActionOBSRunner(),
-            new ActionPhilipsHueBulbRunner(),
-            new ActionPhilipsHuePlugRunner(),
-            new ActionPipeRunner(),
-            new ActionRemoteCommandRunner(),
-            new ActionScreenshotRunner(),
-            new ActionSettingTTSRunner(),
-            new ActionSettingVRRunner(),
-            new ActionSignRunner(),
-            new ActionSpeechRunner(),
-            new ActionSystemRunner(),
-            // endregion
-            // endregion
 
             new ConfigAnnounceCheer(),
             new ConfigAnnounceRaid(),

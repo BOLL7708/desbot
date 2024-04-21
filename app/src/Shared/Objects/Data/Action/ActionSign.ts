@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 import DataUtils from '../DataUtils.js'
 
@@ -23,5 +23,11 @@ export default class ActionSign extends AbstractAction {
                 imageSrc: DataUtils.getStringFileImageRef()
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionSignRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionSign>(key, this)
     }
 }

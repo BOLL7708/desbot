@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 
 export default class ActionMoveVRSpace extends AbstractAction {
@@ -21,5 +21,11 @@ export default class ActionMoveVRSpace extends AbstractAction {
                 duration: 'The amount of time in seconds to wait before moving back, 0 skips this step.'
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionMoveVRSpaceRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionMoveVRSpace>(key, this)
     }
 }

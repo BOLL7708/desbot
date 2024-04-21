@@ -6,13 +6,14 @@ import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import AssetsHelper from '../../../Shared/Helpers/AssetsHelper.js'
 import ArrayUtils from '../../../Shared/Utils/ArrayUtils.js'
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionPipeRunner extends ActionPipe {
-    build(key: string): IActionCallback {
+export default class ActionPipeRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return  {
             description: 'Callback that triggers an OpenVRNotificationPipe action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionPipe>(this)
+                const clone = Utils.clone(instance as ActionPipe)
                 const modules = ModulesSingleton.getInstance()
                 const customPreset = DataUtils.ensureData(clone.customPreset)
                 const basicPreset = DataUtils.ensureData(clone.basicPreset)

@@ -7,13 +7,14 @@ import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
 import {SettingTwitchTokens} from '../../../Shared/Objects/Data/Setting/SettingTwitch.js'
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
 import ActionChat from '../../../Shared/Objects/Data/Action/ActionChat.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionChatRunner extends ActionChat {
-    build(key: string): IActionCallback {
+export default class ActionChatRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return {
             description: 'Callback that triggers a Twitch chat message action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionChat>(this)
+                const clone = Utils.clone(instance as ActionChat)
                 const modules = ModulesSingleton.getInstance()
                 const entries = ArrayUtils.getAsType(Utils.ensureArray(clone.entries), clone.entries_use, index)
                 for(const entry of entries) {

@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import {OptionScreenshotType} from '../../Options/OptionScreenshotType.js'
 import {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
@@ -24,6 +24,12 @@ export default class ActionScreenshot extends AbstractAction {
                 sourcePreset: PresetOBSSource.ref.id.build()
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionScreenshotRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionScreenshot>(key, this)
     }
 }
 

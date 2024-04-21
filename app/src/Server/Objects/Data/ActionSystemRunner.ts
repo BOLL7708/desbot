@@ -12,13 +12,14 @@ import EventDefault from '../../../Shared/Objects/Data/Event/EventDefault.js'
 import TriggerReward from '../../../Shared/Objects/Data/Trigger/TriggerReward.js'
 import TwitchHelixHelper from '../../../Shared/Helpers/TwitchHelixHelper.js'
 import ActionSystem, {ActionSystemRewardState} from '../../../Shared/Objects/Data/Action/ActionSystem.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionSystemRunner extends ActionSystem {
-    build(key: string): IActionCallback {
+export default class ActionSystemRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return {
             description: 'Callback that triggers or toggles events',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionSystem>(this)
+                const clone = Utils.clone(instance as ActionSystem)
                 const modules = ModulesSingleton.getInstance()
                 const interval = clone.trigger.interval
                 let delay = 0
@@ -62,10 +63,10 @@ export default class ActionSystemRunner extends ActionSystem {
                 }
 
                 // Trigger Events on User Input
-                const matchEntries = DataUtils.ensureItemDictionary<EventDefault>(this.trigger.matchedEventEntries)?.dataDictionary ?? {}
+                const matchEntries = DataUtils.ensureItemDictionary<EventDefault>(clone.trigger.matchedEventEntries)?.dataDictionary ?? {}
                 const matchTheseKeys = Object.keys(matchEntries)
-                const matchCaseSensitive = this.trigger.matchedEventEntries_caseSensitive
-                const matchRegex = this.trigger.matchedEventEntries_isRegex
+                const matchCaseSensitive = clone.trigger.matchedEventEntries_caseSensitive
+                const matchRegex = clone.trigger.matchedEventEntries_isRegex
                 const matchThisInput = (matchCaseSensitive ? user.input : user.input.toLowerCase()).trim()
                 const matchDefaultEventKey = matchEntries['*']?.key
 

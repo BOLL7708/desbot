@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
 import DataUtils from '../DataUtils.js'
@@ -30,6 +30,12 @@ export default class ActionAudio extends AbstractAction {
                 srcEntries_use: OptionEntryUsage.ref
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionAudioRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionAudio>(key, this)
     }
 }
 

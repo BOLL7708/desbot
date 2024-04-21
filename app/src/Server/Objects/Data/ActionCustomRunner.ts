@@ -2,14 +2,15 @@ import {IActionCallback, IActionUser} from '../../../Shared/Objects/Data/Action/
 import Utils from '../../../Shared/Utils/Utils.js'
 import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import ActionCustom from '../../../Shared/Objects/Data/Action/ActionCustom.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionCustomRunner extends ActionCustom {
-    build(key: string): IActionCallback {
+export default class ActionCustomRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return {
             description: 'Callback that triggers arbitrary code',
             call: async (user: IActionUser, nonce: string, index?: number) => {
                 try {
-                    const clone = Utils.clone<ActionCustom>(this)
+                    const clone = Utils.clone(instance as ActionCustom)
                     const modules = ModulesSingleton.getInstance()
                     eval(clone.code)
                 } catch (error) {

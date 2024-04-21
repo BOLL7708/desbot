@@ -10,6 +10,7 @@ import {ActionHandler} from '../../../Bot/Actions.js'
 import DataUtils from '../DataUtils.js'
 import {ITwitchReward} from '../../../Classes/TwitchEventSub.js'
 import Utils from '../../../Utils/Utils.js'
+import PresetReward from '../Preset/PresetReward.js'
 
 export default class TriggerReward extends AbstractTrigger {
     permissions: number|DataEntries<PresetPermissions> = 0

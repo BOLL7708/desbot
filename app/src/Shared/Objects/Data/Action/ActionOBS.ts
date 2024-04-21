@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
@@ -35,6 +35,12 @@ export default class ActionOBS extends AbstractAction {
                 filterEntries_use: OptionEntryUsage.ref
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionOBSRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionOBS>(key, this)
     }
 }
 export class ActionOBSSource extends AbstractData {

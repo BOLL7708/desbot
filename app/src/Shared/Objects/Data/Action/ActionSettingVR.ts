@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.js'
 import DataMap from '../DataMap.js'
 
@@ -27,5 +27,11 @@ export default class ActionSettingVR extends AbstractAction {
                 settingPreset: OptionSteamVRSettingType.ref
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionSettingVRRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionSettingVR>(key, this)
     }
 }

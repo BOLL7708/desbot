@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import {OptionTTSFunctionType} from '../../Options/OptionTTS.js'
 import DataMap from '../DataMap.js'
 
@@ -19,5 +19,11 @@ export default class ActionSettingTTS extends AbstractAction {
                 functionType: OptionTTSFunctionType.ref
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionSettingTTSRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionSettingTTS>(key, this)
     }
 }

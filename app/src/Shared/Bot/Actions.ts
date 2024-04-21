@@ -71,7 +71,7 @@ export class ActionHandler {
          */
         switch(event.behavior) {
             case OptionEventBehavior.Random: {
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, eventOptions.specificIndex))
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneRandom, eventOptions.specificIndex))
                 break
             }
             /**
@@ -115,7 +115,7 @@ export class ActionHandler {
                 index = options.loop
                     ? (counter.count - 1) % (options.maxValue > 0 ? options.maxValue : eventActionContainers.length) // Loop
                     : Math.min(counter.count - 1, eventActionContainers.length-1) // Clamp to max
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
             /**
@@ -184,7 +184,7 @@ export class ActionHandler {
                         index = Math.max(0, eventActionContainers.length - 2) // Second to last, fallback to first
                     }
                 }
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
                 break
             }
             /**
@@ -214,11 +214,11 @@ export class ActionHandler {
                     // Run reset actions if enabled.
                     if(event.multiTierOptions.resetOnTimeout) {
                         // Will use this specific index to run the hard reset actions.
-                        index = 1
-                        Actions.buildActionsMainCallback(
+                        index = 1;
+                        (await Actions.buildActionsMainCallback(
                             this.key,
                             ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index)
-                        ) (user, index)
+                        )) (user, index)
                     }
 
                     // Reset counter
@@ -295,11 +295,11 @@ export class ActionHandler {
                     actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, 0))
                 }
                 actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, actions)
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, actions)
                 break
             }
             default: {// Basically "All", no special behavior, only generate the callback if it is missing, but uses the entries by type.
-                actionsMainCallback = Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, eventOptions.specificIndex))
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.All, eventOptions.specificIndex))
                 break
             }
         }
@@ -431,13 +431,13 @@ export class Actions {
      * @param use OptionEntryUsage
      * @param index
      */
-    public static buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[], use: number=OptionEntryUsage.All, index: number=0): IActionsMainCallback {
+    public static async buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[], use: number=OptionEntryUsage.All, index: number=0): Promise<IActionsMainCallback> {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup
          * 2. Multiple setup
          *
-         * The multiple setups can be set to be all, random, incremental, accumulating or multitier.
+         * The multiple setups can be set to be all, random, incremental, accumulating or multi-tier.
          * In the future, possible other alternatives, like leveling up/community challenge.
          * 
          * There will be a settings for the first one in an array to be the default.
@@ -453,7 +453,7 @@ export class Actions {
             const actions = DataUtils.ensureDataArray(actionContainer.entries)
             for(const action of actions) {
                 // Build callbacks
-                const callback: IActionCallback = (action as AbstractAction).build(key)
+                const callback: IActionCallback = await (action as AbstractAction).build(key)
                 actionCallbacks.push(callback)
             }
             // Logging

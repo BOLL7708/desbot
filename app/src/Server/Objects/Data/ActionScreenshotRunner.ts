@@ -7,13 +7,14 @@ import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
 import ConfigScreenshots from '../../../Shared/Objects/Data/Config/ConfigScreenshots.js'
 import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import {OptionScreenshotType} from '../../../Shared/Objects/Options/OptionScreenshotType.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionScreenshotRunner extends ActionScreenshot {
-    build(key: string): IActionCallback {
+export default class ActionScreenshotRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return {
             description: 'Callback that triggers a Screenshot action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionScreenshot>(this)
+                const clone = Utils.clone(instance as ActionScreenshot)
                 const states = StatesSingleton.getInstance()
                 const modules = ModulesSingleton.getInstance()
                 const userInput = user.input

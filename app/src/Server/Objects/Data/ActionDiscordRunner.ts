@@ -7,13 +7,14 @@ import DiscordUtils from '../../../Shared/Utils/DiscordUtils.js'
 import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
 import ActionDiscord from '../../../Shared/Objects/Data/Action/ActionDiscord.js'
+import AbstractActionRunner from './AbstractActionRunner.js'
 
-export default class ActionDiscordRunner extends ActionDiscord {
-    build(key: string): IActionCallback {
+export default class ActionDiscordRunner extends AbstractActionRunner {
+    getCallback<T>(key: string, instance: T): IActionCallback {
         return {
             description: 'Callback that triggers a DiscordUtils message action',
             call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone<ActionDiscord>(this)
+                const clone = Utils.clone(instance as ActionDiscord)
                 const modules = ModulesSingleton.getInstance()
                 const userData = await TwitchHelixHelper.getUserById(user.id)
                 const entries = ArrayUtils.getAsType(clone.entries, clone.entries_use, index)

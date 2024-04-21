@@ -1,4 +1,4 @@
-import AbstractAction from './AbstractAction.js'
+import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import {OptionCommandType} from '../../Options/OptionCommandType.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
@@ -30,6 +30,12 @@ export default class ActionInput extends AbstractAction {
                 commands_use: OptionEntryUsage.ref
             }
         })
+    }
+
+    async build(key: string): Promise<IActionCallback> {
+        const runner = await import('../../../../Server/Objects/Data/ActionInputRunner.js')
+        const instance = new runner.default()
+        return instance.getCallback<ActionInput>(key, this)
     }
 }
 
