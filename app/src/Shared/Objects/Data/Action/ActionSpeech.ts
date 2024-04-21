@@ -39,7 +39,7 @@ export default class ActionSpeech extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionSpeechRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionSpeechRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionSpeech>(key, this)
     }

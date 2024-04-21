@@ -27,7 +27,7 @@ export default class ActionScreenshot extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionScreenshotRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionScreenshotRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionScreenshot>(key, this)
     }

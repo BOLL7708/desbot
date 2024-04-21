@@ -22,7 +22,7 @@ export default class ActionSettingTTS extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionSettingTTSRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionSettingTTSRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionSettingTTS>(key, this)
     }

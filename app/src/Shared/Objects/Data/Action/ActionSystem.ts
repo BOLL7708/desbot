@@ -26,7 +26,7 @@ export default class ActionSystem extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionSystemRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionSystemRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionSystem>(key, this)
     }

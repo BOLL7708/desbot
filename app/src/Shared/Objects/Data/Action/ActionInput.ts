@@ -33,7 +33,7 @@ export default class ActionInput extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionInputRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionInputRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionInput>(key, this)
     }

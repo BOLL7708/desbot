@@ -30,7 +30,7 @@ export default class ActionSettingVR extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionSettingVRRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionSettingVRRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionSettingVR>(key, this)
     }

@@ -26,7 +26,7 @@ export default class ActionChat extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionChatRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionChatRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionChat>(key, this)
     }

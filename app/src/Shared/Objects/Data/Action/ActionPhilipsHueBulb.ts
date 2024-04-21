@@ -30,7 +30,7 @@ export default class ActionPhilipsHueBulb extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionPhilipsHueBulbRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionPhilipsHueBulbRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionPhilipsHueBulb>(key, this)
     }

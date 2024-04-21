@@ -24,7 +24,7 @@ export default class ActionURI extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionURIRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionURIRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionURI>(key, this)
     }

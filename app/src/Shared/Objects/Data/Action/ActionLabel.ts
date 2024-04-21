@@ -26,7 +26,7 @@ export default class ActionLabel extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionLabelRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionLabelRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionLabel>(key, this)
     }

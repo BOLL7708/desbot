@@ -33,7 +33,7 @@ export default class ActionAudio extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionAudioRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionAudioRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionAudio>(key, this)
     }

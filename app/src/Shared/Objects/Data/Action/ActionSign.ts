@@ -26,7 +26,7 @@ export default class ActionSign extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionSignRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionSignRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionSign>(key, this)
     }

@@ -19,7 +19,7 @@ export default class ActionCustom extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionCustomRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionCustomRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionCustom>(key, this)
     }

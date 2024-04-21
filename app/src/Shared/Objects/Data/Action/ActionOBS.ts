@@ -38,7 +38,7 @@ export default class ActionOBS extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionOBSRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionOBSRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionOBS>(key, this)
     }

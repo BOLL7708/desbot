@@ -23,7 +23,7 @@ export default class ActionDiscord extends AbstractAction {
     }
 
     async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Objects/Data/ActionDiscordRunner.js')
+        const runner = await import('../../../../Server/Runners/Action/ActionDiscordRunner.js')
         const instance = new runner.default()
         return instance.getCallback<ActionDiscord>(key, this)
     }
