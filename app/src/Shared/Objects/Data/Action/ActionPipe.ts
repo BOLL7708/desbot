@@ -2,8 +2,8 @@ import AbstractAction from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
-import {PresetPipeBasic, PresetPipeCustom} from '../Preset/PresetPipe.js'
+import DataUtils from '../DataUtils.js'
+import PresetPipeBasic, {PresetPipeCustom} from '../Preset/PresetPipe.js'
 
 export default class ActionPipe extends AbstractAction {
     imagePathEntries: string[] = []

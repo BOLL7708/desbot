@@ -1,5 +1,5 @@
 import ActionSign from '../Objects/Data/Action/ActionSign.js'
-import {ConfigSign} from '../Objects/Data/Config/ConfigSign.js'
+import ConfigSign from '../Objects/Data/Config/ConfigSign.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
 import Color from '../Constants/ColorConstants.js'

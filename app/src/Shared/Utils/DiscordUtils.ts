@@ -1,7 +1,7 @@
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
-import {DataUtils} from '../Objects/Data/DataUtils.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
 import Utils from './Utils.js'
-import {ConfigDiscord} from '../Objects/Data/Config/ConfigDiscord.js'
+import ConfigDiscord from '../Objects/Data/Config/ConfigDiscord.js'
 
 enum EResponseState {
     OK,

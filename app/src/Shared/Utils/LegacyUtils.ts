@@ -1,4 +1,4 @@
-import {DataUtils} from '../Objects/Data/DataUtils.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
 import {SettingTwitchReward} from '../Objects/Data/Setting/SettingTwitch.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 

@@ -1,6 +1,6 @@
 import AbstractData from './AbstractData.js'
 import {IDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
-import {DataMeta} from './DataMeta.js'
+import DataMeta from './DataMeta.js'
 
 // Types
 export type TNoFunctions<T> = {

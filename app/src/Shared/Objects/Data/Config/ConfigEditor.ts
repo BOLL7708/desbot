@@ -1,8 +1,8 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 
-export class ConfigEditor extends AbstractData {
+export default class ConfigEditor extends AbstractData {
     autoGenerateKeys: boolean = true
     autoGenerateKeys_andShorten: boolean = true
     showHelpIcons: boolean = true

@@ -3,8 +3,8 @@ import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {DataEntries} from '../AbstractData.js'
 import {OptionTTSType} from '../../Options/OptionTTS.js'
 import DataMap from '../DataMap.js'
-import {PresetText} from '../Preset/PresetText.js'
-import {SettingUser} from '../Setting/SettingUser.js'
+import PresetText from '../Preset/PresetText.js'
+import SettingUser from '../Setting/SettingUser.js'
 
 export default class ActionSpeech extends AbstractAction {
     entries: string[] = ['']

@@ -1,6 +1,6 @@
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
-import {ConfigSteam} from '../Objects/Data/Config/ConfigSteam.js'
+import ConfigSteam from '../Objects/Data/Config/ConfigSteam.js'
 import Color from '../Constants/ColorConstants.js'
 import {SettingSteamGame} from '../Objects/Data/Setting/SettingSteam.js'
 

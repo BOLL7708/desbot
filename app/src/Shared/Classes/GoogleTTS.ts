@@ -1,4 +1,4 @@
-import {ConfigSpeech} from '../Objects/Data/Config/ConfigSpeech.js'
+import ConfigSpeech from '../Objects/Data/Config/ConfigSpeech.js'
 import ConfigChat from '../Objects/Data/Config/ConfigChat.js'
 import AudioPlayer, {AudioPlayerInstance, IAudioPlayedCallback} from './AudioPlayer.js'
 import ActionAudio from '../Objects/Data/Action/ActionAudio.js'
@@ -11,11 +11,11 @@ import {ITwitchEmotePosition} from './TwitchFactory.js'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.js'
 import TextHelper from '../Helpers/TextHelper.js'
 import ArrayUtils from '../Utils/ArrayUtils.js'
-import {SettingUser, SettingUserVoice} from '../Objects/Data/Setting/SettingUser.js'
-import {SettingDictionaryEntry} from '../Objects/Data/Setting/SettingDictionary.js'
 import {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.js'
-import {ConfigController} from '../Objects/Data/Config/ConfigController.js'
 import Color from '../Constants/ColorConstants.js'
+import SettingDictionaryEntry from '../Objects/Data/Setting/SettingDictionary.js'
+import SettingUser, {SettingUserVoice} from '../Objects/Data/Setting/SettingUser.js'
+import ConfigController from '../Objects/Data/Config/ConfigController.js'
 
 export default class GoogleTTS {
     private _config = new ConfigSpeech()

@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class SettingSteamAchievements extends AbstractData {
+export default class SettingSteamAchievements extends AbstractData {
     achieved: string[] = []
 
     enlist() {

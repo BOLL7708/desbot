@@ -4,13 +4,13 @@ import Utils, {EUtilsTitleReturnOption} from '../../../Shared/Utils/Utils.js'
 import DataBaseHelper, {IDataBaseItem} from '../../../Shared/Helpers/DataBaseHelper.js'
 import DataMap, {IRootTool} from '../../../Shared/Objects/Data/DataMap.js'
 import Constants from '../../../Shared/Constants/Constants.js'
-import {EventDefault} from '../../../Shared/Objects/Data/Event/EventDefault.js'
-import {DataUtils} from '../../../Shared/Objects/Data/DataUtils.js'
+import EventDefault from '../../../Shared/Objects/Data/Event/EventDefault.js'
+import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import EditorHandlerUtils from './EditorHandlerUtils.js'
 import JsonEditor from './JsonEditor.js'
 import AbstractData from '../../../Shared/Objects/Data/AbstractData.js'
-import {ConfigEditor} from '../../../Shared/Objects/Data/Config/ConfigEditor.js'
-import {PresetEventCategory} from '../../../Shared/Objects/Data/Preset/PresetEventCategory.js'
+import ConfigEditor from '../../../Shared/Objects/Data/Config/ConfigEditor.js'
+import PresetEventCategory from '../../../Shared/Objects/Data/Preset/PresetEventCategory.js'
 
 export default class EditorHandler {
     private _state = new EditorPageState()

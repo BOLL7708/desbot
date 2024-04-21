@@ -1,7 +1,7 @@
 import AbstractAction from './AbstractAction.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 
 export default class ActionAudio extends AbstractAction {
     srcEntries: string[] = ['']

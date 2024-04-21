@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class SettingChannelTrophyStat extends AbstractData {
+export default class SettingChannelTrophyStat extends AbstractData {
     userId: number = 0
     index: number = 0
 

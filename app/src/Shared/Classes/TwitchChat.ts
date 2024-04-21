@@ -1,6 +1,6 @@
 import WebSockets from './WebSockets.js'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.js'
-import {DataUtils} from '../Objects/Data/DataUtils.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
 import Utils from '../Utils/Utils.js'
 import TwitchFactory, {ITwitchMessageCmd} from './TwitchFactory.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'

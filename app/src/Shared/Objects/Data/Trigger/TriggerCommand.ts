@@ -1,11 +1,11 @@
 import AbstractTrigger from './AbstractTrigger.js'
 import {DataEntries} from '../AbstractData.js'
-import {PresetPermissions} from '../Preset/PresetPermissions.js'
+import PresetPermissions from '../Preset/PresetPermissions.js'
 import OptionCommandCategory from '../../Options/OptionCommandCategory.js'
 import DataMap from '../DataMap.js'
 import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 
-export class TriggerCommand extends AbstractTrigger {
+export default class TriggerCommand extends AbstractTrigger {
     entries: string[] = ['']
     permissions: number|DataEntries<PresetPermissions> = 0
     requireUserTag = false

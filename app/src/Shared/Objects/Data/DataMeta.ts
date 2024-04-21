@@ -1,6 +1,6 @@
 import {IDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 
-export class DataMeta {
+export default class DataMeta {
     public description?: string
     public documentation?: IStringDictionary
     public instructions?: IStringDictionary

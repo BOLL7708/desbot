@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class  ConfigImageEditorRect extends AbstractData {
+export default class ConfigImageEditorRect extends AbstractData {
     x: number = 0
     y: number = 0
     w: number = 0

@@ -1,9 +1,9 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../Interfaces/igeneral.js'
-import {PresetText} from '../Preset/PresetText.js'
 import DataMap from '../DataMap.js'
+import PresetText from '../Preset/PresetText.js'
 
-export class ConfigTest extends AbstractData {
+export default class ConfigTest extends AbstractData {
     anInstance = new ConfigTestSub()
     singleReference: number|DataEntries<PresetText> = 0
     multiReference: number[]|DataEntries<PresetText> = []

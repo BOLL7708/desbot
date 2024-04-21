@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class PresetReward extends AbstractData {
+export default class PresetReward extends AbstractData {
     title: string = ''
     cost: number = 1
     prompt: string = ''

@@ -3,7 +3,7 @@ import DataMap from '../DataMap.js'
 import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 import Utils from '../../../Utils/Utils.js'
 
-export class TriggerRemoteCommand extends AbstractTrigger {
+export default class TriggerRemoteCommand extends AbstractTrigger {
     entries: string[] = ['']
     globalCooldown: number = 0
     userCooldown: number = 0

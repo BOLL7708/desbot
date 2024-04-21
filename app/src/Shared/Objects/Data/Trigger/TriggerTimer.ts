@@ -3,7 +3,7 @@ import DataMap from '../DataMap.js'
 import {ActionHandler, Actions} from '../../../Bot/Actions.js'
 import {EEventSource} from '../../../Bot/Enums.js'
 
-export class TriggerTimer extends AbstractTrigger {
+export default class TriggerTimer extends AbstractTrigger {
     interval: number = 10
     repetitions: number = 0
     initialDelay: number = 0

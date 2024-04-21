@@ -5,7 +5,7 @@ import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
 import ActionOBS from '../Objects/Data/Action/ActionOBS.js'
 import ArrayUtils from '../Utils/ArrayUtils.js'
-import {DataUtils} from '../Objects/Data/DataUtils.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
 import {IActionUser} from '../Objects/Data/Action/AbstractAction.js'
 import {OptionScreenshotFileType} from '../Objects/Options/OptionScreenshotFileType.js'
 

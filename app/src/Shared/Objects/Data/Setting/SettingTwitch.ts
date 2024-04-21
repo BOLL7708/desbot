@@ -2,7 +2,7 @@ import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import {TTwitchEventSubEventStatus} from '../../../Classes/TwitchEventSub.js'
 
-export class SettingTwitchClient extends AbstractData {
+export default class SettingTwitchClient extends AbstractData {
     clientId: string = ''
     clientSecret: string = ''
     redirectUri: string = ''

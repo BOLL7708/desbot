@@ -2,7 +2,7 @@ import AbstractAction from './AbstractAction.js'
 import {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.js'
 
 export default class ActionDiscord extends AbstractAction {
     webhook: number|DataEntries<PresetDiscordWebhook> = 0

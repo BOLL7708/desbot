@@ -1,9 +1,9 @@
 import AbstractTrigger from '../Objects/Data/Trigger/AbstractTrigger.js'
-import {DataUtils} from '../Objects/Data/DataUtils.js'
-import {TriggerReward} from '../Objects/Data/Trigger/TriggerReward.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
+import TriggerReward from '../Objects/Data/Trigger/TriggerReward.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import {IDictionary} from '../Interfaces/igeneral.js'
-import {EventDefault} from '../Objects/Data/Event/EventDefault.js'
+import EventDefault from '../Objects/Data/Event/EventDefault.js'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&AbstractTrigger): Promise<(T&AbstractTrigger)[]> {

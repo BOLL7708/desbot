@@ -1,6 +1,6 @@
 import {IActionCallback, IActionUser} from '../../../Shared/Objects/Data/Action/AbstractAction.js'
 import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
-import {DataUtils} from '../../../Shared/Objects/Data/DataUtils.js'
+import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import ArrayUtils from '../../../Shared/Utils/ArrayUtils.js'
 import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
 import {SettingTwitchTokens} from '../../../Shared/Objects/Data/Setting/SettingTwitch.js'

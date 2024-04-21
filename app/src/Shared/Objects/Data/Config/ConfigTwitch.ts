@@ -1,6 +1,6 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
 
 export default class ConfigTwitch extends AbstractData {

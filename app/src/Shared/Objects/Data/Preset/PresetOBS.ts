@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class PresetOBSScene extends AbstractData {
+export default class PresetOBSScene extends AbstractData {
     sceneName: string = ''
 
     enlist() {

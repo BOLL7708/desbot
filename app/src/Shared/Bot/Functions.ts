@@ -1,7 +1,7 @@
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
-import {DataUtils} from '../Objects/Data/DataUtils.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
 import Utils from '../Utils/Utils.js'
 import SteamWebHelper from '../Helpers/SteamWebHelper.js'
 import OpenVR2WS from '../Classes/OpenVR2WS.js'
@@ -10,11 +10,11 @@ import TwitchHelixHelper, {ITwitchHelixChannelRequest} from '../Helpers/TwitchHe
 import TextHelper from '../Helpers/TextHelper.js'
 import DiscordUtils from '../Utils/DiscordUtils.js'
 import ConfigChat from '../Objects/Data/Config/ConfigChat.js'
-import {ConfigSteam} from '../Objects/Data/Config/ConfigSteam.js'
+import ConfigSteam from '../Objects/Data/Config/ConfigSteam.js'
 import ConfigTwitch from '../Objects/Data/Config/ConfigTwitch.js'
-import {ConfigController} from '../Objects/Data/Config/ConfigController.js'
+import ConfigController from '../Objects/Data/Config/ConfigController.js'
 import Color from '../Constants/ColorConstants.js'
-import {SettingSteamAchievements} from '../Objects/Data/Setting/SettingSteam.js'
+import SettingSteamAchievements from '../Objects/Data/Setting/SettingSteam.js'
 import ActionSign from '../Objects/Data/Action/ActionSign.js'
 
 export default class Functions {

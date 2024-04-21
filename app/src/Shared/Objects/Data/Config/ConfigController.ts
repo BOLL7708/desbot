@@ -1,8 +1,8 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.js'
 
-export class ConfigController extends AbstractData {
+export default class ConfigController extends AbstractData {
     secretChatSymbols: string[] = ['!', 'ℹ']
     stateDefaults = new ConfigControllerStateDefaults()
     useWebsockets = new ConfigControllerWebsocketsUsed()

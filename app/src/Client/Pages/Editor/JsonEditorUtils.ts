@@ -1,5 +1,5 @@
 import JsonEditor, {EOrigin, IJsonEditorPath} from './JsonEditor.js'
-import {DataMeta} from '../../../Shared/Objects/Data/DataMeta.js'
+import DataMeta from '../../../Shared/Objects/Data/DataMeta.js'
 import DataMap from '../../../Shared/Objects/Data/DataMap.js'
 import Utils from '../../../Shared/Utils/Utils.js'
 import {OptionsMap} from '../../../Shared/Objects/Options/OptionsMap.js'

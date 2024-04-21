@@ -1,8 +1,8 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
-import {EventDefault} from '../Event/EventDefault.js'
+import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.js'
+import EventDefault from '../Event/EventDefault.js'
 import {PresetPipeCustom} from '../Preset/PresetPipe.js'
 import ActionAudio from '../Action/ActionAudio.js'
 

@@ -1,17 +1,17 @@
 import AbstractTrigger from './AbstractTrigger.js'
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap, {RootToolResult} from '../DataMap.js'
-import {PresetPermissions} from '../Preset/PresetPermissions.js'
+import PresetPermissions from '../Preset/PresetPermissions.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
 import TwitchHelixHelper from '../../../Helpers/TwitchHelixHelper.js'
 import DataBaseHelper from '../../../Helpers/DataBaseHelper.js'
 import ModulesSingleton from '../../../Singletons/ModulesSingleton.js'
 import {ActionHandler} from '../../../Bot/Actions.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 import {ITwitchReward} from '../../../Classes/TwitchEventSub.js'
 import Utils from '../../../Utils/Utils.js'
 
-export class TriggerReward extends AbstractTrigger {
+export default class TriggerReward extends AbstractTrigger {
     permissions: number|DataEntries<PresetPermissions> = 0
     rewardID: number|DataEntries<SettingTwitchReward> = 0
     rewardEntries: number[]|DataEntries<AbstractData> = [] // TODO: This is <Data> just to give it a parent, need to update this so it's not generic.

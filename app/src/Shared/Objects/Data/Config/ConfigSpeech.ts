@@ -1,9 +1,9 @@
 import AbstractData from '../AbstractData.js'
-import {ConfigCleanText} from './ConfigCleanText.js'
+import ConfigCleanText from './ConfigCleanText.js'
 import DataMap from '../DataMap.js'
 import {IDictionary} from '../../../Interfaces/igeneral.js'
 
-export class ConfigSpeech extends AbstractData {
+export default class ConfigSpeech extends AbstractData {
     googleApiKey: string = ''
     speakerTimeoutMs: number = 10000
     randomizeVoice: boolean = true

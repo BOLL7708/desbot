@@ -1,6 +1,6 @@
 import AbstractAction from './AbstractAction.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 
 export default class ActionSign extends AbstractAction {
     title: string = ''

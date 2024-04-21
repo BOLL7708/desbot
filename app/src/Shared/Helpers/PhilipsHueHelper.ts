@@ -2,7 +2,7 @@ import DataBaseHelper from './DataBaseHelper.js'
 import {INumberDictionary} from '../Interfaces/igeneral.js'
 import {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from '../Objects/Data/Preset/PresetPhilipsHue.js'
 import Utils from '../Utils/Utils.js'
-import {ConfigPhilipsHue} from '../Objects/Data/Config/ConfigPhilipsHue.js'
+import ConfigPhilipsHue from '../Objects/Data/Config/ConfigPhilipsHue.js'
 import Color from '../Constants/ColorConstants.js'
 
 export default class PhilipsHueHelper {

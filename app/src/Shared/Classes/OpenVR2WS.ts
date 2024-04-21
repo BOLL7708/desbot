@@ -1,4 +1,4 @@
-import {ConfigOpenVR2WS} from '../Objects/Data/Config/ConfigOpenVR2WS.js'
+import ConfigOpenVR2WS from '../Objects/Data/Config/ConfigOpenVR2WS.js'
 import WebSockets from './WebSockets.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'

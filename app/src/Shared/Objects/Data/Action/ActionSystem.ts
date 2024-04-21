@@ -4,10 +4,10 @@ import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {INumberDictionary} from '../../../Interfaces/igeneral.js'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.js'
-import {EventDefault} from '../Event/EventDefault.js'
+import EventDefault from '../Event/EventDefault.js'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.js'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.js'
-import {SettingUser} from '../Setting/SettingUser.js'
+import SettingUser from '../Setting/SettingUser.js'
 
 export default class ActionSystem extends AbstractAction {
     trigger = new ActionSystemTrigger()

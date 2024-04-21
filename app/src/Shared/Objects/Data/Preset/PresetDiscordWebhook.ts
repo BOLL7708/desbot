@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class PresetDiscordWebhook extends AbstractData {
+export default class PresetDiscordWebhook extends AbstractData {
     url: string = ''
     isForum: boolean = false
 

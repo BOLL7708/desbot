@@ -2,8 +2,8 @@ import Color from '../Constants/ColorConstants.js'
 import WebSockets from './WebSockets.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
-import {ConfigRelay} from '../Objects/Data/Config/ConfigRelay.js'
-import {ConfigController} from '../Objects/Data/Config/ConfigController.js'
+import ConfigRelay from '../Objects/Data/Config/ConfigRelay.js'
+import ConfigController from '../Objects/Data/Config/ConfigController.js'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen

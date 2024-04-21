@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class PresetEventCategory extends AbstractData {
+export default class PresetEventCategory extends AbstractData {
     description: string = ''
 
     enlist() {

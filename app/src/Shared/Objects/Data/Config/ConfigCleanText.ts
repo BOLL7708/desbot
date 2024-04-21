@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class ConfigCleanText extends AbstractData {
+export default class ConfigCleanText extends AbstractData {
     removeBitEmotes: boolean = false
     keepCase: boolean = false
     replaceUserTags: boolean = true

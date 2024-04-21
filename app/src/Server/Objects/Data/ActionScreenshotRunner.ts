@@ -5,7 +5,7 @@ import StatesSingleton from '../../../Shared/Singletons/StatesSingleton.js'
 import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
 import ConfigScreenshots from '../../../Shared/Objects/Data/Config/ConfigScreenshots.js'
-import {DataUtils} from '../../../Shared/Objects/Data/DataUtils.js'
+import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import {OptionScreenshotType} from '../../../Shared/Objects/Options/OptionScreenshotType.js'
 
 export default class ActionScreenshotRunner extends ActionScreenshot {

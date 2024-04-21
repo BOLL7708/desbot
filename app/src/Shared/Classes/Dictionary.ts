@@ -1,4 +1,4 @@
-import {ConfigSpeech} from '../Objects/Data/Config/ConfigSpeech.js'
+import ConfigSpeech from '../Objects/Data/Config/ConfigSpeech.js'
 import {IGoogleAudio} from './GoogleTTS.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'

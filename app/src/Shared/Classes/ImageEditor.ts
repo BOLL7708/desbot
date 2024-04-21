@@ -1,8 +1,8 @@
 import ImageHelper from '../Helpers/ImageHelper.js'
 import Utils from '../Utils/Utils.js'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../Objects/Data/Config/ConfigImageEditor.js'
 import Color from '../Constants/ColorConstants.js'
 import Twitch, {ITwitchMessageData} from './Twitch.js'
+import ConfigImageEditorRect, {ConfigImageEditorFontSettings, ConfigImageEditorOutline} from '../Objects/Data/Config/ConfigImageEditor.js'
 
 export default class ImageEditor {
     private readonly _canvas: HTMLCanvasElement

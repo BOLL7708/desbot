@@ -2,10 +2,10 @@ import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../Interfaces/igeneral.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
-import {PresetPipeBasic} from '../Preset/PresetPipe.js'
+import DataUtils from '../DataUtils.js'
+import PresetPipeBasic from '../Preset/PresetPipe.js'
 
-export class ConfigExample extends AbstractData {
+export default class ConfigExample extends AbstractData {
     singleBoolean = false
     singleNumber = 0
     singleNumberRange = 0

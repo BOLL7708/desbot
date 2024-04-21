@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class SettingCounterBase extends AbstractData {
+export default class SettingCounterBase extends AbstractData {
     count: number = 0
     enlist() {
         // This is weird, does it work doing it like this?

@@ -1,8 +1,8 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.js'
 
-export class ConfigDiscord extends AbstractData {
+export default class ConfigDiscord extends AbstractData {
     prefixCheer: string = '*Cheer*: '
     prefixReward: string = '*Reward*: '
     screenshotEmbedColorManual: string = '#FFFFFF'

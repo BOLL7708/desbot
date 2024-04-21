@@ -1,8 +1,8 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 
-export class PresetPhilipsHueBulbState extends AbstractData {
+export default class PresetPhilipsHueBulbState extends AbstractData {
     brightness: number = 254
     hue: number = 0
     saturation: number = 254

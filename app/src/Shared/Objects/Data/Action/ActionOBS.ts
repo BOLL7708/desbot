@@ -2,7 +2,7 @@ import AbstractAction from './AbstractAction.js'
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.js'
 import DataMap from '../DataMap.js'
-import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.js'
+import PresetOBSScene, {PresetOBSFilter, PresetOBSSource} from '../Preset/PresetOBS.js'
 
 export default class ActionOBS extends AbstractAction {
     sceneEntries: number[]|DataEntries<PresetOBSScene> = []

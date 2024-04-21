@@ -1,16 +1,16 @@
 import TwitchHelixHelper, {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.js'
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
-import {SettingUser, SettingUserName, SettingUserVoice} from '../Objects/Data/Setting/SettingUser.js'
-import {ConfigCleanText} from '../Objects/Data/Config/ConfigCleanText.js'
+import ConfigCleanText from '../Objects/Data/Config/ConfigCleanText.js'
 import {IActionUser} from '../Objects/Data/Action/AbstractAction.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import SteamStoreHelper from './SteamStoreHelper.js'
 import {ITwitchEmotePosition} from '../Classes/TwitchFactory.js'
-import {ConfigSpeech} from '../Objects/Data/Config/ConfigSpeech.js'
-import {EventDefault} from '../Objects/Data/Event/EventDefault.js'
+import ConfigSpeech from '../Objects/Data/Config/ConfigSpeech.js'
+import EventDefault from '../Objects/Data/Event/EventDefault.js'
 import {SettingAccumulatingCounter} from '../Objects/Data/Setting/SettingCounters.js'
+import SettingUser, {SettingUserName, SettingUserVoice} from '../Objects/Data/Setting/SettingUser.js'
 
 export default class TextHelper {
     static async loadCleanName(userIdOrName: string|number):Promise<string> {

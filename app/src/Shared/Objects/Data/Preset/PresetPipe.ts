@@ -1,9 +1,9 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 import OptionPipeCustomAnchorType from '../../Options/OptionPipeCustomAnchorType.js'
 
-export class PresetPipeBasic extends AbstractData {
+export default class PresetPipeBasic extends AbstractData {
     imageData: string = ''
     basicTitle: string = 'OpenVRNotificationPipe'
     basicMessage: string = ''

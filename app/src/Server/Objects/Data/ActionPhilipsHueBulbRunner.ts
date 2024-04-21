@@ -2,7 +2,7 @@ import ActionPhilipsHueBulb from '../../../Shared/Objects/Data/Action/ActionPhil
 import {IActionCallback, IActionUser} from '../../../Shared/Objects/Data/Action/AbstractAction.js'
 import Utils from '../../../Shared/Utils/Utils.js'
 import ArrayUtils from '../../../Shared/Utils/ArrayUtils.js'
-import {DataUtils} from '../../../Shared/Objects/Data/DataUtils.js'
+import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import PhilipsHueHelper from '../../../Shared/Helpers/PhilipsHueHelper.js'
 
 export default class ActionPhilipsHueBulbRunner extends ActionPhilipsHueBulb {

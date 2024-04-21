@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class ConfigPhilipsHue extends AbstractData {
+export default class ConfigPhilipsHue extends AbstractData {
     serverPath: string = 'http://'
     username: string = ''
 

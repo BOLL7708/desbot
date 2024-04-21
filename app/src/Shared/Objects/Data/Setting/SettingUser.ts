@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class SettingUser extends AbstractData {
+export default class SettingUser extends AbstractData {
     userName: string = ''
     displayName: string = ''
     voice = new SettingUserVoice()

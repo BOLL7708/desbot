@@ -5,7 +5,7 @@ import {ActionHandler} from '../../../Bot/Actions.js'
 import {ITwitchCheer} from '../../../Classes/TwitchEventSub.js'
 import Utils from '../../../Utils/Utils.js'
 
-export class TriggerCheer extends AbstractTrigger {
+export default class TriggerCheer extends AbstractTrigger {
     amount: number = 1
 
     enlist() {

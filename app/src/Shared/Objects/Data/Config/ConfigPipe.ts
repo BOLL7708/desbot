@@ -1,9 +1,9 @@
 import AbstractData from '../AbstractData.js'
-import {ConfigCleanText} from './ConfigCleanText.js'
+import ConfigCleanText from './ConfigCleanText.js'
 import DataMap from '../DataMap.js'
-import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.js'
+import ConfigImageEditorRect, {ConfigImageEditorFontSettings, ConfigImageEditorOutline} from './ConfigImageEditor.js'
 
-export class ConfigPipe extends AbstractData {
+export default class ConfigPipe extends AbstractData {
     port: number = 8077
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()

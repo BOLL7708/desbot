@@ -2,7 +2,7 @@ import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.js'
 
-export class PresetSystemActionText extends AbstractData {
+export default class PresetSystemActionText extends AbstractData {
     speech: string[] = []
     chat: string[] = []
 

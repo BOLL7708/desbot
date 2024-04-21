@@ -2,7 +2,7 @@ import {AbstractOption} from './AbstractOption.js'
 import {TNoFunctions} from '../Data/DataMap.js'
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
 import Utils from '../../Utils/Utils.js'
-import {DataMeta} from '../Data/DataMeta.js'
+import DataMeta from '../Data/DataMeta.js'
 import Color from '../../Constants/ColorConstants.js'
 
 export class OptionsMap {

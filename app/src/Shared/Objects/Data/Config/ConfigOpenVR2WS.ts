@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class ConfigOpenVR2WS extends AbstractData {
+export default class ConfigOpenVR2WS extends AbstractData {
     port: number = 7708
     password: string = ''
 

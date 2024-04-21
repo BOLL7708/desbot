@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class PresetPermissions extends AbstractData {
+export default class PresetPermissions extends AbstractData {
     streamer: boolean = true
     moderators: boolean = false
     VIPs: boolean = false

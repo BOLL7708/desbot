@@ -1,14 +1,14 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.js'
 import DataMap from '../DataMap.js'
-import {PresetEventCategory} from '../Preset/PresetEventCategory.js'
+import PresetEventCategory from '../Preset/PresetEventCategory.js'
 import AbstractTrigger from '../Trigger/AbstractTrigger.js'
-import {DataUtils} from '../DataUtils.js'
+import DataUtils from '../DataUtils.js'
 import {IDictionary} from '../../../Interfaces/igeneral.js'
 import {OptionEventRun} from '../../Options/OptionEventRun.js'
 import AbstractAction from '../Action/AbstractAction.js'
 
-export class EventDefault extends AbstractData {
+export default class EventDefault extends AbstractData {
     category: number|DataEntries<PresetEventCategory> = 0
     options = new EventOptions() // TODO: Put internal properties in the base root instead, as well as the reward options object.
     behavior: number = OptionEventBehavior.All

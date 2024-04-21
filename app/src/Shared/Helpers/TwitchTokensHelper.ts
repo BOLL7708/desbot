@@ -1,7 +1,7 @@
 import DataBaseHelper from './DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
-import {SettingTwitchClient, SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.js'
 import Color from '../Constants/ColorConstants.js'
+import SettingTwitchClient, {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.js'
 
 export default class TwitchTokensHelper {
     /**

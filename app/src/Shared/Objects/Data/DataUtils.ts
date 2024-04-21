@@ -3,7 +3,7 @@ import DataMap from './DataMap.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import {IDataBaseItem} from '../../Helpers/DataBaseHelper.js'
 
-export class DataUtils {
+export default class DataUtils {
     // region Referencing
     static getNumberRangeRef(min: number, max: number, step: number = 1): string {
         return `number|range=${min},${max},${step}`

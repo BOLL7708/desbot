@@ -6,7 +6,7 @@ import {ActionHandler} from '../../../Bot/Actions.js'
 import Callbacks from '../../../Bot/Callbacks.js'
 import Utils from '../../../Utils/Utils.js'
 
-export class TriggerRelay extends AbstractTrigger {
+export default class TriggerRelay extends AbstractTrigger {
     key: string = ''
 
     enlist() {

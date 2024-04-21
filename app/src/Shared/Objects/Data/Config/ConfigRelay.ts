@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class ConfigRelay extends AbstractData {
+export default class ConfigRelay extends AbstractData {
     port: number = 7788
     // streamDeckChannel: string = 'desbot_streamdeck
     overlayImagesChannel: string = 'overlay_images'

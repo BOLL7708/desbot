@@ -1,4 +1,4 @@
-import {DataUtils} from './DataUtils.js'
+import DataUtils from './DataUtils.js'
 import DataMap from './DataMap.js'
 import DataBaseHelper, {IDataBaseItem} from '../../Helpers/DataBaseHelper.js'
 import Utils from '../../Utils/Utils.js'

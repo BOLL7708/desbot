@@ -1,9 +1,9 @@
 import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import {SettingSteamGame} from '../Setting/SettingSteam.js'
-import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.js'
+import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.js'
 
-export class ConfigSteam extends AbstractData {
+export default class ConfigSteam extends AbstractData {
     steamWebApiKey: string = ''
     steamUserId: string = ''
     playerSummaryIntervalMs: number = 60000

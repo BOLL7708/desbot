@@ -1,7 +1,7 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 
-export class ConfigSign extends AbstractData {
+export default class ConfigSign extends AbstractData {
     direction: string = 'left'
     enabled: boolean = true
     fontColor: string = '#FFFFFF'

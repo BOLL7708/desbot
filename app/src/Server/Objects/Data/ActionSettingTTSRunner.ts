@@ -5,13 +5,13 @@ import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import StatesSingleton from '../../../Shared/Singletons/StatesSingleton.js'
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
 import DataBaseHelper from '../../../Shared/Helpers/DataBaseHelper.js'
-import {SettingUser, SettingUserMute, SettingUserName} from '../../../Shared/Objects/Data/Setting/SettingUser.js'
 import {OptionTTSFunctionType} from '../../../Shared/Objects/Options/OptionTTS.js'
 import {EEventSource} from '../../../Shared/Bot/Enums.js'
 import TwitchHelixHelper from '../../../Shared/Helpers/TwitchHelixHelper.js'
 import Color from '../../../Shared/Constants/ColorConstants.js'
-import {SettingDictionaryEntry} from '../../../Shared/Objects/Data/Setting/SettingDictionary.js'
-import {DataUtils} from '../../../Shared/Objects/Data/DataUtils.js'
+import SettingDictionaryEntry from '../../../Shared/Objects/Data/Setting/SettingDictionary.js'
+import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
+import SettingUser, {SettingUserMute, SettingUserName} from '../../../Shared/Objects/Data/Setting/SettingUser.js'
 
 export default class ActionSettingTTSRunner extends ActionSettingTTS {
     build(key: string): IActionCallback {
