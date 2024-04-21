@@ -8,7 +8,7 @@ import {SettingTwitchTokens} from '../../../Shared/Objects/Data/Setting/SettingT
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
 import ActionChat from '../../../Shared/Objects/Data/Action/ActionChat.js'
 
-class ActionChatRunner extends ActionChat {
+export default class ActionChatRunner extends ActionChat {
     build(key: string): IActionCallback {
         return {
             description: 'Callback that triggers a Twitch chat message action',

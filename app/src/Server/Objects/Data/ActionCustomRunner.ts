@@ -3,7 +3,7 @@ import Utils from '../../../Shared/Utils/Utils.js'
 import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import ActionCustom from '../../../Shared/Objects/Data/Action/ActionCustom.js'
 
-class ActionCustomRunner extends ActionCustom {
+export default class ActionCustomRunner extends ActionCustom {
     build(key: string): IActionCallback {
         return {
             description: 'Callback that triggers arbitrary code',

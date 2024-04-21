@@ -5,7 +5,7 @@ import ArrayUtils from '../../../Shared/Utils/ArrayUtils.js'
 import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import PhilipsHueHelper from '../../../Shared/Helpers/PhilipsHueHelper.js'
 
-class ActionPhilipsHuePlugRunner extends ActionPhilipsHuePlug {
+export default class ActionPhilipsHuePlugRunner extends ActionPhilipsHuePlug {
     build(key: string): IActionCallback {
         return  {
             description: 'Callback that triggers a Philips Hue plug action',

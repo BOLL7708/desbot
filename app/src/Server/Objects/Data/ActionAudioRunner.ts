@@ -6,7 +6,7 @@ import ArrayUtils from '../../../Shared/Utils/ArrayUtils.js'
 import ModulesSingleton from '../../../Shared/Singletons/ModulesSingleton.js'
 import ActionAudio from '../../../Shared/Objects/Data/Action/ActionAudio.js'
 
-class ActionAudioRunner extends ActionAudio {
+export default class ActionAudioRunner extends ActionAudio {
     build(key: string): IActionCallback {
         return {
             description: 'Callback that triggers a sound and/or speech action',

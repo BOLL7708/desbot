@@ -8,7 +8,7 @@ import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import TextHelper from '../../../Shared/Helpers/TextHelper.js'
 import ActionDiscord from '../../../Shared/Objects/Data/Action/ActionDiscord.js'
 
-class ActionDiscordRunner extends ActionDiscord {
+export default class ActionDiscordRunner extends ActionDiscord {
     build(key: string): IActionCallback {
         return {
             description: 'Callback that triggers a DiscordUtils message action',
