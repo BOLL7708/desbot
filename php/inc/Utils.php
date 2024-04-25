@@ -174,4 +174,11 @@ class Utils
         }
         return $migrations;
     }
+
+    public static function getVersion(): string
+    {
+        $file = file_get_contents('../app/package.json');
+        $package = json_decode($file);
+        return 'v'.($package?->version ?: 'unknown');
+    }
 }
