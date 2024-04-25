@@ -1,13 +1,15 @@
 {
   "name": "desbot",
-  "version": "8.0.0",
-  "description": "",
+  "version": "8.0.5",
+  "description": "A bot for Twitch streaming",
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
-    "build:client": "tsc --project src/Client/tsconfig.json",
-    "build:server": "tsc --project src/Server/tsconfig.json",
-    "build": "npm run build:client && npm run build:server",
+    "prebuild": "shx rm -rf ./dist_client && shx rm -rf ./dist_server",
+    "build:client": "tsc --build ./tsconfig-client.json",
+    "build:server": "tsc --build ./tsconfig-server.json",
+    "postbuild": "shx rm -rf ./dist_client/Server",
+    "build": "npm run prebuild && npm run build:client && npm run build:server && npm run postbuild",
     "start": "npm run build && node ./dist/app.js"
   },
   "repository": {
@@ -15,7 +17,7 @@
     "url": "https://github.com/boll7708/desbot.git"
   },
   "private": true,
-  "dependencies": {},
-  "optionalDependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "shx": "^0.3.4"
+  }
 }

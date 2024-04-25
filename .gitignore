@@ -7,7 +7,8 @@ TODO.MD
 
 # build
 **/dist
-
+**/dist_client
+**/dist_server
 # user files
 _user/**/*
 
