@@ -62,8 +62,8 @@ export class ActionHandler {
 
         let actionsMainCallback: IActionsMainCallback
         const states = StatesSingleton.getInstance()
-        let index: number|undefined = undefined
-
+        let actionIndex: number|undefined = undefined
+        let entryIndex: number|undefined = undefined
         /*
             Here we handle the different types of behavior of the event.
             This means we often rebuild the full main callback.
@@ -89,6 +89,7 @@ export class ActionHandler {
                 counter.count++
                 if(counter.count >= (options.maxValue > 0 ? options.maxValue : Infinity)) counter.reachedMax = true
                 await DataBaseHelper.save(counter, eventId.toString())
+                entryIndex = counter.count-1
 
                 // Switch to the next incremental reward if it has more configs available
                 const triggers = event.getTriggers(new TriggerReward())
@@ -112,10 +113,10 @@ export class ActionHandler {
                 }
 
                 // Register index and build callback for this step of the sequence
-                index = options.loop
+                actionIndex = options.loop
                     ? (counter.count - 1) % (options.maxValue > 0 ? options.maxValue : eventActionContainers.length) // Loop
                     : Math.min(counter.count - 1, eventActionContainers.length-1) // Clamp to max
-                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneByIndex, actionIndex))
                 break
             }
             /**
@@ -142,6 +143,7 @@ export class ActionHandler {
                 const goalIsMet = counter.count >= goalCount
                 if(counter.count >= goalCount) counter.reachedGoal = true
                 await DataBaseHelper.save(counter, eventId.toString())
+                entryIndex = counter.count-1
 
                 // Switch to the next accumulating reward if it has more configs available
                 const triggers = event.getTriggers(new TriggerReward())
@@ -175,16 +177,16 @@ export class ActionHandler {
 
                 // Register index and build callback for this step of the sequence
                 if(eventActionContainers.length) {
-                    index = 0 // First
+                    actionIndex = 0 // First
                     if (goalIsMet) {
                         // Final
-                        index = Math.max(eventActionContainers.length - 1) // Last, fallback to first
+                        actionIndex = Math.max(eventActionContainers.length - 1) // Last, fallback to first
                     } else if(!isFirstCount) {
                         // Progress
-                        index = Math.max(0, eventActionContainers.length - 2) // Second to last, fallback to first
+                        actionIndex = Math.max(0, eventActionContainers.length - 2) // Second to last, fallback to first
                     }
                 }
-                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
+                actionsMainCallback = await Actions.buildActionsMainCallback(this.key, ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneByIndex, actionIndex))
                 break
             }
             /**
@@ -207,6 +209,7 @@ export class ActionHandler {
                     counter.reachedMax = true
                     counter.count = maxLevel
                 }
+                entryIndex = counter.count-1
 
                 // Reset timeout
                 clearTimeout(counter.timeoutHandle)
@@ -214,11 +217,11 @@ export class ActionHandler {
                     // Run reset actions if enabled.
                     if(event.multiTierOptions.resetOnTimeout) {
                         // Will use this specific index to run the hard reset actions.
-                        index = 1;
+                        actionIndex = 1;
                         (await Actions.buildActionsMainCallback(
                             this.key,
-                            ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index)
-                        )) (user, index)
+                            ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneByIndex, actionIndex)
+                        )) (user, actionIndex)
                     }
 
                     // Reset counter
@@ -288,13 +291,13 @@ export class ActionHandler {
                 }
 
                 // Register index and build callback for this step of the sequence
-                index = counter.count+1 // First two indices are soft and hard reset, so we start at index 2
+                actionIndex = counter.count+1 // First two indices are soft and hard reset, so we start at index 2
                 const actions: EventActionContainer[] = []
                 if(options.resetOnTrigger) {
                     // Will use this specific index to run the soft reset actions.
-                    actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, 0))
+                    actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneByIndex, 0))
                 }
-                actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneSpecific, index))
+                actions.push(...ArrayUtils.getAsType(eventActionContainers, OptionEntryUsage.OneByIndex, actionIndex))
                 actionsMainCallback = await Actions.buildActionsMainCallback(this.key, actions)
                 break
             }
@@ -303,7 +306,7 @@ export class ActionHandler {
                 break
             }
         }
-        if(actionsMainCallback) actionsMainCallback(user, index ?? eventOptions.specificIndex) // Index is included here to supply it to entries-handling
+        if(actionsMainCallback) actionsMainCallback(user, entryIndex ?? eventOptions.specificIndex) // Index is included here to supply it to entries-handling
         else {
             console.warn(`Event with key "${this.key}" was not handled properly, as no callback was set, behavior: ${event.behavior}`)
         }
@@ -428,10 +431,8 @@ export class Actions {
      *
      * @param key
      * @param actionContainerList
-     * @param use OptionEntryUsage
-     * @param index
      */
-    public static async buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[], use: number=OptionEntryUsage.All, index: number=0): Promise<IActionsMainCallback> {
+    public static async buildActionsMainCallback(key: string, actionContainerList: (EventActionContainer|undefined)[]): Promise<IActionsMainCallback> {
         /**
          * Handle all the different types of action constructs here.
          * 1. Single setup

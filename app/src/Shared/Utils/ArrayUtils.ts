@@ -20,7 +20,12 @@ export default class ArrayUtils {
             case OptionEntryUsage.AllRandom: {
                 return ArrayUtils.shuffle(array)
             }
-            case OptionEntryUsage.OneSpecific: {
+            case OptionEntryUsage.OneByIndex: {
+                const specific = ArrayUtils.getSpecific(array, index)
+                return specific !== undefined ? [specific] : []
+            }
+            case OptionEntryUsage.OneByIndexOnLoop: {
+                index = (index ?? 0) % array.length
                 const specific = ArrayUtils.getSpecific(array, index)
                 return specific !== undefined ? [specific] : []
             }

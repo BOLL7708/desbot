@@ -7,7 +7,8 @@ export class OptionEntryUsage extends AbstractOption {
     static readonly All = 200
     static readonly OneRandom = 400
     static readonly AllRandom = 500
-    static readonly OneSpecific = 600
+    static readonly OneByIndex = 600
+    static readonly OneByIndexOnLoop = 700
 }
 OptionsMap.addPrototype({
     prototype: OptionEntryUsage,
@@ -18,6 +19,7 @@ OptionsMap.addPrototype({
         All: 'Will use all values.',
         OneRandom: 'Will pick one value at random.',
         AllRandom: 'Will shuffle and use all values.',
-        OneSpecific: 'Will use the index mandated by the reward trigger or some other mechanic.'
+        OneByIndex: 'Will use the the value on the index from the event behavior.',
+        OneByIndexOnLoop: 'Will use the value on the looped index from the event behavior.'
     }
 })
