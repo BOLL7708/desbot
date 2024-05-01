@@ -61,6 +61,7 @@ import PresetDiscordWebhook from './Preset/PresetDiscordWebhook.js'
 import PresetOBSScene, {PresetOBSFilter, PresetOBSSource} from './Preset/PresetOBS.js'
 import PresetPermissions from './Preset/PresetPermissions.js'
 import PresetPhilipsHueBulbState, {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from './Preset/PresetPhilipsHue.js'
+import ConfigMain, {ConfigMainLogo} from './Config/ConfigMain.js'
 
 /**
  * TODO: Try to do this dynamically in EJS when we are in Node, scan the Objects source folder and auto-generate this file.
@@ -120,6 +121,8 @@ export default class EnlistData {
             new ConfigImageEditorFontSettings(),
             new ConfigImageEditorOutline(),
             new ConfigImageEditorRect(),
+            new ConfigMain(),
+            new ConfigMainLogo(),
             new ConfigOBS(),
             new ConfigOpenVR2WS(),
             new ConfigPhilipsHue(),

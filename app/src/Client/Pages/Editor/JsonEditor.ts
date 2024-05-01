@@ -376,8 +376,9 @@ export default class JsonEditor {
             previewBox.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;'
             previewBox.style.backgroundImage = ''
             previewBox.style.backgroundColor = ''
-            const value = AssetsHelper.rootPath+input.innerText
+            let value = input.innerText
             if(thisTypeValues.file.length || parentTypeValues.file.length) {
+                value = AssetsHelper.rootPath+value
                 const response = await fetch(value, { method: 'HEAD' })
                 const contentType = response.headers.get('Content-Type')
                 const contentLength = parseInt(response.headers.get('Content-Length') ?? '0')

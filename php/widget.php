@@ -5,8 +5,7 @@ include_once('_init.php');
 <html lang="en">
     <head>
         <title>desbot</title>
-        <link rel="icon" type="image/png" sizes="16x16" href="../app/htdocs/media/desbot_logo_16px.png" />
-        <link rel="icon" type="image/svg+xml" href="../app/htdocs/media/desbot_logo.svg" />
+        <link rel="icon" type="image/svg+xml" href="_logo.php" />
         <link rel="stylesheet" href="../app/htdocs/styles/widget.css"/>
     </head>
     <body>

@@ -13,7 +13,7 @@ function printMenuItem(string $thisScript, $newGroup, string $file, string $labe
 }
 ?>
 <div id="menu-bar" class="hbar">
-    <a href="https://desbot.app" target="_blank" title="Open the desbot official website." class="version"><img id="corner-logo" src="../app/htdocs/media/desbot_logo.svg" alt="desbot logo" /><br/><?=Utils::getVersion()?></a>
+    <a href="https://desbot.app" target="_blank" title="Open the desbot official website." class="version"><img id="corner-logo" src="_logo.php" alt="desbot logo" /><br/><?=Utils::getVersion()?></a>
     <ul>
         <?php
         $scriptFile = Utils::getScriptFileName();

@@ -15,8 +15,7 @@ class PageUtils
         <html lang="en">
         <head>
             <title>desbot: <?= ucfirst($scriptFile) ?></title>
-            <link rel="icon" type="image/png" sizes="16x16" href="./media/desbot_logo_16px.png"/>
-            <link rel="icon" type="image/svg+xml" href="../app/htdocs/media/desbot_logo.svg"/>
+            <link rel="icon" type="image/svg+xml" href="_logo.php"/>
             <link rel="stylesheet" href="../app/htdocs/styles/general.css"/>
             <link rel="stylesheet" href="../app/htdocs/styles/_shared.css"/>
             <link rel="stylesheet" href="../app/htdocs/styles/editor.css"/><!-- TODO: Should likely be split to what needs to go into general... -->
