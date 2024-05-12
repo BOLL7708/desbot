@@ -74,7 +74,7 @@ export default class OpenVR2WS {
     }
     public sendMessageWithPromise<T>(message: IOpenVRWSCommandMessage): Promise<T|undefined>|undefined {
         return this._socket?.sendMessageWithPromise<T>(
-            JSON.stringify(message), message.nonce ?? '', 1000
+            JSON.stringify(message), message.Nonce ?? '', 1000
         )
     }
 
@@ -86,35 +86,32 @@ export default class OpenVR2WS {
             console.error(err)
         }
         if(data != undefined) {
-            switch(data.key) {
+            switch(data.Key) {
                 case 'ApplicationInfo':
-                    if(data.data?.hasOwnProperty('id') ?? '') {
-                        this._currentAppId = <string> data.data.id
+                    const appData: IOpenVR2WSApplicationInfoData = data.Data
+                    if(appData?.hasOwnProperty('AppId')) {
+                        this._currentAppId = <string> appData.AppId
                         if(this._currentAppId.length > 0) this._appIdCallback(this._currentAppId)
                     }
                     break
                 case 'Input':
-                    const inputData: IOpenVR2WSInputData = data.data
-                    this._inputCallback(data.key, inputData)
+                    const inputData: IOpenVR2WSInputData = data.Data
+                    this._inputCallback(data.Key, inputData)
                     break
                 case 'RemoteSetting':
-                    const remoteSettingData: IOpenVR2WSGenericResponseData = data.data
-                    if(!remoteSettingData?.success) Utils.log(`OpenVR2WS: ${data.key} failed with ${remoteSettingData?.message}`, Color.DarkRed)
+                    if(data.Type == 'Error') Utils.log(`OpenVR2WS: ${data.Key} failed with ${data.Message}`, Color.DarkRed)
                     break
                 case 'FindOverlay':
-                    const overlayResult: IOpenVR2WSFindOverlayData = data.data
-                    this._findOverlayCallback(overlayResult.key, overlayResult.handle)
+                    const overlayResult: IOpenVR2WSFindOverlayData = data.Data
+                    this._findOverlayCallback(overlayResult.Key, overlayResult.Handle)
                     break
                 case 'MoveSpace':
-                    const moveSpaceData: IOpenVR2WSGenericResponseData = data.data
-                    if(!moveSpaceData?.success) {
-                        Utils.log(`OpenVR2WS: ${data.key} failed with: ${moveSpaceData?.message}`, Color.DarkRed)
-                    }
+                    if(data.Type ?? 'Error') Utils.log(`OpenVR2WS: ${data.Key} failed with: ${data.Message}`, Color.DarkRed)
                     break
                 case 'InputPose':
-                    const inputPose: IOpenVR2WSInputPoseResponseData = data.data
-                    if(data.nonce) {
-                        this._socket?.resolvePromise(data.nonce, inputPose)
+                    const inputPose: IOpenVR2WSInputPoseResponseData = data.Data
+                    if(data.Nonce) {
+                        this._socket?.resolvePromise(data.Nonce, inputPose)
                     } else {
                         this._inputPoseCallback(inputPose)
                     }
@@ -152,18 +149,21 @@ export default class OpenVR2WS {
         if(category.length == 0) category = this._currentAppId?.toString() ?? ''
         const value = action.setToValue.length == 0 ? defaultValue : action.setToValue
         const message: IOpenVRWSCommandMessage = {
-            key: 'RemoteSetting',
-            value: this._password,
-            value2: category,
-            value3: setting,
-            value4: value
+            Key: 'RemoteSetting',
+            Data: {
+                Password: this._password,
+                Section: category,
+                Setting: setting,
+                Value: value,
+                Type: 'Float' // TODO: Will this need to be other things?
+            }
         }
         this.sendMessage(message)
         console.log(`OpenVR2WS: Setting ${category} : ${setting} to ${value}`)
         const settingKey = `${category}|${setting}`
         if(action.duration > 0) {
             // Registers a new resetting timer for this specific setting category.
-            message.value4 = defaultValue
+            message.Data.Value = defaultValue
             this._resetSettingTimers.set(settingKey, action.duration)
             this._resetSettingMessages.set(settingKey, message)
         } else {
@@ -175,19 +175,23 @@ export default class OpenVR2WS {
 
     public moveSpace(action: ActionMoveVRSpace) {
         const message: IOpenVRWSCommandMessage = {
-            key: 'MoveSpace',
-            value: this._password,
-            value2: (action.x ?? 0).toString(),
-            value3: (action.y ?? 0).toString(),
-            value4: (action.z ?? 0).toString(),
-            value5: (action.moveChaperone ?? true).toString()
+            Key: 'MoveSpace',
+            Data: {
+                Password: this._password,
+                OffsetX: action.x ?? 0,
+                OffsetY: action.y ?? 0,
+                OffsetZ: action.z ?? 0,
+                MoveChaperone: action.moveChaperone ?? true,
+                Transient: false, // Not in use yet
+                DurationMs: 0 // Not in use yet
+            }
         }
         this.sendMessage(message)
         console.log(`OpenVR2WS: Moving space: ${JSON.stringify(action)}`)
         if(action.duration) {
-            message.value2 = (-(action.x ?? 0)).toString()
-            message.value3 = (-(action.y ?? 0)).toString()
-            message.value4 = (-(action.z ?? 0)).toString()
+            message.Data.OffsetX = (-(action.x ?? 0)).toString()
+            message.Data.OffsetY = (-(action.y ?? 0)).toString()
+            message.Data.OffsetZ = (-(action.z ?? 0)).toString()
             setTimeout(() => {
                 this.sendMessage(message)
             }, action.duration*1000)
@@ -197,8 +201,8 @@ export default class OpenVR2WS {
     public async requestInputPoseData(): Promise<IOpenVR2WSInputPoseResponseData|undefined> {
         const nonce = Utils.getNonce('InputPose')
         const message: IOpenVRWSCommandMessage = {
-            key: 'InputPose',
-            nonce: nonce
+            Key: 'InputPose',
+            Nonce: nonce
         }
         return this.sendMessageWithPromise<IOpenVR2WSInputPoseResponseData>(message)
     }
@@ -216,7 +220,7 @@ export default class OpenVR2WS {
             if(timer <= 0) {
                 const message = this._resetSettingMessages.get(key)
                 if(message) {
-                    console.log(`OpenVR2WS: Resetting ${message.value2} : ${message.value3} to ${message.value4}`)
+                    console.log(`OpenVR2WS: Resetting ${message.Key} : ${message.Nonce} to ${message.Data}`)
                     this.sendMessage(message)
                 }
                 this._resetSettingTimers.delete(key)
@@ -227,8 +231,8 @@ export default class OpenVR2WS {
 
     public findOverlay(overlayKey: string) {
         this.sendMessage({
-            key: 'FindOverlay',
-            value: overlayKey
+            Key: 'FindOverlay',
+            Data: overlayKey
         })
     }
 }
@@ -285,29 +289,24 @@ export interface IOpenVR2WSMoveSpace {
 
 // Data
 export interface IOpenVR2WSMessage {
-    key: string
-    data: any
-    nonce?: string
+    Type: string
+    Key: string
+    Message: string
+    Data?: any
+    Nonce?: string
 }
 export interface IOpenVR2WSInputData {
-    source: string
-    input: string
-    value: boolean
+    Source: string
+    Input: string
+    State: boolean
 }
 export interface IOpenVR2WSFindOverlayData {
-    key: string
-    handle: number
+    Key: string
+    Handle: number
 }
-export interface IOpenVR2WSRelayData {
-    password: string
-    user: string
-    key: string
-    data: string
-}
-export interface IOpenVR2WSGenericResponseData {
-    message: string
-    success: boolean
-    nonce: string
+export interface IOpenVR2WSApplicationInfoData {
+    AppId: string
+    SessionStart: number
 }
 export interface IOpenVR2WSInputPoseResponseData {
     Head?: IOpenVR2WSInputPoseResponseDataPose
@@ -315,33 +314,23 @@ export interface IOpenVR2WSInputPoseResponseData {
     RightHand?: IOpenVR2WSInputPoseResponseDataPose
 }
 export interface IOpenVR2WSInputPoseResponseDataPose {
-    rotationMatrix: number[]
-    position: Vec3
-    velocity: Vec3
-    angularVelocity: Vec3
-    orientation: Vec3
-    isConnected: boolean
-    isTracking: boolean
+    RotationMatrix: number[]
+    Position: Vec3
+    Velocity: Vec3
+    AngularVelocity: Vec3
+    Orientation: Vec3
+    IsConnected: boolean
+    IsTracking: boolean
 }
 export interface Vec3 {
-    x: number
-    y: number
-    z: number
-}
-export interface IOpenVR2WSRelay {
-    key: string
-    handler?: ActionHandler
+    X: number
+    Y: number
+    Z: number
 }
 export interface IOpenVRWSCommandMessage {
-    key: string
-    value?: string
-    value2?: string
-    value3?: string
-    value4?: string
-    value5?: string
-    value6?: string
-    device?: number
-    nonce?: string
+    Key: string
+    Data?: any
+    Nonce?: string
 }
 
 // Callbacks

@@ -185,8 +185,8 @@ export class EventMultiTierOptions extends AbstractData {
     resetOnTrigger: boolean = true
     resetOnTimeout: boolean = true
     disableAfterMaxLevel: boolean = true
-    disableAfterMaxLevel_andHideReward: boolean = false
     disableAfterMaxLevel_andPauseReward: boolean = false
+    disableAfterMaxLevel_andHideReward: boolean = false
 
     enlist() {
         DataMap.addSubInstance({
@@ -196,7 +196,7 @@ export class EventMultiTierOptions extends AbstractData {
                 maxLevel: 'The maximum level that this event can reach, set to 0 or lower to disable the limit.',
                 resetOnTrigger: 'Run the soft reset actions, first set, before default actions when triggering this multi-tier event..',
                 resetOnTimeout: 'Run the hard reset actions, second set, when the timeout expires.',
-                disableAfterMaxLevel: 'Will only allow the final level to run once, then the event is disabled, only works when a max level is set.'
+                disableAfterMaxLevel: 'Will only allow the final level actions to run once, check additional options to also disable or hide any associated rewards. This needs max level to be set.'
             }
         })
     }

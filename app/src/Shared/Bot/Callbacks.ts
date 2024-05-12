@@ -443,11 +443,11 @@ export default class Callbacks {
 
         // region VR
         modules.openvr2ws.setInputCallback((key, data) => {
-            switch(data.input) {
-                case "Proximity": if(data.source == 'Head') {
+            switch(data.Input) {
+                case "Proximity": if(data.Source == 'Head') {
                     // TODO: This is unreliable as it does not always register, and dashboard will mess it up.
                     // modules.obs.toggleSource(Config.obs.rewards[Keys.KEY_ROOMPEEK], !data.value)
-                    console.log(`OpenVR2WS: Headset proximity changed: ${data.value}`)
+                    console.log(`OpenVR2WS: Headset proximity changed: ${data.State}`)
                 }
             }
         })
