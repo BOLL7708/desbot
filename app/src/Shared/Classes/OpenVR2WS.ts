@@ -4,7 +4,6 @@ import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
 import ActionSettingVR from '../Objects/Data/Action/ActionSettingVR.js'
 import ActionMoveVRSpace from '../Objects/Data/Action/ActionMoveVRSpace.js'
-import {ActionHandler} from '../Bot/Actions.js'
 import Color from '../Constants/ColorConstants.js'
 
 export default class OpenVR2WS {
@@ -150,8 +149,8 @@ export default class OpenVR2WS {
         const value = action.setToValue.length == 0 ? defaultValue : action.setToValue
         const message: IOpenVRWSCommandMessage = {
             Key: 'RemoteSetting',
+            Password: this._password,
             Data: {
-                Password: this._password,
                 Section: category,
                 Setting: setting,
                 Value: value,
@@ -176,26 +175,11 @@ export default class OpenVR2WS {
     public moveSpace(action: ActionMoveVRSpace) {
         const message: IOpenVRWSCommandMessage = {
             Key: 'MoveSpace',
-            Data: {
-                Password: this._password,
-                OffsetX: action.x ?? 0,
-                OffsetY: action.y ?? 0,
-                OffsetZ: action.z ?? 0,
-                MoveChaperone: action.moveChaperone ?? true,
-                Transient: false, // Not in use yet
-                DurationMs: 0 // Not in use yet
-            }
+            Password: this._password,
+            Data: action
         }
         this.sendMessage(message)
         console.log(`OpenVR2WS: Moving space: ${JSON.stringify(action)}`)
-        if(action.duration) {
-            message.Data.OffsetX = (-(action.x ?? 0)).toString()
-            message.Data.OffsetY = (-(action.y ?? 0)).toString()
-            message.Data.OffsetZ = (-(action.z ?? 0)).toString()
-            setTimeout(() => {
-                this.sendMessage(message)
-            }, action.duration*1000)
-        }
     }
 
     public async requestInputPoseData(): Promise<IOpenVR2WSInputPoseResponseData|undefined> {
@@ -235,56 +219,6 @@ export default class OpenVR2WS {
             Data: overlayKey
         })
     }
-}
-
-/**
- * Change SteamVR setting.
- */
-export interface IOpenVR2WSSetting {
-    /**
-     * The setting, reference: `OpenVR2WS.SETTING_*` for a few predefined ones.
-     *
-     * The format is [category]|[setting]|[default], where an empty category will use the app ID for game specific settings.
-     */
-    setting: string
-    /**
-     * Optional: The value to set the setting to, takes various formats, will use possible default if missing.
-     */
-    value?: boolean|number|string
-    /**
-     * Optional: The value to reset to after the duration has expired, will fall back on hard coded value if missing.
-     */
-    resetToValue?: boolean|number|string
-    /**
-     * Optional: The amount of time to wait before resetting the setting to default.
-     */
-    duration?: number // Seconds
-}
-
-/**
- * Move SteamVR Play Space.
- */
-export interface IOpenVR2WSMoveSpace {
-    /**
-     * Optional: Sideways position offset
-     */
-    x?: number
-    /**
-     * Optional: Height position offset
-     */
-    y?: number
-    /**
-     * Optional: Forward position offset
-     */
-    z?: number
-    /**
-     * Optional: Move the Chaperone bounds in the opposite direction to keep them in the right place, defaults to true.
-     */
-    moveChaperone?: boolean
-    /**
-     * Optional: The amount of time to wait before moving back.
-     */
-    duration?: number // Seconds
 }
 
 // Data
@@ -331,6 +265,7 @@ export interface IOpenVRWSCommandMessage {
     Key: string
     Data?: any
     Nonce?: string
+    Password?: string
 }
 
 // Callbacks

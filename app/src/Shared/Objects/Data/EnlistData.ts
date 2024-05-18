@@ -5,7 +5,7 @@ import ActionCustom from './Action/ActionCustom.js'
 import ActionDiscord from './Action/ActionDiscord.js'
 import ActionLabel from './Action/ActionLabel.js'
 import ActionURI from './Action/ActionURI.js'
-import ActionMoveVRSpace from './Action/ActionMoveVRSpace.js'
+import ActionMoveVRSpace, {ActionMoveVRSpaceEntry} from './Action/ActionMoveVRSpace.js'
 import ActionPhilipsHueBulb from './Action/ActionPhilipsHueBulb.js'
 import ActionPhilipsHuePlug from './Action/ActionPhilipsHuePlug.js'
 import ActionPipe from './Action/ActionPipe.js'
@@ -81,6 +81,7 @@ export default class EnlistData {
             new ActionLabel(),
             new ActionURI(),
             new ActionMoveVRSpace(),
+            new ActionMoveVRSpaceEntry(),
             new ActionOBS(),
             new ActionOBSSource(),
             new ActionOBSFilter(),
