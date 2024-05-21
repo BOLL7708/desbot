@@ -2,26 +2,49 @@ import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 import AbstractData from '../AbstractData.js'
 import {OptionMoveVRSpaceEasingType} from '../../Options/OptionMoveVRSpaceEasingType.js'
-import {OptionMoveVRSpaceEasingMode} from '../../Options/OptionMoveVRSpaceEasingMode.js'
+import OptionMoveVRSpaceEasingMode from '../../Options/OptionMoveVRSpaceEasingMode.js'
 import DataUtils from '../DataUtils.js'
+import OptionMoveVRSpaceCorrection from '../../Options/OptionMoveVRSpaceCorrection.js'
 
 export default class ActionMoveVRSpace extends AbstractAction {
-    ResetBeforeRun: boolean = false
-    ResetAfterRun: boolean = false
-    Entries: ActionMoveVRSpaceEntry[] = []
+    durationMs: number = 0
+    easingInType: string = OptionMoveVRSpaceEasingType.linear
+    easingInType_withMode: string = OptionMoveVRSpaceEasingMode.out
+    easingInType_durationPercent: number = 0
+    easingOutType: string = OptionMoveVRSpaceEasingType.linear
+    easingOutType_withMode: string = OptionMoveVRSpaceEasingMode.out
+    easingOutType_durationPercent: number = 0
+    resetChangesBefore: boolean = false
+    resetChangesBefore_andAfter: boolean = false
+    updateChaperone: boolean = false
+    correction: string = OptionMoveVRSpaceCorrection.playSpace
+    spaceMoveEntries: ActionMoveVRSpaceEntry[] = []
 
     enlist() {
         DataMap.addRootInstance({
             instance: new ActionMoveVRSpace(),
             tag: '🌐',
             description: 'Used to move the SteamVR play space.',
+            instructions: {
+                durationMs: 'The easing type and mode to use for the animation, you can see what they act like at <a href="https://easings.net/" target="_blank">easings.net</a>.',
+            },
             documentation: {
-                ResetBeforeRun: 'Will reset existing changes before running any entries.',
-                ResetAfterRun: 'Will reset existing changes after running any entries.',
-                Entries: 'The entries that will be run.'
+                resetChangesBefore: 'If before, will reset to what is on disk, if after, will reset the changes done in this action. This might change.',
+                updateChaperone: 'If true, will also move the chaperone bounds in the opposite direction.',
+                correction: 'The correction to apply to the offset used to move the play space.',
+                spaceMoveEntries: 'The entries that will be applied simultaneously.'
+                // TODO: Complete documentation
             },
             types: {
-                Entries: ActionMoveVRSpaceEntry.ref.build()
+                durationMs: DataUtils.getNumberRangeRef(0, 10000),
+                easingInType: OptionMoveVRSpaceEasingType.ref,
+                easingInType_withMode: OptionMoveVRSpaceEasingMode.ref,
+                easingInType_durationPercent: DataUtils.getNumberRangeRef(0, 1, 0.01),
+                easingOutType: OptionMoveVRSpaceEasingType.ref,
+                easingOutType_withMode: OptionMoveVRSpaceEasingMode.ref,
+                easingOutType_durationPercent: DataUtils.getNumberRangeRef(0, 1, 0.01),
+                correction: OptionMoveVRSpaceCorrection.ref,
+                spaceMoveEntries: ActionMoveVRSpaceEntry.ref.build()
             }
         })
     }
@@ -34,37 +57,31 @@ export default class ActionMoveVRSpace extends AbstractAction {
 }
 
 export class ActionMoveVRSpaceEntry extends AbstractData {
-    OffsetX: number = 0
-    OffsetY: number = 0
-    OffsetZ: number = 0
-    EasingType: OptionMoveVRSpaceEasingType = OptionMoveVRSpaceEasingType.linear
-    EasingMode: OptionMoveVRSpaceEasingMode = OptionMoveVRSpaceEasingMode.in
-    DurationMs: number = 0
-    DelayMs: number = 0
-    PingPong: boolean = false
-    Repeat: number = 0
+    offsetX: number = 0
+    offsetX_Y: number = 0
+    offsetX_Z: number = 0
+    easingType: string = OptionMoveVRSpaceEasingType.linear
+    easingType_withMode: string = OptionMoveVRSpaceEasingMode.in
+    startAtPercent: number = 0
+    startAtPercent_andEndAtPercent: number = 0
+    pingPong: boolean = false
+    pingPong_andRepeat: number = 0
     enlist() {
         DataMap.addSubInstance({
             instance: new ActionMoveVRSpaceEntry(),
             documentation: {
-                OffsetX: 'The amount to move the play space sideways.',
-                OffsetY: 'The amount to move the play space vertically.',
-                OffsetZ: 'The amount to move the play space front to back.',
-
-                // TODO: Add the rest of the documentation
+                offsetX: 'The amount to move the play space sideways (X), vertically (Y) and forward and backwards (Z).',
+                // TODO: Complete documentation
             },
             types: {
-                OffsetX: DataUtils.getNumberRangeRef(-2, 2, 0.1),
-                OffsetY: DataUtils.getNumberRangeRef(-2, 2, 0.1),
-                OffsetZ: DataUtils.getNumberRangeRef(-2, 2, 0.1),
-                EasingType: OptionMoveVRSpaceEasingType.ref,
-                EasingMode: OptionMoveVRSpaceEasingMode.ref,
-                DurationMs: DataUtils.getNumberRangeRef(0, 10000),
-                DelayMs: DataUtils.getNumberRangeRef(0, 10000),
-                Repeat: DataUtils.getNumberRangeRef(0, 100)
-            },
-            instructions: {
-                EasingType: 'The easing type and mode to use for the animation, you can see what they act like at <a href="https://easings.net/" target="_blank">easings.net</a>.',
+                offsetX: DataUtils.getNumberRangeRef(-2, 2, 0.1),
+                offsetX_Y: DataUtils.getNumberRangeRef(-2, 2, 0.1),
+                offsetX_Z: DataUtils.getNumberRangeRef(-2, 2, 0.1),
+                easingType: OptionMoveVRSpaceEasingType.ref,
+                easingType_withMode: OptionMoveVRSpaceEasingMode.ref,
+                startAtPercent: DataUtils.getNumberRangeRef(0, 1, 0.01),
+                startAtPercent_andEndAtPercent: DataUtils.getNumberRangeRef(0, 1, 0.01),
+                pingPong_andRepeat: DataUtils.getNumberRangeRef(0, 100)
             }
         })
     }

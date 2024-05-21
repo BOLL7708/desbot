@@ -1,5 +1,5 @@
-import {AbstractOption} from './AbstractOption.js'
-import {OptionsMap} from './OptionsMap.js'
+import AbstractOption from './AbstractOption.js'
+import OptionsMap from './OptionsMap.js'
 
 export class OptionEventBehavior extends AbstractOption {
     static readonly All = 0

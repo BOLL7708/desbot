@@ -1,6 +1,6 @@
-import {AbstractOption} from './AbstractOption.js'
+import AbstractOption from './AbstractOption.js'
 import {TRunType} from '../../Utils/ExecUtils.js'
-import {OptionsMap} from './OptionsMap.js'
+import OptionsMap from './OptionsMap.js'
 
 export class OptionCommandType extends AbstractOption {
     static readonly Keys: TRunType = 'keys'

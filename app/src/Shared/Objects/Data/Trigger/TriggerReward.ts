@@ -14,8 +14,8 @@ import PresetReward from '../Preset/PresetReward.js'
 
 export default class TriggerReward extends AbstractTrigger {
     permissions: number|DataEntries<PresetPermissions> = 0
-    rewardID: number|DataEntries<SettingTwitchReward> = 0
     rewardEntries: number[]|DataEntries<AbstractData> = [] // TODO: This is <Data> just to give it a parent, need to update this so it's not generic.
+    rewardID: number|DataEntries<SettingTwitchReward> = 0
 
     enlist() {
         DataMap.addRootInstance({

@@ -1,5 +1,5 @@
-import {AbstractOption} from './AbstractOption.js'
-import {OptionsMap} from './OptionsMap.js'
+import AbstractOption from './AbstractOption.js'
+import OptionsMap from './OptionsMap.js'
 
 export class OptionScreenshotFileType extends AbstractOption {
     static readonly PNG = 'png'

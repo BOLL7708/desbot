@@ -3,7 +3,6 @@ import WebSockets from './WebSockets.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
 import ActionSettingVR from '../Objects/Data/Action/ActionSettingVR.js'
-import ActionMoveVRSpace from '../Objects/Data/Action/ActionMoveVRSpace.js'
 import Color from '../Constants/ColorConstants.js'
 
 export default class OpenVR2WS {
@@ -172,14 +171,14 @@ export default class OpenVR2WS {
         }
     }
 
-    public moveSpace(action: ActionMoveVRSpace) {
+    public moveSpace(data: IOpenVR2WSMoveSpace) {
         const message: IOpenVRWSCommandMessage = {
             Key: 'MoveSpace',
             Password: this._password,
-            Data: action
+            Data: data
         }
         this.sendMessage(message)
-        console.log(`OpenVR2WS: Moving space: ${JSON.stringify(action)}`)
+        console.log(`OpenVR2WS: Moving space: ${JSON.stringify(data)}`)
     }
 
     public async requestInputPoseData(): Promise<IOpenVR2WSInputPoseResponseData|undefined> {
@@ -266,6 +265,31 @@ export interface IOpenVRWSCommandMessage {
     Data?: any
     Nonce?: string
     Password?: string
+}
+export interface IOpenVR2WSMoveSpace {
+    DurationMs: number
+    EaseInType: string
+    EaseInMode: string
+    EaseInMs: number
+    EaseOutType: string
+    EaseOutMode: string
+    EaseOutMs: number
+    ResetBeforeRun: boolean
+    ResetAfterRun: boolean
+    UpdateChaperone: boolean
+    Correction: string
+    Entries: IOpenVR2WSMoveSpaceEntry[]
+}
+export interface IOpenVR2WSMoveSpaceEntry {
+    EaseType: string
+    EaseMode: string
+    OffsetX: number
+    OffsetY: number
+    OffsetZ: number
+    StartOffsetMs: number
+    EndOffsetMs: number
+    PingPong: boolean
+    Repeat: number
 }
 
 // Callbacks

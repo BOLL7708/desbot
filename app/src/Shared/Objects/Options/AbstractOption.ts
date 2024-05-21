@@ -1,6 +1,6 @@
 import {IStringDictionary} from '../../Interfaces/igeneral.js'
 
-export abstract class AbstractOption {
+export default abstract class AbstractOption {
     /**
      * Get the name of the class appended with the Enum flag.
      * If this ID is referenced when instancing a class, it will be a dropdown listing the properties as alternatives.

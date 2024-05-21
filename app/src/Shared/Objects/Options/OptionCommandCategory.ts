@@ -1,5 +1,5 @@
-import {AbstractOption} from './AbstractOption.js'
-import {OptionsMap} from './OptionsMap.js'
+import AbstractOption from './AbstractOption.js'
+import OptionsMap from './OptionsMap.js'
 
 export default class OptionCommandCategory extends AbstractOption {
     static readonly Uncategorized = 0

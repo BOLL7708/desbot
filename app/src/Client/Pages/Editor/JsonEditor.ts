@@ -6,7 +6,7 @@ import Utils, {EUtilsTitleReturnOption} from '../../../Shared/Utils/Utils.js'
 import DataMap, {TRootToolResponseData} from '../../../Shared/Objects/Data/DataMap.js'
 import DataUtils from '../../../Shared/Objects/Data/DataUtils.js'
 import {JsonEditorUtils} from './JsonEditorUtils.js'
-import {OptionsMap} from '../../../Shared/Objects/Options/OptionsMap.js'
+import OptionsMap from '../../../Shared/Objects/Options/OptionsMap.js'
 import AssetsHelper from '../../../Shared/Helpers/AssetsHelper.js'
 import ConfigEditor, {ConfigEditorFavorite} from '../../../Shared/Objects/Data/Config/ConfigEditor.js'
 

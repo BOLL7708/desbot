@@ -1,7 +1,7 @@
-import {AbstractOption} from './AbstractOption.js'
-import {OptionsMap} from './OptionsMap.js'
+import AbstractOption from './AbstractOption.js'
+import OptionsMap from './OptionsMap.js'
 
-export class OptionMoveVRSpaceEasingMode extends AbstractOption {
+export default class OptionMoveVRSpaceEasingMode extends AbstractOption {
     static readonly in = 'In'
     static readonly out = 'Out'
     static readonly inOut = 'InOut'
