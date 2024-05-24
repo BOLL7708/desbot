@@ -276,7 +276,6 @@ export interface IOpenVR2WSMoveSpace {
     EaseOutMs: number
     ResetBeforeRun: boolean
     ResetAfterRun: boolean
-    UpdateChaperone: boolean
     Correction: string
     Entries: IOpenVR2WSMoveSpaceEntry[]
 }
@@ -286,6 +285,7 @@ export interface IOpenVR2WSMoveSpaceEntry {
     OffsetX: number
     OffsetY: number
     OffsetZ: number
+    Rotate: number
     StartOffsetMs: number
     EndOffsetMs: number
     PingPong: boolean

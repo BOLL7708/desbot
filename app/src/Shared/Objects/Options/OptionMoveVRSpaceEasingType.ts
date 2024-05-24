@@ -1,7 +1,7 @@
 import AbstractOption from './AbstractOption.js'
 import OptionsMap from './OptionsMap.js'
 
-export class OptionMoveVRSpaceEasingType extends AbstractOption {
+export default class OptionMoveVRSpaceEasingType extends AbstractOption {
     static readonly linear = 'Linear'
     static readonly sine = 'Sine'
     static readonly quad = 'Quad'

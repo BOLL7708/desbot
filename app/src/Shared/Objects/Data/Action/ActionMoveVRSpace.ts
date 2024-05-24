@@ -1,7 +1,7 @@
 import AbstractAction, {IActionCallback} from './AbstractAction.js'
 import DataMap from '../DataMap.js'
 import AbstractData from '../AbstractData.js'
-import {OptionMoveVRSpaceEasingType} from '../../Options/OptionMoveVRSpaceEasingType.js'
+import OptionMoveVRSpaceEasingType from '../../Options/OptionMoveVRSpaceEasingType.js'
 import OptionMoveVRSpaceEasingMode from '../../Options/OptionMoveVRSpaceEasingMode.js'
 import DataUtils from '../DataUtils.js'
 import OptionMoveVRSpaceCorrection from '../../Options/OptionMoveVRSpaceCorrection.js'
@@ -16,7 +16,6 @@ export default class ActionMoveVRSpace extends AbstractAction {
     easingOutType_durationPercent: number = 0
     resetChangesBefore: boolean = false
     resetChangesBefore_andAfter: boolean = false
-    updateChaperone: boolean = false
     correction: string = OptionMoveVRSpaceCorrection.playSpace
     spaceMoveEntries: ActionMoveVRSpaceEntry[] = []
 
@@ -30,7 +29,6 @@ export default class ActionMoveVRSpace extends AbstractAction {
             },
             documentation: {
                 resetChangesBefore: 'If before, will reset to what is on disk, if after, will reset the changes done in this action. This might change.',
-                updateChaperone: 'If true, will also move the chaperone bounds in the opposite direction.',
                 correction: 'The correction to apply to the offset used to move the play space.',
                 spaceMoveEntries: 'The entries that will be applied simultaneously.'
                 // TODO: Complete documentation
@@ -60,6 +58,7 @@ export class ActionMoveVRSpaceEntry extends AbstractData {
     offsetX: number = 0
     offsetX_Y: number = 0
     offsetX_Z: number = 0
+    rotate: number = 0
     easingType: string = OptionMoveVRSpaceEasingType.linear
     easingType_withMode: string = OptionMoveVRSpaceEasingMode.in
     startAtPercent: number = 0
@@ -71,6 +70,7 @@ export class ActionMoveVRSpaceEntry extends AbstractData {
             instance: new ActionMoveVRSpaceEntry(),
             documentation: {
                 offsetX: 'The amount to move the play space sideways (X), vertically (Y) and forward and backwards (Z).',
+                rotate: 'Horizontal rotation of the play space in degrees.'
                 // TODO: Complete documentation
             },
             types: {

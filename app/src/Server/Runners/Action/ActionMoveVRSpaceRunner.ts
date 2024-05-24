@@ -21,6 +21,7 @@ export default class ActionMoveVRSpaceRunner extends AbstractActionRunner {
                         OffsetX: entry.offsetX,
                         OffsetY: entry.offsetX_Y,
                         OffsetZ: entry.offsetX_Z,
+                        Rotate: entry.rotate,
                         StartOffsetMs: clone.durationMs * entry.startAtPercent,
                         EndOffsetMs: clone.durationMs * entry.startAtPercent_andEndAtPercent,
                         PingPong: entry.pingPong,
@@ -37,7 +38,6 @@ export default class ActionMoveVRSpaceRunner extends AbstractActionRunner {
                     EaseOutMs: clone.durationMs * clone.easingOutType_durationPercent,
                     ResetBeforeRun: clone.resetChangesBefore,
                     ResetAfterRun: clone.resetChangesBefore_andAfter,
-                    UpdateChaperone: clone.updateChaperone,
                     Correction: clone.correction,
                     Entries: entries
                 }
