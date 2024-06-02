@@ -626,8 +626,8 @@ export default class JsonEditor {
             range.value = `${options.data}`
             
             input.classList.add('number-range')
-            const maxLength = Math.max(range.min.length, range.max.length, range.step.length)
-            input.style.width = `${maxLength}ch`
+            const maxLength = Math.max(range.min.length, range.max.length, range.step.length) + (thisTypeValues.range[0] < 0 ? 1 : 0)
+            input.style.minWidth = `${maxLength}ch`
 
             range.oninput = (event)=>{
                 input.innerHTML = range?.value ?? '0'
