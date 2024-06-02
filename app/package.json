@@ -1,6 +1,6 @@
 {
   "name": "desbot",
-  "version": "8.2.0",
+  "version": "8.2.1",
   "description": "A bot for Twitch streaming",
   "main": "dist/app.js",
   "type": "module",
