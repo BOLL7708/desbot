@@ -25,7 +25,8 @@ export default class ActionMoveVRSpaceRunner extends AbstractActionRunner {
                         StartOffsetMs: clone.durationMs * entry.startAtPercent,
                         EndOffsetMs: clone.durationMs * entry.startAtPercent_andEndAtPercent,
                         PingPong: entry.pingPong,
-                        Repeat: entry.pingPong_andRepeat
+                        Repeat: entry.repeat,
+                        Accumulate: entry.repeat_andAccumulate
                     })
                 }
                 const data: IOpenVR2WSMoveSpace = {
@@ -36,8 +37,8 @@ export default class ActionMoveVRSpaceRunner extends AbstractActionRunner {
                     EaseOutType: clone.easingOutType,
                     EaseOutMode: clone.easingOutType_withMode,
                     EaseOutMs: clone.durationMs * clone.easingOutType_durationPercent,
-                    ResetBeforeRun: clone.resetChangesBefore,
-                    ResetAfterRun: clone.resetChangesBefore_andAfter,
+                    ResetSpaceBeforeRun: clone.resetSpaceChangesBefore,
+                    ResetOffsetAfterRun: clone.resetOffsetChangesAfter,
                     Correction: clone.correction,
                     Entries: entries
                 }

@@ -274,8 +274,8 @@ export interface IOpenVR2WSMoveSpace {
     EaseOutType: string
     EaseOutMode: string
     EaseOutMs: number
-    ResetBeforeRun: boolean
-    ResetAfterRun: boolean
+    ResetSpaceBeforeRun: boolean
+    ResetOffsetAfterRun: boolean
     Correction: string
     Entries: IOpenVR2WSMoveSpaceEntry[]
 }
@@ -290,6 +290,7 @@ export interface IOpenVR2WSMoveSpaceEntry {
     EndOffsetMs: number
     PingPong: boolean
     Repeat: number
+    Accumulate: boolean
 }
 
 // Callbacks

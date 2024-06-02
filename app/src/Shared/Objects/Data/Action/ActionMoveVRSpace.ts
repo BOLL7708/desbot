@@ -14,8 +14,8 @@ export default class ActionMoveVRSpace extends AbstractAction {
     easingOutType: string = OptionMoveVRSpaceEasingType.linear
     easingOutType_withMode: string = OptionMoveVRSpaceEasingMode.out
     easingOutType_durationPercent: number = 0
-    resetChangesBefore: boolean = false
-    resetChangesBefore_andAfter: boolean = false
+    resetSpaceChangesBefore: boolean = false
+    resetOffsetChangesAfter: boolean = false
     correction: string = OptionMoveVRSpaceCorrection.playSpace
     spaceMoveEntries: ActionMoveVRSpaceEntry[] = []
 
@@ -25,13 +25,16 @@ export default class ActionMoveVRSpace extends AbstractAction {
             tag: '🌐',
             description: 'Used to move the SteamVR play space.',
             instructions: {
-                durationMs: 'The easing type and mode to use for the animation, you can see what they act like at <a href="https://easings.net/" target="_blank">easings.net</a>.',
+                durationMs: 'The easing types and modes you see below are all based on <a href="https://easings.net/" target="_blank">easings.net</a>.',
             },
             documentation: {
-                resetChangesBefore: 'If before, will reset to what is on disk, if after, will reset the changes done in this action. This might change.',
-                correction: 'The correction to apply to the offset used to move the play space.',
+                durationMs: 'The duration of the animation in milliseconds.',
+                easingInType: 'The easing type, mode and duration to use for the start of the animation.',
+                easingOutType: 'The easing type, mode and duration to use for the end of the animation.',
+                resetSpaceChangesBefore: 'Will reset the play space to the setup that is stored on disk.',
+                resetOffsetChangesAfter: 'Will reset the offset applied after the animation is done.',
+                correction: 'The correction applied to the origin before applying any offsets.',
                 spaceMoveEntries: 'The entries that will be applied simultaneously.'
-                // TODO: Complete documentation
             },
             types: {
                 durationMs: DataUtils.getNumberRangeRef(0, 10000),
@@ -64,24 +67,28 @@ export class ActionMoveVRSpaceEntry extends AbstractData {
     startAtPercent: number = 0
     startAtPercent_andEndAtPercent: number = 0
     pingPong: boolean = false
-    pingPong_andRepeat: number = 0
+    repeat: number = 0
+    repeat_andAccumulate: boolean = false
     enlist() {
         DataMap.addSubInstance({
             instance: new ActionMoveVRSpaceEntry(),
             documentation: {
                 offsetX: 'The amount to move the play space sideways (X), vertically (Y) and forward and backwards (Z).',
-                rotate: 'Horizontal rotation of the play space in degrees.'
-                // TODO: Complete documentation
+                rotate: 'Horizontal rotation of the play space in degrees, positive degrees rotates left from your point of view.',
+                easingType: 'The easing type and mode to use for the animation.',
+                startAtPercent: 'The percentage of the duration to start and end the animation at.',
+                pingPong: 'Will in the animation duration play the animation back and forth, ending where it started.',
+                repeat: 'The amount of times to repeat the animation, when accumulating, the offset will add up over the repetitions.'
             },
             types: {
-                offsetX: DataUtils.getNumberRangeRef(-2, 2, 0.1),
-                offsetX_Y: DataUtils.getNumberRangeRef(-2, 2, 0.1),
-                offsetX_Z: DataUtils.getNumberRangeRef(-2, 2, 0.1),
+                offsetX: DataUtils.getNumberRangeRef(-2, 2, 0.01),
+                offsetX_Y: DataUtils.getNumberRangeRef(-2, 2, 0.01),
+                offsetX_Z: DataUtils.getNumberRangeRef(-2, 2, 0.01),
                 easingType: OptionMoveVRSpaceEasingType.ref,
                 easingType_withMode: OptionMoveVRSpaceEasingMode.ref,
                 startAtPercent: DataUtils.getNumberRangeRef(0, 1, 0.01),
                 startAtPercent_andEndAtPercent: DataUtils.getNumberRangeRef(0, 1, 0.01),
-                pingPong_andRepeat: DataUtils.getNumberRangeRef(0, 100)
+                repeat: DataUtils.getNumberRangeRef(0, 100)
             }
         })
     }
