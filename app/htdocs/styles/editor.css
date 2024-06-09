@@ -43,6 +43,9 @@ code {
     padding: 1em;
     border-radius: 1em;
 }
+.root-list-item {
+    background-color: var(--editor-saved-background-color) !important;
+}
 
 .input-root {
     padding: 6px;

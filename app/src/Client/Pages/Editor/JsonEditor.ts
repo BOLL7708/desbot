@@ -333,6 +333,7 @@ export default class JsonEditor {
 
         // Root element
         let newRoot = document.createElement('li') as HTMLElement
+        if(isRoot) newRoot.classList.add('root-list-item')
 
         // Instructions
         if(this._config.showHelp_andInstructions) {
@@ -360,7 +361,7 @@ export default class JsonEditor {
             keyInput.innerHTML = key.toString()
         } else {
             label.innerHTML = isRoot
-                ? `<strong class="list-title">${key}</strong>: `
+                ? `<strong>${key}</strong>: `
                 : options.origin == EOrigin.ListArray
                     ? `Item ${Utils.ensureNumber(key)+1}: `
                     : `${isPartnerField ? ' '+Utils.nameToSentence(labelStr) : Utils.camelToTitle(key.toString())}: `
@@ -929,10 +930,13 @@ export default class JsonEditor {
             // An array has a fixed index
             else {
                 const strongSpan = document.createElement('strong') as HTMLSpanElement
-                strongSpan.classList.add('list-title')
-                strongSpan.innerHTML = options.origin == EOrigin.ListArray
-                    ? `Item ${Utils.ensureNumber(pathKey)+1}`
-                    : Utils.camelToTitle(pathKey.toString())
+                if(options.origin == EOrigin.ListArray) {
+                    strongSpan.classList.add('item-title')
+                    strongSpan.innerHTML = `Item ${Utils.ensureNumber(pathKey)+1}`
+                } else {
+                    strongSpan.classList.add('list-title')
+                    strongSpan.innerHTML = Utils.camelToTitle(pathKey.toString())
+                }
                 if(thisTypeValues.class) strongSpan.title = `Type: ${thisTypeValues.class}`
                 newRoot.appendChild(strongSpan)
             }

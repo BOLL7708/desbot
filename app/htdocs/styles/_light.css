@@ -46,6 +46,9 @@
         --disabled-background-color: #eeeeee;
 
         /* Editor */
+        --editor-title-glow-color: #000000;
+        --editor-list-title-color: #13131380;
+        --editor-item-title-color: #131313;
         --editor-row-odd-color: #00000010;
         --editor-row-even-color: #00000005;
         --editor-boolean-input-border: #d3d3d3;
@@ -54,6 +57,7 @@
         --editor-drag-icon-background-active: #dddddd;
         --editor-drag-icon-text-color: #000000A8;
         --editor-drag-icon-border-hover: #00000040;
+        --editor-saved-background-color: #bcffbc;
         --editor-modified-background-color: #ffc0cb;
         --editor-focus-shadow: #00000040;
         --editor-logo-shadow: #00000040;

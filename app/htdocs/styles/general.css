@@ -207,12 +207,19 @@ select {
 .save-button:hover {
     background-color: var(--button-save-background-hover) !important;
 }
-.list-title {
+.list-title, .item-title {
     line-height: 200%;
-    background-color: var(--body-text-color);
-    border-radius: 0.25em;
-    color: var(--main-background-color);
+    border-radius: 6px;
     padding: 0.25em;
+    text-shadow: var(--editor-title-glow-color) 0 0 4px;
+}
+.list-title {
+    background-color: var(--editor-list-title-color);
+    color: var(--main-background-color);
+}
+.item-title {
+    background-color: var(--editor-item-title-color);
+    color: var(--main-background-color);
 }
 /* Fields */
 span[contenteditable], code[contenteditable] {
