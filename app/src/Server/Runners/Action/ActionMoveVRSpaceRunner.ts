@@ -23,7 +23,7 @@ export default class ActionMoveVRSpaceRunner extends AbstractActionRunner {
                         OffsetZ: entry.offsetX_Z,
                         Rotate: entry.rotate,
                         StartOffsetMs: clone.durationMs * entry.startAtPercent,
-                        EndOffsetMs: clone.durationMs * entry.startAtPercent_andEndAtPercent,
+                        EndOffsetMs: clone.durationMs - Math.round((clone.durationMs * entry.startAtPercent_andEndAtPercent)),
                         PingPong: entry.pingPong,
                         Repeat: entry.repeat,
                         Accumulate: entry.repeat_andAccumulate

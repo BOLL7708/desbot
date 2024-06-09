@@ -24,11 +24,13 @@ export default class ActionMoveVRSpace extends AbstractAction {
             instance: new ActionMoveVRSpace(),
             tag: '🌐',
             description: 'Used to move the SteamVR play space.',
+            help: 'The easing types and modes you see below are all based on <a href="https://easings.net/" target="_blank">easings.net</a>, which lists all available types.',
             instructions: {
-                durationMs: 'The easing types and modes you see below are all based on <a href="https://easings.net/" target="_blank">easings.net</a>.',
+                easingInType: 'Use these easing values to affect the whole animation, running on top of the individual move entries, can be used to fade a repeating animation in and out.',
+                spaceMoveEntries: 'Add entries here to apply offsets or rotations. These will be applied simultaneously but can be offset in time.'
             },
             documentation: {
-                durationMs: 'The duration of the animation in milliseconds.',
+                durationMs: 'The duration of the whole animation in milliseconds.',
                 easingInType: 'The easing type, mode and duration to use for the start of the animation.',
                 easingOutType: 'The easing type, mode and duration to use for the end of the animation.',
                 resetSpaceChangesBefore: 'Will reset the play space to the setup that is stored on disk.',
@@ -65,7 +67,7 @@ export class ActionMoveVRSpaceEntry extends AbstractData {
     easingType: string = OptionMoveVRSpaceEasingType.linear
     easingType_withMode: string = OptionMoveVRSpaceEasingMode.in
     startAtPercent: number = 0
-    startAtPercent_andEndAtPercent: number = 0
+    startAtPercent_andEndAtPercent: number = 1
     pingPong: boolean = false
     repeat: number = 0
     repeat_andAccumulate: boolean = false
@@ -75,8 +77,8 @@ export class ActionMoveVRSpaceEntry extends AbstractData {
             documentation: {
                 offsetX: 'The amount to move the play space sideways (X), vertically (Y) and forward and backwards (Z).',
                 rotate: 'Horizontal rotation of the play space in degrees, positive degrees rotates left from your point of view.',
-                easingType: 'The easing type and mode to use for the animation.',
-                startAtPercent: 'The percentage of the duration to start and end the animation at.',
+                easingType: 'The easing type and mode to use for the animation, will be affected by offsets and other settings.',
+                startAtPercent: 'Will start and stop animating on percentage values of the full duration.',
                 pingPong: 'Will in the animation duration play the animation back and forth, ending where it started.',
                 repeat: 'The amount of times to repeat the animation, when accumulating, the offset will add up over the repetitions.'
             },

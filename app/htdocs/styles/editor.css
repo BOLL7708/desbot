@@ -59,6 +59,16 @@ code {
 .documentation-icon:hover {
     opacity: 1;
 }
+.help:before {
+    color: var(--body-text-color);
+    content: "❓ ";
+    display: inline;
+    margin-left: -1em;
+}
+.help {
+    color: var(--help-text-color);
+    padding: 0 0.5em 0.5em 0.5em;
+}
 .instructions:before {
     color: var(--body-text-color);
     content: "📚 ";
@@ -68,6 +78,8 @@ code {
 .instructions {
     color: var(--instruction-text-color);
     padding: 0.5em;
+}
+.help, .instructions {
     margin: 0 6px;
     border-radius: 6px;
     border-color: var(--border-color);

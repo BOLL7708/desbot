@@ -17,6 +17,7 @@ export default class DataMap {
         instance: T&AbstractData,
         tag?: string,
         description?: string,
+        help?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         instructions?: Partial<Record<TNoFunctions<T>, string>>,
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
@@ -32,6 +33,7 @@ export default class DataMap {
             isRoot,
             tag,
             description,
+            help,
             documentation as IStringDictionary|undefined,
             instructions as IStringDictionary|undefined,
             types as IStringDictionary|undefined,
@@ -43,10 +45,11 @@ export default class DataMap {
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>({instance, tag, description, documentation, instructions, types, label, keyMap, tools, tasks, visibleForOption}: {
+    public static addRootInstance<T>({instance, tag, description, documentation, help, instructions, types, label, keyMap, tools, tasks, visibleForOption}: {
         instance: T&AbstractData,
         tag?: string,
         description?: string,
+        help?: string,
         documentation?: Partial<Record<TNoFunctions<T>, string>>,
         instructions?: Partial<Record<TNoFunctions<T>, string>>
         types?: Partial<Record<TNoFunctions<T>, TTypes>>,
@@ -56,7 +59,7 @@ export default class DataMap {
         tasks?: IRootTool[],
         visibleForOption?: IDataMapVisibleForOption<T>
     }) {
-        this.addInstance(true, instance, tag, description, documentation, instructions, types, label, keyMap, tools, tasks, visibleForOption)
+        this.addInstance(true, instance, tag, description, help, documentation, instructions, types, label, keyMap, tools, tasks, visibleForOption)
     }
     public static addSubInstance<T>({instance, documentation, instructions, types}: {
         instance: T&AbstractData,
@@ -64,7 +67,7 @@ export default class DataMap {
         instructions?: Partial<Record<TNoFunctions<T>, string>>
         types?: Partial<Record<TNoFunctions<T>, TTypes>>
     }) {
-        this.addInstance(false, instance,undefined, undefined, documentation, instructions, types)
+        this.addInstance(false, instance,undefined, undefined, undefined, documentation, instructions, types)
     }
 
     /**
@@ -143,6 +146,7 @@ export class DataObjectMeta extends DataMeta {
         public isRoot: boolean,
         public tag?: string,
         public description?: string,
+        public help?: string,
         public documentation?: IStringDictionary,
         public instructions?: IStringDictionary,
         public types?: IStringDictionary,

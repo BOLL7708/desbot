@@ -6,7 +6,8 @@ export default class ConfigEditor extends AbstractData {
     autoGenerateKeys: boolean = true
     autoGenerateKeys_andShorten: boolean = true
     showHelpIcons: boolean = true
-    showInstructions: boolean = true
+    showHelp: boolean = true
+    showHelp_andInstructions: boolean = true
     hideIDs: boolean = true
     hideBooleanNames: boolean = true
     includeOrphansInGenericLists: boolean = true
@@ -23,7 +24,7 @@ export default class ConfigEditor extends AbstractData {
             documentation: {
                 autoGenerateKeys: 'Will automatically generate keys for new entries based on type and parent type.',
                 showHelpIcons: 'Will display the help icon next to entries if documentation exists.',
-                showInstructions: 'Will display inline instructions where available.',
+                showHelp: 'Will display help text above the editor, and/or inline instructions, where available.',
                 hideIDs: 'Will hide the table row IDs in the editor, turn this on to reduce clutter.',
                 hideBooleanNames: 'Will hide "True" and "False" from boolean switches.',
                 askToRevealSecretInput: 'Will ask to show and edit a field that is otherwise censored.',

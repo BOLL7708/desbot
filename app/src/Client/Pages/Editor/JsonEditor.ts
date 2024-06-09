@@ -110,7 +110,16 @@ export default class JsonEditor {
         const instanceMeta = DataMap.getMeta(this._originalInstanceType ?? '')
         const tempParent = this.buildUL()
 
-        // region Extra Children
+        // region Pre-editor help text
+        if(this._config.showHelp && instanceMeta?.help) {
+            const help = document.createElement('p') as HTMLParagraphElement
+            help.innerHTML = instanceMeta.help
+            help.classList.add('help')
+            tempParent.appendChild(help)
+        }
+        // endregion
+
+        // region Extra Children for first element
         const extraChildren: HTMLElement[] = []
         let parentIdInfo: HTMLElement|undefined = undefined
         let makeGlobalButton: HTMLButtonElement|undefined = undefined
@@ -326,7 +335,7 @@ export default class JsonEditor {
         let newRoot = document.createElement('li') as HTMLElement
 
         // Instructions
-        if(this._config.showInstructions) {
+        if(this._config.showHelp_andInstructions) {
             JsonEditorUtils.appendInstructions(newRoot, options.instanceMeta, key.toString())
         }
 
@@ -874,7 +883,7 @@ export default class JsonEditor {
         const instanceType = instance.constructor.name
 
         // Instructions
-        if(this._config.showInstructions) {
+        if(this._config.showHelp_andInstructions) {
             JsonEditorUtils.appendInstructions(newRoot, options.instanceMeta, pathKey.toString())
         }
 
