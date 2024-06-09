@@ -209,6 +209,10 @@ select {
 }
 .list-title {
     line-height: 200%;
+    background-color: var(--body-text-color);
+    border-radius: 0.25em;
+    color: var(--main-background-color);
+    padding: 0.25em;
 }
 /* Fields */
 span[contenteditable], code[contenteditable] {
