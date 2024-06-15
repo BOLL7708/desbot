@@ -251,6 +251,16 @@ export default class Utils {
     }
 
     /**
+     * Checks if all the needles exist in the haystack.
+     * @param haystack
+     * @param needles
+     */
+    static containsAll(needles: any[], haystack: any[]): boolean {
+        const haystackSet = new Set(haystack)
+        return needles.every(item => haystackSet.has(item))
+    }
+
+    /**
      * Splits a Steam app key into parts and returns the parsed number
      * @param appId 
      * @returns application ID number or NaN if not a valid app key

@@ -2,6 +2,7 @@ import AbstractData, {DataEntries, DataRefValues} from './AbstractData.js'
 import DataMap from './DataMap.js'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.js'
 import {IDataBaseItem} from '../../Helpers/DataBaseHelper.js'
+import Utils from '../../../Shared/Utils/Utils.js'
 
 export default class DataUtils {
     // region Referencing
@@ -186,7 +187,9 @@ export default class DataUtils {
         else return entries
     }
     static ensureItemDictionary<T>(entries: INumberDictionary|DataEntries<T>): DataEntries<T>|undefined {
-        if(entries.constructor.name !== DataEntries.name) return undefined
+        const keys = Object.keys(entries)
+        const matchKeys = Object.keys(new DataEntries())
+        if(!Utils.containsAll(keys, matchKeys)) return undefined
         else return entries as DataEntries<T>
     }
     // endregion

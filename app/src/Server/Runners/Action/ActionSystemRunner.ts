@@ -24,6 +24,8 @@ export default class ActionSystemRunner extends AbstractActionRunner {
                 const interval = clone.trigger.interval
                 let delay = 0
 
+                // region Trigger
+
                 // Trigger System Actions
                 const systemActions = ArrayUtils.getAsType(clone.trigger.systemActionEntries, clone.trigger.systemActionEntries_use, index)
                 for(const systemAction of systemActions) {
@@ -109,6 +111,9 @@ export default class ActionSystemRunner extends AbstractActionRunner {
                         new ActionHandler(userEventEntry.dataSingle.key).call(user).then()
                     }
                 }
+                // endregion
+
+                // region Toggle
 
                 // Toggle Rewards
                 const rewardStates = clone.toggle.rewardStates
@@ -118,7 +123,7 @@ export default class ActionSystemRunner extends AbstractActionRunner {
                     const eventEntry = DataUtils.ensureItem(eventStates.event)
                     const event = eventEntry?.dataSingle.filledData
                     if(event) {
-                        const rewards = DataUtils.ensureDataArray(event.triggers).filter(trigger => trigger.__getClass() == TriggerReward.name) as TriggerReward[]
+                        const rewards = DataUtils.ensureDataArray(event.triggers) as TriggerReward[]
                         for(const reward of rewards) {
                             const rewardID = DataUtils.ensureItem(reward.rewardID)
                             if(rewardID) {
@@ -134,6 +139,8 @@ export default class ActionSystemRunner extends AbstractActionRunner {
 
                 // Toggle the rewards on Twitch
                 await TwitchHelixHelper.toggleRewards(rewardStates)
+
+                // endregion
             }
         }
     }
