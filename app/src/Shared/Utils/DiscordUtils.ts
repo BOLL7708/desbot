@@ -84,24 +84,19 @@ export default class DiscordUtils {
             method: 'post',
             body: item.data
         }
-        const response: Response = await fetch(url, options)
+        const response: Response = await fetch(`${url}?wait=true`, options)
         if(response == null) {
             console.warn('Discord: Catastrophic Failure', url, item.data)
             return EResponseState.Skip
         }
-        const headers: IDiscordResponseHeaders = {}
-
-        for(const [key, header] of Object.entries(response.headers)) {
-            headers[key] = header
+        if(response.headers.get('x-ratelimit-global')) {
+            console.warn('Discord: ratelimit was global, this is unexpected as it usually means the server is in a bad standing!', url, item.data, response.headers.entries())
         }
-        if(headers['x-ratelimit-global']) {
-            console.warn('Discord: ratelimit was global, this is unexpected as it usually means the server is in a bad standing!', url, item.data, headers)
-        }
-        const bucket = headers["x-ratelimit-bucket"]
+        const bucket = response.headers.get("x-ratelimit-bucket")
         if(bucket) {
             if(!this._rateLimitBuckets.hasOwnProperty(url)) this._rateLimitBuckets[url] = bucket
-            const remaining = Utils.ensureNumber(headers["x-ratelimit-remaining"], 0)
-            const reset = Utils.ensureNumber(headers["x-ratelimit-reset"], 0)
+            const remaining = Utils.ensureNumber(response.headers.get("x-ratelimit-remaining"), 0)
+            const reset = Utils.ensureNumber(response.headers.get("x-ratelimit-reset"), 0)
             if(response.ok) {
                 const resetTimestamp = reset * 1000
                 this._rateLimits[bucket] = {remaining: remaining, resetTimestamp: resetTimestamp}
