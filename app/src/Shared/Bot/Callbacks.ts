@@ -298,12 +298,12 @@ export default class Callbacks {
                 const preset = DataUtils.ensureData(screenshotsConfig.callback.pipePreset)
                 if(preset) {
                     const configClone: PresetPipeCustom = Utils.clone(preset)
-                    configClone.imageData = responseData.image
+                    configClone.imageData = responseData.Image
                     if(configClone.customProperties) {
                         configClone.customProperties.durationMs = screenshotsConfig.callback.pipePreset_forMs
                         const tas = configClone.customProperties.textAreas
                         if(tas && tas.length > 0) {
-                            tas[0].text = `${responseData.width}x${responseData.height}`
+                            tas[0].text = `${responseData.Width}x${responseData.Height}`
                         }
                         if(requestData != null && tas && tas.length > 1) {
                             const userData = await TwitchHelixHelper.getUserById(requestData.userId)
@@ -318,7 +318,7 @@ export default class Callbacks {
             }
 
             const webhooks = DataUtils.ensureDataArray(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
-            const dataUrl = Utils.b64ToDataUrl(responseData.image)
+            const dataUrl = Utils.b64ToDataUrl(responseData.Image)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
             // Post screenshot to Sign and Discord
