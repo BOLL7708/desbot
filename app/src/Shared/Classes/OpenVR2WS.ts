@@ -84,32 +84,32 @@ export default class OpenVR2WS {
             console.error(err)
         }
         if(data != undefined) {
-            switch(data.Key) {
+            switch(data.key) {
                 case 'ApplicationInfo':
-                    const appData: IOpenVR2WSApplicationInfoData = data.Data
-                    if(appData?.hasOwnProperty('AppId')) {
-                        this._currentAppId = <string> appData.AppId
+                    const appData: IOpenVR2WSApplicationInfoData = data.data
+                    if(appData?.hasOwnProperty('appId')) {
+                        this._currentAppId = <string> appData.appId
                         if(this._currentAppId.length > 0) this._appIdCallback(this._currentAppId)
                     }
                     break
                 case 'Input':
-                    const inputData: IOpenVR2WSInputData = data.Data
-                    this._inputCallback(data.Key, inputData)
+                    const inputData: IOpenVR2WSInputData = data.data
+                    this._inputCallback(data.key, inputData)
                     break
                 case 'RemoteSetting':
-                    if(data.Type == 'Error') Utils.log(`OpenVR2WS: ${data.Key} failed with ${data.Message}`, Color.DarkRed)
+                    if(data.type == 'Error') Utils.log(`OpenVR2WS: ${data.key} failed with ${data.kessage}`, Color.DarkRed)
                     break
                 case 'FindOverlay':
-                    const overlayResult: IOpenVR2WSFindOverlayData = data.Data
-                    this._findOverlayCallback(overlayResult.Key, overlayResult.Handle)
+                    const overlayResult: IOpenVR2WSFindOverlayData = data.data
+                    this._findOverlayCallback(overlayResult.key, overlayResult.handle)
                     break
                 case 'MoveSpace':
-                    if(data.Type ?? 'Error') Utils.log(`OpenVR2WS: ${data.Key} failed with: ${data.Message}`, Color.DarkRed)
+                    if(data.type ?? 'Error') Utils.log(`OpenVR2WS: ${data.key} failed with: ${data.kessage}`, Color.DarkRed)
                     break
                 case 'InputPose':
-                    const inputPose: IOpenVR2WSInputPoseResponseData = data.Data
-                    if(data.Nonce) {
-                        this._socket?.resolvePromise(data.Nonce, inputPose)
+                    const inputPose: IOpenVR2WSInputPoseResponseData = data.data
+                    if(data.nonce) {
+                        this._socket?.resolvePromise(data.nonce, inputPose)
                     } else {
                         this._inputPoseCallback(inputPose)
                     }
@@ -147,9 +147,9 @@ export default class OpenVR2WS {
         if(category.length == 0) category = this._currentAppId?.toString() ?? ''
         const value = action.setToValue.length == 0 ? defaultValue : action.setToValue
         const message: IOpenVRWSCommandMessage = {
-            Key: 'RemoteSetting',
-            Password: this._password,
-            Data: {
+            key: 'RemoteSetting',
+            password: this._password,
+            data: {
                 Section: category,
                 Setting: setting,
                 Value: value,
@@ -161,7 +161,7 @@ export default class OpenVR2WS {
         const settingKey = `${category}|${setting}`
         if(action.duration > 0) {
             // Registers a new resetting timer for this specific setting category.
-            message.Data.Value = defaultValue
+            message.data.Value = defaultValue
             this._resetSettingTimers.set(settingKey, action.duration)
             this._resetSettingMessages.set(settingKey, message)
         } else {
@@ -173,9 +173,9 @@ export default class OpenVR2WS {
 
     public moveSpace(data: IOpenVR2WSMoveSpace) {
         const message: IOpenVRWSCommandMessage = {
-            Key: 'MoveSpace',
-            Password: this._password,
-            Data: data
+            key: 'MoveSpace',
+            password: this._password,
+            data: data
         }
         this.sendMessage(message)
         console.log(`OpenVR2WS: Moving space: ${JSON.stringify(data)}`)
@@ -184,7 +184,7 @@ export default class OpenVR2WS {
     public async requestInputPoseData(): Promise<IOpenVR2WSInputPoseResponseData|undefined> {
         const nonce = Utils.getNonce('InputPose')
         const message: IOpenVRWSCommandMessage = {
-            Key: 'InputPose',
+            key: 'InputPose',
             Nonce: nonce
         }
         return this.sendMessageWithPromise<IOpenVR2WSInputPoseResponseData>(message)
@@ -203,7 +203,7 @@ export default class OpenVR2WS {
             if(timer <= 0) {
                 const message = this._resetSettingMessages.get(key)
                 if(message) {
-                    console.log(`OpenVR2WS: Resetting ${message.Key} : ${message.Nonce} to ${message.Data}`)
+                    console.log(`OpenVR2WS: Resetting ${message.key} : ${message.Nonce} to ${message.data}`)
                     this.sendMessage(message)
                 }
                 this._resetSettingTimers.delete(key)
@@ -214,83 +214,83 @@ export default class OpenVR2WS {
 
     public findOverlay(overlayKey: string) {
         this.sendMessage({
-            Key: 'FindOverlay',
-            Data: overlayKey
+            key: 'FindOverlay',
+            data: overlayKey
         })
     }
 }
 
 // Data
 export interface IOpenVR2WSMessage {
-    Type: string
-    Key: string
-    Message: string
-    Data?: any
-    Nonce?: string
+    type: string
+    key: string
+    kessage: string
+    data?: any
+    nonce?: string
 }
 export interface IOpenVR2WSInputData {
-    Source: string
-    Input: string
-    State: boolean
+    source: string
+    input: string
+    state: boolean
 }
 export interface IOpenVR2WSFindOverlayData {
-    Key: string
-    Handle: number
+    key: string
+    handle: number
 }
 export interface IOpenVR2WSApplicationInfoData {
-    AppId: string
-    SessionStart: number
+    appId: string
+    sessionStart: number
 }
 export interface IOpenVR2WSInputPoseResponseData {
-    Head?: IOpenVR2WSInputPoseResponseDataPose
-    LeftHand?: IOpenVR2WSInputPoseResponseDataPose
-    RightHand?: IOpenVR2WSInputPoseResponseDataPose
+    head?: IOpenVR2WSInputPoseResponseDataPose
+    leftHand?: IOpenVR2WSInputPoseResponseDataPose
+    rightHand?: IOpenVR2WSInputPoseResponseDataPose
 }
 export interface IOpenVR2WSInputPoseResponseDataPose {
-    RotationMatrix: number[]
-    Position: Vec3
-    Velocity: Vec3
-    AngularVelocity: Vec3
-    Orientation: Vec3
-    IsConnected: boolean
-    IsTracking: boolean
+    rotationMatrix: number[]
+    position: Vec3
+    velocity: Vec3
+    angularVelocity: Vec3
+    orientation: Vec3
+    isConnected: boolean
+    isTracking: boolean
 }
 export interface Vec3 {
-    X: number
-    Y: number
-    Z: number
+    x: number
+    y: number
+    z: number
 }
 export interface IOpenVRWSCommandMessage {
-    Key: string
-    Data?: any
+    key: string
+    data?: any
     Nonce?: string
-    Password?: string
+    password?: string
 }
 export interface IOpenVR2WSMoveSpace {
-    DurationMs: number
-    EaseInType: string
-    EaseInMode: string
-    EaseInMs: number
-    EaseOutType: string
-    EaseOutMode: string
-    EaseOutMs: number
-    ResetSpaceBeforeRun: boolean
-    ResetOffsetAfterRun: boolean
-    Correction: string
-    Entries: IOpenVR2WSMoveSpaceEntry[]
+    durationMs: number
+    easeInType: string
+    easeInMode: string
+    easeInMs: number
+    easeOutType: string
+    easeOutMode: string
+    easeOutMs: number
+    resetSpaceBeforeRun: boolean
+    resetOffsetAfterRun: boolean
+    correction: string
+    entries: IOpenVR2WSMoveSpaceEntry[]
 }
 export interface IOpenVR2WSMoveSpaceEntry {
-    EaseType: string
-    EaseMode: string
-    OffsetX: number
-    OffsetY: number
-    OffsetZ: number
-    Rotate: number
-    StartOffsetMs: number
-    EndOffsetMs: number
-    PingPong: boolean
-    Repeat: number
-    Accumulate: boolean
+    easeType: string
+    easeMode: string
+    offsetX: number
+    offsetY: number
+    offsetZ: number
+    rotate: number
+    startOffsetMs: number
+    endOffsetMs: number
+    pingPong: boolean
+    repeat: number
+    accumulate: boolean
 }
 
 // Callbacks

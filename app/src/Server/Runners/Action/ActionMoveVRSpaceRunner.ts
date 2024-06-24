@@ -16,31 +16,31 @@ export default class ActionMoveVRSpaceRunner extends AbstractActionRunner {
                 const entries: IOpenVR2WSMoveSpaceEntry[] = []
                 for(const entry of clone.spaceMoveEntries) {
                     entries.push({
-                        EaseType: entry.easingType,
-                        EaseMode: entry.easingType_withMode,
-                        OffsetX: entry.offsetX,
-                        OffsetY: entry.offsetX_Y,
-                        OffsetZ: entry.offsetX_Z,
-                        Rotate: entry.rotate,
-                        StartOffsetMs: clone.durationMs * entry.startAtPercent,
-                        EndOffsetMs: clone.durationMs - Math.round((clone.durationMs * entry.startAtPercent_andEndAtPercent)),
-                        PingPong: entry.pingPong,
-                        Repeat: entry.repeat,
-                        Accumulate: entry.repeat_andAccumulate
+                        easeType: entry.easingType,
+                        easeMode: entry.easingType_withMode,
+                        offsetX: entry.offsetX,
+                        offsetY: entry.offsetX_Y,
+                        offsetZ: entry.offsetX_Z,
+                        rotate: entry.rotate,
+                        startOffsetMs: clone.durationMs * entry.startAtPercent,
+                        endOffsetMs: clone.durationMs - Math.round((clone.durationMs * entry.startAtPercent_andEndAtPercent)),
+                        pingPong: entry.pingPong,
+                        repeat: entry.repeat,
+                        accumulate: entry.repeat_andAccumulate
                     })
                 }
                 const data: IOpenVR2WSMoveSpace = {
-                    DurationMs: clone.durationMs,
-                    EaseInType: clone.easingInType,
-                    EaseInMode: clone.easingInType_withMode,
-                    EaseInMs: clone.durationMs * clone.easingInType_durationPercent,
-                    EaseOutType: clone.easingOutType,
-                    EaseOutMode: clone.easingOutType_withMode,
-                    EaseOutMs: clone.durationMs * clone.easingOutType_durationPercent,
-                    ResetSpaceBeforeRun: clone.resetSpaceChangesBefore,
-                    ResetOffsetAfterRun: clone.resetOffsetChangesAfter,
-                    Correction: clone.correction,
-                    Entries: entries
+                    durationMs: clone.durationMs,
+                    easeInType: clone.easingInType,
+                    easeInMode: clone.easingInType_withMode,
+                    easeInMs: clone.durationMs * clone.easingInType_durationPercent,
+                    easeOutType: clone.easingOutType,
+                    easeOutMode: clone.easingOutType_withMode,
+                    easeOutMs: clone.durationMs * clone.easingOutType_durationPercent,
+                    resetSpaceBeforeRun: clone.resetSpaceChangesBefore,
+                    resetOffsetAfterRun: clone.resetOffsetChangesAfter,
+                    correction: clone.correction,
+                    entries: entries
                 }
 
                 modules.openvr2ws.moveSpace(data)

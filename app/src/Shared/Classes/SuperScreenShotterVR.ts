@@ -26,11 +26,11 @@ export default class SuperScreenShotterVR {
             console.warn('SSSVR: Failed to parse response', evt.data, e)
             return
         }
-        const id = parseInt(data?.Nonce ?? '')
+        const id = parseInt(data?.nonce ?? '')
         const requestData = this._screenshotRequests.get(id)
         if(data != undefined) {
-            if(data.Error) {
-                console.error('SSSVR: Screenshot request failed', data.Nonce, data.Message, data.Error)
+            if(data.error) {
+                console.error('SSSVR: Screenshot request failed', data.nonce, data.message, data.error)
             } else {
                 this._messageCallback(requestData, data)
                 this._screenshotRequests.delete(id)
@@ -55,9 +55,9 @@ export default class SuperScreenShotterVR {
             userInput: userData.input
         })
         const message:ISSSVRRequest = {
-            Nonce: `${this._messageCounter}`,
-            Delay: delaySeconds,
-            Tag: userData.login
+            nonce: `${this._messageCounter}`,
+            delay: delaySeconds,
+            tag: userData.login
         }
         this._socket?.send(JSON.stringify(message))
     }
@@ -65,17 +65,17 @@ export default class SuperScreenShotterVR {
 
 // SuperScreenShotterVR
 export interface ISSSVRRequest {
-    Nonce: string
-    Tag: string
-    Delay: number
+    nonce: string
+    tag: string
+    delay: number
 }
 export interface ISSSVRResponse {
-    Nonce: string
-    Image: string
-    Width: number
-    Height: number
-    Message: string
-    Error: string
+    nonce: string
+    image: string
+    width: number
+    weight: number
+    message: string
+    error: string
 }
 
 // Callbacks

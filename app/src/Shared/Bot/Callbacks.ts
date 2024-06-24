@@ -298,12 +298,12 @@ export default class Callbacks {
                 const preset = DataUtils.ensureData(screenshotsConfig.callback.pipePreset)
                 if(preset) {
                     const configClone: PresetPipeCustom = Utils.clone(preset)
-                    configClone.imageData = responseData.Image
+                    configClone.imageData = responseData.image
                     if(configClone.customProperties) {
                         configClone.customProperties.durationMs = screenshotsConfig.callback.pipePreset_forMs
                         const tas = configClone.customProperties.textAreas
                         if(tas && tas.length > 0) {
-                            tas[0].text = `${responseData.Width}x${responseData.Height}`
+                            tas[0].text = `${responseData.width}x${responseData.weight}`
                         }
                         if(requestData != null && tas && tas.length > 1) {
                             const userData = await TwitchHelixHelper.getUserById(requestData.userId)
@@ -318,7 +318,7 @@ export default class Callbacks {
             }
 
             const webhooks = DataUtils.ensureDataArray(screenshotsConfig.callback.discordWebhooksSSSVR) ?? []
-            const dataUrl = Utils.b64ToDataUrl(responseData.Image)
+            const dataUrl = Utils.b64ToDataUrl(responseData.image)
             const discordConfig = await DataBaseHelper.loadMain(new ConfigDiscord())
 
             // Post screenshot to Sign and Discord
@@ -443,11 +443,11 @@ export default class Callbacks {
 
         // region VR
         modules.openvr2ws.setInputCallback((key, data) => {
-            switch(data.Input) {
-                case "Proximity": if(data.Source == 'Head') {
+            switch(data.input) {
+                case "Proximity": if(data.source == 'Head') {
                     // TODO: This is unreliable as it does not always register, and dashboard will mess it up.
                     // modules.obs.toggleSource(Config.obs.rewards[Keys.KEY_ROOMPEEK], !data.value)
-                    console.log(`OpenVR2WS: Headset proximity changed: ${data.State}`)
+                    console.log(`OpenVR2WS: Headset proximity changed: ${data.state}`)
                 }
             }
         })
