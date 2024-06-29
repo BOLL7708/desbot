@@ -73,7 +73,7 @@ export interface ISSSVRResponse {
     nonce: string
     image: string
     width: number
-    weight: number
+    height: number
     message: string
     error: string
 }

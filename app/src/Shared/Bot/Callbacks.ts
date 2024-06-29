@@ -303,7 +303,7 @@ export default class Callbacks {
                         configClone.customProperties.durationMs = screenshotsConfig.callback.pipePreset_forMs
                         const tas = configClone.customProperties.textAreas
                         if(tas && tas.length > 0) {
-                            tas[0].text = `${responseData.width}x${responseData.weight}`
+                            tas[0].text = `${responseData.width}x${responseData.height}`
                         }
                         if(requestData != null && tas && tas.length > 1) {
                             const userData = await TwitchHelixHelper.getUserById(requestData.userId)

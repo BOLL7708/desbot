@@ -17,7 +17,7 @@ The bot is meant to be a nexus for your stream interactions, it can connect to a
    * Comes with a lot of support functions like name cleanup, text cleanup, custom nicks, word to audio replacement, a dictionary for word replacement.
 5. Connect to a range of accessory tools: to change SteamVR settings, capture SteamVR screenshots, detect running SteamVR games, send overlays into SteamVR, and more.
 6. Connect to OBS Studio using the 4.x Websocket plugin, to show/hide sources and filters, trigger screenshot capture.
-7. Write text labels to disk, as well as a range of settings for various functions.
+7. Write text labels to disk, as well modify a range of settings for various functions in the system.
 8. Send key presses to arbitrary applications using PHP to execute an AutoIT v3 component.
 9. Can pipe screenshots from both SteamVR and OBS to overlays and/or Discord.
 10. Can trigger custom URIs for applications, or load a URL in the background to trigger standard webhooks.
@@ -34,11 +34,10 @@ This section will explain how to get started with the bot, how to install it, ho
 <details>
 
 #### Mandatory things
-1. You need to have at least one user account on [Twitch][twitch] as that is needed to get through the setup.
-2. A webserver with PHP 8.1 or higher, an easy ready-made solution is [XAMPP][xampp].
+1. You need to have at least one user account on [Twitch][twitch] as that is needed to get through the setup, two is recommended though to avoid complications.
+2. A webserver with PHP 8.2 or higher, an easy ready-made solution is [XAMPP][xampp].
    * Inside `php.ini` in `xampp/php` uncomment this line: `extension=sqlite3` by removing the leading `;` to enable the SQLite3 plugin. Then restart Apache.
 3. To compile TypeScript you need [Node.JS][nodejs].
-   * With Node installed, install the TypeScript compiler with `npm install -g tsc` in the terminal.
 
 #### Good to Have things
 1. A secondary [Twitch][twitch] account to use as a bot in chat, so it doesn't look like you are writing all automated messages yourself.
@@ -48,7 +47,7 @@ This section will explain how to get started with the bot, how to install it, ho
 
 #### Get the bot
 1. Clone this repository to a folder in the document root of your webserver, go to it in the terminal and run `git clone https://github.com/BOLL7708/desbot.git`. If you are using `XAMPP` the root is `xampp/htdocs`.
-2. Run `tsc` in the terminal to compile the project, it should return empty if there are no issues.
+2. Navigate into the `./scripts` folder and run `1_install.cmd`, this will install dependencies and compile the project.
 3. Open the URL to the bot in your browser and go through the setup, see the next section for configuration, the URL should look something like this if you used the defaults: `http://localhost/desbot/`
 
 </details>
@@ -56,23 +55,21 @@ This section will explain how to get started with the bot, how to install it, ho
 ### Configuration
 <details>
 
-1. The first time you run the main page it will create a new database. Click the link at the bottom to continue to the editor.
-2. You are now in the initial setup, which includes signing in with Twitch for both your channel and an second account to act as a bot in chat, which can be your main account or a secondary account specifically made for this.
-3. After the setup you have access to the main interface, here it is recommended to go to the `🍰 Defaults` section to import default presets and events, this will help you get a very solid base setup and includes things are not well documented so hard to get any other way.
-4. Go to  `🎨 Config > Speech > Google Api Key`, and insert your API key if you have one, this to get TTS throughout.
-5. Use the `🧰 Tools` section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
-   * If you have existing rewards on Twitch, it is a good idea to use the import tools in here. Keep in mind that if you want the bot to be able to update and toggle your reward, they need to be created by the bot. You can still import existing rewards, delete them, and then have this bot create them from the imported presets.  
+1. You should be seeing the initial setup, which includes signing in with Twitch for both your channel and a second account to act as a bot in chat.
+2. After the setup you have access to the main interface, here it is recommended to go to the `🍰 Defaults` section to import default presets and events, this will help you get a very solid base setup and includes things that are not documented yet.
+3. Go to  `🎨 Config > Speech > Google Api Key`, and insert your API key if you have one, this to get TTS throughout.
+4. Use the `🧰 Tools` section of the editor to perform things like importing existing Twitch rewards, load data for Twitch users, load data for Steam games, connect to a Philips Hue hub, and more.
+   * If you have existing rewards on Twitch, it is a good idea to use the import tools in here. Keep in mind that if you want the bot to be able to update and toggle your rewards, they need to be created by the bot. You can still import existing rewards, delete them on Twitch, and then have this bot recreate them from the imported presets.  
 </details>
 
 ### Updating
 <details>
 
-To update the project you should pull down the latest changes and then recompile the project, follow these steps:
-1. Go to the project root in the terminal, this will be in `xampp/htdocs/desbot` if you used the defaults.
-2. Use Git to pull the latest changes from the `master` branch, if you haven't checked out a different branch you can run this in the terminal to get the update: `git pull`
-3. Still in the same terminal, run `tsc` to recompile the project, it should return empty if there are no issues.
+Updating is simple now, just open a terminal in the project and:
+1. Navigate to the `./scripts` folder.
+2. Run the `2_update.cmd` script.
 
-That should be it. Go to the path of the bot in your browser and check the version number in the top left corner under the logo, it should be the latest version as seen on GitHub or the website.
+This should pull down updates using git and rebuild the project. Reloading the editor should show a new version number under the logo in the top left corner. 
 </details>
 
 ---
@@ -101,9 +98,7 @@ Links to various tools and resources.
 
 * [Website][website] - The official website for the bot, contains a lot of information as well as this very ReadMe.
 * [Discord][discord] - The official Discord server for the bot, where you can get support and chat with other users.
-* [Reddit][reddit] - The official subreddit for the bot.
-* [Bluesky][bluesky] - The official Bluesky page for the bot.
-* [Twitter][twitter] - The official Twitter account for the bot.
+* [Trello][trello] - The official Trello working board. 
 </details>
 
 ---
