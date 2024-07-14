@@ -15,8 +15,8 @@ export default class ConfigMain extends AbstractData {
     }
 }
 export class ConfigMainLogo extends AbstractData {
-    foregroundColor: string = '#FFBF00'
-    backgroundColor: string = '#BF00FF'
+    foregroundColor: string = '#DBA507'
+    backgroundColor: string = '#6441A5'
 
     enlist() {
         DataMap.addSubInstance({
