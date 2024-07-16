@@ -270,3 +270,85 @@ export default class Pipe {
         }
     }
 }
+
+interface IPipeRequest {
+    imageData?: string
+    imagePath?: string
+    nonce?: string
+    basicTitle?: string
+    basicMessage?: string
+    customProperties?: IPipeRequestCustomProperties
+}
+
+interface IPipeRequestCustomProperties {
+    enabled: boolean
+    anchorType: string
+    attachToAnchor: boolean
+    ignoreAnchorYaw: boolean
+    ignoreAnchorPitch: boolean
+    ignoreAnchorRoll: boolean
+
+    overlayChannel: number
+    animationHz: number
+    durationMs: number
+    opacityPer: number
+
+    widthM: number
+    zDistanceM: number
+    yDistanceM: number
+    xDistanceM: number
+
+    yawDeg: number
+    pitchDeg: number
+    rollDeg: number
+
+    follow: IPipeRequestCustomPropertiesFollow
+    animations: IPipeRequestCustomPropertiesAnimation[]
+    transitionIn?: IPipeRequestCustomPropertiesTransition
+    transitionOut?: IPipeRequestCustomPropertiesTransition
+    textAreas: IPipeRequestCustomPropertiesTextArea[]
+}
+
+interface IPipeRequestCustomPropertiesFollow {
+    enabled: boolean
+    triggerAngle: number
+    durationMs: number
+    easeType: string
+    easeMode: string
+}
+
+interface IPipeRequestCustomPropertiesAnimation {
+    property: string
+    amplitude: number
+    frequency: number
+    phase: string
+    waveform: string
+    flipWaveform: boolean
+}
+
+interface IPipeRequestCustomPropertiesTransition {
+    scalePer: number
+    opacityPer: number
+    zDistanceM: number
+    yDistanceM: number
+    xDistanceM: number
+    yawDeg: number
+    pitchDeg: number
+    rollDeg: number
+    durationMs: number
+    easeType: string
+    easeMode: string
+}
+
+interface IPipeRequestCustomPropertiesTextArea {
+    text: string
+    xPositionPx: number
+    yPositionPx: number
+    widthPx: number
+    heightPx: number
+    fontSizePt: number
+    fontFamily: string
+    fontColor: string
+    horizontalAlignment: string
+    verticalAlignment: string
+}
