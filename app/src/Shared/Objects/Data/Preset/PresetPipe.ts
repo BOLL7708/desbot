@@ -1,36 +1,80 @@
 import AbstractData from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import DataUtils from '../DataUtils.js'
-import OptionPipeCustomAnchorType from '../../Options/OptionPipeCustomAnchorType.js'
+import OptionPipeAnchorType from '../../Options/OptionPipeAnchorType.js'
+import OptionPipeEasingMode from '../../Options/OptionPipeEasingMode.js'
+import OptionPipeEasingType from '../../Options/OptionPipeEasingType.js'
+import OptionPipeAnimationProperty from '../../Options/OptionPipeAnimationProperty.js'
+import OptionPipeAnimationPhase from '../../Options/OptionPipeAnimationPhase.js'
+import OptionPipeAnimationWaveform from '../../Options/OptionPipeAnimationWaveform.js'
+import OptionPipeTextAreaHorizontalAlignment from '../../Options/OptionPipeTextAreaHorizontalAlignment.js'
+import OptionPipeTextAreaVerticalAlignment from '../../Options/OptionPipeTextAreaVerticalAlignment.js'
 
 export default class PresetPipeBasic extends AbstractData {
-    imageData: string = ''
-    basicTitle: string = 'OpenVRNotificationPipe'
-    basicMessage: string = ''
+    nonce: string = ''
+    title: string = 'OpenVRNotificationPipe'
+    message: string = ''
 
     enlist() {
         DataMap.addRootInstance({
             instance: new PresetPipeBasic(),
-            label: 'basicTitle'
+            label: 'title'
         })
     }
 }
 export class PresetPipeCustom extends AbstractData {
-    imageData: string = ''
-    imagePath: string = ''
-    customProperties = new PresetPipeCustomProperties()
+    nonce: string = ''
+    anchorType: string = OptionPipeAnchorType.Headset
+    anchorType_attached: boolean = false
+    ignoreAnchorYaw: boolean = false
+    ignoreAnchorYaw_pitch: boolean = false
+    ignoreAnchorYaw_roll: boolean = false
+    overlayChannel: number = 0
+    opacity: number = 1
+    width: number = 1
+    positionX: number = 1
+    positionX_Y: number = 0
+    positionX_Z: number = 0
+    angleYaw: number = 0
+    angleYaw_pitch: number = 0
+    angleYaw_roll: number = 0
+    follow = new PresetPipeCustomFollow()
+    transitionIn = new PresetPipeCustomTransition()
+    transitionOut = new PresetPipeCustomTransition()
+    animations: PresetPipeCustomAnimation[] = []
+    textAreas: PresetPipeCustomTextArea[] = []
 
     enlist() {
         DataMap.addRootInstance({
             instance: new PresetPipeCustom(),
             description: 'This is what is sent to the Pipe application',
             documentation: {
-                imageData: 'Optional: In this solution we set the image from the preset so this is not needed in the payload.',
-                imagePath: 'Optional: Absolute path to an image, not used in this solution except for when doing tests.',
-                customProperties: 'Properties for the custom overlay.'
+                nonce: 'Value that will be returned in callback if provided.',
+                anchorType: 'What anchor to place the overlay in relation to, and if the overlay should be attached.',
+                ignoreAnchorYaw: 'Ignore anchor device yaw, pitch and/or roll angle for the overlay',
+                overlayChannel: 'The channel for this overlay.\nEach channel has a separate queue and can be shown simultaneously.',
+                opacity: 'Opacity of the overlay',
+                width: 'Physical width of the overlay in meters',
+                positionX: 'Offsets the overlay horizontally (X), vertically (Y) and in depth (Z) in meters',
+                angleYaw: 'Angle the overlay left or right (yaw), up or down (pitch) or spin it (roll) in degrees',
+                follow: 'Follow settings',
+                transitionIn: 'How the overlay will transition in.',
+                transitionOut: 'How the overlay will transition out.',
+                animations: 'Animation settings',
+                textAreas: 'Define any number of text areas to be displayed on the image.'
             },
             types: {
-                imagePath: DataUtils.getStringFileImageRef()
+                anchorType: OptionPipeAnchorType.ref,
+                opacity: DataUtils.getNumberRangeRef(0, 1, 0.01),
+                width: DataUtils.getNumberRangeRef(0, 10, 0.01),
+                positionX: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                positionX_Y: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                positionX_Z: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                angleYaw: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                angleYaw_pitch: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                angleYaw_roll: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                animations: PresetPipeCustomAnimation.ref.build(),
+                textAreas: PresetPipeCustomTextArea.ref.build()
             },
             tasks: [
                 /*
@@ -58,105 +102,54 @@ export class PresetPipeCustom extends AbstractData {
 }
 
 /**
- * Properties for the general state of the overlay
- */
-export class PresetPipeCustomProperties extends AbstractData {
-    enabled: boolean = true
-    nonce: string = ''
-    anchorType: number = 1
-    attachToAnchor: boolean = false
-    ignoreAnchorYaw: boolean = false
-    ignoreAnchorPitch: boolean = false
-    ignoreAnchorRoll: boolean = false
-    overlayChannel: number = 0
-    animationHz: number = -1
-    durationMs: number = 5000
-    opacityPer: number = 1
-    widthM: number = 1
-    zDistanceM: number = 1
-    yDistanceM: number = 0
-    xDistanceM: number = 0
-    yawDeg: number = 0
-    pitchDeg: number = 0
-    rollDeg: number = 0
-    follow = new PresetPipeCustomFollow()
-    animations: PresetPipeCustomAnimation[] = []
-    transitions: PresetPipeCustomTransition[] = []
-    textAreas: PresetPipeCustomTextArea[] = []
-
-    enlist() {
-        DataMap.addSubInstance({
-            instance: new PresetPipeCustomProperties(),
-            documentation: {
-                enabled: 'Set to true to show a custom overlay instead of a basic one.',
-                nonce: 'Value that will be returned in callback if provided.',
-                anchorType: 'What to anchor the overlay to, any position set will be in relation to this anchor.',
-                attachToAnchor: 'Fix the overlay to the anchor',
-                ignoreAnchorYaw: 'Ignore anchor device yaw angle for the overlay',
-                ignoreAnchorPitch: 'Ignore anchor device pitch angle for the overlay',
-                ignoreAnchorRoll: 'Ignore anchor device roll angle for the overlay',
-                overlayChannel: 'The channel for this overlay.\nEach channel has a separate queue and can be shown simultaneously.',
-                animationHz: 'Animation Hz, is set to -1 to run at headset Hz',
-                durationMs: 'Duration in milliseconds, is set by preset so should be left out.',
-                opacityPer: 'Opacity of the overlay, 1 = 100%',
-                widthM: 'Physical width of the overlay in meters',
-                zDistanceM: 'Physical distance to the overlay in meters',
-                yDistanceM: 'Offsets vertically in meters',
-                xDistanceM: 'Offsets horizontally in meters',
-                yawDeg: 'Angle left or right in degrees',
-                pitchDeg: 'Angle up or down in degrees',
-                rollDeg: 'Spin angle in degrees',
-                follow: 'Follow settings',
-                animations: 'Animation settings',
-                transitions: 'Entry 0 is the in-transition, entry 1 is the out transition.', // TODO: Should probably move this to separate properties, a breaking change in the pipe though.
-                textAreas: 'Define any number of text areas to be displayed on the image.'
-            },
-            types: {
-                animations: PresetPipeCustomAnimation.ref.build(),
-                textAreas: PresetPipeCustomTextArea.ref.build(),
-                transitions: PresetPipeCustomTransition.ref.build(), // This is needed or else types won't be converted after an import as they are unknown.
-
-                anchorType: OptionPipeCustomAnchorType.ref,
-                opacityPer: DataUtils.getNumberRangeRef(0, 1, 0.01)
-            }
-        })
-    }
-}
-
-/**
  * Follow
  */
 export class PresetPipeCustomFollow extends AbstractData {
     enabled: boolean = false
     triggerAngle: number = 65
     durationMs: number = 250
-    tweenType: number = 5
+    easeType: string = OptionPipeEasingType.Sine
+    easeType_withMode: string = OptionPipeEasingMode.InOut
 
     enlist() {
         DataMap.addSubInstance({
             instance: new PresetPipeCustomFollow(),
             documentation: {
-                triggerAngle: 'Triggering cone angle',
+                triggerAngle: 'Triggering cone angle, look away this far and the overlay will move.',
+                durationMs: 'The time it takes for the follow animation to play, in milliseconds.'
+            },
+            types: {
+                triggerAngle: DataUtils.getNumberRangeRef(1, 180, 1),
+                durationMs: DataUtils.getNumberRangeRef(0, 1000, 1),
+                easeType: OptionPipeEasingType.ref,
+                easeType_withMode: OptionPipeEasingMode.ref
             }
         })
     }
 }
 
 export class PresetPipeCustomAnimation extends AbstractData {
-    property: number = 0
+    property: string = OptionPipeAnimationProperty.None
     amplitude: number = 1
-    frequency: number = 1
-    phase: number = 0
-    waveform: number = 0
-    flipWaveform: boolean = false
+    amplitude_andFrequency: number = 1
+    waveform: string = OptionPipeAnimationWaveform.PhaseBased
+    waveform_withPhase: string = OptionPipeAnimationPhase.Sine
+    waveForm_flip: boolean = false
 
     enlist() {
         DataMap.addSubInstance({
             instance: new PresetPipeCustomAnimation(),
             documentation: {
-                property: '0: None (disabled)\n1: Yaw\n2: Pitch\n3: Roll\n4: Z\n5: Y\n6: X\n7: Scale\n8: Opacity',
-                phase: '0: Sine\n1: Cosine\n2: Negative Sine\n3: Negative Cosine',
-                waveform: '0: PhaseBased'
+                amplitude: 'The size of the animation in meters.',
+                property: 'The property to animate.',
+                waveform: 'Which waveform and phase the animation curve has.'
+            },
+            types: {
+                property: OptionPipeAnimationProperty.ref,
+                amplitude: DataUtils.getNumberRangeRef(-2, 2, 0.01),
+                amplitude_andFrequency: DataUtils.getNumberRangeRef(1, 240, 1),
+                waveform: OptionPipeAnimationWaveform.ref,
+                waveform_withPhase: OptionPipeAnimationPhase.ref,
             }
         })
     }
@@ -167,24 +160,39 @@ export class PresetPipeCustomAnimation extends AbstractData {
  * A value is transitioned from, then we display the image, then to
  */
 export class PresetPipeCustomTransition extends AbstractData {
-    scalePer: number = 1
-    opacityPer: number = 0
-    zDistanceM: number = 0
-    yDistanceM: number = 0
-    xDistanceM: number = 0
-    yawDeg: number = 0
-    pitchDeg: number = 0
-    rollDeg: number = 0
+    scale: number = 1
+    opacity: number = 0
+    moveX: number = 0
+    moveX_Y: number = 0
+    moveX_Z: number = 0
+    rotateYaw: number = 0
+    rotateYaw_pitch: number = 0
+    rotateYaw_roll: number = 0
     durationMs: number = 250
-    tweenType: number = 5
+    easeType: string = OptionPipeEasingType.Sine
+    easeType_withMode: string = OptionPipeEasingMode.InOut
 
     enlist() {
         DataMap.addSubInstance({
             instance: new PresetPipeCustomTransition(),
             documentation: {
-                zDistanceM: 'Translational offset',
-                yDistanceM: 'Translational offset',
-                xDistanceM: 'Translational offset',
+                scale: 'Scale in percent.',
+                opacity:'Opacity in percent.',
+                moveX: 'Translational offset.',
+                rotateYaw: 'Rotational effect.'
+            },
+            types: {
+                scale: DataUtils.getNumberRangeRef(0, 10, 0.01),
+                opacity: DataUtils.getNumberRangeRef(0, 10, 0.01),
+                moveX: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                moveX_Y: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                moveX_Z: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                rotateYaw: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                rotateYaw_pitch: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                rotateYaw_roll: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                durationMs: DataUtils.getNumberRangeRef(0, 10000, 1),
+                easeType: OptionPipeEasingType.ref,
+                easeType_withMode: OptionPipeEasingMode.ref
             }
         })
     }
@@ -195,22 +203,33 @@ export class PresetPipeCustomTransition extends AbstractData {
  */
 export class PresetPipeCustomTextArea extends AbstractData {
     text: string = ''
-    xPositionPx: number = 0
-    yPositionPx: number = 0
-    widthPx: number = 100
-    heightPx: number = 100
-    fontSizePt: number = 10
+    positionX: number = 0
+    positionX_Y: number = 0
+    width: number = 100
+    width_height: number = 100
     fontFamily: string = ''
-    fontColor: string = ''
-    horizontalAlignment: number = 0
-    verticalAlignment: number = 0
+    fontFamily_size: number = 10
+    fontFamily_andColor: string = ''
+    alignmentHorizontally: string = OptionPipeTextAreaHorizontalAlignment.Center
+    alignmentHorizontally_andVertically: string = OptionPipeTextAreaVerticalAlignment.Center
 
     enlist() {
         DataMap.addSubInstance({
             instance: new PresetPipeCustomTextArea(),
             documentation: {
-                horizontalAlignment: '0: Left\n1: Center\n2: Right',
-                verticalAlignment: '0: Left\n1: Center\n2: Right'
+                positionX: 'Position of the text area on the overlay, in pixels.',
+                width: 'Size of the texta area, in pixels.',
+                fontFamily: 'Font family, size (pts) and color.',
+                alignmentHorizontally: 'Alignment of the text inside the bounding box.'
+            },
+            types: {
+                positionX: DataUtils.getNumberRangeRef(0, 1920, 1),
+                positionX_Y: DataUtils.getNumberRangeRef(0, 1080, 1),
+                width: DataUtils.getNumberRangeRef(1, 1920, 1),
+                width_height: DataUtils.getNumberRangeRef(1, 1080, 1),
+                fontFamily_size: DataUtils.getNumberRangeRef(1, 240, 1),
+                alignmentHorizontally: OptionPipeTextAreaHorizontalAlignment.ref,
+                alignmentHorizontally_andVertically: OptionPipeTextAreaVerticalAlignment.ref
             }
         })
     }

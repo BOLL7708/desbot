@@ -1,14 +1,14 @@
 import AbstractOption from './AbstractOption.js'
 import OptionsMap from './OptionsMap.js'
 
-export default class OptionPipeCustomAnchorType extends AbstractOption {
-    static readonly World = 0
-    static readonly Headset = 1
-    static readonly LeftHand = 2
-    static readonly RightHand = 3
+export default class OptionPipeAnchorType extends AbstractOption {
+    static readonly World = 'World'
+    static readonly Headset = 'Headset'
+    static readonly LeftHand = 'LeftHand'
+    static readonly RightHand = 'RightHand'
 }
 OptionsMap.addPrototype({
-    prototype: OptionPipeCustomAnchorType,
+    prototype: OptionPipeAnchorType,
     description: 'The anchor type for the overlay.',
     documentation: {
         World: 'Overlay is fixed in the world.',

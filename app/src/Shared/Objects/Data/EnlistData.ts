@@ -24,7 +24,7 @@ import ConfigTwitch, {ConfigTwitchCategoryOverride} from './Config/ConfigTwitch.
 import ActionInput, {ActionInputCommand} from './Action/ActionInput.js'
 import ActionOBS, {ActionOBSFilter, ActionOBSSource} from './Action/ActionOBS.js'
 import ActionSystem, {ActionSystemRewardState, ActionSystemRewardStateForEvent, ActionSystemToggle, ActionSystemTrigger, ActionSystemUserEvent} from './Action/ActionSystem.js'
-import PresetPipeBasic, {PresetPipeCustom, PresetPipeCustomAnimation, PresetPipeCustomFollow, PresetPipeCustomProperties, PresetPipeCustomTextArea, PresetPipeCustomTransition} from './Preset/PresetPipe.js'
+import PresetPipeBasic, {PresetPipeCustom, PresetPipeCustomAnimation, PresetPipeCustomFollow, PresetPipeCustomTextArea, PresetPipeCustomTransition} from './Preset/PresetPipe.js'
 import PresetReward from './Preset/PresetReward.js'
 import PresetSystemActionText from './Preset/PresetSystemActionText.js'
 import PresetText from './Preset/PresetText.js'
@@ -164,7 +164,6 @@ export default class EnlistData {
             new PresetPipeCustomFollow(),
             new PresetPipeCustomAnimation(),
             new PresetPipeCustomTransition(),
-            new PresetPipeCustomProperties(),
             new PresetPipeCustomTextArea(),
             new PresetReward(),
             new PresetSystemActionText(),
