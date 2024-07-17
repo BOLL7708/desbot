@@ -28,15 +28,15 @@ export default class ActionPipeRunner extends AbstractActionRunner {
                 clone.texts = await TextHelper.replaceTagsInTextArray(ArrayUtils.getAsType(clone.texts, clone.texts_use, index), user)
                 clone.imagePathEntries = await TextHelper.replaceTagsInTextArray(clone.imagePathEntries, user) // TODO: Not quite sure why this is needed, figure out why later.
                 if(customPreset) {
-                    for(const textArea of customPreset.customProperties.textAreas) {
+                    for(const textArea of customPreset.textAreas) {
                         textArea.text = await TextHelper.replaceTagsInText(textArea.text, user)
                     }
                 }
                 if(basicPreset) {
                     // TODO: Here we should probably fill the basic preset with user data like name, color and image. Or something.
                     //  Not sure if that should be extra data that is not in the preset itself but in a companion object... ?
-                    basicPreset.basicTitle = await TextHelper.replaceTagsInText(basicPreset.basicTitle, user)
-                    basicPreset.basicMessage = await TextHelper.replaceTagsInText(basicPreset.basicMessage, user)
+                    basicPreset.title = await TextHelper.replaceTagsInText(basicPreset.title, user)
+                    basicPreset.message = await TextHelper.replaceTagsInText(basicPreset.message, user)
                 }
 
                 // Show it

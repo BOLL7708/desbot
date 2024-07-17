@@ -48,7 +48,7 @@ export default class StatesSingleton {
         lastTTSSetNickSubstitute: ''
     }
     public multiTierEventCounters: Map<string, IMultiTierEventCounter> = new Map()
-    public pipeLastImageFileNamePerAnchor: Map<number, string> = new Map()
+    public pipeLastImageFileNamePerAnchor: Map<string, string> = new Map()
 }
 
 export interface IMultiTierEventCounter {

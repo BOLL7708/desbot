@@ -24,7 +24,7 @@ export default class PresetPipeBasic extends AbstractData {
 }
 export class PresetPipeCustom extends AbstractData {
     nonce: string = ''
-    anchorType: string = OptionPipeAnchorType.Headset
+    anchorType: string = OptionPipeAnchorType.Head
     anchorType_attached: boolean = false
     ignoreAnchorYaw: boolean = false
     ignoreAnchorYaw_pitch: boolean = false
@@ -32,9 +32,9 @@ export class PresetPipeCustom extends AbstractData {
     overlayChannel: number = 0
     opacity: number = 1
     width: number = 1
-    positionX: number = 1
+    positionX: number = 0
     positionX_Y: number = 0
-    positionX_Z: number = 0
+    positionX_Z: number = 1
     angleYaw: number = 0
     angleYaw_pitch: number = 0
     angleYaw_roll: number = 0

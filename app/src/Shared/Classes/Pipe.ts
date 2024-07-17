@@ -16,8 +16,10 @@ import DataUtils from '../Objects/Data/DataUtils.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import ConfigController from '../Objects/Data/Config/ConfigController.js'
 import AbstractData from '../Objects/Data/AbstractData.js'
-import PresetPipeBasic, {PresetPipeCustom} from '../Objects/Data/Preset/PresetPipe.js'
+import {PresetPipeCustom} from '../Objects/Data/Preset/PresetPipe.js'
 import ConfigImageEditorRect, {ConfigImageEditorOutline} from '../Objects/Data/Config/ConfigImageEditor.js'
+import OptionPipeAnchorType from '../Objects/Options/OptionPipeAnchorType.js'
+import ArrayUtils from '../Utils/ArrayUtils.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -46,9 +48,9 @@ export default class Pipe {
     }
 
     setOverlayTitle(title: string) {
-        this._socket?.send(JSON.stringify(<PresetPipeBasic>{
+        this._socket?.send(JSON.stringify(<IPipeRequest>{
             basicTitle: title,
-            basicMessage: "Initializing Notification Pipe"
+            basicMessage: "Initializing Overlay Pipe"
         }))
     }
 
@@ -97,11 +99,14 @@ export default class Pipe {
             : null
 
         const preset = Utils.clone(DataUtils.ensureData(this._chatConfig.pipePreset))
-        if(!preset) return Utils.log("Pipe: No preset found for chat messages", Color.Red)
         if(
             this._config.useCustomChatNotification
+            && preset
         ) { // Custom notification
-            
+
+            // TODO: This mega major much needs to be separated out and made into a class for text rendering.
+            //  Also need to have simplified settings/parameters because now it's a cluster-cluck.
+
             // Setup
             const imageEditor = new ImageEditor()
             
@@ -190,24 +195,24 @@ export default class Pipe {
             action.imageDataEntries = [imageEditor.getData()]
             action.durationMs = 2500 + textResult.writtenChars * 50
             if(isOneRow) {
-                let width = preset.customProperties?.widthM ?? 0
-                // TODO: Move the 1.0 into Config as scale shorter messages up, 0 is valid default.
-                if(preset.customProperties) preset.customProperties.widthM = width * (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
+                preset.width *= (1.0+(actualCanvasWidth / maxCanvasWidth))/2.0
             }
             this.showAction(action).then()
             done = true
         } 
         
         if(!done) { // SteamVR notification
+            if(this._config.useCustomChatNotification) Utils.log("Pipe: No preset found for chat messages", Color.Red)
+
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(imageDataUrl != null) {
-                this._socket?.send(JSON.stringify(<PresetPipeBasic>{
+                this._socket?.send(JSON.stringify(<IPipeRequest>{
                     basicTitle: "",
                     basicMessage: text,
                     imageData: Utils.removeImageHeader(imageDataUrl)
                 }))
             } else {
-                this._socket?.send(JSON.stringify(<PresetPipeBasic>{
+                this._socket?.send(JSON.stringify(<IPipeRequest>{
                     basicTitle: "",
                     basicMessage: text,
                 }))
@@ -215,10 +220,97 @@ export default class Pipe {
         }
     }
 
-    async sendCustom(message: PresetPipeCustom&AbstractData) {
+    async sendCustom(preset: PresetPipeCustom&AbstractData, imageData: string, durationMs: number) {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
         const nonce = Utils.getNonce('custom-pipe')
-        message.customProperties.nonce = nonce
+        const animations: IPipeRequestCustomPropertiesAnimation[] = []
+        for(const animPreset of preset.animations) {
+            animations.push({
+                property: animPreset.property,
+                amplitude: animPreset.amplitude,
+                frequency: animPreset.amplitude_andFrequency,
+                phase: animPreset.waveform_withPhase,
+                waveform: animPreset.waveform,
+                flipWaveform: animPreset.waveForm_flip
+            })
+        }
+        const textAreas: IPipeRequestCustomPropertiesTextArea[] = []
+        for(const areaPreset of preset.textAreas) {
+            textAreas.push({
+                text: areaPreset.text,
+                xPositionPx: areaPreset.positionX,
+                yPositionPx: areaPreset.positionX_Y,
+                widthPx: areaPreset.width,
+                heightPx: areaPreset.width_height,
+                fontSizePt: areaPreset.fontFamily_size,
+                fontFamily: areaPreset.fontFamily,
+                fontColor: areaPreset.fontFamily_andColor,
+                horizontalAlignment: areaPreset.alignmentHorizontally,
+                verticalAlignment: areaPreset.alignmentHorizontally_andVertically
+            })
+        }
+        const message: IPipeRequest = {
+            nonce,
+            imageData,
+            customProperties: {
+                enabled: true,
+                anchorType: preset.anchorType,
+                attachToAnchor: preset.anchorType_attached,
+                ignoreAnchorYaw: preset.ignoreAnchorYaw,
+                ignoreAnchorPitch: preset.ignoreAnchorYaw_pitch,
+                ignoreAnchorRoll: preset.ignoreAnchorYaw_roll,
+
+                overlayChannel: preset.overlayChannel,
+                animationHz: -1,
+                durationMs,
+                opacityPer: preset.opacity,
+
+                widthM: preset.width,
+                zDistanceM: preset.positionX_Z,
+                yDistanceM: preset.positionX_Y,
+                xDistanceM: preset.positionX,
+
+                yawDeg: preset.angleYaw,
+                pitchDeg: preset.angleYaw_pitch,
+                rollDeg: preset.angleYaw_roll,
+
+                follow: {
+                    enabled: preset.follow.enabled,
+                    triggerAngle: preset.follow.triggerAngle,
+                    durationMs: preset.follow.durationMs,
+                    easeType: preset.follow.easeType,
+                    easeMode: preset.follow.easeType_withMode
+                },
+                transitionIn: {
+                    scalePer: preset.transitionIn.scale,
+                    opacityPer: preset.transitionIn.opacity,
+                    zDistanceM: preset.transitionIn.moveX_Z,
+                    yDistanceM: preset.transitionIn.moveX_Y,
+                    xDistanceM: preset.transitionIn.moveX,
+                    yawDeg: preset.transitionIn.rotateYaw,
+                    pitchDeg: preset.transitionIn.rotateYaw_pitch,
+                    rollDeg: preset.transitionIn.rotateYaw_roll,
+                    durationMs: preset.transitionIn.durationMs,
+                    easeType: preset.transitionIn.easeType,
+                    easeMode: preset.transitionIn.easeType_withMode
+                },
+                transitionOut: {
+                    scalePer: preset.transitionOut.scale,
+                    opacityPer: preset.transitionOut.opacity,
+                    zDistanceM: preset.transitionOut.moveX_Z,
+                    yDistanceM: preset.transitionOut.moveX_Y,
+                    xDistanceM: preset.transitionOut.moveX,
+                    yawDeg: preset.transitionOut.rotateYaw,
+                    pitchDeg: preset.transitionOut.rotateYaw_pitch,
+                    rollDeg: preset.transitionOut.rotateYaw_roll,
+                    durationMs: preset.transitionOut.durationMs,
+                    easeType: preset.transitionOut.easeType,
+                    easeMode: preset.transitionOut.easeType_withMode
+                },
+                animations,
+                textAreas
+            }
+        }
         const response = await this._socket?.sendMessageWithPromise(JSON.stringify(message), nonce, 10000)
         console.log('Pipe.sendCustom result', response)
     }
@@ -230,7 +322,7 @@ export default class Pipe {
 
         // Basic preset, expand on this later?
         if(basicPreset) {
-            this.sendBasic(basicPreset.basicMessage, basicPreset.basicTitle).then()
+            this.sendBasic(basicPreset.message, basicPreset.title).then()
         }
 
         // If path exists, load image, in all cases output base64 image data
@@ -238,7 +330,7 @@ export default class Pipe {
         let imageB64arr: string[] = []
         if(action.imagePathEntries.length > 0) {
             for(const imagePath of action.imagePathEntries) {
-                const stateKey = customPreset?.customProperties?.anchorType ?? 0
+                const stateKey = customPreset?.anchorType ?? OptionPipeAnchorType.Head
                 states.pipeLastImageFileNamePerAnchor.set(stateKey, imagePath.split('/').pop() ?? '')
                 imageB64arr.push(await ImageHelper.getDataUrl(imagePath))
             }
@@ -251,18 +343,22 @@ export default class Pipe {
         // If the above resulted in image data, broadcast it
         for(const imageB64 of imageB64arr) {
             if(customPreset) {
-                customPreset.imageData = Utils.removeImageHeader(imageB64)
-                if (customPreset.customProperties) {
-                    customPreset.customProperties.animationHz = -1
-                    customPreset.customProperties.durationMs = action.durationMs;
-                    const textAreaCount = customPreset.customProperties.textAreas.length
-                    if (action.texts.length >= textAreaCount) {
-                        for (let i = 0; i < textAreaCount; i++) {
-                            customPreset.customProperties.textAreas[i].text = action.texts[i]
-                        }
-                    }
+                const textAreaCount = customPreset.textAreas.length
+                const texts = ArrayUtils.getAsType(action.texts, action.texts_use)
+                let i = 0
+                let text = texts[i]
+                let textArea = customPreset.textAreas[i]
+                while(text && textArea) {
+                    textArea.text = text
+                    i++
+                    text = texts[i]
+                    textArea = customPreset.textAreas[i]
                 }
-                this.sendCustom(customPreset).then()
+                this.sendCustom(
+                    customPreset,
+                    Utils.removeImageHeader(imageB64),
+                    action.durationMs
+                ).then()
             }
         }
         if(imageB64arr.length == 0) {
@@ -303,9 +399,9 @@ interface IPipeRequestCustomProperties {
     rollDeg: number
 
     follow: IPipeRequestCustomPropertiesFollow
+    transitionIn: IPipeRequestCustomPropertiesTransition
+    transitionOut: IPipeRequestCustomPropertiesTransition
     animations: IPipeRequestCustomPropertiesAnimation[]
-    transitionIn?: IPipeRequestCustomPropertiesTransition
-    transitionOut?: IPipeRequestCustomPropertiesTransition
     textAreas: IPipeRequestCustomPropertiesTextArea[]
 }
 
@@ -315,15 +411,6 @@ interface IPipeRequestCustomPropertiesFollow {
     durationMs: number
     easeType: string
     easeMode: string
-}
-
-interface IPipeRequestCustomPropertiesAnimation {
-    property: string
-    amplitude: number
-    frequency: number
-    phase: string
-    waveform: string
-    flipWaveform: boolean
 }
 
 interface IPipeRequestCustomPropertiesTransition {
@@ -338,6 +425,15 @@ interface IPipeRequestCustomPropertiesTransition {
     durationMs: number
     easeType: string
     easeMode: string
+}
+
+interface IPipeRequestCustomPropertiesAnimation {
+    property: string
+    amplitude: number
+    frequency: number
+    phase: string
+    waveform: string
+    flipWaveform: boolean
 }
 
 interface IPipeRequestCustomPropertiesTextArea {
