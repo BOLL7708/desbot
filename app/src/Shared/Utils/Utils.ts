@@ -431,13 +431,13 @@ export default class Utils {
     }
 
     static camelToTitle(str: string, option = EUtilsTitleReturnOption.Everything): string {
-        // (1) Split on a uppercase letter
+        // (1) Split on an uppercase letter
         // (2) if the preceding character is...
         //   (3) lowercase
         //   OR
-        //   (4) uppercase with another uppercase character before it and not the last lowercase letter after.
-        //                   ((2)( 3 )|(         4         ))(  1  )
-        const detectWords = /(?<=[a-z]|[A-Z](?=[A-Z][a-z]^$))([A-Z])/g
+        //   (4) uppercase followed by a pair of upper and lower case characters
+        //                   ((2)( 3 )|(        4        ))(  1  )
+        const detectWords = /(?<=[a-z]|[A-Z](?=[A-Z][a-z]))([A-Z])/g
         const splitOnWords = /[\W_]/g
         str = str.replace(detectWords, ' $1')
         const arr = str.split(splitOnWords)

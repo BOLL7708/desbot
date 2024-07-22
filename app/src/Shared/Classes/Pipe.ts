@@ -220,7 +220,7 @@ export default class Pipe {
         }
     }
 
-    async sendCustom(preset: PresetPipeCustom&AbstractData, imageData: string, durationMs: number) {
+    async sendCustom(preset: PresetPipeCustom&AbstractData, imageData: string, durationMs: number = -1) {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
         const nonce = Utils.getNonce('custom-pipe')
         const animations: IPipeRequestCustomPropertiesAnimation[] = []
@@ -231,7 +231,7 @@ export default class Pipe {
                 frequency: animPreset.amplitude_andFrequency,
                 phase: animPreset.waveform_withPhase,
                 waveform: animPreset.waveform,
-                flipWaveform: animPreset.waveForm_flip
+                flipWaveform: animPreset.waveform_andFlip
             })
         }
         const textAreas: IPipeRequestCustomPropertiesTextArea[] = []
@@ -255,24 +255,24 @@ export default class Pipe {
             customProperties: {
                 enabled: true,
                 anchorType: preset.anchorType,
-                attachToAnchor: preset.anchorType_attached,
+                attachToAnchor: preset.anchorType_isAttached,
                 ignoreAnchorYaw: preset.ignoreAnchorYaw,
-                ignoreAnchorPitch: preset.ignoreAnchorYaw_pitch,
-                ignoreAnchorRoll: preset.ignoreAnchorYaw_roll,
+                ignoreAnchorPitch: preset.ignoreAnchorYaw_andPitch,
+                ignoreAnchorRoll: preset.ignoreAnchorYaw_andRoll,
 
                 overlayChannel: preset.overlayChannel,
                 animationHz: -1,
-                durationMs,
+                durationMs: durationMs > 0 ? durationMs : preset.durationMs,
                 opacityPer: preset.opacity,
 
                 widthM: preset.width,
-                zDistanceM: preset.positionX_Z,
-                yDistanceM: preset.positionX_Y,
+                zDistanceM: preset.positionX_andZ,
+                yDistanceM: preset.positionX_andY,
                 xDistanceM: preset.positionX,
 
                 yawDeg: preset.angleYaw,
-                pitchDeg: preset.angleYaw_pitch,
-                rollDeg: preset.angleYaw_roll,
+                pitchDeg: preset.angleYaw_andPitch,
+                rollDeg: preset.angleYaw_andRoll,
 
                 follow: {
                     enabled: preset.follow.enabled,
@@ -284,12 +284,12 @@ export default class Pipe {
                 transitionIn: {
                     scalePer: preset.transitionIn.scale,
                     opacityPer: preset.transitionIn.opacity,
-                    zDistanceM: preset.transitionIn.moveX_Z,
-                    yDistanceM: preset.transitionIn.moveX_Y,
+                    zDistanceM: preset.transitionIn.moveX_andZ,
+                    yDistanceM: preset.transitionIn.moveX_andY,
                     xDistanceM: preset.transitionIn.moveX,
                     yawDeg: preset.transitionIn.rotateYaw,
-                    pitchDeg: preset.transitionIn.rotateYaw_pitch,
-                    rollDeg: preset.transitionIn.rotateYaw_roll,
+                    pitchDeg: preset.transitionIn.rotateYaw_andPitch,
+                    rollDeg: preset.transitionIn.rotateYaw_andRoll,
                     durationMs: preset.transitionIn.durationMs,
                     easeType: preset.transitionIn.easeType,
                     easeMode: preset.transitionIn.easeType_withMode
@@ -297,12 +297,12 @@ export default class Pipe {
                 transitionOut: {
                     scalePer: preset.transitionOut.scale,
                     opacityPer: preset.transitionOut.opacity,
-                    zDistanceM: preset.transitionOut.moveX_Z,
-                    yDistanceM: preset.transitionOut.moveX_Y,
+                    zDistanceM: preset.transitionOut.moveX_andZ,
+                    yDistanceM: preset.transitionOut.moveX_andY,
                     xDistanceM: preset.transitionOut.moveX,
                     yawDeg: preset.transitionOut.rotateYaw,
-                    pitchDeg: preset.transitionOut.rotateYaw_pitch,
-                    rollDeg: preset.transitionOut.rotateYaw_roll,
+                    pitchDeg: preset.transitionOut.rotateYaw_andPitch,
+                    rollDeg: preset.transitionOut.rotateYaw_andRoll,
                     durationMs: preset.transitionOut.durationMs,
                     easeType: preset.transitionOut.easeType,
                     easeMode: preset.transitionOut.easeType_withMode

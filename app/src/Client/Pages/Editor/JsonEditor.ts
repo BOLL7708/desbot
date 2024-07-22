@@ -364,7 +364,7 @@ export default class JsonEditor {
                 ? `<strong>${key}</strong>: `
                 : options.origin == EOrigin.ListArray
                     ? `Item ${Utils.ensureNumber(key)+1}: `
-                    : `${isPartnerField ? ' '+Utils.nameToSentence(labelStr) : Utils.camelToTitle(key.toString())}: `
+                    : `${Utils.camelToTitle(isPartnerField ? labelStr : key.toString())}: `
             label.onclick = (event)=>{
                 input.click()
                 input.focus()

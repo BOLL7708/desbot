@@ -24,20 +24,21 @@ export default class PresetPipeBasic extends AbstractData {
 }
 export class PresetPipeCustom extends AbstractData {
     nonce: string = ''
+    durationMs: number = 3000
     anchorType: string = OptionPipeAnchorType.Head
-    anchorType_attached: boolean = false
+    anchorType_isAttached: boolean = false
     ignoreAnchorYaw: boolean = false
-    ignoreAnchorYaw_pitch: boolean = false
-    ignoreAnchorYaw_roll: boolean = false
+    ignoreAnchorYaw_andPitch: boolean = false
+    ignoreAnchorYaw_andRoll: boolean = false
     overlayChannel: number = 0
     opacity: number = 1
     width: number = 1
     positionX: number = 0
-    positionX_Y: number = 0
-    positionX_Z: number = 1
+    positionX_andY: number = 0
+    positionX_andZ: number = 1
     angleYaw: number = 0
-    angleYaw_pitch: number = 0
-    angleYaw_roll: number = 0
+    angleYaw_andPitch: number = 0
+    angleYaw_andRoll: number = 0
     follow = new PresetPipeCustomFollow()
     transitionIn = new PresetPipeCustomTransition()
     transitionOut = new PresetPipeCustomTransition()
@@ -50,7 +51,8 @@ export class PresetPipeCustom extends AbstractData {
             description: 'This is what is sent to the Pipe application',
             documentation: {
                 nonce: 'Value that will be returned in callback if provided.',
-                anchorType: 'What anchor to place the overlay in relation to, and if the overlay should be attached.',
+                durationMs: 'Duration of the overlay display, will be overridden when used in an action.',
+                anchorType: 'What anchor to place the overlay in relation to, and if the overlay should be attached so that it follows the anchor.',
                 ignoreAnchorYaw: 'Ignore anchor device yaw, pitch and/or roll angle for the overlay',
                 overlayChannel: 'The channel for this overlay.\nEach channel has a separate queue and can be shown simultaneously.',
                 opacity: 'Opacity of the overlay',
@@ -68,11 +70,11 @@ export class PresetPipeCustom extends AbstractData {
                 opacity: DataUtils.getNumberRangeRef(0, 1, 0.01),
                 width: DataUtils.getNumberRangeRef(0, 10, 0.01),
                 positionX: DataUtils.getNumberRangeRef(-10, 10, 0.01),
-                positionX_Y: DataUtils.getNumberRangeRef(-10, 10, 0.01),
-                positionX_Z: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                positionX_andY: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                positionX_andZ: DataUtils.getNumberRangeRef(-10, 10, 0.01),
                 angleYaw: DataUtils.getNumberRangeRef(-3600, 3600, 1),
-                angleYaw_pitch: DataUtils.getNumberRangeRef(-3600, 3600, 1),
-                angleYaw_roll: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                angleYaw_andPitch: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                angleYaw_andRoll: DataUtils.getNumberRangeRef(-3600, 3600, 1),
                 animations: PresetPipeCustomAnimation.ref.build(),
                 textAreas: PresetPipeCustomTextArea.ref.build()
             },
@@ -134,7 +136,7 @@ export class PresetPipeCustomAnimation extends AbstractData {
     amplitude_andFrequency: number = 1
     waveform: string = OptionPipeAnimationWaveform.PhaseBased
     waveform_withPhase: string = OptionPipeAnimationPhase.Sine
-    waveForm_flip: boolean = false
+    waveform_andFlip: boolean = false
 
     enlist() {
         DataMap.addSubInstance({
@@ -163,11 +165,11 @@ export class PresetPipeCustomTransition extends AbstractData {
     scale: number = 1
     opacity: number = 0
     moveX: number = 0
-    moveX_Y: number = 0
-    moveX_Z: number = 0
+    moveX_andY: number = 0
+    moveX_andZ: number = 0
     rotateYaw: number = 0
-    rotateYaw_pitch: number = 0
-    rotateYaw_roll: number = 0
+    rotateYaw_andPitch: number = 0
+    rotateYaw_andRoll: number = 0
     durationMs: number = 250
     easeType: string = OptionPipeEasingType.Sine
     easeType_withMode: string = OptionPipeEasingMode.InOut
@@ -185,11 +187,11 @@ export class PresetPipeCustomTransition extends AbstractData {
                 scale: DataUtils.getNumberRangeRef(0, 10, 0.01),
                 opacity: DataUtils.getNumberRangeRef(0, 10, 0.01),
                 moveX: DataUtils.getNumberRangeRef(-10, 10, 0.01),
-                moveX_Y: DataUtils.getNumberRangeRef(-10, 10, 0.01),
-                moveX_Z: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                moveX_andY: DataUtils.getNumberRangeRef(-10, 10, 0.01),
+                moveX_andZ: DataUtils.getNumberRangeRef(-10, 10, 0.01),
                 rotateYaw: DataUtils.getNumberRangeRef(-3600, 3600, 1),
-                rotateYaw_pitch: DataUtils.getNumberRangeRef(-3600, 3600, 1),
-                rotateYaw_roll: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                rotateYaw_andPitch: DataUtils.getNumberRangeRef(-3600, 3600, 1),
+                rotateYaw_andRoll: DataUtils.getNumberRangeRef(-3600, 3600, 1),
                 durationMs: DataUtils.getNumberRangeRef(0, 10000, 1),
                 easeType: OptionPipeEasingType.ref,
                 easeType_withMode: OptionPipeEasingMode.ref
