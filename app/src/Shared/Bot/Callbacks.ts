@@ -1,5 +1,4 @@
-import {IOpenVR2WSRelay} from '../Classes/OpenVR2WS.js'
-import Relay, {IRelayTempMessage} from '../Classes/Relay.js'
+import Relay, {IRelay, IRelayTempMessage} from '../Classes/Relay.js'
 import ModulesSingleton from '../Singletons/ModulesSingleton.js'
 import StatesSingleton from '../Singletons/StatesSingleton.js'
 import DataBaseHelper from '../Helpers/DataBaseHelper.js'
@@ -34,8 +33,8 @@ import AssetsHelper from '../Helpers/AssetsHelper.js'
 import ActionSign from '../Objects/Data/Action/ActionSign.js'
 
 export default class Callbacks {
-    private static _relays: Map<string, IOpenVR2WSRelay> = new Map()
-    public static registerRelay(relay: IOpenVR2WSRelay) {
+    private static _relays: Map<string, IRelay> = new Map()
+    public static registerRelay(relay: IRelay) {
         this._relays.set(relay.key, relay)
     }
 
@@ -298,10 +297,8 @@ export default class Callbacks {
                 const preset = DataUtils.ensureData(screenshotsConfig.callback.pipePreset)
                 if(preset) {
                     const configClone: PresetPipeCustom = Utils.clone(preset)
-                    configClone.imageData = responseData.image
-                    if(configClone.customProperties) {
-                        configClone.customProperties.durationMs = screenshotsConfig.callback.pipePreset_forMs
-                        const tas = configClone.customProperties.textAreas
+                    if(configClone) {
+                        const tas = configClone.textAreas
                         if(tas && tas.length > 0) {
                             tas[0].text = `${responseData.width}x${responseData.height}`
                         }
@@ -313,7 +310,11 @@ export default class Callbacks {
                             tas[1].text = title
                         }
                     }
-                    modules.pipe.sendCustom(configClone).then()
+                    modules.pipe.sendCustom(
+                        configClone,
+                        responseData.image,
+                        screenshotsConfig.callback.pipePreset_forMs
+                    ).then()
                 }
             }
 

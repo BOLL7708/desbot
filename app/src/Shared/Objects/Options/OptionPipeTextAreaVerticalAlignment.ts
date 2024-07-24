@@ -2,9 +2,9 @@ import AbstractOption from './AbstractOption.js'
 import OptionsMap from './OptionsMap.js'
 
 export default class OptionPipeTextAreaVerticalAlignment extends AbstractOption {
-    static readonly Left = 'Top'
+    static readonly Top = 'Top'
     static readonly Center = 'Center'
-    static readonly Right = 'Bottom'
+    static readonly Bottom = 'Bottom'
 }
 OptionsMap.addPrototype({
     prototype: OptionPipeTextAreaVerticalAlignment,

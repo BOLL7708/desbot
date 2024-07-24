@@ -1,10 +1,10 @@
 import AbstractTrigger from './AbstractTrigger.js'
 import DataMap from '../DataMap.js'
-import {IOpenVR2WSRelay} from '../../../Classes/OpenVR2WS.js'
 import TextHelper from '../../../Helpers/TextHelper.js'
 import {ActionHandler} from '../../../Bot/Actions.js'
 import Callbacks from '../../../Bot/Callbacks.js'
 import Utils from '../../../Utils/Utils.js'
+import {IRelay} from '../../../Classes/Relay.js'
 
 export default class TriggerRelay extends AbstractTrigger {
     key: string = ''
@@ -21,7 +21,7 @@ export default class TriggerRelay extends AbstractTrigger {
     }
 
     register(eventKey: string) {
-        const relay: IOpenVR2WSRelay = {
+        const relay: IRelay = {
             key: TextHelper.replaceTags(this.key, {eventKey: eventKey}),
             handler: new ActionHandler(eventKey)
         }

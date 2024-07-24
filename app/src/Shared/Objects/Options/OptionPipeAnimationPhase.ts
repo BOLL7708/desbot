@@ -2,6 +2,7 @@ import AbstractOption from './AbstractOption.js'
 import OptionsMap from './OptionsMap.js'
 
 export default class OptionPipeAnimationPhase extends AbstractOption {
+    static readonly Linear = 'Linear'
     static readonly Sine = 'Sine'
     static readonly Cosine = 'Cosine'
     static readonly NegativeSine = 'NegativeSine'

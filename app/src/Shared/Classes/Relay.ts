@@ -4,6 +4,7 @@ import DataBaseHelper from '../Helpers/DataBaseHelper.js'
 import Utils from '../Utils/Utils.js'
 import ConfigRelay from '../Objects/Data/Config/ConfigRelay.js'
 import ConfigController from '../Objects/Data/Config/ConfigController.js'
+import {ActionHandler} from 'src/Shared/Bot/Actions'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen
@@ -110,4 +111,9 @@ export interface IOnRelayMessageCallback {
 export interface IRelayTempMessage {
     key: string,
     data: string
+}
+
+export interface IRelay {
+    key: string
+    handler?: ActionHandler
 }

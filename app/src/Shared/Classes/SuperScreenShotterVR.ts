@@ -74,6 +74,7 @@ export interface ISSSVRResponse {
     image: string
     width: number
     height: number
+    filePath: string
     message: string
     error: string
 }
