@@ -21,7 +21,7 @@ export default class OpenVR2WS {
 
     async init() { // Init function as we want to set the callbacks before the first messages arrive.
         this._config = await DataBaseHelper.loadMain(new ConfigOpenVR2WS())
-        this._password = await Utils.sha256(this._config.password)
+        this._password = await Utils.hashPassword(this._config.password)
         this._socket = new WebSockets(
             `ws://localhost:${this._config.port}`,
             10,

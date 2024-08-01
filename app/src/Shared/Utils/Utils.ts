@@ -7,7 +7,7 @@ export default class Utils {
         return rest ? [first, rest.join(needle)] : [first]
     }
 
-    static async sha256(message: string) {
+    static async hashPassword(message: string) {
         const textBuffer = new TextEncoder().encode(message); // encode as UTF-8
         const hashBuffer = await crypto.subtle.digest('SHA-256', textBuffer); // hash the message
         const byteArray = Array.from(new Uint8Array(hashBuffer)); // convert ArrayBuffer to Array

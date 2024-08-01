@@ -52,7 +52,7 @@ export default class MainController {
         const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
         if(controllerConfig.useWebsockets.twitchEventSub) modules.twitchEventSub.init().then()
 
-        modules.pipe.setOverlayTitle("desbot")
+        modules.pipe.setOverlayTitle("desbot").then()
 
         Functions.setEmptySoundForTTS().then()
 

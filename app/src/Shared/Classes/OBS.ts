@@ -46,8 +46,8 @@ export default class OBS {
                     }
                 }
                 if(opData.authentication) {
-                    const base64secret = await Utils.sha256(this._config.password+opData.authentication.salt)
-                    const authentication = await Utils.sha256(base64secret + opData.authentication.challenge)
+                    const base64secret = await Utils.hashPassword(this._config.password+opData.authentication.salt)
+                    const authentication = await Utils.hashPassword(base64secret + opData.authentication.challenge)
                     authResponse.d.authentication = authentication
                 }
                 this._socket?.send(JSON.stringify(authResponse))

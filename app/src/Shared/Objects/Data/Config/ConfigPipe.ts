@@ -5,6 +5,7 @@ import ConfigImageEditorRect, {ConfigImageEditorFontSettings, ConfigImageEditorO
 
 export default class ConfigPipe extends AbstractData {
     port: number = 8077
+    password: string = ''
     useCustomChatNotification: boolean = false
     customChatMessageConfig = new ConfigPipeCustomMessage()
     customChatNameConfig = new ConfigPipeCustomMessageName()
@@ -14,14 +15,18 @@ export default class ConfigPipe extends AbstractData {
     enlist() {
         DataMap.addRootInstance({
             instance: new ConfigPipe(),
-            description: 'In-VR-overlays and notifications with: https://github.com/BOLL7708/OpenVRNotificationPipe',
+            description: 'In-VR-overlays and notifications with: https://github.com/BOLL7708/OpenVROverlayPipe',
             documentation: {
-                port: 'The port number set in OpenVRNotificationPipe.',
+                port: 'The port number set in OpenVROverlayPipe.',
+                password: 'The optional password for OpenVROverlayPipe.',
                 useCustomChatNotification: 'If on uses a custom notification graphic for text pipes into VR, instead of the default SteamVR notification.',
                 customChatMessageConfig: 'The text box settings for the custom chat notification text message.',
                 customChatNameConfig: 'The text box settings for the custom chat notification username.\nWill not be drawn if no username was supplied.',
                 customChatAvatarConfig: 'The settings for the custom chat notification avatar image.\nWill not be drawn if the image could not be loaded.',
                 cleanTextConfig: 'Configuration for cleaning the text before it is piped.'
+            },
+            types: {
+                password: 'string|secret'
             }
         })
     }

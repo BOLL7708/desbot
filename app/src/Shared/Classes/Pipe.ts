@@ -47,12 +47,23 @@ export default class Pipe {
         return this._socket?.isConnected() ?? false
     }
 
-    setOverlayTitle(title: string) {
+    private async getPassword(): Promise<string> {
+        return this._config.password.length > 0 ? await Utils.hashPassword(this._config.password) : ''
+    }
+
+    async setOverlayTitle(title: string) {
         this._socket?.send(JSON.stringify(<IPipeRequest>{
-            basicTitle: title,
-            basicMessage: "Initializing Overlay Pipe"
+            key: 'EnqueueNotification',
+            password: await this.getPassword(),
+            nonce: Utils.getNonce('DesbotPipe'),
+            data: {
+                title: title,
+                message: "Initializing Overlay Pipe"
+            }
         }))
     }
+
+
 
     sendBasicObj(
         messageData: ITwitchMessageData,
@@ -207,14 +218,22 @@ export default class Pipe {
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(imageDataUrl != null) {
                 this._socket?.send(JSON.stringify(<IPipeRequest>{
-                    basicTitle: "",
-                    basicMessage: text,
-                    imageData: Utils.removeImageHeader(imageDataUrl)
+                    key: 'EnqueueNotification',
+                    password: await this.getPassword(),
+                    data: {
+                        title: "",
+                        message: text,
+                        imageData: Utils.removeImageHeader(imageDataUrl)
+                    }
                 }))
             } else {
                 this._socket?.send(JSON.stringify(<IPipeRequest>{
-                    basicTitle: "",
-                    basicMessage: text,
+                    key: 'EnqueueNotification',
+                    password: await this.getPassword(),
+                    data: {
+                        title: "",
+                        message: text
+                    }
                 }))
             }
         }
@@ -223,6 +242,8 @@ export default class Pipe {
     async sendCustom(preset: PresetPipeCustom&AbstractData, imageData: string, durationMs: number = -1) {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
         const nonce = Utils.getNonce('custom-pipe')
+
+        // Generate sub-items
         const animations: IPipeRequestCustomPropertiesAnimation[] = []
         for(const animPreset of preset.animations) {
             animations.push({
@@ -249,11 +270,14 @@ export default class Pipe {
                 verticalAlignment: areaPreset.alignmentHorizontally_andVertically
             })
         }
+
+        // Build request
         const message: IPipeRequest = {
+            key: 'EnqueueOverlay',
+            password: await this.getPassword(),
             nonce,
-            imageData,
-            customProperties: {
-                enabled: true,
+            data: {
+                imageData,
                 anchorType: preset.anchorType,
                 attachToAnchor: preset.anchorType_isAttached,
                 ignoreAnchorYaw: preset.ignoreAnchorYaw,
@@ -343,7 +367,6 @@ export default class Pipe {
         // If the above resulted in image data, broadcast it
         for(const imageB64 of imageB64arr) {
             if(customPreset) {
-                const textAreaCount = customPreset.textAreas.length
                 const texts = ArrayUtils.getAsType(action.texts, action.texts_use)
                 let i = 0
                 let text = texts[i]
@@ -367,17 +390,28 @@ export default class Pipe {
     }
 }
 
+type TPipeRequestKey =
+    'EnqueueNotification' |
+    'EnqueueOverlay'
+
 interface IPipeRequest {
-    imageData?: string
-    imagePath?: string
-    nonce?: string
-    basicTitle?: string
-    basicMessage?: string
-    customProperties?: IPipeRequestCustomProperties
+    key: TPipeRequestKey
+    password: string
+    nonce: string
+    data: IPipeRequestNotification|IPipeRequestOverlay
 }
 
-interface IPipeRequestCustomProperties {
-    enabled: boolean
+interface IPipeRequestNotification {
+    title: string
+    message: string
+    imageData?: string
+    imagePath?: string
+}
+
+interface IPipeRequestOverlay {
+    imageData?: string
+    imagePath?: string
+
     anchorType: string
     attachToAnchor: boolean
     ignoreAnchorYaw: boolean
@@ -398,9 +432,9 @@ interface IPipeRequestCustomProperties {
     pitchDeg: number
     rollDeg: number
 
-    follow: IPipeRequestCustomPropertiesFollow
-    transitionIn: IPipeRequestCustomPropertiesTransition
-    transitionOut: IPipeRequestCustomPropertiesTransition
+    follow?: IPipeRequestCustomPropertiesFollow
+    transitionIn?: IPipeRequestCustomPropertiesTransition
+    transitionOut?: IPipeRequestCustomPropertiesTransition
     animations: IPipeRequestCustomPropertiesAnimation[]
     textAreas: IPipeRequestCustomPropertiesTextArea[]
 }
