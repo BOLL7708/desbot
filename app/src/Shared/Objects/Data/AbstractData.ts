@@ -230,6 +230,7 @@ export class DataRefValues {
     range: number[] = []
     code = false
     type = ''
+    isToggle = false
 }
 
 export enum EDataType {

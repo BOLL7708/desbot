@@ -57,6 +57,9 @@ export default class DataUtils {
                 case 'type':
                     refValues.type = v
                     break
+                case 'toggle':
+                    refValues.isToggle = true
+                    break
             }
         }
         return refValues

@@ -49,6 +49,8 @@ export default class JsonEditor {
     private _parentId: number = 0
     private _originalParentId: number = 0
     private _config: ConfigEditor = new ConfigEditor()
+    private _boolLabelOn: string = '1'
+    private _boolLabelOff: string = '0'
 
     private readonly MODIFIED_CLASS = 'modified'
 
@@ -79,6 +81,7 @@ export default class JsonEditor {
         isRebuild?: boolean
     ): Promise<HTMLElement> {
         EditorBus.clearVisibleForOptionEntries()
+        EditorBus.clearToggleVisibilityEntries()
         this._originalItem = item
         const key = item.key
         const filledClassInstance = item.filledData
@@ -100,6 +103,8 @@ export default class JsonEditor {
             }
             this._originalInstanceType = filledClassInstance.constructor.name
             this._config = await DataBaseHelper.loadMain(new ConfigEditor(), true)
+            this._boolLabelOn = this._config.hideBooleanNames ? '✅' : '✅ True'
+            this._boolLabelOff = this._config.hideBooleanNames ? '❌' : '❌ False'
         } else {
             this._instance = await this._instance.__new(Utils.clone(this._instance), false)
         }
@@ -218,6 +223,7 @@ export default class JsonEditor {
                 EditorBus.setVisibleForOption(property, (this._instance as any)[property])
             }
         }
+        EditorBus.toggleVisibilityForAllEntries(this._boolLabelOn)
 
         if(!this._root) this._root = this.buildUL()
         this._root.replaceChildren(...Object.values(tempParent.children))
@@ -447,7 +453,7 @@ export default class JsonEditor {
         newRoot.appendChild(label)
         newRoot.appendChild(previewBox)
 
-        // Input
+        // region Input
         let skip = false
         let handle = (event: Event) => {}
         let input = document.createElement('code') as HTMLSpanElement
@@ -455,6 +461,13 @@ export default class JsonEditor {
             input.classList.add('code-textarea')
             input.spellcheck = false
         }
+
+        // Visibility toggles
+        if(thisTypeValues.isToggle) {
+            EditorBus.registerToggleVisibilityByElement(pathStr, input)
+        }
+
+        // Actions
         input.onpaste = (event)=>{
             event.preventDefault()
             let text = event.clipboardData?.getData('text/plain') ?? ''
@@ -466,7 +479,7 @@ export default class JsonEditor {
                     let num = parseFloat(text)
                     if(isNaN(num)) num = 0
                     if(input.innerHTML.indexOf('.') > -1) {
-                        num = Math.round(num) // TODO: Uh, should we always do this if there are decimals?
+                        num = Math.round(num) // TODO: Uh, should we always do this if there are decimals? Can't see it actually doing much, very investigate.
                     }
                     text = `${num}`
                     break
@@ -537,19 +550,20 @@ export default class JsonEditor {
                 updatePreview(this._config).then()
                 break
             case EJsonEditorFieldType.Boolean:
-                const on = this._config.hideBooleanNames ? '✅' : '✅ True'
-                const off = this._config.hideBooleanNames ? '❌' : '❌ False'
                 input.style.userSelect = 'none'
                 input.tabIndex = 0
-                input.innerHTML = (options.data as boolean) ? on : off
+                input.innerHTML = (options.data as boolean) ? this._boolLabelOn : this._boolLabelOff
                 input.classList.add('boolean-input')
                 label.onclick = input.onclick = input.onkeydown = (event: KeyboardEvent|MouseEvent)=>{
                     if(event instanceof KeyboardEvent) {
                         const validKeys = [' ', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
                         if(validKeys.indexOf(event.key) == -1) return console.log(`"${key}"`)
                     }
-                    input.innerHTML = (input.innerHTML == on) ? off : on
-                    this.handleValue(input.innerHTML == on, options.path, label)
+                    const wasOn = input.innerHTML == this._boolLabelOn
+                    const newState = !wasOn
+                    input.innerHTML = newState ? this._boolLabelOn : this._boolLabelOff
+                    EditorBus.toggleVisibilityByElement(pathStr, newState)
+                    this.handleValue(newState, options.path, label)
                 }
                 handle = (event) => {}
                 break
@@ -606,6 +620,7 @@ export default class JsonEditor {
             default:
                 skip = true
         }
+        // endregion
 
         if(keyInput) {
             keyInput.onclick = (event)=>{

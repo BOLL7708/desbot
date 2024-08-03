@@ -121,6 +121,7 @@ export class PresetPipeCustomFollow extends AbstractData {
                 durationMs: 'The time it takes for the follow animation to play, in milliseconds.'
             },
             types: {
+                enabled: 'boolean|toggle',
                 triggerAngle: DataUtils.getNumberRangeRef(1, 180, 1),
                 durationMs: DataUtils.getNumberRangeRef(0, 1000, 1),
                 easeType: OptionPipeEasingType.ref,
@@ -162,6 +163,7 @@ export class PresetPipeCustomAnimation extends AbstractData {
  * A value is transitioned from, then we display the image, then to
  */
 export class PresetPipeCustomTransition extends AbstractData {
+    enabled: boolean = false
     scale: number = 1
     opacity: number = 0
     moveX: number = 0
@@ -184,6 +186,7 @@ export class PresetPipeCustomTransition extends AbstractData {
                 rotateYaw: 'Rotational effect.'
             },
             types: {
+                enabled: 'boolean|toggle',
                 scale: DataUtils.getNumberRangeRef(0, 10, 0.01),
                 opacity: DataUtils.getNumberRangeRef(0, 10, 0.01),
                 moveX: DataUtils.getNumberRangeRef(-10, 10, 0.01),

@@ -270,6 +270,47 @@ export default class Pipe {
                 verticalAlignment: areaPreset.alignmentHorizontally_andVertically
             })
         }
+        let follow: IPipeRequestCustomPropertiesFollow|undefined = undefined
+        if(preset.follow.enabled) {
+            follow = {
+                triggerAngle: preset.follow.triggerAngle,
+                durationMs: preset.follow.durationMs,
+                easeType: preset.follow.easeType,
+                easeMode: preset.follow.easeType_withMode
+            }
+        }
+        let transitionIn: IPipeRequestCustomPropertiesTransition|undefined = undefined
+        if(preset.transitionIn.enabled) {
+            transitionIn = {
+                scalePer: preset.transitionIn.scale,
+                opacityPer: preset.transitionIn.opacity,
+                zDistanceM: preset.transitionIn.moveX_andZ,
+                yDistanceM: preset.transitionIn.moveX_andY,
+                xDistanceM: preset.transitionIn.moveX,
+                yawDeg: preset.transitionIn.rotateYaw,
+                pitchDeg: preset.transitionIn.rotateYaw_andPitch,
+                rollDeg: preset.transitionIn.rotateYaw_andRoll,
+                durationMs: preset.transitionIn.durationMs,
+                easeType: preset.transitionIn.easeType,
+                easeMode: preset.transitionIn.easeType_withMode
+            }
+        }
+        let transitionOut: IPipeRequestCustomPropertiesTransition|undefined = undefined
+        if(preset.transitionOut.enabled) {
+            transitionOut = {
+                scalePer: preset.transitionOut.scale,
+                opacityPer: preset.transitionOut.opacity,
+                zDistanceM: preset.transitionOut.moveX_andZ,
+                yDistanceM: preset.transitionOut.moveX_andY,
+                xDistanceM: preset.transitionOut.moveX,
+                yawDeg: preset.transitionOut.rotateYaw,
+                pitchDeg: preset.transitionOut.rotateYaw_andPitch,
+                rollDeg: preset.transitionOut.rotateYaw_andRoll,
+                durationMs: preset.transitionOut.durationMs,
+                easeType: preset.transitionOut.easeType,
+                easeMode: preset.transitionOut.easeType_withMode
+            }
+        }
 
         // Build request
         const message: IPipeRequest = {
@@ -298,39 +339,9 @@ export default class Pipe {
                 pitchDeg: preset.angleYaw_andPitch,
                 rollDeg: preset.angleYaw_andRoll,
 
-                follow: {
-                    enabled: preset.follow.enabled,
-                    triggerAngle: preset.follow.triggerAngle,
-                    durationMs: preset.follow.durationMs,
-                    easeType: preset.follow.easeType,
-                    easeMode: preset.follow.easeType_withMode
-                },
-                transitionIn: {
-                    scalePer: preset.transitionIn.scale,
-                    opacityPer: preset.transitionIn.opacity,
-                    zDistanceM: preset.transitionIn.moveX_andZ,
-                    yDistanceM: preset.transitionIn.moveX_andY,
-                    xDistanceM: preset.transitionIn.moveX,
-                    yawDeg: preset.transitionIn.rotateYaw,
-                    pitchDeg: preset.transitionIn.rotateYaw_andPitch,
-                    rollDeg: preset.transitionIn.rotateYaw_andRoll,
-                    durationMs: preset.transitionIn.durationMs,
-                    easeType: preset.transitionIn.easeType,
-                    easeMode: preset.transitionIn.easeType_withMode
-                },
-                transitionOut: {
-                    scalePer: preset.transitionOut.scale,
-                    opacityPer: preset.transitionOut.opacity,
-                    zDistanceM: preset.transitionOut.moveX_andZ,
-                    yDistanceM: preset.transitionOut.moveX_andY,
-                    xDistanceM: preset.transitionOut.moveX,
-                    yawDeg: preset.transitionOut.rotateYaw,
-                    pitchDeg: preset.transitionOut.rotateYaw_andPitch,
-                    rollDeg: preset.transitionOut.rotateYaw_andRoll,
-                    durationMs: preset.transitionOut.durationMs,
-                    easeType: preset.transitionOut.easeType,
-                    easeMode: preset.transitionOut.easeType_withMode
-                },
+                follow,
+                transitionIn,
+                transitionOut,
                 animations,
                 textAreas
             }
@@ -440,7 +451,6 @@ interface IPipeRequestOverlay {
 }
 
 interface IPipeRequestCustomPropertiesFollow {
-    enabled: boolean
     triggerAngle: number
     durationMs: number
     easeType: string

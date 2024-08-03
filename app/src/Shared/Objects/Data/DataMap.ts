@@ -8,7 +8,7 @@ export type TNoFunctions<T> = {
         ? never
         : K
 }[keyof T]
-export type TTypes = 'number'|'boolean'|'string'|'string|secret'|'string|code'|string
+export type TTypes = 'number'|'boolean'|'boolean|toggle'|'string'|'string|secret'|'string|code'|string & {} // the `& {}` prevents the `|string` from collapsing all options into just `string`.
 
 export default class DataMap {
     private static _map = new Map<string, DataObjectMeta>()
@@ -45,29 +45,11 @@ export default class DataMap {
         )
         this._map.set(className, meta)
     }
-    public static addRootInstance<T>({instance, tag, description, documentation, help, instructions, types, label, keyMap, tools, tasks, visibleForOption}: {
-        instance: T&AbstractData,
-        tag?: string,
-        description?: string,
-        help?: string,
-        documentation?: Partial<Record<TNoFunctions<T>, string>>,
-        instructions?: Partial<Record<TNoFunctions<T>, string>>
-        types?: Partial<Record<TNoFunctions<T>, TTypes>>,
-        label?: TNoFunctions<T>,
-        keyMap?: IStringDictionary,
-        tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
-        tasks?: IRootTool[],
-        visibleForOption?: IDataMapVisibleForOption<T>
-    }) {
-        this.addInstance(true, instance, tag, description, help, documentation, instructions, types, label, keyMap, tools, tasks, visibleForOption)
+    public static addRootInstance<T>(root: IRootInstance<T>) {
+        this.addInstance(true, root.instance, root.tag, root.description, root.help, root.documentation, root.instructions, root.types, root.label, root.keyMap, root.tools, root.tasks, root.visibleForOption)
     }
-    public static addSubInstance<T>({instance, documentation, instructions, types}: {
-        instance: T&AbstractData,
-        documentation?: Partial<Record<TNoFunctions<T>, string>>,
-        instructions?: Partial<Record<TNoFunctions<T>, string>>
-        types?: Partial<Record<TNoFunctions<T>, TTypes>>
-    }) {
-        this.addInstance(false, instance,undefined, undefined, undefined, documentation, instructions, types)
+    public static addSubInstance<T>(sub: ISubInstance<T>) {
+        this.addInstance(false, sub.instance,undefined, undefined, undefined, sub.documentation, sub.instructions, sub.types)
     }
 
     /**
@@ -181,3 +163,25 @@ export type IDataMapVisibleForOption<T> = Partial<Record<
         number|string
     >>
 >>
+
+export interface IRootInstance<T> {
+    instance: T&AbstractData,
+    tag?: string,
+    description?: string,
+    help?: string,
+    documentation?: Partial<Record<TNoFunctions<T>, string>>,
+    instructions?: Partial<Record<TNoFunctions<T>, string>>
+    types?: Partial<Record<TNoFunctions<T>, TTypes>>,
+    label?: TNoFunctions<T>,
+    keyMap?: IStringDictionary,
+    tools?: Partial<Record<TNoFunctions<T>, IRootTool>>,
+    tasks?: IRootTool[],
+    visibleForOption?: IDataMapVisibleForOption<T>
+}
+
+export interface ISubInstance<T> {
+    instance: T&AbstractData,
+    documentation?: Partial<Record<TNoFunctions<T>, string>>,
+    instructions?: Partial<Record<TNoFunctions<T>, string>>
+    types?: Partial<Record<TNoFunctions<T>, TTypes>>
+}
