@@ -1,4 +1,4 @@
-import AbstractData from '../AbstractData.js'
+import AbstractData, {DataEntries} from '../AbstractData.js'
 import DataMap from '../DataMap.js'
 import DataUtils from '../DataUtils.js'
 import OptionPipeAnchorType from '../../Options/OptionPipeAnchorType.js'
@@ -9,6 +9,7 @@ import OptionPipeAnimationPhase from '../../Options/OptionPipeAnimationPhase.js'
 import OptionPipeAnimationWaveform from '../../Options/OptionPipeAnimationWaveform.js'
 import OptionPipeTextAreaHorizontalAlignment from '../../Options/OptionPipeTextAreaHorizontalAlignment.js'
 import OptionPipeTextAreaVerticalAlignment from '../../Options/OptionPipeTextAreaVerticalAlignment.js'
+import PresetPipeChannel from './PresetPipeChannel.js'
 
 export default class PresetPipeBasic extends AbstractData {
     nonce: string = ''
@@ -18,6 +19,10 @@ export default class PresetPipeBasic extends AbstractData {
     enlist() {
         DataMap.addRootInstance({
             instance: new PresetPipeBasic(),
+            documentation: {
+                nonce: 'Value that will be returned in callback if provided.',
+                title: 'Descriptor of the channel, is only set on channel creation.'
+            },
             label: 'title'
         })
     }
@@ -30,7 +35,7 @@ export class PresetPipeCustom extends AbstractData {
     ignoreAnchorYaw: boolean = false
     ignoreAnchorYaw_andPitch: boolean = false
     ignoreAnchorYaw_andRoll: boolean = false
-    overlayChannel: number = 0
+    overlayChannel: number|DataEntries<PresetPipeChannel> = 0
     opacity: number = 1
     width: number = 1
     positionX: number = 0
@@ -54,7 +59,7 @@ export class PresetPipeCustom extends AbstractData {
                 durationMs: 'Duration of the overlay display, will be overridden when used in an action.',
                 anchorType: 'What anchor to place the overlay in relation to, and if the overlay should be attached so that it follows the anchor.',
                 ignoreAnchorYaw: 'Ignore anchor device yaw, pitch and/or roll angle for the overlay',
-                overlayChannel: 'The channel for this overlay.\nEach channel has a separate queue and can be shown simultaneously.',
+                overlayChannel: 'The channel for this overlay, 0 if empty.\nEach channel has a separate queue and separate channels can be shown simultaneously.',
                 opacity: 'Opacity of the overlay',
                 width: 'Physical width of the overlay in meters',
                 positionX: 'Offsets the overlay horizontally (X), vertically (Y) and in depth (Z) in meters',
@@ -67,6 +72,7 @@ export class PresetPipeCustom extends AbstractData {
             },
             types: {
                 anchorType: OptionPipeAnchorType.ref,
+                overlayChannel: PresetPipeChannel.ref.id.build(),
                 opacity: DataUtils.getNumberRangeRef(0, 1, 0.01),
                 width: DataUtils.getNumberRangeRef(0, 10, 0.01),
                 positionX: DataUtils.getNumberRangeRef(-10, 10, 0.01),

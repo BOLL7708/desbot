@@ -20,6 +20,7 @@ import {PresetPipeCustom} from '../Objects/Data/Preset/PresetPipe.js'
 import ConfigImageEditorRect, {ConfigImageEditorOutline} from '../Objects/Data/Config/ConfigImageEditor.js'
 import OptionPipeAnchorType from '../Objects/Options/OptionPipeAnchorType.js'
 import ArrayUtils from '../Utils/ArrayUtils.js'
+import PresetPipeChannel from '../Objects/Data/Preset/PresetPipeChannel.js'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -62,8 +63,6 @@ export default class Pipe {
             }
         }))
     }
-
-
 
     sendBasicObj(
         messageData: ITwitchMessageData,
@@ -242,6 +241,8 @@ export default class Pipe {
     async sendCustom(preset: PresetPipeCustom&AbstractData, imageData: string, durationMs: number = -1) {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendCustom: Websockets instance not initiated.')
         const nonce = Utils.getNonce('custom-pipe')
+        const channelPreset = DataUtils.ensureData<PresetPipeChannel>(preset.overlayChannel)
+        const channel = channelPreset?.channel ?? 0
 
         // Generate sub-items
         const animations: IPipeRequestCustomPropertiesAnimation[] = []
@@ -325,7 +326,7 @@ export default class Pipe {
                 ignoreAnchorPitch: preset.ignoreAnchorYaw_andPitch,
                 ignoreAnchorRoll: preset.ignoreAnchorYaw_andRoll,
 
-                overlayChannel: preset.overlayChannel,
+                overlayChannel: channel,
                 animationHz: -1,
                 durationMs: durationMs > 0 ? durationMs : preset.durationMs,
                 opacityPer: preset.opacity,

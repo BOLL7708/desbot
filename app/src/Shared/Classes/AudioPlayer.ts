@@ -1,5 +1,7 @@
 import Utils from '../Utils/Utils.js'
 import ActionAudio from '../Objects/Data/Action/ActionAudio.js'
+import DataUtils from '../Objects/Data/DataUtils.js'
+import PresetAudioChannel from '../Objects/Data/Preset/PresetAudioChannel.js'
 
 export default class AudioPlayer {
     static get STATUS_OK() { return 0 }
@@ -13,7 +15,8 @@ export default class AudioPlayer {
 
     enqueueAudio(audio: ActionAudio|undefined) {
         if(audio) {
-            const channel = audio.channel ?? 0
+            const channelPreset = DataUtils.ensureData<PresetAudioChannel>(audio.channel)
+            const channel = channelPreset?.channel ?? 0
             if(!this._pool.has(channel)) {
                 const player = new AudioPlayerInstance()
                 this._pool.set(channel, player)

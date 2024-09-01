@@ -20,7 +20,7 @@ export default class ActionAudioRunner extends AbstractActionRunner {
                     user
                 )
                 const modules = ModulesSingleton.getInstance()
-                if(clone.onTTSQueue) modules.tts.enqueueSoundEffect(clone)
+                if(clone.channel_orOnSpeechChannel) modules.tts.enqueueSoundEffect(clone)
                 else modules.audioPlayer.enqueueAudio(clone)
             }
         }

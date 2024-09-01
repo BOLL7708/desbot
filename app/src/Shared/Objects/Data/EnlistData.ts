@@ -62,6 +62,8 @@ import PresetOBSScene, {PresetOBSFilter, PresetOBSSource} from './Preset/PresetO
 import PresetPermissions from './Preset/PresetPermissions.js'
 import PresetPhilipsHueBulbState, {PresetPhilipsHueBulb, PresetPhilipsHuePlug} from './Preset/PresetPhilipsHue.js'
 import ConfigMain, {ConfigMainLogo} from './Config/ConfigMain.js'
+import PresetAudioChannel from './Preset/PresetAudioChannel.js'
+import PresetPipeChannel from './Preset/PresetPipeChannel.js'
 
 /**
  * TODO: Try to do this dynamically in EJS when we are in Node, scan the Objects source folder and auto-generate this file.
@@ -151,6 +153,7 @@ export default class EnlistData {
             new EventMultiTierOptions(),
             new EventActionContainer(),
 
+            new PresetAudioChannel(),
             new PresetDiscordWebhook(),
             new PresetOBSScene(),
             new PresetOBSSource(),
@@ -160,6 +163,7 @@ export default class EnlistData {
             new PresetPhilipsHueBulb(),
             new PresetPhilipsHuePlug(),
             new PresetPipeBasic(),
+            new PresetPipeChannel(),
             new PresetPipeCustom(),
             new PresetPipeCustomFollow(),
             new PresetPipeCustomAnimation(),

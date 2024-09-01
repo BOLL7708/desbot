@@ -1178,15 +1178,17 @@ export default class JsonEditor {
             || this._key != this._originalKey
             || this._parentId != this._originalParentId
         if(dirty != this._dirty) {
-            this._modifiedStatusListener(dirty)
+            this._modifiedStatusListener(dirty) // Used to toggle a changed state on the editor page (EditorHandler)
             this._dirty = dirty
-            const topLI = this._root?.querySelector('li')
-            // TODO: This acts up and just flashes modified when adding or removing a new list item (compared to changing a value)
-            if(dirty) {
-                if(topLI) topLI.classList.add(this.MODIFIED_CLASS)
-            } else {
-                if(topLI) topLI.classList.remove(this.MODIFIED_CLASS)
-            }
+        }
+
+        // TODO: This acts up and just flashes modified when adding or removing a new list item (compared to changing a value)
+        const topLI = this._root?.querySelector('li')
+        if(!topLI) return
+        if(dirty) {
+            if(!topLI.classList.contains(this.MODIFIED_CLASS)) topLI.classList.add(this.MODIFIED_CLASS)
+        } else {
+            topLI.classList.remove(this.MODIFIED_CLASS)
         }
     }
 

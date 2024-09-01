@@ -1627,7 +1627,7 @@ export default class DefaultData {
                     trigger.helpInput = ['message text']
                     trigger.helpText = 'Posts a lurk message, available for everyone.'
                     const action = new ActionChat()
-                    action.entries = ['📢 For some reason %userTag felt it necessary to publicly announce that they are in ultra lurk mode! 🤗 %userInput']
+                    action.entries = ['📢 %userTag is now lurking! %userInput']
                     return await DefaultData.registerEvent(
                         instance, key, [trigger], [action],
                         await DefaultData.loadID(new PresetEventCategory(), EKeys.EventCategoryBonusImports)
