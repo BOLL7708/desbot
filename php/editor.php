@@ -37,7 +37,7 @@ PageUtils::printTop(!$minimal, !$minimal);
             <?=$description?>
             <?php Utils::includeFolder('./inc/embeds/editor')?>
         </div>
-        <script type="module" src="../app/dist/Client/Pages/Editor/EditorEmbed.js"></script>
+        <script type="module" src="../bot/dist/Client/Pages/Editor/EditorEmbed.js"></script>
 <?php
 PageUtils::printBottom();
 ?>

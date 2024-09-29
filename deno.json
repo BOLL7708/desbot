@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "run": "cd ./bot && deno task run"
+  }
+}

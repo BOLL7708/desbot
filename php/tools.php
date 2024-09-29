@@ -7,7 +7,7 @@ PageUtils::printTop(true, false);
         <ul id="toolsButtonList" class="no-list"></ul>
         <div id="toolsResult"></div>
     </div>
-    <script type="module" src="../app/dist/Client/Pages/Tools/ToolsEmbed.js"></script>
+    <script type="module" src="../bot/dist/Client/Pages/Tools/ToolsEmbed.js"></script>
 <?php
 PageUtils::printBottom();
 ?>
