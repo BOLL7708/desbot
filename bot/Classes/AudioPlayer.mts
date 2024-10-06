@@ -37,7 +37,7 @@ export default class AudioPlayer {
 }
 
 export class AudioPlayerInstance {
-    private readonly _queueLoopHandle: number|any = 0 // TODO: Transitional node fix
+    private readonly _queueLoopHandle: number = 0
     private _audio?: HTMLAudioElement
     private _queue: ActionAudio[] = []
     private _isPlaying: boolean = false

@@ -109,7 +109,7 @@ export default class TwitchFactory {
     }
     public static getEventSubEmotePositions(emotes: ITwitchEventSubEmote[]): ITwitchEmotePosition[] {
         const twitchEmotes = emotes.map(emote => {
-            return <ITwitchEmote> { id: emote.id.toString(), positions: [{ start: emote.begin, end: emote.end}] }
+            return { id: emote.id.toString(), positions: [{ start: emote.begin, end: emote.end}] } as ITwitchEmote
         })
         return this.getEmotePositions(twitchEmotes)
     }

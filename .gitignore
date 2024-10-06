@@ -18,6 +18,7 @@ desktop.ini
 *.zip
 *.7z
 *.exe
+index.mts
 
 # node
 package-lock.json

@@ -1,5 +1,14 @@
 {
+  "compilerOptions": {
+    "strict": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": true,
+    "strictBindCallApply": true
+  },
   "tasks": {
-    "run": "cd ./bot && deno task run"
+    "generate": "cd ./dev && deno run --allow-read --allow-write ./generate.mts",
+    "run": "cd ./bot && deno run --allow-write --allow-read --allow-net ./_main.mts",
+    "start": "deno task generate && deno task run"
   }
 }
