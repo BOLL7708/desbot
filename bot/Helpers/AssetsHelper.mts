@@ -2,9 +2,11 @@
  * Gets filled with all the file-paths from the `_user/assets` folder, to be referenced in the editor and for serving.
  */
 export default class AssetsHelper {
-    static rootPath: string = '../_user/assets/'
+    static rootFolder = '_user'
+    static rootPath = `../${this.rootFolder}`
     private static _filePaths: string[] = []
     private static _filePathCache: IAssetFilesCache = {}
+    private static _ignoreList = ['main.sqlite']
 
     /**
      * Load a selection of the available asset file-paths.
@@ -14,9 +16,6 @@ export default class AssetsHelper {
      */
     static async get(start: string, end: string[]): Promise<string[]> {
         await this.getAll() // Make sure list is loaded.
-
-        // TODO: Remove local legacy filepath, eventually this should be replaced in the database by a migration.
-        start = start.replace(/^_assets[\\/]/g, '')
 
         const leading = start.toLowerCase()
         const trailing = end.map((e) => e.toLowerCase())
@@ -42,36 +41,35 @@ export default class AssetsHelper {
         return files
     }
 
-    static async getAll(): Promise<string[]> {
-        if(this._filePaths.length == 0) {
-            const response = await fetch('_assets.php')
-            if(response.ok) {
-                const json = response.json()
-                let filePaths =  await json
-                filePaths = filePaths.map((filePath: string) => {
-                    // Remove local filepath
-                    return filePath.replace(/^.*assets[\\/]/g, '')
-                })
-                this._filePaths = filePaths
-            } else {
-                console.error('Failed to load assets from server.')
+    static async getAll(force: boolean = false): Promise<string[]> {
+        const pattern = new RegExp(`^.*${this.rootFolder}\/`)
+        if(this._filePaths.length == 0 || force) {
+            const loadDir = async (dirPath: string): Promise<string[]> => {
+                const result: string[] = []
+                for await(const dirEntry of Deno.readDir(dirPath)) {
+                    const path = `${dirPath}/${dirEntry.name}`
+                    if(dirEntry.isDirectory) {
+                        result.push(...await loadDir(path))
+                    } else if (dirEntry.isFile) {
+                        if(this._ignoreList.includes(dirEntry.name)) continue
+                        result.push(path.replace(pattern, ''))
+                    }
+                }
+                return result
             }
+            this._filePaths = await loadDir(this.rootPath)
         }
         return this._filePaths
     }
 
     /**
-     * Will replace trailing slash to wildcard, will replace wildcard with all matching folder, will add relative root path to work in browser.
+     * Will replace trailing slash to wildcard, will replace wildcard with all matching folders, will add relative root path to work in browser.
      * @param paths
      */
     static async preparePathsForUse(paths: string[]): Promise<string[]> {
         let i = 0
         for(let path of paths) {
-
-            // TODO: Remove legacy local file-path, replace with migration later.
-            path = path.replace(/^_assets[\\/]/g, '')
-
-            //  Then load files from that and replaces the entry with the found files.
+            //  Load files and replace the entry with the found files.
             if(path.endsWith('/')) path += '*'
             if(path.includes('*') ) {
                 const parts = path.split('*')
@@ -84,9 +82,7 @@ export default class AssetsHelper {
             }
             i++
         }
-        paths = paths.map((path) => {
-            return AssetsHelper.rootPath + path
-        })
+        // TODO: Need to make sure these paths work where they are supposed to be used.
         return paths
     }
 }
