@@ -1,7 +1,7 @@
 import ConfigSpeech from '../Objects/Data/Config/ConfigSpeech.mts'
-import {IGoogleAudio} from './GoogleTTS.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
-import Utils from '../Utils/Utils.mts'
+import {IGoogleAudio} from '../Api/GoogleTTS.mts'
+import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import Utils from '../../Utils/Utils.mts'
 
 export default class Dictionary {
     private static SSMLEscapeSymbols: { [x:string]: string } = {

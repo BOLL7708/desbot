@@ -8,7 +8,7 @@
   },
   "tasks": {
     "generate": "cd ./dev && deno run --allow-read --allow-write ./generate.mts",
-    "run": "cd ./bot && deno run --allow-write --allow-read --allow-net ./_main.mts",
+    "run": "cd ./bot && deno run --allow-write --allow-read --allow-net ./main.mts",
     "start": "deno task generate && deno task run"
   }
 }

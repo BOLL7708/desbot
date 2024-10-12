@@ -1,5 +1,5 @@
-import Color from '../Constants/ColorConstants.mts'
-import Utils from '../Utils/Utils.mts'
+import Color from '../../Constants/ColorConstants.mts'
+import Utils from '../../Utils/Utils.mts'
 
 export default class WebSockets {
     private LOG_COLOR: string = Color.Gray

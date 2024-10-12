@@ -1,9 +1,9 @@
-import WebSockets from './WebSockets.mts'
-import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
+import WebSockets from '../Web/WebSockets.mts'
+import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import DataUtils from '../Objects/Data/DataUtils.mts'
-import Utils from '../Utils/Utils.mts'
-import TwitchFactory, {ITwitchMessageCmd} from './TwitchFactory.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import Utils from '../../Utils/Utils.mts'
+import TwitchFactory, {ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
+import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.mts'
 
 export default class TwitchChat {

@@ -1,9 +1,9 @@
-import Color from '../Constants/ColorConstants.mts'
-import WebSockets from './WebSockets.mts'
-import Utils from '../Utils/Utils.mts'
-import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
+import Color from '../../Constants/ColorConstants.mts'
+import WebSockets from '../Web/WebSockets.mts'
+import Utils from '../../Utils/Utils.mts'
+import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
 import {SettingTwitchRedemption} from '../Objects/Data/Setting/SettingTwitch.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import {ActionHandler, Actions} from '../Actions.mts'
 
 export default class TwitchEventSub {

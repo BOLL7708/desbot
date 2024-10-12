@@ -1,9 +1,9 @@
 import ConfigOpenVR2WS from '../Objects/Data/Config/ConfigOpenVR2WS.mts'
-import WebSockets from './WebSockets.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
-import Utils from '../Utils/Utils.mts'
+import WebSockets from '../Web/WebSockets.mts'
+import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import Utils from '../../Utils/Utils.mts'
 import ActionSettingVR from '../Objects/Data/Action/ActionSettingVR.mts'
-import Color from '../Constants/ColorConstants.mts'
+import Color from '../../Constants/ColorConstants.mts'
 
 export default class OpenVR2WS {
     static get OVERLAY_LIV_MENU_BUTTON() { return 'VIVR_OVERLAY_MAIN_MENU_BUTTON' }

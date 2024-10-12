@@ -1,8 +1,8 @@
 import ActionSign from '../Objects/Data/Action/ActionSign.mts'
 import ConfigSign from '../Objects/Data/Config/ConfigSign.mts'
-import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
-import Utils from '../Utils/Utils.mts'
-import Color from '../Constants/ColorConstants.mts'
+import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import Utils from '../../Utils/Utils.mts'
+import Color from '../../Constants/ColorConstants.mts'
 
 export default class Sign {
     private _div: HTMLDivElement

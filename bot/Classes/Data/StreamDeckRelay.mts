@@ -1,4 +1,4 @@
-import Relay from './Relay.mts'
+import Relay from '../Api/Relay.mts'
 
 export default class StreamDeckRelay {
     private _relay: Relay|undefined

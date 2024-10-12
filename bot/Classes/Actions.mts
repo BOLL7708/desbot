@@ -1,23 +1,23 @@
 import AbstractAction, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from './Objects/Data/Action/AbstractAction.mts'
-import DataBaseHelper from './Helpers/DataBaseHelper.mts'
-import StatesSingleton from './Singletons/StatesSingleton.mts'
+import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
+import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import {OptionEventBehavior} from './Objects/Options/OptionEventBehavior.mts'
-import ArrayUtils from './Utils/ArrayUtils.mts'
+import ArrayUtils from '../Utils/ArrayUtils.mts'
 import TriggerReward from './Objects/Data/Trigger/TriggerReward.mts'
 import DataUtils from './Objects/Data/DataUtils.mts'
-import Utils from './Utils/Utils.mts'
-import TextHelper from './Helpers/TextHelper.mts'
-import TwitchHelixHelper from './Helpers/TwitchHelixHelper.mts'
+import Utils from '../Utils/Utils.mts'
+import TextHelper from '../Helpers/TextHelper.mts'
+import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import {ActionSystemRewardState} from './Objects/Data/Action/ActionSystem.mts'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from './Objects/Options/OptionTwitch.mts'
 import AbstractTrigger from './Objects/Data/Trigger/AbstractTrigger.mts'
-import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from './Classes/TwitchEventSub.mts'
+import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from './Api/TwitchEventSub.mts'
 import {EEventSource} from './Enums.mts'
 import {OptionEventRun} from './Objects/Options/OptionEventRun.mts'
 import {OptionEntryUsage} from './Objects/Options/OptionEntryType.mts'
 import {SettingAccumulatingCounter, SettingIncrementingCounter} from './Objects/Data/Setting/SettingCounters.mts'
 import PresetReward from './Objects/Data/Preset/PresetReward.mts'
-import Color from './Constants/ColorConstants.mts'
+import Color from '../Constants/ColorConstants.mts'
 import {SettingTwitchTokens} from './Objects/Data/Setting/SettingTwitch.mts'
 import EventDefault, {EventActionContainer} from './Objects/Data/Event/EventDefault.mts'
 
@@ -500,3 +500,5 @@ export class Actions {
     }
     // endregion
 }
+
+export { IActionUser };

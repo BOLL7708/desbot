@@ -1,7 +1,7 @@
-import ImageHelper from '../Helpers/ImageHelper.mts'
-import Utils from '../Utils/Utils.mts'
-import Color from '../Constants/ColorConstants.mts'
-import Twitch, {ITwitchMessageData} from './Twitch.mts'
+import ImageHelper from '../../Helpers/ImageHelper.mts'
+import Utils from '../../Utils/Utils.mts'
+import Color from '../../Constants/ColorConstants.mts'
+import Twitch, {ITwitchMessageData} from '../Api/Twitch.mts'
 import ConfigImageEditorRect, {ConfigImageEditorFontSettings, ConfigImageEditorOutline} from '../Objects/Data/Config/ConfigImageEditor.mts'
 
 export default class ImageEditor {
