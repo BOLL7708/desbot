@@ -1,14 +1,14 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
 import {OptionEventBehavior} from '../../Options/OptionEventBehavior.mts'
-import DataMap from '../DataMap.mts'
-import PresetEventCategory from '../Preset/PresetEventCategory.mts'
-import AbstractTrigger from '../Trigger/AbstractTrigger.mts'
-import DataUtils from '../DataUtils.mts'
-import {IDictionary} from '../../../Interfaces/igeneral.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetEventCategory} from '../Preset/PresetEventCategory.mts'
+import {AbstractTrigger} from '../Trigger/AbstractTrigger.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {IDictionary} from '../../../../bot/Interfaces/igeneral.mts'
 import {OptionEventRun} from '../../Options/OptionEventRun.mts'
-import AbstractAction from '../Action/AbstractAction.mts'
+import {AbstractAction} from '../Action/AbstractAction.mts'
 
-export default class EventDefault extends AbstractData {
+export class EventDefault extends AbstractData {
     category: number|DataEntries<PresetEventCategory> = 0
     options = new EventOptions() // TODO: Put internal properties in the base root instead, as well as the reward options object.
     behavior: number = OptionEventBehavior.All

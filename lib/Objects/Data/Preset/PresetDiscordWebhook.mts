@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetDiscordWebhook extends AbstractData {
+export class PresetDiscordWebhook extends AbstractData {
     url: string = ''
     isForum: boolean = false
 

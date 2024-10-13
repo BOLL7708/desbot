@@ -1,15 +1,15 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
-import DataMap from '../DataMap.mts'
-import AbstractData, {DataEntries} from '../AbstractData.mts'
+import {INumberDictionary} from '../../../../bot/Interfaces/igeneral.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import {INumberDictionary} from '../../../Interfaces/igeneral.mts'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.mts'
-import EventDefault from '../Event/EventDefault.mts'
 import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../../Options/OptionTwitch.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {EventDefault} from '../Event/EventDefault.mts'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
-import SettingUser from '../Setting/SettingUser.mts'
+import {SettingUser} from '../Setting/SettingUser.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionSystem extends AbstractAction {
+export class ActionSystem extends AbstractAction {
     trigger = new ActionSystemTrigger()
     toggle = new ActionSystemToggle()
 
@@ -23,12 +23,6 @@ export default class ActionSystem extends AbstractAction {
                 toggle: 'Things to toggle.',
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionSystemRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionSystem>(key, this)
     }
 }
 export class ActionSystemTrigger extends AbstractData {

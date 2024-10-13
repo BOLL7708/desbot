@@ -1,10 +1,10 @@
 import {OptionTwitchSubTier} from '../../Options/OptionTwitch.mts'
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import SettingUser from '../Setting/SettingUser.mts'
-import DataMap from '../DataMap.mts'
-import ActionAudio from '../Action/ActionAudio.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {SettingUser} from '../Setting/SettingUser.mts'
+import {DataMap} from '../DataMap.mts'
+import {ActionAudio} from '../Action/ActionAudio.mts'
 
-export default class ConfigAnnouncements extends AbstractData {
+export class ConfigAnnouncements extends AbstractData {
     announcerUsers: number[]|DataEntries<SettingUser> = []
     announcerTriggers: ConfigAnnouncerTriggers[] = []
     announceSubs: ConfigAnnounceSub[] = [

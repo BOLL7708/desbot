@@ -1,9 +1,9 @@
-import AbstractTrigger from './AbstractTrigger.mts'
-import DataMap from '../DataMap.mts'
-import {ActionHandler, Actions} from '../../../Actions.mts'
-import {EEventSource} from '../../../Enums.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
+import {DataMap} from '../DataMap.mts'
+import {ActionHandler, Actions} from '../../../../bot/Classes/Actions.mts'
+import {EEventSource} from '../../../../bot/Classes/Enums.mts'
 
-export default class TriggerTimer extends AbstractTrigger {
+export class TriggerTimer extends AbstractTrigger {
     interval: number = 10
     repetitions: number = 0
     initialDelay: number = 0

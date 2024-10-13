@@ -1,19 +1,21 @@
-import AbstractData from '../AbstractData.mts'
-import {EEventSource} from '../../../../bot/Enums.mts'
-import {ITwitchCommand} from '../../../../bot/Classes/Twitch.mts'
-import {ITwitchEventSubEventRedemption} from '../../../../bot/Classes/TwitchEventSub.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {EEventSource} from '../../../../bot/Classes/Enums.mts'
+import {ITwitchCommand} from '../../../../bot/Classes/Api/Twitch.mts'
+import {ITwitchEventSubEventRedemption} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
 
-export default abstract class AbstractAction extends AbstractData {
+export abstract class AbstractAction extends AbstractData {
     /**
      * This builds a callback that takes in user data to execute the action.
      * @param key
+     * @param instance
      */
-    async build(key: string): Promise<IActionCallback> {
-        console.warn(`Build not implemented for Action: ${key}`)
+    // deno-lint-ignore require-await
+    async build<T>(key: string, instance: T): Promise<IActionCallback> {
+        console.warn(`Build not implemented for Action: ${key}`, instance)
         return {
             description: 'Abstract action callback',
             call: (user: IActionUser, nonce: string, index?: number) => {
-                console.warn('Call not implemented for Action!')
+                console.warn('Call not implemented for Action!', user, nonce, index)
             }
         }
     }

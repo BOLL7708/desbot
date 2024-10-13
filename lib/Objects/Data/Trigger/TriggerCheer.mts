@@ -1,11 +1,11 @@
-import AbstractTrigger from './AbstractTrigger.mts'
-import DataMap from '../DataMap.mts'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.mts'
-import {ActionHandler} from '../../../Actions.mts'
-import {ITwitchCheer} from '../../../Classes/TwitchEventSub.mts'
-import Utils from '../../../Utils/Utils.mts'
+import {ActionHandler} from '../../../../bot/Classes/Actions.mts'
+import {ITwitchCheer} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
+import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
+import Utils from '../../../../bot/Utils/Utils.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
 
-export default class TriggerCheer extends AbstractTrigger {
+export class TriggerCheer extends AbstractTrigger {
     amount: number = 1
 
     enlist() {

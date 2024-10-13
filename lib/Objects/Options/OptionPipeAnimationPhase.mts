@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
-export default class OptionPipeAnimationPhase extends AbstractOption {
+export class OptionPipeAnimationPhase extends AbstractOption {
     static readonly Linear = 'Linear'
     static readonly Sine = 'Sine'
     static readonly Cosine = 'Cosine'

@@ -1,12 +1,12 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 import {OptionScreenshotFileType} from '../../Options/OptionScreenshotFileType.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
-import EventDefault from '../Event/EventDefault.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
+import {EventDefault} from '../Event/EventDefault.mts'
 import {PresetPipeCustom} from '../Preset/PresetPipe.mts'
-import ActionAudio from '../Action/ActionAudio.mts'
+import {ActionAudio} from '../Action/ActionAudio.mts'
 
-export default class ConfigScreenshots extends AbstractData {
+export class ConfigScreenshots extends AbstractData {
     SSSVRPort: number = 8807
     callback = new ConfigScreenshotsCallback()
 

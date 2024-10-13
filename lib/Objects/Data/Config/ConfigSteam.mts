@@ -1,9 +1,9 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 import {SettingSteamGame} from '../Setting/SettingSteam.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
 
-export default class ConfigSteam extends AbstractData {
+export class ConfigSteam extends AbstractData {
     steamWebApiKey: string = ''
     steamUserId: string = ''
     playerSummaryIntervalMs: number = 60000

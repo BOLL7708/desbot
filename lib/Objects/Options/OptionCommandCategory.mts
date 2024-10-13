@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
+import {AbstractOption} from './AbstractOption.mts'
 import OptionsMap from './OptionsMap.mts'
 
-export default class OptionCommandCategory extends AbstractOption {
+export class OptionCommandCategory extends AbstractOption {
     static readonly Uncategorized = 0
     static readonly Admin = 1000
     static readonly System = 2000

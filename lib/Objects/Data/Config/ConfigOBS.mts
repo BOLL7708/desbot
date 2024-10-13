@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigOBS extends AbstractData {
+export class ConfigOBS extends AbstractData {
     port: number = 4455
     password: string = ''
     saveScreenshotsToFilePath: string = ''

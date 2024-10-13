@@ -1,10 +1,10 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import PresetPermissions from '../Preset/PresetPermissions.mts'
-import SettingUser from '../Setting/SettingUser.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetPermissions} from '../Preset/PresetPermissions.mts'
+import {SettingUser} from '../Setting/SettingUser.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
 
-export default class ConfigCommands extends AbstractData {
+export class ConfigCommands extends AbstractData {
     commandPrefix: string = '!'
     defaultCommandPermissions: number|DataEntries<PresetPermissions> = 0
     ignoreModerators: number[]|DataEntries<SettingUser> = []

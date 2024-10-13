@@ -1,9 +1,9 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
 import {SettingSteamGame} from '../Setting/SettingSteam.mts'
 
-export default class ConfigTwitch extends AbstractData {
+export class ConfigTwitch extends AbstractData {
     postTwitchClipsToDiscord: number|DataEntries<PresetDiscordWebhook> = 0 // TODO: Is there an EventSub for this so we can just post as they happen? Should still catch unposted once between streams though.
     defaultGameCategory: string = 'Games + Demos'
     gameTitleToCategoryOverride: ConfigTwitchCategoryOverride[] = []

@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class SettingChannelTrophyStat extends AbstractData {
+export class SettingChannelTrophyStat extends AbstractData {
     userId: number = 0
     index: number = 0
 

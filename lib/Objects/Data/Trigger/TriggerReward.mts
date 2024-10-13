@@ -1,18 +1,18 @@
-import AbstractTrigger from './AbstractTrigger.mts'
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap, {RootToolResult} from '../DataMap.mts'
-import PresetPermissions from '../Preset/PresetPermissions.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap, RootToolResult} from '../DataMap.mts'
+import {PresetPermissions} from '../Preset/PresetPermissions.mts'
 import {SettingTwitchReward} from '../Setting/SettingTwitch.mts'
-import TwitchHelixHelper from '../../../Helpers/TwitchHelixHelper.mts'
-import DataBaseHelper from '../../../Helpers/DataBaseHelper.mts'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.mts'
-import {ActionHandler} from '../../../Actions.mts'
-import DataUtils from '../DataUtils.mts'
-import {ITwitchReward} from '../../../Classes/TwitchEventSub.mts'
-import Utils from '../../../Utils/Utils.mts'
-import PresetReward from '../Preset/PresetReward.mts'
+import TwitchHelixHelper from '../../../../bot/Helpers/TwitchHelixHelper.mts'
+import DataBaseHelper from '../../../../bot/Helpers/DataBaseHelper.mts'
+import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
+import {ActionHandler} from '../../../../bot/Classes/Actions.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {ITwitchReward} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
+import Utils from '../../../../bot/Utils/Utils.mts'
+import {PresetReward} from '../Preset/PresetReward.mts'
 
-export default class TriggerReward extends AbstractTrigger {
+export class TriggerReward extends AbstractTrigger {
     permissions: number|DataEntries<PresetPermissions> = 0
     rewardEntries: number[]|DataEntries<AbstractData> = [] // TODO: This is <Data> just to give it a parent, need to update this so it's not generic.
     rewardID: number|DataEntries<SettingTwitchReward> = 0
@@ -37,11 +37,11 @@ export default class TriggerReward extends AbstractTrigger {
                     label: 'Create reward on Twitch',
                     documentation: 'For this to succeed you need at least one preset added to Reward Entries.',
                     filledInstance: true,
-                    callback: async <TriggerReward>(instance: TriggerReward&AbstractData): Promise<RootToolResult> => {
+                    callback: async <TriggerReward extends AbstractData>(instance: TriggerReward&AbstractData): Promise<RootToolResult> => {
 
                         // @ts-ignore For some inexplicable reason TSC does not recognize that the instance has the properties on it even if the IDE and browser console says it is the right class.
                         const entries = DataUtils.ensureDataArray<PresetReward>(instance.rewardEntries) ?? []
-                        // @ts-ignore
+                        // @ts-ignore same here
                         const id = DataUtils.ensureData<SettingTwitchReward>(instance.rewardID)
 
                         const result = new RootToolResult()

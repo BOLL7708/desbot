@@ -1,7 +1,7 @@
-import DataUtils from './DataUtils.mts'
-import DataMap from './DataMap.mts'
-import DataBaseHelper, {IDataBaseItem} from '../../Helpers/DataBaseHelper.mts'
-import Utils from '../../Utils/Utils.mts'
+import {DataUtils} from './DataUtils.mts'
+import {DataMap} from './DataMap.mts'
+import DataBaseHelper, {IDataBaseItem} from '../../../bot/Helpers/DataBaseHelper.mts'
+import Utils from '../../../bot/Utils/Utils.mts'
 
 export type TDataCategory =
     string
@@ -12,7 +12,7 @@ export type TDataCategory =
     | 'Trigger'
     | 'Action'
 
-export default abstract class AbstractData {
+export abstract class AbstractData {
     /**
      * Should register this class in a suitable list.
      */

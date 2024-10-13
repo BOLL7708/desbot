@@ -1,8 +1,8 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionLabel extends AbstractAction {
+export class ActionLabel extends AbstractAction {
     fileName: string = ''
     textEntries: string[] = ['']
     textEntries_use = OptionEntryUsage.First
@@ -23,12 +23,6 @@ export default class ActionLabel extends AbstractAction {
                 textEntries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionLabelRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionLabel>(key, this)
     }
 }
 

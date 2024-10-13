@@ -1,11 +1,11 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../Interfaces/igeneral.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
-import PresetPipeBasic from '../Preset/PresetPipe.mts'
+import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {PresetPipeBasic} from '../Preset/PresetPipe.mts'
 
-export default class ConfigExample extends AbstractData {
+export class ConfigExample extends AbstractData {
     singleBoolean = false
     singleNumber = 0
     singleNumberRange = 0

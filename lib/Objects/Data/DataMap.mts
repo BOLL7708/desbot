@@ -1,6 +1,6 @@
-import AbstractData from './AbstractData.mts'
-import {IDictionary, IStringDictionary} from '../../Interfaces/igeneral.mts'
-import DataMeta from './DataMeta.mts'
+import {AbstractData} from './AbstractData.mts'
+import {IDictionary, IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
+import {DataMeta} from './DataMeta.mts'
 
 // Types
 export type TNoFunctions<T> = {
@@ -10,7 +10,7 @@ export type TNoFunctions<T> = {
 }[keyof T]
 export type TTypes = 'number'|'boolean'|'boolean|toggle'|'string'|'string|secret'|'string|code'|string & {} // the `& {}` prevents the `|string` from collapsing all options into just `string`.
 
-export default class DataMap {
+export class DataMap {
     private static _map = new Map<string, DataObjectMeta>()
     private static addInstance<T>(
         isRoot: boolean = false,
@@ -125,18 +125,18 @@ export default class DataMap {
 export class DataObjectMeta extends DataMeta {
     constructor(
         public instance: AbstractData,
-        public isRoot: boolean,
+        public override isRoot: boolean,
         public tag?: string,
-        public description?: string,
+        public override description?: string,
         public help?: string,
-        public documentation?: IStringDictionary,
-        public instructions?: IStringDictionary,
-        public types?: IStringDictionary,
+        public override documentation?: IStringDictionary,
+        public override instructions?: IStringDictionary,
+        public override types?: IStringDictionary,
         public label?: string,
         public keyMap?: IStringDictionary,
         public tools?: IDictionary<IRootTool>,
         public tasks?: IRootTool[],
-        public visibleForOption?: IDictionary<IDictionary<number|string>>
+        public override visibleForOption?: IDictionary<IDictionary<number|string>>
     ) {
         super()
     }

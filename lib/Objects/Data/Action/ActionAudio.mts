@@ -1,11 +1,11 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
-import PresetAudioChannel from '../Preset/PresetAudioChannel.mts'
 import {DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {PresetAudioChannel} from '../Preset/PresetAudioChannel.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionAudio extends AbstractAction {
+export class ActionAudio extends AbstractAction {
     srcEntries: string[] = ['']
     srcEntries_use = OptionEntryUsage.First
     volume: number = 1.0
@@ -33,11 +33,4 @@ export default class ActionAudio extends AbstractAction {
             }
         })
     }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionAudioRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionAudio>(key, this)
-    }
 }
-

@@ -1,11 +1,11 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
 import {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
-import PresetPipeBasic, {PresetPipeCustom} from '../Preset/PresetPipe.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {PresetPipeBasic, PresetPipeCustom} from '../Preset/PresetPipe.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionPipe extends AbstractAction {
+export class ActionPipe extends AbstractAction {
     imagePathEntries: string[] = []
     imagePathEntries_use = OptionEntryUsage.OneRandom
     imageDataEntries: string[] = []
@@ -39,11 +39,5 @@ export default class ActionPipe extends AbstractAction {
                 texts_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionPipeRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionPipe>(key, this)
     }
 }

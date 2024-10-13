@@ -1,8 +1,8 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionURI extends AbstractAction {
+export class ActionURI extends AbstractAction {
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     delayMs: number = 0
@@ -21,12 +21,6 @@ export default class ActionURI extends AbstractAction {
                 entries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionURIRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionURI>(key, this)
     }
 }
 

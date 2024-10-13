@@ -1,10 +1,10 @@
-import AbstractData, {DataEntries, DataRefValues} from './AbstractData.mts'
-import DataMap from './DataMap.mts'
-import {IDictionary, INumberDictionary, IStringDictionary} from '../../Interfaces/igeneral.mts'
-import {IDataBaseItem} from '../../Helpers/DataBaseHelper.mts'
-import Utils from '../../../Shared/Utils/Utils.mts'
+import {AbstractData, DataEntries, DataRefValues} from './AbstractData.mts'
+import {DataMap} from './DataMap.mts'
+import {IDictionary, INumberDictionary, IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
+import {IDataBaseItem} from '../../../bot/Helpers/DataBaseHelper.mts'
+import Utils from '../../../bot/Utils/Utils.mts'
 
-export default class DataUtils {
+export class DataUtils {
     // region Referencing
     static getNumberRangeRef(min: number, max: number, step: number = 1): string {
         return `number|range=${min},${max},${step}`

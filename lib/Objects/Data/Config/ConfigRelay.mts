@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigRelay extends AbstractData {
+export class ConfigRelay extends AbstractData {
     port: number = 7788
     // streamDeckChannel: string = 'desbot_streamdeck
     overlayImagesChannel: string = 'overlay_images'

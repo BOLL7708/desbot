@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigPhilipsHue extends AbstractData {
+export class ConfigPhilipsHue extends AbstractData {
     serverPath: string = 'http://'
     username: string = ''
 

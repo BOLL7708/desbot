@@ -1,8 +1,8 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionTTSFunctionType} from '../../Options/OptionTTS.mts'
-import DataMap from '../DataMap.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionSettingTTS extends AbstractAction {
+export class ActionSettingTTS extends AbstractAction {
     functionType = OptionTTSFunctionType.Enable
     inputOverride: string = ''
 
@@ -19,11 +19,5 @@ export default class ActionSettingTTS extends AbstractAction {
                 functionType: OptionTTSFunctionType.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionSettingTTSRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionSettingTTS>(key, this)
     }
 }

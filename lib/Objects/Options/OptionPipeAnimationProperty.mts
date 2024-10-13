@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
-export default class OptionPipeAnimationProperty extends AbstractOption {
+export class OptionPipeAnimationProperty extends AbstractOption {
     static readonly None = 'None'
     static readonly Yaw = 'Yaw'
     static readonly Pitch = 'Pitch'

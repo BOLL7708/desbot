@@ -1,11 +1,11 @@
-import AbstractTrigger from './AbstractTrigger.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
 import {DataEntries} from '../AbstractData.mts'
-import PresetPermissions from '../Preset/PresetPermissions.mts'
-import OptionCommandCategory from '../../Options/OptionCommandCategory.mts'
-import DataMap from '../DataMap.mts'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.mts'
+import {PresetPermissions} from '../Preset/PresetPermissions.mts'
+import {OptionCommandCategory} from '../../Options/OptionCommandCategory.mts'
+import {DataMap} from '../DataMap.mts'
+import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
 
-export default class TriggerCommand extends AbstractTrigger {
+export class TriggerCommand extends AbstractTrigger {
     entries: string[] = ['']
     permissions: number|DataEntries<PresetPermissions> = 0
     requireUserTag = false

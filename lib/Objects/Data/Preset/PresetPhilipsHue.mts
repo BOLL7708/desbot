@@ -1,8 +1,8 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
 
-export default class PresetPhilipsHueBulbState extends AbstractData {
+export class PresetPhilipsHueBulbState extends AbstractData {
     brightness: number = 254
     hue: number = 0
     saturation: number = 254

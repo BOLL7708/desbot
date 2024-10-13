@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class SettingCounterBase extends AbstractData {
+export class SettingCounterBase extends AbstractData {
     count: number = 0
     enlist() {
         // This is weird, does it work doing it like this?

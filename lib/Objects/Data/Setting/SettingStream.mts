@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class SettingStreamQuote extends AbstractData {
+export class SettingStreamQuote extends AbstractData {
     quoterUserId: number = 0
     quoteeUserId: number = 0
     quote: string = ''

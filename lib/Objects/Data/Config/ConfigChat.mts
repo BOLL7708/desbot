@@ -1,11 +1,11 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 import {PresetPipeCustom} from '../Preset/PresetPipe.mts'
-import ActionAudio from '../Action/ActionAudio.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
-import SettingUser from '../Setting/SettingUser.mts'
+import {ActionAudio} from '../Action/ActionAudio.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
+import {SettingUser} from '../Setting/SettingUser.mts'
 
-export default class ConfigChat extends AbstractData {
+export class ConfigChat extends AbstractData {
     pipePreset: number|DataEntries<PresetPipeCustom> = 0
     pipePreset_forMs: number = 5000
     soundEffectOnEmptyMessage: number|DataEntries<ActionAudio> = 0

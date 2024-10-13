@@ -1,5 +1,5 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
 export class OptionEntryUsage extends AbstractOption {
     static readonly First = 0

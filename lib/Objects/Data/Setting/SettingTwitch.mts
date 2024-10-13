@@ -1,8 +1,8 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import {TTwitchEventSubEventStatus} from '../../../Classes/TwitchEventSub.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {TTwitchEventSubEventStatus} from '../../../../bot/Classes/Api/TwitchEventSub.mts'
 
-export default class SettingTwitchClient extends AbstractData {
+export class SettingTwitchClient extends AbstractData {
     clientId: string = ''
     clientSecret: string = ''
     redirectUri: string = ''

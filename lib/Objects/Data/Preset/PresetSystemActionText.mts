@@ -1,8 +1,8 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 import {OptionSystemActionType} from '../../Options/OptionSystemActionType.mts'
 
-export default class PresetSystemActionText extends AbstractData {
+export class PresetSystemActionText extends AbstractData {
     speech: string[] = []
     chat: string[] = []
 

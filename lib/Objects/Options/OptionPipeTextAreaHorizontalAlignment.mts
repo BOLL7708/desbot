@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
-export default class OptionPipeTextAreaHorizontalAlignment extends AbstractOption {
+export class OptionPipeTextAreaHorizontalAlignment extends AbstractOption {
     static readonly Left = 'Left'
     static readonly Center = 'Center'
     static readonly Right = 'Right'

@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigCleanText extends AbstractData {
+export class ConfigCleanText extends AbstractData {
     removeBitEmotes: boolean = false
     keepCase: boolean = false
     replaceUserTags: boolean = true

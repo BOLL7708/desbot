@@ -1,8 +1,8 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionChat extends AbstractAction {
+export class ActionChat extends AbstractAction {
     entries: string[] = ['']
     entries_use = OptionEntryUsage.First
     onlySendNonRepeats = false
@@ -23,11 +23,5 @@ export default class ActionChat extends AbstractAction {
                 entries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionChatRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionChat>(key, this)
     }
 }

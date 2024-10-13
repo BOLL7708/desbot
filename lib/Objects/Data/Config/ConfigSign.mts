@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigSign extends AbstractData {
+export class ConfigSign extends AbstractData {
     direction: string = 'left'
     enabled: boolean = true
     fontColor: string = '#FFFFFF'

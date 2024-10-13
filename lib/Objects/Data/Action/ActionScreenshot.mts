@@ -1,10 +1,10 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionScreenshotType} from '../../Options/OptionScreenshotType.mts'
 import {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {DataMap} from '../DataMap.mts'
 import {PresetOBSSource} from '../Preset/PresetOBS.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionScreenshot extends AbstractAction {
+export class ActionScreenshot extends AbstractAction {
     screenshotType = OptionScreenshotType.VRElseOBS
     sourcePreset: number|DataEntries<PresetOBSSource> = 0
     delay: number = 0
@@ -24,12 +24,6 @@ export default class ActionScreenshot extends AbstractAction {
                 sourcePreset: PresetOBSSource.ref.id.build()
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionScreenshotRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionScreenshot>(key, this)
     }
 }
 

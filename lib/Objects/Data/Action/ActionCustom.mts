@@ -1,7 +1,7 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ActionCustom extends AbstractAction {
+export class ActionCustom extends AbstractAction {
     code: string = ''
 
     enlist() {
@@ -16,11 +16,5 @@ export default class ActionCustom extends AbstractAction {
                 code: 'string|code'
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionCustomRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionCustom>(key, this)
     }
 }

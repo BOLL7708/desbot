@@ -1,6 +1,6 @@
-import {IDictionary, IStringDictionary} from '../../Interfaces/igeneral.mts'
+import {IDictionary, IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
 
-export default class DataMeta {
+export class DataMeta {
     public description?: string
     public documentation?: IStringDictionary
     public instructions?: IStringDictionary

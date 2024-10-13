@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigMain extends AbstractData {
+export class ConfigMain extends AbstractData {
     logo = new ConfigMainLogo()
 
     enlist() {

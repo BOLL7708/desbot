@@ -1,7 +1,7 @@
-import DataMap from '../DataMap.mts'
-import AbstractData from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
 
-export default class PresetPipeChannel extends AbstractData {
+export class PresetPipeChannel extends AbstractData {
     channel: number = 0
 
     enlist() {

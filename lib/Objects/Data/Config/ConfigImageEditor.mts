@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigImageEditorRect extends AbstractData {
+export class ConfigImageEditorRect extends AbstractData {
     x: number = 0
     y: number = 0
     w: number = 0

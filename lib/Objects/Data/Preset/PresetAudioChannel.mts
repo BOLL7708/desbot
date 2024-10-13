@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetAudioChannel extends AbstractData {
+export class PresetAudioChannel extends AbstractData {
     channel: number = 0
 
     enlist() {

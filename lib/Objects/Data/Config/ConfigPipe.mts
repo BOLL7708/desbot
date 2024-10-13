@@ -1,9 +1,9 @@
-import AbstractData from '../AbstractData.mts'
-import ConfigCleanText from './ConfigCleanText.mts'
-import DataMap from '../DataMap.mts'
-import ConfigImageEditorRect, {ConfigImageEditorFontSettings, ConfigImageEditorOutline} from './ConfigImageEditor.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {ConfigCleanText} from './ConfigCleanText.mts'
+import {DataMap} from '../DataMap.mts'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from './ConfigImageEditor.mts'
 
-export default class ConfigPipe extends AbstractData {
+export class ConfigPipe extends AbstractData {
     port: number = 8077
     password: string = ''
     useCustomChatNotification: boolean = false

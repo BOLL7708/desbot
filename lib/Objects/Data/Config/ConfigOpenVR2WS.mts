@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class ConfigOpenVR2WS extends AbstractData {
+export class ConfigOpenVR2WS extends AbstractData {
     port: number = 7708
     password: string = ''
 

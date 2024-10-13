@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
-export default class OptionMoveVRSpaceCorrection extends AbstractOption {
+export class OptionMoveVRSpaceCorrection extends AbstractOption {
     static playSpace = 'PlaySpace'
     static hmd = 'Hmd'
     static hmdYaw = 'HmdYaw'

@@ -1,12 +1,12 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
-import DataMap from '../DataMap.mts'
-import AbstractData from '../AbstractData.mts'
-import OptionMoveVRSpaceEasingType from '../../Options/OptionMoveVRSpaceEasingType.mts'
-import OptionMoveVRSpaceEasingMode from '../../Options/OptionMoveVRSpaceEasingMode.mts'
-import DataUtils from '../DataUtils.mts'
-import OptionMoveVRSpaceCorrection from '../../Options/OptionMoveVRSpaceCorrection.mts'
+import {OptionMoveVRSpaceCorrection} from '../../Options/OptionMoveVRSpaceCorrection.mts'
+import {OptionMoveVRSpaceEasingMode} from '../../Options/OptionMoveVRSpaceEasingMode.mts'
+import {OptionMoveVRSpaceEasingType} from '../../Options/OptionMoveVRSpaceEasingType.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionMoveVRSpace extends AbstractAction {
+export class ActionMoveVRSpace extends AbstractAction {
     durationMs: number = 0
     easingInType: string = OptionMoveVRSpaceEasingType.linear
     easingInType_withMode: string = OptionMoveVRSpaceEasingMode.out
@@ -50,12 +50,6 @@ export default class ActionMoveVRSpace extends AbstractAction {
                 spaceMoveEntries: ActionMoveVRSpaceEntry.ref.build()
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionMoveVRSpaceRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionMoveVRSpace>(key, this)
     }
 }
 

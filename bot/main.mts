@@ -6,6 +6,7 @@
 // import EasyDebug, {EEasyDebugLogLevel} from './EasyTSUtils/EasyDebug.mts'
 // import MainController from './MainController.mts'
 import AssetsHelper from './Helpers/AssetsHelper.mts'
+import MainController from './Classes/MainController.mts'
 // EasyDebug.setLogLevel(EEasyDebugLogLevel.Verbose)
 // EasyDebug.log('Test', EEasyDebugLogLevel.None, 'Should not print.')
 // EasyDebug.log('Test', EEasyDebugLogLevel.Verbose, 'Verbose.')
@@ -23,5 +24,5 @@ console.log('Running bot!');
     // const prep= await AssetsHelper.preparePathsForUse(['assets/dot*', 'assets/snack/*.png'])
     // console.log('Prep', prep)
 
-    // await MainController.init()
+    await MainController.init()
 })()

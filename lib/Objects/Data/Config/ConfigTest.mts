@@ -1,9 +1,9 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../Interfaces/igeneral.mts'
-import DataMap from '../DataMap.mts'
-import PresetText from '../Preset/PresetText.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {IBooleanDictionary, IDictionary, INumberDictionary, IStringDictionary} from '../../../../bot/Interfaces/igeneral.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetText} from '../Preset/PresetText.mts'
 
-export default class ConfigTest extends AbstractData {
+export class ConfigTest extends AbstractData {
     anInstance = new ConfigTestSub()
     singleReference: number|DataEntries<PresetText> = 0
     multiReference: number[]|DataEntries<PresetText> = []

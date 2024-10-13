@@ -1,10 +1,10 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
-import {DataEntries} from '../AbstractData.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
-import PresetPhilipsHueBulbState, {PresetPhilipsHueBulb} from '../Preset/PresetPhilipsHue.mts'
+import {DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetPhilipsHueBulb, PresetPhilipsHueBulbState} from '../Preset/PresetPhilipsHue.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionPhilipsHueBulb extends AbstractAction {
+export class ActionPhilipsHueBulb extends AbstractAction {
     entries: number[]|DataEntries<PresetPhilipsHueBulb> = []
     entries_use = OptionEntryUsage.All
     colorEntries: number[]|DataEntries<PresetPhilipsHueBulbState> = []
@@ -28,11 +28,4 @@ export default class ActionPhilipsHueBulb extends AbstractAction {
             }
         })
     }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionPhilipsHueBulbRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionPhilipsHueBulb>(key, this)
-    }
 }
-

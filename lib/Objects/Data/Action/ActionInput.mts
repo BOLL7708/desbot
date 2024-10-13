@@ -1,10 +1,10 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionCommandType} from '../../Options/OptionCommandType.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
-import AbstractData from '../AbstractData.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionInput extends AbstractAction {
+export class ActionInput extends AbstractAction {
     window: string = ''
     type = OptionCommandType.Keys
     duration: number = 0
@@ -30,12 +30,6 @@ export default class ActionInput extends AbstractAction {
                 commands_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionInputRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionInput>(key, this)
     }
 }
 

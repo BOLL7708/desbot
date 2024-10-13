@@ -1,6 +1,6 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
 import OptionPipeAnchorType from '../../Options/OptionPipeAnchorType.mts'
 import OptionPipeEasingMode from '../../Options/OptionPipeEasingMode.mts'
 import OptionPipeEasingType from '../../Options/OptionPipeEasingType.mts'
@@ -9,9 +9,9 @@ import OptionPipeAnimationPhase from '../../Options/OptionPipeAnimationPhase.mts
 import OptionPipeAnimationWaveform from '../../Options/OptionPipeAnimationWaveform.mts'
 import OptionPipeTextAreaHorizontalAlignment from '../../Options/OptionPipeTextAreaHorizontalAlignment.mts'
 import OptionPipeTextAreaVerticalAlignment from '../../Options/OptionPipeTextAreaVerticalAlignment.mts'
-import PresetPipeChannel from './PresetPipeChannel.mts'
+import {PresetPipeChannel} from './PresetPipeChannel.mts'
 
-export default class PresetPipeBasic extends AbstractData {
+export class PresetPipeBasic extends AbstractData {
     nonce: string = ''
     title: string = 'OpenVRNotificationPipe'
     message: string = ''

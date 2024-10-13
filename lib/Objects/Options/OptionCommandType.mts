@@ -1,6 +1,6 @@
-import AbstractOption from './AbstractOption.mts'
-import {TRunType} from '../../Utils/ExecUtils.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {TRunType} from '../../../bot/Utils/ExecUtils.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
 export class OptionCommandType extends AbstractOption {
     static readonly Keys: TRunType = 'keys'

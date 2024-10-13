@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
-export default class OptionMoveVRSpaceEasingType extends AbstractOption {
+export class OptionMoveVRSpaceEasingType extends AbstractOption {
     static readonly linear = 'Linear'
     static readonly sine = 'Sine'
     static readonly quad = 'Quad'

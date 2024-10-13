@@ -1,10 +1,10 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
-import AbstractData, {DataEntries} from '../AbstractData.mts'
 import {OptionEntryUsage} from '../../Options/OptionEntryType.mts'
-import DataMap from '../DataMap.mts'
-import PresetOBSScene, {PresetOBSFilter, PresetOBSSource} from '../Preset/PresetOBS.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetOBSFilter, PresetOBSScene, PresetOBSSource} from '../Preset/PresetOBS.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionOBS extends AbstractAction {
+export class ActionOBS extends AbstractAction {
     sceneEntries: number[]|DataEntries<PresetOBSScene> = []
     sceneEntries_use = OptionEntryUsage.All
     sourceEntries: ActionOBSSource[] = []
@@ -35,12 +35,6 @@ export default class ActionOBS extends AbstractAction {
                 filterEntries_use: OptionEntryUsage.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionOBSRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionOBS>(key, this)
     }
 }
 export class ActionOBSSource extends AbstractData {

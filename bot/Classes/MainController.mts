@@ -1,9 +1,9 @@
-import EnlistData from './Objects/Data/EnlistData.mts'
+import EnlistData from '../../lib/Objects/Data/EnlistData.mts'
 import AuthUtils from '../Utils/AuthUtils.mts'
 import PasswordForm from '../../web/PasswordForm.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
-import DataUtils from './Objects/Data/DataUtils.mts'
+import DataUtils from '../../lib/Objects/Data/DataUtils.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import Functions from './Functions.mts'
@@ -12,13 +12,13 @@ import {Actions} from './Actions.mts'
 import Callbacks from './Callbacks.mts'
 import TwitchTokensHelper from '../Helpers/TwitchTokensHelper.mts'
 import Utils from '../Utils/Utils.mts'
-import SettingUser from './Objects/Data/Setting/SettingUser.mts'
-import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens} from './Objects/Data/Setting/SettingTwitch.mts'
-import SettingDictionaryEntry from './Objects/Data/Setting/SettingDictionary.mts'
-import {SettingAccumulatingCounter, SettingIncrementingCounter} from './Objects/Data/Setting/SettingCounters.mts'
-import SettingStreamQuote from './Objects/Data/Setting/SettingStream.mts'
-import ConfigController from './Objects/Data/Config/ConfigController.mts'
-import ConfigSteam from './Objects/Data/Config/ConfigSteam.mts'
+import SettingUser from '../../lib/Objects/Data/Setting/SettingUser.mts'
+import {SettingTwitchClip, SettingTwitchRedemption, SettingTwitchReward, SettingTwitchTokens} from '../../lib/index.mts'
+import SettingDictionaryEntry from '../../lib/Objects/Data/Setting/SettingDictionary.mts'
+import {SettingAccumulatingCounter, SettingIncrementingCounter} from '../../lib/index.mts'
+import SettingStreamQuote from '../../lib/Objects/Data/Setting/SettingStream.mts'
+import ConfigController from '../../lib/Objects/Data/Config/ConfigController.mts'
+import ConfigSteam from '../../lib/Objects/Data/Config/ConfigSteam.mts'
 import Color from '../Constants/ColorConstants.mts'
 
 export default class MainController {
@@ -49,7 +49,7 @@ export default class MainController {
         // region Init
         await StatesSingleton.initInstance() // Init states
         await this.startTwitchTokenRefreshInterval() // Init Twitch tokens
-        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        const controllerConfig = await DataBaseHelper.loadMain<ConfigController>(new ConfigController())
         if(controllerConfig.useWebsockets.twitchEventSub) modules.twitchEventSub.init().then()
 
         modules.pipe.setOverlayTitle("desbot").then()
@@ -62,7 +62,7 @@ export default class MainController {
         // TODO: Should not the player summary be active at all time in case the user has websockets on but not playing VR?
         if(!controllerConfig.useWebsockets.openvr2ws) {
             MainController.startSteamPlayerSummaryInterval().then()
-            const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+            const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
             if(steamConfig.playerSummaryIntervalMs > 0) {
                 await Functions.loadPlayerSummary()
             }
@@ -99,14 +99,14 @@ export default class MainController {
 
     public static async startSteamPlayerSummaryInterval() {
         const states = StatesSingleton.getInstance()
-        const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+        const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
         if(
             steamConfig.playerSummaryIntervalMs
             && states.steamPlayerSummaryIntervalHandle == -1 
             && !ModulesSingleton.getInstance().openvr2ws.isConnected
         ) {
             Utils.log('Starting Steam player summary interval', Color.Green)
-            await Functions.loadPlayerSummary() // Get initial state immidately
+            await Functions.loadPlayerSummary() // Get initial state immediately
             states.steamPlayerSummaryIntervalHandle = setInterval(async() => {
                 await Functions.loadPlayerSummary()
             }, steamConfig.playerSummaryIntervalMs)
@@ -114,7 +114,7 @@ export default class MainController {
     }
 
     public static async startSteamAchievementsInterval() {
-        const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+        const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
         if(steamConfig.achievementsIntervalMs) {
             Utils.log('Starting Steam achievements interval', Color.Green)
             const states = StatesSingleton.getInstance()

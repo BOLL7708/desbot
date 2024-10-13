@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetOBSScene extends AbstractData {
+export class PresetOBSScene extends AbstractData {
     sceneName: string = ''
 
     enlist() {

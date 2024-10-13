@@ -1,19 +1,16 @@
-import ActionInput from '../../../Shared/Objects/Data/Action/ActionInput.mts'
-import {IActionCallback, IActionUser} from '../../../Shared/Objects/Data/Action/AbstractAction.mts'
-import Utils from '../../../Shared/Utils/Utils.mts'
-import ArrayUtils from '../../../Shared/Utils/ArrayUtils.mts'
-import ExecUtils from '../../../Shared/Utils/ExecUtils.mts'
-import AbstractActionRunner from './AbstractActionRunner.mts'
+import {ActionInput, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import ArrayUtils from '../../Utils/ArrayUtils.mts'
+import ExecUtils from '../../Utils/ExecUtils.mts'
+import Utils from '../../Utils/Utils.mts'
 
-export default class ActionInputRunner extends AbstractActionRunner {
-    getCallback<T>(key: string, instance: T): IActionCallback {
-        return  {
-            description: 'Callback that triggers an input action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone(instance as ActionInput)
-                clone.commands = ArrayUtils.getAsType(clone.commands, clone.commands_use, index)
-                ExecUtils.runCommandsFromAction(clone)
-            }
-        }
-    }
+// deno-lint-ignore require-await
+ActionInput.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
+   return {
+      description: 'Callback that triggers an input action',
+      call: async (user: IActionUser, nonce: string, index?: number) => {
+         const clone = Utils.clone(instance as ActionInput)
+         clone.commands = ArrayUtils.getAsType(clone.commands, clone.commands_use, index)
+         ExecUtils.runCommandsFromAction(clone)
+      }
+   }
 }

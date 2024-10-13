@@ -1,8 +1,8 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
 
-export default class ConfigEditor extends AbstractData {
+export class ConfigEditor extends AbstractData {
     autoGenerateKeys: boolean = true
     autoGenerateKeys_andShorten: boolean = true
     showHelpIcons: boolean = true

@@ -1,8 +1,8 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
-import DataMap from '../DataMap.mts'
-import DataUtils from '../DataUtils.mts'
+import {DataMap} from '../DataMap.mts'
+import {DataUtils} from '../DataUtils.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionSign extends AbstractAction {
+export class ActionSign extends AbstractAction {
     title: string = ''
     imageSrc: string = ''
     subtitle: string = ''
@@ -23,11 +23,5 @@ export default class ActionSign extends AbstractAction {
                 imageSrc: DataUtils.getStringFileImageRef()
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionSignRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionSign>(key, this)
     }
 }

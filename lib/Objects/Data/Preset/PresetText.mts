@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetText extends AbstractData {
+export class PresetText extends AbstractData {
     // files: string[] = [] // TODO: To do this, we should have a way to list all files in the data folder so they can be picked in the editor. It needs to be uncached so it always loads the existing files.
     collection: string[] = []
 

@@ -1,9 +1,9 @@
-import AbstractData from '../AbstractData.mts'
-import ConfigCleanText from './ConfigCleanText.mts'
-import DataMap from '../DataMap.mts'
-import {IDictionary} from '../../../Interfaces/igeneral.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {ConfigCleanText} from './ConfigCleanText.mts'
+import {DataMap} from '../DataMap.mts'
+import {IDictionary} from '../../../../bot/Interfaces/igeneral.mts'
 
-export default class ConfigSpeech extends AbstractData {
+export class ConfigSpeech extends AbstractData {
     googleApiKey: string = ''
     speakerTimeoutMs: number = 10000
     randomizeVoice: boolean = true

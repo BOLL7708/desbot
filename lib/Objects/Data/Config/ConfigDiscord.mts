@@ -1,8 +1,8 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
 
-export default class ConfigDiscord extends AbstractData {
+export class ConfigDiscord extends AbstractData {
     prefixCheer: string = '*Cheer*: '
     prefixReward: string = '*Reward*: '
     screenshotEmbedColorManual: string = '#FFFFFF'

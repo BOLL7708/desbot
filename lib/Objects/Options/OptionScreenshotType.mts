@@ -1,5 +1,5 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
 export class OptionScreenshotType extends AbstractOption {
     static readonly VRElseOBS = 0

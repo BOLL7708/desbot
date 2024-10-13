@@ -1,9 +1,9 @@
-import AbstractTrigger from './AbstractTrigger.mts'
-import DataMap from '../DataMap.mts'
-import ModulesSingleton from '../../../Singletons/ModulesSingleton.mts'
-import Utils from '../../../Utils/Utils.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
+import {DataMap} from '../DataMap.mts'
+import ModulesSingleton from '../../../../bot/Singletons/ModulesSingleton.mts'
+import Utils from '../../../../bot/Utils/Utils.mts'
 
-export default class TriggerRemoteCommand extends AbstractTrigger {
+export class TriggerRemoteCommand extends AbstractTrigger {
     entries: string[] = ['']
     globalCooldown: number = 0
     userCooldown: number = 0

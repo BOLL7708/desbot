@@ -1,11 +1,11 @@
-import AbstractOption from './AbstractOption.mts'
+import Color from '../../../bot/Constants/ColorConstants.mts'
+import {IStringDictionary} from '../../../bot/Interfaces/igeneral.mts'
+import Utils from '../../../bot/Utils/Utils.mts'
 import {TNoFunctions} from '../Data/DataMap.mts'
-import {IStringDictionary} from '../../Interfaces/igeneral.mts'
-import Utils from '../../Utils/Utils.mts'
-import DataMeta from '../Data/DataMeta.mts'
-import Color from '../../Constants/ColorConstants.mts'
+import {DataMeta} from '../Data/DataMeta.mts'
+import {AbstractOption} from './AbstractOption.mts'
 
-export default class OptionsMap {
+export class OptionsMap {
     private static _map = new Map<string, OptionMeta>()
 
     static getPrototype(className: string|undefined): AbstractOption|undefined {
@@ -46,8 +46,8 @@ export default class OptionsMap {
 export class OptionMeta extends DataMeta {
     constructor(
         public prototype: AbstractOption,
-        public description?: string,
-        public documentation?: IStringDictionary
+        public override description?: string,
+        public override documentation?: IStringDictionary
     ) {
         super()
     }

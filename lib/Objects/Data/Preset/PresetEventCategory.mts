@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetEventCategory extends AbstractData {
+export class PresetEventCategory extends AbstractData {
     description: string = ''
 
     enlist() {

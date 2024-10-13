@@ -1,7 +1,7 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
-export default class OptionPipeAnchorType extends AbstractOption {
+export class OptionPipeAnchorType extends AbstractOption {
     static readonly World = 'World'
     static readonly Head = 'Head'
     static readonly LeftHand = 'LeftHand'

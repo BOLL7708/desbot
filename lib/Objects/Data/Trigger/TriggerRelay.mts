@@ -1,12 +1,12 @@
-import AbstractTrigger from './AbstractTrigger.mts'
-import DataMap from '../DataMap.mts'
-import TextHelper from '../../../Helpers/TextHelper.mts'
-import {ActionHandler} from '../../../Actions.mts'
-import Callbacks from '../../../Callbacks.mts'
-import Utils from '../../../Utils/Utils.mts'
-import {IRelay} from '../../../Classes/Relay.mts'
+import {AbstractTrigger} from './AbstractTrigger.mts'
+import {DataMap} from '../DataMap.mts'
+import TextHelper from '../../../../bot/Helpers/TextHelper.mts'
+import {ActionHandler} from '../../../../bot/Classes/Actions.mts'
+import Callbacks from '../../../../bot/Classes/Callbacks.mts'
+import Utils from '../../../../bot/Utils/Utils.mts'
+import {IRelay} from '../../../../bot/Classes/Api/Relay.mts'
 
-export default class TriggerRelay extends AbstractTrigger {
+export class TriggerRelay extends AbstractTrigger {
     key: string = ''
 
     enlist() {

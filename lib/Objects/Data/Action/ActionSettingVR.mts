@@ -1,8 +1,8 @@
-import AbstractAction, {IActionCallback} from './AbstractAction.mts'
 import {OptionSteamVRSettingType} from '../../Options/OptionSteamVRSetting.mts'
-import DataMap from '../DataMap.mts'
+import {DataMap} from '../DataMap.mts'
+import {AbstractAction} from './AbstractAction.mts'
 
-export default class ActionSettingVR extends AbstractAction {
+export class ActionSettingVR extends AbstractAction {
     settingPreset = OptionSteamVRSettingType.WorldScale
     settingPreset_orCustom = ''
     settingPreset_inCategory = ''
@@ -27,11 +27,5 @@ export default class ActionSettingVR extends AbstractAction {
                 settingPreset: OptionSteamVRSettingType.ref
             }
         })
-    }
-
-    async build(key: string): Promise<IActionCallback> {
-        const runner = await import('../../../../Server/Runners/Action/ActionSettingVRRunner.mts')
-        const instance = new runner.default()
-        return instance.getCallback<ActionSettingVR>(key, this)
     }
 }

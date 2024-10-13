@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetPermissions extends AbstractData {
+export class PresetPermissions extends AbstractData {
     streamer: boolean = true
     moderators: boolean = false
     VIPs: boolean = false

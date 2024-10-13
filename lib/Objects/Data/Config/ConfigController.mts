@@ -1,8 +1,8 @@
-import AbstractData, {DataEntries} from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
-import PresetDiscordWebhook from '../Preset/PresetDiscordWebhook.mts'
+import {AbstractData, DataEntries} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
+import {PresetDiscordWebhook} from '../Preset/PresetDiscordWebhook.mts'
 
-export default class ConfigController extends AbstractData {
+export class ConfigController extends AbstractData {
     secretChatSymbols: string[] = ['!', 'ℹ']
     stateDefaults = new ConfigControllerStateDefaults()
     useWebsockets = new ConfigControllerWebsocketsUsed()

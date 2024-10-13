@@ -1,5 +1,5 @@
-import AbstractOption from './AbstractOption.mts'
-import OptionsMap from './OptionsMap.mts'
+import {AbstractOption} from './AbstractOption.mts'
+import {OptionsMap} from './OptionsMap.mts'
 
 /**
  * These are basically things happening in the widget that are not customizable actions, but hard-coded ones.

@@ -1,30 +1,26 @@
-import ActionPhilipsHueBulb from '../../../Shared/Objects/Data/Action/ActionPhilipsHueBulb.mts'
-import {IActionCallback, IActionUser} from '../../../Shared/Objects/Data/Action/AbstractAction.mts'
-import Utils from '../../../Shared/Utils/Utils.mts'
-import ArrayUtils from '../../../Shared/Utils/ArrayUtils.mts'
-import DataUtils from '../../../Shared/Objects/Data/DataUtils.mts'
-import PhilipsHueHelper from '../../../Shared/Helpers/PhilipsHueHelper.mts'
-import AbstractActionRunner from './AbstractActionRunner.mts'
+import {ActionPhilipsHueBulb, DataUtils, IActionCallback, IActionUser} from '../../../lib/index.mts'
+import PhilipsHueHelper from '../../Helpers/PhilipsHueHelper.mts'
+import ArrayUtils from '../../Utils/ArrayUtils.mts'
+import Utils from '../../Utils/Utils.mts'
 
-export default class ActionPhilipsHueBulbRunner extends AbstractActionRunner {
-    getCallback<T>(key: string, instance: T): IActionCallback {
-        return  {
-            description: 'Callback that triggers a Philips Hue bulb action',
-            call: async (user: IActionUser, nonce: string, index?: number) => {
-                const clone = Utils.clone(instance as ActionPhilipsHueBulb)
-                const ids = ArrayUtils.getAsType(DataUtils.ensureKeyArray(clone.entries) ?? [], clone.entries_use, index)
-                let colors = ArrayUtils.getAsType(DataUtils.ensureDataArray(clone.colorEntries) ?? [], clone.colorEntries_use, index)
-                if(colors.length > 0 && ids.length > 0) {
-                    if(clone.colorEntries_delay <= 0) colors = [colors[0]] // No reason to set more than one color if there is no delay as that would be at the same time.
-                    let delay = 0
-                    for(const color of colors) {
-                        setTimeout(() => {
-                            PhilipsHueHelper.runBulbs(ids, color.brightness, color.hue, color.saturation)
-                        }, delay)
-                        delay += (clone.colorEntries_delay*1000)
-                    }
-                }
+// deno-lint-ignore require-await
+ActionPhilipsHueBulb.prototype.build = async function <T>(key: string, instance: T): Promise<IActionCallback> {
+   return {
+      description: 'Callback that triggers a Philips Hue bulb action',
+      call: async (user: IActionUser, nonce: string, index?: number) => {
+         const clone = Utils.clone(instance as ActionPhilipsHueBulb)
+         const ids = ArrayUtils.getAsType(DataUtils.ensureKeyArray(clone.entries) ?? [], clone.entries_use, index)
+         let colors = ArrayUtils.getAsType(DataUtils.ensureDataArray(clone.colorEntries) ?? [], clone.colorEntries_use, index)
+         if (colors.length > 0 && ids.length > 0) {
+            if (clone.colorEntries_delay <= 0) colors = [colors[0]] // No reason to set more than one color if there is no delay as that would be at the same time.
+            let delay = 0
+            for (const color of colors) {
+               setTimeout(() => {
+                  PhilipsHueHelper.runBulbs(ids, color.brightness, color.hue, color.saturation)
+               }, delay)
+               delay += (clone.colorEntries_delay * 1000)
             }
-        }
-    }
+         }
+      }
+   }
 }

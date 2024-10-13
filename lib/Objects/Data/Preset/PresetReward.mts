@@ -1,7 +1,7 @@
-import AbstractData from '../AbstractData.mts'
-import DataMap from '../DataMap.mts'
+import {AbstractData} from '../AbstractData.mts'
+import {DataMap} from '../DataMap.mts'
 
-export default class PresetReward extends AbstractData {
+export class PresetReward extends AbstractData {
     title: string = ''
     cost: number = 1
     prompt: string = ''
