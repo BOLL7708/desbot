@@ -1,16 +1,11 @@
-import TwitchHelixHelper, {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.mts'
-import DataBaseHelper from './DataBaseHelper.mts'
-import Utils from '../Utils/Utils.mts'
-import ConfigCleanText from '../Objects/Data/Config/ConfigCleanText.mts'
-import {IActionUser} from '../Objects/Data/Action/AbstractAction.mts'
+import {ConfigCleanText, ConfigSpeech, EventDefault, IActionUser, SettingAccumulatingCounter, SettingUser, SettingUserName, SettingUserVoice} from '../../lib/index.mts'
+import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.mts'
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
+import Utils from '../Utils/Utils.mts'
+import DataBaseHelper from './DataBaseHelper.mts'
 import SteamStoreHelper from './SteamStoreHelper.mts'
-import {ITwitchEmotePosition} from '../Classes/Data/TwitchFactory.mts'
-import ConfigSpeech from '../Objects/Data/Config/ConfigSpeech.mts'
-import EventDefault from '../Objects/Data/Event/EventDefault.mts'
-import {SettingAccumulatingCounter} from '../Objects/Data/Setting/SettingCounters.mts'
-import SettingUser, {SettingUserName, SettingUserVoice} from '../Objects/Data/Setting/SettingUser.mts'
+import TwitchHelixHelper, {ITwitchHelixUsersResponseData} from './TwitchHelixHelper.mts'
 
 export default class TextHelper {
     static async loadCleanName(userIdOrName: string|number):Promise<string> {
@@ -24,7 +19,7 @@ export default class TextHelper {
         }
         const userId = userData?.id ?? ''
         const userName = userData?.login ?? ''
-        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userId)
+        const user = await DataBaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userId)
         let cleanName = Utils.getFirstValidString(user.name.shortName, userName)
         if(cleanName.length == 0) {
             cleanName = this.cleanName(userName)
@@ -79,7 +74,7 @@ export default class TextHelper {
         let text = textInput ?? ''
 
         if(!config) {
-            const ttsConfig = await DataBaseHelper.loadMain(new ConfigSpeech())
+            const ttsConfig = await DataBaseHelper.loadMain<ConfigSpeech>(new ConfigSpeech())
             config = ttsConfig.cleanTextConfig
         }
         if(!config?.keepCase) text = text.toLowerCase()
@@ -222,7 +217,7 @@ export default class TextHelper {
             // If we have a possible login, get the user data, if they exist
             const channelData = await TwitchHelixHelper.getChannelByName(userLogin)
             if(channelData) {
-                const voice = await DataBaseHelper.load(new SettingUserVoice(), channelData.broadcaster_id)
+                const voice = await DataBaseHelper.load<SettingUserVoice>(new SettingUserVoice(), channelData.broadcaster_id)
                 tags.targetId = channelData.broadcaster_id
                 tags.targetLogin = channelData.broadcaster_login
                 tags.targetName = channelData.broadcaster_name
@@ -251,17 +246,17 @@ export default class TextHelper {
     private static async getDefaultTags(userData?: IActionUser): Promise<ITextTags> {
         const states = StatesSingleton.getInstance()
         const userIdStr = userData?.id?.toString() ?? ''
-        const user = await DataBaseHelper.loadOrEmpty(new SettingUser(), userIdStr)
+        const user = await DataBaseHelper.loadOrEmpty<SettingUser>(new SettingUser(), userIdStr)
         const subs = user.sub
         const cheers = user.cheer
         const voice = user.voice
         const now = new Date()
 
-        const eventConfig = await DataBaseHelper.loadOrEmpty(new EventDefault(), userData?.eventKey ?? '')
+        const eventConfig = await DataBaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), userData?.eventKey ?? '')
         const eventID = await DataBaseHelper.loadID(EventDefault.ref.build(), userData?.eventKey ?? '')
         const eventLevel = states.multiTierEventCounters.get(eventID.toString())?.count ?? 0
         const eventLevelMax = eventConfig.multiTierOptions.maxLevel
-        const eventCount = (await DataBaseHelper.load(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
+        const eventCount = (await DataBaseHelper.load<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventID.toString()))?.count ?? 0
         const eventGoal = eventConfig.accumulatingOptions.goal
 
         const userBits = (userData?.bits ?? 0) > 0
@@ -271,7 +266,7 @@ export default class TextHelper {
             ? userData?.bitsTotal?.toString() ?? '0'
             : cheers?.totalBits ?? '0'
 
-        const result = <ITextTags> { // TODO: Convert this to a class for easy instantiation instead of this.
+        const result = { // TODO: Convert this to a class for easy instantiation instead of this.
             // region User
             userId: userIdStr,
             userLogin: userData?.login ?? '',
@@ -366,8 +361,7 @@ export default class TextHelper {
             lastDictionaryWord: '',
             lastTTSSetNickLogin: '',
             lastTTSSetNickSubstitute: ''
-
-        }
+        } as ITextTags
         if(typeof userData?.input === 'string') {
             const inputWordsClone = Utils.clone(userData.inputWords)
             result.userInput = userData.input

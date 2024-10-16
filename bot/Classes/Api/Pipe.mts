@@ -1,9 +1,9 @@
-import ConfigPipe from '../Objects/Data/Config/ConfigPipe.mts'
-import ConfigChat from '../Objects/Data/Config/ConfigChat.mts'
+import {ConfigPipe} from '../../../lib/index.mts'
+import {ConfigChat} from '../../../lib/index.mts'
 import WebSockets from '../Web/WebSockets.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import {ITwitchMessageData} from './Twitch.mts'
-import {IActionUser} from '../Objects/Data/Action/AbstractAction.mts'
+import {IActionUser} from '../../../lib/index.mts'
 import {ITwitchHelixUsersResponseData} from '../../Helpers/TwitchHelixHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import TextHelper from '../../Helpers/TextHelper.mts'
@@ -11,16 +11,16 @@ import TwitchFactory from '../Data/TwitchFactory.mts'
 import ImageHelper from '../../Helpers/ImageHelper.mts'
 import ImageEditor from '../Data/ImageEditor.mts'
 import Color from '../../Constants/ColorConstants.mts'
-import ActionPipe from '../Objects/Data/Action/ActionPipe.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
+import {ActionPipe} from '../../../lib/index.mts'
+import {DataUtils} from '../../../lib/index.mts'
 import StatesSingleton from '../../Singletons/StatesSingleton.mts'
-import ConfigController from '../Objects/Data/Config/ConfigController.mts'
-import AbstractData from '../Objects/Data/AbstractData.mts'
-import {PresetPipeCustom} from '../Objects/Data/Preset/PresetPipe.mts'
-import ConfigImageEditorRect, {ConfigImageEditorOutline} from '../Objects/Data/Config/ConfigImageEditor.mts'
-import OptionPipeAnchorType from '../Objects/Options/OptionPipeAnchorType.mts'
+import {ConfigController} from '../../../lib/index.mts'
+import {AbstractData} from '../../../lib/index.mts'
+import {PresetPipeCustom} from '../../../lib/index.mts'
+import {ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../lib/index.mts'
+import {OptionPipeAnchorType} from '../../../lib/index.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
-import PresetPipeChannel from '../Objects/Data/Preset/PresetPipeChannel.mts'
+import {PresetPipeChannel} from '../../../lib/index.mts'
 
 export default class Pipe {
     private _config: ConfigPipe = new ConfigPipe()
@@ -53,7 +53,7 @@ export default class Pipe {
     }
 
     async setOverlayTitle(title: string) {
-        this._socket?.send(JSON.stringify(<IPipeRequest>{
+        this._socket?.send(JSON.stringify({
             key: 'EnqueueNotification',
             password: await this.getPassword(),
             nonce: Utils.getNonce('DesbotPipe'),
@@ -61,7 +61,7 @@ export default class Pipe {
                 title: title,
                 message: "Initializing Overlay Pipe"
             }
-        }))
+        } as IPipeRequest))
     }
 
     sendBasicObj(
@@ -88,7 +88,7 @@ export default class Pipe {
         if(!this._socket?.isConnected()) console.warn('Pipe.sendBasic: Websockets instance not initiated.')
 
         // Skip if supposed to be skipped
-        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        const controllerConfig = await DataBaseHelper.loadMain<ConfigController>(new ConfigController())
         if(Utils.matchFirstChar(message, controllerConfig.secretChatSymbols)) return console.warn(`Pipe: Skipping secret chat: ${message}`)
         const hasBits = (messageData?.bits ?? 0) > 0
         const cleanTextConfig = Utils.clone(this._config.cleanTextConfig)
@@ -108,7 +108,7 @@ export default class Pipe {
             ? await ImageHelper.getDataUrl(profileUrl, true)
             : null
 
-        const preset = Utils.clone(DataUtils.ensureData(this._chatConfig.pipePreset))
+        const preset = Utils.clone<PresetPipeCustom|undefined>(DataUtils.ensureData(this._chatConfig.pipePreset))
         if(
             this._config.useCustomChatNotification
             && preset
@@ -216,7 +216,7 @@ export default class Pipe {
 
             const text = displayName.length > 0 ? `${displayName}: ${cleanText}` : cleanText
             if(imageDataUrl != null) {
-                this._socket?.send(JSON.stringify(<IPipeRequest>{
+                this._socket?.send(JSON.stringify({
                     key: 'EnqueueNotification',
                     password: await this.getPassword(),
                     data: {
@@ -224,16 +224,16 @@ export default class Pipe {
                         message: text,
                         imageData: Utils.removeImageHeader(imageDataUrl)
                     }
-                }))
+                } as IPipeRequest))
             } else {
-                this._socket?.send(JSON.stringify(<IPipeRequest>{
+                this._socket?.send(JSON.stringify({
                     key: 'EnqueueNotification',
                     password: await this.getPassword(),
                     data: {
                         title: "",
                         message: text
                     }
-                }))
+                } as IPipeRequest))
             }
         }
     }

@@ -1,6 +1,6 @@
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
 import {ITextTagsCached} from '../Helpers/TextHelper.mts'
-import ConfigController from '../Objects/Data/Config/ConfigController.mts'
+import {ConfigController} from '../../lib/index.mts'
 
 /**
  * Contains states and settings for this session
@@ -9,7 +9,7 @@ export default class StatesSingleton {
     private static _instance: StatesSingleton;
     private constructor() {}
     private async init() {
-        const config = await DataBaseHelper.loadMain(new ConfigController())
+        const config = await DataBaseHelper.loadMain<ConfigController>(new ConfigController())
         this.ttsForAll = config.stateDefaults.ttsForAll
         this.pipeAllChat = config.stateDefaults.pipeAllChat
         this.pingForChat = config.stateDefaults.pingForChat

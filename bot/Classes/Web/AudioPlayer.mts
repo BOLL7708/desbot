@@ -1,7 +1,7 @@
 import Utils from '../../Utils/Utils.mts'
-import ActionAudio from '../Objects/Data/Action/ActionAudio.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import PresetAudioChannel from '../Objects/Data/Preset/PresetAudioChannel.mts'
+import {ActionAudio} from '../../../lib/index.mts'
+import {DataUtils} from '../../../lib/index.mts'
+import {PresetAudioChannel} from '../../../lib/index.mts'
 
 export default class AudioPlayer {
     static get STATUS_OK() { return 0 }

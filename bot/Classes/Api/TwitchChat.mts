@@ -1,10 +1,10 @@
 import WebSockets from '../Web/WebSockets.mts'
 import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
+import {DataUtils} from '../../../lib/index.mts'
 import Utils from '../../Utils/Utils.mts'
 import TwitchFactory, {ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
-import {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.mts'
+import {SettingTwitchTokens} from '../../../lib/index.mts'
 
 export default class TwitchChat {
     private LOG_COLOR: string = 'purple'
@@ -45,7 +45,7 @@ export default class TwitchChat {
 
     private async onOpen(evt: any) {
         const userData = await TwitchHelixHelper.getUserByLogin(this._userName)
-        const tokens = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingTwitchTokens()) ?? {})
+        const tokens = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll<SettingTwitchTokens>(new SettingTwitchTokens()) ?? {})
         const tokenData = tokens
             ? Object.values(tokens)?.find((t)=>{ return t.userId === parseInt(userData?.id ?? '') })
             : undefined

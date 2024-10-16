@@ -2,7 +2,7 @@ import ImageHelper from '../../Helpers/ImageHelper.mts'
 import Utils from '../../Utils/Utils.mts'
 import Color from '../../Constants/ColorConstants.mts'
 import Twitch, {ITwitchMessageData} from '../Api/Twitch.mts'
-import ConfigImageEditorRect, {ConfigImageEditorFontSettings, ConfigImageEditorOutline} from '../Objects/Data/Config/ConfigImageEditor.mts'
+import {ConfigImageEditorFontSettings, ConfigImageEditorOutline, ConfigImageEditorRect} from '../../../lib/index.mts'
 
 export default class ImageEditor {
     private readonly _canvas: HTMLCanvasElement
@@ -258,7 +258,7 @@ export default class ImageEditor {
         const words: ImageEditorTwitchWord[] = messageData.text.split(' ').map(word => {
             const emoteUrl = emotes.get(totalLength)
             totalLength += word.length + 1
-            return <ImageEditorTwitchWord>{
+            return {
                 text: word,
                 length: word.length,
                 widthPx: emoteUrl != undefined 
@@ -267,7 +267,7 @@ export default class ImageEditor {
                         ? this._textCtx.measureText(word).width
                         : 0),
                 emoteUrl: emoteUrl
-            }
+            } as ImageEditorTwitchWord
         })
 
         /*

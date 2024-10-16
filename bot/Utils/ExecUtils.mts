@@ -1,6 +1,6 @@
 import Utils from './Utils.mts'
-import {OptionCommandType} from '../Objects/Options/OptionCommandType.mts'
-import ActionInput from '../Objects/Data/Action/ActionInput.mts'
+import {OptionCommandType} from '../../lib/index.mts'
+import {ActionInput} from '../../lib/index.mts'
 
 export default class ExecUtils {
     static runCommand(window: string, type: TRunType, command: string, postfixEnterStroke: boolean = true) {

@@ -1,7 +1,7 @@
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
+import {DataUtils} from '../../lib/index.mts'
 import Utils from './Utils.mts'
-import ConfigDiscord from '../Objects/Data/Config/ConfigDiscord.mts'
+import {ConfigDiscord} from '../../lib/index.mts'
 
 enum EResponseState {
     OK,
@@ -75,7 +75,7 @@ export default class DiscordUtils {
      */
     private static async send(url: string, item: DiscordQueueItem): Promise<EResponseState> {
         // Override for testing/debugging
-        const config = await DataBaseHelper.loadMain(new ConfigDiscord())
+        const config = await DataBaseHelper.loadMain<ConfigDiscord>(new ConfigDiscord())
         if(config.webhookOverride_enabled && config.webhookOverride) {
             url = DataUtils.ensureData(config.webhookOverride)?.url ?? url
         }

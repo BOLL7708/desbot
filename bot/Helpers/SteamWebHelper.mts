@@ -1,8 +1,8 @@
 import DataBaseHelper from './DataBaseHelper.mts'
 import Utils from '../Utils/Utils.mts'
-import ConfigSteam from '../Objects/Data/Config/ConfigSteam.mts'
+import {ConfigSteam} from '../../lib/index.mts'
 import Color from '../Constants/ColorConstants.mts'
-import {SettingSteamGame} from '../Objects/Data/Setting/SettingSteam.mts'
+import {SettingSteamGame} from '../../lib/index.mts'
 
 /**
  * These are calls to the Steam Web API to fetch various kinds of data.

@@ -1,25 +1,13 @@
-import AbstractAction, {IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser} from './Objects/Data/Action/AbstractAction.mts'
+import {AbstractAction, AbstractTrigger, ActionSystemRewardState, DataUtils, EventActionContainer, EventDefault, IActionCallback, IActionsExecutor, IActionsMainCallback, IActionUser, OptionEntryUsage, OptionEventBehavior, OptionEventRun, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingAccumulatingCounter, SettingIncrementingCounter, SettingTwitchTokens, TriggerReward} from '../../lib/index.mts'
+import Color from '../Constants/ColorConstants.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
-import StatesSingleton from '../Singletons/StatesSingleton.mts'
-import {OptionEventBehavior} from './Objects/Options/OptionEventBehavior.mts'
-import ArrayUtils from '../Utils/ArrayUtils.mts'
-import TriggerReward from './Objects/Data/Trigger/TriggerReward.mts'
-import DataUtils from './Objects/Data/DataUtils.mts'
-import Utils from '../Utils/Utils.mts'
 import TextHelper from '../Helpers/TextHelper.mts'
 import TwitchHelixHelper from '../Helpers/TwitchHelixHelper.mts'
-import {ActionSystemRewardState} from './Objects/Data/Action/ActionSystem.mts'
-import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from './Objects/Options/OptionTwitch.mts'
-import AbstractTrigger from './Objects/Data/Trigger/AbstractTrigger.mts'
+import StatesSingleton from '../Singletons/StatesSingleton.mts'
+import ArrayUtils from '../Utils/ArrayUtils.mts'
+import Utils from '../Utils/Utils.mts'
 import {ITwitchEventSubEventCheer, ITwitchEventSubEventRedemption} from './Api/TwitchEventSub.mts'
 import {EEventSource} from './Enums.mts'
-import {OptionEventRun} from './Objects/Options/OptionEventRun.mts'
-import {OptionEntryUsage} from './Objects/Options/OptionEntryType.mts'
-import {SettingAccumulatingCounter, SettingIncrementingCounter} from './Objects/Data/Setting/SettingCounters.mts'
-import PresetReward from './Objects/Data/Preset/PresetReward.mts'
-import Color from '../Constants/ColorConstants.mts'
-import {SettingTwitchTokens} from './Objects/Data/Setting/SettingTwitch.mts'
-import EventDefault, {EventActionContainer} from './Objects/Data/Event/EventDefault.mts'
 
 export class ActionHandler {
     constructor(
@@ -27,7 +15,7 @@ export class ActionHandler {
         public appId: string = ''
     ) {}
     public async call(user: IActionUser) {
-        let event = await DataBaseHelper.loadOrEmpty(new EventDefault(), this.key)
+        let event = await DataBaseHelper.loadOrEmpty<EventDefault>(new EventDefault(), this.key)
 
         /* TODO: REIMPLEMENT GAME EVENTS LATER WHEN WE ACTUALLY CAN STORE GAME EVENTS
         if(this.appId.length > 0) {
@@ -82,7 +70,7 @@ export class ActionHandler {
                 // Load incremental counter
                 const options = event.incrementingOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
-                const counter = await DataBaseHelper.loadOrEmpty(new SettingIncrementingCounter(), eventId.toString())
+                const counter = await DataBaseHelper.loadOrEmpty<SettingIncrementingCounter>(new SettingIncrementingCounter(), eventId.toString())
                 if(counter.reachedMax && !options.loop) return console.warn(`Incrementing Event: Max reached for ${eventId}, not triggering.`)
 
                 // Increase incremental counter
@@ -133,7 +121,7 @@ export class ActionHandler {
                 // Load accumulating counter
                 const options = event.accumulatingOptions
                 const eventId = await DataBaseHelper.loadID(EventDefault.ref.build(), this.key)
-                const counter = await DataBaseHelper.loadOrEmpty(new SettingAccumulatingCounter(), eventId.toString())
+                const counter = await DataBaseHelper.loadOrEmpty<SettingAccumulatingCounter>(new SettingAccumulatingCounter(), eventId.toString())
                 if(counter.reachedGoal) return console.warn(`Accumulating Event: Goal already reached for ${eventId}, not triggering.`)
                 const goalCount = options.goal
                 const isFirstCount = counter.count == 0
@@ -402,7 +390,7 @@ export class Actions {
      */
     public static async buildEmptyUserData(source: EEventSource, key: string, userName?: string, userInput?: string, userMessage?: string): Promise<IActionUser> {
         // TODO: Make this use the user ID instead of username?
-        const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
+        const channelTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
         const user = await TwitchHelixHelper.getUserByLogin(userName ?? channelTokens?.userLogin ?? '')
         const input = userInput ?? ''
         return {
@@ -454,7 +442,7 @@ export class Actions {
             const actions = DataUtils.ensureDataArray(actionContainer.entries)
             for(const action of actions) {
                 // Build callbacks
-                const callback: IActionCallback = await (action as AbstractAction).build(key)
+                const callback: IActionCallback = await (action as AbstractAction).build(key, action) // TODO: Is it right to provide the action to iself here? Confusing.
                 actionCallbacks.push(callback)
             }
             // Logging
@@ -500,5 +488,3 @@ export class Actions {
     }
     // endregion
 }
-
-export { IActionUser };

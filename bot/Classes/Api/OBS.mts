@@ -1,13 +1,13 @@
 import WebSockets from '../Web/WebSockets.mts'
-import ConfigOBS from '../Objects/Data/Config/ConfigOBS.mts'
-import {IScreenshotRequestData} from '../Objects/Data/Action/ActionScreenshot.mts'
+import {ConfigOBS} from '../../../lib/index.mts'
+import {IScreenshotRequestData} from '../../../lib/index.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
-import ActionOBS from '../Objects/Data/Action/ActionOBS.mts'
+import {ActionOBS} from '../../../lib/index.mts'
 import ArrayUtils from '../../Utils/ArrayUtils.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import {IActionUser} from '../Objects/Data/Action/AbstractAction.mts'
-import {OptionScreenshotFileType} from '../Objects/Options/OptionScreenshotFileType.mts'
+import {DataUtils} from '../../../lib/index.mts'
+import {IActionUser} from '../../../lib/index.mts'
+import {OptionScreenshotFileType} from '../../../lib/index.mts'
 
 export default class OBS {
     private _socket?: WebSockets

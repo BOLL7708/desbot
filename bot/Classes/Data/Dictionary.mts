@@ -1,4 +1,4 @@
-import ConfigSpeech from '../Objects/Data/Config/ConfigSpeech.mts'
+import {ConfigSpeech} from '../../../lib/index.mts'
 import {IGoogleAudio} from '../Api/GoogleTTS.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'

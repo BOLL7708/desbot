@@ -1,8 +1,8 @@
 import WebSockets from '../Web/WebSockets.mts'
-import {IScreenshotRequestData} from '../Objects/Data/Action/ActionScreenshot.mts'
-import ConfigScreenshots from '../Objects/Data/Config/ConfigScreenshots.mts'
+import {IScreenshotRequestData} from '../../../lib/index.mts'
+import {ConfigScreenshots} from '../../../lib/index.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
-import {IActionUser} from '../Objects/Data/Action/AbstractAction.mts'
+import {IActionUser} from '../../../lib/index.mts'
 
 export default class SuperScreenShotterVR {
     private _socket?: WebSockets

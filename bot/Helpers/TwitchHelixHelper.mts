@@ -1,17 +1,10 @@
-import DataBaseHelper from './DataBaseHelper.mts'
-import Utils from '../Utils/Utils.mts'
-import TextHelper from './TextHelper.mts'
-import {ActionSystemRewardState} from '../Objects/Data/Action/ActionSystem.mts'
-import {OptionTwitchRewardUsable, OptionTwitchRewardVisible} from '../Objects/Options/OptionTwitch.mts'
-import EventHelper from './EventHelper.mts'
+import {ActionSystemRewardState, DataUtils, EventDefault, OptionTwitchRewardUsable, OptionTwitchRewardVisible, PresetReward, SettingTwitchClient, SettingTwitchRedemption, SettingTwitchTokens, SettingUser, SettingUserName, TriggerReward} from '../../lib/index.mts'
 import {ITwitchEventSubSubscriptionPayload} from '../Classes/Api/TwitchEventSub.mts'
 import Color from '../Constants/ColorConstants.mts'
-import SettingTwitchClient, {SettingTwitchRedemption, SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.mts'
-import SettingUser, {SettingUserName} from '../Objects/Data/Setting/SettingUser.mts'
-import PresetReward from '../Objects/Data/Preset/PresetReward.mts'
-import EventDefault from '../Objects/Data/Event/EventDefault.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import TriggerReward from '../Objects/Data/Trigger/TriggerReward.mts'
+import Utils from '../Utils/Utils.mts'
+import DataBaseHelper from './DataBaseHelper.mts'
+import EventHelper from './EventHelper.mts'
+import TextHelper from './TextHelper.mts'
 
 export default class TwitchHelixHelper {
     static _baseUrl: string = 'https://api.twitch.tv/helix'
@@ -24,8 +17,8 @@ export default class TwitchHelixHelper {
     static _channelModeratorCache: Map<number, boolean> = new Map()
 
     private static async getAuthHeaders(addJsonHeader: boolean = false): Promise<Headers> {
-        const tokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
-        const client = await DataBaseHelper.load(new SettingTwitchClient(), 'Main')
+        const tokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+        const client = await DataBaseHelper.load<SettingTwitchClient>(new SettingTwitchClient(), 'Main')
         const headers = new Headers()
         headers.append('Authorization', `Bearer ${tokens?.accessToken}`)
         headers.append('Client-Id', client?.clientId ?? '')
@@ -33,7 +26,7 @@ export default class TwitchHelixHelper {
         return headers
     }
     static async getBroadcasterUserId(): Promise<number> {
-        const tokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
+        const tokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
         return tokens?.userId ?? 0
     }
 
@@ -89,7 +82,7 @@ export default class TwitchHelixHelper {
         if(result) {
             const id = parseInt(result.id)
             if(!isNaN(id)) {
-                let user = await DataBaseHelper.load(new SettingUser(), id.toString())
+                let user = await DataBaseHelper.load<SettingUser>(new SettingUser(), id.toString())
                 if(!user) {
                     user = new SettingUser()
                     user.userName = result.login
@@ -119,7 +112,7 @@ export default class TwitchHelixHelper {
         if(!skipCache && this._channelCache.has(id)) return this._channelCache.get(id)
         const url = `${this._baseUrl}/channels/?broadcaster_id=${id}`
         const headers = await this.getAuthHeaders()
-        const response = <ITwitchHelixChannelResponse> await fetch(url, {headers: headers}).then(res => res.json())
+        const response = await fetch(url, {headers: headers}).then(res => res.json()) as ITwitchHelixChannelResponse
         const result = response?.data?.pop()
         if(result) this._channelCache.set(id, result)
         return result
@@ -485,7 +478,7 @@ export default class TwitchHelixHelper {
 
     static async loadNamesForUsersWhoLackThem() {
         // region Chat
-        const userSettings = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new SettingUser()) ?? {})
+        const userSettings = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll<SettingUser>(new SettingUser()) ?? {})
         for(const [key, setting] of Object.entries(userSettings)) {
             if(setting.userName.length && setting.displayName.length) continue
             await TwitchHelixHelper.getUserById(key) // This will automatically update the object in the database

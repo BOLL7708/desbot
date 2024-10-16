@@ -1,23 +1,16 @@
-import ConfigTwitch from '../Objects/Data/Config/ConfigTwitch.mts'
-import ConfigChat from '../Objects/Data/Config/ConfigChat.mts'
-import ConfigCommands from '../Objects/Data/Config/ConfigCommands.mts'
-import TwitchChat, {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from './TwitchChat.mts'
-import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import TriggerCommand from '../Objects/Data/Trigger/TriggerCommand.mts'
-import TextHelper from '../../Helpers/TextHelper.mts'
-import {ActionHandler, Actions} from '../Actions.mts'
-import Utils from '../../Utils/Utils.mts'
-import TriggerRemoteCommand from '../Objects/Data/Trigger/TriggerRemoteCommand.mts'
-import TwitchFactory, {ITwitchEmote, ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
-import SessionVars from '../Data/SessionVars.mts'
-import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
-import {IActionUser} from '../Objects/Data/Action/AbstractAction.mts'
-import {EEventSource} from '../Enums.mts'
-import DiscordUtils from '../../Utils/DiscordUtils.mts'
-import StatesSingleton from '../../Singletons/StatesSingleton.mts'
-import {SettingTwitchTokens} from '../Objects/Data/Setting/SettingTwitch.mts'
+import {ConfigChat, ConfigCommands, ConfigTwitch, DataUtils, IActionUser, SettingTwitchTokens, TriggerCommand, TriggerRemoteCommand} from '../../../lib/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
+import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
+import TextHelper from '../../Helpers/TextHelper.mts'
+import TwitchHelixHelper from '../../Helpers/TwitchHelixHelper.mts'
+import StatesSingleton from '../../Singletons/StatesSingleton.mts'
+import DiscordUtils from '../../Utils/DiscordUtils.mts'
+import Utils from '../../Utils/Utils.mts'
+import {ActionHandler, Actions} from '../Actions.mts'
+import SessionVars from '../Data/SessionVars.mts'
+import TwitchFactory, {ITwitchEmote, ITwitchMessageCmd} from '../Data/TwitchFactory.mts'
+import {EEventSource} from '../Enums.mts'
+import TwitchChat, {ITwitchChatMessageCallback, ITwitchWhisperMessageCallback} from './TwitchChat.mts'
 
 export default class Twitch{
     // Constants
@@ -40,8 +33,8 @@ export default class Twitch{
         this._configCommands = await DataBaseHelper.loadMain(new ConfigCommands())
         if(initChat) {
             // In/out for chat in the main channel
-            const channelTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Channel')
-            const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
+            const channelTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Channel')
+            const chatbotTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
             this._twitchChatIn.init(channelTokens?.userLogin, channelTokens?.userLogin)
             this._twitchChatOut.init(chatbotTokens?.userLogin, channelTokens?.userLogin, true)
 
@@ -71,7 +64,7 @@ export default class Twitch{
             const actionHandler = new ActionHandler(eventKey)
 
             // Store the command(s)
-            const command = <ITwitchCommand> { eventKey, trigger, handler: actionHandler }
+            const command = { eventKey, trigger, handler: actionHandler } as ITwitchCommand
             this._commands.push(command)
 
             // Log the command
@@ -102,7 +95,7 @@ export default class Twitch{
             const handler = new ActionHandler(eventKey)
 
             // Store the command(s)
-            const remoteCommand = <ITwitchCommand> { eventKey, triggerRemote, handler }
+            const remoteCommand = { eventKey, triggerRemote, handler } as ITwitchCommand
             this._remoteCommands.push(remoteCommand)
 
             // Log the command
@@ -159,8 +152,8 @@ export default class Twitch{
         let userId: number = parseInt(messageCmd.properties['user-id'] ?? '')
         let text: string = msg.text?.trim() ?? ''
         if(text.length == 0) return
-        const isBroadcaster = (messageCmd.properties?.badges ?? <string[]>[]).indexOf('broadcaster/1') > -1
-            || userName === (await DataBaseHelper.load(new SettingTwitchTokens(), 'channel'))?.userLogin
+        const isBroadcaster = (messageCmd.properties?.badges ?? [] as string[]).indexOf('broadcaster/1') > -1
+            || userName === (await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'channel'))?.userLogin
         const isModerator = (
             messageCmd.properties?.mod == '1'
             || (await TwitchHelixHelper.isUserModerator(userId)) // Fallback
@@ -213,7 +206,7 @@ export default class Twitch{
 
         // Commands
         if(text && text.indexOf(this._configCommands.commandPrefix) == 0) {
-            const chatbotTokens = await DataBaseHelper.load(new SettingTwitchTokens(), 'Chatbot')
+            const chatbotTokens = await DataBaseHelper.load<SettingTwitchTokens>(new SettingTwitchTokens(), 'Chatbot')
             if(user.login.toLowerCase() == chatbotTokens?.userLogin) {
                 Utils.log(`Twitch Chat: Skipped command as it was from the chat bot account. (${user.login} == ${chatbotTokens?.userLogin})`, this.LOG_COLOR_COMMAND)
                 return

@@ -1,10 +1,10 @@
 import Color from '../../Constants/ColorConstants.mts'
+import {ActionHandler} from '../Actions.mts'
 import WebSockets from '../Web/WebSockets.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
-import ConfigRelay from '../Objects/Data/Config/ConfigRelay.mts'
-import ConfigController from '../Objects/Data/Config/ConfigController.mts'
-import {ActionHandler} from 'src/Shared/Bot/Actions'
+import {ConfigRelay} from '../../../lib/index.mts'
+import {ConfigController} from '../../../lib/index.mts'
 
 export default class Relay {
     private readonly _logColor = Color.ForestGreen
@@ -20,13 +20,13 @@ export default class Relay {
         if(onMessageCallback) this._onMessageCallback = onMessageCallback
     }
     async init() {
-        const configRelay = await DataBaseHelper.loadMain(new ConfigRelay())
+        const configRelay = await DataBaseHelper.loadMain<ConfigRelay>(new ConfigRelay())
         this._socket = new WebSockets(`ws://localhost:${configRelay.port}`, 10, true)
         this._socket._onOpen = this.onOpen.bind(this)
         this._socket._onClose = this.onClose.bind(this)
         this._socket._onMessage = this.onMessage.bind(this)
         this._socket._onError = this.onError.bind(this)
-        const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
+        const controllerConfig = await DataBaseHelper.loadMain<ConfigController>(new ConfigController())
         if(controllerConfig.useWebsockets.relay) this._socket.init()
         else Utils.log('Relay: Will not init websockets as it is disabled in the config.', this._logColor)
     }

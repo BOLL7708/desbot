@@ -1,8 +1,8 @@
-import ConfigOpenVR2WS from '../Objects/Data/Config/ConfigOpenVR2WS.mts'
+import {ConfigOpenVR2WS} from '../../../lib/index.mts'
 import WebSockets from '../Web/WebSockets.mts'
 import DataBaseHelper from '../../Helpers/DataBaseHelper.mts'
 import Utils from '../../Utils/Utils.mts'
-import ActionSettingVR from '../Objects/Data/Action/ActionSettingVR.mts'
+import {ActionSettingVR} from '../../../lib/index.mts'
 import Color from '../../Constants/ColorConstants.mts'
 
 export default class OpenVR2WS {
@@ -88,7 +88,7 @@ export default class OpenVR2WS {
                 case 'ApplicationInfo':
                     const appData: IOpenVR2WSApplicationInfoData = data.data
                     if(appData?.hasOwnProperty('appId')) {
-                        this._currentAppId = <string> appData.appId
+                        this._currentAppId = appData.appId as string
                         if(this._currentAppId.length > 0) this._appIdCallback(this._currentAppId)
                     }
                     break

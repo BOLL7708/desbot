@@ -1,13 +1,13 @@
-import AbstractTrigger from '../Objects/Data/Trigger/AbstractTrigger.mts'
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import TriggerReward from '../Objects/Data/Trigger/TriggerReward.mts'
+import {AbstractTrigger} from '../../lib/index.mts'
+import {DataUtils} from '../../lib/index.mts'
+import {TriggerReward} from '../../lib/index.mts'
 import DataBaseHelper from './DataBaseHelper.mts'
 import {IDictionary} from '../Interfaces/igeneral.mts'
-import EventDefault from '../Objects/Data/Event/EventDefault.mts'
+import {EventDefault} from '../../lib/index.mts'
 
 export default class EventHelper {
     static async getAllTriggersOfType<T>(triggerInstance: T&AbstractTrigger): Promise<(T&AbstractTrigger)[]> {
-        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
+        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll<EventDefault>(new EventDefault()) ?? {})
         const triggers: (T&AbstractTrigger)[] = []
         for(const ev of Object.values(allEvents)) {
             const ts = ev.getTriggers(triggerInstance)
@@ -17,7 +17,7 @@ export default class EventHelper {
     }
 
     static async getAllEventsWithTriggersOfType(triggerInstance: AbstractTrigger, matchRewardId?: string): Promise<IDictionary<EventDefault>> {
-        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll(new EventDefault()) ?? {})
+        const allEvents = DataUtils.getKeyDataDictionary(await DataBaseHelper.loadAll<EventDefault>(new EventDefault()) ?? {})
         const matchedEvents = Object.entries(allEvents)
             .filter(([key, e])=>{
             const rewards = e?.getTriggers(triggerInstance) ?? []

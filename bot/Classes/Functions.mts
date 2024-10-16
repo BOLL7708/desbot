@@ -1,7 +1,7 @@
 import ModulesSingleton from '../Singletons/ModulesSingleton.mts'
 import StatesSingleton from '../Singletons/StatesSingleton.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
-import DataUtils from './Objects/Data/DataUtils.mts'
+import {DataUtils} from '../../lib/index.mts'
 import Utils from '../Utils/Utils.mts'
 import SteamWebHelper from '../Helpers/SteamWebHelper.mts'
 import OpenVR2WS from './Api/OpenVR2WS.mts'
@@ -9,29 +9,29 @@ import SteamStoreHelper from '../Helpers/SteamStoreHelper.mts'
 import TwitchHelixHelper, {ITwitchHelixChannelRequest} from '../Helpers/TwitchHelixHelper.mts'
 import TextHelper from '../Helpers/TextHelper.mts'
 import DiscordUtils from '../Utils/DiscordUtils.mts'
-import ConfigChat from './Objects/Data/Config/ConfigChat.mts'
-import ConfigSteam from './Objects/Data/Config/ConfigSteam.mts'
-import ConfigTwitch from './Objects/Data/Config/ConfigTwitch.mts'
-import ConfigController from './Objects/Data/Config/ConfigController.mts'
+import {ConfigChat} from '../../lib/index.mts'
+import {ConfigSteam} from '../../lib/index.mts'
+import {ConfigTwitch} from '../../lib/index.mts'
+import {ConfigController} from '../../lib/index.mts'
 import Color from '../Constants/ColorConstants.mts'
-import SettingSteamAchievements from './Objects/Data/Setting/SettingSteam.mts'
-import ActionSign from './Objects/Data/Action/ActionSign.mts'
+import {SettingSteamAchievements} from '../../lib/index.mts'
+import {ActionSign} from '../../lib/index.mts'
 
 export default class Functions {
     public static async setEmptySoundForTTS() {
         const modules = ModulesSingleton.getInstance()
         const states = StatesSingleton.getInstance()
-        const twitchChatConfig = await DataBaseHelper.loadMain(new ConfigChat())
+        const twitchChatConfig = await DataBaseHelper.loadMain<ConfigChat>(new ConfigChat())
         const audio = states.pingForChat ? DataUtils.ensureData(twitchChatConfig.soundEffectOnEmptyMessage) : undefined
         if(audio) modules.tts.setEmptyMessageSound(audio)
     }
 
     public static async appIdCallback(appId: string, isVr: boolean) {
         // Skip if we should ignore this app ID.
-        const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
+        const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
         const ignoredAppIds = DataUtils.ensureKeyArray(steamConfig.ignoredAppIds) ?? []
         if(ignoredAppIds.indexOf(appId) !== -1) return console.log(`Steam: Ignored AppId: ${appId}`)
-        const twitchConfig = await DataBaseHelper.loadMain(new ConfigTwitch())
+        const twitchConfig = await DataBaseHelper.loadMain<ConfigTwitch>(new ConfigTwitch())
         const controllerConfig = await DataBaseHelper.loadMain(new ConfigController())
 
 		// Init
@@ -300,8 +300,8 @@ export default class Functions {
         const lastSteamAppId = StatesSingleton.getInstance().lastSteamAppId // Storing this in case it could change during execution?!
         if(lastSteamAppId && lastSteamAppId.length > 0) {
             // Local
-            const steamConfig = await DataBaseHelper.loadMain(new ConfigSteam())
-            const steamAchievements = await DataBaseHelper.load(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
+            const steamConfig = await DataBaseHelper.loadMain<ConfigSteam>(new ConfigSteam())
+            const steamAchievements = await DataBaseHelper.load<SettingSteamAchievements>(new SettingSteamAchievements(), lastSteamAppId) ?? new SettingSteamAchievements()
             const doneAchievements = steamAchievements.achieved.length
 
             // Remote
@@ -328,7 +328,7 @@ export default class Functions {
                         const achievementDetails = gameSchema?.game?.availableGameStats?.achievements?.find(a => a.name == key)
                         const totalAchievements = achievements.length
                         const progressStr = `${doneAchievements+countNew}/${totalAchievements}`
-                        const globalStr = globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                        const globalStr = globalAchievementStat ? globalAchievementStat.percent.toFixed(1)+'%' : 'N/A'
                         
                         // Discord
                         const webhook = DataUtils.ensureData(steamConfig.achievementToDiscord)
@@ -352,7 +352,7 @@ export default class Functions {
                                                     steamConfig.achievementDiscordFooter,
                                                     {
                                                         progress: progressStr,
-                                                        rate: globalAchievementStat?.percent.toFixed(1)+'%' ?? 'N/A'
+                                                        rate: globalAchievementStat ? globalAchievementStat.percent.toFixed(1)+'%' : 'N/A'
                                                     }
                                                 )
                                             }

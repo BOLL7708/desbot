@@ -1,9 +1,8 @@
+import {AbstractData, DataMap} from '../../lib/index.mts'
 import Color from '../Constants/ColorConstants.mts'
+import Constants from '../Constants/Constants.mts'
 import {IDictionary, INumberDictionary, IStringDictionary} from '../Interfaces/igeneral.mts'
 import Utils from '../Utils/Utils.mts'
-import DataMap from '../Objects/Data/DataMap.mts'
-import AbstractData from '../Objects/Data/AbstractData.mts'
-import Constants from '../Constants/Constants.mts'
 
 export default class DataBaseHelper {
     static readonly OBJECT_MAIN_KEY: string = 'Main'

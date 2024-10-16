@@ -1,6 +1,6 @@
-import Color from '../bot/Constants/ColorConstants.ts'
-import Constants from '../bot/Constants/Constants.ts'
-import Utils from '../bot/Utils/Utils.ts'
+import Color from '../bot/Constants/ColorConstants.mts'
+import Constants from '../bot/Constants/Constants.mts'
+import Utils from '../bot/Utils/Utils.mts'
 
 export default class PasswordForm {
     static spawn() {

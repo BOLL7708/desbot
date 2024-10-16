@@ -1,5 +1,5 @@
-import DataUtils from '../Objects/Data/DataUtils.mts'
-import {SettingTwitchReward} from '../Objects/Data/Setting/SettingTwitch.mts'
+import {DataUtils} from '../../lib/index.mts'
+import {SettingTwitchReward} from '../../lib/index.mts'
 import DataBaseHelper from '../Helpers/DataBaseHelper.mts'
 
 export default class LegacyUtils {
