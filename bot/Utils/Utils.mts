@@ -159,7 +159,7 @@ export default class Utils {
     }
 
     static ensureValue<Type>(value: Type|Type[]): Type|undefined {
-        return (Array.isArray(value) && value.length > 0) ? value.shift() : <Type> value
+        return (Array.isArray(value) && value.length > 0) ? value.shift() : value as Type
     }
 
     static ensureNumber(value: any, fallback: number = 0): number {
@@ -224,21 +224,6 @@ export default class Utils {
      */
     static delay(time: number) {
         return new Promise(resolve => setTimeout(resolve, time));
-    }
-
-    /**
-     * Load image into element with promise
-     */
-    static makeImage(urlOrData: string): Promise<HTMLImageElement|null> {
-        return new Promise((resolve, reject) => {
-            if(this.isDataUrl(urlOrData) || this.isUrl(urlOrData)) {
-                const img = new Image()
-                img.onload = ()=>{ resolve(img) }
-                img.src = urlOrData
-            } else {
-                resolve(null)
-            }
-        })
     }
 
     /**
@@ -350,33 +335,6 @@ export default class Utils {
             .shift()
             ?.split('_')
             .map((code)=>this.emojiHexToString(code)) ?? []
-    }
-
-    static getElement<T>(id: string): T|undefined {
-        return (document.querySelector(id) as T|null) ?? undefined
-    }
-
-    static getAuth(): string {
-        return localStorage.getItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath()) ?? ''
-    }
-    static getAuthInit(additionalHeaders: HeadersInit = {}): RequestInit {
-        return {
-            headers: {Authorization: Utils.getAuth(), ...additionalHeaders}
-        }
-    }
-    static clearAuth(): void {
-        localStorage.removeItem(Constants.LOCAL_STORAGE_KEY_AUTH+Utils.getCurrentPath())
-    }
-
-    static getCurrentPath(): string {
-        let path = window.location.pathname
-        const pathArray = path.split('/');
-        while(pathArray.length && (path.includes('.') || path.length == 0)) {
-            pathArray.pop()
-            path = pathArray.join('/')
-        }
-        if(path.endsWith('/')) path = path.slice(0, -1)
-        return path
     }
 
     /**
@@ -509,26 +467,6 @@ export default class Utils {
             .replace(/\\t/g, '\t')
     }
 
-    static async writeToClipboard(data: any|undefined): Promise<boolean> {
-        if(data === undefined) return false
-        const value = typeof data == 'string' ? data : JSON.stringify(data)
-        try {
-            await navigator.clipboard.writeText(value);
-            return true
-        } catch (err) {
-            return false
-        }
-    }
-
-    static async readFromClipboard(parseJson: boolean = false): Promise<any|undefined> {
-        try {
-            const data = await navigator.clipboard.readText();
-            return parseJson ? JSON.parse(data) : data;
-        } catch (err) {
-            return undefined
-        }
-    }
-
     /**
      * Moves an element in place in an array.
      * @param arr
@@ -576,14 +514,6 @@ export default class Utils {
             }
         }
         return ''
-    }
-
-    static setUrlParam(pairs: { [param: string]: string }) {
-        const urlParams = Utils.getUrlParams()
-        for(const [param, value] of Object.entries(pairs)) {
-            urlParams.set(param, value)
-        }
-        window.history.replaceState(null, '', `?${urlParams.toString()}`);
     }
 
     /**
